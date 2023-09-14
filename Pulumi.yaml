@@ -1,0 +1,18 @@
+# Pulumi deployment setup
+
+name: bionicgpt
+description: BionicGPT Infrastructure as Code
+runtime: yaml
+variables:
+    namespace: bionicgpt
+    appLabels:
+        app: app
+    authLabels:
+        app: auth
+    version: 1.4.14
+    hash-bionicgpt: sha256:9e53e771268d265d5882cd0561576fd6873caa2642ba9c2d81d6689810dc705f
+    hash-bionicgpt-envoy: sha256:de9057a0a157827834b36377421db6515e361ac20ec58423032a164fab98f46d
+    hash-bionicgpt-db-migrations: sha256:7ed60ed258dc9f4029ef21afbddb49325ecc3e5ef43cb0950393018b5f909f55
+    db-migrations: ghcr.io/purton-tech/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
+    server: ghcr.io/purton-tech/bionicgpt-server:${version}@${hash-bionicgpt}
+    envoy: ghcr.io/purton-tech/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}

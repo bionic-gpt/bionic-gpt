@@ -1,0 +1,67 @@
+# The URL the site will be built for
+base_url = "https://bionic-gpt.com/"
+title = "Bionic GPT"
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
+theme = "tech-startup-theme"
+
+# Whether to build a search index to be used later on by a JavaScript library
+build_search_index = true
+
+[markdown]
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
+highlight_code = true
+highlight_theme = "css"
+
+highlight_themes_css = [
+  { theme = "kronuz", filename = "syntax-theme.css" },
+]
+
+[extra]
+
+goat_counter = "https://finetuna.goatcounter.com/count"
+
+copyright = "Copyright 2021 - 2023"
+
+first_doc_page = "/docs/running-locally/introduction/"
+
+# Every page CTA. At the bottom of every blog post we have a cta
+every_page_cta = { cta_url = "/docs/running-locally/introduction/", title = "Your 30 seconds away from trying us out", cta_button = "Sign Up" }
+
+# On the footer we have a signup button and a call to action, set the text here
+footer_cta = { title = "Sign up for our service", prompt = "Get notifications of near misses", cta_button = "Check it Out" }
+
+# Where shall we point the sign in and sign up buttons.
+#authentication = { sign_up = "#", sign_in = "#" }
+# When running on localhost you can set the sign up and sign links to somewhere else.
+localhost = "http://localhost:7704/"
+authentication_development = { sign_up = "/auth/sign_up", sign_in = "/auth/sign_in" }
+
+# Information required by terms and privacy pages.
+support_email = "support@tech-startup.com"
+company_address = "71-75 Shelton Street, London, LND, WC2H 9JQ, United Kingdom"
+
+# Social icons (shown on the footer)
+github_repo = "https://github.com/purton-tech/bionicgpt"
+
+# Resources on the footer (LHS)
+resources_1 = [
+    {name = "Blog", url = "/blog"},
+    {name = "Documentation", url = "/docs/running-locally/introduction/"},
+    {name = "FAQ", url = "/blog"},
+]
+
+resources_2 = [
+    {name = "Developing LLM's with Rust", url = "/rust-llm/ide-setup/introduction/"},
+    {name = "Careers", url = "/blog"},
+]
+
+menu_items = [
+    {name = "Github", url = "https://github.com/purton-tech/bionicgpt"}
+]
+
+# Documentation sections
+doc_sections = [
+    {name = "Reference", location = "reference"},
+]

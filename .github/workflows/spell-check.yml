@@ -1,0 +1,23 @@
+name: Spell Check
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'website/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: PWD
+      run: pwd
+
+    - name: Spell Check
+      run: docker run --rm -v $(pwd)/website/content:/workdir tmaier/markdown-spellcheck:latest --report "**/*.md"
+    

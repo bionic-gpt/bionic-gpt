@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: 
+      - main
+    paths-ignore:
+      - 'llm-docker/**'
+      - 'website/**'
+      - '*.md'
+      - 'Pulumi.yaml'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'llm-docker/**'
+      - 'website/**'
+      - '*.md'
+      - 'Pulumi.yaml'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - uses: actions/checkout@v2
+    - name: Put back the git branch into git (Earthly uses it for tagging)
+      run: |
+        branch=""
+        if [ -n "$GITHUB_HEAD_REF" ]; then
+          branch="$GITHUB_HEAD_REF"
+        else
+          branch="${GITHUB_REF##*/}"
+        fi
+        git checkout -b "$branch" || true
+
+    - name: Download latest earthly
+      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+    - name: Earthly version
+      run: earthly --version 
+         
+    - name: Log in to the Github Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run build
+      if: github.ref != 'refs/heads/main'
+      run: earthly --allow-privileged --output --ci +pull-request
+      
+    - name: Run build and Deploy Containers
+      if: github.ref == 'refs/heads/main'
+      run: earthly --allow-privileged --output --ci +all
+
+
+    - name: Upload the video of our selenium session
+      uses: actions/upload-artifact@v2
+      with:
+        name: integration-testing-screen-recording
+        path: tmp/earthly/chrome-video.mp4
+
+    #https://github.com/earthly/earthly/issues/988
+    - name: Fail if Earthly Silently Failed
+      run: |
+        if test -f "tmp/earthly/fail"; then
+          exit 1
+        fi
+        
+    - name: Semantic Release
+      run: | 
+        npm i -D @semantic-release/exec
+        npm i -D @semantic-release-plus/docker
+        npm i -D @semantic-release/git
+        npx semantic-release

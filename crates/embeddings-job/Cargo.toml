@@ -1,0 +1,17 @@
+[package]
+name = "embeddings-job"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+db = { path = "../db" }
+open-api = { path = "../open-api" }
+tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }
+
+tracing = "0"
+tracing-subscriber = { version="0", features = ["env-filter"] }
+
+# So we can store embeddings
+pgvector = { version = "0.2", features = ["postgres"] }

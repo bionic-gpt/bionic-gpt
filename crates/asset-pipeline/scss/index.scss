@@ -1,0 +1,83 @@
+// Break points
+// https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862/
+@mixin for-phone-only {
+    @media (max-width: 599px) {
+        @content;
+    }
+}
+
+@mixin for-tablet-portrait-up {
+    @media (min-width: 600px) {
+        @content;
+    }
+}
+
+@mixin for-tablet-landscape-up {
+    @media (min-width: 900px) {
+        @content;
+    }
+}
+
+@mixin for-desktop-up {
+    @media (min-width: 1200px) {
+        @content;
+    }
+}
+
+@mixin for-big-desktop-up {
+    @media (min-width: 1800px) {
+        @content;
+    }
+}
+
+// Primer Design System https://primer.style/
+@import '@primer/css/actionlist/index.scss';
+@import '@primer/css/alerts/index.scss';
+@import '@primer/css/base/index.scss';
+@import '@primer/css/box/index.scss';
+@import '@primer/css/buttons/index.scss';
+@import '@primer/css/color-modes/index.scss';
+@import '@primer/css/labels/index.scss';
+@import '@primer/css/overlay/index.scss';
+@import '@primer/css/navigation/index.scss';
+@import '@primer/css/pagination/index.scss';
+@import '@primer/css/select-menu/index.scss';
+@import '@primer/css/timeline/index.scss';
+@import '@primer/css/utilities/index.scss';
+
+// Our custom SCSS and web components
+@import './layout';
+@import './console';
+@import '../web-components/snack-bar';
+@import '../web-components/side-drawer';
+@import '../web-components/data-table';
+
+.paginate-container {
+    margin: 0;
+}
+
+.Box-header {
+    background-color: var(--color-canvas-default);
+}
+
+// Fix side menu so the z-index takes effect. Otherwise
+// they are hidden behind other items.
+@media (min-width: 544px) {
+    .SelectMenu {
+        position: fixed;
+    }
+}
+
+// Wrap the ext in the secrets view
+overflow-wrap {
+    overflow-wrap: break-word;
+}
+
+// Set the primary button from green to blue.
+:root {
+    --color-btn-primary-bg: rgb(53, 89, 199);
+    --color-btn-primary-border: rgb(53, 89, 199);
+    --color-btn-primary-hover-bg: rgb(39, 90, 243);
+    --color-btn-primary-selected-bg: rgb(39, 90, 243);
+    --color-btn-primary-hover-border: rgb(53, 89, 199);
+}

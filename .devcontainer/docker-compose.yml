@@ -1,0 +1,100 @@
+services:
+
+  llm-api:
+    image: ghcr.io/purton-tech/bionicgpt-model-api
+
+  unstructured:
+    image: quay.io/unstructured-io/unstructured-api:0.0.34
+
+  # Handles routing between our containers
+  envoy:
+    build: 
+      context: .
+      dockerfile: Dockerfile.envoy
+    ports:
+      - "7700:7700"
+      - "7701:7701"
+
+  # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
+  barricade:
+    image: purtontech/barricade
+    environment:
+        # This secret key is used to encrypt cookies.
+        SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
+        DATABASE_URL: postgresql://postgres:testpassword@db:5432/finetuna
+        FORWARD_URL: development
+        FORWARD_PORT: 7703
+        REDIRECT_URL: /app/post_registration
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: ankane/pgvector
+    environment:
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_USER: postgres
+      POSTGRES_DB: finetuna
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vscode"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  development:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    
+    volumes:
+      - ..:/workspace:cached
+      # Give access to ssh keys on the host (Is there a better way to do this?)
+      - ~/.ssh:/home/host-ssh:cached
+      # We need this so docker in docker works
+      - /var/run/docker.sock:/var/run/docker.sock
+      - target:/workspace/target # Set target as a volume for performance. 
+      # Uncomment the next line to improve performance when using node.
+      #- node_modules:/vscode/node_modules 
+
+    environment:
+      DATABASE_URL: postgresql://postgres:testpassword@db:5432/finetuna?sslmode=disable
+      APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/finetuna?sslmode=disable
+
+      INVITE_DOMAIN: http://envoy:7700
+      INVITE_FROM_EMAIL_ADDRESS: support@application.com
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+      SMTP_USERNAME: thisisnotused
+      SMTP_PASSWORD: thisisnotused
+      SMTP_TLS_OFF: 'true'
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    working_dir: /workspace
+    
+    depends_on:
+      - db
+
+  # Integration testing using a headless chrome browser
+  selenium:
+    image: selenium/standalone-chrome:4.1.1-20220121
+    shm_size: 2gb
+    environment:
+      VNC_NO_PASSWORD: 1
+    ports:
+      # VNC
+      - 7705:5900
+      # No VNC
+      - 7706:7900
+    volumes:
+      # So that we can load examples with the browser testing.
+      - ./datasets:/workspace
+
+  # MailHog is an email testing tool for developers.
+  smtp:
+    image: mailhog/mailhog
+
+volumes:
+  target:
+  node_modules:

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="col-10 mx-auto content d-flex flex-content-center flex-column mt-4 mt-md-12 text-center">
+  <h1 class="h3-mktg mb-4">Accelerate LLM adoption in your organisation</h1>
+  <h2 class="h6-mktg color-fg-muted mb-4">Chat with your confidential data safely and securely.
+    Your data never leaves your premises.
+  </h2>
+  <div class="mb-4">
+    <a class="btn-mktg mr-1" href="{{config.extra.every_page_cta.cta_url}}">Get Started</a>
+  </div>
+  <div>
+    <img alt="Bionic LLama" width="50%" src="bionic-llama.jpg"></img>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-md-flex flex-row mt-6 mt-lg-12 pb-6">
+    <div class="col-md-6 pr-4">
+      <h2 class="h5-mktg mb-6">From zero to proof of concept in less than 1 hour</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">You've never seen enterprise software that's as easy to install as this.</h4>
+      <p>Most developers with experience of Docker can get this running in minutes.</p>
+    </div>
+    <img class="col-md-6 ml-lg-4 color-shadow-large" alt="Cream" src="/github-readme.png"></img>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
+    <img class="col-md-6 mr-lg-4 color-shadow-large" alt="Cream" src="/github-readme.png"></img>
+    <div class="col-md-6 pl-4">
+      <h2 class="h5-mktg mb-6">Resource Augmented Generation (RAG)</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        Upload documents on a team by team basis. The LLM uses your documents
+        to help generate it's answer.
+      </h4>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-md-flex flex-row pt-6 pb-12">
+    <div class="col-md-6 pr-4">
+      <h2 class="h5-mktg mb-6">Open Source</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        Very permissive licensing model
+      </h4>
+      <p>Get up and running without fear of issues down the line</p>
+    </div>
+    <img class="col-md-6 ml-lg-4 color-shadow-large" alt="Cream" src="/github.png"></img>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
+    <img class="col-md-6 mr-lg-4 color-shadow-large" alt="Cream" src="/github-readme.png"></img>
+    <div class="col-md-6 pl-4">
+      <h2 class="h5-mktg mb-6">Complete Privacy</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        No data leaves your premises.
+      </h4>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-md-flex flex-row pt-6 pb-12">
+    <div class="col-md-6 pr-4">
+      <h2 class="h5-mktg mb-6">Enterprise Ready Features</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        We walk you through best practices for scaling and operating products.
+      </h4>
+      <p>Deploying to Kubernetes</p>
+      <p>How to incorporate open telemetry (coming soon)</p>
+    </div>
+    <img class="col-md-6 ml-lg-4 color-shadow-large" alt="Cream" src="/rust-llm/cd/pods.png"></img>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
+    <img class="col-md-6 mr-lg-4 color-shadow-large" alt="Cream" src="/rust-llm/cd/pods.png"></img>
+    <div class="col-md-6 pr-4">
+      <h2 class="h5-mktg mb-6">From 7b locally to 180b in Production</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        We walk you through best practices for scaling and operating products.
+      </h4>
+      <p>Deploying to Kubernetes</p>
+      <p>How to incorporate open telemetry (coming soon)</p>
+    </div>
+  </div>
+</section>
+
+<section class="color-bg-success p-2 p-lg-6 pt-4 pt-lg-0">
+  <h2 class="text-center mb-4 h5-mktg">Features</h2>
+  <div class="container-lg clearfix">
+    <div class="col-sm-12 col-md-6 float-left p-4">
+      <h4 class="h5-mktg">Used in production in big and small companies</h4>
+      <p class="mt-3">Scales from bootstrappers to whole teams</p>
+      <p>Implements the full software lifecycle.</p>
+    </div>
+    <div class="col-sm-12 col-md-6 float-left p-4">
+      <h4 class="h5-mktg">We welcome contributions and feedback</h4>
+      <p class="mt-3">Completely open source under an MIT licence</p>
+      <p>Hosted on Github and developed in the open</p>
+    </div>
+  </div>
+</section>
+
+{% if config.extra.footer_cta %}
+<section class="d-flex flex-content-center flex-column mt-8 mb-8 text-center pl-1 pr-1">
+  <h3 class="mb-3">{{config.extra.every_page_cta.title}}</h3>
+  {% if config.extra.every_page_cta.cta_url %}
+  <p><a class="btn-mktg"
+      href="{{config.extra.every_page_cta.cta_url}}">{{config.extra.every_page_cta.cta_button}}</a></p>
+  {% else %}
+    {% if sign_up_url %}
+    <p><a class="btn-mktg" href="{{sign_up_url}}">{{config.extra.every_page_cta.cta_button}}</a></p>
+    {% endif %}
+  {% endif %}
+</section>
+{% endif %}
+{% endblock content %}

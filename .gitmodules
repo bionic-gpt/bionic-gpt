@@ -1,0 +1,6 @@
+[submodule "website/themes/tech-startup-theme"]
+	path = website/themes/tech-startup-theme
+	url = https://github.com/purton-tech/tech-startup-theme
+[submodule "/workspace/website/themes/tech-startup-theme"]
+	path = /workspace/website/themes/tech-startup-theme
+	url = https://github.com/purton-tech/tech-startup-theme

@@ -1,0 +1,22 @@
+services:
+
+  # For the earthly integration testing we need to make some ports public.
+  db:
+    ports:
+      - "5432:5432"
+
+  barricade:
+    environment:
+      FORWARD_URL: app 
+    
+  selenium:
+    ports:
+      - 4444:4444
+
+  smtp:
+    ports:
+      - "8025:8025"
+
+  unstructured:
+    ports:
+      - "8000:8000"

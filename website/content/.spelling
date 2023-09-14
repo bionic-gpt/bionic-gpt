@@ -1,0 +1,174 @@
+# markdown-spellcheck spelling configuration file
+# Format - lines beginning # are comments
+# global dictionary is at the start, file overrides afterwards
+# one word per line, to define a file override use ' - filename'
+# where filename is relative to this configuration file
+Pulumi
+Heroku
+Postgres
+Kubernetes
+k9s
+Github
+Cloudflare
+AWS
+dockerized
+Dockerfile
+Earthfile
+Axum
+VSCode
+LLM
+lifecycle
+DB
+replibyte
+S3
+ENV
+Json
+Ada
+DBMate
+pgVector
+PostgreSQL
+Citus
+RLS
+NoSQL
+OpenAI
+SSO
+backend
+ADR
+N.B.
+mockup
+LocalAI
+Javascript
+todo
+AdiDoks
+page_template
+sort_by
+70
+docs.html
+2021-05-01T08
+00
+20
+toc
+2
+`Pulumi.yaml`
+www.pulumi.com
+30
+cloudfared
+10
+config.yaml.
+devcontainer
+MPT
+30B
+8K
+7B
+8GB
+1TB
+MosaicML
+50
+75
+140
+90
+9090
+vars
+55
+build.rs
+sql
+env
+80
+PPTX
+sFTP
+MinIo
+60
+MinIO
+center
+v3
+min.io
+Todo
+Instruction-Finetuned
+2016
+177
+170
+1000's
+40
+40b
+2048
+65k
+30b
+8k
+15
+45
+chainlit
+ChatGPT-like
+40
+openai-api-rs
+RustTLS
+TODO
+llama.cpp
+i
+u
+o
+kaitmore
+server-sent-events-http-2-and-envoy-6927c70368bb
+55
+build.rs
+sql
+env
+384
+88
+3gb
+rust-llm
+ - docs/rag/generating-embeddings.md
+80
+Instruction-Finetuned
+LLMs
+88
+2016
+177
+170
+1000's
+PPTX
+3GB
+80
+text-embedding-ada-002
+512
+pgvector
+0.2
+postgres
+384
+ - docs/running-locally/_index.md
+AdiDoks
+docs.html
+page_template
+sort_by
+75
+ - docs/running-locally/introduction.md
+2021-05-01T08
+00
+10
+toc
+ - rust-llm/cd/_index.md
+70
+ - rust-llm/cd/infra-as-code.md
+20
+www.pulumi.com
+ - rust-llm/choosing-a-model/mpt-30b-8k.md
+MPT
+30B
+8K
+ - rust-llm/choosing-a-model/mpt-7b.md
+7B
+8GB
+ - rust-llm/other-considerations/backups.md
+vars
+ - rust-llm/rag/db-access.md
+sql
+env
+ - rust-llm/rag/introduction.md
+LLMs
+ - rust-llm/rag/embeddings.md
+512
+pgvector
+0.2
+postgres
+text-embedding-ada-002
+ - docs/_index.md
+BionicGPT

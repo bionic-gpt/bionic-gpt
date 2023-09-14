@@ -1,0 +1,17 @@
+[package]
+name = "ui-components"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+db = { path = "../db" }
+assets = { path = "../asset-pipeline" }
+primer_rsx = { path = "../primer-rsx" }
+# Load dioxus from git while we wait for this issue https://github.com/DioxusLabs/dioxus/issues/1318
+dioxus = { git = "https://github.com/DioxusLabs/dioxus.git", rev = "d8704a0" }
+dioxus-ssr = { git = "https://github.com/DioxusLabs/dioxus.git", rev = "d8704a0" }
