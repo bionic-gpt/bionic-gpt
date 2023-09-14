@@ -1,0 +1,147 @@
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address: { address: 0.0.0.0, port_value: 7701 }
+
+static_resources:
+  listeners:
+  - name: listener1
+    address:
+      socket_address: { address: 0.0.0.0, port_value: 7700 }
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          codec_type: AUTO
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: local_service
+              domains: ["*"]
+              routes:
+              # Sign in and registration
+              - match: { prefix: "/auth" }
+                route: { cluster: ext-authn }
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+
+              # API requests to the LLM (they all start with /v1)
+              - match: 
+                  prefix: "/v1"
+                route:
+                  cluster: llm-api
+                  # Disable timeout for SSE
+                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
+                  timeout: 0s 
+
+              # Web request to our app
+              - match: { prefix: "/app" }
+                route: 
+                  cluster: app
+                  timeout: 60s
+
+              # Paths that don't need authentication
+
+              # Images JS, and CSS.
+              - match: { prefix: "/static" }
+                route: { cluster: app }
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                    
+              # Everything else passes in to here. The marketing pages
+              - match: { prefix: "/" }
+                route: { cluster: www }
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+     
+          http_filters:
+          # Use Authn Proxy to authenticate routes.  
+          - name: envoy.filters.http.ext_authz
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+              http_service:
+                server_uri:
+                  uri: auth:9090
+                  cluster: ext-authn
+                  timeout: 0.25s
+                authorization_request:
+                  allowed_headers:
+                    patterns: 
+                      - exact: "cookie"
+                authorization_response:
+                  allowed_upstream_headers_to_append:
+                    patterns: 
+                      - exact: "x-user-id"
+          - name: envoy.filters.http.router
+
+  clusters:
+  # The Barricade authentication service
+  - name: ext-authn
+    connect_timeout: 1.25s
+    type: strict_dns
+    lb_policy: round_robin
+    load_assignment:
+      cluster_name: ext-authn
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: barricade
+                port_value: 9090
+
+  # Zola Static Site
+  - name: www
+    connect_timeout: 1.25s
+    type: strict_dns
+    lb_policy: round_robin
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: www
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: development
+                port_value: 7704
+
+  # The web application
+  - name: app
+    connect_timeout: 1.25s
+    type: strict_dns
+    lb_policy: round_robin
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: app
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: development
+                port_value: 7703
+
+  # The LLM API
+  - name: llm-api
+    connect_timeout: 10s
+    type: strict_dns
+    lb_policy: round_robin
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: llm-api
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: llm-api
+                port_value: 8080

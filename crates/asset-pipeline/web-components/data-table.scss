@@ -1,0 +1,92 @@
+
+// If our table is in a card, set padding to 0.
+.Box:has(data-table) {
+    .Box-body {
+        padding: 0;
+    }
+}
+
+// The above doesn'r work on firefox
+.Box.has-data-table > .Box-body {
+    padding: 0;
+}
+
+data-table {
+    --base-size-4: 16px;
+    --_n-table-td-padding: calc(var(--base-size-4) * 0.5) calc(var(--base-size-4) * 0.5);
+    -webkit-user-select: inherit;
+    user-select: inherit;
+    display: block;
+    max-inline-size: 100%;
+    //overflow-x: auto; // Disabled so that drop down work corectly
+    width: 100%;
+    
+    &[density=condensed] {
+        --_n-table-td-padding: calc(var(--base-size-4) * 0.2) calc(var(--base-size-4) * 0.2);
+    }
+    
+    &[density=relaxed] {
+        --_n-table-td-padding: calc(var(--base-size-4) * 0.7) calc(var(--base-size-4) * 0.7);
+    }
+
+    &[scroll-snap] {
+        scroll-snap-type: inline mandatory;
+        scroll-behavior: smooth
+    }
+    
+    &[scroll-snap] :is(th, td) {
+        scroll-snap-align: start
+    }
+
+    table {
+        inline-size: 100%;
+        text-align: start;
+        border-spacing: 0;
+        border-collapse: separate;
+        font-variant-numeric: tabular-nums
+    }
+    
+    &:where([striped]) tbody tr:where(:nth-child(even)) {
+        background: var(--color-neutral-muted)
+    }
+
+    th {
+        border-block-end: 1px solid var(--color-border-muted);
+        font-weight: var(--base-text-weight-light);
+        font-size: var(--primer-text-body-shorthand-small);
+        text-align: start;
+        background: var(--color-canvas-subtle);
+        position: -webkit-sticky;
+    }
+
+    td {
+        border-block-end: 1px solid var(--color-border-muted);
+        white-space: nowrap;
+    
+        > svg {
+            vertical-align: middle;
+        }
+    }
+
+    tr:last-child {
+        > td {
+            border-block-end: none;
+        }
+    }
+    
+    :is(td, th) {
+        padding: var(--_n-table-td-padding)
+    }
+    
+    :is(td, th):first-child {
+        padding-inline-start: var(--base-size-4)
+    }
+    
+    :is(td, th):last-child {
+        padding-inline-end: var(--base-size-4)
+    }
+
+    tbody tr:hover {
+        background: var(--color-canvas-subtle)
+    }
+}

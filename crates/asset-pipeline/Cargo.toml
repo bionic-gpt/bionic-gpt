@@ -1,0 +1,15 @@
+[package]
+name = "assets"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mime = "0.3.0"
+
+[build-dependencies]
+ructe = { version="0.15.0", features = ["mime03"] }

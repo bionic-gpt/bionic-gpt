@@ -1,0 +1,17 @@
+#console-panel {
+    height: 100%;
+}
+
+#console-stream {
+    width: 100%;
+    height: calc(100% - 100px);
+    overflow-y: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.l_layout > .l_content > section:has(> div#console-panel) {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+}

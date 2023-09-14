@@ -1,0 +1,128 @@
+.l_layout {
+
+    >.l_navigation {
+        // Set this so then our footer with absolute will be relative.
+        position: relative; 
+        display: none;
+        grid-area: sidenav;
+        height: 100vh;
+
+        // Display flex is set in the responsive css at bottom of the code
+        flex-direction: column;
+
+        >.l_nav_header {
+            height: 72px;
+            flex-shrink: 0;
+            padding: 1rem;
+
+            details > div {
+                z-index: 112;
+            }
+        }
+
+        >.l_footer {
+            padding: 1rem;
+
+            details > div {
+                z-index: 112;
+                position: absolute;
+                bottom: 60px;
+                width: 236px;
+            }
+        }
+
+        >.l_nav_items {
+            flex-grow: 4;
+            padding: 1rem;
+
+            > .heading {
+                min-inline-size: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    >.l_content {
+        grid-area: main;
+        overflow-y: auto;
+        height: 100vh;
+
+        >header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+            padding: 1rem;
+
+            > h3 {
+                font-size: 1rem;
+            }
+        }
+
+        >section {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            max-inline-size: 100%;
+            inline-size: 100%;
+            height: calc(100% - 72px);
+        }
+    }
+
+
+    .hamburger {
+        cursor: pointer;
+        display: block;
+        z-index: 2000;
+
+        > div {
+            position: relative;
+            width: 2em;
+            height: 5px;
+            border-radius: 1px;
+            background-color: currentColor;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            transition: all 0.3s ease-in-out;
+        }
+    }
+
+    #nav-toggle {
+        display: none;
+    }
+
+    // Toggle in and out the side menu as an overlay
+    #nav-toggle:checked ~ nav {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100vh;
+        z-index: 1000;
+    }
+
+    @include for-tablet-landscape-up {
+        display: grid;
+        grid-template-columns: 270px 1fr;
+        grid-template-rows: 1fr;
+        grid-template-areas:
+            "sidenav main";
+
+        >.l_navigation {
+            display: flex;
+        }
+        
+        .hamburger {
+            display: none;
+        } 
+
+        > #nav-toggle {
+            display: none;
+        }
+    }
+}

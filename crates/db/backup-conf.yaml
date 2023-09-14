@@ -1,0 +1,33 @@
+# This confuration file is for https://www.replibyte.com/ a tool for to tool to 
+# seed your databases with your production data while keeping sensitive data safe.
+#
+# export ECDH_PRIVATE_KEY=$(openssl pkcs8 -topk8 -nocrypt -in trace-backups.enc.pem)
+# cloak replibyte -c crates/db/backup-conf.yaml dump create 
+#
+# Restore to our local database
+#
+# export DEST_DATABASE_URL=$DATABASE_URL
+# cloak replibyte -c crates/db/backup-conf.yaml dump restore remote --value latest
+#
+# optional - encrypt data on datastore
+encryption_key: $PRIVATE_ENC_KEY 
+source:
+  # A connection to your prod DB. Make it readonly.
+  connection_uri: $CLOAK_DATABASE_URL
+datastore:
+  # It says AWS but you can use any S3 compatible service by setting the endpoint
+  aws:
+    bucket: cloak-backups
+    region: auto
+    credentials:
+      access_key_id: $ACCESS_KEY_ID
+      secret_access_key: $SECRET_ACCESS_KEY
+    endpoint:
+      custom: 'https://8c27b21853f0cea9d5a1f6e030335352.r2.cloudflarestorage.com/'
+# If you want to populate a dev database 
+destination:
+  connection_uri: $DEST_DATABASE_URL
+
+# For backing up to Digital Ocean.
+# pg_dump --data-only -d 'POSTGRES_URL' > tmp/dump.sql 
+# psql 'POSTGRES_URL' < tmp/dump.sql
