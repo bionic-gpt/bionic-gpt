@@ -10,7 +10,7 @@ CREATE TABLE datasets (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     CONSTRAINT FK_organisation FOREIGN KEY(organisation_id)
-        REFERENCES organisations(id)
+        REFERENCES organisations(id) ON DELETE CASCADE
 );
 
 CREATE TABLE documents (
@@ -21,7 +21,7 @@ CREATE TABLE documents (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     CONSTRAINT FK_dataset FOREIGN KEY(dataset_id)
-        REFERENCES datasets(id)
+        REFERENCES datasets(id) ON DELETE CASCADE
 );
 
 CREATE TABLE embeddings (
@@ -34,7 +34,7 @@ CREATE TABLE embeddings (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     CONSTRAINT FK_document FOREIGN KEY(document_id)
-        REFERENCES documents(id)
+        REFERENCES documents(id) ON DELETE CASCADE
 );
 
 -- Give access to the application user.

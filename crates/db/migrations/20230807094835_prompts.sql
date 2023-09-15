@@ -3,13 +3,15 @@
 
 CREATE TABLE prompts (
     id SERIAL PRIMARY KEY, 
-    organisation_id INT NOT NULL,
+    model_id INT NOT NULL,
     name VARCHAR NOT NULL, 
     template VARCHAR NOT NULL, 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
+    CONSTRAINT FK_model FOREIGN KEY(model_id)
+        REFERENCES models(id) ON DELETE CASCADE
+);
 
 CREATE TABLE prompt_dataset (
     prompt_id INT NOT NULL, 

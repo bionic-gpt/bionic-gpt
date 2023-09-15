@@ -3,25 +3,17 @@
 
 CREATE TABLE models (
     id SERIAL PRIMARY KEY, 
+    organisation_id INT NOT NULL, 
     name VARCHAR NOT NULL, 
     base_url VARCHAR NOT NULL, 
-    template VARCHAR NOT NULL, 
     billion_parameters INT NOT NULL, 
     context_size_bytes INT NOT NULL, 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
-INSERT INTO models 
-    (name, base_url, template, billion_parameters, context_size_bytes) 
-VALUES('ggml-gpt4all-j', 
-'http://llm-api:8080',
-'The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.
-### Prompt:
-{{.Input}}
-### Response:',
-7,
-2048);
+    CONSTRAINT FK_organisation FOREIGN KEY(organisation_id)
+        REFERENCES organisations(id) ON DELETE CASCADE
+);
 
 -- Give access to the application user.
 GRANT SELECT, INSERT, UPDATE, DELETE ON models TO ft_application;
