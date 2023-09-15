@@ -13,6 +13,7 @@ import './remember-form'
 import './filter-trigger'
 import './select-div'
 import './refresh-status'
+import './disable-submit-button'
 
 import '@primer/view-components/app/components/primer/tab_container_component';
 
