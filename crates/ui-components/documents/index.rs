@@ -1,5 +1,5 @@
 use crate::app_layout::{Layout, SideBar};
-use assets::files::button_plus_svg;
+use assets::files::*;
 use db::queries::documents::Document;
 use dioxus::prelude::*;
 use primer_rsx::*;
@@ -27,76 +27,92 @@ pub fn index(organisation_id: i32, upload_action: String, documents: Vec<Documen
                     }
                 )),
 
-                Box {
-                    class: "has-data-table",
-                    BoxHeader {
-                        title: "Documents"
-                    }
-                    BoxBody {
-                        DataTable {
-                            table {
-                                thead {
-                                    th { "Name" }
-                                    th { "No. 1Kb Batches" }
-                                    th { "Text Size" }
-                                    th { "Status" }
-                                    th {
-                                        class: "text-right",
-                                        "Action"
-                                    }
-                                }
-                                tbody {
+                if cx.props.documents.is_empty() {
+                    cx.render(rsx! {
+                        BlankSlate {
+                            heading: "Looks like this dataset doesn't have any documents yet",
+                            visual: nav_dashboard_svg.name,
+                            description: "Here you can upload documents in a range of formats",
+                            primary_action_drawer: (
+                                "Add a Document", 
+                                "upload-form"
+                            )
+                        }
+                    })
+                } else {
+                    cx.render(rsx! {
+                        Box {
+                            class: "has-data-table",
+                            BoxHeader {
+                                title: "Documents"
+                            }
+                            BoxBody {
+                                DataTable {
+                                    table {
+                                        thead {
+                                            th { "Name" }
+                                            th { "No. 1Kb Batches" }
+                                            th { "Text Size" }
+                                            th { "Status" }
+                                            th {
+                                                class: "text-right",
+                                                "Action"
+                                            }
+                                        }
+                                        tbody {
 
-                                    cx.props.documents.iter().map(|doc| {
-                                        cx.render(rsx!(
-                                            tr {
-                                                td { "{doc.file_name}" }
-                                                td { "{doc.batches}" }
-                                                td { "{doc.text_size}" }
-                                                td {
-                                                    if doc.waiting > 0 {
-                                                        cx.render(rsx!(
-                                                            Label {
-                                                                "Processing ({doc.waiting} remaining)"
+                                            cx.props.documents.iter().map(|doc| {
+                                                cx.render(rsx!(
+                                                    tr {
+                                                        td { "{doc.file_name}" }
+                                                        td { "{doc.batches}" }
+                                                        td { "{doc.text_size}" }
+                                                        td {
+                                                            if doc.waiting > 0 {
+                                                                cx.render(rsx!(
+                                                                    Label {
+                                                                        "Processing ({doc.waiting} remaining)"
+                                                                    }
+                                                                ))
+                                                            } else if doc.fail_count > 0 {
+                                                                cx.render(rsx!(
+                                                                    Label {
+                                                                        label_color: LabelColor::Attention,
+                                                                        "Processed ({doc.fail_count} failed)"
+                                                                    }
+                                                                ))
+                                                            } else {
+                                                                cx.render(rsx!(
+                                                                    Label {
+                                                                        label_color: LabelColor::Success,
+                                                                        "Processed"
+                                                                    }
+                                                                ))
                                                             }
-                                                        ))
-                                                    } else if doc.fail_count > 0 {
-                                                        cx.render(rsx!(
-                                                            Label {
-                                                                label_color: LabelColor::Attention,
-                                                                "Processed ({doc.fail_count} failed)"
+                                                        }
+                                                        td {
+                                                            class: "text-right",
+                                                            DropDown {
+                                                                direction: Direction::West,
+                                                                button_text: "...",
+                                                                DropDownLink {
+                                                                    drawer_trigger: format!("delete-doc-trigger-{}-{}", 
+                                                                        doc.id, cx.props.organisation_id),
+                                                                    href: "#",
+                                                                    target: "_top",
+                                                                    "Delete Document"
+                                                                }
                                                             }
-                                                        ))
-                                                    } else {
-                                                        cx.render(rsx!(
-                                                            Label {
-                                                                label_color: LabelColor::Success,
-                                                                "Processed"
-                                                            }
-                                                        ))
-                                                    }
-                                                }
-                                                td {
-                                                    class: "text-right",
-                                                    DropDown {
-                                                        direction: Direction::West,
-                                                        button_text: "...",
-                                                        DropDownLink {
-                                                            drawer_trigger: format!("delete-doc-trigger-{}-{}", 
-                                                                doc.id, cx.props.organisation_id),
-                                                            href: "#",
-                                                            target: "_top",
-                                                            "Delete Document"
                                                         }
                                                     }
-                                                }
-                                            }
-                                        ))
-                                    })
+                                                ))
+                                            })
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
+                    })
                 }
             }
 
@@ -106,6 +122,7 @@ pub fn index(organisation_id: i32, upload_action: String, documents: Vec<Documen
                     super::delete::DeleteDrawer {
                         organisation_id: cx.props.organisation_id,
                         document_id: doc.id,
+                        dataset_id: doc.dataset_id,
                         trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, cx.props.organisation_id)
                     }
                 ))

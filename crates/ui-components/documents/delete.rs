@@ -6,13 +6,14 @@ use primer_rsx::*;
 pub struct DrawerProps {
     organisation_id: i32,
     document_id: i32,
+    dataset_id: i32,
     trigger_id: String,
 }
 
 pub fn DeleteDrawer(cx: Scope<DrawerProps>) -> Element {
     cx.render(rsx! {
         Drawer {
-            submit_action: crate::routes::team::delete_route(cx.props.organisation_id),
+            submit_action: crate::routes::documents::delete_route(cx.props.organisation_id, cx.props.document_id),
             label: "Delete this document?",
             trigger_id: &cx.props.trigger_id,
             DrawerBody {
@@ -32,8 +33,13 @@ pub fn DeleteDrawer(cx: Scope<DrawerProps>) -> Element {
                     }
                     input {
                         "type": "hidden",
-                        "name": "user_id",
+                        "name": "document_id",
                         "value": "{cx.props.document_id}"
+                    }
+                    input {
+                        "type": "hidden",
+                        "name": "dataset_id",
+                        "value": "{cx.props.dataset_id}"
                     }
                 }
             }

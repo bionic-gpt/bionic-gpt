@@ -15,4 +15,5 @@ ORDER BY updated_at;
 --! insert
 INSERT INTO 
     datasets (organisation_id, name)
-VALUES(:organisation_id, :name);
+VALUES(:organisation_id, :name)
+RETURNING id;

@@ -18,17 +18,6 @@ $$ LANGUAGE SQL;
 COMMENT ON FUNCTION current_app_user IS 
     'These needs to be set by the application before accessing the database.';
 
-CREATE FUNCTION current_ecdh_public_key() RETURNS TEXT AS 
-$$ 
-    SELECT
-        current_setting(
-            'row_level_security.ecdh_public_key',
-            true
-        )
-$$ LANGUAGE SQL;
-COMMENT ON FUNCTION current_ecdh_public_key IS 
-    'These needs to be set by the application before accessing service accounts.';
-
 CREATE FUNCTION get_orgs_for_app_user() RETURNS setof integer AS 
 $$ 
 DECLARE
@@ -89,7 +78,6 @@ ALTER TABLE organisations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 
 DROP FUNCTION current_app_user;
-DROP FUNCTION current_ecdh_public_key;
 DROP FUNCTION get_orgs_for_app_user;
 DROP FUNCTION get_users_for_app_user;
 DROP FUNCTION get_orgs_app_user_created;

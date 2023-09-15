@@ -28,3 +28,16 @@ INSERT INTO documents (
 ) 
 VALUES(:dataset_id, :file_name)
 RETURNING id;
+
+--! delete
+DELETE FROM
+    documents
+WHERE
+    id = :document_id
+AND
+    id
+    IN (SELECT id FROM documents WHERE dataset_id
+        IN (SELECT id FROM datasets WHERE organisation_id
+            IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
+        )
+    );
