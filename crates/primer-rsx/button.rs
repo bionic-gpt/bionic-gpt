@@ -58,7 +58,7 @@ impl ButtonSize {
 }
 
 #[derive(Props)]
-pub struct BoxProps<'a> {
+pub struct ButtonProps<'a> {
     children: Element<'a>,
     id: Option<&'a str>,
     class: Option<&'a str>,
@@ -68,9 +68,10 @@ pub struct BoxProps<'a> {
     button_size: Option<ButtonSize>,
     button_scheme: Option<ButtonScheme>,
     drawer_trigger: Option<&'a str>,
+    disabled_text: Option<&'a str>,
 }
 
-pub fn Button<'a>(cx: Scope<'a, BoxProps<'a>>) -> Element {
+pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element {
     let button_scheme = if cx.props.button_scheme.is_some() {
         cx.props.button_scheme.unwrap()
     } else {
@@ -141,7 +142,8 @@ pub fn Button<'a>(cx: Scope<'a, BoxProps<'a>>) -> Element {
         cx.render(rsx!(
             button {
                 class: "{class}",
-                id: "{id}",
+                id: cx.props.id,
+                "data-disabled-text": cx.props.disabled_text,
                 "type": "{button_type}",
                 if let Some(img_src) = cx.props.prefix_image_src {
                     cx.render(rsx! {

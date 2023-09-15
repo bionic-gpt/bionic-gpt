@@ -3,11 +3,11 @@
 --! prompts : Prompt
 SELECT
     p.id,
-    p.organisation_id, 
+    p.model_id, 
     p.name,
     p.template,
     (
-        SELECT STRING_AGG(name, ', ') FROM datasets d WHERE d.id IN (
+        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
@@ -16,17 +16,23 @@ SELECT
 FROM 
     prompts p
 WHERE
-    p.organisation_id IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
+    p.model_id IN (
+        SELECT id FROM models WHERE organisation_id IN(
+            SELECT organisation_id 
+            FROM organisation_users 
+            WHERE user_id = current_app_user()
+        )
+    )
 ORDER BY updated_at;
 
 --! prompt : Prompt
 SELECT
     p.id,
-    p.organisation_id, 
+    p.model_id, 
     p.name,
     p.template,
     (
-        SELECT STRING_AGG(name, ', ') FROM datasets d WHERE d.id IN (
+        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
@@ -37,10 +43,12 @@ FROM
 WHERE
     p.id = :prompts_id
 AND
-    p.organisation_id IN (
-        SELECT organisation_id 
-        FROM organisation_users 
-        WHERE user_id = current_app_user()
+    p.model_id IN (
+        SELECT id FROM models WHERE organisation_id IN(
+            SELECT organisation_id 
+            FROM organisation_users 
+            WHERE user_id = current_app_user()
+        )
     )
 ORDER BY updated_at;
 
@@ -70,11 +78,12 @@ WHERE
     prompt_id = :prompts_id
 AND
     prompt_id IN (
-        SELECT prompt_id FROM prompts WHERE 
-            organisation_id IN (
+        SELECT id FROM prompts WHERE model_id IN(
+            SELECT id FROM models WHERE organisation_id IN(
                 SELECT organisation_id 
                 FROM organisation_users 
                 WHERE user_id = current_app_user()
+            )
         )
     );
 
@@ -90,12 +99,12 @@ VALUES(
 
 --! insert
 INSERT INTO prompts (
-    organisation_id, 
+    model_id, 
     name,
     template
 )
 VALUES(
-    :organisation_id, :name, :template
+    :model_id, :name, :template
 )
 RETURNING id;
 
@@ -103,8 +112,26 @@ RETURNING id;
 UPDATE 
     prompts 
 SET 
-    organisation_id = :organisation_id, 
+    model_id = :model_id, 
     name = :name, 
     template = :template
 WHERE
-    id = :id;
+    id = :id
+AND
+    id IN (
+        SELECT id FROM prompts WHERE model_id IN(
+            SELECT id FROM models WHERE organisation_id IN(
+                SELECT organisation_id 
+                FROM organisation_users 
+                WHERE user_id = current_app_user()
+            )
+        )
+    )
+AND 
+    model_id IN (
+        SELECT id FROM models WHERE organisation_id IN(
+            SELECT organisation_id 
+            FROM organisation_users 
+            WHERE user_id = current_app_user()
+        )
+    );

@@ -11,6 +11,18 @@ use db::Pool;
 
 pub static INDEX: &str = "/app/post_registration";
 
+pub static PROMPT_CONTEXT: &str = "The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response. You can use the data in the Data section to help with your reply.
+### Prompt:
+{{.Input}}
+### Data:
+{{.Data}}
+### Response:";
+
+pub static PROMPT_NOCONTEXT: &str = "The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.
+### Prompt:
+{{.Input}}
+### Response:";
+
 pub fn routes() -> Router {
     Router::new().route(INDEX, get(post_registration))
 }
@@ -53,6 +65,37 @@ pub async fn post_registration(
                 &inserted_org_id,
                 &roles,
             )
+            .await?;
+
+        let model_id = queries::models::insert()
+            .bind(
+                &transaction,
+                &"ggml-gpt4all-j",
+                &inserted_org_id,
+                &"http://llm-api:8080",
+                &7,
+                &2048,
+            )
+            .await?;
+
+        queries::prompts::insert()
+            .bind(
+                &transaction,
+                &(model_id as i32),
+                &"Default (Use All Datasets)",
+                &PROMPT_CONTEXT,
+            )
+            .one()
+            .await?;
+
+        queries::prompts::insert()
+            .bind(
+                &transaction,
+                &(model_id as i32),
+                &"Default (Use No Datasets)",
+                &PROMPT_NOCONTEXT,
+            )
+            .one()
             .await?;
 
         transaction.commit().await?;
