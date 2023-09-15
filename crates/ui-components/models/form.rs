@@ -7,7 +7,6 @@ struct Props {
     organisation_id: i32,
     name: String,
     base_url: String,
-    template: String,
     billion_parameters: i32,
     context_size_bytes: i32,
     id: Option<i32>,
@@ -56,13 +55,6 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                         required: true
                     }
 
-                    TextArea {
-                        name: "template",
-                        label: "Prompt Template",
-                        required: true,
-                        "{cx.props.template}",
-                    }
-
                     Input {
                         input_type: InputType::Number,
                         name: "billion_parameters",
@@ -97,7 +89,6 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                 organisation_id,
                 name: model.name,
                 base_url: model.base_url,
-                template: model.template,
                 billion_parameters: model.billion_parameters,
                 context_size_bytes: model.context_size_bytes,
                 id: Some(model.id),
@@ -110,7 +101,6 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                 organisation_id,
                 name: "".to_string(),
                 base_url: "".to_string(),
-                template: "".to_string(),
                 billion_parameters: 7,
                 context_size_bytes: 2048,
                 id: None,
