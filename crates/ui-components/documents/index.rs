@@ -80,7 +80,14 @@ pub fn index(organisation_id: i32, upload_action: String, documents: Vec<Documen
                                                     class: "text-right",
                                                     DropDown {
                                                         direction: Direction::West,
-                                                        button_text: "..."
+                                                        button_text: "...",
+                                                        DropDownLink {
+                                                            drawer_trigger: format!("delete-doc-trigger-{}-{}", 
+                                                                doc.id, cx.props.organisation_id),
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Delete Document"
+                                                        }
                                                     }
                                                 }
                                             }
@@ -92,6 +99,17 @@ pub fn index(organisation_id: i32, upload_action: String, documents: Vec<Documen
                     }
                 }
             }
+
+
+            cx.props.documents.iter().map(|doc| rsx!(
+                cx.render(rsx!(
+                    super::delete::DeleteDrawer {
+                        organisation_id: cx.props.organisation_id,
+                        document_id: doc.id,
+                        trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, cx.props.organisation_id)
+                    }
+                ))
+            ))
 
 
             // The form to create an invitation
