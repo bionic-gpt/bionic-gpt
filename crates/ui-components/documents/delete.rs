@@ -22,7 +22,7 @@ pub fn DeleteDrawer(cx: Scope<DrawerProps>) -> Element {
                     Alert {
                         alert_color: AlertColor::Warn,
                         class: "mb-3",
-                        h4 {
+                        p {
                             "Are you sure you want to delete this document?"
                         }
                     }

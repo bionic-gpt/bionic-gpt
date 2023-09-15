@@ -76,8 +76,13 @@ pub fn index(
                                                         td {
                                                             if doc.waiting > 0 {
                                                                 cx.render(rsx!(
-                                                                    Label {
-                                                                        "Processing ({doc.waiting} remaining)"
+                                                                    turbo-frame {
+                                                                        id: "status-{doc.id}",
+                                                                        loading: "lazy",
+                                                                        src: "{super::super::routes::documents::status_route(doc.id)}",
+                                                                        Label {
+                                                                            "Processing ({doc.waiting} remaining)"
+                                                                        }
                                                                     }
                                                                 ))
                                                             } else if doc.fail_count > 0 {
