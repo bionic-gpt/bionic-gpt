@@ -108,14 +108,6 @@ pub fn index(
                                 Select {
                                     name: "prompt_id",
                                     label: "Prompt",
-                                    option {
-                                        value: -1,
-                                        "Default (Use All Datasets)"
-                                    }
-                                    option {
-                                        value: -2,
-                                        "Default (Use No Datasets)"
-                                    }
                                     cx.props.prompts.iter().map(|prompt| rsx!(
                                         option {
                                             value: "{prompt.id}",
