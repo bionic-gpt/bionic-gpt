@@ -1,24 +1,30 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
-use db::queries::documents::Document;
+use db::queries::{datasets::Dataset, documents::Document};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
 struct Props {
     organisation_id: i32,
+    dataset: Dataset,
     upload_action: String,
     documents: Vec<Document>,
 }
 
-pub fn index(organisation_id: i32, upload_action: String, documents: Vec<Document>) -> String {
+pub fn index(
+    organisation_id: i32,
+    upload_action: String,
+    dataset: Dataset,
+    documents: Vec<Document>,
+) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
                 selected_item: SideBar::Datasets,
                 team_id: cx.props.organisation_id,
-                title: "Documents",
+                title: "{cx.props.dataset.name} / Documents",
                 header: cx.render(rsx!(
-                    h3 { "Documents" }
+                    h3 { "{cx.props.dataset.name} / Documents" }
                     Button {
                         prefix_image_src: "{button_plus_svg.name}",
                         drawer_trigger: "upload-form",
@@ -140,6 +146,7 @@ pub fn index(organisation_id: i32, upload_action: String, documents: Vec<Documen
         app,
         Props {
             organisation_id,
+            dataset,
             upload_action,
             documents,
         },

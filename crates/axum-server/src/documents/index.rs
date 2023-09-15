@@ -2,7 +2,7 @@ use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
-use db::queries::documents;
+use db::queries::{datasets, documents};
 use db::Pool;
 
 pub async fn index(
@@ -20,9 +20,15 @@ pub async fn index(
         .all()
         .await?;
 
+    let dataset = datasets::dataset()
+        .bind(&transaction, &dataset_id)
+        .one()
+        .await?;
+
     Ok(Html(ui_components::documents::index(
         team_id,
         ui_components::routes::documents::upload_route(team_id, dataset_id),
+        dataset,
         docs,
     )))
 }
