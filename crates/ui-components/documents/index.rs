@@ -37,7 +37,7 @@ pub fn index(
                     cx.render(rsx! {
                         BlankSlate {
                             heading: "Looks like this dataset doesn't have any documents yet",
-                            visual: nav_dashboard_svg.name,
+                            visual: nav_ccsds_data_svg.name,
                             description: "Here you can upload documents in a range of formats",
                             primary_action_drawer: (
                                 "Add a Document", 
