@@ -1,7 +1,7 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::queries;
@@ -10,31 +10,33 @@ use serde::Deserialize;
 use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
-pub struct NewDataset {
-    #[validate(length(min = 1, message = "The name is mandatory"))]
-    pub name: String,
+pub struct DeleteDoc {
+    pub organisation_id: i32,
+    pub document_id: i32,
+    pub dataset_id: i32,
 }
 
-pub async fn new(
-    Extension(pool): Extension<Pool>,
-    Path(organisation_id): Path<i32>,
+pub async fn delete(
     current_user: Authentication,
-    Form(new_dataset): Form<NewDataset>,
+    Extension(pool): Extension<Pool>,
+    Form(delete_doc): Form<DeleteDoc>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let dataset_id = queries::datasets::insert()
-        .bind(&transaction, &organisation_id, &new_dataset.name)
-        .one()
+    queries::documents::delete()
+        .bind(&transaction, &delete_doc.document_id)
         .await?;
 
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_components::routes::documents::index_route(organisation_id, dataset_id),
-        "Dataset Created",
+        &ui_components::routes::documents::index_route(
+            delete_doc.organisation_id,
+            delete_doc.dataset_id,
+        ),
+        "Document Deleted",
     )
 }

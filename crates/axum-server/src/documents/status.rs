@@ -2,11 +2,11 @@ use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
-use db::queries::{datasets, documents};
+use db::queries::documents;
 use db::Pool;
 
-pub async fn index(
-    Path((team_id, dataset_id)): Path<(i32, i32)>,
+pub async fn status(
+    Path(document_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -15,20 +15,10 @@ pub async fn index(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let docs = documents::documents()
-        .bind(&transaction, &dataset_id)
-        .all()
-        .await?;
-
-    let dataset = datasets::dataset()
-        .bind(&transaction, &dataset_id)
+    let document = documents::document()
+        .bind(&transaction, &document_id)
         .one()
         .await?;
 
-    Ok(Html(ui_components::documents::index(
-        team_id,
-        ui_components::routes::documents::upload_route(team_id, dataset_id),
-        dataset,
-        docs,
-    )))
+    Ok(Html(ui_components::documents::status(document)))
 }

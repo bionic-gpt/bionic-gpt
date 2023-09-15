@@ -40,8 +40,6 @@ pub struct ModelForm {
     pub name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub base_url: String,
-    #[validate(length(min = 1, message = "The prompt is mandatory"))]
-    pub template: String,
     pub billion_parameters: i32,
     pub context_size_bytes: i32,
 }
@@ -65,7 +63,6 @@ pub async fn upsert(
                     &transaction,
                     &model_form.name,
                     &model_form.base_url,
-                    &model_form.template,
                     &model_form.billion_parameters,
                     &model_form.context_size_bytes,
                     &id,
@@ -86,8 +83,8 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &model_form.name,
+                    &team_id,
                     &model_form.base_url,
-                    &model_form.template,
                     &model_form.billion_parameters,
                     &model_form.context_size_bytes,
                 )

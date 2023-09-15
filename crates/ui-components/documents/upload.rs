@@ -58,6 +58,7 @@ pub fn Upload<'a>(cx: Scope<'a, Props<'a>>) -> Element {
                     Button {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,
+                        disabled_text: "Document uploading, this may take some time",
                         "Upload File"
                     }
                 }
