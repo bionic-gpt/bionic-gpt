@@ -4,6 +4,7 @@ use axum::extract::{Extension, Path};
 use axum::response::{Html, IntoResponse};
 use axum_extra::extract::Form;
 use db::queries;
+use db::types::public::DatasetConnection;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -81,6 +82,7 @@ pub async fn upsert(
                     &transaction,
                     &team_id,
                     &new_prompt_template.name,
+                    &DatasetConnection::None,
                     &new_prompt_template.template,
                     &id,
                 )
@@ -113,6 +115,7 @@ pub async fn upsert(
                     &transaction,
                     &team_id,
                     &new_prompt_template.name,
+                    &DatasetConnection::None,
                     &new_prompt_template.template,
                 )
                 .one()

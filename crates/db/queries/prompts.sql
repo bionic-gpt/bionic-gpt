@@ -5,6 +5,7 @@ SELECT
     p.id,
     p.model_id, 
     p.name,
+    p.dataset_connection,
     p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
@@ -30,6 +31,7 @@ SELECT
     p.id,
     p.model_id, 
     p.name,
+    p.dataset_connection,
     p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
@@ -101,10 +103,11 @@ VALUES(
 INSERT INTO prompts (
     model_id, 
     name,
+    dataset_connection,
     template
 )
 VALUES(
-    :model_id, :name, :template
+    :model_id, :name, :dataset_connection, :template
 )
 RETURNING id;
 
@@ -114,6 +117,7 @@ UPDATE
 SET 
     model_id = :model_id, 
     name = :name, 
+    dataset_connection = :dataset_connection,
     template = :template
 WHERE
     id = :id
