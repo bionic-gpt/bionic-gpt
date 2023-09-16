@@ -61,7 +61,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::prompts::index_route(cx.props.team_id),
                             icon: nav_dashboard_svg.name,
-                            title: "Prompt Templates"
+                            title: "Prompt Engineering"
                         }
                     ))
                 }
@@ -80,12 +80,12 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::documents::bulk_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
-                            title: "Bulk Document Import"
+                            title: "Document Pipeline"
                         }
                     ))
                 }
                 NavGroup {
-                    heading: "Fine Tuning",
+                    heading: "Models & Fine Tuning",
                     content:  cx.render(rsx!(
                         NavItem {
                             id: SideBar::Models.to_string(),

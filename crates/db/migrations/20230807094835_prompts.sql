@@ -1,9 +1,15 @@
 -- migrate:up
-
+CREATE TYPE dataset_connection AS ENUM (
+    'All', 
+    'None', 
+    'Selected'
+);
+COMMENT ON TYPE dataset_connection IS 'A prompt can use all datasets, no datasets or selected datasets.';
 
 CREATE TABLE prompts (
     id SERIAL PRIMARY KEY, 
     model_id INT NOT NULL,
+    dataset_connection dataset_connection NOT NULL,
     name VARCHAR NOT NULL, 
     template VARCHAR NOT NULL, 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -39,3 +45,4 @@ GRANT SELECT ON prompt_dataset TO ft_readonly;
 -- migrate:down
 DROP TABLE prompt_dataset;
 DROP TABLE prompts;
+DROP TYPE dataset_connection;
