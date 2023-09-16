@@ -25,6 +25,7 @@ pub struct Props<'a> {
     area_size: Option<TextAreaSize>,
     pub name: &'a str,
     pub id: Option<&'a str>,
+    pub class: Option<&'a str>,
     pub rows: Option<&'a str>,
     pub label_class: Option<&'a str>,
     pub value: Option<&'a str>,
@@ -43,8 +44,13 @@ pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         Default::default()
     };
 
+    let class = if cx.props.class.is_some() {
+        format!("{} {}", cx.props.class.unwrap(), input_size.to_string())
+    } else {
+        input_size.to_string().to_string()
+    };
+
     let value = cx.props.value.unwrap_or("");
-    let input_size = input_size.to_string();
 
     let placeholder = if cx.props.placeholder.is_some() {
         cx.props.placeholder.unwrap()
@@ -72,7 +78,7 @@ pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         }
         textarea {
             id: "{id}",
-            class: "{input_size}",
+            class: "{class}",
             value: "{value}",
             name: "{cx.props.name}",
             placeholder: "{placeholder}",
