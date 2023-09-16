@@ -51,6 +51,8 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
                                         thead {
                                             th { "Name" }
                                             th { "Dataset(s)" }
+                                            th { "Model" }
+                                            th { "Updated" }
                                             th {
                                                 class: "text-right",
                                                 "Action"
@@ -65,7 +67,16 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
                                                             "{prompt.name}"
                                                         }
                                                         td {
-                                                            "{prompt.datasets}"
+                                                            super::dataset_connection::DatasetConnection {
+                                                                connection: prompt.dataset_connection,
+                                                                datasets: prompt.datasets.clone()
+                                                            }
+                                                        }
+                                                        td {
+                                                            "{prompt.model_name}"
+                                                        }
+                                                        td {
+                                                            "{prompt.updated_at}"
                                                         }
                                                         td {
                                                             class: "text-right",

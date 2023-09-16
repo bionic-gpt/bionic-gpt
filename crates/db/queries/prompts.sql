@@ -3,7 +3,7 @@
 --! prompts : Prompt
 SELECT
     p.id,
-    p.model_id, 
+    (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     p.name,
     p.dataset_connection,
     p.template,
@@ -29,7 +29,7 @@ ORDER BY updated_at;
 --! prompt : Prompt
 SELECT
     p.id,
-    p.model_id, 
+    (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     p.name,
     p.dataset_connection,
     p.template,
