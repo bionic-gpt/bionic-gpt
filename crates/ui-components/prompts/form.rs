@@ -1,5 +1,5 @@
 use crate::app_layout::{Layout, SideBar};
-use db::{Dataset, Prompt};
+use db::{Dataset, Model, Prompt};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
@@ -8,10 +8,16 @@ struct Props {
     name: String,
     template: String,
     datasets: Vec<Dataset>,
+    models: Vec<Model>,
     id: Option<i32>,
 }
 
-pub fn form(organisation_id: i32, prompt: Option<Prompt>, datasets: Vec<Dataset>) -> String {
+pub fn form(
+    organisation_id: i32,
+    prompt: Option<Prompt>,
+    datasets: Vec<Dataset>,
+    models: Vec<Model>,
+) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
@@ -43,6 +49,23 @@ pub fn form(organisation_id: i32, prompt: Option<Prompt>, datasets: Vec<Dataset>
                         help_text: "Make the name memorable and imply it's usage.",
                         value: &cx.props.name,
                         required: true
+                    }
+
+                    Select {
+                        name: "model_id",
+                        label: "Select the model this prompt will use for inference",
+                        help_text: "The prompt will be passed to the model",
+                        value: &cx.props.name,
+                        required: true,
+                        cx.props.models.iter().map(|model| {
+                            cx.render(rsx!(
+                                option {
+                                    value: "{model.id}",
+                                    "{model.name}"
+                                }
+                            ))
+                        })
+
                     }
 
                     Select {
@@ -88,6 +111,7 @@ pub fn form(organisation_id: i32, prompt: Option<Prompt>, datasets: Vec<Dataset>
                 template: prompt.template,
                 id: Some(prompt.id),
                 datasets,
+                models,
             },
         ))
     } else {
@@ -103,6 +127,7 @@ pub fn form(organisation_id: i32, prompt: Option<Prompt>, datasets: Vec<Dataset>
 {{.Data}}
 ### Response:".to_string(),
                 datasets,
+                models,
                 id: None,
             },
         ))

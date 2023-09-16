@@ -10,6 +10,7 @@ pub use tokio_postgres::Error as TokioPostgresError;
 
 pub use queries::datasets::Dataset;
 pub use queries::invitations::Invitation;
+pub use queries::models::Model;
 pub use queries::organisations::GetTeams as Team;
 pub use queries::organisations::GetUsers as Member;
 pub use queries::organisations::Organisation;

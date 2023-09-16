@@ -21,8 +21,10 @@ pub async fn new(
         .bind(&transaction)
         .all()
         .await?;
+
+    let models = queries::models::models().bind(&transaction).all().await?;
     Ok(Html(ui_components::prompts::form::form(
-        team_id, None, datasets,
+        team_id, None, datasets, models,
     )))
 }
 
@@ -41,6 +43,8 @@ pub async fn edit(
         .all()
         .await?;
 
+    let models = queries::models::models().bind(&transaction).all().await?;
+
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id)
         .one()
@@ -50,6 +54,7 @@ pub async fn edit(
         team_id,
         Some(prompt),
         datasets,
+        models,
     )))
 }
 
@@ -60,6 +65,7 @@ pub struct NewPromptTemplate {
     pub name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub template: String,
+    pub model_id: i32,
     pub datasets: Vec<String>,
 }
 
@@ -141,7 +147,9 @@ pub async fn upsert(
                 .bind(&transaction)
                 .all()
                 .await?;
-            let html = ui_components::prompts::form::form(team_id, None, datasets);
+
+            let models = queries::models::models().bind(&transaction).all().await?;
+            let html = ui_components::prompts::form::form(team_id, None, datasets, models);
             Ok(html.into_response())
         }
     }
