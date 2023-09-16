@@ -95,8 +95,10 @@ pub fn index(
                     div {
                         class: "position-relative width-full bottom-0 p-2 border-top color-bg-subtle",
                         form {
-                            class: "width-full d-flex flex-justify-between flex-items-center",
+                            class: "remember width-full d-flex flex-justify-between flex-items-center",
                             method: "post",
+                            "data-remember-name": "console-prompt",
+                            "data-remember-reset": "false",
                             action: "{cx.props.send_message_action}",
                             textarea {
                                 class: "flex-1 mr-2 form-control",
