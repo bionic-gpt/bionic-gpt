@@ -65,8 +65,9 @@ pub struct NewPromptTemplate {
     pub name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub template: String,
+    pub dataset_connection: String,
     pub model_id: i32,
-    pub datasets: Vec<String>,
+    pub datasets: Option<Vec<String>>,
 }
 
 pub async fn upsert(
@@ -88,7 +89,7 @@ pub async fn upsert(
                     &transaction,
                     &team_id,
                     &new_prompt_template.name,
-                    &DatasetConnection::None,
+                    &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
                     &id,
                 )
@@ -99,11 +100,12 @@ pub async fn upsert(
                 .await?;
 
             // Create the connections to any datasets
-            for dataset in new_prompt_template.datasets {
-                dbg!(&dataset);
-                queries::prompts::insert_prompt_dataset()
-                    .bind(&transaction, &id, &dataset.parse::<i32>().unwrap())
-                    .await?;
+            if let Some(datasets) = new_prompt_template.datasets {
+                for dataset in datasets {
+                    queries::prompts::insert_prompt_dataset()
+                        .bind(&transaction, &id, &dataset.parse::<i32>().unwrap())
+                        .await?;
+                }
             }
 
             transaction.commit().await?;
@@ -121,17 +123,19 @@ pub async fn upsert(
                     &transaction,
                     &team_id,
                     &new_prompt_template.name,
-                    &DatasetConnection::None,
+                    &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
                 )
                 .one()
                 .await?;
 
             // Create the connections to any datasets
-            for dataset in new_prompt_template.datasets {
-                queries::prompts::insert_prompt_dataset()
-                    .bind(&transaction, &prompt_id, &dataset.parse::<i32>().unwrap())
-                    .await?;
+            if let Some(datasets) = new_prompt_template.datasets {
+                for dataset in datasets {
+                    queries::prompts::insert_prompt_dataset()
+                        .bind(&transaction, &prompt_id, &dataset.parse::<i32>().unwrap())
+                        .await?;
+                }
             }
 
             transaction.commit().await?;
@@ -152,5 +156,13 @@ pub async fn upsert(
             let html = ui_components::prompts::form::form(team_id, None, datasets, models);
             Ok(html.into_response())
         }
+    }
+}
+
+fn dataset_connection_from_string(dataset_connection: &str) -> DatasetConnection {
+    match dataset_connection {
+        "All" => DatasetConnection::All,
+        "None" => DatasetConnection::None,
+        _ => DatasetConnection::Selected,
     }
 }

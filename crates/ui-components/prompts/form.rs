@@ -68,27 +68,50 @@ pub fn form(
 
                     }
 
-                    Select {
-                        name: "datasets",
-                        label: "Select 1 or more datasets to connect to this prompt",
-                        help_text: "Connect this persona with a dataset",
-                        value: &cx.props.name,
-                        required: true,
-                        multiple: true,
-                        cx.props.datasets.iter().map(|dataset| {
-                            cx.render(rsx!(
-                                option {
-                                    value: "{dataset.id}",
-                                    "{dataset.name}"
-                                }
-                            ))
-                        })
+                    div {
+                        class: "border d-flex flex-column p-2",
 
+                        Select {
+                            name: "dataset_connection",
+                            label: "How shall we handle datasets with this prompt?",
+                            help_text: "The prompt will be passed to the model",
+                            value: &cx.props.name,
+                            required: true,
+                            option {
+                                value: "All",
+                                "Use All the Teams Datasets"
+                            }
+                            option {
+                                value: "None",
+                                "Don't use any datasets"
+                            }
+                            option {
+                                value: "Selected",
+                                "Use Selected Datasets"
+                            }
+                        }
+
+                        Select {
+                            name: "datasets",
+                            label: "Select datasets to connect to this prompt",
+                            help_text: "These datasets will only be used when the above is set to 'Use Selected Datasets'",
+                            value: &cx.props.name,
+                            multiple: true,
+                            cx.props.datasets.iter().map(|dataset| {
+                                cx.render(rsx!(
+                                    option {
+                                        value: "{dataset.id}",
+                                        "{dataset.name}"
+                                    }
+                                ))
+                            })
+                        }
                     }
 
                     TextArea {
+                        class: "mt-3",
                         name: "template",
-                        rows: "15",
+                        rows: "10",
                         label: "Prompt Template",
                         required: true,
                         "{cx.props.template}",
