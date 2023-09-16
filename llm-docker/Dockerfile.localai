@@ -6,4 +6,5 @@ RUN wget https://gpt4all.io/models/ggml-gpt4all-j.bin -O /build/models/ggml-gpt4
 
 # This model allows us to use the embeddings API
 RUN wget https://huggingface.co/skeskinen/ggml/resolve/main/all-MiniLM-L6-v2/ggml-model-q4_0.bin -O models/bert
+
 COPY embeddings.yaml /build/models
