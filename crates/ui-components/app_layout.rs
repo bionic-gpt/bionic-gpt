@@ -134,18 +134,6 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                         }
                     ))
                 }
-                NavGroup {
-                    heading: "System Administration",
-                    content:  cx.render(rsx!(
-                        NavItem {
-                            id: SideBar::ApiKeys.to_string(),
-                            selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::api_keys::index_route(cx.props.team_id),
-                            icon: nav_api_keys_svg.name,
-                            title: "Single Sign On (SSO)"
-                        }
-                    ))
-                }
             )),
             sidebar_header: cx.render(rsx!(
                 turbo-frame {
