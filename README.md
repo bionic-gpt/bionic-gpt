@@ -35,8 +35,9 @@
 
 - [x] Chat Console
     - [x] Connect to Open AI compatible API's i.e. LocalAI
-    - [ ] Select different models
+    - [x] Select different prompts
     - [ ] Multi Modal (Show images and text)
+    - [ ] Syntax highlighting for code
     - [ ] Mixture of Experts?
 - [x] Authentication
     - [x] Email/Password sign in and registration
@@ -51,9 +52,12 @@
     - [x] Document Upload
     - [x] Allow user to create datasets
     - [x] UI for datasets table 
-    - [x] Turn documents into 2K batches and generate embeddings
+    - [x] Turn documents into 1K batches and generate embeddings
     - [ ] OCR for document upload
-    - [ ] Bulk document upload
+- [ ] Document Pipelines
+    - [ ] Create S3 compatible buckets
+    - [ ] Allow user to upload docs to buckets
+    - [ ] Process documents and create embeddings
 - [x] Retrieval Augmented Generation
     - [x] Parse text out of documents
     - [x] Generate Embeddings and store in pgVector
@@ -66,7 +70,7 @@
 - [x] Model Management 
     - [x] Create/update default prompt fo a model
     - [x] Set model location URL.
-    - [ ] Switchable LLM backends.
+    - [x] Switchable LLM backends.
     - [ ] Associate models with a command i.e. /image
 - [ ] Guardrails
     - [ ] Figure out a strategy

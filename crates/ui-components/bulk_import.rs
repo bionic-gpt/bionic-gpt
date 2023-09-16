@@ -13,15 +13,14 @@ pub fn bulk(organisation_id: i32) -> String {
             Layout {
                 selected_item: SideBar::BulkImport,
                 team_id: cx.props.organisation_id,
-                title: "Bulk Import",
+                title: "Document Pipelines",
                 header: cx.render(rsx!(
-                    h3 { "Bulk Import" }
+                    h3 { "Document Pipelines" }
                 )),
                 BlankSlate {
-                    heading: "You haven't setup any bulk imports yet",
+                    heading: "This feature is not complete yet",
                     visual: empty_api_keys_svg.name,
-                    description: "API Keys allow you to access our programming interface",
-                    primary_action_drawer: ("New Bulk Import", "create-api-key")
+                    description: "When it is you'll be able to upload documents to S3 compatible buckets"
                 }
             }
         })

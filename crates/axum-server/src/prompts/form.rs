@@ -4,6 +4,7 @@ use axum::extract::{Extension, Path};
 use axum::response::{Html, IntoResponse};
 use axum_extra::extract::Form;
 use db::queries;
+use db::types::public::DatasetConnection;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -20,8 +21,10 @@ pub async fn new(
         .bind(&transaction)
         .all()
         .await?;
+
+    let models = queries::models::models().bind(&transaction).all().await?;
     Ok(Html(ui_components::prompts::form::form(
-        team_id, None, datasets,
+        team_id, None, datasets, models,
     )))
 }
 
@@ -40,6 +43,8 @@ pub async fn edit(
         .all()
         .await?;
 
+    let models = queries::models::models().bind(&transaction).all().await?;
+
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id)
         .one()
@@ -49,6 +54,7 @@ pub async fn edit(
         team_id,
         Some(prompt),
         datasets,
+        models,
     )))
 }
 
@@ -59,7 +65,9 @@ pub struct NewPromptTemplate {
     pub name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub template: String,
-    pub datasets: Vec<String>,
+    pub dataset_connection: String,
+    pub model_id: i32,
+    pub datasets: Option<Vec<String>>,
 }
 
 pub async fn upsert(
@@ -81,6 +89,7 @@ pub async fn upsert(
                     &transaction,
                     &team_id,
                     &new_prompt_template.name,
+                    &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
                     &id,
                 )
@@ -91,11 +100,12 @@ pub async fn upsert(
                 .await?;
 
             // Create the connections to any datasets
-            for dataset in new_prompt_template.datasets {
-                dbg!(&dataset);
-                queries::prompts::insert_prompt_dataset()
-                    .bind(&transaction, &id, &dataset.parse::<i32>().unwrap())
-                    .await?;
+            if let Some(datasets) = new_prompt_template.datasets {
+                for dataset in datasets {
+                    queries::prompts::insert_prompt_dataset()
+                        .bind(&transaction, &id, &dataset.parse::<i32>().unwrap())
+                        .await?;
+                }
             }
 
             transaction.commit().await?;
@@ -113,16 +123,19 @@ pub async fn upsert(
                     &transaction,
                     &team_id,
                     &new_prompt_template.name,
+                    &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
                 )
                 .one()
                 .await?;
 
             // Create the connections to any datasets
-            for dataset in new_prompt_template.datasets {
-                queries::prompts::insert_prompt_dataset()
-                    .bind(&transaction, &prompt_id, &dataset.parse::<i32>().unwrap())
-                    .await?;
+            if let Some(datasets) = new_prompt_template.datasets {
+                for dataset in datasets {
+                    queries::prompts::insert_prompt_dataset()
+                        .bind(&transaction, &prompt_id, &dataset.parse::<i32>().unwrap())
+                        .await?;
+                }
             }
 
             transaction.commit().await?;
@@ -138,8 +151,18 @@ pub async fn upsert(
                 .bind(&transaction)
                 .all()
                 .await?;
-            let html = ui_components::prompts::form::form(team_id, None, datasets);
+
+            let models = queries::models::models().bind(&transaction).all().await?;
+            let html = ui_components::prompts::form::form(team_id, None, datasets, models);
             Ok(html.into_response())
         }
+    }
+}
+
+fn dataset_connection_from_string(dataset_connection: &str) -> DatasetConnection {
+    match dataset_connection {
+        "All" => DatasetConnection::All,
+        "None" => DatasetConnection::None,
+        _ => DatasetConnection::Selected,
     }
 }

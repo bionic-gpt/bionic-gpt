@@ -7,6 +7,7 @@ use axum::{
 };
 use db::queries;
 use db::types;
+use db::types::public::DatasetConnection;
 use db::Pool;
 
 pub static INDEX: &str = "/app/post_registration";
@@ -83,6 +84,7 @@ pub async fn post_registration(
                 &transaction,
                 &(model_id as i32),
                 &"Default (Use All Datasets)",
+                &DatasetConnection::All,
                 &PROMPT_CONTEXT,
             )
             .one()
@@ -93,6 +95,7 @@ pub async fn post_registration(
                 &transaction,
                 &(model_id as i32),
                 &"Default (Use No Datasets)",
+                &DatasetConnection::None,
                 &PROMPT_NOCONTEXT,
             )
             .one()
