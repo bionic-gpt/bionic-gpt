@@ -46,7 +46,7 @@ pub async fn edit(
     let models = queries::models::models().bind(&transaction).all().await?;
 
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id)
+        .bind(&transaction, &prompt_id, &team_id)
         .one()
         .await?;
 

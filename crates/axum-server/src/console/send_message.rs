@@ -29,7 +29,7 @@ pub async fn send_message(
 
         // Get the prompt
         let prompt = prompts::prompt()
-            .bind(&transaction, &message.prompt_id)
+            .bind(&transaction, &message.prompt_id, &team_id)
             .one()
             .await?;
 

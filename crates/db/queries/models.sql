@@ -11,6 +11,8 @@ SELECT
     updated_at
 FROM 
     models
+WHERE
+    organisation_id IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
 ORDER BY updated_at;
 
 --! model : Model
@@ -38,7 +40,8 @@ INSERT INTO models (
 )
 VALUES(
     :name, :organisation_id, :base_url, :billion_parameters, :context_size_bytes
-);
+)
+RETURNING id;
 
 --! update
 UPDATE 

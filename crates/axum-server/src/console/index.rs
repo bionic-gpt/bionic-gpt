@@ -16,7 +16,10 @@ pub async fn index(
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let chats = chats::chats().bind(&transaction).all().await?;
-    let prompts = prompts::prompts().bind(&transaction).all().await?;
+    let prompts = prompts::prompts()
+        .bind(&transaction, &team_id)
+        .all()
+        .await?;
 
     let send_action = ui_components::routes::console::send_message_route(team_id);
     let update_response = ui_components::routes::console::update_response_route(team_id);
