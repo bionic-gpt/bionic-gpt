@@ -11,6 +11,7 @@ pub fn index(organisation_id: i32) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Training,
                 team_id: cx.props.organisation_id,
                 title: "Model Training",

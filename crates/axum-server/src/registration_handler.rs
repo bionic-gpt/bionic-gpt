@@ -77,15 +77,16 @@ pub async fn post_registration(
                 &7,
                 &2048,
             )
+            .one()
             .await?;
 
         queries::prompts::insert()
             .bind(
                 &transaction,
-                &(model_id as i32),
-                &"Default (Use All Datasets)",
-                &DatasetConnection::All,
-                &PROMPT_CONTEXT,
+                &model_id,
+                &"Default (Exclude All Datasets)",
+                &DatasetConnection::None,
+                &PROMPT_NOCONTEXT,
             )
             .one()
             .await?;
@@ -93,10 +94,10 @@ pub async fn post_registration(
         queries::prompts::insert()
             .bind(
                 &transaction,
-                &(model_id as i32),
-                &"Default (Use No Datasets)",
-                &DatasetConnection::None,
-                &PROMPT_NOCONTEXT,
+                &model_id,
+                &"Default (Include All Datasets)",
+                &DatasetConnection::All,
+                &PROMPT_CONTEXT,
             )
             .one()
             .await?;

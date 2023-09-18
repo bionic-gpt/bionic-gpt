@@ -20,6 +20,7 @@ pub fn index(
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Datasets,
                 team_id: cx.props.organisation_id,
                 title: "{cx.props.dataset.name} / Documents",

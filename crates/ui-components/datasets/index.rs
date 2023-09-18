@@ -14,6 +14,7 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Datasets,
                 team_id: cx.props.organisation_id,
                 title: "Datasets",

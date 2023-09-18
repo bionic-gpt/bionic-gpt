@@ -10,8 +10,13 @@
     padding-right: 1rem;
 }
 
-.l_layout > .l_content > section:has(> div#console-panel) {
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
+.l_layout > .l_content > section.console {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    max-inline-size: 100%;
+    inline-size: 100%;
+    height: calc(100% - 79px);
 }

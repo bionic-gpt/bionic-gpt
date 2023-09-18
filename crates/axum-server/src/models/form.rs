@@ -88,6 +88,7 @@ pub async fn upsert(
                     &model_form.billion_parameters,
                     &model_form.context_size_bytes,
                 )
+                .one()
                 .await?;
 
             transaction.commit().await?;

@@ -1,4 +1,4 @@
-use assets::files::{avatar_svg, button_select_svg};
+use assets::files::{button_select_svg, profile_svg};
 use db::queries::users::User;
 use dioxus::prelude::*;
 use primer_rsx::*;
@@ -17,7 +17,7 @@ pub fn profile_popup(user: User, organisation_id: i32) -> String {
                 DropDown {
                     direction: Direction::NorthEast,
                     button_text: &cx.props.user_name_or_email,
-                    prefix_image_src: avatar_svg.name,
+                    prefix_image_src: profile_svg.name,
                     suffix_image_src: button_select_svg.name,
                     class: "width-full",
                     DropDownLink {

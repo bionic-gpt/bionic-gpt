@@ -9,6 +9,7 @@ pub struct AppLayoutProps<'a> {
     fav_icon_src: &'a str,
     css_href1: &'a str,
     css_href2: &'a str,
+    section_class: &'a str,
     js_href: &'a str,
     header: Element<'a>,
     children: Element<'a>,
@@ -99,6 +100,7 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                         &cx.props.header
                     }
                     section {
+                        class: cx.props.section_class,
                         &cx.props.children
                     }
                 }

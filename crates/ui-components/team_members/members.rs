@@ -27,6 +27,7 @@ pub fn members(
     fn app(cx: Scope<MembersProps>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Team,
                 team_id: cx.props.organisation.id,
                 title: "Team Members",
