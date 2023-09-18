@@ -84,9 +84,9 @@ pub async fn post_registration(
             .bind(
                 &transaction,
                 &model_id,
-                &"Default (Use All Datasets)",
-                &DatasetConnection::All,
-                &PROMPT_CONTEXT,
+                &"Default (Exclude All Datasets)",
+                &DatasetConnection::None,
+                &PROMPT_NOCONTEXT,
             )
             .one()
             .await?;
@@ -95,9 +95,9 @@ pub async fn post_registration(
             .bind(
                 &transaction,
                 &model_id,
-                &"Default (Use No Datasets)",
-                &DatasetConnection::None,
-                &PROMPT_NOCONTEXT,
+                &"Default (Include All Datasets)",
+                &DatasetConnection::All,
+                &PROMPT_CONTEXT,
             )
             .one()
             .await?;
