@@ -34,6 +34,26 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
 
     test_prompts(driver).await?;
 
+    test_console(driver).await?;
+
+    Ok(())
+}
+
+async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
+    driver
+        .find(By::LinkText("Chat Console"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .query(By::Css("textarea[name='message']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
     Ok(())
 }
 
@@ -42,6 +62,14 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .find(By::LinkText("Prompt Engineering"))
         .await?
         .click()
+        .await?;
+
+    driver
+        .query(By::LinkText("New Prompt Template"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
         .await?;
 
     driver
@@ -76,6 +104,50 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .find(By::XPath("//button[text()='Submit']"))
         .await?
         .click()
+        .await?;
+
+    driver
+        .query(By::XPath("//tr//td[contains(text(), 'My Prompt')]"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//span[text()='...']"))
+        .await?
+        .click()
+        .await?;
+
+    driver.find(By::LinkText("Edit")).await?.click().await?;
+
+    driver
+        .query(By::Css("input[name='name']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::Css("input[name='name']"))
+        .await?
+        .send_keys("My Prompt2")
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Submit']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .query(By::XPath("//tr//td[contains(text(), 'My Prompt2')]"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
         .await?;
 
     Ok(())
