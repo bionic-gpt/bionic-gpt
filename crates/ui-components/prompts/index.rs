@@ -13,6 +13,7 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Prompts,
                 team_id: cx.props.organisation_id,
                 title: "Prompts",

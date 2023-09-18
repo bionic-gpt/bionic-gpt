@@ -23,6 +23,7 @@ WHERE
             FROM organisation_users 
             WHERE user_id = current_app_user()
         )
+        AND organisation_id = :organisation_id
     )
 ORDER BY updated_at;
 
@@ -51,6 +52,7 @@ AND
             FROM organisation_users 
             WHERE user_id = current_app_user()
         )
+        AND organisation_id = :organisation_id
     )
 ORDER BY updated_at;
 

@@ -14,6 +14,7 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
     fn app(cx: Scope<TeamsProps>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Switch,
                 team_id: cx.props.organisation_id,
                 title: "Your Teams",

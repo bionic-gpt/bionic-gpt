@@ -29,7 +29,7 @@ pub async fn send_message(
 
         // Get the prompt
         let prompt = prompts::prompt()
-            .bind(&transaction, &message.prompt_id)
+            .bind(&transaction, &message.prompt_id, &team_id)
             .one()
             .await?;
 
@@ -65,15 +65,9 @@ pub async fn send_message(
 
         transaction.commit().await?;
 
-        crate::layout::redirect_and_snackbar(
-            &ui_components::routes::console::index_route(team_id),
-            "Prompt is now being processed",
-        )
+        crate::layout::redirect(&ui_components::routes::console::index_route(team_id))
     } else {
-        crate::layout::redirect_and_snackbar(
-            &ui_components::routes::console::index_route(team_id),
-            "Problem Processing Form",
-        )
+        crate::layout::redirect(&ui_components::routes::console::index_route(team_id))
     }
 }
 

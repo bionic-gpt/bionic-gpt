@@ -34,8 +34,5 @@ pub async fn update_response(
 
     transaction.commit().await?;
 
-    crate::layout::redirect_and_snackbar(
-        &ui_components::routes::console::index_route(team_id),
-        "Response Updated",
-    )
+    crate::layout::redirect(&ui_components::routes::console::index_route(team_id))
 }
