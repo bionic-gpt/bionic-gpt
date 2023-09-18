@@ -11,6 +11,7 @@ pub fn api_keys(organisation_id: i32) -> String {
     fn app(cx: Scope<ApiKeysProps>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::ApiKeys,
                 team_id: cx.props.organisation_id,
                 title: "API Keys",

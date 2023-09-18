@@ -15,7 +15,10 @@ pub async fn index(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let prompts = prompts::prompts().bind(&transaction).all().await?;
+    let prompts = prompts::prompts()
+        .bind(&transaction, &team_id)
+        .all()
+        .await?;
 
     Ok(Html(ui_components::prompts::index(team_id, prompts)))
 }

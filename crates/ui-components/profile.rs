@@ -16,6 +16,7 @@ pub fn profile(user: User, organisation_id: i32) -> String {
     fn app(cx: Scope<ProfileProps>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::None,
                 title: "Your Profile",
                 team_id: cx.props.organisation_id,

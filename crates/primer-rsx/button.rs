@@ -61,6 +61,7 @@ impl ButtonSize {
 pub struct ButtonProps<'a> {
     children: Element<'a>,
     id: Option<&'a str>,
+    disabled: Option<bool>,
     class: Option<&'a str>,
     prefix_image_src: Option<&'a str>,
     suffix_image_src: Option<&'a str>,
@@ -97,8 +98,6 @@ pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element {
         ""
     };
 
-    let id = if let Some(id) = cx.props.id { id } else { "" };
-
     let class = format!(
         "btn {} {} {}",
         class,
@@ -106,69 +105,37 @@ pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element {
         button_size.to_string()
     );
 
-    if let Some(trigger) = cx.props.drawer_trigger {
-        cx.render(rsx!(
-            button {
-                class: "{class}",
-                id: "{id}",
-                "data-drawer-target": "{trigger}",
-                "type": "{button_type}",
-                if let Some(img_src) = cx.props.prefix_image_src {
-                    cx.render(rsx! {
-                        img {
-                            src: "{img_src}",
-                            class: "mr-2",
-                            width: "12"
-                        }
-                    })
-                } else {
-                    None
-                },
-                &cx.props.children,
-                if let Some(img_src) = cx.props.suffix_image_src {
-                    cx.render(rsx! {
-                        img {
-                            src: "{img_src}",
-                            class: "ml-2",
-                            width: "12"
-                        }
-                    })
-                } else {
-                    None
-                }
+    cx.render(rsx!(
+        button {
+            class: "{class}",
+            id: cx.props.id,
+            disabled: cx.props.disabled,
+            "data-drawer-target": cx.props.drawer_trigger,
+            "type": "{button_type}",
+            "data-disabled-text": cx.props.disabled_text,
+            if let Some(img_src) = cx.props.prefix_image_src {
+                cx.render(rsx! {
+                    img {
+                        src: "{img_src}",
+                        class: "mr-2",
+                        width: "12"
+                    }
+                })
+            } else {
+                None
+            },
+            &cx.props.children,
+            if let Some(img_src) = cx.props.suffix_image_src {
+                cx.render(rsx! {
+                    img {
+                        src: "{img_src}",
+                        class: "ml-2",
+                        width: "12"
+                    }
+                })
+            } else {
+                None
             }
-        ))
-    } else {
-        cx.render(rsx!(
-            button {
-                class: "{class}",
-                id: cx.props.id,
-                "data-disabled-text": cx.props.disabled_text,
-                "type": "{button_type}",
-                if let Some(img_src) = cx.props.prefix_image_src {
-                    cx.render(rsx! {
-                        img {
-                            src: "{img_src}",
-                            class: "mr-2",
-                            width: "12"
-                        }
-                    })
-                } else {
-                    None
-                },
-                &cx.props.children,
-                if let Some(img_src) = cx.props.suffix_image_src {
-                    cx.render(rsx! {
-                        img {
-                            src: "{img_src}",
-                            class: "ml-2",
-                            width: "12"
-                        }
-                    })
-                } else {
-                    None
-                }
-            }
-        ))
-    }
+        }
+    ))
 }

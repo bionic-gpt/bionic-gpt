@@ -32,6 +32,7 @@ pub struct LayoutProps<'a> {
     header: Element<'a>,
     children: Element<'a>,
     team_id: i32,
+    section_class: &'a str,
 }
 
 pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
@@ -41,6 +42,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
             css_href1: primer_view_components_css.name,
             css_href2: index_css.name,
             js_href: index_js.name,
+            section_class: cx.props.section_class,
             fav_icon_src: favicon_svg.name,
             header: cx.render(rsx!(
                 &cx.props.header

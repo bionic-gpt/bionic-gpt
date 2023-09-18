@@ -44,8 +44,6 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
 
     let class = select_size.to_string();
 
-    let id = if let Some(id) = cx.props.id { id } else { "" };
-
     cx.render(rsx!(
         match cx.props.label {
             Some(l) => cx.render(rsx!(
@@ -56,7 +54,7 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
             None => None
         }
         select {
-            id: "{id}",
+            id: cx.props.id,
             required: cx.props.required,
             disabled: cx.props.disabled,
             multiple: cx.props.multiple,

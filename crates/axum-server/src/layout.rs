@@ -16,3 +16,13 @@ pub fn redirect_and_snackbar(
         builder.map_err(|_| CustomError::FaultySetup("Could not build redirect".to_string()))?;
     Ok(response)
 }
+
+pub fn redirect(url: &str) -> Result<impl IntoResponse, CustomError> {
+    let builder = Response::builder()
+        .status(StatusCode::SEE_OTHER)
+        .header("location", url)
+        .body(Body::empty());
+    let response =
+        builder.map_err(|_| CustomError::FaultySetup("Could not build redirect".to_string()))?;
+    Ok(response)
+}
