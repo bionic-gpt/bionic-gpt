@@ -1,6 +1,6 @@
 use super::super::routes;
 use crate::app_layout::{Layout, SideBar};
-use assets::files::handshake_svg;
+use assets::files::{commit_svg, handshake_svg, profile_svg};
 use db::queries::{chats::Chats, prompts::Prompt};
 use dioxus::prelude::*;
 use primer_rsx::*;
@@ -42,7 +42,6 @@ pub fn index(
                                 }
                                 TimeLine {
                                     TimeLineBadge {
-                                        class: "color-bg-warning-emphasis color-fg-on-emphasis",
                                         image_src: handshake_svg.name
                                     }
                                     TimeLineBody {
@@ -54,7 +53,11 @@ pub fn index(
                                             cx.render(rsx!(
                                                 streaming-chat {
                                                     prompt: "{chat.prompt}",
-                                                    "chat-id": "{chat.id}"
+                                                    "chat-id": "{chat.id}",
+                                                    span {
+                                                        class: "AnimatedEllipsis",
+                                                        "Processing prompt"
+                                                    }
                                                 }
                                                 form {
                                                     method: "post",
@@ -76,17 +79,24 @@ pub fn index(
                                     }
                                 }
                                 TimeLine {
+                                    class: "TimelineItem--condensed",
                                     TimeLineBadge {
-                                        class: "color-bg-success-emphasis color-fg-on-emphasis",
-                                        image_src: handshake_svg.name
+                                        image_src: commit_svg.name
+                                    }
+                                    TimeLineBody {
+                                        a {
+                                            "data-drawer-target": "show-prompt-{chat.id}",
+                                            "View Prompt"
+                                        }
+                                    }
+                                }
+                                TimeLine {
+                                    TimeLineBadge {
+                                        image_src: profile_svg.name
                                     }
                                     TimeLineBody {
                                         span {
                                             "{chat.user_request} "
-                                        }
-                                        a {
-                                            "data-drawer-target": "show-prompt-{chat.id}",
-                                            "View Prompt"
                                         }
                                     }
                                 }
