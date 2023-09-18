@@ -56,7 +56,7 @@ pub fn index(
                                                     "chat-id": "{chat.id}",
                                                     span {
                                                         class: "AnimatedEllipsis",
-                                                        "Processing prompt"
+                                                        "Processing prompt "
                                                     }
                                                 }
                                                 form {
