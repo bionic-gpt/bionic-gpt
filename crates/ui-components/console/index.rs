@@ -48,7 +48,9 @@ pub fn index(
                                     TimeLineBody {
                                         if let Some(response) = &chat.response {
                                             cx.render(rsx!(
-                                                "{response}"
+                                                response-formatter {
+                                                    response: "{convert_quotes(response)}"
+                                                }
                                             ))
                                         } else {
                                             cx.render(rsx!(
@@ -200,4 +202,8 @@ pub fn index(
             update_response_action: routes::console::update_response_route(organisation_id),
         },
     ))
+}
+
+fn convert_quotes(str: &str) -> String {
+    str.replace('\"', "&quot;")
 }
