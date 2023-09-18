@@ -9,9 +9,3 @@
     padding-left: 1rem;
     padding-right: 1rem;
 }
-
-.l_layout > .l_content > section:has(> div#console-panel) {
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-}

@@ -108,7 +108,7 @@ pub fn index(
                     div {
                         class: "position-relative width-full bottom-0 p-2 border-top color-bg-subtle",
                         form {
-                            class: "remember width-full d-flex flex-justify-between flex-items-center",
+                            class: "remember width-full d-flex",
                             method: "post",
                             "data-remember-name": "console-prompt",
                             "data-remember-reset": "false",
@@ -119,25 +119,31 @@ pub fn index(
                                         class: "flex-1 mr-2 form-control",
                                         rows: "4",
                                         name: "message",
-                                        disabled: true,
+                                        disabled: true
                                     }
                                     div {
-                                        class: "d-flex flex-justify-between flex-column",
-                                        Select {
-                                            name: "prompt_id",
-                                            disabled: true,
-                                            label: "Prompt",
-                                            cx.props.prompts.iter().map(|prompt| rsx!(
-                                                option {
-                                                    value: "{prompt.id}",
-                                                    "{prompt.name}"
-                                                }
-                                            ))
+                                        class: "d-flex flex-column flex-justify-between",
+                                        div {
+                                            class: "d-flex flex-row ",
+                                            label {
+                                                class: "mr-2",
+                                                "Prompt"
+                                            }
+                                            Select {
+                                                name: "prompt_id",
+                                                disabled: true,
+                                                cx.props.prompts.iter().map(|prompt| rsx!(
+                                                    option {
+                                                        value: "{prompt.id}",
+                                                        "{prompt.name}"
+                                                    }
+                                                ))
+                                            }
                                         }
                                         Button {
-                                            button_type: ButtonType::Submit,
-                                            button_scheme: ButtonScheme::Outline,
                                             disabled: true,
+                                            button_type: ButtonType::Submit,
+                                            button_scheme: ButtonScheme::Default,
                                             "Send Message"
                                         }
                                     }
@@ -147,23 +153,29 @@ pub fn index(
                                     textarea {
                                         class: "flex-1 mr-2 form-control",
                                         rows: "4",
-                                        name: "message",
+                                        name: "message"
                                     }
                                     div {
-                                        class: "d-flex flex-justify-between flex-column",
-                                        Select {
-                                            name: "prompt_id",
-                                            label: "Prompt",
-                                            cx.props.prompts.iter().map(|prompt| rsx!(
-                                                option {
-                                                    value: "{prompt.id}",
-                                                    "{prompt.name}"
-                                                }
-                                            ))
+                                        class: "d-flex flex-column flex-justify-between",
+                                        div {
+                                            class: "d-flex flex-row ",
+                                            label {
+                                                class: "mr-2",
+                                                "Prompt"
+                                            }
+                                            Select {
+                                                name: "prompt_id",
+                                                cx.props.prompts.iter().map(|prompt| rsx!(
+                                                    option {
+                                                        value: "{prompt.id}",
+                                                        "{prompt.name}"
+                                                    }
+                                                ))
+                                            }
                                         }
                                         Button {
                                             button_type: ButtonType::Submit,
-                                            button_scheme: ButtonScheme::Outline,
+                                            button_scheme: ButtonScheme::Default,
                                             "Send Message"
                                         }
                                     }

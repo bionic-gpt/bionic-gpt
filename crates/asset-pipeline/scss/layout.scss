@@ -62,14 +62,14 @@
         }
 
         >section {
-            padding: 1rem;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: stretch;
             justify-content: flex-start;
             max-inline-size: 100%;
             inline-size: 100%;
-            height: calc(100% - 72px);
+            height: calc(100% - 79px);
         }
     }
 
