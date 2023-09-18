@@ -12,6 +12,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Models,
                 team_id: cx.props.organisation_id,
                 title: "Models",

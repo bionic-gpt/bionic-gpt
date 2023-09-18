@@ -49,7 +49,7 @@
         overflow-y: auto;
         height: 100vh;
 
-        >header {
+        > header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -61,15 +61,8 @@
             }
         }
 
-        >section {
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-start;
-            max-inline-size: 100%;
-            inline-size: 100%;
-            height: calc(100% - 79px);
+        > section {
+            padding: 1rem;
         }
     }
 

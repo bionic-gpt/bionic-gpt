@@ -11,6 +11,7 @@ pub fn bulk(organisation_id: i32) -> String {
     fn app(cx: Scope<ApiKeysProps>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::BulkImport,
                 team_id: cx.props.organisation_id,
                 title: "Document Pipelines",

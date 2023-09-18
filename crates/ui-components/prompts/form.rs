@@ -21,6 +21,7 @@ pub fn form(
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "normal",
                 selected_item: SideBar::Prompts,
                 team_id: cx.props.organisation_id,
                 title: "Prompts",

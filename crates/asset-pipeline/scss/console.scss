@@ -9,3 +9,14 @@
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+.l_layout > .l_content > section.console {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    max-inline-size: 100%;
+    inline-size: 100%;
+    height: calc(100% - 79px);
+}

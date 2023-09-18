@@ -23,6 +23,7 @@ pub fn index(
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
+                section_class: "console",
                 selected_item: SideBar::Console,
                 team_id: cx.props.organisation_id,
                 title: "AI Chat Console",
