@@ -1,3 +1,4 @@
+use super::super::routes;
 use crate::app_layout::{Layout, SideBar};
 use assets::files::handshake_svg;
 use db::queries::{chats::Chats, prompts::Prompt};
@@ -8,16 +9,16 @@ struct Props {
     organisation_id: i32,
     chats: Vec<Chats>,
     prompts: Vec<Prompt>,
+    lock_console: bool,
     send_message_action: String,
     update_response_action: String,
 }
 
 pub fn index(
     organisation_id: i32,
-    send_message_action: String,
-    update_response_action: String,
     chats: Vec<Chats>,
     prompts: Vec<Prompt>,
+    lock_console: bool,
 ) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
@@ -100,28 +101,61 @@ pub fn index(
                             "data-remember-name": "console-prompt",
                             "data-remember-reset": "false",
                             action: "{cx.props.send_message_action}",
-                            textarea {
-                                class: "flex-1 mr-2 form-control",
-                                rows: "4",
-                                name: "message"
-                            }
-                            div {
-                                class: "d-flex flex-justify-between flex-column",
-                                Select {
-                                    name: "prompt_id",
-                                    label: "Prompt",
-                                    cx.props.prompts.iter().map(|prompt| rsx!(
-                                        option {
-                                            value: "{prompt.id}",
-                                            "{prompt.name}"
+                            if cx.props.lock_console {
+                                cx.render(rsx!(
+                                    textarea {
+                                        class: "flex-1 mr-2 form-control",
+                                        rows: "4",
+                                        name: "message",
+                                        disabled: true,
+                                    }
+                                    div {
+                                        class: "d-flex flex-justify-between flex-column",
+                                        Select {
+                                            name: "prompt_id",
+                                            disabled: true,
+                                            label: "Prompt",
+                                            cx.props.prompts.iter().map(|prompt| rsx!(
+                                                option {
+                                                    value: "{prompt.id}",
+                                                    "{prompt.name}"
+                                                }
+                                            ))
                                         }
-                                    ))
-                                }
-                                Button {
-                                    button_type: ButtonType::Submit,
-                                    button_scheme: ButtonScheme::Outline,
-                                    "Send Message"
-                                }
+                                        Button {
+                                            button_type: ButtonType::Submit,
+                                            button_scheme: ButtonScheme::Outline,
+                                            disabled: true,
+                                            "Send Message"
+                                        }
+                                    }
+                                ))
+                            } else {
+                                cx.render(rsx!(
+                                    textarea {
+                                        class: "flex-1 mr-2 form-control",
+                                        rows: "4",
+                                        name: "message",
+                                    }
+                                    div {
+                                        class: "d-flex flex-justify-between flex-column",
+                                        Select {
+                                            name: "prompt_id",
+                                            label: "Prompt",
+                                            cx.props.prompts.iter().map(|prompt| rsx!(
+                                                option {
+                                                    value: "{prompt.id}",
+                                                    "{prompt.name}"
+                                                }
+                                            ))
+                                        }
+                                        Button {
+                                            button_type: ButtonType::Submit,
+                                            button_scheme: ButtonScheme::Outline,
+                                            "Send Message"
+                                        }
+                                    }
+                                ))
                             }
                         }
                     }
@@ -134,10 +168,11 @@ pub fn index(
         app,
         Props {
             organisation_id,
-            send_message_action,
-            update_response_action,
             chats,
             prompts,
+            lock_console,
+            send_message_action: routes::console::send_message_route(organisation_id),
+            update_response_action: routes::console::update_response_route(organisation_id),
         },
     ))
 }
