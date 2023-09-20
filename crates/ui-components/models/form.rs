@@ -19,9 +19,9 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                 section_class: "normal",
                 selected_item: SideBar::Models,
                 team_id: cx.props.organisation_id,
-                title: "Prompts",
+                title: "Integrate a Model",
                 header: cx.render(rsx!(
-                    h3 { "Prompt" }
+                    h3 { "Integrate a Model" }
                 )),
                 form {
                     class: "d-flex flex-column",

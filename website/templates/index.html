@@ -3,23 +3,24 @@
 {% block content %}
 <section class="col-10 mx-auto content d-flex flex-content-center flex-column mt-4 mt-md-12 text-center">
   <h1 class="h3-mktg mb-4">Accelerate LLM adoption in your organisation</h1>
-  <h2 class="h6-mktg color-fg-muted mb-4">Chat with your confidential data safely and securely.
+  <h2 class="h6-mktg color-fg-muted mb-4">Chat safely and securely with your confidential data.
     Your data never leaves your premises.
   </h2>
   <div class="mb-4">
     <a class="btn-mktg mr-1" href="{{config.extra.every_page_cta.cta_url}}">Get Started</a>
   </div>
   <div>
-    <img alt="Bionic LLama" width="50%" src="bionic-llama.jpg"></img>
+    <img alt="Bionic LLama" width="50%" src="bionic-llama.png"></img>
   </div>
 </section>
 
 <section>
   <div class="col-10 mx-auto content d-md-flex flex-row mt-6 mt-lg-12 pb-6">
     <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">From zero to proof of concept in less than 1 hour</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">You've never seen enterprise software that's as easy to install as this.</h4>
-      <p>Most developers with experience of Docker can get this running in minutes.</p>
+      <h2 class="h5-mktg mb-6">Imagine ChatGPT running in your enterprise and fully respecting data privacy</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">Give your teams the ability to boost their productivity with generative AI.</h4>
+      <p>Full control over data governance</p>
+      <p>Role based access control</p>
     </div>
     <img class="col-md-6 ml-lg-4 color-shadow-large" alt="Cream" src="/github-readme.png"></img>
   </div>
@@ -27,13 +28,46 @@
 
 <section>
   <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <img class="col-md-6 mr-lg-4 color-shadow-large" alt="Cream" src="/github-readme.png"></img>
+    <img class="col-md-6 mr-lg-4" alt="Cream" src="/resource-augmented-generation.png"></img>
     <div class="col-md-6 pl-4">
-      <h2 class="h5-mktg mb-6">Resource Augmented Generation (RAG)</h2>
+      <h2 class="h5-mktg mb-6">Chat with your private documents</h2>
       <h4 class="h6-mktg color-fg-muted mb-6">
-        Upload documents on a team by team basis. The LLM uses your documents
-        to help generate it's answer.
+        BionicGPT supports resource augmented generation (RAG).
       </h4>
+      <p>Upload your documents and boost the AI's ability to answer questions.</p>
+      <p>80% of enterprise data exists in difficult-to-use formats like HTML, PDF, CSV, PNG, PPTX, and more. </p>
+      <p>BionicGPT effortlessly extracts and transforms complex data.</p>
+      <p>Support for optical character recognition (coming soon)</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-md-flex flex-row pt-6 pb-12">
+    <div class="col-md-6 pl-4">
+      <h2 class="h5-mktg mb-6">Teams can manage their own documents and data access</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        Your teams know best which documents they need to power generative AI.
+      </h4>
+      <p>Teams have the ability to manage their own datasets</p>
+      <p>Data is private to the team</p>
+      <p>Teams can manage themselves and invite colleagues.</p>
+    </div>
+    <img class="col-md-6 pr-4" alt="Cream" src="/teams.png"></img>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
+    <img class="col-md-6 mr-lg-4" alt="Cream" src="/model-integration.png"></img>
+    <div class="col-md-6 pr-4">
+      <h2 class="h5-mktg mb-6">BionicGPT is model Agnostic</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        BionicGPT works with whichever LLM you want and can support multiple models
+        from the same user interface.
+      </h4>
+      <p>We can run on any model that supports the OpenAI API.</p>
+      <p>Deploy your own fine tuned models</p>
     </div>
   </div>
 </section>
@@ -41,52 +75,88 @@
 <section>
   <div class="col-10 mx-auto content d-md-flex flex-row pt-6 pb-12">
     <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">Open Source</h2>
+      <h2 class="h5-mktg mb-6">Fully implemented Data Pipelines</h2>
       <h4 class="h6-mktg color-fg-muted mb-6">
-        Very permissive licensing model
+        BionicGPT comes complete with a full data pipeline to ease integration within your enterprise
       </h4>
-      <p>Get up and running without fear of issues down the line</p>
+      <p>We can connect via the S3 protocol to documents on network storage</p>
+      <p>The pipeline waits for documents to change and automatically adds them to our vector database.</p>
     </div>
-    <img class="col-md-6 ml-lg-4 color-shadow-large" alt="Cream" src="/github.png"></img>
+    <img class="col-md-6 ml-lg-4" alt="Cream" src="/document-pipeline.png"></img>
   </div>
 </section>
 
 <section>
   <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <img class="col-md-6 mr-lg-4 color-shadow-large" alt="Cream" src="/github-readme.png"></img>
-    <div class="col-md-6 pl-4">
-      <h2 class="h5-mktg mb-6">Complete Privacy</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        No data leaves your premises.
-      </h4>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="col-10 mx-auto content d-md-flex flex-row pt-6 pb-12">
+    <img class="col-md-6 mr-lg-4" alt="Cream" src="/bionicgpt-laptop.jpg"></img>
     <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">Enterprise Ready Features</h2>
+      <h2 class="h5-mktg mb-6">You can launch a proof of concept in a day</h2>
       <h4 class="h6-mktg color-fg-muted mb-6">
-        We walk you through best practices for scaling and operating products.
+        We have BionicGPT running on a laptop without a GPU.
       </h4>
-      <p>Deploying to Kubernetes</p>
-      <p>How to incorporate open telemetry (coming soon)</p>
+      <p>We can use quantized 7B models that run in around 5GB of ram.</p>
+      <p>Despite the low resources we get surprisingly good answers from the LLM (sometimes).</p>
+      <p>Test your potential use cases on hardware you already have without triggering any purchase orders.</p>
+      <p>When you're ready for production BionicGPT can scale to any workload.</p>
     </div>
-    <img class="col-md-6 ml-lg-4 color-shadow-large" alt="Cream" src="/rust-llm/cd/pods.png"></img>
   </div>
 </section>
 
 <section>
   <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <img class="col-md-6 mr-lg-4 color-shadow-large" alt="Cream" src="/rust-llm/cd/pods.png"></img>
-    <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">From 7b locally to 180b in Production</h2>
+    <div class="col-md-6 mr-lg-4">
+      <h2 class="h5-mktg mb-6">Deploy an API internally</h2>
       <h4 class="h6-mktg color-fg-muted mb-6">
-        We walk you through best practices for scaling and operating products.
+        BionicGPT provides an API end point connected to your data and models
       </h4>
-      <p>Deploying to Kubernetes</p>
-      <p>How to incorporate open telemetry (coming soon)</p>
+      <p>There are serveral use cases for this such as...</p>
+      <p>Customer chat bot that can answer support questions</p>
+      <p>Internal chat bots such as human resources</p>
+    </div>
+    <img class="col-md-6 ml-lg-4" alt="Cream" src="/api.png"></img>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
+    <img class="col-md-6 mr-lg-4" alt="Cream" src="/custom-hardware.png"></img>
+    <div class="col-md-6 pr-4">
+      <h2 class="h5-mktg mb-6">Not sure what hardware you need?</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        We can build a custom hardware solution for your requirements.
+      </h4>
+      <p>We can help match the models with the correct hardware to meet your workload.</p>
+      <p>You can potentially save $1000's by not over purchasing on hardware.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
+    <div class="col-md-6 mr-lg-4">
+      <h2 class="h5-mktg mb-6">Complete open source under a permissive licence</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        No need to worry about purchase orders or sales calls
+      </h4>
+      <p>You can fully manage BionicGPT yourself wihtout any issues.</p>
+      <p>Contribute changes and raise issues on our Github.</p>
+    </div>
+    <img class="col-md-6 ml-lg-4" alt="Cream" src="/github.png"></img>
+  </div>
+</section>
+
+<section>
+  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
+    <img class="col-md-6 mr-lg-4" alt="Enterprise LLama" src="/enterprise-llama.jpg"></img>
+    <div class="col-md-6 pr-4">
+      <h2 class="h5-mktg mb-6">Enterprise Ready</h2>
+      <h4 class="h6-mktg color-fg-muted mb-6">
+        Built by people with experience running applications in the enterprise.
+      </h4>
+      <p>Support contracts available</p>
+      <p>Consultancy is available on any aspect of your LLM journey.</p>
+      <p>Full support for Single Sign On (SSO).</p>
+      <p>Built from the ground up to run natively on Kubernetes.</p>
     </div>
   </div>
 </section>
