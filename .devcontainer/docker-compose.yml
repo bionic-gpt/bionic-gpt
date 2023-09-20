@@ -21,7 +21,7 @@ services:
     environment:
         # This secret key is used to encrypt cookies.
         SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-        DATABASE_URL: postgresql://postgres:testpassword@db:5432/finetuna
+        DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt
         FORWARD_URL: development
         FORWARD_PORT: 7703
         REDIRECT_URL: /app/post_registration
@@ -34,7 +34,7 @@ services:
     environment:
       POSTGRES_PASSWORD: testpassword
       POSTGRES_USER: postgres
-      POSTGRES_DB: finetuna
+      POSTGRES_DB: bionicgpt
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vscode"]
       interval: 10s
@@ -57,8 +57,8 @@ services:
       #- node_modules:/vscode/node_modules 
 
     environment:
-      DATABASE_URL: postgresql://postgres:testpassword@db:5432/finetuna?sslmode=disable
-      APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/finetuna?sslmode=disable
+      DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt?sslmode=disable
+      APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/bionicgpt?sslmode=disable
 
       INVITE_DOMAIN: http://envoy:7700
       INVITE_FROM_EMAIL_ADDRESS: support@application.com

@@ -19,30 +19,14 @@ COMMENT ON FUNCTION current_app_user IS
     'These needs to be set by the application before accessing the database.';
 
 CREATE FUNCTION get_orgs_for_app_user() RETURNS setof integer AS 
-$$ 
-DECLARE
-    current_key text := current_ecdh_public_key();
-BEGIN
-    -- raise notice 'Key (%)', current_key;
-    -- Is this an API call using the ECDH public key?
-    IF current_key IS NOT NULL AND LENGTH(current_key) > 10 THEN
-        RETURN QUERY SELECT
-            organisation_id
-        FROM
-            service_accounts
-        WHERE
-            ecdh_public_key = current_key;
-    -- It's a normal call get the current app user
-    ELSE
-        RETURN QUERY SELECT
-            organisation_id
-        FROM
-            organisation_users
-        WHERE
-            user_id = current_app_user();
-    END IF;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$
+    SELECT
+        organisation_id
+    FROM
+        organisation_users
+    WHERE
+        user_id = current_app_user()
+$$ LANGUAGE SQL SECURITY DEFINER;
 COMMENT ON FUNCTION get_orgs_for_app_user IS 
     'All the orgs a user has been invited to.';
 
