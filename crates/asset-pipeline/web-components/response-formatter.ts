@@ -66,7 +66,7 @@ export class ResponseFormatter extends HTMLElement {
                     ? '<ol class="ml-3" start="' + (num
                         ? ol + '">'
                         : parseInt(ol, 36) - 9 + '" style="list-style-type:' + (low ? 'low' : 'upp') + 'er-alpha">') + entry + '</ol>'
-                    : element('ul', entry));
+                    : element('ul class="ml-3"', entry));
             });
         }
 
