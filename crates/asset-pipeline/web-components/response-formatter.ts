@@ -11,7 +11,12 @@ export class ResponseFormatter extends HTMLElement {
 
         if (response && response.value) {
 
-            const md = this.markdown(response.value)
+            let md = this.markdown(response.value)
+            console.log(md)
+            md = md.replace(/<p>(\s)*<\/p>/g, '')
+            md = md.replace(/<pre>/g, '<pre class="color-bg-accent p-1">')
+            console.log(md)
+
 
             this.innerHTML = `${md}`
         }
@@ -58,7 +63,7 @@ export class ResponseFormatter extends HTMLElement {
                     RegExp('\n ?' + ind + '(?:(?:\\d+|[a-zA-Z])[.)]|[*\\-+]) +', 'g')).map(list).join('</li><li>')));
 
                 return '\n' + (ol
-                    ? '<ol start="' + (num
+                    ? '<ol class="ml-3" start="' + (num
                         ? ol + '">'
                         : parseInt(ol, 36) - 9 + '" style="list-style-type:' + (low ? 'low' : 'upp') + 'er-alpha">') + entry + '</ol>'
                     : element('ul', entry));
