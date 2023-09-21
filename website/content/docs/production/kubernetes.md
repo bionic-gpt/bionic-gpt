@@ -20,7 +20,7 @@ You'll need to setup a namespace in your Kubernetes cluster and also a Postgres 
 
 ## Trying out a deployment locally
 
-We recommend using [Kind](https://kind.sigs.k8s.io/) which is a version of Kuberenetes you can run locally to practice deployments.
+We recommend using [Kind](https://kind.sigs.k8s.io/) which is a version of Kubernetes you can run locally to practice deployments.
 
 ## Setting up a local cluster with Kind
 

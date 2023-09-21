@@ -12,7 +12,7 @@ toc = true
 top = false
 +++
 
-BionicGPT is completely stateless aprt from the data we store in Postgres.
+BionicGPT is completely stateless apart from the data we store in Postgres.
 
 As part of installing into production you'll need a strategy for how you manage that state (i.e. backups).
 

@@ -14,7 +14,7 @@ top = false
 
 One we have a cluster that is ready for BionicGPT we can install the docker containers.
 
-We provide a Pulumi.yaml file that will install the corespondign components into a `bionicgpt` namespace.
+We provide a Pulumi.yaml file that will install the corresponding components into a `bionicgpt` namespace.
 
 ```yml
 # Pulumi deployment setup
@@ -39,4 +39,4 @@ variables:
 
 ## Pulumi up
 
-Run `pulumi up` and check that all the deployments are running corerctly.
+Run `pulumi up` and check that all the deployments are running correctly.

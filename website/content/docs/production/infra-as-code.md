@@ -12,7 +12,7 @@ toc = true
 top = false
 +++
 
-We use [Pulumi](https://www.pulumi.com/) to manage infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernets cluster ready for a BionicGPT deployment.
+We use [Pulumi](https://www.pulumi.com/) to manage infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.
 
 We can continue to use Kind as our stand-in for a production server.
 
