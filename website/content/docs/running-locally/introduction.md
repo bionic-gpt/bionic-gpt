@@ -12,10 +12,27 @@ toc = true
 top = false
 +++
 
-When creating software it's often a good practice to document the architecture using  a technique called [Architecture Decision Records](https://adr.github.io/).
+BionicGPT was designed from the beginning to run on modest hardware and then scale into more aggressive hardware when needed.
 
-An ADR is nothing more than a markdown document that records the title, status, context, decision, and consequences of a particular design choice.
+The reasons for this are twofold.
 
-When a decision is made it's often helpful to create a small Proof of Concept that illustrates how the decision will play out in the real world. 
+1. We wanted people to be able to test out use cases without having to worry about purchasing graphics cards.
+1. We're an open source project and we want to enable contributions from the community from contributors who may not have expensive hardware.
 
-I found previously when working on the [Rust on Nails](https://rust-on-nails.com/) architecture that when you combine the ADR's with Proofs of Concept the result reads like a tutorial on how to build a system in a particular way. 
+## Managing Expectations
+
+For installations on modest hardware we run a quantized model with 7 billion parameters. This is great as it requires only around 5GB of memory.
+
+However typically larger models give better results. 
+
+We were surprised sometimes at the quality of results we got back from this model. Other times results were disappointing.
+
+We still believe this is a great way to start to look at the ways LLM's can help out in your company. We've tried to minimise the time it takes to go from idea to practical proof of concept.
+
+## Hardware we've tested on
+
+
+| OS | Architecture | Processor | Ram | Inference | Embeddings |
+| --- | --- | --- | --- | --- | --- |
+| PopOs (Linux) | x86 | AMD 2700x 8 Core | 16gb | Usable | Working |
+| MacOs | x86 | 2.8GHz dual core i5 | 16gb | Very Slow | Working |
