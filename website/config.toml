@@ -35,8 +35,8 @@ footer_cta = { title = "Sign up for our service", prompt = "Get notifications of
 # Where shall we point the sign in and sign up buttons.
 #authentication = { sign_up = "#", sign_in = "#" }
 # When running on localhost you can set the sign up and sign links to somewhere else.
-localhost = "http://localhost:7704/"
-authentication_development = { sign_up = "/auth/sign_up", sign_in = "/auth/sign_in" }
+#localhost = "http://localhost:7704/"
+#authentication_development = { sign_up = "/auth/sign_up", sign_in = "/auth/sign_in" }
 
 # Information required by terms and privacy pages.
 support_email = "support@tech-startup.com"
