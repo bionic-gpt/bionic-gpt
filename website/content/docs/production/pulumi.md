@@ -12,6 +12,10 @@ toc = true
 top = false
 +++
 
+One we have a cluster that is ready for BionicGPT we can install the docker containers.
+
+We provide a Pulumi.yaml file that will install the corespondign components into a `bionicgpt` namespace.
+
 ```yml
 # Pulumi deployment setup
 
@@ -32,3 +36,7 @@ variables:
     server: ghcr.io/purton-tech/bionicgpt-server:${version}@${hash-bionicgpt}
     envoy: ghcr.io/purton-tech/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
 ```
+
+## Pulumi up
+
+Run `pulumi up` and check that all the deployments are running corerctly.
