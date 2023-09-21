@@ -18,7 +18,7 @@ We're assuming that you've identified one or more use cases and along the lines 
 
 Having identified documents that you would the LLM to use as part of it's answers, you can upload those documents via the user interface.
 
-In the background we use a service called unstrutured to remove the text from those documents. So the quality of answers you get is going to depend on the quality of the text within those documents.
+In the background we use a service called unstructured to remove the text from those documents. So the quality of answers you get is going to depend on the quality of the text within those documents.
 
 ![Alt text](/resource-augmented-generation.png "Uploading docements")
 

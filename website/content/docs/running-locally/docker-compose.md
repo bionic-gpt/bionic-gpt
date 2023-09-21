@@ -14,13 +14,13 @@ top = false
 
 ## Prerequisites
 
-The easiest way to gedt running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
+The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 The you can cut and paste the `docker-compose.yml` below and run `docker-compose up`.
 
 ## Upgrades
 
-When upgradeding to the latest version of BionicGPT we recommend running `docker-compose down -v` to completely delete the database.
+When upgrading to the latest version of BionicGPT we recommend running `docker-compose down -v` to completely delete the database.
 
 ## docker-compose.yml
 
