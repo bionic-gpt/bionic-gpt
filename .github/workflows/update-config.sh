@@ -20,4 +20,5 @@ do
     CONFIG_NAME=$(echo $i | cut -c 21-) 
     echo "Name $CONFIG_NAME"
     sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../README.md
+    sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../website/content/docs/running-locally/docker-compose.md
 done
