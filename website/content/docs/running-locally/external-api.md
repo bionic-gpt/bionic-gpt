@@ -29,7 +29,7 @@ Remove the following lines form `docker-compose.yml`.
 
 Envoy is a reverse proxy which we use to route requests between the different containers that come together to make BionicGPT work.
 
-We're going to need to take the existing configuration and alter it to point at your LLM.
+We're going to need to take the existing `docker-compose.yml` and alter it to point at your LLM.
 
 ```yml
   # Handles routing between the application, barricade and the LLM API
@@ -70,6 +70,21 @@ Change the following section in the `envoy.yaml` just the `address` and `port_va
                 port_value: 5001
 ```
 
+## Configuring the embeddings job
+
+In the `docker-compose.yml` we'll also need to configure the embeddings job to point to your exateral LLM API.
+
+Add the following environment variable `OPENAI_ENDPOINT` and point it to the port you are running your API on.
+
+```yml
+services:
+  ...
+  embeddings-job:
+      image: ghcr.io/purton-tech/bionicgpt-embeddings-job:1.0.3
+      environment:
+        OPENAI_ENDPOINT: http://llm-api:5001
+        APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
+```
 
 ## Could we make this easier?
 
