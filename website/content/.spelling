@@ -208,3 +208,5 @@ webp
 listing_image
 LLama2
 7b
+ - docs/running-locally/external-api.md
+envoy.yaml
