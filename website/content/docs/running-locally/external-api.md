@@ -72,7 +72,7 @@ Change the following section in the `envoy.yaml` just the `address` and `port_va
 
 ## Configuring the embeddings job
 
-In the `docker-compose.yml` we'll also need to configure the embeddings job to point to your exateral LLM API.
+In the `docker-compose.yml` we'll also need to configure the embeddings job to point to your external LLM API.
 
 Add the following environment variable `OPENAI_ENDPOINT` and point it to the port you are running your API on.
 
