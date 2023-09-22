@@ -36,7 +36,7 @@ export class StreamingChat extends HTMLElement {
             const { value, done } = await reader.read();
             if (done) break;
             let dataDone = false;
-            const arr = value.split('\n');
+            const arr = value.split(/\r?\n/);
             arr.forEach((data) => {
                 if (data.length === 0) return; // ignore empty message
                 if (data.startsWith(':')) return; // ignore sse comment message
