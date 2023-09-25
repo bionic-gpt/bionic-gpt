@@ -16,6 +16,7 @@ use rand::{distributions::Alphanumeric, thread_rng, Rng};
 pub struct NewApiKey {
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
+    pub prompt_id: i32,
 }
 
 pub async fn new_api_key(
@@ -39,7 +40,7 @@ pub async fn new_api_key(
         api_keys::new_api_key()
             .bind(
                 &transaction,
-                &current_user.user_id,
+                &new_api_key.prompt_id,
                 &new_api_key.name,
                 &api_key,
             )

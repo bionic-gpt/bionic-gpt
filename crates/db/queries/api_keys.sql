@@ -2,15 +2,16 @@
 
 --! api_keys : ApiKey
 SELECT
-    id,
-    name,
-    prompt_id,
-    api_key,
-    created_at
+    a.id,
+    a.name,
+    a.prompt_id,
+    (SELECT name FROM prompts p WHERE p.id = a.prompt_id) as prompt_name,
+    a.api_key,
+    a.created_at
 FROM
-    api_keys
+    api_keys a
 WHERE 
-    prompt_id IN (
+    a.prompt_id IN (
         SELECT id FROM prompts WHERE model_id IN(
             SELECT id FROM models WHERE organisation_id IN(
                 SELECT organisation_id 
@@ -30,17 +31,18 @@ VALUES
 
 --! find_api_key : ApiKey
 SELECT
-    id,
-    name,
-    prompt_id,
-    api_key,
-    created_at
+    a.id,
+    a.name,
+    a.prompt_id,
+    (SELECT name FROM prompts p WHERE p.id = a.prompt_id) as prompt_name,
+    a.api_key,
+    a.created_at
 FROM
-    api_keys
+    api_keys a
 WHERE
-    api_key = :api_key
+    a.api_key = :api_key
 AND
-    prompt_id IN (
+    a.prompt_id IN (
         SELECT id FROM prompts WHERE model_id IN(
             SELECT id FROM models WHERE organisation_id IN(
                 SELECT organisation_id 

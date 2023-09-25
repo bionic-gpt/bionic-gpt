@@ -19,5 +19,12 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(ui_components::api_keys::index(api_keys, team_id)))
+    let prompts = queries::prompts::prompts()
+        .bind(&transaction, &team_id)
+        .all()
+        .await?;
+
+    Ok(Html(ui_components::api_keys::index(
+        api_keys, prompts, team_id,
+    )))
 }

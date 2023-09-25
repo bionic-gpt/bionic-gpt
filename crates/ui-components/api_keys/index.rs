@@ -1,16 +1,17 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
-use db::ApiKey;
+use db::{ApiKey, Prompt};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
 struct ApiKeysProps {
     organisation_id: i32,
     api_keys: Vec<ApiKey>,
+    prompts: Vec<Prompt>,
     submit_action: String,
 }
 
-pub fn index(api_keys: Vec<ApiKey>, organisation_id: i32) -> String {
+pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) -> String {
     fn app(cx: Scope<ApiKeysProps>) -> Element {
         cx.render(rsx! {
             if cx.props.api_keys.is_empty() {
@@ -56,6 +57,7 @@ pub fn index(api_keys: Vec<ApiKey>, organisation_id: i32) -> String {
                                         thead {
                                             th { "Name" }
                                             th { "API Key" }
+                                            th { "Prompt" }
                                             th {
                                                 class: "text-right",
                                                 "Action"
@@ -73,6 +75,9 @@ pub fn index(api_keys: Vec<ApiKey>, organisation_id: i32) -> String {
                                                             name: "api_key",
                                                             disabled: true
                                                         }
+                                                    }
+                                                    td {
+                                                        "{key.prompt_name}"
                                                     }
                                                     td {
                                                         class: "text-right",
@@ -123,6 +128,17 @@ pub fn index(api_keys: Vec<ApiKey>, organisation_id: i32) -> String {
                                 label: "Name",
                                 name: "name"
                             }
+                            Select {
+                                name: "prompt_id",
+                                label: "Please select a prompt",
+                                help_text: "All access via this API key will use the above prompt",
+                                cx.props.prompts.iter().map(|prompt| rsx!(
+                                    option {
+                                        value: "{prompt.id}",
+                                        "{prompt.name}"
+                                    }
+                                ))
+                            }
                         }
                     }
                     DrawerFooter {
@@ -144,6 +160,7 @@ pub fn index(api_keys: Vec<ApiKey>, organisation_id: i32) -> String {
         ApiKeysProps {
             organisation_id,
             api_keys,
+            prompts,
             submit_action,
         },
     ))
