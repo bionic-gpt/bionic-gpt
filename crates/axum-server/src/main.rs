@@ -21,6 +21,7 @@ mod unstructured;
 
 use axum::body::Body;
 use axum::extract::Extension;
+use axum::routing::post;
 use axum::{response::Html, routing::get};
 use hyper::client::HttpConnector;
 use std::net::SocketAddr;
@@ -45,6 +46,7 @@ async fn main() {
     let axum_make_service = axum::Router::new()
         .route("/static/*path", get(static_files::static_path))
         .route("/v1/*path", get(api_reverse_proxy::handler))
+        .route("/v1/*path", post(api_reverse_proxy::handler))
         .with_state(client)
         .merge(team::routes())
         .merge(profile::routes())
