@@ -1,4 +1,5 @@
 mod api_keys;
+mod api_reverse_proxy;
 mod authentication;
 mod bulk_import;
 mod config;
@@ -18,10 +19,15 @@ mod team;
 mod training;
 mod unstructured;
 
+use axum::body::Body;
 use axum::extract::Extension;
+use axum::routing::post;
 use axum::{response::Html, routing::get};
+use hyper::client::HttpConnector;
 use std::net::SocketAddr;
 use tower_http::trace::TraceLayer;
+
+type Client = hyper::client::Client<HttpConnector, Body>;
 
 #[tokio::main]
 async fn main() {
@@ -35,8 +41,13 @@ async fn main() {
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);
 
+    let client: Client = hyper::Client::builder().build(HttpConnector::new());
+
     let axum_make_service = axum::Router::new()
         .route("/static/*path", get(static_files::static_path))
+        .route("/v1/*path", get(api_reverse_proxy::handler))
+        .route("/v1/*path", post(api_reverse_proxy::handler))
+        .with_state(client)
         .merge(team::routes())
         .merge(profile::routes())
         .merge(registration_handler::routes())

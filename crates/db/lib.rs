@@ -8,6 +8,7 @@ use rustls::client::{ServerCertVerified, ServerCertVerifier};
 use rustls::ServerName;
 pub use tokio_postgres::Error as TokioPostgresError;
 
+pub use queries::api_keys::ApiKey;
 pub use queries::datasets::Dataset;
 pub use queries::invitations::Invitation;
 pub use queries::models::Model;
