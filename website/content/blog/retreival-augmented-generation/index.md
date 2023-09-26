@@ -139,7 +139,7 @@ curl http://llm-api:8080/v1/completions \
 
 > A Dobblenobbl is a type of biscuit.
 
-I'm not sure why it mispelled `Dobblenobble`, this might be an issue with using a model at only 7 billion paramters.
+I'm not sure why it misspelled `Dobblenobble`, this might be an issue with using a model at only 7 billion parameters.
 
 ## The retrieval part of things
 
