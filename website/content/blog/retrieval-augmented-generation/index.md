@@ -3,8 +3,8 @@ title = "What is Retrieval Augmented Generation?"
 date = 2023-09-21
 
 [extra]
-main_image = "blog/rag-from-scratch/rag-llama.webp"
-listing_image = "blog/rag-from-scratch/rag-llama.webp"
+main_image = "blog/retrieval-augmented-generation/rag-llama.webp"
+listing_image = "blog/retrieval-augmented-generation/rag-llama.webp"
 +++
 
 
