@@ -12,9 +12,9 @@ listing_image = "blog/retrieval-augmented-generation/rag-llama.webp"
 
 Basically we give the Large Language Model the best chance of answering the question by giving the model the answer as well as the question.
 
-What?
+#### What?
 
-Bare with us, we're going to show how we can use documents you already have to make this happen automagically.
+Bare with us, we're going to show how we can __use documents you already have__ to make this happen automagically.
 
 ## Talking directly with a Large Language Model
 
@@ -41,7 +41,7 @@ curl http://localhost:8080/v1/completions \
     "prompt": "What is a Dobblenobble?" }'
 ```
 
-And one possible response is below. Note: you might get a different response due to something called temperature.
+And one possible response is below. Note: you might get a different response due to something called [temperature](https://lukesalamone.github.io/posts/what-is-temperature/).
 
 ### The answer
 
@@ -161,12 +161,14 @@ We can condense data retrieval for LLM's into three key points:
 
 Assuming the information you have is stored in your companies documentation.
 
-![Alt text](./for-dummies.jpg "Dobblenobble for dummies")
+<p class="text-center">
+<img src='/blog/retrieval-augmented-generation/for-dummies.jpg' />
+</p>
 
 We can process that information in many ways, but let's just give you an opinionated answer.
 
-1. Use a tool such as Unstructured to rip text from your documents.
-1. Split this text into chunks that are less than 512 tokens
+1. Use a tool such as [Unstructured](https://unstructured.io/) to rip text from your documents.
+1. Split this text into chunks that are less than 512 tokens. 
 1. Store each chunk in a database.
 
 
@@ -219,14 +221,16 @@ curl http://localhost:8080/v1/embeddings \
   }'
 ```
 
-And you'll get back a whole bunch of floating point numbers which we can send to the database along with our text.
+This will return 384 floating point numbers. The 384 is the dimensions of our embedding returned by our locally running embeddings model. 
+
+The documentation for [text-embedding-ada-002](https://openai.com/blog/new-and-improved-embedding-model) states it should have 1536 dimension not sure why it doesn't.
 
 ## What is RAG? - A final definition
 
-We can say that RAG is 3 stages
+So RAG is a process you follow
 
 1. **Retrieve** relevant information from your documents based on the question.
 1. **Augment** the prompt template so it has more context about the question
 1. **Generate** responses based on this augmented template.
 
-If we see it as a process rather than a definition I think that helps get a better feel for what's going on.
+After which your model should be able to answer questions it had no knowledge of before with a reduction in hallucinations.

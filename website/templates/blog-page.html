@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block class %} blog {% endblock %}
+
+{% block content %}
+<section class="markdown-body blog-content">
+    <div>
+        <h1 class="title pt-9">
+            {{ page.title }}
+        </h1>
+        {% if page.extra.subtitle %}
+        <h2 class="subtitle">{{ page.extra.subtitle }}</h2>
+        {% endif %}
+
+        {% if page.extra.main_image %}
+        {% set image = resize_image(path=page.extra.main_image, width=768, height=487, op="fill") %}
+        <img width="768" height="487" src="{{ image.url }}" />
+        {% endif %}
+
+        <article class="prose">
+            {{ page.content | safe }}
+        </article>
+    </div>
+</section>
+
+<section class="color-bg-subtle d-flex flex-content-center mt-8 flex-column p-3 text-center">
+    <h3 class="mb-3">Want to chat safely and securely with your confidential data?</h3>
+    <p>
+    <a href="/"><img width="450" src="/github-readme.png" /></a></p>
+    <p>
+        <a class="btn-mktg" href="/">
+            Check us Out
+        </a>
+    </p>
+</section>
+{% endblock content %}
