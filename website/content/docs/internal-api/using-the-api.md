@@ -11,3 +11,10 @@ sort_by = "weight"
 toc = true
 top = false
 +++
+
+Here we assume you have BionicGPT running locally, you'll need to chnage all references from `localhost` to the domain your using for production.
+
+## View all Models
+
+POST https://api.openai.com/v1/completions
+POST https://api.openai.com/v1/embeddings
