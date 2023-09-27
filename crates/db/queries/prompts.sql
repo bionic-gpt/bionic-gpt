@@ -56,6 +56,28 @@ AND
     )
 ORDER BY updated_at;
 
+--! prompt_by_api_key : Prompt
+SELECT
+    p.id,
+    (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    p.name,
+    p.dataset_connection,
+    p.template,
+    (
+        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
+            SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
+        )
+    ) AS datasets,
+    p.created_at,
+    p.updated_at
+FROM 
+    prompts p
+WHERE
+    p.id IN (
+        SELECT prompt_id FROM api_keys WHERE api_key = :api_key
+    )
+ORDER BY updated_at;
+
 --! prompt_datasets : PromptDataset()
 SELECT
     d.id as dataset_id,
