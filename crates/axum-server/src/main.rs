@@ -47,6 +47,7 @@ async fn main() {
         .route("/static/*path", get(static_files::static_path))
         .route("/v1/*path", get(api_reverse_proxy::handler))
         .route("/v1/*path", post(api_reverse_proxy::handler))
+        .route("/completions", post(api_reverse_proxy::handler))
         .with_state(client)
         .merge(team::routes())
         .merge(profile::routes())

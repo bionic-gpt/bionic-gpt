@@ -9,6 +9,7 @@ alias gcb='git checkout -b'
 alias gcr='f() { git checkout -b $1 origin/$1; }; f'
 alias gitsetup='git config --global user.name \$NAME && git config --global user.email \$EMAIL'
 alias gsu='git submodule update --recursive --remote'
+alias gdb='git branch | grep -v "main" | xargs git branch -D'
 
 # Database
 alias dbmate='dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations'
