@@ -4,6 +4,8 @@
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.name,
     p.dataset_connection,
     p.template,
@@ -31,6 +33,8 @@ ORDER BY updated_at;
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.name,
     p.dataset_connection,
     p.template,
@@ -60,6 +64,8 @@ ORDER BY updated_at;
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.name,
     p.dataset_connection,
     p.template,
