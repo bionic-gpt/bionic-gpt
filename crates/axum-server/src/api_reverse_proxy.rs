@@ -38,7 +38,7 @@ pub async fn handler(
             .await
             .map_err(|_| StatusCode::BAD_REQUEST)?;
 
-        let _generated_prompt = crate::prompt::execute_prompt(
+        let generated_prompt = crate::prompt::execute_prompt(
             &transaction,
             prompt.id,
             prompt.organisation_id,
@@ -46,6 +46,8 @@ pub async fn handler(
         )
         .await
         .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+        dbg!(generated_prompt);
 
         let path = req.uri().path();
         let path_query = req
@@ -67,6 +69,6 @@ pub async fn handler(
             .map_err(|_| StatusCode::BAD_REQUEST)?
             .into_response())
     } else {
-        Err(StatusCode::BAD_REQUEST)
+        Err(StatusCode::UNAUTHORIZED)
     }
 }

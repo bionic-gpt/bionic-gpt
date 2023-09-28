@@ -42,14 +42,4 @@ SELECT
 FROM
     api_keys a
 WHERE
-    a.api_key = :api_key
-AND
-    a.prompt_id IN (
-        SELECT id FROM prompts WHERE model_id IN(
-            SELECT id FROM models WHERE organisation_id IN(
-                SELECT organisation_id 
-                FROM organisation_users 
-                WHERE user_id = current_app_user()
-            )
-        )
-    );
+    a.api_key = :api_key;
