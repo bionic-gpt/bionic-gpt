@@ -1,6 +1,6 @@
 use axum::{
     body::Body,
-    extract::State,
+    extract::{Path, State},
     http::Request,
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -9,22 +9,34 @@ use axum::{
 use http::Uri;
 use hyper::client::HttpConnector;
 
-use db::Pool;
+use db::{queries, Pool};
+
+use crate::authentication::Authentication;
 
 type Client = hyper::client::Client<HttpConnector, Body>;
 
 pub async fn handler(
-    Extension(_pool): Extension<Pool>,
+    Path(chat_id): Path<i32>,
+    current_user: Authentication,
+    Extension(pool): Extension<Pool>,
     State(client): State<Client>,
     mut req: Request<hyper::Body>,
 ) -> Result<Response, StatusCode> {
-    if let Some(user_id) = req.headers().get("x-user-id") {
-        if let Ok(user_id) = user_id.to_str() {
-            if let Ok(user_id) = user_id.parse::<i32>() {
-                dbg!(user_id);
-            }
-        }
-    }
+    let mut db_client = pool.get().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+    let transaction = db_client
+        .transaction()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    super::rls::set_row_level_security_user(&transaction, &current_user)
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let base_url = queries::models::model_host_by_chat_id()
+        .bind(&transaction, &chat_id)
+        .one()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let path = req.uri().path();
     let path_query = req
@@ -35,7 +47,7 @@ pub async fn handler(
 
     dbg!(&path_query);
 
-    let uri = format!("http://llm-api:8080{path_query}");
+    let uri = format!("{base_url}/completions");
 
     *req.uri_mut() = Uri::try_from(uri).unwrap();
 

@@ -41,6 +41,7 @@ pub async fn send_message(
                 &transaction,
                 &current_user.user_id,
                 &team_id,
+                &message.prompt_id,
                 &message.message,
                 &prompt,
             )

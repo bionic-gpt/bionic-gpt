@@ -35,7 +35,7 @@ export class StreamingChat extends HTMLElement {
         const signal = this.controller.signal;
 
         try {
-            const response = await fetch('/completions', {
+            const response = await fetch(`/completions/${chatId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

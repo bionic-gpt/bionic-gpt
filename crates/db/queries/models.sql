@@ -30,6 +30,20 @@ WHERE
     id = :model_id
 ORDER BY updated_at;
 
+--! model_host_by_chat_id
+SELECT
+    base_url
+FROM 
+    models
+WHERE
+    id IN (SELECT model_id FROM prompts p WHERE p.id IN (
+        SELECT prompt_id FROM chats WHERE id = :chat_id
+    ))
+AND
+    organisation_id IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
+ORDER BY updated_at;
+
+
 --! insert
 INSERT INTO models (
     name,

@@ -1,8 +1,8 @@
 --! new_chat
 INSERT INTO chats 
-    (user_id, organisation_id, user_request, prompt)
+    (user_id, organisation_id, prompt_id, user_request, prompt)
 VALUES
-    (:user_id, :organisation_id, :user_request, :prompt);
+    (:user_id, :organisation_id, :prompt_id, :user_request, :prompt);
     
 --! update_chat
 UPDATE chats 
@@ -22,6 +22,7 @@ SELECT
     organisation_id, 
     user_request,
     prompt,
+    prompt_id,
     response,
     created_at,
     updated_at
