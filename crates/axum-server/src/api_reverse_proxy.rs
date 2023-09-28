@@ -32,22 +32,7 @@ pub async fn handler(
             .bind(&transaction, &api_key.to_str().unwrap())
             .one()
             .await
-            .map_err(|_| StatusCode::BAD_REQUEST)?;
-
-        super::rls::set_row_level_security_user_id(&transaction, api_key.user_id)
-            .await
-            .map_err(|_| StatusCode::BAD_REQUEST)?;
-
-        let generated_prompt = crate::prompt::execute_prompt(
-            &transaction,
-            prompt.id,
-            prompt.organisation_id,
-            "message.message",
-        )
-        .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?;
-
-        dbg!(generated_prompt);
+            .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
         let path = req.uri().path();
         let path_query = req
@@ -56,7 +41,22 @@ pub async fn handler(
             .map(|v| v.as_str())
             .unwrap_or(path);
 
-        dbg!(&path_query);
+        if path_query == "/completions" {
+            super::rls::set_row_level_security_user_id(&transaction, api_key.user_id)
+                .await
+                .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+            let generated_prompt = crate::prompt::execute_prompt(
+                &transaction,
+                prompt.id,
+                prompt.organisation_id,
+                "message.message",
+            )
+            .await
+            .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+            dbg!(generated_prompt);
+        }
 
         let base_url = prompt.base_url;
         let uri = format!("{base_url}{path_query}");
