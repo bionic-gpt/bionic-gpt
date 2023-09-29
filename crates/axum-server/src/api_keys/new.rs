@@ -41,6 +41,7 @@ pub async fn new_api_key(
             .bind(
                 &transaction,
                 &new_api_key.prompt_id,
+                &current_user.user_id,
                 &new_api_key.name,
                 &api_key,
             )

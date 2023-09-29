@@ -11,12 +11,14 @@ mod errors;
 mod layout;
 mod models;
 mod profile;
+mod prompt;
 mod prompts;
 mod registration_handler;
 mod rls;
 mod static_files;
 mod team;
 mod training;
+mod ui_completions;
 mod unstructured;
 
 use axum::body::Body;
@@ -47,6 +49,7 @@ async fn main() {
         .route("/static/*path", get(static_files::static_path))
         .route("/v1/*path", get(api_reverse_proxy::handler))
         .route("/v1/*path", post(api_reverse_proxy::handler))
+        .route("/completions/:chat_id", post(ui_completions::handler))
         .with_state(client)
         .merge(team::routes())
         .merge(profile::routes())

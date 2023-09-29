@@ -33,7 +33,20 @@ static_resources:
               - match: 
                   prefix: "/v1"
                 route:
-                  cluster: llm-api
+                  cluster: app
+                  # Disable timeout for SSE
+                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
+                  timeout: 0s 
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+
+              # These are requests coming from the front end typescript
+              - match: 
+                  prefix: "/completions"
+                route:
+                  cluster: app
                   # Disable timeout for SSE
                   # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
                   timeout: 0s 
@@ -129,19 +142,3 @@ static_resources:
               socket_address:
                 address: development
                 port_value: 7703
-
-  # The LLM API
-  - name: llm-api
-    connect_timeout: 10s
-    type: strict_dns
-    lb_policy: round_robin
-    dns_lookup_family: V4_ONLY
-    load_assignment:
-      cluster_name: llm-api
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: llm-api
-                port_value: 8080
