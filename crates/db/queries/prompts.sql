@@ -4,6 +4,8 @@
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.name,
     p.dataset_connection,
     p.template,
@@ -31,6 +33,8 @@ ORDER BY updated_at;
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.name,
     p.dataset_connection,
     p.template,
@@ -53,6 +57,30 @@ AND
             WHERE user_id = current_app_user()
         )
         AND organisation_id = :organisation_id
+    )
+ORDER BY updated_at;
+
+--! prompt_by_api_key : Prompt
+SELECT
+    p.id,
+    (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
+    p.name,
+    p.dataset_connection,
+    p.template,
+    (
+        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
+            SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
+        )
+    ) AS datasets,
+    p.created_at,
+    p.updated_at
+FROM 
+    prompts p
+WHERE
+    p.id IN (
+        SELECT prompt_id FROM api_keys WHERE api_key = :api_key
     )
 ORDER BY updated_at;
 

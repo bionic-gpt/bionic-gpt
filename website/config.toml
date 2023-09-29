@@ -56,7 +56,6 @@ resources_1 = [
 ]
 
 resources_2 = [
-    {name = "Developing LLM's with Rust", url = "/rust-llm/ide-setup/introduction/"},
     {name = "Careers", url = "/blog"},
 ]
 
