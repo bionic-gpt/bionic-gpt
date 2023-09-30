@@ -1,26 +1,26 @@
 <h1 align="center">BionicGPT</h1>
 <div align="center">
  <strong>
-   Accelerate LLM adoption in your organisation. Chat with your on premise data safely and securely.
+   BionicGPT is an on-premise replacement for ChatGPT, offering the advantages of Generative AI while maintaining strict data confidentiality
  </strong>
- BionicGTP is a complete platform for enabling LLM integration with confidential data on a team by team basis.
+ BionicGTP can run on your laptop or scale into the data center. 
 </div>
 
 <br />
 
 <div align="center">
   <!-- License -->
-  <a href="https://github.com/purton-tech/cloak#License">
-    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+  <a href="https://github.com/purton-tech/bionic-gpt#License">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
   </a>
-  <a href="https://hub.docker.com/repository/docker/purtontech/cloak-server">
-    <img src="https://img.shields.io/badge/License-Apache-yellow.svg" alt="License">
+  <a href="https://github.com/purton-tech/bionic-gpt#License">
+    <img src="https://img.shields.io/badge/License-Apache-green.svg" alt="License">
   </a>
 </div>
 
 <div align="center">
   <h4>
-    <a href="https://bionicai.tech">
+    <a href="https://bionic-gpt.com">
       Homepage
     </a>
   </h4>
