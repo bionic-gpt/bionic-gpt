@@ -65,7 +65,7 @@ export class StreamingChat extends HTMLElement {
                         return; // ignore empty message
                     }
                     if (data.startsWith(':')) {
-                        console.log("Terminating ignore sse comment message")
+                        console.log("Terminating ignore SSE comment message")
                         return; // ignore sse comment message
                     } 
                     if (data.substring(6) === '[DONE]') {
