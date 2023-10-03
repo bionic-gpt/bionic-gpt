@@ -7,7 +7,7 @@ main_image = "blog/retrieval-augmented-generation/rag-llama.webp"
 listing_image = "blog/retrieval-augmented-generation/rag-llama.webp"
 +++
 
-The default setup for bionicGPT allows you to run a proof of concept on your laptop, but given the much publicised large resource requirements for LLMs how do we achieve this. Step forward quantisation.	
+The default setup for BionicGPT allows you to run a proof of concept on your laptop, but given the much publicised large resource requirements for LLMs how do we achieve this. Step forward quantisation.	
 
 ## What is Quantisation?
 
