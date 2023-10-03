@@ -122,6 +122,7 @@ axum
 config
 macos
 OpenID
+bionicgpt
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -266,3 +267,10 @@ Dobblenobbl
 text-embedding-ada-002
 1536
 3
+ - blog/quantisation/index.md
+LLMs
+2023-10-01
+main_image
+webp
+listing_image
+jpeg
