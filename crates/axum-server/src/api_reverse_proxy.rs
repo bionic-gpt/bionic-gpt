@@ -15,17 +15,17 @@ use serde::{Deserialize, Serialize};
 type Client = hyper::client::Client<HttpConnector, Body>;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Message {
-    role: String,
-    content: String,
+pub struct Message {
+    pub role: String,
+    pub content: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Completion {
-    model: String,
-    streaming: Option<bool>,
-    messages: Vec<Message>,
-    temperature: Option<f32>,
+pub struct Completion {
+    pub model: String,
+    pub streaming: Option<bool>,
+    pub messages: Vec<Message>,
+    pub temperature: Option<f32>,
 }
 
 pub async fn handler(

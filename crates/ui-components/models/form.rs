@@ -7,6 +7,7 @@ struct Props {
     organisation_id: i32,
     name: String,
     base_url: String,
+    api_key: Option<String>,
     billion_parameters: i32,
     context_size_bytes: i32,
     id: Option<i32>,
@@ -41,7 +42,7 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                     Input {
                         input_type: InputType::Text,
                         name: "name",
-                        label: "Prompt Name",
+                        label: "Model Name",
                         help_text: "Make the name memorable and imply it's usage.",
                         value: &cx.props.name,
                         required: true
@@ -56,6 +57,27 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                         required: true
                     }
 
+                    if let Some(api_key) = cx.props.api_key.clone() {
+                        cx.render(rsx!(
+                            Input {
+                                input_type: InputType::Text,
+                                name: "api_key",
+                                label: "The API secret from your provider",
+                                help_text: "This will be given in the providers console",
+                                value: &api_key
+                            }
+                        ))
+                    } else {
+                        cx.render(rsx!(
+                            Input {
+                                input_type: InputType::Text,
+                                name: "api_key",
+                                label: "The API secret from your provider",
+                                help_text: "This will be given in the providers console"
+                            }
+                        ))
+                    }
+
                     Input {
                         input_type: InputType::Number,
                         name: "billion_parameters",
@@ -67,8 +89,8 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
 
                     Input {
                         input_type: InputType::Number,
-                        name: "context_size_bytes",
-                        label: "Context Size (bytes)",
+                        name: "context_size",
+                        label: "Context Size",
                         help_text: "How much data can be passed to the prompt",
                         value: "{cx.props.context_size_bytes}",
                         required: true
@@ -90,8 +112,9 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                 organisation_id,
                 name: model.name,
                 base_url: model.base_url,
+                api_key: model.api_key,
                 billion_parameters: model.billion_parameters,
-                context_size_bytes: model.context_size_bytes,
+                context_size_bytes: model.context_size,
                 id: Some(model.id),
             },
         ))
@@ -102,6 +125,7 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                 organisation_id,
                 name: "".to_string(),
                 base_url: "".to_string(),
+                api_key: None,
                 billion_parameters: 7,
                 context_size_bytes: 2048,
                 id: None,

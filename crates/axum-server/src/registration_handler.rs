@@ -68,12 +68,15 @@ pub async fn post_registration(
             )
             .await?;
 
+        let api_key_value: Option<String> = None;
+
         let model_id = queries::models::insert()
             .bind(
                 &transaction,
                 &"ggml-gpt4all-j",
                 &inserted_org_id,
                 &"http://llm-api:8080",
+                &api_key_value,
                 &7,
                 &2048,
             )
