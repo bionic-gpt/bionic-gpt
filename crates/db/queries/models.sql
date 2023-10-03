@@ -1,12 +1,13 @@
---: Model()
+--: Model(api_key?)
 
 --! models : Model
 SELECT
     id,
     name,
     base_url,
+    api_key,
     billion_parameters,
-    context_size_bytes,
+    context_size,
     created_at,
     updated_at
 FROM 
@@ -20,8 +21,9 @@ SELECT
     id,
     name,
     base_url,
+    api_key,
     billion_parameters,
-    context_size_bytes,
+    context_size,
     created_at,
     updated_at
 FROM 
@@ -30,9 +32,16 @@ WHERE
     id = :model_id
 ORDER BY updated_at;
 
---! model_host_by_chat_id
+--! model_host_by_chat_id : Model
 SELECT
-    base_url
+    id,
+    name,
+    base_url,
+    api_key,
+    billion_parameters,
+    context_size,
+    created_at,
+    updated_at
 FROM 
     models
 WHERE
@@ -44,26 +53,33 @@ AND
 ORDER BY updated_at;
 
 
---! insert
+--! insert(api_key?)
 INSERT INTO models (
     name,
     organisation_id,
     base_url,
+    api_key,
     billion_parameters,
-    context_size_bytes
+    context_size
 )
 VALUES(
-    :name, :organisation_id, :base_url, :billion_parameters, :context_size_bytes
+    :name, 
+    :organisation_id, 
+    :base_url, 
+    :api_key, 
+    :billion_parameters, 
+    :context_size
 )
 RETURNING id;
 
---! update
+--! update(api_key?)
 UPDATE 
     models 
 SET 
     name = :name, 
     base_url = :base_url,
+    api_key = :api_key,
     billion_parameters = :billion_parameters,
-    context_size_bytes = :context_size_bytes
+    context_size = :context_size
 WHERE
     id = :id;

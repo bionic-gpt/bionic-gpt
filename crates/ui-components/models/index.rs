@@ -58,7 +58,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                                     "{model.billion_parameters} Billion"
                                                 }
                                                 td {
-                                                    "{model.context_size_bytes} Bytes"
+                                                    "{model.context_size}"
                                                 }
                                                 td {
                                                     class: "text-right",

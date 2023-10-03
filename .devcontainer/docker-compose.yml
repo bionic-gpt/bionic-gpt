@@ -44,7 +44,10 @@ services:
   development:
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  
+    
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     
     volumes:
       - ..:/workspace:cached

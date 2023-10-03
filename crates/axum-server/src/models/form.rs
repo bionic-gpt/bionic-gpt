@@ -40,8 +40,9 @@ pub struct ModelForm {
     pub name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub base_url: String,
+    pub api_key: Option<String>,
     pub billion_parameters: i32,
-    pub context_size_bytes: i32,
+    pub context_size: i32,
 }
 
 pub async fn upsert(
@@ -63,8 +64,9 @@ pub async fn upsert(
                     &transaction,
                     &model_form.name,
                     &model_form.base_url,
+                    &model_form.api_key,
                     &model_form.billion_parameters,
-                    &model_form.context_size_bytes,
+                    &model_form.context_size,
                     &id,
                 )
                 .await?;
@@ -85,8 +87,9 @@ pub async fn upsert(
                     &model_form.name,
                     &team_id,
                     &model_form.base_url,
+                    &model_form.api_key,
                     &model_form.billion_parameters,
-                    &model_form.context_size_bytes,
+                    &model_form.context_size,
                 )
                 .one()
                 .await?;
