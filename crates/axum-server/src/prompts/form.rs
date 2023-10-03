@@ -24,7 +24,7 @@ pub async fn new(
 
     let models = queries::models::models().bind(&transaction).all().await?;
     Ok(Html(ui_components::prompts::form::form(
-        team_id, None, datasets, models,
+        team_id, None, datasets, models, None,
     )))
 }
 
@@ -49,12 +49,14 @@ pub async fn edit(
         .bind(&transaction, &prompt_id, &team_id)
         .one()
         .await?;
+    let model_id = prompt.model_id;
 
     Ok(Html(ui_components::prompts::form::form(
         team_id,
         Some(prompt),
         datasets,
         models,
+        Some(model_id),
     )))
 }
 
@@ -87,7 +89,7 @@ pub async fn upsert(
             queries::prompts::update()
                 .bind(
                     &transaction,
-                    &team_id,
+                    &new_prompt_template.model_id,
                     &new_prompt_template.name,
                     &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
@@ -121,7 +123,7 @@ pub async fn upsert(
             let prompt_id = queries::prompts::insert()
                 .bind(
                     &transaction,
-                    &team_id,
+                    &new_prompt_template.model_id,
                     &new_prompt_template.name,
                     &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
@@ -153,7 +155,7 @@ pub async fn upsert(
                 .await?;
 
             let models = queries::models::models().bind(&transaction).all().await?;
-            let html = ui_components::prompts::form::form(team_id, None, datasets, models);
+            let html = ui_components::prompts::form::form(team_id, None, datasets, models, None);
             Ok(html.into_response())
         }
     }

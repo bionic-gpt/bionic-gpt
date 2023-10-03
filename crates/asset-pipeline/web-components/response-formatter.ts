@@ -12,10 +12,8 @@ export class ResponseFormatter extends HTMLElement {
         if (response && response.value) {
 
             let md = this.markdown(response.value)
-            console.log(md)
             md = md.replace(/<p>(\s)*<\/p>/g, '')
             md = md.replace(/<pre>/g, '<pre class="color-bg-accent p-1">')
-            console.log(md)
 
 
             this.innerHTML = `${md}`

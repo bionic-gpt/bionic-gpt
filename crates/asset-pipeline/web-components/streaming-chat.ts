@@ -41,8 +41,11 @@ export class StreamingChat extends HTMLElement {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    model: 'ggml-gpt4all-j',
-                    prompt: prompt,
+                    model: "choose-a-model",
+                    messages: [{
+                        role: "user",
+                        content: prompt
+                    }],
                     stream: true,
                 }),
                 signal
@@ -57,19 +60,35 @@ export class StreamingChat extends HTMLElement {
                 let dataDone = false;
                 const arr = value.split(/\r?\n/);
                 arr.forEach((data) => {
-                    if (data.length === 0) return; // ignore empty message
-                    if (data.startsWith(':')) return; // ignore sse comment message
+                    console.log(data)
+                    if (data.length === 0) {
+                        return; // ignore empty message
+                    }
+                    if (data.startsWith(':')) {
+                        console.log("Terminating ignore sse comment message")
+                        return; // ignore sse comment message
+                    } 
                     if (data.substring(6) === '[DONE]') {
+                        console.log("[DONE] received")
                         dataDone = true;
                     } else {
-                        const json = JSON.parse(data.substring(6));
-                        if (json.choices[0].text) {
-                            this.result += json.choices[0].text
+                        if(data.substring(0,6) == "data: ") {
+                            data = data.substring(6)
+                        }
+                        const json = JSON.parse(data);
+                        if(json.choices[0].delta && json.choices[0].delta.content) {
+                            this.result += json.choices[0].delta.content
+                            this.innerHTML = `${this.result}`;
+                        } else if (json.choices[0].message && json.choices[0].message.content) {
+                            this.result += json.choices[0].message.content
                             this.innerHTML = `${this.result}`;
                         }
                     }
                 });
-                if (dataDone) break;
+                if (dataDone) {
+                    console.log("End of stream")
+                    break
+                }
             }
         } catch (error) {
             // Handle fetch request errors
@@ -83,6 +102,7 @@ export class StreamingChat extends HTMLElement {
             }
         } finally {
             // Save the results
+            console.log("Saving the results")
             const form = document.getElementById(`chat-form-${chatId}`)
             const llmResult = document.getElementById(`chat-result-${chatId}`)
 
