@@ -44,7 +44,7 @@ pub async fn handler(
 
     let completion = Completion {
         model: model.name,
-        streaming: Some(false),
+        stream: Some(true),
         temperature: Some(0.7),
         ..completion
     };

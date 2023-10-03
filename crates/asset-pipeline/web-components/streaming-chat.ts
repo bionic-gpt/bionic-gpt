@@ -62,7 +62,6 @@ export class StreamingChat extends HTMLElement {
                 arr.forEach((data) => {
                     console.log(data)
                     if (data.length === 0) {
-                        console.log("Terminating data length = 0")
                         return; // ignore empty message
                     }
                     if (data.startsWith(':')) {
@@ -73,9 +72,14 @@ export class StreamingChat extends HTMLElement {
                         console.log("[DONE] received")
                         dataDone = true;
                     } else {
-                        console
+                        if(data.substring(0,6) == "data: ") {
+                            data = data.substring(6)
+                        }
                         const json = JSON.parse(data);
-                        if (json.choices[0].message.content) {
+                        if(json.choices[0].delta && json.choices[0].delta.content) {
+                            this.result += json.choices[0].delta.content
+                            this.innerHTML = `${this.result}`;
+                        } else if (json.choices[0].message && json.choices[0].message.content) {
                             this.result += json.choices[0].message.content
                             this.innerHTML = `${this.result}`;
                         }

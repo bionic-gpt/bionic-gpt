@@ -23,7 +23,7 @@ pub struct Message {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Completion {
     pub model: String,
-    pub streaming: Option<bool>,
+    pub stream: Option<bool>,
     pub messages: Vec<Message>,
     pub temperature: Option<f32>,
 }
