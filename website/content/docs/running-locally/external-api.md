@@ -14,7 +14,41 @@ top = false
 
 If you're already running an LLM that supports the Open AI API in your organisation or on your local machine you may want to connect to it instead of the one we provide.
 
-## Remove our LLM from the docker-compose.yml
+
+## Add a new model
+
+From the add new model screen configure your model.
+
+### Name
+
+This must correspond to the name of the model. You an get this by running curl and using localhost with the port your OpenAI API is running on.
+
+```sh
+curl http://localhost:8080/v1/models \
+	-H "Content-Type: application/json"
+```
+
+### Base Url
+
+As we are running inside a docker compose you'll need to set it to.
+
+`http://host.docker.internal:PORT/v1`
+
+Where PORT is the port the API is running on.
+
+![Alt text](../add-new-model.png "Add New Model")
+
+## If you're on Linux
+
+you'll need to add the following to the docker compose under the `app` section
+
+```yaml
+extra_hosts:
+  - "host.docker.internal:host-gateway"
+```
+
+
+## (Optional) Remove our LLM from the docker-compose.yml
 
 Remove the following lines form `docker-compose.yml`.
 
@@ -25,52 +59,9 @@ Remove the following lines form `docker-compose.yml`.
     image: ghcr.io/purton-tech/bionicgpt-model-api:latest
 ```
 
-## Configure Envoy to see your LLM.
+However, if you do this, you'll need to configure the embeddings job.
 
-Envoy is a reverse proxy which we use to route requests between the different containers that come together to make BionicGPT work.
-
-We're going to need to take the existing `docker-compose.yml` and alter it to point at your LLM.
-
-```yml
-  # Handles routing between the application, barricade and the LLM API
-  envoy:
-    image: ghcr.io/purton-tech/bionicgpt-envoy:1.0.3
-    ports:
-      - "7800:7700"
-      - "7801:7701"
-    volumes:
-      - ./envoy.yaml:/etc/envoy/envoy.yaml
-```
-
-Then we need to create an `envoy.yaml` file with the new configuration. The file is located here [envoy.yaml](https://github.com/purton-tech/bionicgpt/blob/main/.devcontainer/envoy.yaml)
-
-To download it.
-
-```sh
-curl https://raw.githubusercontent.com/purton-tech/bionicgpt/main/.devcontainer/envoy.yaml
-```
-
-Change the following section in the `envoy.yaml` just the `address` and `port_value` entries. The address should be `host.docker.internal` and the port is whatever port your LLM is running it's OpenAI API compatibility layer.
-
-```yml
-  # The LLM API
-  - name: llm-api
-    connect_timeout: 10s
-    type: strict_dns
-    lb_policy: round_robin
-    dns_lookup_family: V4_ONLY
-    load_assignment:
-      cluster_name: llm-api
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: host.docker.internal
-                port_value: 5001
-```
-
-## Configuring the embeddings job
+## (Optional) Configuring the embeddings job
 
 In the `docker-compose.yml` we'll also need to configure the embeddings job to point to your external LLM API.
 
@@ -85,7 +76,3 @@ services:
         OPENAI_ENDPOINT: http://llm-api:5001
         APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
 ```
-
-## Could we make this easier?
-
-Ideally we'd like to make this configurable via environment variables in the `docker-compose.yml` if you can help with this please feel free to submit a PR. 
