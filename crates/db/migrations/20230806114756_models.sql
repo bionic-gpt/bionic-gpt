@@ -6,8 +6,9 @@ CREATE TABLE models (
     organisation_id INT NOT NULL, 
     name VARCHAR NOT NULL, 
     base_url VARCHAR NOT NULL, 
+    api_key VARCHAR, 
     billion_parameters INT NOT NULL, 
-    context_size_bytes INT NOT NULL, 
+    context_size INT NOT NULL, 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
