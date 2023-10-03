@@ -9,6 +9,7 @@ struct Props {
     template: String,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
+    model_id: i32,
     id: Option<i32>,
 }
 
@@ -17,6 +18,7 @@ pub fn form(
     prompt: Option<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
+    model_id: Option<i32>,
 ) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
@@ -56,7 +58,7 @@ pub fn form(
                         name: "model_id",
                         label: "Select the model this prompt will use for inference",
                         help_text: "The prompt will be passed to the model",
-                        value: &cx.props.name,
+                        value: &cx.props.model_id.to_string(),
                         required: true,
                         cx.props.models.iter().map(|model| {
                             cx.render(rsx!(
@@ -126,7 +128,7 @@ pub fn form(
         })
     }
 
-    if let Some(prompt) = prompt {
+    if let (Some(prompt), Some(model_id)) = (prompt, model_id) {
         crate::render(VirtualDom::new_with_props(
             app,
             Props {
@@ -136,6 +138,7 @@ pub fn form(
                 id: Some(prompt.id),
                 datasets,
                 models,
+                model_id,
             },
         ))
     } else {
@@ -152,6 +155,7 @@ pub fn form(
 ### Response:".to_string(),
                 datasets,
                 models,
+                model_id: -1,
                 id: None,
             },
         ))
