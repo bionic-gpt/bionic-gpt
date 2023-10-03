@@ -24,6 +24,7 @@ pub struct Message {
 pub struct Completion {
     pub model: String,
     pub stream: Option<bool>,
+    pub max_tokens: Option<i32>,
     pub messages: Vec<Message>,
     pub temperature: Option<f32>,
 }

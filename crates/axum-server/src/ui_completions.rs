@@ -42,9 +42,16 @@ pub async fn handler(
         StatusCode::BAD_REQUEST
     })?;
 
+    let max_tokens = if model.base_url.starts_with("https://inference.gig") {
+        Some(4000)
+    } else {
+        None
+    };
+
     let completion = Completion {
         model: model.name,
         stream: Some(true),
+        max_tokens,
         temperature: Some(0.7),
         ..completion
     };
