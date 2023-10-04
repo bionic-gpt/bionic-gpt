@@ -17,7 +17,7 @@ axum-extra = { version = "0", default-features = false, features = ["form"] }
 # Needed for the authentication.rs handler
 http = "0.2"
 hyper = { version = "0", features = ["server"] }
-hyper-rustls = "0"
+hyper-rustls = { version = "0", default-features = false, features = ["webpki-roots"] }
 rustls = "0"
 pin-project = "1"
 tower = { version = "0", default-features = false }
