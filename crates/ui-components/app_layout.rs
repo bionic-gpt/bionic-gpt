@@ -63,7 +63,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::prompts::index_route(cx.props.team_id),
                             icon: nav_dashboard_svg.name,
-                            title: "Prompt Engineering"
+                            title: "Prompts"
                         }
                     ))
                 }
@@ -75,7 +75,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::datasets::index_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
-                            title: "Team Documents"
+                            title: "Team Datasets"
                         }
                         NavItem {
                             id: SideBar::BulkImport.to_string(),

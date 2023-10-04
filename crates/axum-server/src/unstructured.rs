@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub struct MetaData {
     pub filename: String,
     pub filetype: String,
+    pub page_number: Option<i32>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -18,9 +19,23 @@ pub struct Unstructured {
     pub text: String,
 }
 
+/***
+ * Additional Parameters:
+ *
+ * multipage_sections If True, sections can span multiple pages. Defaults to True.
+ *
+ * combine_under_n_chars Combines elements (for example a series of titles)
+ * until a section reaches a length of n characters. Unstructured Defaults to 500.
+ *
+ * new_after_n_chars Cuts off new sections once they reach a length of "n" characters.
+ * Unstructured Defaults to 1500.
+ */
 pub async fn call_unstructured_api(
     file: Vec<u8>,
     file_name: &str,
+    combine_under_n_chars: u32,
+    new_after_n_chars: u32,
+    multipage_sections: bool,
 ) -> Result<Vec<Unstructured>, reqwest::Error> {
     let client = Client::new();
 
@@ -34,9 +49,18 @@ pub async fn call_unstructured_api(
 
     //make form part of file
     let some_file = multipart::Part::bytes(file).file_name(file_name.to_string());
+    let title = multipart::Part::text("by_title");
+    let combine_under_n_chars = multipart::Part::text(combine_under_n_chars.to_string());
+    let new_after_n_chars = multipart::Part::text(new_after_n_chars.to_string());
+    let multipage_sections = multipart::Part::text(multipage_sections.to_string());
 
     //create the multipart form
-    let form = multipart::Form::new().part("files", some_file);
+    let form = multipart::Form::new()
+        .part("files", some_file)
+        .part("combine_under_n_chars", combine_under_n_chars)
+        .part("new_after_n_chars", new_after_n_chars)
+        .part("multipage_sections", multipage_sections)
+        .part("chunking_strategy", title);
 
     //send request
     let response = client.post(url).multipart(form).send().await?;
@@ -52,7 +76,9 @@ mod tests {
     #[tokio::test]
     async fn test_post_form_file() {
         let file = "Hello World\nline1".as_bytes().to_vec();
-        let get_json = call_unstructured_api(file, "hello.txt").await.unwrap();
+        let get_json = call_unstructured_api(file, "hello.txt", 500, 1000, true)
+            .await
+            .unwrap();
 
         println!("{:#?}", get_json);
     }
