@@ -62,6 +62,18 @@ pub async fn handler(
     .await
     .map_err(|_| StatusCode::BAD_REQUEST)?;
 
+    let json_messages = serde_json::to_string(&messages).map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    queries::chats::update_prompt()
+        .bind(&transaction, &json_messages, &chat_id)
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    transaction
+        .commit()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
     let completion = Completion {
         model: model.name,
         stream: Some(true),

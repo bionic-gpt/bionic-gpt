@@ -17,6 +17,17 @@ AND
     id = :chat_id
 AND     
     organisation_id IN (SELECT id FROM organisations WHERE user_id = current_app_user());
+    
+--! update_prompt
+UPDATE chats 
+SET 
+    prompt = :prompt
+WHERE
+    user_id = current_app_user()
+AND 
+    id = :chat_id
+AND     
+    organisation_id IN (SELECT id FROM organisations WHERE user_id = current_app_user());
 
 --! chats : Chat
 SELECT
