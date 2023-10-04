@@ -3,6 +3,10 @@ SELECT
     id,
     organisation_id, 
     name,
+    chunking_strategy,
+    combine_under_n_chars,
+    new_after_n_chars,
+    multipage_sections,
     (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
     created_at,
     updated_at
@@ -17,6 +21,10 @@ SELECT
     id,
     organisation_id, 
     name,
+    chunking_strategy,
+    combine_under_n_chars,
+    new_after_n_chars,
+    multipage_sections,
     (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
     created_at,
     updated_at
@@ -33,6 +41,19 @@ ORDER BY updated_at;
 
 --! insert
 INSERT INTO 
-    datasets (organisation_id, name)
-VALUES(:organisation_id, :name)
+    datasets (
+        organisation_id, 
+        name,
+        chunking_strategy,
+        combine_under_n_chars,
+        new_after_n_chars,
+        multipage_sections
+    )
+VALUES(
+    :organisation_id, 
+    :name,
+    :chunking_strategy,
+    :combine_under_n_chars,
+    :new_after_n_chars,
+    :multipage_sections)
 RETURNING id;

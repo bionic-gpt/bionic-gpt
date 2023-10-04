@@ -2,15 +2,27 @@
 
 CREATE EXTENSION vector;
 
+CREATE TYPE chunking_strategy AS ENUM (
+    'ByTitle'
+);
+COMMENT ON TYPE role IS 'Chunking strategies as suppoorted by unstructured';
+
 CREATE TABLE datasets (
     id SERIAL PRIMARY KEY, 
     organisation_id INT NOT NULL, 
     name VARCHAR NOT NULL, 
+    chunking_strategy chunking_strategy NOT NULL,
+    combine_under_n_chars INT NOT NULL,
+    new_after_n_chars INT NOT NULL,
+    multipage_sections BOOLEAN NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     CONSTRAINT FK_organisation FOREIGN KEY(organisation_id)
         REFERENCES organisations(id) ON DELETE CASCADE
+
+    --CONSTRAINT FK_model FOREIGN KEY(embeddings_model_id)
+    --    REFERENCES models(id) ON DELETE CASCADE
 );
 
 CREATE TABLE documents (
@@ -57,5 +69,6 @@ GRANT SELECT ON datasets_id_seq TO ft_readonly;
 DROP TABLE embeddings;
 DROP TABLE documents;
 DROP TABLE datasets;
+DROP TYPE chunking_strategy;
 DROP EXTENSION vector;
 

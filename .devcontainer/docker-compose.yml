@@ -4,7 +4,7 @@ services:
     image: ghcr.io/purton-tech/bionicgpt-model-api
 
   unstructured:
-    image: quay.io/unstructured-io/unstructured-api:0.0.34
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:db264d8
 
   # Handles routing between our containers
   envoy:
