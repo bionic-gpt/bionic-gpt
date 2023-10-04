@@ -64,7 +64,7 @@ pub fn form(organisation_id: i32, model: Option<Model>) -> String {
                                 name: "api_key",
                                 label: "The API secret from your provider",
                                 help_text: "This will be given in the providers console",
-                                value: &api_key
+                                value: "{api_key}"
                             }
                         ))
                     } else {

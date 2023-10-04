@@ -147,12 +147,11 @@ pub fn form(
             Props {
                 organisation_id,
                 name: "".to_string(),
-                template: "The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.
-### Prompt:
-{{.Input}}
-### Data:
-{{.Data}}
-### Response:".to_string(),
+                template: "Context information is below.
+--------------------
+{context_str}
+--------------------"
+                    .to_string(),
                 datasets,
                 models,
                 model_id: -1,

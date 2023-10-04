@@ -1,3 +1,4 @@
+use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
 use db::queries::prompts;
 use db::{DatasetConnection, Transaction};
@@ -7,7 +8,7 @@ pub async fn execute_prompt(
     prompt_id: i32,
     organisation_id: i32,
     question: &str,
-) -> Result<String, CustomError> {
+) -> Result<Vec<Message>, CustomError> {
     // Get the prompt
     let prompt = prompts::prompt()
         .bind(transaction, &prompt_id, &organisation_id)
@@ -24,14 +25,20 @@ pub async fn execute_prompt(
     )
     .await?;
     let related_context = related_context.join(" ");
+    let prompt = prompt.template.replace("{context_str}", &related_context);
 
-    // Combine the users question, relevant content and the prompt template
-    // to generate a prompt we send to the large language model
+    let messages: Vec<Message> = vec![
+        Message {
+            role: "system".to_string(),
+            content: prompt,
+        },
+        Message {
+            role: "user".to_string(),
+            content: question.to_string(),
+        },
+    ];
 
-    let prompt = prompt.template.replace("{{.Input}}", question);
-    let prompt = prompt.replace("{{.Data}}", &related_context);
-
-    Ok(prompt)
+    Ok(messages)
 }
 
 // Query the vector database using a similarity search.

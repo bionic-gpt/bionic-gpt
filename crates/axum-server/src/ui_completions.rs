@@ -4,7 +4,7 @@ use axum::{
     http::Request,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Extension, RequestExt,
+    Extension,
 };
 use http::HeaderName;
 use hyper::client;
@@ -18,7 +18,6 @@ pub async fn handler(
     Path(chat_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    req: Request<hyper::Body>,
 ) -> Result<Response, StatusCode> {
     let mut db_client = pool.get().await.map_err(|_| StatusCode::BAD_REQUEST)?;
     let transaction = db_client
@@ -36,11 +35,17 @@ pub async fn handler(
         .await
         .map_err(|_| StatusCode::BAD_REQUEST)?;
 
-    let body: String = req.extract().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-    let completion: Completion = serde_json::from_str(&body).map_err(|e| {
-        tracing::error!("{}", e);
-        StatusCode::BAD_REQUEST
-    })?;
+    let chat = queries::chats::chat()
+        .bind(&transaction, &chat_id)
+        .one()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+
+    let prompt = queries::prompts::prompt()
+        .bind(&transaction, &chat.prompt_id, &chat.organisation_id)
+        .one()
+        .await
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let max_tokens = if model.base_url.starts_with("https://inference.gig") {
         Some(4000)
@@ -48,12 +53,21 @@ pub async fn handler(
         None
     };
 
+    let messages = crate::prompt::execute_prompt(
+        &transaction,
+        prompt.id,
+        chat.organisation_id,
+        &chat.user_request,
+    )
+    .await
+    .map_err(|_| StatusCode::BAD_REQUEST)?;
+
     let completion = Completion {
         model: model.name,
         stream: Some(true),
         max_tokens,
         temperature: Some(0.7),
-        ..completion
+        messages,
     };
 
     let completion_json =

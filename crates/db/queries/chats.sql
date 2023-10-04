@@ -1,3 +1,6 @@
+--: Chat(response?)
+
+
 --! new_chat
 INSERT INTO chats 
     (user_id, organisation_id, prompt_id, user_request, prompt)
@@ -15,7 +18,7 @@ AND
 AND     
     organisation_id IN (SELECT id FROM organisations WHERE user_id = current_app_user());
 
---! chats : (response?)
+--! chats : Chat
 SELECT
     id,
     user_id, 
@@ -30,6 +33,27 @@ FROM
     chats
 WHERE
     user_id = current_app_user()
+AND 
+    organisation_id IN (SELECT id FROM organisations WHERE user_id = current_app_user())
+ORDER BY updated_at;
+
+--! chat : Chat
+SELECT
+    id,
+    user_id, 
+    organisation_id, 
+    user_request,
+    prompt,
+    prompt_id,
+    response,
+    created_at,
+    updated_at
+FROM 
+    chats
+WHERE
+    user_id = current_app_user()
+AND
+    id = :chat_id
 AND 
     organisation_id IN (SELECT id FROM organisations WHERE user_id = current_app_user())
 ORDER BY updated_at;
