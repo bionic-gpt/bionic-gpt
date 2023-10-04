@@ -80,7 +80,7 @@ pub async fn handler(
 
     let tls = rustls::ClientConfig::builder()
         .with_safe_defaults()
-        .with_native_roots()
+        .with_webpki_roots()
         .with_no_client_auth();
 
     let https = hyper_rustls::HttpsConnectorBuilder::new()
