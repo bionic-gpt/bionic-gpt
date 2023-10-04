@@ -12,17 +12,12 @@ use db::Pool;
 
 pub static INDEX: &str = "/app/post_registration";
 
-pub static PROMPT_CONTEXT: &str = "Context information is below. Given the context information and not prior knowledge, answer the query.
-### Prompt:
-{{.Input}}
-### Data:
-{{.Data}}
-### Response:";
+pub static PROMPT_CONTEXT: &str = "Context information is below.
+--------------------
+{context_str}
+--------------------";
 
-pub static PROMPT_NOCONTEXT: &str = "The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.
-### Prompt:
-{{.Input}}
-### Response:";
+pub static PROMPT_NOCONTEXT: &str = "";
 
 pub fn routes() -> Router {
     Router::new().route(INDEX, get(post_registration))
