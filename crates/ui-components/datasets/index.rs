@@ -93,7 +93,10 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>) -> String {
 
                 // The form to create an invitation
                 super::new::New {
-                    organisation_id: cx.props.organisation_id
+                    organisation_id: cx.props.organisation_id,
+                    combine_under_n_chars: 500,
+                    new_after_n_chars: 1000,
+                    multipage_sections: true,
                 }
             }
         })

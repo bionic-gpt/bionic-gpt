@@ -5,6 +5,7 @@ use axum::{
     response::IntoResponse,
 };
 use db::queries;
+use db::types::public::ChunkingStrategy;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -13,6 +14,10 @@ use validator::Validate;
 pub struct NewDataset {
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
+    pub chunking_strategy: String,
+    pub combine_under_n_chars: i32,
+    pub new_after_n_chars: i32,
+    pub multipage_sections: bool,
 }
 
 pub async fn new(
@@ -26,8 +31,19 @@ pub async fn new(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
+    // There's only 1 currently so just select it.
+    let chunking_strategy = ChunkingStrategy::ByTitle;
+
     let dataset_id = queries::datasets::insert()
-        .bind(&transaction, &organisation_id, &new_dataset.name)
+        .bind(
+            &transaction,
+            &organisation_id,
+            &new_dataset.name,
+            &chunking_strategy,
+            &new_dataset.combine_under_n_chars,
+            &new_dataset.new_after_n_chars,
+            &new_dataset.multipage_sections,
+        )
         .one()
         .await?;
 
