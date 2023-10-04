@@ -6,7 +6,7 @@ use serde::Deserialize;
 pub struct MetaData {
     pub filename: String,
     pub filetype: String,
-    pub page_number: Option<String>,
+    pub page_number: Option<i32>,
 }
 
 #[derive(Deserialize, Debug)]
