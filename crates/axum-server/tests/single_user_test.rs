@@ -58,11 +58,7 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
 }
 
 async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
-    driver
-        .find(By::LinkText("Prompt Engineering"))
-        .await?
-        .click()
-        .await?;
+    driver.find(By::LinkText("Prompts")).await?.click().await?;
 
     driver
         .query(By::LinkText("New Prompt Template"))
@@ -155,7 +151,7 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
 
 async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Team Documents"))
+        .find(By::LinkText("Team Datasets"))
         .await?
         .click()
         .await?;

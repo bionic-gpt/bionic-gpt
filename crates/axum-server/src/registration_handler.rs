@@ -45,7 +45,7 @@ pub async fn post_registration(
         .await;
 
     if let Ok(org) = org {
-        Ok(Redirect::to(&ui_components::routes::team::index_route(
+        Ok(Redirect::to(&ui_components::routes::console::index_route(
             org.id,
         )))
     } else {

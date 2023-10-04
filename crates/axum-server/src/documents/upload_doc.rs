@@ -28,11 +28,19 @@ pub async fn upload(
 
         tracing::info!("Sending document to unstructured");
 
-        let unstructured_data =
-            crate::unstructured::call_unstructured_api(data.to_vec(), &name).await?;
+        let dataset = queries::datasets::dataset()
+            .bind(&transaction, &dataset_id)
+            .one()
+            .await?;
 
-        let text: Vec<String> = unstructured_data.into_iter().map(|u| u.text).collect();
-        let text = text.join(" ");
+        let structured_data = crate::unstructured::call_unstructured_api(
+            data.to_vec(),
+            &name,
+            dataset.combine_under_n_chars as u32,
+            dataset.new_after_n_chars as u32,
+            dataset.multipage_sections,
+        )
+        .await?;
 
         tracing::info!("Creating document in postgres");
 
@@ -43,8 +51,7 @@ pub async fn upload(
 
         tracing::info!("Inserting text batches");
 
-        for text_bytes in text.as_bytes().chunks(1024) {
-            let text_utf8 = String::from_utf8_lossy(text_bytes).to_string();
+        for text in structured_data {
             transaction
                 .execute(
                     "
@@ -54,7 +61,7 @@ pub async fn upload(
                     ) 
                     VALUES 
                         ($1, $2)",
-                    &[&document_id, &text_utf8],
+                    &[&document_id, &text.text],
                 )
                 .await?;
         }

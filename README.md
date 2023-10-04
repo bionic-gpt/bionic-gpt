@@ -97,7 +97,7 @@ Cut and paste the following into a `docker-compose.yml` file and run `docker-com
 
 This has been tested on an AMD 2700x with 16GB of ram. The included `ggml-gpt4all-j` model runs on CPU only.
 
-**Warning** - Currently this required around 4GB of download due to the size of the `unstructured` image. 
+**Warning** - The images in this `docker-compose` are large due to having the model weights pre-loaded for convenience.
 
 ```yml
 services:
@@ -108,7 +108,7 @@ services:
 
   # Handles parsing of multiple documents types.
   unstructured:
-    image: quay.io/unstructured-io/unstructured-api:0.0.34
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:db264d8
     ports:
       - "8000:8000"
 
