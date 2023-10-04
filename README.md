@@ -114,7 +114,7 @@ services:
 
   # Handles routing between the application, barricade and the LLM API
   envoy:
-    image: ghcr.io/purton-tech/bionicgpt-envoy:1.1.2
+    image: ghcr.io/purton-tech/bionicgpt-envoy:1.1.3
     ports:
       - "7800:7700"
 
@@ -133,7 +133,7 @@ services:
 
   # Sets up our database tables
   migrations:
-    image: ghcr.io/purton-tech/bionicgpt-db-migrations:1.1.2
+    image: ghcr.io/purton-tech/bionicgpt-db-migrations:1.1.3
     environment:
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
@@ -158,7 +158,7 @@ services:
   
   # Our axum server delivering our user interface
   embeddings-job:
-    image: ghcr.io/purton-tech/bionicgpt-embeddings-job:1.1.2
+    image: ghcr.io/purton-tech/bionicgpt-embeddings-job:1.1.3
     environment:
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
@@ -169,7 +169,7 @@ services:
   
   # Our axum server delivering our user interface
   app:
-    image: ghcr.io/purton-tech/bionicgpt:1.1.2
+    image: ghcr.io/purton-tech/bionicgpt:1.1.3
     environment:
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
