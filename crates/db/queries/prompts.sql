@@ -158,13 +158,34 @@ VALUES(
 
 --! insert
 INSERT INTO prompts (
+    organisation_id, 
     model_id, 
     name,
+    visibility,
     dataset_connection,
-    template
+    template,
+    min_history_items,
+    max_history_items,
+    min_chunks,
+    max_chunks,
+    max_tokens,
+    temperature,
+    top_p
 )
 VALUES(
-    :model_id, :name, :dataset_connection, :template
+    :organisation_id, 
+    :model_id,
+    :name,
+    :visibility,
+    :dataset_connection,
+    :template,
+    :min_history_items,
+    :max_history_items,
+    :min_chunks,
+    :max_chunks,
+    :max_tokens,
+    :temperature,
+    :top_p
 )
 RETURNING id;
 
@@ -174,8 +195,16 @@ UPDATE
 SET 
     model_id = :model_id, 
     name = :name, 
+    visibility = :visibility,
     dataset_connection = :dataset_connection,
-    template = :template
+    template = :template,
+    min_history_items = :min_history_items,
+    max_history_items = :max_history_items,
+    min_chunks = :min_chunks,
+    max_chunks = :max_chunks,
+    max_tokens = :max_tokens,
+    temperature = :temperature,
+    top_p = :top_p
 WHERE
     id = :id
 AND

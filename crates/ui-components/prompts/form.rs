@@ -25,7 +25,7 @@ pub struct Props {
 pub fn Form(cx: Scope<Props>) -> Element {
     cx.render(rsx!(
         form {
-            action: "{crate::routes::models::new_route(cx.props.organisation_id)}",
+            action: "{crate::routes::prompts::new_route(cx.props.organisation_id)}",
             method: "post",
             Drawer {
                 label: "Prompt",
@@ -71,6 +71,21 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     help_text: "Make the name memorable and imply it's usage.",
                                     value: &cx.props.name,
                                     required: true
+                                }
+
+                                Select {
+                                    name: "visibility",
+                                    label: "Who should be able to see this prompt?",
+                                    help_text: "Set to private if you don't want to share this prompt.",
+                                    value: "Private",
+                                    option {
+                                        value: "Private",
+                                        "Just Me"
+                                    },
+                                    option {
+                                        value: "Team",
+                                        "Team"
+                                    }
                                 }
 
                                 Select {

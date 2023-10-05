@@ -3,9 +3,9 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum_extra::extract::Form;
-use db::queries;
 use db::types::public::DatasetConnection;
 use db::Pool;
+use db::{queries, Visibility};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -19,6 +19,14 @@ pub struct NewPromptTemplate {
     pub dataset_connection: String,
     pub model_id: i32,
     pub datasets: Option<Vec<String>>,
+    pub min_history_items: i32,
+    pub max_history_items: i32,
+    pub min_chunks: i32,
+    pub max_chunks: i32,
+    pub max_tokens: i32,
+    pub temperature: f32,
+    pub top_p: f32,
+    pub visibility: String,
 }
 
 pub async fn upsert(
@@ -32,6 +40,12 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
+    let visibility = if new_prompt_template.visibility == "Private" {
+        Visibility::Private
+    } else {
+        Visibility::Team
+    };
+
     match (new_prompt_template.validate(), new_prompt_template.id) {
         (Ok(_), Some(id)) => {
             // The form is valid save to the database
@@ -40,8 +54,16 @@ pub async fn upsert(
                     &transaction,
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
+                    &visibility,
                     &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
+                    &new_prompt_template.min_history_items,
+                    &new_prompt_template.max_history_items,
+                    &new_prompt_template.min_chunks,
+                    &new_prompt_template.max_chunks,
+                    &new_prompt_template.max_tokens,
+                    &new_prompt_template.temperature,
+                    &new_prompt_template.top_p,
                     &id,
                 )
                 .await?;
@@ -72,10 +94,19 @@ pub async fn upsert(
             let prompt_id = queries::prompts::insert()
                 .bind(
                     &transaction,
+                    &team_id,
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
+                    &visibility,
                     &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
+                    &new_prompt_template.min_history_items,
+                    &new_prompt_template.max_history_items,
+                    &new_prompt_template.min_chunks,
+                    &new_prompt_template.max_chunks,
+                    &new_prompt_template.max_tokens,
+                    &new_prompt_template.temperature,
+                    &new_prompt_template.top_p,
                 )
                 .one()
                 .await?;
