@@ -50,6 +50,7 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -
                                     table {
                                         thead {
                                             th { "Name" }
+                                            th { "Visibility" }
                                             th { "Document Count" }
                                             th { "Chunking Strategy" }
                                             th {
@@ -66,6 +67,11 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -
                                                             a {
                                                                 href: "{crate::routes::documents::index_route(cx.props.organisation_id, dataset.id)}",
                                                                 "{dataset.name}" 
+                                                            }
+                                                        }
+                                                        td {
+                                                            crate::prompts::visibility::VisLabel {
+                                                                visibility: &dataset.visibility
                                                             }
                                                         }
                                                         td { "{dataset.count}" }
