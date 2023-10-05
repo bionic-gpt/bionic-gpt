@@ -15,6 +15,17 @@ VALUES(
     (SELECT id FROM users LIMIT 1)
 );
 
+INSERT INTO organisation_users (
+    user_id,
+    organisation_id,
+    roles
+)
+VALUES(
+    (SELECT id FROM users LIMIT 1),
+    (SELECT id FROM organisations LIMIT 1),
+    ARRAY['Administrator', 'Collaborator', 'SystemAdministrator']::role[]
+);
+
 INSERT INTO models (
     name,
     model_type,
