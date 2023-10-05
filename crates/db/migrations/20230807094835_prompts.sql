@@ -15,6 +15,8 @@ CREATE TABLE prompts (
     name VARCHAR NOT NULL, 
     min_history_items INT NOT NULL,
     max_history_items INT NOT NULL,
+    min_chunks INT NOT NULL,
+    max_chunks INT NOT NULL,
     max_tokens INT NOT NULL,
     temperature REAL CHECK (temperature >= 0 AND temperature <= 2),
     top_p REAL CHECK (top_p >= 0 AND top_p <= 1),

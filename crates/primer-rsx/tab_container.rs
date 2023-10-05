@@ -17,21 +17,21 @@ pub fn TabContainer<'a>(cx: Scope<'a, TabContainerProps<'a>>) -> Element {
         ""
     };
 
-    let class = format!("Box {}", class);
-
     cx.render(rsx!(
-        cx.raw_text(format_args!("<tab-container class={} data-view-component='true'>", class))
-        div {
-            class: "UnderlineNav",
-            ul {
-                role: "tablist",
-                "aria-label": "label",
-                class: "tabnav-tabs",
-                {&cx.props.tabs}
+        tab-container {
+            class: "{class}",
+            "data-view-component": "true",
+            div {
+                class: "UnderlineNav",
+                ul {
+                    role: "tablist",
+                    "aria-label": "label",
+                    class: "tabnav-tabs",
+                    {&cx.props.tabs}
+                }
             }
+            {&cx.props.children}
         }
-        {&cx.props.children}
-        cx.raw_text(format_args!("</tab-container>"))
     ))
 }
 

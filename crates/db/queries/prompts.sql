@@ -1,4 +1,4 @@
---: Prompt()
+--: Prompt(temperature?, top_p?)
 
 --! prompts : Prompt
 SELECT
@@ -16,6 +16,13 @@ SELECT
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.min_history_items,
+    p.max_history_items,
+    p.min_chunks,
+    p.max_chunks,
+    p.max_tokens,
+    p.temperature,
+    p.top_p,
     p.created_at,
     p.updated_at
 FROM 
@@ -47,6 +54,13 @@ SELECT
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.min_history_items,
+    p.max_history_items,
+    p.min_chunks,
+    p.max_chunks,
+    p.max_tokens,
+    p.temperature,
+    p.top_p,
     p.created_at,
     p.updated_at
 FROM 
@@ -80,6 +94,13 @@ SELECT
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.min_history_items,
+    p.max_history_items,
+    p.min_chunks,
+    p.max_chunks,
+    p.max_tokens,
+    p.temperature,
+    p.top_p,
     p.created_at,
     p.updated_at
 FROM 

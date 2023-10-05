@@ -1,15 +1,22 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
-use db::queries::prompts::Prompt;
+use db::{queries::prompts::Prompt, Dataset, Model};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
 struct Props {
     organisation_id: i32,
     prompts: Vec<Prompt>,
+    datasets: Vec<Dataset>,
+    models: Vec<Model>,
 }
 
-pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
+pub fn index(
+    organisation_id: i32,
+    prompts: Vec<Prompt>,
+    datasets: Vec<Dataset>,
+    models: Vec<Model>,
+) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
@@ -19,10 +26,11 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
                 title: "Prompts",
                 header: cx.render(rsx!(
                     h3 { "Prompts" }
-                    a {
-                        class: "btn btn-primary",
-                        href: "{crate::routes::prompts::new_route(cx.props.organisation_id)}",
-                        "New Prompt Template"
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        drawer_trigger: "new-prompt-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "New Prompt"
                     }
                 ))
 
@@ -105,6 +113,27 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
                                 }
                             }
                         }
+
+                        // The form to create a model
+                        super::form::Form {
+                            organisation_id: cx.props.organisation_id,
+                            trigger_id: "new-prompt-form".to_string(),
+                            name: "".to_string(),
+                            template: "Context information is below.
+--------------------
+{context_str}
+--------------------".to_string(),
+                            datasets: cx.props.datasets.clone(),
+                            models: cx.props.models.clone(),
+                            model_id: -1,
+                            min_history_items: 1,
+                            max_history_items: 3,
+                            min_chunks: 3,
+                            max_chunks: 10,
+                            max_tokens: 1024,
+                            temperature: 0.7,
+                            top_p: 0.0,
+                        }
                     })
                 }
             }
@@ -116,6 +145,8 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
         Props {
             organisation_id,
             prompts,
+            datasets,
+            models,
         },
     ))
 }

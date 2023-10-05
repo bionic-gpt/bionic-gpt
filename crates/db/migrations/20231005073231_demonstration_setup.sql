@@ -65,6 +65,8 @@ INSERT INTO prompts (
     template,
     min_history_items,
     max_history_items,
+    min_chunks,
+    max_chunks,
     max_tokens
 )
 VALUES(
@@ -74,6 +76,8 @@ VALUES(
     'GPT4All (All Datasets)', 
     'All', 
     'Context information is below. \n--------------------\n{context_str}\n--------------------',
+    3,
+    10,
     3,
     10,
     1024
