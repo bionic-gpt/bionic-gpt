@@ -52,6 +52,7 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
                                         thead {
                                             th { "Name" }
                                             th { "Dataset(s)" }
+                                            th { "Visibility" }
                                             th { "Model" }
                                             th { "Updated" }
                                             th {
@@ -71,6 +72,11 @@ pub fn index(organisation_id: i32, prompts: Vec<Prompt>) -> String {
                                                             super::dataset_connection::DatasetConnection {
                                                                 connection: prompt.dataset_connection,
                                                                 datasets: prompt.datasets.clone()
+                                                            }
+                                                        }
+                                                        td {
+                                                            super::visibility::VisLabel {
+                                                                visibility: &prompt.visibility
                                                             }
                                                         }
                                                         td {

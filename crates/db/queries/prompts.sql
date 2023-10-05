@@ -8,6 +8,7 @@ SELECT
     (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.model_id,
     p.name,
+    p.visibility,
     p.dataset_connection,
     p.template,
     (
@@ -38,6 +39,7 @@ SELECT
     (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.model_id,
     p.name,
+    p.visibility,
     p.dataset_connection,
     p.template,
     (
@@ -70,6 +72,7 @@ SELECT
     (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.model_id,
     p.name,
+    p.visibility,
     p.dataset_connection,
     p.template,
     (
