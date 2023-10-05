@@ -99,8 +99,8 @@ pub fn index(
                                                                 direction: Direction::West,
                                                                 button_text: "...",
                                                                 DropDownLink {
-                                                                    href: "{crate::routes::prompts::edit_route(cx.props.organisation_id, prompt.id)}",
-                                                                    target: "_top",
+                                                                    href: "#",
+                                                                    drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
                                                                     "Edit"
                                                                 }
                                                             }
@@ -134,6 +134,29 @@ pub fn index(
                             temperature: 0.7,
                             top_p: 0.0,
                         }
+
+                        cx.props.prompts.iter().map(|prompt| {
+                            // The form to edit a prompt
+                            cx.render(rsx!(
+                                super::form::Form {
+                                    id: prompt.id,
+                                    organisation_id: cx.props.organisation_id,
+                                    trigger_id: format!("edit-prompt-form-{}", prompt.id),
+                                    name: prompt.name.clone(),
+                                    template: prompt.template.clone(),
+                                    datasets: cx.props.datasets.clone(),
+                                    models: cx.props.models.clone(),
+                                    model_id: prompt.model_id,
+                                    min_history_items: prompt.min_history_items,
+                                    max_history_items: prompt.max_history_items,
+                                    min_chunks: prompt.min_chunks,
+                                    max_chunks: prompt.max_chunks,
+                                    max_tokens: prompt.max_tokens,
+                                    temperature: prompt.temperature.unwrap_or(0.7),
+                                    top_p: prompt.top_p.unwrap_or(0.0),
+                                }
+                            ))
+                        })
                     })
                 }
             }
