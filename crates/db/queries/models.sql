@@ -13,6 +13,7 @@ SELECT
     updated_at
 FROM 
     models
+WHERE model_type = :model_type
 ORDER BY updated_at;
 
 --! model : Model

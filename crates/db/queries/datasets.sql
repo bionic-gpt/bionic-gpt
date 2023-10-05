@@ -44,16 +44,20 @@ INSERT INTO
     datasets (
         organisation_id, 
         name,
+        embeddings_model_id,
         chunking_strategy,
         combine_under_n_chars,
         new_after_n_chars,
-        multipage_sections
+        multipage_sections,
+        visibility
     )
 VALUES(
     :organisation_id, 
     :name,
+    :embeddings_model_id,
     :chunking_strategy,
     :combine_under_n_chars,
     :new_after_n_chars,
-    :multipage_sections)
+    :multipage_sections,
+    :visibility)
 RETURNING id;

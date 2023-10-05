@@ -3,9 +3,9 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::{Html, IntoResponse};
 use axum_extra::extract::Form;
-use db::queries;
 use db::types::public::DatasetConnection;
 use db::Pool;
+use db::{queries, ModelType};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -22,7 +22,10 @@ pub async fn new(
         .all()
         .await?;
 
-    let models = queries::models::models().bind(&transaction).all().await?;
+    let models = queries::models::models()
+        .bind(&transaction, &ModelType::LLM)
+        .all()
+        .await?;
     Ok(Html(ui_components::prompts::form::form(
         team_id, None, datasets, models, None,
     )))
@@ -43,7 +46,10 @@ pub async fn edit(
         .all()
         .await?;
 
-    let models = queries::models::models().bind(&transaction).all().await?;
+    let models = queries::models::models()
+        .bind(&transaction, &ModelType::LLM)
+        .all()
+        .await?;
 
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id, &team_id)
@@ -154,7 +160,10 @@ pub async fn upsert(
                 .all()
                 .await?;
 
-            let models = queries::models::models().bind(&transaction).all().await?;
+            let models = queries::models::models()
+                .bind(&transaction, &ModelType::LLM)
+                .all()
+                .await?;
             let html = ui_components::prompts::form::form(team_id, None, datasets, models, None);
             Ok(html.into_response())
         }

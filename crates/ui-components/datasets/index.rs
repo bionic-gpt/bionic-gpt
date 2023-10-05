@@ -1,16 +1,17 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use assets::files::*;
-use db::queries::datasets::Dataset;
+use db::queries::{datasets::Dataset, models::Model};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
 struct Props {
     organisation_id: i32,
     datasets: Vec<Dataset>,
+    models: Vec<Model>,
 }
 
-pub fn index(organisation_id: i32, datasets: Vec<Dataset>) -> String {
+pub fn index(organisation_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -> String {
     fn app(cx: Scope<Props>) -> Element {
         cx.render(rsx! {
             Layout {
@@ -99,6 +100,7 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>) -> String {
                 }
 
                 super::new::New {
+                    models: cx.props.models.clone(),
                     organisation_id: cx.props.organisation_id,
                     combine_under_n_chars: 500,
                     new_after_n_chars: 1000,
@@ -113,6 +115,7 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>) -> String {
         Props {
             organisation_id,
             datasets,
+            models,
         },
     ))
 }

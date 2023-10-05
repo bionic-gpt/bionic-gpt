@@ -83,5 +83,6 @@ VALUES(
 DELETE FROM prompts;
 DELETE FROM models;
 DELETE FROM organisations;
+DELETE FROM organisation_users;
 DELETE FROM users;
 
