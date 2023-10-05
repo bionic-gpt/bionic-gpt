@@ -50,6 +50,7 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>) -> String {
                                         thead {
                                             th { "Name" }
                                             th { "Document Count" }
+                                            th { "Chunking Strategy" }
                                             th {
                                                 class: "text-right",
                                                 "Action"
@@ -67,6 +68,13 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>) -> String {
                                                             }
                                                         }
                                                         td { "{dataset.count}" }
+                                                        td {
+                                                            Label {
+                                                                label_color: LabelColor::Done,
+                                                                label_contrast: LabelContrast::Primary,
+                                                                "By Title"
+                                                            }
+                                                         }
                                                         td {
                                                             class: "text-right",
                                                             DropDown {
