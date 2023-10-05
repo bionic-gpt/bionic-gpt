@@ -6,13 +6,6 @@ CREATE TYPE dataset_connection AS ENUM (
 );
 COMMENT ON TYPE dataset_connection IS 'A prompt can use all datasets, no datasets or selected datasets.';
 
-CREATE TYPE visibility AS ENUM (
-    'Company', 
-    'Team', 
-    'Private'
-);
-COMMENT ON TYPE dataset_connection IS 'Who can see this prompt';
-
 CREATE TABLE prompts (
     id SERIAL PRIMARY KEY, 
     organisation_id INT NOT NULL, 
@@ -63,4 +56,3 @@ GRANT SELECT ON prompt_dataset TO ft_readonly;
 DROP TABLE prompt_dataset;
 DROP TABLE prompts;
 DROP TYPE dataset_connection;
-DROP TYPE visibility;

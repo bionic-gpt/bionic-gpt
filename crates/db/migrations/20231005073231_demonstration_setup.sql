@@ -37,7 +37,7 @@ VALUES(
     'ggml-gpt4all-j', 
     'LLM', 
     'http://llm-api:8080', 
-    70, 
+    7, 
     2048
 );
 
@@ -52,7 +52,7 @@ VALUES(
     'text-embedding-ada-002', 
     'Embeddings', 
     'http://llm-api:8080', 
-    70, 
+    7, 
     2048
 );
 

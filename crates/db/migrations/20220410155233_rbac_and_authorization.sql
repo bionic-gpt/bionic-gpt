@@ -10,6 +10,13 @@ CREATE TYPE role AS ENUM (
 );
 COMMENT ON TYPE role IS 'Users have roles, they can be managers or administrators etc.';
 
+CREATE TYPE visibility AS ENUM (
+    'Company', 
+    'Team', 
+    'Private'
+);
+COMMENT ON TYPE visibility IS 'For some data the user can select the visibility';
+
 CREATE TYPE permission AS ENUM (
     -- The ManageTeam permission gives the user thee ability to invite team members, 
     -- delete team members and chnage the team name
@@ -38,3 +45,4 @@ GRANT SELECT ON roles_permissions TO ft_readonly;
 DROP TABLE roles_permissions;
 DROP TYPE role;
 DROP TYPE permission;
+DROP TYPE visibility;
