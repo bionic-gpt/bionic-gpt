@@ -85,7 +85,6 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &model_form.name,
-                    &team_id,
                     &model_form.base_url,
                     &model_form.api_key,
                     &model_form.billion_parameters,

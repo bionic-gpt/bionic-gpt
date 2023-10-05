@@ -7,17 +7,9 @@ use axum::{
 };
 use db::queries;
 use db::types;
-use db::types::public::DatasetConnection;
 use db::Pool;
 
 pub static INDEX: &str = "/app/post_registration";
-
-pub static PROMPT_CONTEXT: &str = "Context information is below.
---------------------
-{context_str}
---------------------";
-
-pub static PROMPT_NOCONTEXT: &str = "";
 
 pub fn routes() -> Router {
     Router::new().route(INDEX, get(post_registration))
@@ -61,43 +53,6 @@ pub async fn post_registration(
                 &inserted_org_id,
                 &roles,
             )
-            .await?;
-
-        let api_key_value: Option<String> = None;
-
-        let model_id = queries::models::insert()
-            .bind(
-                &transaction,
-                &"ggml-gpt4all-j",
-                &inserted_org_id,
-                &"http://llm-api:8080",
-                &api_key_value,
-                &7,
-                &2048,
-            )
-            .one()
-            .await?;
-
-        queries::prompts::insert()
-            .bind(
-                &transaction,
-                &model_id,
-                &"Default (Exclude All Datasets)",
-                &DatasetConnection::None,
-                &PROMPT_NOCONTEXT,
-            )
-            .one()
-            .await?;
-
-        queries::prompts::insert()
-            .bind(
-                &transaction,
-                &model_id,
-                &"Default (Include All Datasets)",
-                &DatasetConnection::All,
-                &PROMPT_CONTEXT,
-            )
-            .one()
             .await?;
 
         transaction.commit().await?;

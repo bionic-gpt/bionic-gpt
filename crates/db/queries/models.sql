@@ -4,6 +4,7 @@
 SELECT
     id,
     name,
+    model_type,
     base_url,
     api_key,
     billion_parameters,
@@ -12,14 +13,13 @@ SELECT
     updated_at
 FROM 
     models
-WHERE
-    organisation_id IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
 ORDER BY updated_at;
 
 --! model : Model
 SELECT
     id,
     name,
+    model_type,
     base_url,
     api_key,
     billion_parameters,
@@ -36,6 +36,7 @@ ORDER BY updated_at;
 SELECT
     id,
     name,
+    model_type,
     base_url,
     api_key,
     billion_parameters,
@@ -48,15 +49,12 @@ WHERE
     id IN (SELECT model_id FROM prompts p WHERE p.id IN (
         SELECT prompt_id FROM chats WHERE id = :chat_id
     ))
-AND
-    organisation_id IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
 ORDER BY updated_at;
 
 
 --! insert(api_key?)
 INSERT INTO models (
     name,
-    organisation_id,
     base_url,
     api_key,
     billion_parameters,
@@ -64,7 +62,6 @@ INSERT INTO models (
 )
 VALUES(
     :name, 
-    :organisation_id, 
     :base_url, 
     :api_key, 
     :billion_parameters, 

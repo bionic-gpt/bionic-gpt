@@ -36,6 +36,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                 thead {
                                     th { "Name" }
                                     th { "Base URL" }
+                                    th { "Model Type" }
                                     th { "Parameters" }
                                     th { "Context Length" }
                                     th {
@@ -53,6 +54,11 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                                 }
                                                 td {
                                                     "{model.base_url}"
+                                                }
+                                                td {
+                                                    super::model_type::Model {
+                                                        model_type: &model.model_type
+                                                    }
                                                 }
                                                 td {
                                                     "{model.billion_parameters} Billion"
