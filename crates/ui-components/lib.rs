@@ -71,7 +71,6 @@ pub mod routes {
     pub mod models {
         pub static INDEX: &str = "/app/team/:organisation_id/models";
         pub static NEW: &str = "/app/team/:organisation_id/models/new";
-        pub static EDIT: &str = "/app/team/:organisation_id/models/:model_id/edit";
 
         pub fn index_route(organisation_id: i32) -> String {
             format!("/app/team/{}/models", organisation_id)
@@ -79,10 +78,6 @@ pub mod routes {
 
         pub fn new_route(organisation_id: i32) -> String {
             format!("/app/team/{}/models/new", organisation_id)
-        }
-
-        pub fn edit_route(organisation_id: i32, model_id: i32) -> String {
-            format!("/app/team/{}/models/{}/edit", organisation_id, model_id)
         }
     }
 

@@ -74,8 +74,8 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                                         direction: Direction::West,
                                                         button_text: "...",
                                                         DropDownLink {
-                                                            href: "{crate::routes::models::edit_route(cx.props.organisation_id, model.id)}",
-                                                            target: "_top",
+                                                            href: "#",
+                                                            drawer_trigger: format!("edit-model-form-{}", model.id),
                                                             "Edit"
                                                         }
                                                     }
@@ -90,7 +90,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                 }
             }
 
-            // The form to create an invitation
+            // The form to create a model
             super::form::Form {
                 organisation_id: cx.props.organisation_id,
                 trigger_id: "new-model-form".to_string(),
@@ -100,6 +100,23 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                 billion_parameters: 7,
                 context_size_bytes: 2048,
             }
+
+
+            cx.props.models.iter().map(|model| {
+                // The form to edit a model
+                cx.render(rsx!(
+                    super::form::Form {
+                        id: model.id,
+                        organisation_id: cx.props.organisation_id,
+                        trigger_id: format!("edit-model-form-{}", model.id),
+                        name: model.name.clone(),
+                        model_type: "LLM".to_string(),
+                        base_url: model.base_url.clone(),
+                        billion_parameters: model.billion_parameters,
+                        context_size_bytes: model.context_size,
+                    }
+                ))
+            })
         })
     }
 
