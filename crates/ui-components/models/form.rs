@@ -7,6 +7,7 @@ pub struct Props {
     organisation_id: i32,
     name: String,
     base_url: String,
+    model_type: String,
     trigger_id: String,
     api_key: Option<String>,
     billion_parameters: i32,
@@ -42,6 +43,21 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             help_text: "Make the name memorable and imply it's usage.",
                             value: &cx.props.name,
                             required: true
+                        }
+
+                        Select {
+                            name: "model_type",
+                            label: "Is this model for LLM or Embeddings",
+                            help_text: "Som model can do both, in which case enter it twice.",
+                            value: &cx.props.model_type,
+                            option {
+                                value: "LLM",
+                                "Large Language Model"
+                            }
+                            option {
+                                value: "Embeddings",
+                                "Embeddings Model"
+                            }
                         }
 
                         Input {

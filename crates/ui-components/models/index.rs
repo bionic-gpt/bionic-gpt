@@ -95,6 +95,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                 organisation_id: cx.props.organisation_id,
                 trigger_id: "new-model-form".to_string(),
                 name: "".to_string(),
+                model_type: "LLM".to_string(),
                 base_url: "".to_string(),
                 billion_parameters: 7,
                 context_size_bytes: 2048,

@@ -55,6 +55,7 @@ ORDER BY updated_at;
 --! insert(api_key?)
 INSERT INTO models (
     name,
+    model_type,
     base_url,
     api_key,
     billion_parameters,
@@ -62,6 +63,7 @@ INSERT INTO models (
 )
 VALUES(
     :name, 
+    :model_type,
     :base_url, 
     :api_key, 
     :billion_parameters, 
@@ -73,7 +75,8 @@ RETURNING id;
 UPDATE 
     models 
 SET 
-    name = :name, 
+    name = :name,
+    model_type = :model_type,
     base_url = :base_url,
     api_key = :api_key,
     billion_parameters = :billion_parameters,

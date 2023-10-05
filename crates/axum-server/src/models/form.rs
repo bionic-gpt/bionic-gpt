@@ -3,8 +3,8 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum::Form;
-use db::queries;
 use db::Pool;
+use db::{queries, ModelType};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -15,6 +15,7 @@ pub struct ModelForm {
     pub name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub base_url: String,
+    pub model_type: String,
     pub api_key: Option<String>,
     pub billion_parameters: i32,
     pub context_size: i32,
@@ -31,6 +32,12 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
+    let model_type = if model_form.model_type == "LLM" {
+        ModelType::LLM
+    } else {
+        ModelType::Embeddings
+    };
+
     match (model_form.validate(), model_form.id) {
         (Ok(_), Some(id)) => {
             // The form is valid save to the database
@@ -38,6 +45,7 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &model_form.name,
+                    &model_type,
                     &model_form.base_url,
                     &model_form.api_key,
                     &model_form.billion_parameters,
@@ -60,6 +68,7 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &model_form.name,
+                    &model_type,
                     &model_form.base_url,
                     &model_form.api_key,
                     &model_form.billion_parameters,
