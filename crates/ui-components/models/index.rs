@@ -1,4 +1,5 @@
 use crate::app_layout::{Layout, SideBar};
+use assets::files::button_plus_svg;
 use db::queries::models::Model;
 use dioxus::prelude::*;
 use primer_rsx::*;
@@ -18,10 +19,11 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                 title: "Models",
                 header: cx.render(rsx!(
                     h3 { "Models" }
-                    a {
-                        class: "btn btn-primary",
-                        href: "{crate::routes::models::new_route(cx.props.organisation_id)}",
-                        "New Model"
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        drawer_trigger: "new-model-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "Add Model"
                     }
                 )),
 
@@ -86,6 +88,16 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                         }
                     }
                 }
+            }
+
+            // The form to create an invitation
+            super::form::Form {
+                organisation_id: cx.props.organisation_id,
+                trigger_id: "new-model-form".to_string(),
+                name: "".to_string(),
+                base_url: "".to_string(),
+                billion_parameters: 7,
+                context_size_bytes: 2048,
             }
         })
     }
