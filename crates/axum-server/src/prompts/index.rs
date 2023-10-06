@@ -2,8 +2,8 @@ use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
-use db::queries::prompts;
 use db::Pool;
+use db::{queries, ModelType};
 
 pub async fn index(
     Path(team_id): Path<i32>,
@@ -15,10 +15,22 @@ pub async fn index(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let prompts = prompts::prompts()
+    let prompts = queries::prompts::prompts()
         .bind(&transaction, &team_id)
         .all()
         .await?;
 
-    Ok(Html(ui_components::prompts::index(team_id, prompts)))
+    let datasets = queries::datasets::datasets()
+        .bind(&transaction)
+        .all()
+        .await?;
+
+    let models = queries::models::models()
+        .bind(&transaction, &ModelType::LLM)
+        .all()
+        .await?;
+
+    Ok(Html(ui_components::prompts::index(
+        team_id, prompts, datasets, models,
+    )))
 }

@@ -10,11 +10,10 @@ export class StreamingChat extends HTMLElement {
 
     constructor() {
         super()
-        const prompt = this.attributes.getNamedItem('prompt')
         const chatId = this.attributes.getNamedItem('chat-id')
 
-        if (prompt && prompt.value && chatId && chatId.value) {
-            this.streamResult(prompt.value, chatId.value)
+        if (chatId && chatId.value) {
+            this.streamResult(chatId.value)
         }
 
         const stopButton = document.getElementById('stop-processing')
@@ -28,7 +27,7 @@ export class StreamingChat extends HTMLElement {
         }
     }
 
-    async streamResult(prompt: string, chatId: string) {
+    async streamResult(chatId: string) {
 
         // Create a new AbortController instance
         this.controller = new AbortController();
@@ -38,16 +37,8 @@ export class StreamingChat extends HTMLElement {
             const response = await fetch(`/completions/${chatId}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    model: "choose-a-model",
-                    messages: [{
-                        role: "user",
-                        content: prompt
-                    }],
-                    stream: true,
-                }),
                 signal
             });
 

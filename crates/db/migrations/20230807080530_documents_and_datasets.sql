@@ -5,11 +5,13 @@ CREATE EXTENSION vector;
 CREATE TYPE chunking_strategy AS ENUM (
     'ByTitle'
 );
-COMMENT ON TYPE role IS 'Chunking strategies as suppoorted by unstructured';
+COMMENT ON TYPE role IS 'Chunking strategies as supported by unstructured';
 
 CREATE TABLE datasets (
     id SERIAL PRIMARY KEY, 
     organisation_id INT NOT NULL, 
+    embeddings_model_id INT NOT NULL,
+    visibility visibility NOT NULL,
     name VARCHAR NOT NULL, 
     chunking_strategy chunking_strategy NOT NULL,
     combine_under_n_chars INT NOT NULL,

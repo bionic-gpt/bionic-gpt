@@ -27,14 +27,6 @@ pub async fn send_message(
 
         super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-        let prompt = crate::prompt::execute_prompt(
-            &transaction,
-            message.prompt_id,
-            team_id,
-            &message.message,
-        )
-        .await?;
-
         // Store the prompt, ready for the front end webcomponent to pickup
         chats::new_chat()
             .bind(
@@ -43,7 +35,7 @@ pub async fn send_message(
                 &team_id,
                 &message.prompt_id,
                 &message.message,
-                &prompt,
+                &"",
             )
             .await?;
 

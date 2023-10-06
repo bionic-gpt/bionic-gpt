@@ -1,4 +1,5 @@
 use crate::app_layout::{Layout, SideBar};
+use assets::files::button_plus_svg;
 use db::queries::models::Model;
 use dioxus::prelude::*;
 use primer_rsx::*;
@@ -18,10 +19,11 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                 title: "Models",
                 header: cx.render(rsx!(
                     h3 { "Models" }
-                    a {
-                        class: "btn btn-primary",
-                        href: "{crate::routes::models::new_route(cx.props.organisation_id)}",
-                        "New Model"
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        drawer_trigger: "new-model-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "Add Model"
                     }
                 )),
 
@@ -36,6 +38,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                 thead {
                                     th { "Name" }
                                     th { "Base URL" }
+                                    th { "Model Type" }
                                     th { "Parameters" }
                                     th { "Context Length" }
                                     th {
@@ -55,6 +58,11 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                                     "{model.base_url}"
                                                 }
                                                 td {
+                                                    super::model_type::Model {
+                                                        model_type: &model.model_type
+                                                    }
+                                                }
+                                                td {
                                                     "{model.billion_parameters} Billion"
                                                 }
                                                 td {
@@ -66,8 +74,8 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                                         direction: Direction::West,
                                                         button_text: "...",
                                                         DropDownLink {
-                                                            href: "{crate::routes::models::edit_route(cx.props.organisation_id, model.id)}",
-                                                            target: "_top",
+                                                            href: "#",
+                                                            drawer_trigger: format!("edit-model-form-{}", model.id),
                                                             "Edit"
                                                         }
                                                     }
@@ -81,6 +89,34 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                     }
                 }
             }
+
+            // The form to create a model
+            super::form::Form {
+                organisation_id: cx.props.organisation_id,
+                trigger_id: "new-model-form".to_string(),
+                name: "".to_string(),
+                model_type: "LLM".to_string(),
+                base_url: "".to_string(),
+                billion_parameters: 7,
+                context_size_bytes: 2048,
+            }
+
+
+            cx.props.models.iter().map(|model| {
+                // The form to edit a model
+                cx.render(rsx!(
+                    super::form::Form {
+                        id: model.id,
+                        organisation_id: cx.props.organisation_id,
+                        trigger_id: format!("edit-model-form-{}", model.id),
+                        name: model.name.clone(),
+                        model_type: "LLM".to_string(),
+                        base_url: model.base_url.clone(),
+                        billion_parameters: model.billion_parameters,
+                        context_size_bytes: model.context_size,
+                    }
+                ))
+            })
         })
     }
 

@@ -3,7 +3,7 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::queries::models;
-use db::Pool;
+use db::{ModelType, Pool};
 
 pub async fn index(
     Path(team_id): Path<i32>,
@@ -15,7 +15,16 @@ pub async fn index(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let models = models::models().bind(&transaction).all().await?;
+    let mut models = models::models()
+        .bind(&transaction, &ModelType::LLM)
+        .all()
+        .await?;
+    models.append(
+        &mut models::models()
+            .bind(&transaction, &ModelType::Embeddings)
+            .all()
+            .await?,
+    );
 
     Ok(Html(ui_components::models::index(team_id, models)))
 }

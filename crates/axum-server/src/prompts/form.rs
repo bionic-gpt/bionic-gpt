@@ -1,64 +1,13 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
-use axum::response::{Html, IntoResponse};
+use axum::response::IntoResponse;
 use axum_extra::extract::Form;
-use db::queries;
 use db::types::public::DatasetConnection;
 use db::Pool;
+use db::{queries, Visibility};
 use serde::Deserialize;
 use validator::Validate;
-
-pub async fn new(
-    Path(team_id): Path<i32>,
-    current_user: Authentication,
-    Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
-    let datasets = queries::datasets::datasets()
-        .bind(&transaction)
-        .all()
-        .await?;
-
-    let models = queries::models::models().bind(&transaction).all().await?;
-    Ok(Html(ui_components::prompts::form::form(
-        team_id, None, datasets, models, None,
-    )))
-}
-
-pub async fn edit(
-    Path((team_id, prompt_id)): Path<(i32, i32)>,
-    current_user: Authentication,
-    Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
-    // Create a transaction and setup RLS
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
-
-    let datasets = queries::datasets::datasets()
-        .bind(&transaction)
-        .all()
-        .await?;
-
-    let models = queries::models::models().bind(&transaction).all().await?;
-
-    let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id, &team_id)
-        .one()
-        .await?;
-    let model_id = prompt.model_id;
-
-    Ok(Html(ui_components::prompts::form::form(
-        team_id,
-        Some(prompt),
-        datasets,
-        models,
-        Some(model_id),
-    )))
-}
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewPromptTemplate {
@@ -70,6 +19,14 @@ pub struct NewPromptTemplate {
     pub dataset_connection: String,
     pub model_id: i32,
     pub datasets: Option<Vec<String>>,
+    pub min_history_items: i32,
+    pub max_history_items: i32,
+    pub min_chunks: i32,
+    pub max_chunks: i32,
+    pub max_tokens: i32,
+    pub temperature: f32,
+    pub top_p: f32,
+    pub visibility: String,
 }
 
 pub async fn upsert(
@@ -83,6 +40,12 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
+    let visibility = if new_prompt_template.visibility == "Private" {
+        Visibility::Private
+    } else {
+        Visibility::Team
+    };
+
     match (new_prompt_template.validate(), new_prompt_template.id) {
         (Ok(_), Some(id)) => {
             // The form is valid save to the database
@@ -91,8 +54,16 @@ pub async fn upsert(
                     &transaction,
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
+                    &visibility,
                     &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
+                    &new_prompt_template.min_history_items,
+                    &new_prompt_template.max_history_items,
+                    &new_prompt_template.min_chunks,
+                    &new_prompt_template.max_chunks,
+                    &new_prompt_template.max_tokens,
+                    &new_prompt_template.temperature,
+                    &new_prompt_template.top_p,
                     &id,
                 )
                 .await?;
@@ -123,10 +94,19 @@ pub async fn upsert(
             let prompt_id = queries::prompts::insert()
                 .bind(
                     &transaction,
+                    &team_id,
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
+                    &visibility,
                     &dataset_connection_from_string(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
+                    &new_prompt_template.min_history_items,
+                    &new_prompt_template.max_history_items,
+                    &new_prompt_template.min_chunks,
+                    &new_prompt_template.max_chunks,
+                    &new_prompt_template.max_tokens,
+                    &new_prompt_template.temperature,
+                    &new_prompt_template.top_p,
                 )
                 .one()
                 .await?;
@@ -148,16 +128,11 @@ pub async fn upsert(
             )
             .into_response())
         }
-        (Err(_), _) => {
-            let datasets = queries::datasets::datasets()
-                .bind(&transaction)
-                .all()
-                .await?;
-
-            let models = queries::models::models().bind(&transaction).all().await?;
-            let html = ui_components::prompts::form::form(team_id, None, datasets, models, None);
-            Ok(html.into_response())
-        }
+        (Err(_), _) => Ok(crate::layout::redirect_and_snackbar(
+            &ui_components::routes::prompts::index_route(team_id),
+            "Problem with Prompt Validation",
+        )
+        .into_response()),
     }
 }
 

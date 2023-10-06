@@ -77,12 +77,17 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             icon: nav_ccsds_data_svg.name,
                             title: "Team Datasets"
                         }
+                    ))
+                }
+                NavGroup {
+                    heading: "Pipelines",
+                    content:  cx.render(rsx!(
                         NavItem {
                             id: SideBar::BulkImport.to_string(),
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::documents::bulk_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
-                            title: "Document Pipeline"
+                            title: "LLM Pipeline"
                         }
                     ))
                 }

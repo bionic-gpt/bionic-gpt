@@ -2,8 +2,8 @@ use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
-use db::queries::datasets;
-use db::Pool;
+use db::queries::{datasets, models};
+use db::{ModelType, Pool};
 
 pub async fn index(
     Path(team_id): Path<i32>,
@@ -17,5 +17,10 @@ pub async fn index(
 
     let docs = datasets::datasets().bind(&transaction).all().await?;
 
-    Ok(Html(ui_components::datasets::index(team_id, docs)))
+    let models = models::models()
+        .bind(&transaction, &ModelType::Embeddings)
+        .all()
+        .await?;
+
+    Ok(Html(ui_components::datasets::index(team_id, docs, models)))
 }

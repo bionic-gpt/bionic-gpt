@@ -1,13 +1,15 @@
---: Prompt()
+--: Prompt(temperature?, top_p?)
 
 --! prompts : Prompt
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.model_id,
     p.name,
+    p.visibility,
     p.dataset_connection,
     p.template,
     (
@@ -15,6 +17,13 @@ SELECT
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.min_history_items,
+    p.max_history_items,
+    p.min_chunks,
+    p.max_chunks,
+    p.max_tokens,
+    p.temperature,
+    p.top_p,
     p.created_at,
     p.updated_at
 FROM 
@@ -35,9 +44,11 @@ SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.model_id,
     p.name,
+    p.visibility,
     p.dataset_connection,
     p.template,
     (
@@ -45,6 +56,13 @@ SELECT
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.min_history_items,
+    p.max_history_items,
+    p.min_chunks,
+    p.max_chunks,
+    p.max_tokens,
+    p.temperature,
+    p.top_p,
     p.created_at,
     p.updated_at
 FROM 
@@ -67,9 +85,11 @@ SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
     p.model_id,
     p.name,
+    p.visibility,
     p.dataset_connection,
     p.template,
     (
@@ -77,6 +97,13 @@ SELECT
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.min_history_items,
+    p.max_history_items,
+    p.min_chunks,
+    p.max_chunks,
+    p.max_tokens,
+    p.temperature,
+    p.top_p,
     p.created_at,
     p.updated_at
 FROM 
@@ -134,13 +161,34 @@ VALUES(
 
 --! insert
 INSERT INTO prompts (
+    organisation_id, 
     model_id, 
     name,
+    visibility,
     dataset_connection,
-    template
+    template,
+    min_history_items,
+    max_history_items,
+    min_chunks,
+    max_chunks,
+    max_tokens,
+    temperature,
+    top_p
 )
 VALUES(
-    :model_id, :name, :dataset_connection, :template
+    :organisation_id, 
+    :model_id,
+    :name,
+    :visibility,
+    :dataset_connection,
+    :template,
+    :min_history_items,
+    :max_history_items,
+    :min_chunks,
+    :max_chunks,
+    :max_tokens,
+    :temperature,
+    :top_p
 )
 RETURNING id;
 
@@ -150,8 +198,16 @@ UPDATE
 SET 
     model_id = :model_id, 
     name = :name, 
+    visibility = :visibility,
     dataset_connection = :dataset_connection,
-    template = :template
+    template = :template,
+    min_history_items = :min_history_items,
+    max_history_items = :max_history_items,
+    min_chunks = :min_chunks,
+    max_chunks = :max_chunks,
+    max_tokens = :max_tokens,
+    temperature = :temperature,
+    top_p = :top_p
 WHERE
     id = :id
 AND

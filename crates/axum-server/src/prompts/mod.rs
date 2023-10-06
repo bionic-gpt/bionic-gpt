@@ -5,12 +5,10 @@ use axum::{
     Router,
 };
 
-use ui_components::routes::prompts::{EDIT, INDEX, NEW};
+use ui_components::routes::prompts::{INDEX, NEW};
 
 pub fn routes() -> Router {
     Router::new()
         .route(INDEX, get(index::index))
-        .route(NEW, get(form::new))
-        .route(EDIT, get(form::edit))
         .route(NEW, post(form::upsert))
 }
