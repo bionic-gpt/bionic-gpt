@@ -16,7 +16,7 @@ top = false
 
 The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
-`curl https://raw.githubusercontent.com/purton-tech/bionicgpt/main/docker-compose.yml`
+`curl -O https://raw.githubusercontent.com/purton-tech/bionicgpt/main/docker-compose.yml`
 
 And run
 
