@@ -64,9 +64,6 @@ prepare-cache:
 envoy-container:
     FROM $ENVOY_PROXY
     COPY .devcontainer/envoy.yaml /etc/envoy/envoy.yaml
-    # Update the first entry in our config to point at the marketing pages
-    RUN sed -i '0,/development/{s/development/www/}' /etc/envoy/envoy.yaml
-    RUN sed -i '0,/7704/{s/7704/80/}' /etc/envoy/envoy.yaml
     # The second development entry in our cluster list is the app
     RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
     SAVE IMAGE --push $ENVOY_IMAGE_NAME
