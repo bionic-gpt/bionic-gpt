@@ -91,7 +91,9 @@ pub fn index(
                                                             "{prompt.model_name}"
                                                         }
                                                         td {
-                                                            "{prompt.updated_at}"
+                                                            RelativeTime {
+                                                                datetime: "{prompt.updated_at}"
+                                                            }
                                                         }
                                                         td {
                                                             class: "text-right",
