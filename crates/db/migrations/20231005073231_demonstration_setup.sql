@@ -76,8 +76,8 @@ VALUES(
     'GPT4All (All Datasets)', 
     'All', 
     'The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.\n\n### Prompt:\n',
+    1,
     3,
-    10,
     3,
     10,
     1024
