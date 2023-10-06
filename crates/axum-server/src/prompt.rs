@@ -2,6 +2,7 @@ use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
 use db::queries::prompts;
 use db::{DatasetConnection, Transaction};
+use tiktoken_rs::ChatCompletionRequestMessage;
 
 pub async fn execute_prompt(
     transaction: &Transaction<'_>,
@@ -24,21 +25,65 @@ pub async fn execute_prompt(
         organisation_id,
     )
     .await?;
-    let related_context = related_context.join(" ");
-    let prompt = prompt.template.replace("{context_str}", &related_context);
 
-    let messages: Vec<Message> = vec![
-        Message {
-            role: "system".to_string(),
-            content: prompt,
-        },
-        Message {
-            role: "user".to_string(),
-            content: question.to_string(),
-        },
-    ];
+    let messages = generate_prompt(
+        prompt.model_context_size as usize,
+        prompt.max_tokens as usize,
+        prompt.template,
+        Default::default(),
+        question,
+        related_context,
+    )
+    .await;
+
+    let messages = messages
+        .into_iter()
+        .map(|msg| Message {
+            role: msg.role,
+            content: msg.content.unwrap_or("".to_string()),
+        })
+        .collect();
 
     Ok(messages)
+}
+
+async fn generate_prompt(
+    model_context_size: usize,
+    max_tokens: usize,
+    template: String,
+    _history: Vec<String>,
+    question: &str,
+    related_context: Vec<String>,
+) -> Vec<ChatCompletionRequestMessage> {
+    // This is the space we have to fill
+    let _context_size = model_context_size - max_tokens;
+
+    let system_prompt = if related_context.is_empty() {
+        template
+    } else {
+        format!("{}\n\nContext information is below.\n--------------------\n{{context_str}}\n--------------------", template)
+    };
+
+    let messages: Vec<ChatCompletionRequestMessage> = vec![
+        ChatCompletionRequestMessage {
+            role: "system".to_string(),
+            content: Some(system_prompt),
+            name: None,
+            function_call: None,
+        },
+        ChatCompletionRequestMessage {
+            role: "user".to_string(),
+            content: Some(question.to_string()),
+            name: None,
+            function_call: None,
+        },
+    ];
+    // Keep adding history and context until meet the requirements of the prompt
+    //while size_so_far < context_size {
+    //    size_so_far += num_tokens_from_messages("gpt-4", &messages).unwrap();
+    //}
+
+    messages
 }
 
 // Query the vector database using a similarity search.

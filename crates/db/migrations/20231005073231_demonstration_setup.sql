@@ -75,7 +75,7 @@ VALUES(
     'Company',
     'GPT4All (All Datasets)', 
     'All', 
-    'Context information is below. \n--------------------\n{context_str}\n--------------------',
+    'You are a helpful assistant.',
     3,
     10,
     3,
