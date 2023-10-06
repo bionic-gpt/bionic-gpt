@@ -61,23 +61,14 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
     driver.find(By::LinkText("Prompts")).await?.click().await?;
 
     driver
-        .query(By::LinkText("New Prompt Template"))
-        .first()
+        .find(By::XPath("//button[text()='New Prompt']"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .query(By::LinkText("New Prompt Template"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::LinkText("New Prompt Template"))
+        .find(By::XPath("//button[text()='New Prompt']"))
         .await?
         .click()
         .await?;

@@ -40,9 +40,9 @@ pub fn index(
                             heading: "Looks like you haven't configured any prompts yet",
                             visual: nav_dashboard_svg.name,
                             description: "Researchers use prompt engineering to improve the capacity of LLMs on a wide range of common and complex tasks such as question answering and arithmetic reasoning.",
-                            primary_action: (
-                                "New Prompt Template", 
-                                crate::routes::prompts::new_route(cx.props.organisation_id)
+                            primary_action_drawer: (
+                                "New Prompt",
+                                "new-prompt-form", 
                             )
                         }
                     })
@@ -116,27 +116,6 @@ pub fn index(
                             }
                         }
 
-                        // The form to create a model
-                        super::form::Form {
-                            organisation_id: cx.props.organisation_id,
-                            trigger_id: "new-prompt-form".to_string(),
-                            name: "".to_string(),
-                            template: "Context information is below.
---------------------
-{context_str}
---------------------".to_string(),
-                            datasets: cx.props.datasets.clone(),
-                            models: cx.props.models.clone(),
-                            model_id: -1,
-                            min_history_items: 1,
-                            max_history_items: 3,
-                            min_chunks: 3,
-                            max_chunks: 10,
-                            max_tokens: 1024,
-                            temperature: 0.7,
-                            top_p: 0.0,
-                        }
-
                         cx.props.prompts.iter().map(|prompt| {
                             // The form to edit a prompt
                             cx.render(rsx!(
@@ -160,6 +139,27 @@ pub fn index(
                             ))
                         })
                     })
+                }
+
+                // The form to create a model
+                super::form::Form {
+                    organisation_id: cx.props.organisation_id,
+                    trigger_id: "new-prompt-form".to_string(),
+                    name: "".to_string(),
+                    template: "Context information is below.
+--------------------
+{context_str}
+--------------------".to_string(),
+                    datasets: cx.props.datasets.clone(),
+                    models: cx.props.models.clone(),
+                    model_id: -1,
+                    min_history_items: 1,
+                    max_history_items: 3,
+                    min_chunks: 3,
+                    max_chunks: 10,
+                    max_tokens: 1024,
+                    temperature: 0.7,
+                    top_p: 0.0,
                 }
             }
         })
