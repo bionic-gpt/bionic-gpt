@@ -75,7 +75,7 @@ VALUES(
     'Company',
     'GPT4All (All Datasets)', 
     'All', 
-    'You are a helpful assistant.',
+    'The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.\n\n### Prompt:\n',
     3,
     10,
     3,

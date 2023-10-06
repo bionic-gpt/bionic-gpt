@@ -16,6 +16,7 @@ pub async fn execute_prompt(
         .one()
         .await?;
 
+    tracing::info!(prompt.name);
     // Get related context
     let related_context = get_related_context(
         transaction,
@@ -26,12 +27,14 @@ pub async fn execute_prompt(
         prompt.max_chunks,
     )
     .await?;
+    tracing::info!("Retrieved {} chunks", related_context.len());
 
     // Get the maximum required amount og chat history
     let chat_history = chats::chat_history()
         .bind(transaction, &(prompt.max_history_items as i64))
         .all()
         .await?;
+    tracing::info!("Retrieved {} history items", chat_history.len());
 
     let messages = generate_prompt(
         prompt.model_context_size as usize,
@@ -168,30 +171,36 @@ async fn get_related_context(
     match dataset_connection {
         DatasetConnection::None => Ok(Default::default()),
         DatasetConnection::All => {
+            tracing::info!("About to call");
             // Find sections of documents that are related to the users question
             let related_context = transaction
                 .query(
                     "
-                            SELECT 
-                                text 
-                            FROM 
-                                embeddings
-                            WHERE
-                                document_id IN (
-                                    SELECT id FROM documents WHERE dataset_id IN (
-                                        SELECT id FROM datasets WHERE organisation_id IN (
-                                            SELECT organisation_id FROM organisation_users 
-                                            WHERE user_id = current_app_user()
-                                            AND organisation_id = $1
-                                        )
-                                    )
+                    SELECT 
+                        text 
+                    FROM 
+                        embeddings
+                    WHERE
+                        document_id IN (
+                            SELECT id FROM documents WHERE dataset_id IN (
+                                SELECT id FROM datasets WHERE organisation_id IN (
+                                    SELECT organisation_id FROM organisation_users 
+                                    WHERE user_id = current_app_user()
+                                    AND organisation_id = $1
                                 )
-                            ORDER BY 
-                                embeddings <-> $2 LIMIT $3;
-                        ",
-                    &[&organisation_id, &embedding_data, &limit],
+                            )
+                        )
+                    ORDER BY 
+                        embeddings <-> $2 
+                    LIMIT $3;
+                    ",
+                    &[&organisation_id, &embedding_data, &(limit as i64)],
                 )
-                .await?;
+                .await
+                .map_err(|e| {
+                    tracing::error!("{}", e.to_string());
+                    e
+                })?;
 
             // Just get the text from the returned rows
             let related_context: Vec<String> = related_context
@@ -205,27 +214,37 @@ async fn get_related_context(
             let related_context = transaction
                 .query(
                     "
-                        SELECT 
-                            text 
-                        FROM 
-                            embeddings
-                        WHERE
-                            document_id IN (
-                                SELECT id FROM documents WHERE dataset_id IN (
-                                    SELECT id FROM datasets WHERE organisation_id IN (
-                                        SELECT organisation_id FROM organisation_users 
-                                        WHERE user_id = current_app_user()
-                                        AND organisation_id = $1
-                                    )
-                                    AND dataset_id = ANY($2)
+                    SELECT 
+                        text 
+                    FROM 
+                        embeddings
+                    WHERE
+                        document_id IN (
+                            SELECT id FROM documents WHERE dataset_id IN (
+                                SELECT id FROM datasets WHERE organisation_id IN (
+                                    SELECT organisation_id FROM organisation_users 
+                                    WHERE user_id = current_app_user()
+                                    AND organisation_id = $1
                                 )
+                                AND dataset_id = ANY($2)
                             )
-                        ORDER BY 
-                            embeddings <-> $3 LIMIT $4;
-                        ",
-                    &[&organisation_id, &datasets, &embedding_data, &limit],
+                        )
+                    ORDER BY 
+                        embeddings <-> $3 
+                    LIMIT $4;
+                    ",
+                    &[
+                        &organisation_id,
+                        &datasets,
+                        &embedding_data,
+                        &(limit as i64),
+                    ],
                 )
-                .await?;
+                .await
+                .map_err(|e| {
+                    tracing::error!("{}", e.to_string());
+                    e
+                })?;
 
             // Just get the text from the returned rows
             let related_context: Vec<String> = related_context
