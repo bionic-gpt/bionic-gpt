@@ -1,13 +1,13 @@
 use super::super::routes;
 use crate::app_layout::{Layout, SideBar};
 use assets::files::{commit_svg, handshake_svg, profile_svg};
-use db::queries::{chats::Chats, prompts::Prompt};
+use db::queries::{chats::Chat, prompts::Prompt};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
 struct Props {
     organisation_id: i32,
-    chats: Vec<Chats>,
+    chats: Vec<Chat>,
     prompts: Vec<Prompt>,
     lock_console: bool,
     send_message_action: String,
@@ -16,7 +16,7 @@ struct Props {
 
 pub fn index(
     organisation_id: i32,
-    chats: Vec<Chats>,
+    chats: Vec<Chat>,
     prompts: Vec<Prompt>,
     lock_console: bool,
 ) -> String {

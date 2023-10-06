@@ -1,37 +1,12 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
-use axum::response::{Html, IntoResponse};
+use axum::response::IntoResponse;
 use axum::Form;
-use db::queries;
 use db::Pool;
+use db::{queries, ModelType};
 use serde::Deserialize;
 use validator::Validate;
-
-pub async fn new(Path(team_id): Path<i32>) -> Result<Html<String>, CustomError> {
-    Ok(Html(ui_components::models::form::form(team_id, None)))
-}
-
-pub async fn edit(
-    Path((team_id, model_id)): Path<(i32, i32)>,
-    current_user: Authentication,
-    Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
-    // Create a transaction and setup RLS
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
-
-    let model = queries::models::model()
-        .bind(&transaction, &model_id)
-        .one()
-        .await?;
-
-    Ok(Html(ui_components::models::form::form(
-        team_id,
-        Some(model),
-    )))
-}
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct ModelForm {
@@ -40,6 +15,7 @@ pub struct ModelForm {
     pub name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub base_url: String,
+    pub model_type: String,
     pub api_key: Option<String>,
     pub billion_parameters: i32,
     pub context_size: i32,
@@ -56,6 +32,12 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
+    let model_type = if model_form.model_type == "LLM" {
+        ModelType::LLM
+    } else {
+        ModelType::Embeddings
+    };
+
     match (model_form.validate(), model_form.id) {
         (Ok(_), Some(id)) => {
             // The form is valid save to the database
@@ -63,6 +45,7 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &model_form.name,
+                    &model_type,
                     &model_form.base_url,
                     &model_form.api_key,
                     &model_form.billion_parameters,
@@ -85,7 +68,7 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &model_form.name,
-                    &team_id,
+                    &model_type,
                     &model_form.base_url,
                     &model_form.api_key,
                     &model_form.billion_parameters,
@@ -102,9 +85,10 @@ pub async fn upsert(
             )
             .into_response())
         }
-        (Err(_), _) => {
-            let html = ui_components::models::form::form(team_id, None);
-            Ok(html.into_response())
-        }
+        (Err(_), _) => Ok(crate::layout::redirect_and_snackbar(
+            &ui_components::routes::models::index_route(team_id),
+            "Problem with Model Validation",
+        )
+        .into_response()),
     }
 }

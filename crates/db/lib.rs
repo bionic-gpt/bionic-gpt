@@ -9,6 +9,7 @@ use rustls::ServerName;
 pub use tokio_postgres::Error as TokioPostgresError;
 
 pub use queries::api_keys::ApiKey;
+pub use queries::chats::Chat;
 pub use queries::datasets::Dataset;
 pub use queries::invitations::Invitation;
 pub use queries::models::Model;
@@ -17,7 +18,7 @@ pub use queries::organisations::GetUsers as Member;
 pub use queries::organisations::Organisation;
 pub use queries::prompts::Prompt;
 pub use queries::users::User;
-pub use types::public::{DatasetConnection, Role};
+pub use types::public::{DatasetConnection, ModelType, Role, Visibility};
 
 pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {
     let config = tokio_postgres::Config::from_str(database_url).unwrap();

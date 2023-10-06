@@ -4,9 +4,9 @@ use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
-use db::queries;
 use db::types::public::ChunkingStrategy;
 use db::Pool;
+use db::{queries, Visibility};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -17,6 +17,8 @@ pub struct NewDataset {
     pub chunking_strategy: String,
     pub combine_under_n_chars: i32,
     pub new_after_n_chars: i32,
+    pub embeddings_model_id: i32,
+    pub visibility: String,
     pub multipage_sections: bool,
 }
 
@@ -34,15 +36,23 @@ pub async fn new(
     // There's only 1 currently so just select it.
     let chunking_strategy = ChunkingStrategy::ByTitle;
 
+    let visibility = if new_dataset.visibility == "Private" {
+        Visibility::Private
+    } else {
+        Visibility::Team
+    };
+
     let dataset_id = queries::datasets::insert()
         .bind(
             &transaction,
             &organisation_id,
             &new_dataset.name,
+            &new_dataset.embeddings_model_id,
             &chunking_strategy,
             &new_dataset.combine_under_n_chars,
             &new_dataset.new_after_n_chars,
             &new_dataset.multipage_sections,
+            &visibility,
         )
         .one()
         .await?;
