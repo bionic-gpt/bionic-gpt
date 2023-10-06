@@ -1,8 +1,8 @@
 use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
-use db::queries::prompts;
-use db::{DatasetConnection, Transaction};
-use tiktoken_rs::ChatCompletionRequestMessage;
+use db::queries::{chats, prompts};
+use db::{Chat, DatasetConnection, Transaction};
+use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 pub async fn execute_prompt(
     transaction: &Transaction<'_>,
@@ -23,14 +23,21 @@ pub async fn execute_prompt(
         prompt.dataset_connection,
         prompt_id,
         organisation_id,
+        prompt.max_chunks,
     )
     .await?;
+
+    // Get the maximum required amount og chat history
+    let chat_history = chats::chat_history()
+        .bind(transaction, &(prompt.max_history_items as i64))
+        .all()
+        .await?;
 
     let messages = generate_prompt(
         prompt.model_context_size as usize,
         prompt.max_tokens as usize,
         prompt.template,
-        Default::default(),
+        chat_history,
         question,
         related_context,
     )
@@ -50,24 +57,21 @@ pub async fn execute_prompt(
 async fn generate_prompt(
     model_context_size: usize,
     max_tokens: usize,
-    template: String,
-    _history: Vec<String>,
+    system_prompt: String,
+    mut history: Vec<Chat>,
     question: &str,
     related_context: Vec<String>,
 ) -> Vec<ChatCompletionRequestMessage> {
-    // This is the space we have to fill
-    let _context_size = model_context_size - max_tokens;
-
     let system_prompt = if related_context.is_empty() {
-        template
+        system_prompt
     } else {
-        format!("{}\n\nContext information is below.\n--------------------\n{{context_str}}\n--------------------", template)
+        format!("{}\n\nContext information is below.\n--------------------\n{{context_str}}\n--------------------", system_prompt)
     };
 
-    let messages: Vec<ChatCompletionRequestMessage> = vec![
+    let mut messages: Vec<ChatCompletionRequestMessage> = vec![
         ChatCompletionRequestMessage {
             role: "system".to_string(),
-            content: Some(system_prompt),
+            content: Some(system_prompt.clone()),
             name: None,
             function_call: None,
         },
@@ -78,10 +82,55 @@ async fn generate_prompt(
             function_call: None,
         },
     ];
+
+    // This is the space we have to fill
+    let context_size = model_context_size - max_tokens;
+    let mut size_so_far = num_tokens_from_messages("gpt-4", &messages).unwrap();
+    let mut related_context: Vec<&String> = related_context.iter().rev().collect();
+    let mut context_so_far: String = Default::default();
+
     // Keep adding history and context until meet the requirements of the prompt
-    //while size_so_far < context_size {
-    //    size_so_far += num_tokens_from_messages("gpt-4", &messages).unwrap();
-    //}
+    while size_so_far < context_size {
+        // Add some relevant context
+        if let Some(rel_context) = related_context.pop() {
+            context_so_far.push_str(rel_context);
+            context_so_far += "\n";
+            let replaced = system_prompt.replace("{context_str}", &context_so_far);
+            messages[0].content = Some(replaced);
+        }
+
+        size_so_far = num_tokens_from_messages("gpt-4", &messages).unwrap();
+
+        if size_so_far >= context_size {
+            break;
+        }
+
+        // Add some history
+        if let Some(hist) = history.pop() {
+            // Add the histor in before the last message
+            if let Some(top_message) = messages.pop() {
+                messages.push(ChatCompletionRequestMessage {
+                    role: "user".to_string(),
+                    content: Some(hist.user_request),
+                    name: None,
+                    function_call: None,
+                });
+                messages.push(ChatCompletionRequestMessage {
+                    role: "assistant".to_string(),
+                    content: hist.response,
+                    name: None,
+                    function_call: None,
+                });
+                messages.push(top_message);
+            }
+        }
+
+        size_so_far = num_tokens_from_messages("gpt-4", &messages).unwrap();
+
+        if history.is_empty() && related_context.is_empty() {
+            break;
+        }
+    }
 
     messages
 }
@@ -94,6 +143,7 @@ async fn get_related_context(
     dataset_connection: DatasetConnection,
     prompt_id: i32,
     organisation_id: i32,
+    limit: i32,
 ) -> Result<Vec<String>, CustomError> {
     if dataset_connection == DatasetConnection::None {
         return Ok(Default::default());
@@ -137,9 +187,9 @@ async fn get_related_context(
                                     )
                                 )
                             ORDER BY 
-                                embeddings <-> $2 LIMIT 1;
+                                embeddings <-> $2 LIMIT $3;
                         ",
-                    &[&organisation_id, &embedding_data],
+                    &[&organisation_id, &embedding_data, &limit],
                 )
                 .await?;
 
@@ -171,9 +221,9 @@ async fn get_related_context(
                                 )
                             )
                         ORDER BY 
-                            embeddings <-> $3 LIMIT 1;
+                            embeddings <-> $3 LIMIT $4;
                         ",
-                    &[&organisation_id, &datasets, &embedding_data],
+                    &[&organisation_id, &datasets, &embedding_data, &limit],
                 )
                 .await?;
 
@@ -183,6 +233,71 @@ async fn get_related_context(
                 .map(|content| content.get(0))
                 .collect();
             Ok(related_context)
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use thirtyfour::cookie::time::PrimitiveDateTime;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_generate_prompt() {
+        let messages = generate_prompt(
+            2048,
+            1024,
+            "You are a helpful asistant".to_string(),
+            vec![create_prompt(
+                "What time is it?".to_string(),
+                "I don't know".to_string(),
+            )],
+            "How are you today?",
+            Default::default(),
+        )
+        .await;
+
+        assert!(messages.len() == 4);
+
+        assert!(messages[0].content == Some("You are a helpful asistant".to_string()));
+        assert!(messages[3].content == Some("How are you today?".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_generate_prompt_with_context() {
+        let messages = generate_prompt(
+            2048,
+            1024,
+            "You are a helpful asistant".to_string(),
+            vec![create_prompt(
+                "What time is it?".to_string(),
+                "I don't know".to_string(),
+            )],
+            "How are you today?",
+            vec!["This might help".to_string()],
+        )
+        .await;
+
+        assert!(messages.len() == 4);
+
+        dbg!(&messages);
+
+        assert!(messages[0].content == Some("You are a helpful asistant\n\nContext information is below.\n--------------------\nThis might help\n\n--------------------".to_string()));
+        assert!(messages[3].content == Some("How are you today?".to_string()));
+    }
+
+    fn create_prompt(question: String, answer: String) -> Chat {
+        Chat {
+            id: 0,
+            user_id: 0,
+            organisation_id: 0,
+            user_request: question,
+            prompt: "todo!()".to_string(),
+            prompt_id: 0,
+            response: Some(answer),
+            created_at: PrimitiveDateTime::MIN,
+            updated_at: PrimitiveDateTime::MIN,
         }
     }
 }
