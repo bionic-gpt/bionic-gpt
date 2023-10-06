@@ -8,6 +8,7 @@ mod datasets;
 mod documents;
 mod email;
 mod errors;
+mod index;
 mod layout;
 mod models;
 mod profile;
@@ -50,6 +51,7 @@ async fn main() {
         .route("/v1/*path", get(api_reverse_proxy::handler))
         .route("/v1/*path", post(api_reverse_proxy::handler))
         .route("/completions/:chat_id", post(ui_completions::handler))
+        .route("/", get(index::index))
         .with_state(client)
         .merge(team::routes())
         .merge(profile::routes())

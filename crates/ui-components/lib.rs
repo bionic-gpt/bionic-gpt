@@ -6,6 +6,7 @@ pub mod bulk_import;
 pub mod console;
 pub mod datasets;
 pub mod documents;
+pub mod index;
 pub mod logout_form;
 pub mod model_form;
 pub mod models;

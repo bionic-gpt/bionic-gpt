@@ -69,7 +69,7 @@ static_resources:
                     
               # Everything else passes in to here. The marketing pages
               - match: { prefix: "/" }
-                route: { cluster: www }
+                route: { cluster: app }
                 typed_per_filter_config:
                   envoy.filters.http.ext_authz:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
@@ -110,22 +110,6 @@ static_resources:
               socket_address:
                 address: barricade
                 port_value: 9090
-
-  # Zola Static Site
-  - name: www
-    connect_timeout: 1.25s
-    type: strict_dns
-    lb_policy: round_robin
-    dns_lookup_family: V4_ONLY
-    load_assignment:
-      cluster_name: www
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: development
-                port_value: 7704
 
   # The web application
   - name: app
