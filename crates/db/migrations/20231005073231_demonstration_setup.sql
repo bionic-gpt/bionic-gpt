@@ -5,7 +5,7 @@ INSERT INTO users (
 )
 VALUES(
     'ian@bionic-gpt.com',
-    '$argon2id$v=19$m=4096,t=3,p=1$UNbyHgC0MTBehD5cLXihcQ$FlVWS8729FJcYPlIJzhP47/k1K3RAQ5DAWDsaWGwod4'
+    '$argon2id$v=19$m=4096,t=3,p=1$f6q8zCzaKWTUQGRF/Ydy9Q$0zj6jas3IN7wdh9BEJY9vJ50TegKzz+qVzIAbzPVUv4'
 );
 
 INSERT INTO organisations (
