@@ -70,7 +70,7 @@ pub async fn handler(
             let completion: Completion =
                 serde_json::from_str(&body).map_err(|_| StatusCode::BAD_REQUEST)?;
 
-            let generated_prompt = crate::prompt::execute_prompt(
+            let messages = crate::prompt::execute_prompt(
                 &transaction,
                 prompt.id,
                 prompt.organisation_id,
@@ -80,10 +80,7 @@ pub async fn handler(
             .map_err(|_| StatusCode::BAD_REQUEST)?;
 
             let completion = Completion {
-                messages: vec![Message {
-                    role: "user".to_string(),
-                    content: generated_prompt,
-                }],
+                messages,
                 ..completion
             };
 

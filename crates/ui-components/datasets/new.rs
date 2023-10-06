@@ -1,9 +1,11 @@
 #![allow(non_snake_case)]
+use db::queries::models;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
+#[derive(Props, PartialEq)]
 pub struct Props {
+    pub models: Vec<models::Model>,
     pub organisation_id: i32,
     pub combine_under_n_chars: i32,
     pub new_after_n_chars: i32,
@@ -31,6 +33,21 @@ pub fn New(cx: Scope<Props>) -> Element {
                                 label: "Name",
                                 name: "name"
                             }
+
+                            Select {
+                                name: "visibility",
+                                label: "Who should be able to see this dataset?",
+                                help_text: "Set to private if you don't want to share this dataset",
+                                value: "Private",
+                                option {
+                                    value: "Private",
+                                    "Just Me"
+                                },
+                                option {
+                                    value: "Team",
+                                    "Team"
+                                }
+                            }
                         }
 
                         div {
@@ -38,6 +55,20 @@ pub fn New(cx: Scope<Props>) -> Element {
                             strong {
                                 class: "mb-2",
                                 "Advanced Configuration"
+                            }
+
+                            Select {
+                                name: "embeddings_model_id",
+                                label: "Select the Embedding Model to use",
+                                help_text: "Embeddings are vector stored in the database",
+                                for model in &cx.props.models {
+                                    cx.render(rsx!(
+                                        option {
+                                            value: "{model.id}",
+                                            "{model.name}"
+                                        }
+                                    ))
+                                }
                             }
 
                             Select {

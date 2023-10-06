@@ -38,11 +38,11 @@ pub fn RelativeTime<'a>(cx: Scope<'a, RelativeTimeProps<'a>>) -> Element {
         Default::default()
     };
 
-    cx.render(rsx!({
-        cx.raw_text(format_args!(
-            "<relative-time format='{}' datetime='{}'></relative-time>",
-            format.to_string(),
-            cx.props.datetime
-        ))
-    }))
+    cx.render(rsx!(
+        relative
+            - time {
+                datetime: cx.props.datetime,
+                format: format.to_string()
+            }
+    ))
 }

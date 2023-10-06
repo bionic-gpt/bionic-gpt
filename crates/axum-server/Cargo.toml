@@ -17,7 +17,7 @@ axum-extra = { version = "0", default-features = false, features = ["form"] }
 # Needed for the authentication.rs handler
 http = "0.2"
 hyper = { version = "0", features = ["server"] }
-hyper-rustls = { version = "0", default-features = false, features = ["webpki-roots"] }
+hyper-rustls = { version = "0", default-features = false, features = ["webpki-roots", "tokio-runtime", "http1"] }
 rustls = "0"
 pin-project = "1"
 tower = { version = "0", default-features = false }
@@ -44,6 +44,9 @@ pgvector = { version = "0.2", features = ["postgres"] }
 
 ## Used to call unstructured API
 reqwest = { version = "0", default-features = false, features = ["multipart", "rustls-tls", "json"] }
+
+# Tiktoken counts our token usage for prompts
+tiktoken-rs = "0.5.4"
 
 [dev-dependencies]
 # WebDriver Library for UI testing.

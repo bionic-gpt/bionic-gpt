@@ -8,12 +8,24 @@ COMMENT ON TYPE dataset_connection IS 'A prompt can use all datasets, no dataset
 
 CREATE TABLE prompts (
     id SERIAL PRIMARY KEY, 
+    organisation_id INT NOT NULL, 
     model_id INT NOT NULL,
+    visibility visibility NOT NULL,
     dataset_connection dataset_connection NOT NULL,
     name VARCHAR NOT NULL, 
+    min_history_items INT NOT NULL,
+    max_history_items INT NOT NULL,
+    min_chunks INT NOT NULL,
+    max_chunks INT NOT NULL,
+    max_tokens INT NOT NULL,
+    temperature REAL CHECK (temperature >= 0 AND temperature <= 2),
+    top_p REAL CHECK (top_p >= 0 AND top_p <= 1),
     template VARCHAR NOT NULL, 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT FK_organisation FOREIGN KEY(organisation_id)
+        REFERENCES organisations(id) ON DELETE CASCADE,
 
     CONSTRAINT FK_model FOREIGN KEY(model_id)
         REFERENCES models(id) ON DELETE CASCADE
