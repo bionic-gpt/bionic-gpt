@@ -89,14 +89,24 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
     let input_class = format!("{} {}", input_type, input_size);
 
     cx.render(rsx!(
-        match cx.props.label {
-            Some(l) => cx.render(rsx!(
+        match (cx.props.label, cx.props.required) {
+            (Some(l), Some(_)) => cx.render(rsx!(
                 label {
                     class: "{label_class}",
-                    "{l}"
+                    strong {
+                        "{l} *"
+                    }
                 }
             )),
-            None => None
+            (Some(l), None) => cx.render(rsx!(
+                label {
+                    class: "{label_class}",
+                    strong {
+                        "{l}"
+                    }
+                }
+            )),
+            (None, _) => None
         }
         input {
             id: "{id}",

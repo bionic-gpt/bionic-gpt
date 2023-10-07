@@ -48,7 +48,9 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
         match cx.props.label {
             Some(l) => cx.render(rsx!(
                 label {
-                    "{l}"
+                    strong {
+                        "{l}"
+                    }
                 }
             )),
             None => None
