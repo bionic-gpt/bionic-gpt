@@ -69,10 +69,10 @@ export class StreamingChat extends HTMLElement {
                         const json = JSON.parse(data);
                         if(json.choices[0].delta && json.choices[0].delta.content) {
                             this.result += json.choices[0].delta.content
-                            this.innerHTML = `${this.result}`;
+                            this.innerHTML = `<response-formatter response='${this.result.replace("'", "&pos;")}' />`;
                         } else if (json.choices[0].message && json.choices[0].message.content) {
                             this.result += json.choices[0].message.content
-                            this.innerHTML = `${this.result}`;
+                            this.innerHTML = `<response-formatter response='${this.result.replace("'", "&pos;")}' />`;
                         }
                     }
                 });
