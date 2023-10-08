@@ -13,7 +13,7 @@ export class ResponseFormatter extends HTMLElement {
 
             let md = this.markdown(response.value)
             md = md.replace(/<p>(\s)*<\/p>/g, '')
-            md = md.replace(/<pre>/g, '<pre class="color-bg-accent p-1">')
+            //md = md.replace(/<pre>/g, '<pre class="color-bg-accent p-1">')
 
 
             this.innerHTML = `${md}`
