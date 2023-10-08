@@ -10,11 +10,8 @@ import './web-components/response-formatter'
 import '@github/relative-time-element';
 import hljs from 'highlight.js';
 
-
-document.addEventListener('readystatechange', () => {
-    if (document.readyState == 'complete') {
-        hljs.highlightAll()
-    }
+document.addEventListener('turbo:load', () => {
+    hljs.highlightAll()
 })
 
 // Misc.
