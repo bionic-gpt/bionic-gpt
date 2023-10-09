@@ -184,4 +184,4 @@ services:
 BionicGPT is optimized to run on Kubernetes and implements the full pipeline of LLM fine tuning from data acquisition to user interface.
 
 
-![Alt text](website/content/rust-llm/ide-setup/llm-ops.svg "BionicGPT Architetcure")
+![Alt text](website/content/docs/production/architecture.svg "BionicGPT Architetcure")
