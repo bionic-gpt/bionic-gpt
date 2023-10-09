@@ -26,6 +26,10 @@ pub fn DatasetConnection(cx: Scope<Props>) -> Element {
                 "Don't use any datasets"
             }
         )),
-        DatasetConnection::Selected => cx.render(rsx!("{cx.props.datasets}")),
+        DatasetConnection::Selected => cx.render(rsx!(Label {
+            class: "mr-2",
+            label_color: LabelColor::Attention,
+            "Use selected Datasets"
+        })),
     }
 }

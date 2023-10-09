@@ -2,7 +2,7 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use db::{ApiKey, Prompt};
 use dioxus::prelude::*;
-use primer_rsx::*;
+use primer_rsx::{select::SelectOption, *};
 
 struct ApiKeysProps {
     organisation_id: i32,
@@ -133,7 +133,7 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                                 label: "Please select a prompt",
                                 help_text: "All access via this API key will use the above prompt",
                                 cx.props.prompts.iter().map(|prompt| rsx!(
-                                    option {
+                                    SelectOption {
                                         value: "{prompt.id}",
                                         "{prompt.name}"
                                     }

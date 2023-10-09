@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use primer_rsx::*;
+use primer_rsx::{select::SelectOption, *};
 
 #[derive(Props, PartialEq, Eq)]
 pub struct Props {
@@ -9,7 +9,7 @@ pub struct Props {
     base_url: String,
     model_type: String,
     trigger_id: String,
-    api_key: Option<String>,
+    api_key: String,
     billion_parameters: i32,
     context_size_bytes: i32,
     id: Option<i32>,
@@ -48,14 +48,16 @@ pub fn Form(cx: Scope<Props>) -> Element {
                         Select {
                             name: "model_type",
                             label: "Is this model for LLM or Embeddings",
-                            help_text: "Som model can do both, in which case enter it twice.",
+                            help_text: "Some models can do both, in which case enter it twice.",
                             value: &cx.props.model_type,
-                            option {
+                            SelectOption {
                                 value: "LLM",
+                                selected_value: &cx.props.model_type,
                                 "Large Language Model"
                             }
-                            option {
+                            SelectOption {
                                 value: "Embeddings",
+                                selected_value: &cx.props.model_type,
                                 "Embeddings Model"
                             }
                         }
@@ -69,25 +71,13 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             required: true
                         }
 
-                        if let Some(api_key) = cx.props.api_key.clone() {
-                            cx.render(rsx!(
-                                Input {
-                                    input_type: InputType::Text,
-                                    name: "api_key",
-                                    label: "The API secret from your provider",
-                                    help_text: "This will be given in the providers console",
-                                    value: "{api_key}"
-                                }
-                            ))
-                        } else {
-                            cx.render(rsx!(
-                                Input {
-                                    input_type: InputType::Text,
-                                    name: "api_key",
-                                    label: "The API secret from your provider",
-                                    help_text: "This will be given in the providers console"
-                                }
-                            ))
+
+                        Input {
+                            input_type: InputType::Text,
+                            name: "api_key",
+                            label: "The API secret from your provider",
+                            help_text: "This will be given in the providers console",
+                            value: &cx.props.api_key
                         }
 
                         Input {

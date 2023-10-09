@@ -1,3 +1,4 @@
+use db::Visibility;
 use dioxus::prelude::VirtualDom;
 
 pub mod api_keys;
@@ -185,5 +186,21 @@ pub mod routes {
         pub fn profile_popup_route(organisation_id: i32) -> String {
             format!("/app/team/{}/profile_popup", organisation_id)
         }
+    }
+}
+
+pub fn visibility_to_string(visibility: Visibility) -> String {
+    match visibility {
+        Visibility::Private => "Private".to_string(),
+        Visibility::Team => "Team".to_string(),
+        Visibility::Company => "Company".to_string(),
+    }
+}
+
+pub fn string_to_visibility(visibility: &str) -> Visibility {
+    match visibility {
+        "Team" => Visibility::Team,
+        "Company" => Visibility::Company,
+        _ => Visibility::Private,
     }
 }

@@ -37,6 +37,7 @@ SELECT
     user_request,
     prompt,
     prompt_id,
+    (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     response,
     created_at,
     updated_at
@@ -56,6 +57,7 @@ SELECT
     user_request,
     prompt,
     prompt_id,
+    (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     response,
     created_at,
     updated_at
@@ -78,6 +80,7 @@ SELECT
     user_request,
     prompt,
     prompt_id,
+    (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     response,
     created_at,
     updated_at
