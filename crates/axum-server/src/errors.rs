@@ -9,6 +9,7 @@ pub enum CustomError {
     FaultySetup(String),
     Database(String),
     ExternalApi(String),
+    Authentication(String),
 }
 
 // Allow the use of "{}" format specifier
@@ -17,6 +18,7 @@ impl fmt::Display for CustomError {
         match *self {
             CustomError::FaultySetup(ref cause) => write!(f, "Setup Error: {}", cause),
             CustomError::ExternalApi(ref cause) => write!(f, "Api Error: {}", cause),
+            CustomError::Authentication(ref cause) => write!(f, "Api Error: {}", cause),
             CustomError::Database(ref cause) => {
                 write!(f, "Database Error: {}", cause)
             }
@@ -31,6 +33,7 @@ impl IntoResponse for CustomError {
             CustomError::Database(message) => (StatusCode::UNPROCESSABLE_ENTITY, message),
             CustomError::FaultySetup(message) => (StatusCode::UNPROCESSABLE_ENTITY, message),
             CustomError::ExternalApi(message) => (StatusCode::UNPROCESSABLE_ENTITY, message),
+            CustomError::Authentication(message) => (StatusCode::UNAUTHORIZED, message),
         };
 
         let response = format!("status = {}, message = {}", status, error_message);
@@ -43,6 +46,24 @@ impl IntoResponse for CustomError {
 
 impl From<axum::http::uri::InvalidUri> for CustomError {
     fn from(err: axum::http::uri::InvalidUri) -> CustomError {
+        CustomError::FaultySetup(err.to_string())
+    }
+}
+
+impl From<hyper::Error> for CustomError {
+    fn from(err: hyper::Error) -> CustomError {
+        CustomError::FaultySetup(err.to_string())
+    }
+}
+
+impl From<http::Error> for CustomError {
+    fn from(err: http::Error) -> CustomError {
+        CustomError::FaultySetup(err.to_string())
+    }
+}
+
+impl From<serde_json::Error> for CustomError {
+    fn from(err: serde_json::Error) -> CustomError {
         CustomError::FaultySetup(err.to_string())
     }
 }
