@@ -1,6 +1,7 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use db::queries::models::Model;
+use db::ModelType;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
@@ -105,13 +106,18 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
 
             cx.props.models.iter().map(|model| {
                 // The form to edit a model
+                let model_type = if model.model_type == ModelType::LLM {
+                    "LLM"
+                } else {
+                    "Embeddings"
+                };
                 cx.render(rsx!(
                     super::form::Form {
                         id: model.id,
                         organisation_id: cx.props.organisation_id,
                         trigger_id: format!("edit-model-form-{}", model.id),
                         name: model.name.clone(),
-                        model_type: "LLM".to_string(),
+                        model_type: model_type.to_string(),
                         base_url: model.base_url.clone(),
                         api_key: model.api_key.clone().unwrap_or("".to_string()),
                         billion_parameters: model.billion_parameters,

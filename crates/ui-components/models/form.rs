@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use primer_rsx::*;
+use primer_rsx::{select::SelectOption, *};
 
 #[derive(Props, PartialEq, Eq)]
 pub struct Props {
@@ -50,12 +50,14 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             label: "Is this model for LLM or Embeddings",
                             help_text: "Some models can do both, in which case enter it twice.",
                             value: &cx.props.model_type,
-                            option {
+                            SelectOption {
                                 value: "LLM",
+                                selected_value: &cx.props.model_type,
                                 "Large Language Model"
                             }
-                            option {
+                            SelectOption {
                                 value: "Embeddings",
+                                selected_value: &cx.props.model_type,
                                 "Embeddings Model"
                             }
                         }

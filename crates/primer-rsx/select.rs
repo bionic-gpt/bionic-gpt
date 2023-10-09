@@ -76,3 +76,30 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
         }
     ))
 }
+
+#[derive(Props)]
+pub struct OptionProps<'a> {
+    children: Element<'a>,
+    pub value: &'a str,
+    pub selected_value: Option<&'a str>,
+}
+
+pub fn SelectOption<'a>(cx: Scope<'a, OptionProps<'a>>) -> Element {
+    if let Some(selected) = cx.props.selected_value {
+        if selected == cx.props.value {
+            return cx.render(rsx!(
+                option {
+                    value: cx.props.value,
+                    selected: true,
+                    &cx.props.children
+                }
+            ));
+        }
+    }
+    cx.render(rsx!(
+        option {
+            value: cx.props.value,
+            &cx.props.children
+        }
+    ))
+}
