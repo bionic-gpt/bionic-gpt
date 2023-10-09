@@ -1,6 +1,6 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
-use db::{queries::prompts::Prompt, Dataset, Model};
+use db::{queries::prompts::Prompt, Dataset, DatasetConnection, Model, Visibility};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
@@ -126,6 +126,8 @@ pub fn index(
                                     name: prompt.name.clone(),
                                     template: prompt.template.clone(),
                                     datasets: cx.props.datasets.clone(),
+                                    dataset_connection: prompt.dataset_connection,
+                                    visibility: prompt.visibility,
                                     models: cx.props.models.clone(),
                                     model_id: prompt.model_id,
                                     min_history_items: prompt.min_history_items,
@@ -151,7 +153,9 @@ pub fn index(
 {context_str}
 --------------------".to_string(),
                     datasets: cx.props.datasets.clone(),
+                    dataset_connection: DatasetConnection::None,
                     models: cx.props.models.clone(),
+                    visibility: Visibility::Private,
                     model_id: -1,
                     min_history_items: 1,
                     max_history_items: 3,

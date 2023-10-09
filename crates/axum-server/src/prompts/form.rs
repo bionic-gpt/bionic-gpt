@@ -3,10 +3,10 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum_extra::extract::Form;
-use db::types::public::DatasetConnection;
+use db::queries;
 use db::Pool;
-use db::{queries, Visibility};
 use serde::Deserialize;
+use ui_components::{prompts::string_to_dataset_connection, string_to_visibility};
 use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -40,11 +40,7 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let visibility = if new_prompt_template.visibility == "Private" {
-        Visibility::Private
-    } else {
-        Visibility::Team
-    };
+    let visibility = string_to_visibility(&new_prompt_template.visibility);
 
     match (new_prompt_template.validate(), new_prompt_template.id) {
         (Ok(_), Some(id)) => {
@@ -55,7 +51,7 @@ pub async fn upsert(
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
                     &visibility,
-                    &dataset_connection_from_string(&new_prompt_template.dataset_connection),
+                    &string_to_dataset_connection(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
                     &new_prompt_template.min_history_items,
                     &new_prompt_template.max_history_items,
@@ -98,7 +94,7 @@ pub async fn upsert(
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
                     &visibility,
-                    &dataset_connection_from_string(&new_prompt_template.dataset_connection),
+                    &string_to_dataset_connection(&new_prompt_template.dataset_connection),
                     &new_prompt_template.template,
                     &new_prompt_template.min_history_items,
                     &new_prompt_template.max_history_items,
@@ -133,13 +129,5 @@ pub async fn upsert(
             "Problem with Prompt Validation",
         )
         .into_response()),
-    }
-}
-
-fn dataset_connection_from_string(dataset_connection: &str) -> DatasetConnection {
-    match dataset_connection {
-        "All" => DatasetConnection::All,
-        "None" => DatasetConnection::None,
-        _ => DatasetConnection::Selected,
     }
 }

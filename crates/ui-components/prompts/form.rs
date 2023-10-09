@@ -1,7 +1,8 @@
 #![allow(non_snake_case)]
-use db::{Dataset, Model};
+use super::dataset_connection_to_string;
+use db::{Dataset, DatasetConnection, Model, Visibility};
 use dioxus::prelude::*;
-use primer_rsx::*;
+use primer_rsx::{select::SelectOption, *};
 
 #[derive(Props, PartialEq)]
 pub struct Props {
@@ -10,8 +11,10 @@ pub struct Props {
     name: String,
     template: String,
     datasets: Vec<Dataset>,
+    dataset_connection: DatasetConnection,
     models: Vec<Model>,
     model_id: i32,
+    visibility: Visibility,
     id: Option<i32>,
     min_history_items: i32,
     max_history_items: i32,
@@ -77,14 +80,21 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     name: "visibility",
                                     label: "Who should be able to see this prompt?",
                                     help_text: "Set to private if you don't want to share this prompt.",
-                                    value: "Private",
-                                    option {
-                                        value: "Private",
-                                        "Just Me"
+                                    value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                    SelectOption {
+                                        value: "{crate::visibility_to_string(Visibility::Private)}",
+                                        selected_value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                        crate::visibility_to_string(Visibility::Private)
                                     },
-                                    option {
-                                        value: "Team",
-                                        "Team"
+                                    SelectOption {
+                                        value: "{crate::visibility_to_string(Visibility::Team)}",
+                                        selected_value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                        crate::visibility_to_string(Visibility::Team)
+                                    },
+                                    SelectOption {
+                                        value: "{crate::visibility_to_string(Visibility::Company)}",
+                                        selected_value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                        crate::visibility_to_string(Visibility::Company)
                                     }
                                 }
 
@@ -96,8 +106,9 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     required: true,
                                     cx.props.models.iter().map(|model| {
                                         cx.render(rsx!(
-                                            option {
+                                            SelectOption {
                                                 value: "{model.id}",
+                                                selected_value: "{cx.props.model_id}",
                                                 "{model.name}"
                                             }
                                         ))
@@ -124,19 +135,22 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     name: "dataset_connection",
                                     label: "How shall we handle datasets with this prompt?",
                                     help_text: "The prompt will be passed to the model",
-                                    value: &cx.props.name,
+                                    value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
                                     required: true,
-                                    option {
-                                        value: "All",
-                                        "Use All the Teams Datasets"
+                                    SelectOption {
+                                        value: "{dataset_connection_to_string(DatasetConnection::All)}",
+                                        selected_value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
+                                        dataset_connection_to_string(DatasetConnection::All)
                                     }
-                                    option {
-                                        value: "None",
-                                        "Don't use any datasets"
+                                    SelectOption {
+                                        value: "{dataset_connection_to_string(DatasetConnection::None)}",
+                                        selected_value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
+                                        dataset_connection_to_string(DatasetConnection::None)
                                     }
-                                    option {
-                                        value: "Selected",
-                                        "Use Selected Datasets"
+                                    SelectOption {
+                                        value: "{dataset_connection_to_string(DatasetConnection::Selected)}",
+                                        selected_value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
+                                        dataset_connection_to_string(DatasetConnection::Selected)
                                     }
                                 }
 
