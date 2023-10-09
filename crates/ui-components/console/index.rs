@@ -91,19 +91,26 @@ pub fn index(
                                     TimeLineBody {
                                         Label {
                                             class: "mr-2",
-                                            "{chat.model_name}"
+                                            "Model: "
+                                            strong {
+                                                "{chat.model_name}"
+                                            }
                                         }
-                                        a {
-                                            "data-drawer-target": "show-prompt-{chat.id}",
-                                            "View Prompt"
+                                        Label {
+                                            a {
+                                                "data-drawer-target": "show-prompt-{chat.id}",
+                                                "View Prompt"
+                                            }
                                         }
 
                                         if chat.response.is_none() {
                                             cx.render(rsx!(
-                                                a {
-                                                    id: "stop-processing",
-                                                    class: "ml-3",
-                                                    "Stop Processing"
+                                                Label {
+                                                    a {
+                                                        id: "stop-processing",
+                                                        class: "ml-3",
+                                                        "Stop Processing"
+                                                    }
                                                 }
                                             ))
                                         }
