@@ -11,6 +11,7 @@ pub struct Props {
     name: String,
     template: String,
     datasets: Vec<Dataset>,
+    selected_dataset_ids: Vec<i32>,
     dataset_connection: DatasetConnection,
     models: Vec<Model>,
     model_id: i32,
@@ -120,7 +121,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     class: "mt-3",
                                     name: "template",
                                     rows: "10",
-                                    label: "Prompt Template",
+                                    label: "Prompt",
                                     required: true,
                                     "{cx.props.template}",
                                 }
@@ -161,12 +162,22 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     value: &cx.props.name,
                                     multiple: true,
                                     cx.props.datasets.iter().map(|dataset| {
-                                        cx.render(rsx!(
-                                            option {
-                                                value: "{dataset.id}",
-                                                "{dataset.name}"
-                                            }
-                                        ))
+                                        if cx.props.selected_dataset_ids.contains(&dataset.id) {
+                                            cx.render(rsx!(
+                                                option {
+                                                    value: "{dataset.id}",
+                                                    selected: true,
+                                                    "{dataset.name}"
+                                                }
+                                            ))
+                                        } else {
+                                            cx.render(rsx!(
+                                                option {
+                                                    value: "{dataset.id}",
+                                                    "{dataset.name}"
+                                                }
+                                            ))
+                                        }
                                     })
                                 }
 

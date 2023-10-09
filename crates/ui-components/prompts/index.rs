@@ -126,6 +126,7 @@ pub fn index(
                                     name: prompt.name.clone(),
                                     template: prompt.template.clone(),
                                     datasets: cx.props.datasets.clone(),
+                                    selected_dataset_ids: split_datasets(&prompt.selected_datasets),
                                     dataset_connection: prompt.dataset_connection,
                                     visibility: prompt.visibility,
                                     models: cx.props.models.clone(),
@@ -148,12 +149,10 @@ pub fn index(
                     organisation_id: cx.props.organisation_id,
                     trigger_id: "new-prompt-form".to_string(),
                     name: "".to_string(),
-                    template: "Context information is below.
---------------------
-{context_str}
---------------------".to_string(),
+                    template: "You are a friendly assistant".to_string(),
                     datasets: cx.props.datasets.clone(),
                     dataset_connection: DatasetConnection::None,
+                    selected_dataset_ids: Default::default(),
                     models: cx.props.models.clone(),
                     visibility: Visibility::Private,
                     model_id: -1,
@@ -178,4 +177,14 @@ pub fn index(
             models,
         },
     ))
+}
+
+// Comma seperated dataset to vec of i32
+fn split_datasets(datasets: &str) -> Vec<i32> {
+    let ids: Vec<i32> = datasets
+        .split(',')
+        .map(|dataset_id| dataset_id.parse::<i32>().unwrap_or(-1))
+        .filter(|x| x != &-1)
+        .collect();
+    ids
 }

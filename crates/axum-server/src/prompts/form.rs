@@ -3,8 +3,8 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum_extra::extract::Form;
-use db::queries;
 use db::Pool;
+use db::{queries, Transaction};
 use serde::Deserialize;
 use ui_components::{prompts::string_to_dataset_connection, string_to_visibility};
 use validator::Validate;
@@ -18,7 +18,7 @@ pub struct NewPromptTemplate {
     pub template: String,
     pub dataset_connection: String,
     pub model_id: i32,
-    pub datasets: Option<Vec<String>>,
+    pub datasets: Option<String>,
     pub min_history_items: i32,
     pub max_history_items: i32,
     pub min_chunks: i32,
@@ -68,14 +68,7 @@ pub async fn upsert(
                 .bind(&transaction, &id)
                 .await?;
 
-            // Create the connections to any datasets
-            if let Some(datasets) = new_prompt_template.datasets {
-                for dataset in datasets {
-                    queries::prompts::insert_prompt_dataset()
-                        .bind(&transaction, &id, &dataset.parse::<i32>().unwrap())
-                        .await?;
-                }
-            }
+            insert_datasets(&transaction, id, new_prompt_template.datasets).await?;
 
             transaction.commit().await?;
 
@@ -108,13 +101,7 @@ pub async fn upsert(
                 .await?;
 
             // Create the connections to any datasets
-            if let Some(datasets) = new_prompt_template.datasets {
-                for dataset in datasets {
-                    queries::prompts::insert_prompt_dataset()
-                        .bind(&transaction, &prompt_id, &dataset.parse::<i32>().unwrap())
-                        .await?;
-                }
-            }
+            insert_datasets(&transaction, prompt_id, new_prompt_template.datasets).await?;
 
             transaction.commit().await?;
 
@@ -130,4 +117,29 @@ pub async fn upsert(
         )
         .into_response()),
     }
+}
+
+async fn insert_datasets(
+    transaction: &Transaction<'_>,
+    prompt_id: i32,
+    datasets: Option<String>,
+) -> Result<(), CustomError> {
+    // Create the connections to any datasets
+    if let Some(datasets) = datasets {
+        // The environments we have selected for the ser come in as a comma
+        // separated list of ids.
+        let datasets: Vec<i32> = datasets
+            .split(',')
+            .map(|e| e.parse::<i32>().unwrap_or(-1))
+            .filter(|e| *e != -1)
+            .collect();
+
+        for dataset in datasets {
+            queries::prompts::insert_prompt_dataset()
+                .bind(transaction, &prompt_id, &dataset)
+                .await?;
+        }
+    }
+
+    Ok(())
 }
