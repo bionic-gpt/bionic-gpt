@@ -90,26 +90,30 @@ pub fn index(
                                     }
                                     TimeLineBody {
                                         Label {
-                                            class: "mr-2",
                                             "Model: "
                                             strong {
                                                 "{chat.model_name}"
-                                            }
-                                        }
-                                        Label {
-                                            a {
-                                                "data-drawer-target": "show-prompt-{chat.id}",
-                                                "View Prompt"
                                             }
                                         }
 
                                         if chat.response.is_none() {
                                             cx.render(rsx!(
                                                 Label {
+                                                    class: "ml-2",
+                                                    label_color: LabelColor::Danger,
                                                     a {
                                                         id: "stop-processing",
-                                                        class: "ml-3",
                                                         "Stop Processing"
+                                                    }
+                                                }
+                                            ))
+                                        } else {
+                                            cx.render(rsx!(
+                                                Label {
+                                                    class: "ml-2",
+                                                    a {
+                                                        "data-drawer-target": "show-prompt-{chat.id}",
+                                                        "View Prompt"
                                                     }
                                                 }
                                             ))

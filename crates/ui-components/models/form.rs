@@ -48,7 +48,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                         Select {
                             name: "model_type",
                             label: "Is this model for LLM or Embeddings",
-                            help_text: "Som model can do both, in which case enter it twice.",
+                            help_text: "Some models can do both, in which case enter it twice.",
                             value: &cx.props.model_type,
                             option {
                                 value: "LLM",
