@@ -89,6 +89,10 @@ pub fn index(
                                         image_src: commit_svg.name
                                     }
                                     TimeLineBody {
+                                        Label {
+                                            class: "mr-2",
+                                            "{chat.model_name}"
+                                        }
                                         a {
                                             "data-drawer-target": "show-prompt-{chat.id}",
                                             "View Prompt"

@@ -314,6 +314,7 @@ mod tests {
             user_request: question,
             prompt: "todo!()".to_string(),
             prompt_id: 0,
+            model_name: "ggml".to_string(),
             response: Some(answer),
             created_at: PrimitiveDateTime::MIN,
             updated_at: PrimitiveDateTime::MIN,
