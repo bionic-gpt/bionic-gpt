@@ -30,4 +30,4 @@ Here's an overview of the pipeline architecture.
 
 ## Pipeline Diagram
 
-![Alt text](../llm-ops.svg "BionicGPT Architetcure")
+![Alt text](../architecture.svg "BionicGPT Architetcure")
