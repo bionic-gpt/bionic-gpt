@@ -98,6 +98,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                 model_type: "LLM".to_string(),
                 base_url: "".to_string(),
                 billion_parameters: 7,
+                api_key: "".to_string(),
                 context_size_bytes: 2048,
             }
 
@@ -112,6 +113,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                         name: model.name.clone(),
                         model_type: "LLM".to_string(),
                         base_url: model.base_url.clone(),
+                        api_key: model.api_key.clone().unwrap_or("".to_string()),
                         billion_parameters: model.billion_parameters,
                         context_size_bytes: model.context_size,
                     }
