@@ -33,11 +33,14 @@ impl IntoResponse for CustomError {
             CustomError::ExternalApi(message) => (StatusCode::UNPROCESSABLE_ENTITY, message),
         };
 
-        format!("status = {}, message = {}", status, error_message).into_response()
+        let response = format!("status = {}, message = {}", status, error_message);
+
+        tracing::error!(response);
+
+        response.into_response()
     }
 }
 
-// Any errors from sqlx get converted to CustomError
 impl From<axum::http::uri::InvalidUri> for CustomError {
     fn from(err: axum::http::uri::InvalidUri) -> CustomError {
         CustomError::FaultySetup(err.to_string())
