@@ -3,8 +3,8 @@ title = "Understanding Quantisation in Large Language Models (LLMs)"
 date = 2023-10-01
 
 [extra]
-main_image = "blog/retrieval-augmented-generation/rag-llama.webp"
-listing_image = "blog/retrieval-augmented-generation/rag-llama.webp"
+main_image = "blog/quantisation/futuristic-llama.jpg"
+listing_image = "blog/quantisation/futuristic-llama.jpg"
 +++
 
 The default setup for BionicGPT allows you to run a proof of concept on your laptop, but given the much publicised large resource requirements for LLMs how do we achieve this. Step forward quantisation.	
