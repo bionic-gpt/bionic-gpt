@@ -46,7 +46,7 @@ pub fn TabHeader<'a>(cx: Scope<'a, TabHeaderProps<'a>>) -> Element {
     cx.render(rsx!(
         li {
             role: "presentation",
-            class: "d-inline-flex",
+            class: "d-inline-flex pr-1",
             button {
                 class: "UnderlineNav-item",
                 "type": "button",

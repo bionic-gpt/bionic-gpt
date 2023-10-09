@@ -21,6 +21,7 @@
         "parcel": "^2.0.0"
     },
     "dependencies": {
+        "highlight.js": "^11.8.0",
         "idb": "^7.0.0"
     }
 }

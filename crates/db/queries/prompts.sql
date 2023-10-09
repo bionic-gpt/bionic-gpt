@@ -11,6 +11,16 @@ SELECT
     p.name,
     p.visibility,
     p.dataset_connection,
+    -- Creata a string showing the datsets connected to this prompt
+    (
+        SELECT 
+            COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
+        FROM 
+            prompt_dataset pd
+        WHERE 
+            pd.prompt_id = p.id
+    ) 
+    as selected_datasets, 
     p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
@@ -50,6 +60,16 @@ SELECT
     p.name,
     p.visibility,
     p.dataset_connection,
+    -- Creata a string showing the datsets connected to this prompt
+    (
+        SELECT 
+            COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
+        FROM 
+            prompt_dataset pd
+        WHERE 
+            pd.prompt_id = p.id
+    ) 
+    as selected_datasets, 
     p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
@@ -91,6 +111,16 @@ SELECT
     p.name,
     p.visibility,
     p.dataset_connection,
+    -- Creata a string showing the datsets connected to this prompt
+    (
+        SELECT 
+            COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
+        FROM 
+            prompt_dataset pd
+        WHERE 
+            pd.prompt_id = p.id
+    ) 
+    as selected_datasets, 
     p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
