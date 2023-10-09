@@ -2,7 +2,6 @@ use axum::{
     body::Body,
     extract::State,
     http::Request,
-    http::StatusCode,
     response::{IntoResponse, Response},
     Extension, RequestExt,
 };
@@ -11,6 +10,8 @@ use hyper::client::HttpConnector;
 
 use db::{queries, Pool};
 use serde::{Deserialize, Serialize};
+
+use crate::errors::CustomError;
 
 type Client = hyper::client::Client<HttpConnector, Body>;
 
@@ -33,7 +34,7 @@ pub async fn handler(
     Extension(pool): Extension<Pool>,
     State(client): State<Client>,
     mut req: Request<Body>,
-) -> Result<Response, StatusCode> {
+) -> Result<Response, CustomError> {
     if let Some(api_key) = req.headers().get("Authorization") {
         let mut db_client = pool.get().await.unwrap();
         let transaction = db_client.transaction().await.unwrap();
@@ -41,14 +42,12 @@ pub async fn handler(
         let prompt = queries::prompts::prompt_by_api_key()
             .bind(&transaction, &api_key.to_str().unwrap())
             .one()
-            .await
-            .map_err(|_| StatusCode::BAD_REQUEST)?;
+            .await?;
 
         let api_key = queries::api_keys::find_api_key()
             .bind(&transaction, &api_key.to_str().unwrap())
             .one()
-            .await
-            .map_err(|_| StatusCode::UNAUTHORIZED)?;
+            .await?;
 
         let path = req.uri().path();
         let path_query = req
@@ -62,13 +61,13 @@ pub async fn handler(
 
         // If we are completions we need to add the prompt to the request
         if path_query.ends_with("/completions") {
-            super::rls::set_row_level_security_user_id(&transaction, api_key.user_id)
-                .await
-                .map_err(|_| StatusCode::BAD_REQUEST)?;
+            super::rls::set_row_level_security_user_id(&transaction, api_key.user_id).await?;
 
-            let body: String = req.extract().await.map_err(|_| StatusCode::BAD_REQUEST)?;
-            let completion: Completion =
-                serde_json::from_str(&body).map_err(|_| StatusCode::BAD_REQUEST)?;
+            let body: String = req
+                .extract()
+                .await
+                .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
+            let completion: Completion = serde_json::from_str(&body)?;
 
             let messages = crate::prompt::execute_prompt(
                 &transaction,
@@ -76,40 +75,31 @@ pub async fn handler(
                 prompt.organisation_id,
                 "message.message",
             )
-            .await
-            .map_err(|_| StatusCode::BAD_REQUEST)?;
+            .await?;
 
             let completion = Completion {
                 messages,
                 ..completion
             };
 
-            let completion_json =
-                serde_json::to_string(&completion).map_err(|_| StatusCode::BAD_REQUEST)?;
+            let completion_json = serde_json::to_string(&completion)?;
 
             // Create a new request
             let req = Request::post(uri)
                 .header("content-type", "application/json")
-                .body(Body::from(completion_json))
-                .map_err(|_| StatusCode::BAD_REQUEST)?;
+                .body(Body::from(completion_json))?;
 
-            Ok(client
-                .request(req)
-                .await
-                .map_err(|_| StatusCode::BAD_REQUEST)?
-                .into_response())
+            Ok(client.request(req).await?.into_response())
         } else {
             // Anything that is not completions gets passed direct to the LLM API
 
             *req.uri_mut() = Uri::try_from(uri).unwrap();
 
-            Ok(client
-                .request(req)
-                .await
-                .map_err(|_| StatusCode::BAD_REQUEST)?
-                .into_response())
+            Ok(client.request(req).await?.into_response())
         }
     } else {
-        Err(StatusCode::UNAUTHORIZED)
+        Err(CustomError::Authentication(
+            "You neeed an API key".to_string(),
+        ))
     }
 }
