@@ -1,4 +1,4 @@
---: Prompt(temperature?, top_p?)
+--: Prompt(temperature?, top_p?, system_prompt?)
 
 --! prompts : Prompt
 SELECT
@@ -21,15 +21,13 @@ SELECT
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
-    p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
-    p.min_history_items,
+    p.system_prompt,
     p.max_history_items,
-    p.min_chunks,
     p.max_chunks,
     p.max_tokens,
     p.temperature,
@@ -70,15 +68,13 @@ SELECT
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
-    p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
-    p.min_history_items,
+    p.system_prompt,
     p.max_history_items,
-    p.min_chunks,
     p.max_chunks,
     p.max_tokens,
     p.temperature,
@@ -121,15 +117,13 @@ SELECT
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
-    p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
-    p.min_history_items,
+    p.system_prompt,
     p.max_history_items,
-    p.min_chunks,
     p.max_chunks,
     p.max_tokens,
     p.temperature,
@@ -189,17 +183,15 @@ VALUES(
 );
     
 
---! insert
+--! insert(system_prompt?)
 INSERT INTO prompts (
     organisation_id, 
     model_id, 
     name,
     visibility,
     dataset_connection,
-    template,
-    min_history_items,
+    system_prompt,
     max_history_items,
-    min_chunks,
     max_chunks,
     max_tokens,
     temperature,
@@ -211,10 +203,8 @@ VALUES(
     :name,
     :visibility,
     :dataset_connection,
-    :template,
-    :min_history_items,
+    :system_prompt,
     :max_history_items,
-    :min_chunks,
     :max_chunks,
     :max_tokens,
     :temperature,
@@ -222,7 +212,7 @@ VALUES(
 )
 RETURNING id;
 
---! update
+--! update(system_prompt?)
 UPDATE 
     prompts 
 SET 
@@ -230,10 +220,8 @@ SET
     name = :name, 
     visibility = :visibility,
     dataset_connection = :dataset_connection,
-    template = :template,
-    min_history_items = :min_history_items,
+    system_prompt = :system_prompt,
     max_history_items = :max_history_items,
-    min_chunks = :min_chunks,
     max_chunks = :max_chunks,
     max_tokens = :max_tokens,
     temperature = :temperature,

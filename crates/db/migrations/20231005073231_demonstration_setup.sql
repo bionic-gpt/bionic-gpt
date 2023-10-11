@@ -62,10 +62,7 @@ INSERT INTO prompts (
     visibility,
     name,
     dataset_connection,
-    template,
-    min_history_items,
     max_history_items,
-    min_chunks,
     max_chunks,
     max_tokens
 )
@@ -75,11 +72,8 @@ VALUES(
     'Company',
     'GPT4All (All Datasets)', 
     'All', 
-    'The prompt below is a question to answer, a task to complete, or a conversation to respond to; decide which and write an appropriate response.\n\n### Prompt:\n',
     1,
     3,
-    3,
-    10,
     1024
 );
 
