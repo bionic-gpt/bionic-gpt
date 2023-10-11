@@ -1,4 +1,4 @@
---: Prompt(temperature?, top_p?)
+--: Prompt(temperature?, top_p?, system_prompt?)
 
 --! prompts : Prompt
 SELECT
@@ -21,12 +21,12 @@ SELECT
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
-    p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.system_prompt,
     p.min_history_items,
     p.max_history_items,
     p.min_chunks,
@@ -70,12 +70,12 @@ SELECT
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
-    p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.system_prompt,
     p.min_history_items,
     p.max_history_items,
     p.min_chunks,
@@ -121,12 +121,12 @@ SELECT
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
-    p.template,
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
             SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
+    p.system_prompt,
     p.min_history_items,
     p.max_history_items,
     p.min_chunks,
@@ -189,14 +189,14 @@ VALUES(
 );
     
 
---! insert
+--! insert(system_prompt?)
 INSERT INTO prompts (
     organisation_id, 
     model_id, 
     name,
     visibility,
     dataset_connection,
-    template,
+    system_prompt,
     min_history_items,
     max_history_items,
     min_chunks,
@@ -211,7 +211,7 @@ VALUES(
     :name,
     :visibility,
     :dataset_connection,
-    :template,
+    :system_prompt,
     :min_history_items,
     :max_history_items,
     :min_chunks,
@@ -222,7 +222,7 @@ VALUES(
 )
 RETURNING id;
 
---! update
+--! update(system_prompt?)
 UPDATE 
     prompts 
 SET 
@@ -230,7 +230,7 @@ SET
     name = :name, 
     visibility = :visibility,
     dataset_connection = :dataset_connection,
-    template = :template,
+    system_prompt = :system_prompt,
     min_history_items = :min_history_items,
     max_history_items = :max_history_items,
     min_chunks = :min_chunks,

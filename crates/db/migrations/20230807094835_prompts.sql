@@ -20,7 +20,7 @@ CREATE TABLE prompts (
     max_tokens INT NOT NULL,
     temperature REAL CHECK (temperature >= 0 AND temperature <= 2),
     top_p REAL CHECK (top_p >= 0 AND top_p <= 1),
-    template VARCHAR NOT NULL, 
+    system_prompt VARCHAR, 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
