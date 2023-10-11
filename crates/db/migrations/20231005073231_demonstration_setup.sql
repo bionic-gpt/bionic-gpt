@@ -72,7 +72,7 @@ VALUES(
     'Company',
     'Llama 2 7b Chat (All Datasets)', 
     'All', 
-    1,
+    0,
     3,
     2048
 );
