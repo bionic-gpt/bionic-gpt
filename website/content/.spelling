@@ -123,6 +123,7 @@ config
 macos
 OpenID
 bionicgpt
+purton
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -267,6 +268,8 @@ Dobblenobbl
 text-embedding-ada-002
 1536
 3
+author_image
+ian-purton
  - blog/quantisation/index.md
 LLMs
 2023-10-01
