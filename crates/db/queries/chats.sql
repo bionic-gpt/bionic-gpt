@@ -10,7 +10,8 @@ VALUES
 --! update_chat
 UPDATE chats 
 SET 
-    response = :response
+    response = :response,
+    status = :chat_status
 WHERE
     user_id = current_app_user()
 AND 

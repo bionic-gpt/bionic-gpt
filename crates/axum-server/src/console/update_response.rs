@@ -5,6 +5,7 @@ use axum::{
     response::IntoResponse,
 };
 use db::queries::chats;
+use db::ChatStatus;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -26,9 +27,20 @@ pub async fn update_response(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
+    let chat_status = match message.response.as_str() {
+        "Request aborted." => ChatStatus::Cancelled,
+        "Error occurred while generating." => ChatStatus::Error,
+        _ => ChatStatus::Success,
+    };
+
     if message.validate().is_ok() {
         chats::update_chat()
-            .bind(&transaction, &message.response, &message.chat_id)
+            .bind(
+                &transaction,
+                &message.response,
+                &chat_status,
+                &message.chat_id,
+            )
             .await?;
     }
 
