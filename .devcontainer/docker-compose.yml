@@ -1,7 +1,7 @@
 services:
 
-  llm-api:
-    image: ghcr.io/purton-tech/bionicgpt-model-api
+  local-ai:
+    image: ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b-chat
 
   unstructured:
     image: downloads.unstructured.io/unstructured-io/unstructured-api:db264d8

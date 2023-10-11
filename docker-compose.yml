@@ -2,7 +2,7 @@ services:
 
   # LocalAI with pre-loaded ggml-gpt4all-j
   llm-api:
-    image: ghcr.io/purton-tech/bionicgpt-model-api:latest
+    image: ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b-chat
 
   # Handles parsing of multiple documents types.
   unstructured:
