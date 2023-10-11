@@ -68,16 +68,16 @@ async fn generate_prompt(
     let mut messages: Vec<ChatCompletionRequestMessage> = Default::default();
 
     let system_prompt = match (system_prompt, related_context.is_empty()) {
-        (Some(prompt), true) => {
+        (Some(prompt), false) => {
             Some(format!("{}\n\nContext information is below.\n--------------------\n{{context_str}}\n--------------------", prompt))
         }
-        (Some(prompt), false) => {
+        (Some(prompt), true) => {
             Some(prompt)
         }
-        (None, true) => {
+        (None, false) => {
             Some("Context information is below.\n--------------------\n{{context_str}}\n--------------------".to_string())
         }
-        (None, false) => {
+        (None, true) => {
             None
         }
     };
