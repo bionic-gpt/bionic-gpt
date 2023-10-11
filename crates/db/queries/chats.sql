@@ -67,7 +67,7 @@ FROM
 WHERE
     user_id = current_app_user()
 AND 
-    response IS NOT NULL
+    status = 'Success'
 AND 
     organisation_id IN (SELECT id FROM organisations WHERE user_id = current_app_user())
 ORDER BY updated_at DESC
