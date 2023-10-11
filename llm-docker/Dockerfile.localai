@@ -1,6 +1,6 @@
 FROM quay.io/go-skynet/local-ai:v1.30.0
 
-RUN mkdir /build/models
+RUN mkdir -p /build/models
 
 # Pre install LLama 2 7b Chat
 RUN wget https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_K_M.gguf -O /build/models/llama-2-7b-chat
