@@ -37,7 +37,7 @@
     - [x] Connect to Open AI compatible API's i.e. LocalAI
     - [x] Select different prompts
     - [ ] Multi Modal (Show images and text)
-    - [ ] Syntax highlighting for code
+    - [x] Syntax highlighting for code
     - [ ] Mixture of Experts?
 - [x] Authentication
     - [x] Email/Password sign in and registration
@@ -61,12 +61,10 @@
 - [x] Retrieval Augmented Generation
     - [x] Parse text out of documents
     - [x] Generate Embeddings and store in pgVector
-    - [ ] Add Embeddings to the prompt using similarity search
+    - [x] Add Embeddings to the prompt using similarity search
 - [x] Prompt Management 
     - [x] Create and Edit prompts on a per team basis
     - [x] Associate prompts with datasets
-    - [ ] Inject datasets into command prompt.
-    - [ ] Personas?
 - [x] Model Management 
     - [x] Create/update default prompt fo a model
     - [x] Set model location URL.
@@ -74,8 +72,9 @@
     - [ ] Associate models with a command i.e. /image
 - [ ] Guardrails
     - [ ] Figure out a strategy
-- [ ] API
-    - [ ] Create per team API keys
+- [x] API
+    - [x] Create per team API keys
+    - [x] Attach keys to a prompt
     - [ ] Revoke keys
 - [ ] Fine Tuning
     - [ ] QLORA adapters
@@ -84,8 +83,8 @@
     - [ ] Audit Trail
 - [x] Deployment
     - [x] Docker compose so people can test quickly.
+    - [x] Kubernetes deployment strategy.
     - [ ] Kubernetes bionicgpt.yaml
-    - [ ] Kubernetes deployment strategy.
     - [ ] Hardware recommendations.
 
 See the [open issues](https://github.com/purton-tech/bionicgpt/issues) for a full list of proposed features (and known issues).
@@ -103,8 +102,8 @@ This has been tested on an AMD 2700x with 16GB of ram. The included `ggml-gpt4al
 services:
 
   # LocalAI with pre-loaded ggml-gpt4all-j
-  llm-api:
-    image: ghcr.io/purton-tech/bionicgpt-model-api:latest
+  local-ai:
+    image: ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b-chat
 
   # Handles parsing of multiple documents types.
   unstructured:
