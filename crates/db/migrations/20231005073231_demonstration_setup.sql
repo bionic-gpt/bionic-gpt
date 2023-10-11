@@ -62,9 +62,7 @@ INSERT INTO prompts (
     visibility,
     name,
     dataset_connection,
-    min_history_items,
     max_history_items,
-    min_chunks,
     max_chunks,
     max_tokens
 )
@@ -76,8 +74,6 @@ VALUES(
     'All', 
     1,
     3,
-    3,
-    10,
     1024
 );
 
