@@ -5,6 +5,8 @@ date = 2023-09-21
 [extra]
 main_image = "blog/retrieval-augmented-generation/rag-llama.webp"
 listing_image = "blog/retrieval-augmented-generation/rag-llama.webp"
+author_image = "ian-purton.jpeg"
+author = "Ian Purton"
 +++
 
 
