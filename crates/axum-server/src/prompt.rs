@@ -39,7 +39,7 @@ pub async fn execute_prompt(
     let messages = generate_prompt(
         prompt.model_context_size as usize,
         prompt.max_tokens as usize,
-        prompt.template,
+        prompt.system_prompt,
         chat_history,
         question,
         related_context,
@@ -60,31 +60,43 @@ pub async fn execute_prompt(
 async fn generate_prompt(
     model_context_size: usize,
     max_tokens: usize,
-    system_prompt: String,
+    system_prompt: Option<String>,
     mut history: Vec<Chat>,
     question: &str,
     related_context: Vec<String>,
 ) -> Vec<ChatCompletionRequestMessage> {
-    let system_prompt = if related_context.is_empty() {
-        system_prompt
-    } else {
-        format!("{}\n\nContext information is below.\n--------------------\n{{context_str}}\n--------------------", system_prompt)
+    let mut messages: Vec<ChatCompletionRequestMessage> = Default::default();
+
+    let system_prompt = match (system_prompt, related_context.is_empty()) {
+        (Some(prompt), false) => {
+            Some(format!("{}\n\nContext information is below.\n--------------------\n{{context_str}}\n--------------------", prompt))
+        }
+        (Some(prompt), true) => {
+            Some(prompt)
+        }
+        (None, false) => {
+            Some("Context information is below.\n--------------------\n{{context_str}}\n--------------------".to_string())
+        }
+        (None, true) => {
+            None
+        }
     };
 
-    let mut messages: Vec<ChatCompletionRequestMessage> = vec![
-        ChatCompletionRequestMessage {
-            role: "system".to_string(),
+    if let Some(system_prompt) = &system_prompt {
+        messages.push(ChatCompletionRequestMessage {
+            role: "user".to_string(),
             content: Some(system_prompt.clone()),
             name: None,
             function_call: None,
-        },
-        ChatCompletionRequestMessage {
-            role: "user".to_string(),
-            content: Some(question.to_string()),
-            name: None,
-            function_call: None,
-        },
-    ];
+        });
+    }
+
+    messages.push(ChatCompletionRequestMessage {
+        role: "user".to_string(),
+        content: Some(question.to_string()),
+        name: None,
+        function_call: None,
+    });
 
     // This is the space we have to fill
     let context_size = model_context_size - max_tokens;
@@ -98,8 +110,10 @@ async fn generate_prompt(
         if let Some(rel_context) = related_context.pop() {
             context_so_far.push_str(rel_context);
             context_so_far += "\n";
-            let replaced = system_prompt.replace("{context_str}", &context_so_far);
-            messages[0].content = Some(replaced);
+            if let Some(prompt) = &system_prompt {
+                let replaced = prompt.replace("{context_str}", &context_so_far);
+                messages[0].content = Some(replaced);
+            }
         }
 
         size_so_far = num_tokens_from_messages("gpt-4", &messages).unwrap();
@@ -267,7 +281,7 @@ mod tests {
         let messages = generate_prompt(
             2048,
             1024,
-            "You are a helpful asistant".to_string(),
+            Some("You are a helpful asistant".to_string()),
             vec![create_prompt(
                 "What time is it?".to_string(),
                 "I don't know".to_string(),
@@ -288,7 +302,7 @@ mod tests {
         let messages = generate_prompt(
             2048,
             1024,
-            "You are a helpful asistant".to_string(),
+            Some("You are a helpful asistant".to_string()),
             vec![create_prompt(
                 "What time is it?".to_string(),
                 "I don't know".to_string(),
