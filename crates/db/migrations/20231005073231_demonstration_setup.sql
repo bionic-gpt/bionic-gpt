@@ -34,11 +34,11 @@ INSERT INTO models (
     context_size
 )
 VALUES(
-    'ggml-gpt4all-j', 
+    'llama-2-7b-chat', 
     'LLM', 
-    'http://llm-api:8080', 
+    'http://local-ai:8080', 
     7, 
-    2048
+    4096
 );
 
 INSERT INTO models (
@@ -51,7 +51,7 @@ INSERT INTO models (
 VALUES(
     'text-embedding-ada-002', 
     'Embeddings', 
-    'http://llm-api:8080', 
+    'http://local-ai:8080', 
     7, 
     2048
 );
@@ -70,11 +70,11 @@ VALUES(
     (SELECT id FROM models WHERE model_type = 'LLM' LIMIT 1), 
     (SELECT id FROM organisations LIMIT 1),
     'Company',
-    'GPT4All (All Datasets)', 
+    'Llama 2 7b Chat (All Datasets)', 
     'All', 
     1,
     3,
-    1024
+    2048
 );
 
 -- migrate:down
