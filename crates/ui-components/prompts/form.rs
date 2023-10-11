@@ -9,7 +9,7 @@ pub struct Props {
     trigger_id: String,
     organisation_id: i32,
     name: String,
-    template: String,
+    system_prompt: String,
     datasets: Vec<Dataset>,
     selected_dataset_ids: Vec<i32>,
     dataset_connection: DatasetConnection,
@@ -17,9 +17,7 @@ pub struct Props {
     model_id: i32,
     visibility: Visibility,
     id: Option<i32>,
-    min_history_items: i32,
     max_history_items: i32,
-    min_chunks: i32,
     max_chunks: i32,
     max_tokens: i32,
     temperature: f32,
@@ -119,11 +117,10 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                                 TextArea {
                                     class: "mt-3",
-                                    name: "template",
+                                    name: "system_prompt",
                                     rows: "10",
                                     label: "Prompt",
-                                    required: true,
-                                    "{cx.props.template}",
+                                    "{cx.props.system_prompt}",
                                 }
                             }
                         }
@@ -183,15 +180,6 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                                 Input {
                                     input_type: InputType::Number,
-                                    name: "min_chunks",
-                                    label: "Minimum number of Chunks",
-                                    help_text: "As we retrieve text in batches whats the minimum we should add to the prompt",
-                                    value: "{cx.props.min_chunks}",
-                                    required: true
-                                }
-
-                                Input {
-                                    input_type: InputType::Number,
                                     name: "max_chunks",
                                     label: "Maximum number of Chunks",
                                     help_text: "We don't add more chunks to the prompt than this.",
@@ -212,15 +200,6 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Temperature",
                                     help_text: "Value between 0 and 2.",
                                     value: "{cx.props.temperature}",
-                                    required: true
-                                }
-
-                                Input {
-                                    input_type: InputType::Number,
-                                    name: "min_history_items",
-                                    label: "Minimum number of history items",
-                                    help_text: "This decides how much history we add to the prompt",
-                                    value: "{cx.props.min_history_items}",
                                     required: true
                                 }
 

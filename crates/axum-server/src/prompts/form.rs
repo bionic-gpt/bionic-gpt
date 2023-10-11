@@ -14,14 +14,11 @@ pub struct NewPromptTemplate {
     pub id: Option<i32>,
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
-    #[validate(length(min = 1, message = "The prompt is mandatory"))]
-    pub template: String,
+    pub system_prompt: String,
     pub dataset_connection: String,
     pub model_id: i32,
     pub datasets: Option<String>,
-    pub min_history_items: i32,
     pub max_history_items: i32,
-    pub min_chunks: i32,
     pub max_chunks: i32,
     pub max_tokens: i32,
     pub temperature: f32,
@@ -42,6 +39,13 @@ pub async fn upsert(
 
     let visibility = string_to_visibility(&new_prompt_template.visibility);
 
+    // Id the system prompt is empty store it as null
+    let system_prompt = if new_prompt_template.system_prompt.is_empty() {
+        None
+    } else {
+        Some(&new_prompt_template.system_prompt)
+    };
+
     match (new_prompt_template.validate(), new_prompt_template.id) {
         (Ok(_), Some(id)) => {
             // The form is valid save to the database
@@ -52,10 +56,8 @@ pub async fn upsert(
                     &new_prompt_template.name,
                     &visibility,
                     &string_to_dataset_connection(&new_prompt_template.dataset_connection),
-                    &new_prompt_template.template,
-                    &new_prompt_template.min_history_items,
+                    &system_prompt,
                     &new_prompt_template.max_history_items,
-                    &new_prompt_template.min_chunks,
                     &new_prompt_template.max_chunks,
                     &new_prompt_template.max_tokens,
                     &new_prompt_template.temperature,
@@ -88,10 +90,8 @@ pub async fn upsert(
                     &new_prompt_template.name,
                     &visibility,
                     &string_to_dataset_connection(&new_prompt_template.dataset_connection),
-                    &new_prompt_template.template,
-                    &new_prompt_template.min_history_items,
+                    &system_prompt,
                     &new_prompt_template.max_history_items,
-                    &new_prompt_template.min_chunks,
                     &new_prompt_template.max_chunks,
                     &new_prompt_template.max_tokens,
                     &new_prompt_template.temperature,
