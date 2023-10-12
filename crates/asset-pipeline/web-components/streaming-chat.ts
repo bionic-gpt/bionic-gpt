@@ -3,6 +3,8 @@
  * Waits for the results to stream in and prints them in real time.
  */
 
+import { ResponseFormatter } from "./response-formatter"
+
 export class StreamingChat extends HTMLElement {
 
     controller: AbortController
@@ -42,7 +44,8 @@ export class StreamingChat extends HTMLElement {
                 signal
             });
 
-            const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+            const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader()
+            const markdown = new ResponseFormatter()
             this.result = '';
             while (true && reader) {
                 // eslint-disable-next-line no-await-in-loop
@@ -69,10 +72,10 @@ export class StreamingChat extends HTMLElement {
                         const json = JSON.parse(data);
                         if(json.choices[0].delta && json.choices[0].delta.content) {
                             this.result += json.choices[0].delta.content
-                            this.innerHTML = `<response-formatter response='${this.result.replace("'", "&pos;")}' />`;
+                            this.innerHTML = markdown.markdown(this.result)
                         } else if (json.choices[0].message && json.choices[0].message.content) {
                             this.result += json.choices[0].message.content
-                            this.innerHTML = `<response-formatter response='${this.result.replace("'", "&pos;")}' />`;
+                            this.innerHTML = markdown.markdown(this.result)
                         }
                     }
                 });
