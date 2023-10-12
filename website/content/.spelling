@@ -124,6 +124,10 @@ macos
 OpenID
 bionicgpt
 purton
+1
+DBA
+DevOps
+4
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -279,3 +283,11 @@ listing_image
 jpeg
  - docs/running-locally/other-models.md
 Llama2
+ - blog/you-dont-need-a-vector-database/index.md
+2023-10-13
+you-dont-need-a-vector-database
+HN
+afaics
+bueno
+dbmate
+20x
