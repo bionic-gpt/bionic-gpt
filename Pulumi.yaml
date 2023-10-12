@@ -9,10 +9,10 @@ variables:
         app: app
     authLabels:
         app: auth
-    version: 1.1.9
-    hash-bionicgpt: sha256:81c2d6eeb10c8f6c2391494d6b59a77059f7bd4fce48b3d05a03ef7df5853016
-    hash-bionicgpt-envoy: sha256:bb202380581316f6d84a03d4dd8cf188372acfc6aa53c81e83c2a7623fcdb6ba
-    hash-bionicgpt-db-migrations: sha256:6f19560dee7665e5491064dc5bf49cc35d0e3290dc644af41c70a2bc765698e7
+    version: 1.1.10
+    hash-bionicgpt: sha256:36073c7c79c018831177e5b787a028825c02032cdb8cdf6ec714d92e7dde674b
+    hash-bionicgpt-envoy: sha256:4f2d3e3636e9e7806928953ad63593c30c8f9abd45793831741860a80e4aa305
+    hash-bionicgpt-db-migrations: sha256:6d2f52dd9285d3ae5d6e485737405dd758e6f9689953c2837fee674658748581
     db-migrations: ghcr.io/purton-tech/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
     server: ghcr.io/purton-tech/bionicgpt-server:${version}@${hash-bionicgpt}
     envoy: ghcr.io/purton-tech/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
