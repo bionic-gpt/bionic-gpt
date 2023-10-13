@@ -62,6 +62,7 @@ resources_2 = [
 menu_items = [
     {name = "Services", url = "/services"},
     {name = "Blog", url = "/blog"},
+    {name = "Contact", url = "/contact"},
     {name = "Github", url = "https://github.com/purton-tech/bionicgpt"}
 ]
 
