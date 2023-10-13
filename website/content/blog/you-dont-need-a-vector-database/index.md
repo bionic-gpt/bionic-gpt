@@ -60,11 +60,11 @@ You may have 1 person that takes on all these roles or you might be the person t
 
 ### 4. Pick learning curves that pay off year after year
 
-I learned Postgres 15 years ago. In that time new technologies have come along and Postgres has just sucked them up.
+I learned Postgres 15 years ago. In that time new technologies have come along and Postgres has assimilated the useful ones into it's code base.
 
-I can solve problems because I've seen the same issue before. 
+Reusing a technology over many projects means he can fix issues quickly as you've often seen them before.
 
-I hit the ground running.
+Basically, You hit the ground running.
 
 Here's some other tech that I predict will last you a whole career.
 
@@ -74,9 +74,9 @@ Here's some other tech that I predict will last you a whole career.
 
 ### 5. How about performance?
 
-I had a look around for some benchmarks and you can find results where pgVector wins or a vendor solution wins.
+For an LLM architecture the main bottle neck is probably going to be the LLM itself.
 
-To me there's no technical reason holding back pgVector that I'm aware of.
+So performance will only be an issue for pgVector if it turns out to be a lot slower than the competition.
 
 There's also another Postgres solution that claims to be [20x faster the pgVector](https://neon.tech/blog/pg-embedding-extension-for-vector-search) 
 
