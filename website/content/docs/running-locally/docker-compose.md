@@ -22,6 +22,11 @@ And run
 
 `docker-compose up`
 
+You can then access the front end from `http://localhost:7800`. You'll get a logon screen which is filled in for you.
+
+
+![Alt text](../start-screen.png "Start Screen")
+
 ## Upgrades
 
 When upgrading to the latest version of BionicGPT we recommend running `docker-compose down -v` to completely delete the database.
