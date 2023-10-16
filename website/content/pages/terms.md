@@ -1,5 +1,6 @@
 +++
 title = "Terms and Conditions"
+description = "Please read these Terms of Service carefully before accessing or using our website. By accessing or using any part of the site, you agree to be bound by these Terms of Service."
 date = 2022-01-25
 +++
 
