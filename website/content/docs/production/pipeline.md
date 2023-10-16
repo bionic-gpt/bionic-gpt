@@ -1,15 +1,8 @@
 +++
 title = "It's a Pipeline"
-description = "Installing Locally"
-date = 2021-05-01T08:00:00+00:00
-updated = 2021-05-01T08:00:00+00:00
-draft = false
+description = "It's a Pipeline"
 weight = 5
 sort_by = "weight"
-
-[extra]
-toc = true
-top = false
 +++
 
 BionicGPT is implemented as what's called an LLM Pipeline. Basically we integrate open source components (deployed as docker containers) with a custom user interface.

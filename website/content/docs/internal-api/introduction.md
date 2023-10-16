@@ -1,15 +1,8 @@
 +++
 title = "Deploy API's based on your data"
-description = "LLM Ops"
-date = 2021-05-01T08:00:00+00:00
-updated = 2021-05-01T08:00:00+00:00
-draft = false
+description = "Deploy API's based on your data"
 weight = 10
 sort_by = "weight"
-
-[extra]
-toc = true
-top = false
 +++
 
 BionicGPT allows you to deploy API's company wide that use Retrieval Augmented Generation to give results based on your data.

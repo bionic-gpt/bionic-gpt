@@ -1,11 +1,8 @@
 +++
 title = "Install Alternative Models"
+description = "Install Alternative Models"
 weight = 45
 sort_by = "weight"
-
-[extra]
-toc = true
-top = false
 +++
 
 [LocalAI](https://localai.com) Allows you to install new models via an API which we can call with curl.

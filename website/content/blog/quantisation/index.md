@@ -1,6 +1,7 @@
 +++
 title = "Understanding Quantisation in Large Language Models (LLMs)"
 date = 2023-10-01
+description = "Understanding Quantisation in Large Language Models (LLMs)"
 
 [extra]
 main_image = "blog/quantisation/futuristic-llama.jpg"
