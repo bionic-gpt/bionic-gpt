@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 
-{% block extra_head %}
-<meta name="description" content="The services we provide">
-{% endblock extra_head %}
+
+{% block seo %}
+  {{ super() }}
+
+  {% set title = 'The services we provide' %}
+  {% set description = 'Our services and pricing' %}
+  
+  {{ macros_head::seo(
+    title=title, 
+    description=description
+  ) }}
+{% endblock seo %}
 
 {% block content %}
 
