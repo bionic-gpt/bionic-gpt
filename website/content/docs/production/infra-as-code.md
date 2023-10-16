@@ -1,15 +1,8 @@
 +++
 title = "Infra as Code"
 description = "Installing Locally"
-date = 2021-05-01T08:00:00+00:00
-updated = 2021-05-01T08:00:00+00:00
-draft = false
 weight = 50
 sort_by = "weight"
-
-[extra]
-toc = true
-top = false
 +++
 
 We use [Pulumi](https://www.pulumi.com/) to manage infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.

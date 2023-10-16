@@ -1,15 +1,8 @@
 +++
 title = "Using the API"
-description = "LLM Ops"
-date = 2021-05-01T08:00:00+00:00
-updated = 2021-05-01T08:00:00+00:00
-draft = false
+description = "Using the API"
 weight = 20
 sort_by = "weight"
-
-[extra]
-toc = true
-top = false
 +++
 
 Here we assume you have BionicGPT running locally, you'll need to change all references from `localhost` to the domain your using for production.

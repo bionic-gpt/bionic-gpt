@@ -1,13 +1,13 @@
 +++
 title = "Why you don't need a specialist Vector Database"
 date = 2023-10-13
+description = "Postgres implements everything a vector database does and a lot more"
 
 [extra]
 main_image = "blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"
 listing_image = "blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"
 author_image = "ian-purton.jpeg"
 author = "Ian Purton"
-description = "Postgres implements everything a vector database does and a lot more"
 +++
 
 ## The short version

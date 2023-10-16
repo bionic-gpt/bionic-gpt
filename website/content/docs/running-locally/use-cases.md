@@ -1,15 +1,8 @@
 +++
 title = "How to try out your use cases"
-description = "Installing Locally"
-date = 2021-05-01T08:00:00+00:00
-updated = 2021-05-01T08:00:00+00:00
-draft = false
+description = "How to try out your use cases"
 weight = 30
 sort_by = "weight"
-
-[extra]
-toc = true
-top = false
 +++
 
 We're assuming that you've identified one or more use cases and along the lines of chatting with company private documents.
