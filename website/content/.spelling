@@ -192,6 +192,7 @@ postgres
 text-embedding-ada-002
  - docs/_index.md
 BionicGPT
+redirect_to
  - docs/production/pipeline.md
 5
  - docs/production/pulumi.md
@@ -293,3 +294,5 @@ dbmate
 20x
  - contact/_index.md
 contact.html
+ - docs/internal-api/_index.md
+internal-api
