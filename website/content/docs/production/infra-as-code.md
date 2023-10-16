@@ -1,6 +1,6 @@
 +++
 title = "Infra as Code"
-description = "Installing Locally"
+description = "Infra as Code"
 weight = 50
 sort_by = "weight"
 +++
