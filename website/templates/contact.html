@@ -1,8 +1,18 @@
 {% extends "base.html" %}
 
-{% block extra_head %}
-<meta name="description" content="Contact Bionic GPT Team">
-{% endblock extra_head %}
+
+{% block seo %}
+  {{ super() }}
+
+  {% set title = 'Contact Bionic GPT Team' %}
+  {% set description = 'We&apos;re available to answer any questions' %}
+  
+  {{ macros_head::seo(
+    title=title, 
+    description=description,
+    main_image_url='/github-readme.png'
+  ) }}
+{% endblock seo %}
 
 {% block content %}
 
