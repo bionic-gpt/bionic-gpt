@@ -6,7 +6,7 @@ description = "Postgres implements everything a vector database does and a lot m
 [extra]
 main_image = "blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"
 listing_image = "blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"
-author_image = "ian-purton.jpeg"
+author_image = "blog-authors/ian-purton.jpeg"
 author = "Ian Purton"
 +++
 
