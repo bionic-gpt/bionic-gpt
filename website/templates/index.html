@@ -1,13 +1,18 @@
 {% extends "base.html" %}
 
 
-{% block extra_head %}
-<meta property="og:type" content="website" />
-<meta property="og:title" content="BionicGPT is an on-premise replacement for ChatGPT" />
-<meta property="og:description" content="All the productivity benefits of Generative AI with strict data confidentiality" />
-<meta property="og:image" content="/github-readme.png" />
-<meta name="description" content="All the productivity benefits of Generative AI with strict data confidentiality">
-{% endblock extra_head %}
+{% block seo %}
+  {{ super() }}
+
+  {% set title = 'BionicGPT is an on-premise replacement for ChatGPT' %}
+  {% set description = 'All the productivity benefits of Generative AI with strict data confidentiality' %}
+  
+  {{ macros_head::seo(
+    title=title, 
+    description=description,
+    main_image_url='/github-readme.png'
+  ) }}
+{% endblock seo %}
 
 {% block content %}
 <section class="col-10 mx-auto content d-flex flex-content-center flex-column mt-4 mt-md-8 text-center">
