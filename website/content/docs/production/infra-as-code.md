@@ -165,7 +165,7 @@ k9s
 
 It looks something like the image below and gives you the ability to see running pods and view the logs.
 
-![Adding secrets to cloak](../pods.png)
+![Adding secrets to cloak](../k9s.jpeg)
 
 ## Creating a Database and Users
 
