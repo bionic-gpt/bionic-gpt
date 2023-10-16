@@ -7,10 +7,13 @@
   {% set title = 'BionicGPT is an on-premise replacement for ChatGPT' %}
   {% set description = 'All the productivity benefits of Generative AI with strict data confidentiality' %}
   
+  {% set main_image = resize_image(path='/github-readme.png', width=768, height=487, op="fill") %}
+  {% set main_image = main_image.url %}
+
   {{ macros_head::seo(
     title=title, 
     description=description,
-    main_image_url='/github-readme.png'
+    main_image_url=main_image
   ) }}
 {% endblock seo %}
 
