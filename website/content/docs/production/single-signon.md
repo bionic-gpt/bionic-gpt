@@ -1,15 +1,8 @@
 +++
 title = "Single Sign On"
-description = "Installing Locally"
-date = 2021-05-01T08:00:00+00:00
-updated = 2021-05-01T08:00:00+00:00
-draft = false
+description = "Single Sign On"
 weight = 35
 sort_by = "weight"
-
-[extra]
-toc = true
-top = false
 +++
 
 We recommend using [oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy) to enable SSO for BionicGPT.

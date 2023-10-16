@@ -1,13 +1,13 @@
 +++
 title = "What is Retrieval Augmented Generation?"
 date = 2023-09-21
+description = "A more low level guide to Retrieval Augmented Generation"
 
 [extra]
 main_image = "blog/retrieval-augmented-generation/rag-llama.webp"
 listing_image = "blog/retrieval-augmented-generation/rag-llama.webp"
 author_image = "ian-purton.jpeg"
 author = "Ian Purton"
-description = "A more low level guide to Retrieval Augmented Generation"
 +++
 
 
