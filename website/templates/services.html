@@ -1,5 +1,6 @@
-{% extends "base.html" %}
+{%- import 'macros/pricing.html' as macros_pricing -%}
 
+{% extends "base.html" %}
 
 {% block seo %}
   {{ super() }}
@@ -15,254 +16,35 @@
 
 {% block content %}
 
-<section class="mt-4 text-center">
-  <h1 class="h3-mktg mb-4 pt-9">Transparent Pricing</h1>
-  <h2 class="h6-mktg color-fg-muted mb-4">Manage BionicGPT yourself or get help from us</h2>
 
-  <div class="d-md-flex flex-justify-center text-left">
-    <div
-      class="col-md-6 col-lg-4 color-bg-default box-shadow-default-border-mktg rounded pt-5 pb-4 px-3 mb-3 mb-md-0 mx-md-3">
-      <div class="text-center mb-5">
-        <h5 class="h6-mktg mb-3">
-          <span class="d-block color-fg-muted">BionicGPT</span>
-          Self Managed
-        </h5>
-        <h3 class="mb-3">
-          <div
-            class="d-flex flex-lg-column flex-lg-wrap flex-xl-nowrap flex-xl-row flex-justify-center flex-items-center">
-            <span class="d-flex flex-items-center f0-mktg text-normal text-mono mr-2 no-wrap">
-              <sup class="f3 color-fg-muted v-align-middle mr-1">$</sup>
-              0
-            </span>
-            <span class="text-normal text-left text-lg-center text-xl-left text-mono f6-mktg color-fg-muted">
-              <span>per year</span>
-            </span>
-          </div>
-        </h3>
-      </div>
+<div class="flex flex-col items-center">
 
-      <ul class="list-style-none">
+  {{ macros_pricing::pricing_hero(
+    title='Simple no-tricks pricing', 
+    sub_title="Do it yourself or let us help, it's your choice."
+  ) }}
 
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Unlimited teams and unlimited users
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Unlimited installations
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Audit logs
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Single Sign On
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Unlimited Document Pipelines
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Basically everything
-        </li>
-      </ul>
-    </div>
+  {{ macros_pricing::pricing_item(
+    title='Self Managed', 
+    sub_title1="Do it yourself or let us help, it's your choice.",
+    sub_title2="Pay once, own it forever",
+    sub_title3="Invoices and receipts available for easy company reimbursement"
+  ) }}
 
-    <div
-      class="col-md-6 col-lg-4 color-bg-default box-shadow-default-border-mktg rounded pt-5 pb-4 px-3 mb-3 mb-md-0 mx-md-3">
-      <div class="text-center mb-5">
-        <h5 class="h6-mktg mb-3">
-          <span class="d-block color-fg-muted">BionicGPT</span>
-          Peace of mind
-        </h5>
-        <h3 class="mb-3">
-          <div
-            class="d-flex flex-lg-column flex-lg-wrap flex-xl-nowrap flex-xl-row flex-justify-center flex-items-center">
-            <span class="d-flex flex-items-center f0-mktg text-normal text-mono mr-2 no-wrap">
-              <sup class="f3 color-fg-muted v-align-middle mr-1">$</sup>
-              40,000
-            </span>
-            <span class="text-normal text-left text-lg-center text-xl-left text-mono f6-mktg color-fg-muted">
-              <span class="d-lg-block no-wrap">per year</span>
-            </span>
-          </div>
-        </h3>
-      </div>
+  {{ macros_pricing::pricing_item(
+    title='Support Contract', 
+    sub_title1="Do it yourself or let us help, it's your choice.",
+    sub_title2="Pay once, own it forever",
+    sub_title3="Invoices and receipts available for easy company reimbursement"
+  ) }}
 
-      <ul class="list-style-none">
-        <li class="mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-arrow-left">
-            <path fill-rule="evenodd"
-              d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z">
-            </path>
-          </svg>
-          Everything included in Self managed, plus...
-        </li>
-
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Full on, can do, deep technical support.
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          A service level agreement (SLA)
-        </li>
-      </ul>
-    </div>
-
-    <div
-      class="col-md-6 col-lg-4 color-bg-default box-shadow-default-border-mktg rounded pt-5 pb-4 px-3 mb-3 mb-md-0 mx-md-3">
-      <div class="text-center mb-5">
-        <h5 class="h6-mktg mb-3">
-          <span class="d-block color-fg-muted">BionicGPT</span>
-          Consulting
-        </h5>
-        <h3 class="mb-3">
-          <div
-            class="d-flex flex-lg-column flex-lg-wrap flex-xl-nowrap flex-xl-row flex-justify-center flex-items-center">
-            <span class="d-flex flex-items-center f0-mktg text-normal text-mono mr-2 no-wrap">
-              <sup class="f3 color-fg-muted v-align-middle mr-1">$</sup>
-              2000
-            </span>
-            <span class="text-normal text-left text-lg-center text-xl-left text-mono f6-mktg color-fg-muted">
-              <span>per consultant per day</span>
-            </span>
-          </div>
-        </h3>
-      </div>
-
-      <ul class="list-style-none">
-
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Hardware configuration and build out
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Installation and deployments
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Prompt Engineering
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Integrations
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Custom solutions
-        </li>
-        <li class="text-medium mb-3">
-          <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true"
-            class="octicon octicon-chevron-right">
-            <path fill-rule="evenodd"
-              d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z">
-            </path>
-          </svg>
-          Our experts can guide your AI journey
-        </li>
-      </ul>
-    </div>
-
-  </div>
-</section>
-
-<!--<section class="col-10 mx-auto">
-  <div class="d-flex flex-column flex-sm-row gutter gutter-spacious flex-justify-between mt-10 pb-12">
-    <div class="col-12 col-sm-4">
-      <div class="pt-4 pt-md-8 border-top d-flex flex-column height-full flex-justify-start">
-        <span class="h3-mktg mb-n3">”</span>
-        <h3 class="f2-mktg color-fg-default">Cloak works shockingly well. I will never develop software without it again.</h3>
-        <p class="text-mono f4-mktg color-fg-muted pt-5 mt-auto">Pal&nbsp;Larson</p>
-      </div>
-    </div>
-  
-    <div class="col-12 col-sm-4">
-      <div class="pt-4 pt-md-8 border-top d-flex flex-column height-full flex-justify-between">
-        <span class="h3-mktg mb-n3">”</span>
-        <h3 class="f2-mktg color-fg-default">Incredibly easy to onboard and a fantastic product.</h3>
-        <p class="text-mono f4-mktg color-fg-muted pt-5 mt-auto">Punil Smatra // Senior&nbsp;Analyst</p>
-      </div>
-    </div>
-  
-    <div class="col-12 col-sm-4">
-      <div class="pt-4 pt-md-8 border-top d-flex flex-column height-full flex-justify-between">
-        <span class="h3-mktg mb-n3">”</span>
-        <h3 class="f2-mktg color-fg-default">Great that we can now manage secrets through the development cycle and into production.</h3>
-        <p class="text-mono f4-mktg color-fg-muted pt-5 mt-auto">Harry Smith</p>
-      </div>
-    </div>
-  </div>
-</section>-->
+  {{ macros_pricing::pricing_item(
+    title='Consulting', 
+    sub_title1="Do it yourself or let us help, it's your choice.",
+    sub_title2="Pay once, own it forever",
+    sub_title3="Invoices and receipts available for easy company reimbursement"
+  ) }}
+</div>
 
 {% if config.extra.footer_cta %}
 <section class="d-flex flex-content-center flex-column mt-8 mb-8 text-center pl-1 pr-1">

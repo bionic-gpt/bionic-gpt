@@ -1,11 +1,15 @@
+{%- import 'macros/heros.html' as macros_hero -%}
+{%- import 'macros/features.html' as macros_features -%}
+{%- import 'macros/cta.html' as macros_cta -%}
+
 {% extends "base.html" %}
 
 
 {% block seo %}
   {{ super() }}
 
-  {% set title = 'BionicGPT takes you from Zero to R.A.G Hero' %}
-  {% set description = 'Try out your retrieval augmented generation use cases on prem with strict data confidentiality and no code' %}
+  {% set title = 'A Full Enterprise Grade LLM stack' %}
+  {% set description = 'An Open Source No Code solution with full support for Retrieval Augmented Generation, built by people with years of experience in AI and enterprise software development.' %}
   
   {{ macros_head::seo(
     title=title, 
@@ -15,212 +19,105 @@
 {% endblock seo %}
 
 {% block content %}
-<section class="col-10 mx-auto content d-flex flex-content-center flex-column mt-4 mt-md-8 text-center">
-  <h1 class="h3-mktg mb-4">
-    BionicGPT takes you from Zero to R.A.G Hero</h1>
-  <h2 class="col-8 mx-auto h6-mktg color-fg-muted mb-4">
-    Try out your retrieval augmented generation use cases on prem with strict data confidentiality
-    and no code
-  </h2>
-  <div class="mb-4">
-    <a class="btn-mktg mr-1" href="{{config.extra.every_page_cta.cta_url}}">Read the Docs</a>
-  </div>
-  <div>
-    <img alt="Bionic LLama" width="70%" src="landing-page/bionic-llama.png" />
-  </div>
-</section>
 
-<section class="text-center color-bg-accent-emphasis p-4">
-  <h3 class="color-fg-on-emphasis">Integrations</h3>
-  <div class="d-flex flex-content-center flex-justify-around pt-4">
-    <img class="mr-3" width="200" alt="Open AI Logo" src="landing-page/OpenAI_Logo.svg">
-    <img class="ml-3" width="200" alt="Microsoft Azure" src="landing-page/microsoft-azure.svg">
-    <img class="ml-3" width="200" alt="AWS" src="landing-page/amazon-web-services.svg">
-    <img class="ml-3" width="200" alt="Google Cloud" src="landing-page/google-cloud.svg">
-  </div>
-</section>
 
-<section>
-  <div class="col-10 mx-auto content d-md-flex flex-row mt-6 mt-lg-12 pb-6">
-    <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">
-        BionicGPT gives all your teams access to no code RAG
-      </h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        Team members can try out Generative AI on their documents
-      </h4>
-      <p>
-        When they are happy with a prompt and data combination they can deploy it to other team members
-      </p>
-      <p>
-        Bionic works on the principal that each team know best which data to make available
-        and what the results should look like.
-      </p>
-    </div>
-    <img class="col-md-6 ml-lg-4 color-shadow-large" alt="Cream" src="/github-readme.png" />
-  </div>
-</section>
+<div class="flex flex-col items-center">
 
-<section>
-  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <img class="col-md-6 mr-lg-4" alt="Cream" src="landing-page/resource-augmented-generation.png" />
-    <div class="col-md-6 pl-4">
-      <h2 class="h5-mktg mb-6">Each team can create and manage their own data sets.</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        Data sets are filled with documents from multiple sources.
-      </h4>
-      <p>80% of enterprise data exists in difficult-to-use formats like HTML, PDF, CSV, PNG, PPTX, and more. </p>
-      <p>BionicGPT effortlessly extracts and transforms complex data and makes it available to the AI.</p>
-      <p>We also support for optical character recognition (coming soon).</p>
-    </div>
-  </div>
-</section>
+  {{ macros_hero::image_hero(
+    title='A Full Enterprise Grade LLM stack that 
+      deploys in minutes on your laptop and scales to the cloud', 
+    sub_title='An Open Source No Code solution with full support for Retrieval Augmented Generation, 
+      built by people with years of experience in AI and enterprise software development.',
+      cta1='Read the Documentation',
+      cta1_url='/docs',
+      cta2='Watch us Build a RAG Pipeline (Coming soon)',
+      cta2_url='#'
+  ) }}
 
-<section>
-  <div class="col-10 mx-auto content d-md-flex flex-row pt-6 pb-12">
-    <div class="col-md-6 pl-4">
-      <h2 class="h5-mktg mb-6">Role based access controls maintain data confidentiality</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        Teams manage themselves and can invite new members. 
-        No need to wait for IT.
-      </h4>
-      <p>Teams have the ability to manage their own permissions</p>
-      <p>Data is private to the team</p>
-      <p>Teams can manage themselves and invite colleagues.</p>
-    </div>
-    <img class="col-md-6 pr-4" alt="Cream" src="landing-page/teams.png" />
-  </div>
-</section>
 
-<section>
-  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <img class="col-md-6 mr-lg-4" alt="Cream" src="landing-page/model-integration.png" />
-    <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">
-        Bionic scales from Local LLM's running on a laptop to infinity and beyond.
-      </h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        We have connectors for pretty much every LLM solution on the market
-      </h4>
-      <p>Use Azure, OpenAI, Cohere, Anthropic, Ollama, VLLM, Sagemaker, HuggingFace, Replicate (100+ LLMs)</p>
-      <p>Deploy your own fine tuned models</p>
-    </div>
-  </div>
-</section>
 
-<section>
-  <div class="col-10 mx-auto content d-md-flex flex-row pt-6 pb-12">
-    <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">We support streaming data for your RAG use cases</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        Our Data Pipeline integrates with over 300 data sources
-      </h4>
-      <p>
-        The pipeline waits for documents to change and automatically 
-        adds them to our vector database.
-      </p>
-      <p>
-        If you don't want to use Airbyte or need a custom solution our
-        data pipeline can monitor data storage using the S3 protocol.
-      </p>
-    </div>
-    <img class="col-md-6 ml-lg-4" alt="Cream" src="landing-page/airbyte.png" />
-  </div>
-</section>
+  {{ macros_features::image_feature(
+    title='The full stack ready to run', 
+    sub_title='Accelerate Generative AI Adoption',
+    text='Go from idea to proof of concept in minutes',
+    title1='Prompt Engineering.',
+    text1='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title2='Retreival Augmented Generation.',
+    text2='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title3="API's.",
+    text3='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    image='/github-readme.png'
+  ) }}
 
-<section>
-  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <img class="col-md-6 mr-lg-4" alt="Cream" src="landing-page/bionicgpt-laptop.jpg" />
-    <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">Launch a proof of concept in a day</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        Test your potential use cases on hardware you already have 
-        without triggering any purchase orders.
 
-      </h4>
-      <p>We have BionicGPT running on a laptop without a GPU.</p>
-      <p>We can use quantized 7B models that run in around 5GB of ram.</p>
-      <p>Despite the low resources we get surprisingly good answers from the LLM (sometimes).</p>
-      <p>When you're ready for production BionicGPT can scale to any workload.</p>
-    </div>
-  </div>
-</section>
 
-<section>
-  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <div class="col-md-6 mr-lg-4">
-      <h2 class="h5-mktg mb-6">Integrate everywhere with RAG powered API endpoints</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        Create API's powered with answers from your RAG prompts
-      </h4>
-      <p>There are serveral use cases for this such as...</p>
-      <p>There are serveral use cases for this such as...</p>
-      <p>Customer chat bot that can answer support questions</p>
-    </div>
-    <img class="col-md-6 ml-lg-4" alt="Cream" src="landing-page/api.png" />
-  </div>
-</section>
+  {{ macros_features::quad_feature(
+    title='Deploy one of our models or integrate with any provider', 
+    sub_title='On Prem or managed models',
+    text='Some text',
+    title1='Open Source Quantized Models.',
+    text1='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title2='Connect to Azure, Google, Amazon and more',
+    text2='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title3="Secure Cloud.",
+    text3='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title4="Public Cloud.",
+    text4='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.'
+  ) }}
 
-<section>
-  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <img class="col-md-6 mr-lg-4" alt="Enterprise LLama" src="landing-page/enterprise-llama.jpg" />
-    <div class="col-md-6 pr-4">
-      <h2 class="h5-mktg mb-6">Enterprise Ready</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        Built by people with experience running applications in the enterprise.
-      </h4>
-      <p>Support contracts available</p>
-      <p>Consultancy is available on any aspect of your LLM journey.</p>
-      <p>Full support for Single Sign On (SSO).</p>
-      <p>Built from the ground up to run natively on Kubernetes.</p>
-    </div>
-  </div>
-</section>
 
-<section>
-  <div class="col-10 mx-auto content d-flex flex-column-reverse flex-lg-row pt-lg-6 pb-6">
-    <div class="col-md-6 mr-lg-4">
-      <h2 class="h5-mktg mb-6">Open source under a permissive licence</h2>
-      <h4 class="h6-mktg color-fg-muted mb-6">
-        No need to worry about purchase orders or sales calls
-      </h4>
-      <p>If you so wish you can install and manage BionicGPT yourself without any restrictions.</p>
-      <p>
-        Developing in the open means you can influence the future direction
-        of BionicGPT and even contribute changes.
-      </p>
-    </div>
-    <img class="col-md-6 ml-lg-4" alt="Cream" src="landing-page/github.png" />
-  </div>
-</section>
+  {{ macros_features::image_feature(
+    title='A Team Based Approach', 
+    sub_title='Innovation works better in teams',
+    text='Build Augment and Share Prompts',
+    title1='Segmented Data.',
+    text1='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title2='Retreival Augmented Generation.',
+    text2='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title3="Role Based Access Control",
+    text3='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    image='landing-page/teams.png'
+  ) }}
 
-<section class="color-bg-success p-2 p-lg-6 pt-4 pt-lg-0">
-  <h2 class="text-center mb-4 h5-mktg">Features</h2>
-  <div class="container-lg clearfix">
-    <div class="col-sm-12 col-md-6 float-left p-4">
-      <h4 class="h5-mktg">Used in production in big and small companies</h4>
-      <p class="mt-3">Scales from bootstrappers to whole teams</p>
-      <p>Implements the full LLM lifecycle.</p>
-    </div>
-    <div class="col-sm-12 col-md-6 float-left p-4">
-      <h4 class="h5-mktg">We welcome contributions and feedback</h4>
-      <p class="mt-3">Completely open source under an MIT licence</p>
-      <p>Hosted on Github and developed in the open</p>
-    </div>
-  </div>
-</section>
 
-{% if config.extra.footer_cta %}
-<section class="d-flex flex-content-center flex-column mt-8 mb-8 text-center pl-1 pr-1">
-  <h3 class="mb-3">{{config.extra.every_page_cta.title}}</h3>
-  {% if config.extra.every_page_cta.cta_url %}
-  <p><a class="btn-mktg"
-      href="{{config.extra.every_page_cta.cta_url}}">{{config.extra.every_page_cta.cta_button}}</a></p>
-  {% else %}
-    {% if sign_up_url %}
-    <p><a class="btn-mktg" href="{{sign_up_url}}">{{config.extra.every_page_cta.cta_button}}</a></p>
-    {% endif %}
-  {% endif %}
-</section>
-{% endif %}
+  {{ macros_features::small_image_feature(
+    title='Ingest data wherever or whatever it is', 
+    sub_title='Integration with over 300 Data Sources',
+    text='We integrate with Airbyte and leverage hundreds of data adapters. We then
+      take that data and split it into chunks before creating embeddings.',
+    image='/landing-page/airbyte.png'
+  ) }}
+
+
+  {{ macros_features::image_feature(
+    title='Open Source & Enterprise Ready', 
+    sub_title='A better workflow',
+    text='Build Augment and Share Prompts',
+    title1='SSO and Siem',
+    text1='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title2='Support Contracts.',
+    text2='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    title3="Consultancy",
+    text3='Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+    image='landing-page/github.png'
+  ) }}
+
+
+  {{ macros_features::small_image_feature(
+    title='Ingest data wherever or whatever it is', 
+    sub_title='Kubernetes Native',
+    text='We integrate with Airbyte and leverage hundreds of data adapters. We then
+      take that data and split it into chunks before creating embeddings.',
+    image='/landing-page/architecture.svg'
+  ) }}
+
+</div>
+
+<div class="flex flex-col items-center mb-6">
+  {{ macros_cta::footer_cta(
+    title="You're seconds away from trying us out", 
+    cta1='Read the Documentation',
+    cta1_url='/docs'
+  ) }}
+</div>
 {% endblock content %}
