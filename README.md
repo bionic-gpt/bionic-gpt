@@ -101,9 +101,8 @@ This has been tested on an AMD 2700x with 16GB of ram. The included `ggml-gpt4al
 ```yml
 services:
 
-  # LocalAI with pre-loaded ggml-gpt4all-j
   local-ai:
-    image: ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b-chat
+    image: ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b
 
   # Handles parsing of multiple documents types.
   unstructured:
