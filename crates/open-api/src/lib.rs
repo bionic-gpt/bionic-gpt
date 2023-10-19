@@ -49,7 +49,7 @@ pub async fn get_embeddings(input: &str) -> Result<Vec<f32>, Box<dyn Error>> {
     let openai_endpoint = if let Ok(domain) = std::env::var("OPENAI_ENDPOINT") {
         domain
     } else {
-        "http://local-ai:8080".to_string()
+        "http://local-ai:3000".to_string()
     };
 
     let url = format!("{}/v1/embeddings", openai_endpoint);
