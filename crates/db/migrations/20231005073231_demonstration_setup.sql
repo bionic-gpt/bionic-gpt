@@ -34,9 +34,9 @@ INSERT INTO models (
     context_size
 )
 VALUES(
-    'llama-2-7b-chat', 
+    'llama-2-7b', 
     'LLM', 
-    'http://local-ai:8080', 
+    'http://local-ai:3000/v1', 
     7, 
     4096
 );
@@ -51,7 +51,7 @@ INSERT INTO models (
 VALUES(
     'text-embedding-ada-002', 
     'Embeddings', 
-    'http://local-ai:8080', 
+    'http://local-ai:3000', 
     7, 
     2048
 );
@@ -70,7 +70,7 @@ VALUES(
     (SELECT id FROM models WHERE model_type = 'LLM' LIMIT 1), 
     (SELECT id FROM organisations LIMIT 1),
     'Company',
-    'Llama 2 7b Chat (All Datasets)', 
+    'Llama 2 7b (All Datasets)', 
     'All', 
     0,
     3,
