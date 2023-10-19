@@ -1,4 +1,4 @@
-FROM purtontech/rust-on-nails-devcontainer:1.1.14 AS development
+FROM purtontech/rust-on-nails-devcontainer:1.1.15 AS development
 
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,graphics
 
@@ -25,3 +25,6 @@ RUN sudo mkdir -p /workspace/target && sudo chown $USERNAME:$USERNAME /workspace
 RUN sudo curl -OL https://dl.min.io/client/mc/release/linux-amd64/mc \
     && sudo chmod +x mc \
     && sudo mv ./mc /usr/bin
+
+# We need this for candle-llama
+RUN sudo apt-get install -y pkg-config

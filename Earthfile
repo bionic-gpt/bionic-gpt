@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM purtontech/rust-on-nails-devcontainer:1.1.14
+FROM purtontech/rust-on-nails-devcontainer:1.1.15
 
 ARG --global APP_EXE_NAME=axum-server
 ARG --global EMBEDDINGS_EXE_NAME=embeddings-job
