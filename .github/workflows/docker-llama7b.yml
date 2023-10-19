@@ -1,0 +1,28 @@
+name: Build Local AI (Open AI API) Container
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'llm-docker/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+    - name: Checkout
+      uses: actions/checkout@v2
+         
+    - name: Log in to the Github Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build Docker file
+      run: |
+        docker build -t ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b -f llm-docker/Dockerfile.cria llm-docker
+        docker push ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b
