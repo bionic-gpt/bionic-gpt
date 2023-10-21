@@ -25,5 +25,5 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build Docker file
       run: |
-        docker build -t ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b -f llm-docker/Dockerfile.cria llm-docker
-        docker push ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b
+        docker build -t ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b-chat -f llm-docker/Dockerfile.cria llm-docker
+        docker push ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b-chat
