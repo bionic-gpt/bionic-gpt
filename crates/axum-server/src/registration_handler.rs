@@ -7,6 +7,7 @@ use axum::{
 };
 use db::queries;
 use db::types;
+use db::types::public::{DatasetConnection, Visibility};
 use db::Pool;
 
 pub static INDEX: &str = "/app/post_registration";
@@ -53,6 +54,31 @@ pub async fn post_registration(
                 &inserted_org_id,
                 &roles,
             )
+            .await?;
+
+        let model = queries::models::get_system_model()
+            .bind(&transaction)
+            .one()
+            .await?;
+
+        let system_prompt: Option<String> = None;
+
+        queries::prompts::insert()
+            .bind(
+                &transaction,
+                &inserted_org_id,
+                &model.id,
+                &"Default (Exclude All Datasets)",
+                &Visibility::Private,
+                &DatasetConnection::None,
+                &system_prompt,
+                &3,
+                &10,
+                &1024,
+                &0.7,
+                &0.1,
+            )
+            .one()
             .await?;
 
         transaction.commit().await?;

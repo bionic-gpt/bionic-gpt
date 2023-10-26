@@ -68,23 +68,8 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
         Default::default()
     };
 
-    let value = cx.props.value.unwrap_or("");
     let input_type = input_type.to_string();
     let input_size = input_size.to_string();
-
-    let placeholder = if cx.props.placeholder.is_some() {
-        cx.props.placeholder.unwrap()
-    } else {
-        ""
-    };
-
-    let label_class = if let Some(label_class) = cx.props.label_class {
-        label_class
-    } else {
-        ""
-    };
-
-    let id = if let Some(id) = cx.props.id { id } else { "" };
 
     let input_class = format!("{} {}", input_type, input_size);
 
@@ -92,7 +77,7 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
         match (cx.props.label, cx.props.required) {
             (Some(l), Some(_)) => cx.render(rsx!(
                 label {
-                    class: "{label_class}",
+                    class: cx.props.label_class,
                     strong {
                         "{l} *"
                     }
@@ -100,7 +85,7 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
             )),
             (Some(l), None) => cx.render(rsx!(
                 label {
-                    class: "{label_class}",
+                    class: cx.props.label_class,
                     strong {
                         "{l}"
                     }
@@ -109,14 +94,14 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
             (None, _) => None
         }
         input {
-            id: "{id}",
+            id: cx.props.id,
             class: "{input_class}",
-            value: "{value}",
+            value: cx.props.value,
             required: cx.props.required,
             disabled: cx.props.disabled,
             readonly: cx.props.readonly,
             name: "{cx.props.name}",
-            placeholder: "{placeholder}",
+            placeholder: cx.props.placeholder,
             "type": "{input_type}"
         }
         match cx.props.help_text {
