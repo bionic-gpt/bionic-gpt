@@ -36,24 +36,9 @@ INSERT INTO models (
 VALUES(
     'llama-2-7b', 
     'LLM', 
-    'http://local-ai:3000/v1', 
+    'http://llm-api:3000/v1', 
     7, 
     4096
-);
-
-INSERT INTO models (
-    name,
-    model_type,
-    base_url,
-    billion_parameters,
-    context_size
-)
-VALUES(
-    'text-embedding-ada-002', 
-    'Embeddings', 
-    'http://local-ai:3000', 
-    7, 
-    2048
 );
 
 INSERT INTO prompts (
