@@ -14,10 +14,10 @@ ARG --global PIPELINE_FOLDER=crates/asset-pipeline
 ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.17-latest
 
 # This file builds the following containers
-ARG --global APP_IMAGE_NAME=purton-tech/bionicgpt:latest
-ARG --global ENVOY_IMAGE_NAME=purton-tech/bionicgpt-envoy:latest
-ARG --global MIGRATIONS_IMAGE_NAME=purton-tech/bionicgpt-db-migrations:latest
-ARG --global EMBEDDINGS_IMAGE_NAME=purton-tech/bionicgpt-embeddings-job:latest
+ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
+ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
+ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
+ARG --global EMBEDDINGS_IMAGE_NAME=bionic-gpt/bionicgpt-embeddings-job:latest
 
 WORKDIR /build
 
