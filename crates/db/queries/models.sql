@@ -16,6 +16,23 @@ FROM
 WHERE model_type = :model_type
 ORDER BY updated_at;
 
+--! get_system_model : Model
+SELECT
+    id,
+    name,
+    model_type,
+    base_url,
+    api_key,
+    billion_parameters,
+    context_size,
+    created_at,
+    updated_at
+FROM 
+    models
+ORDER BY created_at
+LIMIT 1;
+
+
 --! model : Model
 SELECT
     id,

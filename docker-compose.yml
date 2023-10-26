@@ -1,7 +1,7 @@
 services:
 
   llm-api:
-    image: ghcr.io/purton-tech/bionicgpt-model-api:llama-2-7b
+    image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.2
 
   # Handles parsing of multiple documents types.
   unstructured:
