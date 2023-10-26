@@ -4,19 +4,19 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       ["@semantic-release-plus/docker", {
-          "name": "ghcr.io/purton-tech/bionicgpt:latest",
+          "name": "ghcr.io/bionic-gpt/bionicgpt:latest",
           "skipLogin": true
       }],
       ["@semantic-release-plus/docker", {
-          "name": "ghcr.io/purton-tech/bionicgpt-envoy:latest",
+          "name": "ghcr.io/bionic-gpt/bionicgpt-envoy:latest",
           "skipLogin": true
       }],
       ["@semantic-release-plus/docker", {
-          "name": "ghcr.io/purton-tech/bionicgpt-db-migrations:latest",
+          "name": "ghcr.io/bionic-gpt/bionicgpt-db-migrations:latest",
           "skipLogin": true
       }],
       ["@semantic-release-plus/docker", {
-          "name": "ghcr.io/purton-tech/bionicgpt-embeddings-job:latest",
+          "name": "ghcr.io/bionic-gpt/bionicgpt-embeddings-job:latest",
           "skipLogin": true
       }],
       ["@semantic-release/exec", {
