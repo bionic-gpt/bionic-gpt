@@ -46,7 +46,7 @@ support_email = "support@tech-startup.com"
 company_address = "71-75 Shelton Street, London, LND, WC2H 9JQ, United Kingdom"
 
 # Social icons (shown on the footer)
-github_repo = "https://github.com/purton-tech/bionicgpt"
+github_repo = "https://github.com/bionic-gpt/bionic-gpt"
 
 # Resources on the footer (LHS)
 resources_1 = [
