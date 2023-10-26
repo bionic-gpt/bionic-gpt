@@ -32,9 +32,9 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
 
     test_documents(driver).await?;
 
-    test_prompts(driver).await?;
-
     test_console(driver).await?;
+
+    test_prompts(driver).await?;
 
     Ok(())
 }
@@ -74,7 +74,7 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .query(By::Css("input[name='name']"))
+        .query(By::XPath("(//input[@name='name'])[last()]"))
         .first()
         .await?
         .wait_until()
@@ -82,13 +82,13 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::Css("input[name='name']"))
+        .find(By::XPath("(//input[@name='name'])[last()]"))
         .await?
         .send_keys("My Prompt")
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Submit']"))
+        .find(By::XPath("(//button[text()='Submit'])[last()]"))
         .await?
         .click()
         .await?;
@@ -110,7 +110,7 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
     driver.find(By::LinkText("Edit")).await?.click().await?;
 
     driver
-        .query(By::Css("input[name='name']"))
+        .query(By::XPath("(//input[@name='name'])[1]"))
         .first()
         .await?
         .wait_until()
@@ -118,13 +118,13 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::Css("input[name='name']"))
+        .find(By::XPath("(//input[@name='name'])[1]"))
         .await?
         .send_keys("My Prompt2")
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Submit']"))
+        .find(By::XPath("(//button[text()='Submit'])[1]"))
         .await?
         .click()
         .await?;

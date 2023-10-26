@@ -1,6 +1,5 @@
-use crate::errors::CustomError;
-use axum::response::Html;
+use axum::response::{IntoResponse, Redirect};
 
-pub async fn index() -> Result<Html<String>, CustomError> {
-    Ok(Html(ui_components::index::index()))
+pub async fn index() -> impl IntoResponse {
+    Redirect::permanent("/auth/sign_in")
 }

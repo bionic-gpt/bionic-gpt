@@ -49,10 +49,8 @@ pub async fn get_embeddings(input: &str) -> Result<Vec<f32>, Box<dyn Error>> {
     let openai_endpoint = if let Ok(domain) = std::env::var("OPENAI_ENDPOINT") {
         domain
     } else {
-        "http://local-ai:3000".to_string()
+        "http://embeddings-api:80/openai".to_string()
     };
-
-    let url = format!("{}/v1/embeddings", openai_endpoint);
 
     let text = String::from_utf8_lossy(input.as_bytes()).to_string();
     let calling_json = EmbeddingRequest {
@@ -62,7 +60,11 @@ pub async fn get_embeddings(input: &str) -> Result<Vec<f32>, Box<dyn Error>> {
     };
 
     //send request
-    let response = client.post(url).json(&calling_json).send().await?;
+    let response = client
+        .post(openai_endpoint)
+        .json(&calling_json)
+        .send()
+        .await?;
     let result = response.json::<EmbeddingResponse>().await?;
 
     if let Some(result) = result.data.get(0) {
