@@ -38,11 +38,28 @@ I'm not sure how that applies to applications running on top of LLM's.
 
 Especially as websites generally react much faster.
 
+So let's take a more pessimistic rule.
 
+
+> The 10% rule of LLM's. 10% of your user base will be logged in and 10% of those users will be active simultaneously
+
+That means for every 1000 users you can expect 10 users in the queue waiting for their requests to stream.
+
+That sounds like a lot to be honest.
+
+If you want each of those users to get a TPS of 10, then you'll need a system capable of handling 100 TPS.
 
 ## How many billion parameters do I need?
 
-## 7 Billion Parameters
+It's still a case of the more the merrier.
+
+## Hardware Requirements by Parameters
+
+Below we break down the hardware requirements by parameters. 
+
+All the models are quantized to use less RAM/VRAM and quantized models give better TPS performance will only a small amount of fall off in terms of text generation.
+
+### 7 Billion Parameters
 
 
 {{ metrics(
@@ -57,7 +74,7 @@ Especially as websites generally react much faster.
     description3="↘︎ 90 (14%)"
 ) }}
 
-## LLama2 30B
+### LLama2 30B
 
 {{ metrics(
     title1="CPU",
@@ -71,21 +88,25 @@ Especially as websites generally react much faster.
     description3="↘︎ 90 (14%)"
 ) }}
 
-## LLama2 70B
+### LLama2 70B
 
 {{ metrics(
     title1="CPU",
     data1="12",
     description1="Hello",
-    title2="GPU (TPS)",
-    data2="4,200",
+    title2="2 x Nvidia 4090",
+    data2="38 TPS",
     description2="↗︎ 400 (22%)",
     title3="GPU Commercial (TPS)",
     data3="1,200",
     description3="↘︎ 90 (14%)"
 ) }}
 
-## LLama2 130B
+#### Sources
+
+* Machine Learning Compiler (MLC) 38 TPS running on 2 Nvidai 4090's
+
+### LLama2 130B
 
 {{ metrics(
     title1="CPU",
