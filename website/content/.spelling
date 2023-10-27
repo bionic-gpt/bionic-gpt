@@ -128,6 +128,27 @@ purton
 DBA
 DevOps
 4
+5
+TPS
+1000
+7
+title1
+data1
+12
+description1
+title2
+data2
+200
+description2
+400
+22
+title3
+data3
+description3
+14
+LLama2
+70B
+130B
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -296,3 +317,9 @@ dbmate
 contact.html
  - docs/internal-api/_index.md
 internal-api
+ - blog/llm-hardware/index.md
+2023-10-27
+main_image
+llm-hardware
+multi-gpu-llm-setup
+listing_image
