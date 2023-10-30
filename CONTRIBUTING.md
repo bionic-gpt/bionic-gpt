@@ -54,7 +54,7 @@ Create all the database tables with
 
 The website uses a zola theme. This will need to be loaded with
 
-`submodule init`
+`git submodule init`
 
 `gsu`
 
