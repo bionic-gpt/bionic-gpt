@@ -129,7 +129,7 @@ Any API will need to ideally follow that standard and support the following
 * **Streaming results**. We want users to see replies to their queries feeding back in real time. This is going to give the best user experience.
 * **Batching**. If there are 5 users in the queue, we want each user to get feedback straight away. Not wait for each user to complete their query in turn.
 
-The following inference engines support continous batching as well as an Open AI compatible API. [Text Generation Inference](https://github.com/huggingface/text-generation-inference), [vLLM](https://github.com/vllm-project/vllm) and there are more.
+The following inference engines support continuous batching as well as an Open AI compatible API. [Text Generation Inference](https://github.com/huggingface/text-generation-inference), [vLLM](https://github.com/vllm-project/vllm) and there are more.
 
 ## Conclusion
 
