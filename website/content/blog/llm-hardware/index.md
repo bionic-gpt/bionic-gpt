@@ -1,11 +1,13 @@
 +++
 title = "Hardware requirements for LLM's in production"
-date = 2023-10-27
+date = 2023-10-30
 description = "What hardware is required to put LLM's into production?"
 
 [extra]
 main_image = "blog/llm-hardware/multi-gpu-llm-setup.jpg"
 listing_image = "blog/llm-hardware/multi-gpu-llm-setup.jpg"
+author_image = "blog-authors/ian-purton.jpeg"
+author = "Ian Purton"
 +++
 
 Here we try our best to breakdown the possible hardware options and requirements for running *LLM's in a production scenario*.
