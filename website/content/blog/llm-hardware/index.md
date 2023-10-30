@@ -53,10 +53,6 @@ That sounds like a lot to be honest.
 
 If you want each of those users to get a **t/s of 10**, then you'll need a system capable of handling **100 t/s**.
 
-## How many billion parameters do I need?
-
-The number of parameters required for a Language Model (LLM) can vary based on several factors, including the specific applications and tasks you intend to use it for, the size of the training data, and the desired level of performance. Generally, larger models with more parameters tend to perform better but require more computational resources. 
-
 ## Hardware Requirements by Parameters
 
 We scoured the internet to look at what kind of performance people are getting on CPU, Gaming GPU and a data center GPU i.e. A100
