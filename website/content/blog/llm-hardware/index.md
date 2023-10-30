@@ -12,7 +12,7 @@ author = "Ian Purton"
 
 Here we try our best to breakdown the possible hardware options and requirements for running *LLM's in a production scenario*.
 
-We do this by estimating the **tokens per second** and LLM will need to produce to work for 1000 registered users. Then we try to match that with hardware.
+We do this by estimating the **tokens per second** the LLM will need to produce to work for 1000 registered users. Then we try to match that with hardware.
 
 ## Tokens Per Second (t/s)
 
