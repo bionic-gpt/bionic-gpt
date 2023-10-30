@@ -22,8 +22,8 @@ Most LLM solutions stream tokens back to the user so they see the answer to thei
 
 Even if the total time of generation is 20 seconds, the user can start reading straight away which gives the feeling the system is more responsive.
 
-* A speed of **5 t/s per user** in our opinion would give a sufficient user experience.
-* The LLM will need to be able to support more than 1 user at a time.
+* A speed of **5 t/s per user** in our experience would generate text or code as fast as someone can read.
+* The LLM will need to be able to support more than one user at a time.
 * So we have to bear in mind we want tokens per second to be really high to give a good experience under heavy load for every user.
 
 ## Tokens Per Second Per Dollar
@@ -55,7 +55,7 @@ If you want each of those users to get a **t/s of 10**, then you'll need a syste
 
 ## Hardware Requirements by Parameters
 
-We scoured the internet to look at what kind of performance people are getting on CPU, Gaming GPU and a data center GPU i.e. A100
+We've collated results from various sources on the tokens per second performance achieved on CPU, Gaming GPU and a data center GPU i.e. A100.
 
 All the models are quantized to use less RAM/VRAM and quantized models give better tokens per second performance with only a small amount of fall off in terms of text generation.
 
