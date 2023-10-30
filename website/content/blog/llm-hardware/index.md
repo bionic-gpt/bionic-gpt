@@ -49,9 +49,15 @@ So let's take a more pessimistic rule.
 
 That means for every 1000 users you can expect 10 users in the queue waiting for their requests to stream.
 
-That sounds like a lot to be honest.
+There will be considerable bias based on time of day, day of the week, season, closing date, etc.
 
-If you want each of those users to get a **t/s of 10**, then you'll need a system capable of handling **100 t/s**.
+## Continuous Batch Inference Saves the Day
+
+LLM inference is Memory bound not Compute bound. That means by using a technique called [Continuous Batch Inference](https://www.anyscale.com/blog/continuous-batching-llm-inference) we are able to serve multiple users at the same time with very little dip in tokens per second performance.
+
+![](./batching.png)
+
+Basically we can send multiple prompts at the same time to the inference engine and it processes them simultaneously.
 
 ## Hardware Requirements by Parameters
 
@@ -123,8 +129,10 @@ Any API will need to ideally follow that standard and support the following
 * **Streaming results**. We want users to see replies to their queries feeding back in real time. This is going to give the best user experience.
 * **Batching**. If there are 5 users in the queue, we want each user to get feedback straight away. Not wait for each user to complete their query in turn.
 
+The following inference engines support continous batching as well as an Open AI compatible API. [Text Generation Inference](https://github.com/huggingface/text-generation-inference), [vLLM](https://github.com/vllm-project/vllm) and there are more.
+
 ## Conclusion
 
-Assuming our assumptions are in the correct ball park then you're looking at hardware costs of **$20,000+ or more to support 1000 users**.
+Assuming our assumptions are in the correct ball park then you're looking at hardware costs of approximately **$5000 to support 1000 users**.
 
 If you disagree with our conclusion or have some feedback, you can raise an issue on [our github](https://github.com/bionic-gpt/bionic-gpt) or [contact us](https://bionic-gpt.com/contact/).
