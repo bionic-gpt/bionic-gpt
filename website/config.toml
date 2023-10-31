@@ -25,15 +25,15 @@ goat_counter = "https://bionicgpt.goatcounter.com/count"
 # Need this as part of gout_counter config
 localhost = "http://localhost:7700"
 
-copyright = "Copyright 2021 - 2023"
+copyright = "Copyright 2021 - "
 
 first_doc_page = "/docs/running-locally/introduction/"
 
 # Every page CTA. At the bottom of every blog post we have a cta
-every_page_cta = { cta_url = "/docs/running-locally/introduction/", title = "You're seconds away from trying us out", cta_button = "Get Started" }
+every_page_cta = { cta_url = "/docs", title = "You're seconds away from trying us out", cta_button = "Get Started" }
 
 # On the footer we have a signup button and a call to action, set the text here
-footer_cta = { title = "Sign up for our service", prompt = "Get notifications of near misses", cta_button = "Check it Out" }
+footer_cta = { title = "BionicGPT", prompt = "Full Stack LLM", cta_button = "Check it Out" }
 
 # Where shall we point the sign in and sign up buttons.
 #authentication = { sign_up = "#", sign_in = "#" }
@@ -51,7 +51,7 @@ github_repo = "https://github.com/bionic-gpt/bionic-gpt"
 # Resources on the footer (LHS)
 resources_1 = [
     {name = "Blog", url = "/blog"},
-    {name = "Documentation", url = "/docs/running-locally/introduction/"},
+    {name = "Documentation", url = "/docs"},
     {name = "FAQ", url = "/blog"},
 ]
 
@@ -64,9 +64,4 @@ menu_items = [
     {name = "Blog", url = "/blog"},
     {name = "Contact", url = "/contact"},
     {name = "Github", url = "https://github.com/bionic-gpt/bionic-gpt"}
-]
-
-# Documentation sections
-doc_sections = [
-    {name = "Reference", location = "reference"},
 ]
