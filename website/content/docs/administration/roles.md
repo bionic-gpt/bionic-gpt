@@ -22,3 +22,5 @@ A team administrator role is automatically given to the creator of a team. They 
 
 - Invite new users to the team
 - Assign the *Team Administrator* role to a team member.
+
+![Alt text](/teams.png "Start Screen")
