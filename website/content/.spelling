@@ -371,3 +371,9 @@ yml
 Llama2
  - docs/rag/use-cases.md
 dropdown
+ - docs/administration/external-api.md
+localhost
+Url
+yml
+ - docs/administration/other-models.md
+Llama2
