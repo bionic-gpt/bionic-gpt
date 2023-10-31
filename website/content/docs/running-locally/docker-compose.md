@@ -9,17 +9,24 @@ sort_by = "weight"
 
 The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
-`curl -O https://raw.githubusercontent.com/purton-tech/bionicgpt/main/docker-compose.yml`
+```sh
+curl -O https://raw.githubusercontent.com/purton-tech/bionicgpt/main/docker-compose.yml
+```
 
 And run
 
-`docker-compose up`
+```sh
+docker-compose up
+```
 
-You can then access the front end from `http://localhost:7800`. You'll get a logon screen which is filled in for you.
+You can then access the front end from `http://localhost:7800` and you'll be redirected to a registration screen.
 
+## Registration
 
-![Alt text](../start-screen.png "Start Screen")
+The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and you're data is not sent anywhere.
 
-## Upgrades
+![Alt text](../initial-screen.png "Start Screen")
+
+## Upgrading to a later version of BionicGPT
 
 When upgrading to the latest version of BionicGPT we recommend running `docker-compose down -v` to completely delete the database.
