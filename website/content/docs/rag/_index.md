@@ -1,5 +1,5 @@
 +++
-title = "Retreival Augmented Generation"
+title = "Retrieval Augmented Generation"
 description = ""
 sort_by = "weight"
 weight = 20
