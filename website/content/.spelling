@@ -128,6 +128,33 @@ purton
 DBA
 DevOps
 4
+5
+TPS
+1000
+7
+title1
+data1
+12
+description1
+title2
+data2
+200
+description2
+400
+22
+title3
+data3
+description3
+14
+LLama2
+70B
+130B
+Nvidia
+A100
+MLC
+OctoML
+gpt3.5.
+github
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -296,3 +323,57 @@ dbmate
 contact.html
  - docs/internal-api/_index.md
 internal-api
+25
+ - blog/llm-hardware/index.md
+2023-10-27
+main_image
+llm-hardware
+multi-gpu-llm-setup
+100
+2700X
+1.2
+1500
+RTX
+4090
+138
+5000
+714.33
+000
+1U
+Epyc
+3.7
+38
+7500
+16
+3
+2xA100
+GPT4
+A10G
+41.2
+70b
+13.77
+192GB
+599
+2023-10-30
+author_image
+ian-purton
+jpeg
+vLLM
+listing_image
+ - docs/choosing-llm/_index.md
+25
+choosing-llm
+ - docs/choosing-llm/external-api.md
+localhost
+Url
+yml
+ - docs/choosing-llm/other-models.md
+Llama2
+ - docs/rag/use-cases.md
+dropdown
+ - docs/administration/external-api.md
+localhost
+Url
+yml
+ - docs/administration/other-models.md
+Llama2

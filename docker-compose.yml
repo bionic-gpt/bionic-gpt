@@ -9,13 +9,13 @@ services:
 
   # Handles parsing of multiple documents types.
   unstructured:
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:db264d8
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
     ports:
       - "8000:8000"
 
   # Handles routing between the application, barricade and the LLM API
   envoy:
-    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.1.16
+    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.1.17
     ports:
       - "7800:7700"
 
@@ -34,7 +34,7 @@ services:
 
   # Sets up our database tables
   migrations:
-    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.1.16
+    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.1.17
     environment:
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
@@ -59,7 +59,7 @@ services:
   
   # Our axum server delivering our user interface
   embeddings-job:
-    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-job:1.1.16
+    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-job:1.1.17
     environment:
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
@@ -70,7 +70,7 @@ services:
   
   # Our axum server delivering our user interface
   app:
-    image: ghcr.io/bionic-gpt/bionicgpt:1.1.16
+    image: ghcr.io/bionic-gpt/bionicgpt:1.1.17
     environment:
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
