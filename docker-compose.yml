@@ -9,7 +9,7 @@ services:
 
   # Handles parsing of multiple documents types.
   unstructured:
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:db264d8
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
     ports:
       - "8000:8000"
 
