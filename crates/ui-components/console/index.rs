@@ -230,5 +230,5 @@ pub fn index(
 }
 
 fn convert_quotes(str: &str) -> String {
-    str.replace('\"', "&quot;")
+    str.replace('"', "&quot;")
 }

@@ -18,5 +18,11 @@ services:
       - "8025:8025"
 
   unstructured:
+    #image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
+    image: alexliesenfeld/httpmock:latest
+    volumes:
+      - ./mocks:/mocks
+    entrypoint: httpmock
+    command: --expose -m /mocks -p 8000
     ports:
       - "8000:8000"
