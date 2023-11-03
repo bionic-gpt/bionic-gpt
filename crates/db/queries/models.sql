@@ -29,6 +29,8 @@ SELECT
     updated_at
 FROM 
     models
+WHERE
+    model_type = 'LLM'
 ORDER BY created_at
 LIMIT 1;
 
