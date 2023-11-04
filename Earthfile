@@ -132,9 +132,6 @@ integration-test:
     COPY .devcontainer/docker-compose.yml ./ 
     COPY .devcontainer/docker-compose.earthly.yml ./ 
     COPY --dir .devcontainer/mocks ./mocks 
-    # Add datasets
-    RUN mkdir -p /workspace
-    COPY .devcontainer/datasets/parliamentary-dialog.txt /workspace
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/bionicgpt?sslmode=disable
     ARG APP_DATABASE_URL=postgresql://ft_application:testpassword@db:5432/bionicgpt
     # We expose selenium to localhost
@@ -143,6 +140,8 @@ integration-test:
     ARG WEB_DRIVER_DESTINATION_HOST='http://envoy:7700' 
     # How do we connect to mailhog
     ARG MAILHOG_URL=http://localhost:8025/api/v2/messages?limit=1
+    # Unit tests need to be able to connect to unstructured
+    ARG UNSTRUCTURED_ENDPOINT=http://localhost:8000
     USER root
     WITH DOCKER \
         --compose docker-compose.yml \
@@ -152,7 +151,6 @@ integration-test:
         --service smtp \
         --service unstructured \
         --service embeddings-api \
-        # Do we need this? --service llm-api \
         # Record our selenium session
         --service selenium \
         --pull selenium/video:ffmpeg-4.3.1-20220208 \
@@ -178,9 +176,13 @@ integration-test:
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
                 -e OPENAI_ENDPOINT=http://embeddings-api:8080/openai \
                 --name embeddings-job $EMBEDDINGS_IMAGE_NAME \
-            && docker run -d -p 7700:7700 --rm --network=build_default --name envoy $ENVOY_IMAGE_NAME \
+            && docker run -d -p 7700:7700 --rm --network=build_default \
+                --name envoy $ENVOY_IMAGE_NAME \
             && cargo test --no-run --release --target x86_64-unknown-linux-musl \
-            && docker run -d --name video --network=build_default -e DISPLAY_CONTAINER_NAME=build_selenium_1 -e FILE_NAME=chrome-video.mp4 -v /build/tmp:/videos selenium/video:ffmpeg-4.3.1-20220208 \
+            && docker run -d --name video --network=build_default \
+                -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
+                -e FILE_NAME=chrome-video.mp4 \
+                -v /build/tmp:/videos selenium/video:ffmpeg-4.3.1-20220208 \
             && (cargo test --release --target x86_64-unknown-linux-musl -- --nocapture || echo fail > ./tmp/fail) \
             && docker ps \
             && docker stop video envoy app
