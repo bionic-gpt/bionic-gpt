@@ -80,6 +80,6 @@ mod tests {
             .await
             .unwrap();
 
-        println!("{:#?}", get_json);
+        println!("{:#?} ", get_json);
     }
 }

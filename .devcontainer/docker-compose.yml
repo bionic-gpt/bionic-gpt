@@ -26,8 +26,6 @@ services:
         # This secret key is used to encrypt cookies.
         SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
         DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt
-        FORWARD_URL: development
-        FORWARD_PORT: 7703
         REDIRECT_URL: /app/post_registration
     depends_on:
       db:
