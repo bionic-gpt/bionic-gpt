@@ -165,7 +165,7 @@ integration-test:
         # Force to command to always be succesful so the artifact is saved. 
         # https://github.com/earthly/earthly/issues/988
         RUN dbmate --wait-timeout 60s --migrations-dir $DB_FOLDER/migrations up \
-            && docker run -d -p 7703:7703 --rm --network=build_default \
+            && docker run -d -p 7703:7703 --rm --network=default_default \
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
                 -e INVITE_DOMAIN=http://envoy:7700 \
                 -e INVITE_FROM_EMAIL_ADDRESS=support@application.com \
@@ -175,18 +175,18 @@ integration-test:
                 -e SMTP_PASSWORD=thisisnotused \
                 -e SMTP_TLS_OFF='true' \
                 --name app $APP_IMAGE_NAME \
-            && docker run -d --rm --network=build_default \
+            && docker run -d --rm --network=default_default \
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
                 -e OPENAI_ENDPOINT=http://embeddings-api:8080/openai \
                 --name embeddings-job $EMBEDDINGS_IMAGE_NAME \
-            && docker run -d -p 7700:7700 --rm --network=build_default \
+            && docker run -d -p 7700:7700 --rm --network=default_default \
                 --name envoy $ENVOY_IMAGE_NAME \
             && cargo test --no-run --release --target x86_64-unknown-linux-musl \
-            && docker run -d --name video --network=build_default \
+            && docker run -d --name video --network=default_default \
                 -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
                 -e FILE_NAME=chrome-video.mp4 \
                 -v /build/tmp:/videos selenium/video:ffmpeg-4.3.1-20220208 \
-            && docker cp ./datasets/parliamentary-dialog.txt  build-selenium-1:/workspace \
+            && docker cp ./datasets/parliamentary-dialog.txt  default-selenium-1:/workspace \
             && (cargo test --release --target x86_64-unknown-linux-musl -- --nocapture || echo fail > ./tmp/fail) \
             && docker ps \
             && docker stop video envoy app
