@@ -83,7 +83,7 @@ services:
 
   # Integration testing using a headless chrome browser
   selenium:
-    image: selenium/standalone-chrome:4.1.1-20220121
+    image: selenium/standalone-chrome:4
     shm_size: 2gb
     environment:
       VNC_NO_PASSWORD: 1
