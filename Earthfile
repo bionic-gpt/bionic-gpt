@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM purtontech/rust-on-nails-devcontainer:1.1.15
+FROM purtontech/rust-on-nails-devcontainer:1.1.17
 
 ARG --global APP_EXE_NAME=axum-server
 ARG --global EMBEDDINGS_EXE_NAME=embeddings-job
@@ -132,6 +132,9 @@ integration-test:
     COPY .devcontainer/docker-compose.yml ./ 
     COPY .devcontainer/docker-compose.earthly.yml ./ 
     COPY --dir .devcontainer/mocks ./mocks 
+    # Below we use a docker cp to copy these files into selenium
+    # For some reason the volumes don't work in earthly.
+    COPY --dir .devcontainer/datasets ./datasets 
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/bionicgpt?sslmode=disable
     ARG APP_DATABASE_URL=postgresql://ft_application:testpassword@db:5432/bionicgpt
     # We expose selenium to localhost
@@ -183,6 +186,7 @@ integration-test:
                 -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
                 -e FILE_NAME=chrome-video.mp4 \
                 -v /build/tmp:/videos selenium/video:ffmpeg-4.3.1-20220208 \
+            && docker cp ./datasets/parliamentary-dialog.txt  build-selenium-1:/workspace \
             && (cargo test --release --target x86_64-unknown-linux-musl -- --nocapture || echo fail > ./tmp/fail) \
             && docker ps \
             && docker stop video envoy app

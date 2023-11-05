@@ -94,6 +94,7 @@ services:
       - 7706:7900
     volumes:
       # So that we can load examples with the browser testing.
+      # However it doesn't seem to work with earthly, you have to docker cp the files
       - ./datasets:/workspace
 
   # MailHog is an email testing tool for developers.
