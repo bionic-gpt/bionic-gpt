@@ -40,6 +40,7 @@ all:
     BUILD +envoy-container
     BUILD +app-container
     BUILD +embeddings-container
+    BUILD +integration-test
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -144,7 +145,7 @@ integration-test:
     # How do we connect to mailhog
     ARG MAILHOG_URL=http://localhost:8025/api/v2/messages?limit=1
     # Unit tests need to be able to connect to unstructured
-    ARG OPENAI_ENDPOINT=http://localhost:8080
+    ARG OPENAI_ENDPOINT=http://localhost:8080/openai
     ARG UNSTRUCTURED_ENDPOINT=http://localhost:8000
     USER root
     WITH DOCKER \
@@ -157,7 +158,7 @@ integration-test:
         --service embeddings-api \
         # Record our selenium session
         --service selenium \
-        --pull selenium/video:ffmpeg-4.3.1-20220208 \
+        --pull selenium/video:ffmpeg-6.0-20231102 \
         # Bring up the containers we have built
         --load $EMBEDDINGS_IMAGE_NAME=+embeddings-container \
         --load $APP_IMAGE_NAME=+app-container \
@@ -184,9 +185,9 @@ integration-test:
                 --name envoy $ENVOY_IMAGE_NAME \
             && cargo test --no-run --release --target x86_64-unknown-linux-musl \
             && docker run -d --name video --network=default_default \
-                -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
+                -e DISPLAY_CONTAINER_NAME=default-selenium-1 \
                 -e FILE_NAME=chrome-video.mp4 \
-                -v /build/tmp:/videos selenium/video:ffmpeg-4.3.1-20220208 \
+                -v /build/tmp:/videos selenium/video:ffmpeg-6.0-20231102 \
             && docker cp ./datasets/parliamentary-dialog.txt  default-selenium-1:/workspace \
             && (cargo test --release --target x86_64-unknown-linux-musl -- --nocapture || echo fail > ./tmp/fail) \
             && docker ps \
