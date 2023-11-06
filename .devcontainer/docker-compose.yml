@@ -26,8 +26,6 @@ services:
         # This secret key is used to encrypt cookies.
         SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
         DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt
-        FORWARD_URL: development
-        FORWARD_PORT: 7703
         REDIRECT_URL: /app/post_registration
     depends_on:
       db:
@@ -85,7 +83,7 @@ services:
 
   # Integration testing using a headless chrome browser
   selenium:
-    image: selenium/standalone-chrome:4.1.1-20220121
+    image: selenium/standalone-chrome:4
     shm_size: 2gb
     environment:
       VNC_NO_PASSWORD: 1
@@ -96,6 +94,7 @@ services:
       - 7706:7900
     volumes:
       # So that we can load examples with the browser testing.
+      # However it doesn't seem to work with earthly, you have to docker cp the files
       - ./datasets:/workspace
 
   # MailHog is an email testing tool for developers.
