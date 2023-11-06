@@ -20,7 +20,8 @@ LIMIT 1;
 INSERT INTO conversations 
     (user_id, organisation_id)
 VALUES
-    (:user_id, :organisation_id);
+    (current_app_user(), :organisation_id)
+RETURNING id;
 
 --! get_conversation_from_chat : Conversation
 

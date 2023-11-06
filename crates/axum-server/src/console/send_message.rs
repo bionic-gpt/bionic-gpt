@@ -34,18 +34,25 @@ pub async fn send_message(
                 .one()
                 .await;
 
-        if let Ok(conversation) = conversation {
-            // Store the prompt, ready for the front end webcomponent to pickup
-            chats::new_chat()
-                .bind(
-                    &transaction,
-                    &conversation.id,
-                    &message.prompt_id,
-                    &message.message,
-                    &"",
-                )
-                .await?;
-        }
+        let conv_id = if let Ok(conversation) = conversation {
+            conversation.id
+        } else {
+            conversations::create_conversation()
+                .bind(&transaction, &team_id)
+                .one()
+                .await?
+        };
+
+        // Store the prompt, ready for the front end webcomponent to pickup
+        chats::new_chat()
+            .bind(
+                &transaction,
+                &conv_id,
+                &message.prompt_id,
+                &message.message,
+                &"",
+            )
+            .await?;
 
         transaction.commit().await?;
 
