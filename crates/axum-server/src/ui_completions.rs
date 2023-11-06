@@ -33,8 +33,13 @@ pub async fn handler(
         .one()
         .await?;
 
+    let conversation = queries::conversations::get_conversation_from_chat()
+        .bind(&transaction, &chat_id)
+        .one()
+        .await?;
+
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &chat.prompt_id, &chat.organisation_id)
+        .bind(&transaction, &chat.prompt_id, &conversation.organisation_id)
         .one()
         .await?;
 
@@ -47,7 +52,7 @@ pub async fn handler(
     let messages = crate::prompt::execute_prompt(
         &transaction,
         prompt.id,
-        chat.organisation_id,
+        conversation.organisation_id,
         &chat.user_request,
     )
     .await?;

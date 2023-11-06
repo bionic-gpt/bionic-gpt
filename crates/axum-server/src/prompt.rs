@@ -323,8 +323,7 @@ mod tests {
     fn create_prompt(question: String, answer: String) -> Chat {
         Chat {
             id: 0,
-            user_id: 0,
-            organisation_id: 0,
+            conversation_id: 0,
             user_request: question,
             prompt: "todo!()".to_string(),
             prompt_id: 0,
