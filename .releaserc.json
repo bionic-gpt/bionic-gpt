@@ -3,6 +3,13 @@
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
+      ["@semantic-release/github", {
+        "successComment": false,
+        "failTitle": false,
+        "assets": [
+          {"path": "tmp/earthly/chrome-video.mp4", "label": "chrome-video.mp4"}
+        ]
+      }],
       ["@semantic-release-plus/docker", {
           "name": "ghcr.io/bionic-gpt/bionicgpt:latest",
           "skipLogin": true
