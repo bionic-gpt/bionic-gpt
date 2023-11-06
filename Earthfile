@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM purtontech/rust-on-nails-devcontainer:1.1.15
+FROM purtontech/rust-on-nails-devcontainer:1.1.17
 
 ARG --global APP_EXE_NAME=axum-server
 ARG --global EMBEDDINGS_EXE_NAME=embeddings-job
@@ -33,12 +33,14 @@ pull-request:
     BUILD +app-container
     BUILD +envoy-container
     BUILD +embeddings-container
+    BUILD +integration-test
 
 all:
     BUILD +migration-container
     BUILD +envoy-container
     BUILD +app-container
     BUILD +embeddings-container
+    BUILD +integration-test
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -130,16 +132,20 @@ integration-test:
     FROM +build
     COPY .devcontainer/docker-compose.yml ./ 
     COPY .devcontainer/docker-compose.earthly.yml ./ 
-    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/test?sslmode=disable
-    ARG APP_DATABASE_URL=postgresql://application:testpassword@db:5432/test
+    COPY --dir .devcontainer/mocks ./mocks 
+    # Below we use a docker cp to copy these files into selenium
+    # For some reason the volumes don't work in earthly.
+    COPY --dir .devcontainer/datasets ./datasets 
+    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/bionicgpt?sslmode=disable
+    ARG APP_DATABASE_URL=postgresql://ft_application:testpassword@db:5432/bionicgpt
     # We expose selenium to localhost
     ARG WEB_DRIVER_URL='http://localhost:4444' 
     # The selenium container will connect to the envoy container
     ARG WEB_DRIVER_DESTINATION_HOST='http://envoy:7700' 
     # How do we connect to mailhog
     ARG MAILHOG_URL=http://localhost:8025/api/v2/messages?limit=1
-    # Chnage they way we access internal API's
-    ARG OPENAI_ENDPOINT=http://localhost:8080
+    # Unit tests need to be able to connect to unstructured
+    ARG OPENAI_ENDPOINT=http://localhost:8080/openai
     ARG UNSTRUCTURED_ENDPOINT=http://localhost:8000
     USER root
     WITH DOCKER \
@@ -149,18 +155,19 @@ integration-test:
         --service barricade \
         --service smtp \
         --service unstructured \
-        # Do we need this? --service llm-api \
+        --service embeddings-api \
         # Record our selenium session
         --service selenium \
-        --pull selenium/video:ffmpeg-4.3.1-20220208 \
+        --pull selenium/video:ffmpeg-6.0-20231102 \
         # Bring up the containers we have built
+        --load $EMBEDDINGS_IMAGE_NAME=+embeddings-container \
         --load $APP_IMAGE_NAME=+app-container \
         --load $ENVOY_IMAGE_NAME=+envoy-container
 
         # Force to command to always be succesful so the artifact is saved. 
         # https://github.com/earthly/earthly/issues/988
         RUN dbmate --wait-timeout 60s --migrations-dir $DB_FOLDER/migrations up \
-            && docker run -d -p 7703:7703 --rm --network=build_default \
+            && docker run -d -p 7703:7703 --rm --network=default_default \
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
                 -e INVITE_DOMAIN=http://envoy:7700 \
                 -e INVITE_FROM_EMAIL_ADDRESS=support@application.com \
@@ -170,9 +177,18 @@ integration-test:
                 -e SMTP_PASSWORD=thisisnotused \
                 -e SMTP_TLS_OFF='true' \
                 --name app $APP_IMAGE_NAME \
-            && docker run -d -p 7700:7700 --rm --network=build_default --name envoy $ENVOY_IMAGE_NAME \
+            && docker run -d --rm --network=default_default \
+                -e APP_DATABASE_URL=$APP_DATABASE_URL \
+                -e OPENAI_ENDPOINT=http://embeddings-api:8080/openai \
+                --name embeddings-job $EMBEDDINGS_IMAGE_NAME \
+            && docker run -d -p 7700:7700 --rm --network=default_default \
+                --name envoy $ENVOY_IMAGE_NAME \
             && cargo test --no-run --release --target x86_64-unknown-linux-musl \
-            && docker run -d --name video --network=build_default -e DISPLAY_CONTAINER_NAME=build_selenium_1 -e FILE_NAME=chrome-video.mp4 -v /build/tmp:/videos selenium/video:ffmpeg-4.3.1-20220208 \
+            && docker run -d --name video --network=default_default \
+                -e DISPLAY_CONTAINER_NAME=default-selenium-1 \
+                -e FILE_NAME=chrome-video.mp4 \
+                -v /build/tmp:/videos selenium/video:ffmpeg-6.0-20231102 \
+            && docker cp ./datasets/parliamentary-dialog.txt  default-selenium-1:/workspace \
             && (cargo test --release --target x86_64-unknown-linux-musl -- --nocapture || echo fail > ./tmp/fail) \
             && docker ps \
             && docker stop video envoy app

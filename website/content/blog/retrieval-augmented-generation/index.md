@@ -48,7 +48,7 @@ And one possible response is below. Note: you might get a different response due
 
 ### The answer
 
-> As an AI language model, I do not have any information about the term \"Dobblenobblê\". It may be a misspelling or an outdated term. Can you please provide more context or information about what it means?
+> As an AI language model, I do not have any information about the term "Dobblenobblê". It may be a misspelling or an outdated term. Can you please provide more context or information about what it means?
 
 Next we'll ask the same question and give the LLM the answer.
 
@@ -63,7 +63,7 @@ curl http://localhost:8080/v1/completions \
 
 ### The Answer - Welsh Biscuits
 
-> A dobbler nobble is a type of biscuit that originated in Wales and is popular among Welsh people. It typically consists of oatmeal, sugar and butter flavoured with orange or lemon zest, and is often served with milk or a dollop of jam. The name \"dobbler nobble\" is believed to have originated from the fact that it was originally baked in a muffin tin, which resembled the shape of an old-fashioned dobbler, a type of small animal found in Welsh folklore.
+> A dobbler nobble is a type of biscuit that originated in Wales and is popular among Welsh people. It typically consists of oatmeal, sugar and butter flavoured with orange or lemon zest, and is often served with milk or a dollop of jam. The name "dobbler nobble" is believed to have originated from the fact that it was originally baked in a muffin tin, which resembled the shape of an old-fashioned dobbler, a type of small animal found in Welsh folklore.
 
 I did not make this up. These are the answers I got
 
