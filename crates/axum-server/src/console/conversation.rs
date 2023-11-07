@@ -2,7 +2,7 @@ use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
-use db::queries::{chats, prompts};
+use db::queries::{chats, conversations, prompts};
 use db::Pool;
 
 pub async fn conversation(
@@ -14,6 +14,8 @@ pub async fn conversation(
     let transaction = client.transaction().await?;
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
+
+    let history = conversations::history().bind(&transaction).all().await?;
 
     let chats = chats::chats()
         .bind(&transaction, &conversation_id)
@@ -32,6 +34,7 @@ pub async fn conversation(
         team_id,
         chats,
         prompts,
+        history,
         lock_console,
     )))
 }
