@@ -8,6 +8,7 @@ pub async fn execute_prompt(
     transaction: &Transaction<'_>,
     prompt_id: i32,
     organisation_id: i32,
+    conversation_id: Option<i64>,
     question: &str,
 ) -> Result<Vec<Message>, CustomError> {
     // Get the prompt
@@ -30,10 +31,19 @@ pub async fn execute_prompt(
     tracing::info!("Retrieved {} chunks", related_context.len());
 
     // Get the maximum required amount og chat history
-    let chat_history = chats::chat_history()
-        .bind(transaction, &(prompt.max_history_items as i64))
-        .all()
-        .await?;
+    let chat_history = if let Some(conversation_id) = conversation_id {
+        chats::chat_history()
+            .bind(
+                transaction,
+                &conversation_id,
+                &(prompt.max_history_items as i64),
+            )
+            .all()
+            .await?
+    } else {
+        Default::default()
+    };
+
     tracing::info!("Retrieved {} history items", chat_history.len());
 
     let messages = generate_prompt(
@@ -323,8 +333,7 @@ mod tests {
     fn create_prompt(question: String, answer: String) -> Chat {
         Chat {
             id: 0,
-            user_id: 0,
-            organisation_id: 0,
+            conversation_id: 0,
             user_request: question,
             prompt: "todo!()".to_string(),
             prompt_id: 0,
