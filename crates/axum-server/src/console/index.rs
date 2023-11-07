@@ -1,34 +1,39 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
-use axum::response::Html;
-use db::queries::{chats, prompts};
-use db::Pool;
+use axum::response::IntoResponse;
+use db::queries::conversations;
+use db::{Conversation, Pool};
 
 pub async fn index(
     Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
+) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let chats = chats::chats().bind(&transaction).all().await?;
-    let prompts = prompts::prompts()
-        .bind(&transaction, &team_id)
-        .all()
-        .await?;
+    // Get the latest conversation
+    let conversation: Result<Conversation, db::TokioPostgresError> =
+        conversations::get_latest_conversation()
+            .bind(&transaction)
+            .one()
+            .await;
 
-    // If one of the chats is not processed yet then set a lock_console flag
-    // Otherwise the user can issue multiple requests
-    let lock_console = chats.iter().any(|chat| chat.response.is_none());
+    let conv_id = if let Ok(conversation) = conversation {
+        conversation.id
+    } else {
+        conversations::create_conversation()
+            .bind(&transaction, &team_id)
+            .one()
+            .await?
+    };
 
-    Ok(Html(ui_components::console::index(
-        team_id,
-        chats,
-        prompts,
-        lock_console,
-    )))
+    transaction.commit().await?;
+
+    crate::layout::redirect(&ui_components::routes::console::conversation_route(
+        team_id, conv_id,
+    ))
 }

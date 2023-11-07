@@ -53,6 +53,7 @@ pub async fn handler(
         &transaction,
         prompt.id,
         conversation.organisation_id,
+        Some(conversation.id),
         &chat.user_request,
     )
     .await?;

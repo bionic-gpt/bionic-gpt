@@ -6,7 +6,7 @@ use db::queries::{chats, prompts};
 use db::Pool;
 
 pub async fn conversation(
-    Path((team_id, _conversation_id)): Path<(i32, i64)>,
+    Path((team_id, conversation_id)): Path<(i32, i64)>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -15,7 +15,10 @@ pub async fn conversation(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let chats = chats::chats().bind(&transaction).all().await?;
+    let chats = chats::chats()
+        .bind(&transaction, &conversation_id)
+        .all()
+        .await?;
     let prompts = prompts::prompts()
         .bind(&transaction, &team_id)
         .all()

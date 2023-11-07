@@ -22,6 +22,8 @@ pub async fn new_chat(
         .one()
         .await?;
 
+    transaction.commit().await?;
+
     crate::layout::redirect(&ui_components::routes::console::conversation_route(
         team_id,
         conversation_id,
