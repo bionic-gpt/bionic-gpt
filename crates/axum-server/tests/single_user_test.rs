@@ -54,6 +54,64 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
         .displayed()
         .await?;
 
+    driver
+        .find(By::Css("textarea[name='message']"))
+        .await?
+        .send_keys("How are you?")
+        .await?;
+
+    let delay = std::time::Duration::new(30, 0);
+    driver.set_implicit_wait_timeout(delay).await?;
+    driver
+        .find(By::XPath("//button[text()='Send Message']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//a[text()='View Prompt']"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+    let delay = std::time::Duration::new(11, 0);
+    driver.set_implicit_wait_timeout(delay).await?;
+
+    // Test history popup
+    driver
+        .find(By::XPath("//button[text()='Show History']"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Show History']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .query(By::XPath("//h4[text()='Your History']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::LinkText("How are you?"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Show History']"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
     Ok(())
 }
 

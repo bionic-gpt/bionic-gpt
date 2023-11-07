@@ -27,11 +27,17 @@ pub mod routes {
 
     pub mod console {
         pub static INDEX: &str = "/app/team/:organisation_id/console";
+        pub static CONVERSATION: &str = "/app/team/:organisation_id/console/:conversation_id";
         pub static SEND_MESSAGE: &str = "/app/team/:organisation_id/send_message";
         pub static UPDATE_RESPONSE: &str = "/app/team/:organisation_id/update_response";
+        pub static NEW_CHAT: &str = "/app/team/:organisation_id/new_chat";
 
         pub fn index_route(organisation_id: i32) -> String {
             format!("/app/team/{}/console", organisation_id)
+        }
+
+        pub fn conversation_route(organisation_id: i32, conversation_id: i64) -> String {
+            format!("/app/team/{}/console/{}", organisation_id, conversation_id)
         }
 
         pub fn send_message_route(organisation_id: i32) -> String {
@@ -40,6 +46,10 @@ pub mod routes {
 
         pub fn update_response_route(organisation_id: i32) -> String {
             format!("/app/team/{}/update_response", organisation_id)
+        }
+
+        pub fn new_chat_route(organisation_id: i32) -> String {
+            format!("/app/team/{}/new_chat", organisation_id)
         }
     }
 

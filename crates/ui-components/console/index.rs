@@ -1,7 +1,7 @@
 use super::super::routes;
 use crate::app_layout::{Layout, SideBar};
 use assets::files::{commit_svg, handshake_svg, profile_svg};
-use db::queries::{chats::Chat, prompts::Prompt};
+use db::queries::{chats::Chat, conversations::History, prompts::Prompt};
 use dioxus::prelude::*;
 use primer_rsx::*;
 
@@ -9,6 +9,7 @@ struct Props {
     organisation_id: i32,
     chats: Vec<Chat>,
     prompts: Vec<Prompt>,
+    history: Vec<History>,
     lock_console: bool,
     send_message_action: String,
     update_response_action: String,
@@ -18,6 +19,7 @@ pub fn index(
     organisation_id: i32,
     chats: Vec<Chat>,
     prompts: Vec<Prompt>,
+    history: Vec<History>,
     lock_console: bool,
 ) -> String {
     fn app(cx: Scope<Props>) -> Element {
@@ -29,6 +31,29 @@ pub fn index(
                 title: "AI Chat Console",
                 header: cx.render(rsx!(
                     h3 { "AI Chat Console" }
+                    div {
+                        class: "d-flex flex-row",
+                        form {
+                            method: "post",
+                            action: "{crate::routes::console::new_chat_route(cx.props.organisation_id)}",
+                            Button {
+                                class: "mr-2",
+                                button_scheme: ButtonScheme::Default,
+                                button_type: ButtonType::Submit,
+                                "New Chat"
+                            }
+                        }
+                        Button {
+                            drawer_trigger: "history-selector",
+                            button_scheme: ButtonScheme::Default,
+                            "Show History"
+                        }
+                        super::history_drawer::HistoryDrawer{
+                            trigger_id: "history-selector".to_string(),
+                            organisation_id: cx.props.organisation_id,
+                            history: cx.props.history.clone()
+                        }
+                    }
                 )),
                 div {
                     id: "console-panel",
@@ -203,7 +228,7 @@ pub fn index(
                                         }
                                         Button {
                                             button_type: ButtonType::Submit,
-                                            button_scheme: ButtonScheme::Default,
+                                            button_scheme: ButtonScheme::Primary,
                                             "Send Message"
                                         }
                                     }
@@ -222,6 +247,7 @@ pub fn index(
             organisation_id,
             chats,
             prompts,
+            history,
             lock_console,
             send_message_action: routes::console::send_message_route(organisation_id),
             update_response_action: routes::console::update_response_route(organisation_id),

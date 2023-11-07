@@ -1,6 +1,6 @@
 services:
 
-  local-ai:
+  llm-api:
     image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.2
 
   embeddings-api:

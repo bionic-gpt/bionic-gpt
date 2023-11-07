@@ -76,6 +76,7 @@ pub async fn handler(
                 &transaction,
                 prompt.id,
                 prompt.organisation_id,
+                None,
                 "message.message",
             )
             .await?;
