@@ -30,6 +30,7 @@ pub fn index(
                 header: cx.render(rsx!(
                     h3 { "AI Chat Console" }
                     div {
+                        class: "d-flex flex-row",
                         form {
                             method: "post",
                             action: "{crate::routes::console::new_chat_route(cx.props.organisation_id)}",
