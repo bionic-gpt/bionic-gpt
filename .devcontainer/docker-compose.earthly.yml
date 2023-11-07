@@ -12,7 +12,8 @@ services:
   smtp:
     ports:
       - "8025:8025"
-      
+  
+  # Mock out the slow big stuff
   unstructured:
     image: alexliesenfeld/httpmock:latest
     volumes:
@@ -21,6 +22,15 @@ services:
     command: --expose -m /mocks -p 8000
     ports:
       - "8000:8000"
+      
+  llm-api:
+    image: alexliesenfeld/httpmock:latest
+    volumes:
+      - ./mocks:/mocks
+    entrypoint: httpmock
+    command: --expose -m /mocks -p 3000
+    ports:
+      - "3000:3000"
 
   embeddings-api:
     image: alexliesenfeld/httpmock:latest

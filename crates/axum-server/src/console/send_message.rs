@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
-use db::queries::chats;
-use db::Pool;
+use db::queries::{chats, conversations};
+use db::{Conversation, Pool};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -27,12 +27,27 @@ pub async fn send_message(
 
         super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
+        // Get the latest conversation
+        let conversation: Result<Conversation, db::TokioPostgresError> =
+            conversations::get_latest_conversation()
+                .bind(&transaction)
+                .one()
+                .await;
+
+        let conv_id = if let Ok(conversation) = conversation {
+            conversation.id
+        } else {
+            conversations::create_conversation()
+                .bind(&transaction, &team_id)
+                .one()
+                .await?
+        };
+
         // Store the prompt, ready for the front end webcomponent to pickup
         chats::new_chat()
             .bind(
                 &transaction,
-                &current_user.user_id,
-                &team_id,
+                &conv_id,
                 &message.prompt_id,
                 &message.message,
                 &"",

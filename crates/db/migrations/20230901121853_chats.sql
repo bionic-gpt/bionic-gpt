@@ -7,11 +7,23 @@ CREATE TYPE chat_status AS ENUM (
 );
 COMMENT ON TYPE chat_status IS 'The status of this part of the conversation with the AI';
 
+CREATE TABLE conversations (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    user_id INT NOT NULL, 
+    organisation_id INT NOT NULL, 
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT FK_organisation FOREIGN KEY(organisation_id)
+        REFERENCES organisations(id) ON DELETE CASCADE,
+
+    CONSTRAINT FK_user FOREIGN KEY(user_id)
+        REFERENCES users(id) ON DELETE CASCADE
+);
+COMMENT ON TABLE conversations IS 'Collect together the users chats a bit like a history';
 
 CREATE TABLE chats (
     id SERIAL PRIMARY KEY, 
-    user_id INT NOT NULL, 
-    organisation_id INT NOT NULL, 
+    conversation_id BIGINT NOT NULL, 
     status chat_status NOT NULL DEFAULT 'Pending',
     user_request VARCHAR NOT NULL, 
     prompt VARCHAR NOT NULL, 
@@ -23,23 +35,23 @@ CREATE TABLE chats (
     CONSTRAINT FK_prompt FOREIGN KEY(prompt_id)
         REFERENCES prompts(id) ON DELETE CASCADE,
 
-    CONSTRAINT FK_organisation FOREIGN KEY(organisation_id)
-        REFERENCES organisations(id) ON DELETE CASCADE,
-
-    CONSTRAINT FK_user FOREIGN KEY(user_id)
-        REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT FK_conversation FOREIGN KEY(conversation_id)
+        REFERENCES conversations(id) ON DELETE CASCADE
 );
+COMMENT ON TABLE chats IS 'Questions from the user and the response from the LLM';
+
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON chats TO ft_application;
-GRANT USAGE, SELECT ON chats_id_seq TO ft_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON chats, conversations TO ft_application;
+GRANT USAGE, SELECT ON chats_id_seq, conversations_id_seq TO ft_application;
 
 -- Give access to the readonly user
-GRANT SELECT ON chats TO ft_readonly;
-GRANT SELECT ON chats_id_seq TO ft_readonly;
+GRANT SELECT ON chats, conversations TO ft_readonly;
+GRANT SELECT ON chats_id_seq, conversations_id_seq TO ft_readonly;
 
 -- migrate:down
 
 DROP TABLE chats;
+DROP TABLE conversations;
 DROP TYPE chat_status;
 
