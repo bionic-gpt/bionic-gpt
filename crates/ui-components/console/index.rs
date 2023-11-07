@@ -29,6 +29,26 @@ pub fn index(
                 title: "AI Chat Console",
                 header: cx.render(rsx!(
                     h3 { "AI Chat Console" }
+                    div {
+                        form {
+                            method: "post",
+                            action: "{crate::routes::console::new_chat_route(cx.props.organisation_id)}",
+                            Button {
+                                class: "mr-2",
+                                button_scheme: ButtonScheme::Default,
+                                button_type: ButtonType::Submit,
+                                "New Chat"
+                            }
+                        }
+                        Button {
+                            drawer_trigger: "history-selector",
+                            button_scheme: ButtonScheme::Default,
+                            "Show History"
+                        }
+                        super::history_drawer::HistoryDrawer{
+                            trigger_id: "history-selector".to_string()
+                        }
+                    }
                 )),
                 div {
                     id: "console-panel",
@@ -203,7 +223,7 @@ pub fn index(
                                         }
                                         Button {
                                             button_type: ButtonType::Submit,
-                                            button_scheme: ButtonScheme::Default,
+                                            button_scheme: ButtonScheme::Primary,
                                             "Send Message"
                                         }
                                     }
