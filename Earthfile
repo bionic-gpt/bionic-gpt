@@ -155,6 +155,7 @@ integration-test:
         --service barricade \
         --service smtp \
         --service unstructured \
+        --service llm-api \
         --service embeddings-api \
         # Record our selenium session
         --service selenium \

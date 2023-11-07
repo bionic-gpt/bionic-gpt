@@ -54,6 +54,25 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
         .displayed()
         .await?;
 
+    driver
+        .find(By::Css("textarea[name='message']"))
+        .await?
+        .send_keys("How are you?")
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Send Message']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//a[text()='View Prompt']"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
     Ok(())
 }
 
