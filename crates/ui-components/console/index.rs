@@ -9,6 +9,7 @@ struct Props {
     organisation_id: i32,
     chats: Vec<Chat>,
     prompts: Vec<Prompt>,
+    conversation_id: i64,
     history: Vec<History>,
     lock_console: bool,
     send_message_action: String,
@@ -17,6 +18,7 @@ struct Props {
 
 pub fn index(
     organisation_id: i32,
+    conversation_id: i64,
     chats: Vec<Chat>,
     prompts: Vec<Prompt>,
     history: Vec<History>,
@@ -216,6 +218,11 @@ pub fn index(
                                                 class: "mr-2",
                                                 "Prompt"
                                             }
+                                            input {
+                                                "type": "hidden",
+                                                name: "conversation_id",
+                                                value: "{cx.props.conversation_id}"
+                                            }
                                             Select {
                                                 name: "prompt_id",
                                                 cx.props.prompts.iter().map(|prompt| rsx!(
@@ -247,6 +254,7 @@ pub fn index(
             organisation_id,
             chats,
             prompts,
+            conversation_id,
             history,
             lock_console,
             send_message_action: routes::console::send_message_route(organisation_id),
