@@ -11,7 +11,11 @@ use hyper::client;
 use db::{queries, Pool};
 use hyper_rustls::ConfigBuilderExt;
 
-use crate::{api_reverse_proxy::Completion, authentication::Authentication, errors::CustomError};
+use crate::{
+    api_reverse_proxy::{Completion, Message},
+    authentication::Authentication,
+    errors::CustomError,
+};
 
 pub async fn handler(
     Path(chat_id): Path<i32>,
@@ -43,10 +47,9 @@ pub async fn handler(
         .one()
         .await?;
 
-    let max_tokens = if model.base_url.starts_with("https://inference.gig") {
-        Some(4000)
-    } else {
-        None
+    let chat_request = Message {
+        role: "user".to_string(),
+        content: chat.user_request,
     };
 
     let messages = crate::prompt::execute_prompt(
@@ -54,7 +57,7 @@ pub async fn handler(
         prompt.id,
         conversation.organisation_id,
         Some(conversation.id),
-        &chat.user_request,
+        vec![chat_request],
     )
     .await?;
 
@@ -69,8 +72,8 @@ pub async fn handler(
     let completion = Completion {
         model: model.name,
         stream: Some(true),
-        max_tokens,
-        temperature: Some(0.7),
+        max_tokens: Some(prompt.max_tokens),
+        temperature: prompt.temperature,
         messages,
     };
 

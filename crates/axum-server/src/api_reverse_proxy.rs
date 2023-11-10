@@ -39,16 +39,17 @@ pub async fn handler(
     mut req: Request<Body>,
 ) -> Result<Response, CustomError> {
     if let Some(api_key) = req.headers().get("Authorization") {
+        let api_key = api_key.to_str().unwrap().replace("Bearer ", "");
         let mut db_client = pool.get().await.unwrap();
         let transaction = db_client.transaction().await.unwrap();
 
         let prompt = queries::prompts::prompt_by_api_key()
-            .bind(&transaction, &api_key.to_str().unwrap())
+            .bind(&transaction, &api_key)
             .one()
             .await?;
 
         let api_key = queries::api_keys::find_api_key()
-            .bind(&transaction, &api_key.to_str().unwrap())
+            .bind(&transaction, &api_key)
             .one()
             .await?;
 
@@ -59,7 +60,7 @@ pub async fn handler(
             .map(|v| v.as_str())
             .unwrap_or(path);
 
-        let base_url = prompt.base_url;
+        let base_url = prompt.base_url.replace("/v1", "");
         let uri = format!("{base_url}{path_query}");
 
         // If we are completions we need to add the prompt to the request
@@ -77,7 +78,7 @@ pub async fn handler(
                 prompt.id,
                 prompt.organisation_id,
                 None,
-                "message.message",
+                completion.messages,
             )
             .await?;
 
@@ -92,6 +93,8 @@ pub async fn handler(
             let req = Request::post(uri)
                 .header("content-type", "application/json")
                 .body(Body::from(completion_json))?;
+
+            tracing::info!("{:?}", &req);
 
             Ok(client.request(req).await?.into_response())
         } else {
