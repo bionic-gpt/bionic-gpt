@@ -44,7 +44,15 @@ pub async fn update_response(
             .await?;
     }
 
+    let chat = chats::chat()
+        .bind(&transaction, &message.chat_id)
+        .one()
+        .await?;
+
     transaction.commit().await?;
 
-    crate::layout::redirect(&ui_components::routes::console::index_route(team_id))
+    crate::layout::redirect(&ui_components::routes::console::conversation_route(
+        team_id,
+        chat.conversation_id,
+    ))
 }
