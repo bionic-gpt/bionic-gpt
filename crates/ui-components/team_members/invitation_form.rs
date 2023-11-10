@@ -58,23 +58,6 @@ pub fn InvitationForm(cx: Scope<InvitationFormProps>) -> Element {
                                 "Team Administrators can invite new team members"
                             }
                         }
-                        Alert {
-                            alert_color: AlertColor::Success,
-                            label {
-                                input {
-                                    "type": "checkbox",
-                                    name: "negotiator"
-                                }
-                                strong {
-                                    class: "ml-2",
-                                    "Invite as Negotiator"
-                                }
-                            }
-                            p {
-                                class: "note",
-                                "Negotiators can handle high interest events."
-                            }
-                        }
                     }
                 }
                 DrawerFooter {

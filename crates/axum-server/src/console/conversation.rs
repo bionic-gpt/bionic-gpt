@@ -32,6 +32,7 @@ pub async fn conversation(
 
     Ok(Html(ui_components::console::index(
         team_id,
+        conversation_id,
         chats,
         prompts,
         history,
