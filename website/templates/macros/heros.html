@@ -1,0 +1,29 @@
+{% macro image_hero(
+    title="",
+    sub_title="",
+    cta1="",
+    cta1_url="",
+    cta2="",
+    cta2_url=""
+    )
+    %}
+    
+    <section class="lg:max-w-5xl flex flex-col items-center text-center p-4">
+        <h1 class="mt-4 max-w-[36rem] text-4xl font-extrabold tracking-tight text-slate-900 sm:text-4xl xl:max-w-[43.5rem]">
+            {{ title }}
+        </h1>
+        <h2 class="mt-4 max-w-lg text-lg text-slate-700">
+            {{ sub_title }}
+        </h2>
+        <div class="mt-4 flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <a href="{{cta1_url}}" class="inline-flex items-center justify-center px-4 py-2.5 text-base font-medium text-center text-white bg-indigo-700 rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
+                {{cta1}}
+            </a>
+            <a href="{{cta2_url}}" data-goatcounter-click="youtube.com" data-goatcounter-title="Watch Demo Video" target="_blanK" class="inline-flex items-center justify-center px-4 py-2.5 text-base font-medium text-center text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                <svg class="mr-2 -ml-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path></svg>
+                {{cta2}}
+            </a>  
+        </div>
+    </section>
+    
+    {% endmacro %}
