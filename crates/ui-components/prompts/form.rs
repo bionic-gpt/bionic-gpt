@@ -196,6 +196,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                                 Input {
                                     input_type: InputType::Number,
+                                    step: "0.1",
                                     name: "temperature",
                                     label: "Temperature",
                                     help_text: "Value between 0 and 2.",

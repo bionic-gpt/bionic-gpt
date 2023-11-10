@@ -50,6 +50,7 @@ pub struct InputProps<'a> {
     pub label: Option<&'a str>,
     pub help_text: Option<&'a str>,
     pub placeholder: Option<&'a str>,
+    pub step: Option<&'a str>,
     pub required: Option<bool>,
     pub disabled: Option<bool>,
     pub readonly: Option<bool>,
@@ -102,6 +103,7 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
             readonly: cx.props.readonly,
             name: "{cx.props.name}",
             placeholder: cx.props.placeholder,
+            step: cx.props.step,
             "type": "{input_type}"
         }
         match cx.props.help_text {
