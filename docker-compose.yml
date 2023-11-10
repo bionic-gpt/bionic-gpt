@@ -20,6 +20,7 @@ services:
       - "7800:7700"
 
   # Postgres pre-loaded with pgVector
+  # To connect outside docker `docker compose exec db psql -U postgres`
   db:
     image: ankane/pgvector
     environment:
