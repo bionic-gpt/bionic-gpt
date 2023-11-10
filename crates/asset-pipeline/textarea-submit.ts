@@ -10,7 +10,6 @@ document.addEventListener('turbo:load', () => {
     
                             // Find the containing form and submit it.
                             if(area.form) {
-                                console.log('here')
                                 area.form.submit()
                             }
                         }
