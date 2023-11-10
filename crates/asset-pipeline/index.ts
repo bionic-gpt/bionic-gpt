@@ -16,6 +16,7 @@ document.addEventListener('turbo:load', () => {
 
 // Misc.
 import './remember-form'
+import './textarea-submit'
 import './filter-trigger'
 import './select-div'
 import './refresh-status'

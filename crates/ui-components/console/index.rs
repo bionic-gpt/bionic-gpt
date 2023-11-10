@@ -206,7 +206,7 @@ pub fn index(
                             } else {
                                 cx.render(rsx!(
                                     textarea {
-                                        class: "flex-1 mr-2 form-control",
+                                        class: "submit-on-enter flex-1 mr-2 form-control",
                                         rows: "4",
                                         name: "message"
                                     }
