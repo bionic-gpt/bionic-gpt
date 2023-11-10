@@ -60,7 +60,7 @@ pub async fn handler(
             .map(|v| v.as_str())
             .unwrap_or(path);
 
-        let base_url = prompt.base_url;
+        let base_url = prompt.base_url.replace("/v1", "");
         let uri = format!("{base_url}{path_query}");
 
         // If we are completions we need to add the prompt to the request
@@ -89,12 +89,12 @@ pub async fn handler(
 
             let completion_json = serde_json::to_string(&completion)?;
 
-            dbg!(&completion_json);
-
             // Create a new request
             let req = Request::post(uri)
                 .header("content-type", "application/json")
                 .body(Body::from(completion_json))?;
+
+            tracing::info!("{:?}", &req);
 
             Ok(client.request(req).await?.into_response())
         } else {
