@@ -9,7 +9,7 @@ pub async fn execute_prompt(
     prompt_id: i32,
     organisation_id: i32,
     conversation_id: Option<i64>,
-    question: &str,
+    chat: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     // Get the prompt
     let prompt = prompts::prompt()
@@ -17,11 +17,17 @@ pub async fn execute_prompt(
         .one()
         .await?;
 
+    let question = if let Some(q) = chat.last() {
+        q.content.clone()
+    } else {
+        "".to_string()
+    };
+
     tracing::info!(prompt.name);
     // Get related context
     let related_context = get_related_context(
         transaction,
-        question,
+        &question,
         prompt.dataset_connection,
         prompt_id,
         organisation_id,
@@ -30,7 +36,7 @@ pub async fn execute_prompt(
     .await?;
     tracing::info!("Retrieved {} chunks", related_context.len());
 
-    // Get the maximum required amount og chat history
+    // Get the maximum required amount of chat history
     let chat_history = if let Some(conversation_id) = conversation_id {
         chats::chat_history()
             .bind(
@@ -51,7 +57,7 @@ pub async fn execute_prompt(
         prompt.max_tokens as usize,
         prompt.system_prompt,
         chat_history,
-        question,
+        chat,
         related_context,
     )
     .await;
@@ -72,7 +78,7 @@ async fn generate_prompt(
     max_tokens: usize,
     system_prompt: Option<String>,
     mut history: Vec<Chat>,
-    question: &str,
+    question: Vec<Message>,
     related_context: Vec<String>,
 ) -> Vec<ChatCompletionRequestMessage> {
     let mut messages: Vec<ChatCompletionRequestMessage> = Default::default();
@@ -101,12 +107,14 @@ async fn generate_prompt(
         });
     }
 
-    messages.push(ChatCompletionRequestMessage {
-        role: "user".to_string(),
-        content: Some(question.to_string()),
-        name: None,
-        function_call: None,
-    });
+    for message in question.into_iter() {
+        messages.push(ChatCompletionRequestMessage {
+            role: message.role,
+            content: Some(message.content),
+            name: None,
+            function_call: None,
+        });
+    }
 
     // This is the space we have to fill
     let context_size = model_context_size - max_tokens;
@@ -296,7 +304,10 @@ mod tests {
                 "What time is it?".to_string(),
                 "I don't know".to_string(),
             )],
-            "How are you today?",
+            vec![Message {
+                role: "user".to_string(),
+                content: "How are you today?".to_string(),
+            }],
             Default::default(),
         )
         .await;
@@ -317,7 +328,10 @@ mod tests {
                 "What time is it?".to_string(),
                 "I don't know".to_string(),
             )],
-            "How are you today?",
+            vec![Message {
+                role: "user".to_string(),
+                content: "How are you today?".to_string(),
+            }],
             vec!["This might help".to_string()],
         )
         .await;
