@@ -1,19 +1,17 @@
 use axum::{
     body::Body,
-    extract::State,
     http::Request,
     response::{IntoResponse, Response},
     Extension, RequestExt,
 };
-use http::Uri;
-use hyper::client::HttpConnector;
+use http::{HeaderName, Uri};
+use hyper::client;
 
 use db::{queries, Pool};
+use hyper_rustls::ConfigBuilderExt;
 use serde::{Deserialize, Serialize};
 
 use crate::errors::CustomError;
-
-type Client = hyper::client::Client<HttpConnector, Body>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Message {
@@ -35,7 +33,6 @@ pub struct Completion {
 
 pub async fn handler(
     Extension(pool): Extension<Pool>,
-    State(client): State<Client>,
     mut req: Request<Body>,
 ) -> Result<Response, CustomError> {
     if let Some(api_key) = req.headers().get("Authorization") {
@@ -50,6 +47,11 @@ pub async fn handler(
 
         let api_key = queries::api_keys::find_api_key()
             .bind(&transaction, &api_key)
+            .one()
+            .await?;
+
+        let model = queries::models::model()
+            .bind(&transaction, &prompt.model_id)
             .one()
             .await?;
 
@@ -90,20 +92,39 @@ pub async fn handler(
             let completion_json = serde_json::to_string(&completion)?;
 
             // Create a new request
-            let req = Request::post(uri)
+            req = Request::post(uri)
                 .header("content-type", "application/json")
                 .body(Body::from(completion_json))?;
-
-            tracing::info!("{:?}", &req);
-
-            Ok(client.request(req).await?.into_response())
         } else {
             // Anything that is not completions gets passed direct to the LLM API
-
             *req.uri_mut() = Uri::try_from(uri).unwrap();
-
-            Ok(client.request(req).await?.into_response())
         }
+
+        tracing::info!("{:?}", &req);
+
+        // Do we have an API key, then add it.
+        if let Some(api_key) = model.api_key {
+            req.headers_mut().append(
+                HeaderName::from_static("authorization"),
+                format!("Bearer {}", api_key).parse().unwrap(),
+            );
+        }
+
+        let tls = rustls::ClientConfig::builder()
+            .with_safe_defaults()
+            .with_webpki_roots()
+            .with_no_client_auth();
+
+        let https = hyper_rustls::HttpsConnectorBuilder::new()
+            .with_tls_config(tls)
+            .https_or_http()
+            .enable_http1()
+            .build();
+
+        // Give the client the option to use TLS is frequired
+        let client: client::Client<_, hyper::Body> = client::Client::builder().build(https);
+
+        Ok(client.request(req).await?.into_response())
     } else {
         Err(CustomError::Authentication(
             "You neeed an API key".to_string(),
