@@ -58,7 +58,7 @@ pub fn index(
                                     table {
                                         thead {
                                             th { "Name" }
-                                            th { "No. 1Kb Batches" }
+                                            th { "No. Chunks" }
                                             th { "Text Size" }
                                             th { "Status" }
                                             th {
