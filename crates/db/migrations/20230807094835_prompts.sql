@@ -34,10 +34,10 @@ CREATE TABLE prompt_dataset (
     dataset_id INT NOT NULL,
 
     CONSTRAINT FK_prompt FOREIGN KEY(prompt_id)
-        REFERENCES prompts(id),
+        REFERENCES prompts(id) ON DELETE CASCADE,
 
     CONSTRAINT FK_dataset FOREIGN KEY(dataset_id)
-        REFERENCES datasets(id),
+        REFERENCES datasets(id) ON DELETE CASCADE,
 
     UNIQUE(prompt_id, dataset_id)
 );
