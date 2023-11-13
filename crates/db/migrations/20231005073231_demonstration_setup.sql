@@ -27,7 +27,7 @@ VALUES(
     'LLM', 
     'http://llm-api:3000/v1', 
     7, 
-    4096
+    2048
 );
 
 -- migrate:down
