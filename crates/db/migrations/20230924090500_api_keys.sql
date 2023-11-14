@@ -6,7 +6,7 @@ CREATE TABLE api_keys (
     user_id INT NOT NULL,
     name VARCHAR NOT NULL,
     api_key VARCHAR NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     CONSTRAINT FK_prompt FOREIGN KEY(prompt_id)
         REFERENCES prompts(id) ON DELETE CASCADE,

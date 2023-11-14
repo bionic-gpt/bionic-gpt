@@ -20,7 +20,6 @@ mod static_files;
 mod team;
 mod training;
 mod ui_completions;
-mod unstructured;
 
 use axum::extract::Extension;
 use axum::routing::post;

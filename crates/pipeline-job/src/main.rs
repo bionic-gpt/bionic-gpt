@@ -1,4 +1,5 @@
 mod config;
+mod unstructured;
 
 use db::queries;
 
@@ -13,7 +14,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = pool.get().await?;
 
     loop {
-        let unprocessed = queries::embeddings::unprocessed_embeddings()
+        let unprocessed_docs = queries::documents::unprocessed_documents()
+            .bind(&client)
+            .all()
+            .await?;
+
+        for document in unprocessed_docs {
+            let dataset = queries::datasets::pipeline_dataset()
+                .bind(&client, &document.dataset_id)
+                .one()
+                .await?;
+
+            let structured_data = crate::unstructured::call_unstructured_api(
+                document.content,
+                &document.file_name,
+                dataset.combine_under_n_chars as u32,
+                dataset.new_after_n_chars as u32,
+                dataset.multipage_sections,
+            )
+            .await?;
+
+            for text in structured_data {
+                client
+                    .execute(
+                        "
+                        INSERT INTO chunks (
+                            document_id,
+                            text
+                        ) 
+                        VALUES 
+                            ($1, $2)",
+                        &[&document.id, &text.text],
+                    )
+                    .await?;
+            }
+        }
+
+        let unprocessed = queries::chunks::unprocessed_chunks()
             .bind(&client)
             .all()
             .await?;
@@ -25,7 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 client
                     .execute(
                         "
-                        UPDATE embeddings SET (processed, embeddings) = (TRUE, $1)
+                        UPDATE chunks SET (processed, embeddings) = (TRUE, $1)
                         WHERE id = $2
                         ",
                         &[&embedding_data, &embedding.id],
@@ -37,7 +74,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 client
                     .execute(
                         "
-                        UPDATE embeddings SET processed = TRUE
+                        UPDATE chunks SET processed = TRUE
                         WHERE id = $1
                         ",
                         &[&embedding.id],

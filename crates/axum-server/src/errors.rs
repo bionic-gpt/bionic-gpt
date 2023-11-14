@@ -74,12 +74,6 @@ impl From<db::TokioPostgresError> for CustomError {
     }
 }
 
-impl From<reqwest::Error> for CustomError {
-    fn from(err: reqwest::Error) -> CustomError {
-        CustomError::ExternalApi(err.to_string())
-    }
-}
-
 impl From<db::PoolError> for CustomError {
     fn from(err: db::PoolError) -> CustomError {
         CustomError::Database(err.to_string())

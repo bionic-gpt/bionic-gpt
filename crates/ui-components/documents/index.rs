@@ -59,7 +59,7 @@ pub fn index(
                                         thead {
                                             th { "Name" }
                                             th { "No. Chunks" }
-                                            th { "Text Size" }
+                                            th { "Content Size (Bytes)" }
                                             th { "Status" }
                                             th {
                                                 class: "text-right",
@@ -73,7 +73,7 @@ pub fn index(
                                                     tr {
                                                         td { "{doc.file_name}" }
                                                         td { "{doc.batches}" }
-                                                        td { "{doc.text_size}" }
+                                                        td { "{doc.content_size}" }
                                                         td {
                                                             if doc.waiting > 0 {
                                                                 cx.render(rsx!(
