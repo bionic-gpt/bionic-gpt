@@ -36,6 +36,94 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
 
     test_prompts(driver).await?;
 
+    test_api_keys(driver).await?;
+
+    test_pipelines(driver).await?;
+
+    Ok(())
+}
+
+async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
+    driver
+        .find(By::LinkText("Document Pipelines"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New Document Pipeline']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .query(By::Css("input[name='name']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::Css("input[name='name']"))
+        .await?
+        .send_keys("My Pipeline")
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Create Pipeline']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//td[text()='My Pipeline']"))
+        .await?
+        .click()
+        .await?;
+
+    Ok(())
+}
+
+async fn test_api_keys(driver: &WebDriver) -> WebDriverResult<()> {
+    driver
+        .find(By::LinkText("Chat API Keys"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New API Key']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .query(By::Css("input[name='name']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::Css("input[name='name']"))
+        .await?
+        .send_keys("Test Key")
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Create API Key']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//td[text()='Test Key']"))
+        .await?
+        .click()
+        .await?;
+
     Ok(())
 }
 
