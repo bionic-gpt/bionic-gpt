@@ -13,7 +13,7 @@ pub enum SideBar {
     Prompts,
     Models,
     Datasets,
-    BulkImport,
+    DocumentPipelines,
     Team,
     Profile,
     Switch,
@@ -83,9 +83,9 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                     heading: "Pipelines",
                     content:  cx.render(rsx!(
                         NavItem {
-                            id: SideBar::BulkImport.to_string(),
+                            id: SideBar::DocumentPipelines.to_string(),
                             selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::documents::bulk_route(cx.props.team_id),
+                            href: super::routes::document_pipelines::index_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
                             title: "Document Pipelines"
                         }

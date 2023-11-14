@@ -22,7 +22,7 @@ WHERE
     )
 ORDER BY created_at DESC;
 
---! new_api_key
+--! insert
 INSERT INTO document_pipelines 
     (dataset_id, user_id, name, api_key)
 VALUES

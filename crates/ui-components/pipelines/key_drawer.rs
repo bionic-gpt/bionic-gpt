@@ -3,26 +3,27 @@ use db::queries::datasets::Dataset;
 use dioxus::prelude::*;
 use primer_rsx::{select::SelectOption, *};
 
+#[derive(Props, PartialEq)]
 pub struct DrawerProps {
-    submit_action: String,
     datasets: Vec<Dataset>,
+    organisation_id: i32,
 }
 
 pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
     cx.render(rsx! {
         form {
             method: "post",
-            action: "{cx.props.submit_action}",
+            action: "{crate::routes::document_pipelines::new_route(cx.props.organisation_id)}",
             Drawer {
-                label: "New API Key",
+                label: "New Document Pipeline",
                 trigger_id: "create-api-key",
                 DrawerBody {
                     div {
                         class: "d-flex flex-column",
                         Input {
                             input_type: InputType::Text,
-                            placeholder: "Production API Key",
-                            help_text: "Give your new key a name",
+                            placeholder: "My Document Pipeline",
+                            help_text: "Give your new piepline a name",
                             required: true,
                             label: "Name",
                             name: "name"
@@ -30,7 +31,8 @@ pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
                         Select {
                             name: "dataset_id",
                             label: "Please select a dataset",
-                            help_text: "All access via this API key will use the above dqataset",
+                            required: true,
+                            help_text: "All access via this API key will use the above dataset",
                             cx.props.datasets.iter().map(|dataset| rsx!(
                                 SelectOption {
                                     value: "{dataset.id}",
@@ -44,7 +46,7 @@ pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
                     Button {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,
-                        "Create API Key"
+                        "Create Pipeline"
                     }
                 }
             }

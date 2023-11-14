@@ -25,6 +25,19 @@ pub fn render(mut virtual_dom: VirtualDom) -> String {
 
 pub mod routes {
 
+    pub mod document_pipelines {
+        pub static INDEX: &str = "/app/team/:organisation_id/pipelines";
+        pub static NEW: &str = "/app/team/:organisation_id/pipelines/new";
+
+        pub fn index_route(organisation_id: i32) -> String {
+            format!("/app/team/{}/pipelines", organisation_id)
+        }
+
+        pub fn new_route(organisation_id: i32) -> String {
+            format!("/app/team/{}/pipelines/new", organisation_id)
+        }
+    }
+
     pub mod console {
         pub static INDEX: &str = "/app/team/:organisation_id/console";
         pub static CONVERSATION: &str = "/app/team/:organisation_id/console/:conversation_id";
@@ -117,10 +130,6 @@ pub mod routes {
                 "/app/team/{}/dataset/{}/documents",
                 organisation_id, dataset_id
             )
-        }
-
-        pub fn bulk_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/bulk_import", organisation_id)
         }
 
         pub fn upload_route(organisation_id: i32, dataset_id: i32) -> String {
