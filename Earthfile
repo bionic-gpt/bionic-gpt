@@ -2,7 +2,7 @@ VERSION 0.7
 FROM purtontech/rust-on-nails-devcontainer:1.1.17
 
 ARG --global APP_EXE_NAME=axum-server
-ARG --global EMBEDDINGS_EXE_NAME=embeddings-job
+ARG --global PIPELINE_EXE_NAME=pipeline-job
 ARG --global DBMATE_VERSION=2.2.0
 
 # Folders
@@ -17,7 +17,7 @@ ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.17-latest
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
 ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
-ARG --global EMBEDDINGS_IMAGE_NAME=bionic-gpt/bionicgpt-embeddings-job:latest
+ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 
 WORKDIR /build
 
@@ -32,14 +32,14 @@ pull-request:
     BUILD +migration-container
     BUILD +app-container
     BUILD +envoy-container
-    BUILD +embeddings-container
+    BUILD +pipeline-job-container
     BUILD +integration-test
 
 all:
     BUILD +migration-container
     BUILD +envoy-container
     BUILD +app-container
-    BUILD +embeddings-container
+    BUILD +pipeline-job-container
     BUILD +integration-test
 
 npm-deps:
@@ -71,11 +71,11 @@ envoy-container:
     SAVE IMAGE --push $ENVOY_IMAGE_NAME
      
 
-embeddings-container:
+pipeline-job-container:
     FROM scratch
-    COPY +build/$EMBEDDINGS_EXE_NAME embeddings-job
-    ENTRYPOINT ["./embeddings-job"]
-    SAVE IMAGE --push $EMBEDDINGS_IMAGE_NAME
+    COPY +build/$PIPELINE_EXE_NAME pipeline-job
+    ENTRYPOINT ["./pipeline-job"]
+    SAVE IMAGE --push $PIPELINE_IMAGE_NAME
 
 build-cache:
     COPY +prepare-cache/recipe.json ./
@@ -102,7 +102,7 @@ build:
             && cargo build --release --target x86_64-unknown-linux-musl
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
-    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$EMBEDDINGS_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
 
 migration-container:
     FROM alpine
@@ -161,7 +161,7 @@ integration-test:
         --service selenium \
         --pull selenium/video:ffmpeg-6.0-20231102 \
         # Bring up the containers we have built
-        --load $EMBEDDINGS_IMAGE_NAME=+embeddings-container \
+        --load $PIPELINE_IMAGE_NAME=+pipeline-job-container \
         --load $APP_IMAGE_NAME=+app-container \
         --load $ENVOY_IMAGE_NAME=+envoy-container
 
@@ -181,7 +181,7 @@ integration-test:
             && docker run -d --rm --network=default_default \
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
                 -e OPENAI_ENDPOINT=http://embeddings-api:8080/openai \
-                --name embeddings-job $EMBEDDINGS_IMAGE_NAME \
+                --name pipeline-job $PIPELINE_IMAGE_NAME \
             && docker run -d -p 7700:7700 --rm --network=default_default \
                 --name envoy $ENVOY_IMAGE_NAME \
             && cargo test --no-run --release --target x86_64-unknown-linux-musl \
