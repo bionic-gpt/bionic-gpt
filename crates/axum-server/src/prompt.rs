@@ -211,7 +211,7 @@ async fn get_related_context(
                     SELECT 
                         text 
                     FROM 
-                        embeddings
+                        chunks
                     WHERE
                         document_id IN (
                             SELECT id FROM documents WHERE dataset_id IN (
@@ -249,7 +249,7 @@ async fn get_related_context(
                     SELECT 
                         text 
                     FROM 
-                        embeddings
+                        chunks
                     WHERE
                         document_id IN (
                             SELECT id FROM documents WHERE dataset_id IN (
