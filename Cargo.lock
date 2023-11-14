@@ -205,7 +205,7 @@ dependencies = [
  "hyper-rustls 0.24.1",
  "lettre",
  "open-api",
- "pgvector",
+ "pgvector 0.3.2",
  "pin-project",
  "quoted_printable 0.5.0",
  "rand",
@@ -216,6 +216,7 @@ dependencies = [
  "sha2",
  "thirtyfour",
  "tiktoken-rs",
+ "time 0.3.25",
  "tokio",
  "tokio-util",
  "tower",
@@ -501,7 +502,7 @@ dependencies = [
  "cornucopia_async",
  "deadpool-postgres",
  "futures",
- "pgvector",
+ "pgvector 0.2.2",
  "postgres-types",
  "rustls 0.21.6",
  "serde_json",
@@ -700,18 +701,6 @@ name = "email_address"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2153bd83ebc09db15bcbdc3e2194d901804952e3dc96967e1cd3b0c5c32d112"
-
-[[package]]
-name = "embeddings-job"
-version = "0.1.0"
-dependencies = [
- "db",
- "open-api",
- "pgvector",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
 
 [[package]]
 name = "encoding_rs"
@@ -1552,6 +1541,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "pgvector"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1f4c0c07ceb64a0020f2f0e610cfe51122d2e72723499f0154877b7c76c8c31"
+dependencies = [
+ "bytes",
+ "postgres",
+]
+
+[[package]]
 name = "phf"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1600,6 +1599,21 @@ name = "pin-utils"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
+
+[[package]]
+name = "pipeline-job"
+version = "0.1.0"
+dependencies = [
+ "db",
+ "open-api",
+ "pgvector 0.3.2",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "postgres"

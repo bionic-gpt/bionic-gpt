@@ -1,7 +1,7 @@
 mod api_keys;
+mod api_pipeline;
 mod api_reverse_proxy;
 mod authentication;
-mod bulk_import;
 mod config;
 mod console;
 mod datasets;
@@ -11,6 +11,7 @@ mod errors;
 mod index;
 mod layout;
 mod models;
+mod pipelines;
 mod profile;
 mod prompt;
 mod prompts;
@@ -20,7 +21,6 @@ mod static_files;
 mod team;
 mod training;
 mod ui_completions;
-mod unstructured;
 
 use axum::extract::Extension;
 use axum::routing::post;
@@ -42,6 +42,7 @@ async fn main() {
 
     let axum_make_service = axum::Router::new()
         .route("/static/*path", get(static_files::static_path))
+        .route("/v1/document_upload", post(api_pipeline::upload))
         .route("/v1/*path", get(api_reverse_proxy::handler))
         .route("/v1/*path", post(api_reverse_proxy::handler))
         .route("/completions/:chat_id", post(ui_completions::handler))
@@ -53,7 +54,7 @@ async fn main() {
         .merge(api_keys::routes())
         .merge(datasets::routes())
         .merge(documents::routes())
-        .merge(bulk_import::routes())
+        .merge(pipelines::routes())
         .merge(models::routes())
         .merge(training::routes())
         .merge(prompts::routes())

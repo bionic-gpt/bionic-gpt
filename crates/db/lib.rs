@@ -12,6 +12,7 @@ pub use queries::api_keys::ApiKey;
 pub use queries::chats::Chat;
 pub use queries::conversations::Conversation;
 pub use queries::datasets::Dataset;
+pub use queries::document_pipelines::DocumentPipeline;
 pub use queries::invitations::Invitation;
 pub use queries::models::Model;
 pub use queries::organisations::GetTeams as Team;

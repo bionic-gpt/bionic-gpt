@@ -13,6 +13,7 @@ alias gdb='git branch | grep -v "main" | xargs git branch -D'
 
 # Database
 alias dbmate='dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations'
+alias dbdown='while dbmate down; do :; done'
 alias db='psql $DATABASE_URL'
 
 alias p='sudo chmod 777 /var/run/docker.sock'
@@ -24,7 +25,7 @@ alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/primer-rs
 alias wa=watch-app
 alias watch-pipeline='npm install --prefix /workspace/crates/asset-pipeline && npm run start --prefix /workspace/crates/asset-pipeline'
 alias wp=watch-pipeline
-alias watch-embeddings='mold -run cargo watch --workdir /workspace/ -w crates/open-api -w crates/embeddings-job --no-gitignore -x "run --bin embeddings-job"'
+alias watch-embeddings='mold -run cargo watch --workdir /workspace/ -w crates/open-api -w crates/pipeline-job --no-gitignore -x "run --bin pipeline-job"'
 alias we=watch-embeddings
 
 # Spell check

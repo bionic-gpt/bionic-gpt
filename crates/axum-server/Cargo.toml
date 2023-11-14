@@ -40,10 +40,7 @@ lettre = { version = "0.10.0-rc.4", default-features = false,  features = ["rust
 base64 = "0.13.1" # So we encode DER public key to base64
 
 # So we can store embeddings
-pgvector = { version = "0.2", features = ["postgres"] }
-
-## Used to call unstructured API
-reqwest = { version = "0", default-features = false, features = ["multipart", "rustls-tls", "json"] }
+pgvector = { version = "0.3", features = ["postgres"] }
 
 # Tiktoken counts our token usage for prompts
 tiktoken-rs = "0.5.4"
@@ -51,7 +48,9 @@ tiktoken-rs = "0.5.4"
 [dev-dependencies]
 # WebDriver Library for UI testing.
 thirtyfour = { version = "0" }
+time = { version = "0", default-features = false }
 tokio = { version = "1", features = ["macros"] }
 rand = "0"
 quoted_printable = "0"
+reqwest = { version = "0", default-features = false, features = ["multipart", "rustls-tls", "json"] }
 
