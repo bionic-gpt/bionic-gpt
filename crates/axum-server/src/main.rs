@@ -1,4 +1,5 @@
 mod api_keys;
+mod api_pipeline;
 mod api_reverse_proxy;
 mod authentication;
 mod config;
@@ -41,6 +42,7 @@ async fn main() {
 
     let axum_make_service = axum::Router::new()
         .route("/static/*path", get(static_files::static_path))
+        .route("/v1/document_upload", post(api_pipeline::upload))
         .route("/v1/*path", get(api_reverse_proxy::handler))
         .route("/v1/*path", post(api_reverse_proxy::handler))
         .route("/completions/:chat_id", post(ui_completions::handler))

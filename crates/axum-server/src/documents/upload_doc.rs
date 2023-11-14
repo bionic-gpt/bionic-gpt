@@ -23,8 +23,6 @@ pub async fn upload(
         // file data
         let data = file.bytes().await.unwrap().to_vec();
 
-        tracing::info!("Sending document to unstructured");
-
         let _document_id = queries::documents::insert()
             .bind(
                 &transaction,
