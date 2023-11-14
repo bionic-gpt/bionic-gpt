@@ -13,7 +13,7 @@ pub enum SideBar {
     Prompts,
     Models,
     Datasets,
-    BulkImport,
+    DocumentPipelines,
     Team,
     Profile,
     Switch,
@@ -83,30 +83,23 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                     heading: "Pipelines",
                     content:  cx.render(rsx!(
                         NavItem {
-                            id: SideBar::BulkImport.to_string(),
+                            id: SideBar::DocumentPipelines.to_string(),
                             selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::documents::bulk_route(cx.props.team_id),
+                            href: super::routes::document_pipelines::index_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
-                            title: "LLM Pipeline"
+                            title: "Document Pipelines"
                         }
                     ))
                 }
                 NavGroup {
-                    heading: "Models & Fine Tuning",
+                    heading: "Fine Tuning",
                     content:  cx.render(rsx!(
-                        NavItem {
-                            id: SideBar::Models.to_string(),
-                            selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::models::index_route(cx.props.team_id),
-                            icon: nav_phonebook_svg.name,
-                            title: "Model Setup"
-                        }
                         NavItem {
                             id: SideBar::Training.to_string(),
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::training::index_route(cx.props.team_id),
                             icon: nav_space_objects_svg.name,
-                            title: "Training Runs"
+                            title: "QLoRA Adapters"
                         }
                     ))
                 }
@@ -118,7 +111,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::api_keys::index_route(cx.props.team_id),
                             icon: nav_api_keys_svg.name,
-                            title: "API Keys"
+                            title: "Chat API Keys"
                         }
                     ))
                 }
@@ -138,6 +131,18 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             href: super::routes::team::switch_route(cx.props.team_id),
                             icon: nav_teams_svg.name,
                             title: "Your Teams"
+                        }
+                    ))
+                }
+                NavGroup {
+                    heading: "System Admin",
+                    content:  cx.render(rsx!(
+                        NavItem {
+                            id: SideBar::Models.to_string(),
+                            selected_item_id: cx.props.selected_item.to_string(),
+                            href: super::routes::models::index_route(cx.props.team_id),
+                            icon: nav_phonebook_svg.name,
+                            title: "Model Setup"
                         }
                     ))
                 }

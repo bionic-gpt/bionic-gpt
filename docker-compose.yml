@@ -59,8 +59,8 @@ services:
         condition: service_completed_successfully
   
   # Our axum server delivering our user interface
-  embeddings-job:
-    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-job:1.2.5
+  pipeline-job:
+    image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.2.5
     environment:
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
