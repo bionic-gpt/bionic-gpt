@@ -23,7 +23,7 @@
           "skipLogin": true
       }],
       ["@semantic-release-plus/docker", {
-          "name": "ghcr.io/bionic-gpt/bionicgpt-embeddings-job:latest",
+          "name": "ghcr.io/bionic-gpt/bionicgpt-pipeline-job:latest",
           "skipLogin": true
       }],
       ["@semantic-release/exec", {

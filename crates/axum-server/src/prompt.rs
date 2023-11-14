@@ -290,7 +290,6 @@ async fn get_related_context(
 
 #[cfg(test)]
 mod tests {
-    use thirtyfour::cookie::time::PrimitiveDateTime;
 
     use super::*;
 
@@ -353,8 +352,8 @@ mod tests {
             prompt_id: 0,
             model_name: "ggml".to_string(),
             response: Some(answer),
-            created_at: PrimitiveDateTime::MIN,
-            updated_at: PrimitiveDateTime::MIN,
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            updated_at: time::OffsetDateTime::UNIX_EPOCH,
         }
     }
 }

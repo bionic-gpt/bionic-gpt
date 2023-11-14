@@ -1,12 +1,23 @@
+--! unprocessed_documents : Chunk()
+SELECT
+    d.id,
+    d.dataset_id,
+    d.file_name,
+    d.content
+FROM
+    documents d
+WHERE
+    id NOT IN (SELECT document_id FROM chunks WHERE document_id = d.id);
+    
 --! documents : Document()
 SELECT
     id,
     dataset_id, 
     file_name,
-    (SELECT COUNT(id) FROM embeddings WHERE document_id = d.id) as batches,
-    (SELECT SUM(LENGTH(text)) FROM embeddings WHERE document_id = d.id) as text_size,
-    (SELECT COUNT(id) FROM embeddings WHERE document_id = d.id AND embeddings IS NULL AND processed IS TRUE) as fail_count,
-    (SELECT COUNT(id) FROM embeddings WHERE document_id = d.id AND processed IS NOT TRUE) as waiting,
+    (SELECT COUNT(id) FROM chunks WHERE document_id = d.id) as batches,
+    content_size,
+    (SELECT COUNT(id) FROM chunks WHERE document_id = d.id AND chunks IS NULL AND processed IS TRUE) as fail_count,
+    (SELECT COUNT(id) FROM chunks WHERE document_id = d.id AND processed IS NOT TRUE) as waiting,
     created_at,
     updated_at
 FROM 
@@ -26,10 +37,10 @@ SELECT
     id,
     dataset_id, 
     file_name,
-    (SELECT COUNT(id) FROM embeddings WHERE document_id = d.id) as batches,
-    (SELECT SUM(LENGTH(text)) FROM embeddings WHERE document_id = d.id) as text_size,
-    (SELECT COUNT(id) FROM embeddings WHERE document_id = d.id AND embeddings IS NULL AND processed IS TRUE) as fail_count,
-    (SELECT COUNT(id) FROM embeddings WHERE document_id = d.id AND processed IS NOT TRUE) as waiting,
+    (SELECT COUNT(id) FROM chunks WHERE document_id = d.id) as batches,
+    content_size,
+    (SELECT COUNT(id) FROM chunks WHERE document_id = d.id AND chunks IS NULL AND processed IS TRUE) as fail_count,
+    (SELECT COUNT(id) FROM chunks WHERE document_id = d.id AND processed IS NOT TRUE) as waiting,
     created_at,
     updated_at
 FROM 
@@ -48,9 +59,11 @@ AND
 --! insert
 INSERT INTO documents (
     dataset_id,
-    file_name
+    file_name,
+    content,
+    content_size
 ) 
-VALUES(:dataset_id, :file_name)
+VALUES(:dataset_id, :file_name, :content, :content_size)
 RETURNING id;
 
 --! delete
