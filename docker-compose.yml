@@ -52,6 +52,7 @@ services:
         FORWARD_URL: app
         FORWARD_PORT: 7703
         REDIRECT_URL: /app/post_registration
+        RUST_LOG: warn
     depends_on:
       db:
         condition: service_healthy
