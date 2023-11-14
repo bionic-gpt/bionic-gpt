@@ -53,7 +53,7 @@
     - [x] Allow user to create datasets
     - [x] UI for datasets table 
     - [x] Turn documents into 1K batches and generate embeddings
-    - [ ] OCR for document upload
+    - [x] OCR for document upload
 - [x] Document Pipelines
     - [x] Allow user to upload docs via API to datasets
     - [x] Process documents and create chunks and embeddings
