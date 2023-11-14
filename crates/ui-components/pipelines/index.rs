@@ -3,12 +3,12 @@ use assets::files::*;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-struct ApiKeysProps {
+struct PipelineKeysProps {
     organisation_id: i32,
 }
 
 pub fn index(organisation_id: i32) -> String {
-    fn app(cx: Scope<ApiKeysProps>) -> Element {
+    fn app(cx: Scope<PipelineKeysProps>) -> Element {
         cx.render(rsx! {
             Layout {
                 section_class: "normal",
@@ -29,6 +29,6 @@ pub fn index(organisation_id: i32) -> String {
 
     crate::render(VirtualDom::new_with_props(
         app,
-        ApiKeysProps { organisation_id },
+        PipelineKeysProps { organisation_id },
     ))
 }
