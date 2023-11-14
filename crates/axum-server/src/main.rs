@@ -1,7 +1,6 @@
 mod api_keys;
 mod api_reverse_proxy;
 mod authentication;
-mod bulk_import;
 mod config;
 mod console;
 mod datasets;
@@ -11,6 +10,7 @@ mod errors;
 mod index;
 mod layout;
 mod models;
+mod pipelines;
 mod profile;
 mod prompt;
 mod prompts;
@@ -52,7 +52,7 @@ async fn main() {
         .merge(api_keys::routes())
         .merge(datasets::routes())
         .merge(documents::routes())
-        .merge(bulk_import::routes())
+        .merge(pipelines::routes())
         .merge(models::routes())
         .merge(training::routes())
         .merge(prompts::routes())

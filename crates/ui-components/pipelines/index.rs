@@ -7,7 +7,7 @@ struct ApiKeysProps {
     organisation_id: i32,
 }
 
-pub fn bulk(organisation_id: i32) -> String {
+pub fn index(organisation_id: i32) -> String {
     fn app(cx: Scope<ApiKeysProps>) -> Element {
         cx.render(rsx! {
             Layout {
@@ -19,9 +19,9 @@ pub fn bulk(organisation_id: i32) -> String {
                     h3 { "Document Pipelines" }
                 )),
                 BlankSlate {
-                    heading: "This feature is not complete yet",
+                    heading: "Automate document upload with our bulk upload API",
                     visual: empty_api_keys_svg.name,
-                    description: "When it is you'll be able to upload documents to S3 compatible buckets"
+                    description: "The upload API connects your documents to datasets for processing by our pipeline"
                 }
             }
         })

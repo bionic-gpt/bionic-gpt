@@ -3,13 +3,13 @@ use dioxus::prelude::VirtualDom;
 
 pub mod api_keys;
 pub mod app_layout;
-pub mod bulk_import;
 pub mod console;
 pub mod datasets;
 pub mod documents;
 pub mod logout_form;
 pub mod model_form;
 pub mod models;
+pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;
 pub mod prompts;

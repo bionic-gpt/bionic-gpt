@@ -87,7 +87,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::documents::bulk_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
-                            title: "LLM Pipeline"
+                            title: "Document Pipelines"
                         }
                     ))
                 }
@@ -118,7 +118,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::api_keys::index_route(cx.props.team_id),
                             icon: nav_api_keys_svg.name,
-                            title: "API Keys"
+                            title: "Chat API Keys"
                         }
                     ))
                 }
