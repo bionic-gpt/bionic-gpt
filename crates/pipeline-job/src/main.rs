@@ -45,7 +45,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         ) 
                         VALUES 
                             ($1, $2, $3)",
-                        &[&document.id, &text.metadata.page_number, &text.text],
+                        &[
+                            &document.id,
+                            &text.metadata.page_number.unwrap_or(0),
+                            &text.text,
+                        ],
                     )
                     .await?;
             }

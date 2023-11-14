@@ -86,6 +86,17 @@ pub fn index(
                                                                         }
                                                                     }
                                                                 ))
+                                                            } else if doc.batches == 0 {
+                                                                cx.render(rsx!(
+                                                                    turbo-frame {
+                                                                        id: "status-{doc.id}",
+                                                                        loading: "lazy",
+                                                                        src: "{super::super::routes::documents::status_route(doc.id)}",
+                                                                        Label {
+                                                                            "Queued"
+                                                                        }
+                                                                    }
+                                                                ))
                                                             } else if doc.fail_count > 0 {
                                                                 cx.render(rsx!(
                                                                     Label {

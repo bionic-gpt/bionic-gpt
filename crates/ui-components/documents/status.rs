@@ -17,7 +17,13 @@ pub fn status(document: Document) -> String {
                             "Processing ({cx.props.document.waiting} remaining)"
                         }
                     ))
-                } else if cx.props.document.fail_count > 0 {
+                } else if cx.props.document.batches == 0 {
+                    cx.render(rsx!(
+                        Label {
+                            "Queued"
+                        }
+                    ))
+                }  else if cx.props.document.fail_count > 0 {
                     cx.render(rsx!(
                         Label {
                             label_color: LabelColor::Attention,
