@@ -40,11 +40,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         "
                         INSERT INTO chunks (
                             document_id,
+                            page_number,
                             text
                         ) 
                         VALUES 
-                            ($1, $2)",
-                        &[&document.id, &text.text],
+                            ($1, $2, $3)",
+                        &[&document.id, &text.metadata.page_number, &text.text],
                     )
                     .await?;
             }
