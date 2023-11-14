@@ -54,10 +54,9 @@
     - [x] UI for datasets table 
     - [x] Turn documents into 1K batches and generate embeddings
     - [ ] OCR for document upload
-- [ ] Document Pipelines
-    - [ ] Create S3 compatible buckets
-    - [ ] Allow user to upload docs to buckets
-    - [ ] Process documents and create embeddings
+- [x] Document Pipelines
+    - [x] Allow user to upload docs via API to datasets
+    - [x] Process documents and create chunks and embeddings
 - [x] Retrieval Augmented Generation
     - [x] Parse text out of documents
     - [x] Generate Embeddings and store in pgVector
