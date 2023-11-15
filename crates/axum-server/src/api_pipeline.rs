@@ -1,12 +1,20 @@
 use crate::errors::CustomError;
 use axum::{
-    extract::{Extension, Multipart},
+    extract::{DefaultBodyLimit, Extension, Multipart},
     http::header::HeaderMap,
     response::IntoResponse,
+    routing::post,
+    Router,
 };
 use db::queries;
 use db::Pool;
 use http::StatusCode;
+
+pub fn routes() -> Router {
+    Router::new()
+        .route("/v1/document_upload", post(upload))
+        .layer(DefaultBodyLimit::max(50000000))
+}
 
 pub async fn upload(
     Extension(pool): Extension<Pool>,
