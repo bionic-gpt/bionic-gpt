@@ -1,18 +1,18 @@
-<svg version="1.1" baseProfile="full" width="806.0" height="795.0" viewbox="0 0 806 795" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+<svg version="1.1" baseProfile="full" width="809.5" height="810.0" viewbox="0 0 809.5 810" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
 		<desc >[Browser] --&gt; [Kubernetes]
 	[&lt;actor&gt; Users] --&gt; [Browser]
 	[&lt;actor&gt; Operations] --&gt; [Infra as Code] --&gt; [Kubernetes]
 	[&lt;actor&gt; Developers] --&gt; [Github| CI CD] --&gt; [Github Container Registry] --&gt; [Kubernetes]
 	
 	[&lt;frame&gt;Kubernetes|
-	  [Envoy|Reverse Proxy] --&gt; [Bionic GPT|Axum Web Server]
+	  [Envoy|Reverse Proxy] --&gt; [Bionic GPT|API &amp; Web Server]
 	  [Envoy] --&gt; [Barricade| Authentication]
-	  [Bionic GPT] --&gt; [Unstructured API|Document Parsing|Chunk Generation]
-	  [Bionic GPT] --&gt; [Local AI|Completions|Embeddings]
+	  [Bionic GPT] --&gt; [Unstructured API|Document Parsing|Chunk Generation|OCR]
+	  [Bionic GPT] --&gt; [LLM API|Completions|Embeddings]
 	  [Bionic GPT] --&gt; [&lt;database&gt; Postgres|PgVector|Row Level Security]
-	  [&lt;pipe&gt; S3 Document Stream] --&gt; [Unstructured API]
-	  [S3 Document Stream] --&gt; [Local AI]
-	  [AirByte|Data Connectors] --&gt; [S3 Document Stream]
+	  [&lt;pipe&gt; Document Upload API] --&gt; [Unstructured API]
+	  [Document Upload API] --&gt; [LLM API]
+	  [AirByte|Data Connectors] --&gt; [Document Upload API]
 	]
 	
 	[Kubernetes] --&gt; [OpenAI Compatible API]
@@ -21,51 +21,51 @@
 	<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="bold" font-style="normal">
 			<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
 				<g stroke="transparent" fill="transparent">
-					<rect x="0.0" y="0.0" height="795.0" width="806.0" stroke="none"></rect>
+					<rect x="0.0" y="0.0" height="810.0" width="809.5" stroke="none"></rect>
 				</g>
 			<g transform="translate(8, 8)" fill="#33322E">
 					<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
 						<g stroke-dasharray="6 6">
-							<path d="M236.5 228.0 L236.5 248 L245.539160710687 262.3582336198639 L245.5 262.4 " fill="none"></path>
+							<path d="M238.3 228.0 L238.25 248 L246.9591141710582 262.30558464921114 L247.0 262.3 " fill="none"></path>
 						</g>
-					<path d="M237.5 259.6 L245.5 262.4 L246.5 253.9 L249.1 268.0 Z"></path>
+					<path d="M238.9 259.4 L247.0 262.3 L248.0 253.8 L250.4 268.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M236.5 153.5 L236.5 177 L236.5 190.33333333333334 L236.5 190.3 " fill="none"></path>
+							<path d="M238.3 153.5 L238.25 177 L238.25 190.33333333333334 L238.3 190.3 " fill="none"></path>
 						</g>
-					<path d="M231.2 183.7 L236.5 190.3 L241.8 183.7 L236.5 197.0 Z"></path>
+					<path d="M232.9 183.7 L238.3 190.3 L243.6 183.7 L238.3 197.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M375.0 153.5 L375 177 L375 190.33333333333334 L375.0 190.3 " fill="none"></path>
+							<path d="M376.8 153.5 L376.75 177 L376.75 190.33333333333334 L376.8 190.3 " fill="none"></path>
 						</g>
-					<path d="M369.7 183.7 L375.0 190.3 L380.3 183.7 L375.0 197.0 Z"></path>
+					<path d="M371.4 183.7 L376.8 190.3 L382.1 183.7 L376.8 197.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M375.0 228.0 L375 248 L375 261.3333333333333 L375.0 261.3 " fill="none"></path>
+							<path d="M376.8 228.0 L376.75 248 L376.75 261.3333333333333 L376.8 261.3 " fill="none"></path>
 						</g>
-					<path d="M369.7 254.7 L375.0 261.3 L380.3 254.7 L375.0 268.0 Z"></path>
+					<path d="M371.4 254.7 L376.8 261.3 L382.1 254.7 L376.8 268.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M581.0 55.0 L581 75 L581 88.33333333333333 L581.0 88.3 " fill="none"></path>
+							<path d="M582.8 55.0 L582.75 75 L582.75 88.33333333333333 L582.8 88.3 " fill="none"></path>
 						</g>
-					<path d="M575.7 81.7 L581.0 88.3 L586.3 81.7 L581.0 95.0 Z"></path>
+					<path d="M577.4 81.7 L582.8 88.3 L588.1 81.7 L582.8 95.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M581.0 157.0 L581 177 L581 190.33333333333334 L581.0 190.3 " fill="none"></path>
+							<path d="M582.8 157.0 L582.75 177 L582.75 190.33333333333334 L582.8 190.3 " fill="none"></path>
 						</g>
-					<path d="M575.7 183.7 L581.0 190.3 L586.3 183.7 L581.0 197.0 Z"></path>
+					<path d="M577.4 183.7 L582.8 190.3 L588.1 183.7 L582.8 197.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M581.0 228.0 L581 248 L566.829390798555 263.1336603122228 L566.8 263.1 " fill="none"></path>
+							<path d="M582.8 228.0 L582.75 248 L569.1148557586741 263.05822968398854 L569.1 263.1 " fill="none"></path>
 						</g>
-					<path d="M567.5 254.6 L566.8 263.1 L575.3 261.9 L562.3 268.0 Z"></path>
+					<path d="M569.6 254.5 L569.1 263.1 L577.5 261.7 L564.6 268.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M312.0 668.0 L305.75 688 L305.75 701.3333333333334 L305.8 701.3 " fill="none"></path>
+							<path d="M313.6 683.0 L307.5 703 L307.5 716.3333333333334 L307.5 716.3 " fill="none"></path>
 						</g>
-					<path d="M300.4 694.7 L305.8 701.3 L311.1 694.7 L305.8 708.0 Z"></path>
+					<path d="M302.2 709.7 L307.5 716.3 L312.8 709.7 L307.5 723.0 Z"></path>
 					<g stroke-dasharray="6 6">
-							<path d="M497.5 668.0 L509.75 688 L509.75 701.3333333333334 L509.8 701.3 " fill="none"></path>
+							<path d="M499.7 683.0 L511.5 703 L511.5 716.3333333333334 L511.5 716.3 " fill="none"></path>
 						</g>
-					<path d="M504.4 694.7 L509.8 701.3 L515.1 694.7 L509.8 708.0 Z"></path>
+					<path d="M506.2 709.7 L511.5 716.3 L516.8 709.7 L511.5 723.0 Z"></path>
 					<g data-name="Browser">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Browser">
-								<rect x="196.5" y="197.0" height="31.0" width="80.0" data-name="Browser"></rect>
+								<rect x="198.3" y="197.0" height="31.0" width="80.0" data-name="Browser"></rect>
 							</g>
-						<g transform="translate(196.5, 197)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Browser">
+						<g transform="translate(198.25, 197)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Browser">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Browser">
 									<text x="32.0" y="13.5" stroke="none" text-anchor="middle" data-name="Browser">Browser</text>
 								
@@ -74,7 +74,7 @@
 						</g>
 					<g data-name="Kubernetes">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Kubernetes">
-								<rect x="0.0" y="268.0" height="400.0" width="750.0" data-name="Kubernetes"></rect>
+								<rect x="0.0" y="268.0" height="415.0" width="753.5" data-name="Kubernetes"></rect>
 							<path d="M0.0 299.0 L96.3 299.0 L111.8 283.5 L111.8 268.0" fill="none" data-name="Kubernetes"></path>
 							</g>
 						<g transform="translate(0, 268)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Kubernetes">
@@ -87,49 +87,49 @@
 								<g transform="translate(8, 8)" fill="#33322E" data-name="Kubernetes">
 									<g transform="translate(20, 20)" fill="#33322E" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Kubernetes">
 										<g stroke-dasharray="6 6" data-name="Kubernetes">
-											<path d="M418.9 62.0 L452.5 82 L452.5 95.33333333333333 L452.5 95.3 " fill="none" data-name="Kubernetes"></path>
+											<path d="M422.4 62.0 L456 82 L456 95.33333333333333 L456.0 95.3 " fill="none" data-name="Kubernetes"></path>
 										</g>
-									<path d="M447.2 88.7 L452.5 95.3 L457.8 88.7 L452.5 102.0 Z" data-name="Kubernetes"></path>
+									<path d="M450.7 88.7 L456.0 95.3 L461.3 88.7 L456.0 102.0 Z" data-name="Kubernetes"></path>
 									<g stroke-dasharray="6 6" data-name="Kubernetes">
-											<path d="M314.6 62.0 L281 82 L281 95.33333333333333 L281.0 95.3 " fill="none" data-name="Kubernetes"></path>
+											<path d="M318.1 62.0 L284.5 82 L284.5 95.33333333333333 L284.5 95.3 " fill="none" data-name="Kubernetes"></path>
 										</g>
-									<path d="M275.7 88.7 L281.0 95.3 L286.3 88.7 L281.0 102.0 Z" data-name="Kubernetes"></path>
+									<path d="M279.2 88.7 L284.5 95.3 L289.8 88.7 L284.5 102.0 Z" data-name="Kubernetes"></path>
 									<g stroke-dasharray="6 6" data-name="Kubernetes">
-											<path d="M379.5 153.8 L273.25 184 L154.24444550980166 228.49643066258355 L154.2 228.5 " fill="none" data-name="Kubernetes"></path>
+											<path d="M383.0 153.6 L275 184 L154.17275609204538 233.29270646991182 L154.2 233.3 " fill="none" data-name="Kubernetes"></path>
 										</g>
-									<path d="M158.6 221.2 L154.2 228.5 L162.4 231.2 L148.0 230.8 Z" data-name="Kubernetes"></path>
+									<path d="M158.3 225.8 L154.2 233.3 L162.4 235.7 L148.0 235.8 Z" data-name="Kubernetes"></path>
 									<g stroke-dasharray="6 6" data-name="Kubernetes">
-											<path d="M525.5 152.7 L641.5 184 L641.5 205.33333333333334 L641.5 205.3 " fill="none" data-name="Kubernetes"></path>
+											<path d="M529.0 152.7 L645 184 L645 212.83333333333334 L645.0 212.8 " fill="none" data-name="Kubernetes"></path>
 										</g>
-									<path d="M636.2 198.7 L641.5 205.3 L646.8 198.7 L641.5 212.0 Z" data-name="Kubernetes"></path>
+									<path d="M639.7 206.2 L645.0 212.8 L650.3 206.2 L645.0 219.5 Z" data-name="Kubernetes"></path>
 									<g stroke-dasharray="6 6" data-name="Kubernetes">
-											<path d="M452.5 164.0 L452.5 184 L452.5 197.33333333333334 L452.5 197.3 " fill="none" data-name="Kubernetes"></path>
+											<path d="M456.0 164.0 L456 184 L456 204.83333333333334 L456.0 204.8 " fill="none" data-name="Kubernetes"></path>
 										</g>
-									<path d="M447.2 190.7 L452.5 197.3 L457.8 190.7 L452.5 204.0 Z" data-name="Kubernetes"></path>
+									<path d="M450.7 198.2 L456.0 204.8 L461.3 198.2 L456.0 211.5 Z" data-name="Kubernetes"></path>
 									<g stroke-dasharray="6 6" data-name="Kubernetes">
-											<path d="M87.9 148.5 L74 184 L74 205.33333333333334 L74.0 205.3 " fill="none" data-name="Kubernetes"></path>
+											<path d="M87.9 148.5 L74 184 L74 197.33333333333334 L74.0 197.3 " fill="none" data-name="Kubernetes"></path>
 										</g>
-									<path d="M68.7 198.7 L74.0 205.3 L79.3 198.7 L74.0 212.0 Z" data-name="Kubernetes"></path>
+									<path d="M68.7 190.7 L74.0 197.3 L79.3 190.7 L74.0 204.0 Z" data-name="Kubernetes"></path>
 									<g stroke-dasharray="6 6" data-name="Kubernetes">
-											<path d="M182.5 142.7 L557 184 L583.9993543268283 207.8041644656652 L584.0 207.8 " fill="none" data-name="Kubernetes"></path>
+											<path d="M186.0 143.1 L560.5 184 L592.2980296857013 214.85725957665682 L592.3 214.9 " fill="none" data-name="Kubernetes"></path>
 										</g>
-									<path d="M575.5 207.4 L584.0 207.8 L582.5 199.4 L589.0 212.2 Z" data-name="Kubernetes"></path>
+									<path d="M583.8 214.0 L592.3 214.9 L591.2 206.4 L597.1 219.5 Z" data-name="Kubernetes"></path>
 									<g stroke-dasharray="6 6" data-name="Kubernetes">
 											<path d="M94.0 62.0 L94 82 L94 110.83333333333333 L94.0 110.8 " fill="none" data-name="Kubernetes"></path>
 										</g>
 									<path d="M88.7 104.2 L94.0 110.8 L99.3 104.2 L94.0 117.5 Z" data-name="Kubernetes"></path>
 									<g data-name="Envoy">
 											<g fill="#fdf6e3" stroke="#33322E" data-name="Envoy">
-												<rect x="306.3" y="0.0" height="62.0" width="121.0" data-name="Envoy"></rect>
-											<path d="M306.3 31.0 L427.3 31.0" fill="none" data-name="Envoy"></path>
+												<rect x="309.8" y="0.0" height="62.0" width="121.0" data-name="Envoy"></rect>
+											<path d="M309.8 31.0 L430.8 31.0" fill="none" data-name="Envoy"></path>
 											</g>
-										<g transform="translate(306.25, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Envoy">
+										<g transform="translate(309.75, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Envoy">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Envoy">
 													<text x="52.5" y="13.5" stroke="none" text-anchor="middle" data-name="Envoy">Envoy</text>
 												
 												</g>
 											</g>
-										<g transform="translate(306.25, 31)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Envoy">
+										<g transform="translate(309.75, 31)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Envoy">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Envoy">
 													<text x="0.0" y="13.5" stroke="none" data-name="Envoy">Reverse Proxy</text>
 												
@@ -138,34 +138,34 @@
 										</g>
 									<g data-name="Bionic GPT">
 											<g fill="#fdf6e3" stroke="#33322E" data-name="Bionic GPT">
-												<rect x="379.5" y="102.0" height="62.0" width="146.0" data-name="Bionic GPT"></rect>
-											<path d="M379.5 133.0 L525.5 133.0" fill="none" data-name="Bionic GPT"></path>
+												<rect x="383.0" y="102.0" height="62.0" width="146.0" data-name="Bionic GPT"></rect>
+											<path d="M383.0 133.0 L529.0 133.0" fill="none" data-name="Bionic GPT"></path>
 											</g>
-										<g transform="translate(379.5, 102)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Bionic GPT">
+										<g transform="translate(383, 102)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Bionic GPT">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Bionic GPT">
 													<text x="65.0" y="13.5" stroke="none" text-anchor="middle" data-name="Bionic GPT">Bionic GPT</text>
 												
 												</g>
 											</g>
-										<g transform="translate(379.5, 133)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Bionic GPT">
+										<g transform="translate(383, 133)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Bionic GPT">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Bionic GPT">
-													<text x="0.0" y="13.5" stroke="none" data-name="Bionic GPT">Axum Web Server</text>
+													<text x="0.0" y="13.5" stroke="none" data-name="Bionic GPT">API &amp; Web Server</text>
 												
 												</g>
 											</g>
 										</g>
 									<g data-name="Barricade">
 											<g fill="#fdf6e3" stroke="#33322E" data-name="Barricade">
-												<rect x="222.5" y="102.0" height="62.0" width="117.0" data-name="Barricade"></rect>
-											<path d="M222.5 133.0 L339.5 133.0" fill="none" data-name="Barricade"></path>
+												<rect x="226.0" y="102.0" height="62.0" width="117.0" data-name="Barricade"></rect>
+											<path d="M226.0 133.0 L343.0 133.0" fill="none" data-name="Barricade"></path>
 											</g>
-										<g transform="translate(222.5, 102)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Barricade">
+										<g transform="translate(226, 102)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Barricade">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Barricade">
 													<text x="50.5" y="13.5" stroke="none" text-anchor="middle" data-name="Barricade">Barricade</text>
 												
 												</g>
 											</g>
-										<g transform="translate(222.5, 133)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Barricade">
+										<g transform="translate(226, 133)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Barricade">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Barricade">
 													<text x="0.0" y="13.5" stroke="none" data-name="Barricade">Authentication</text>
 												
@@ -174,94 +174,101 @@
 										</g>
 									<g data-name="Unstructured API">
 											<g fill="#fdf6e3" stroke="#33322E" data-name="Unstructured API">
-												<rect x="0.0" y="212.0" height="93.0" width="148.0" data-name="Unstructured API"></rect>
-											<path d="M0.0 243.0 L148.0 243.0" fill="none" data-name="Unstructured API"></path>
-											<path d="M0.0 274.0 L148.0 274.0" fill="none" data-name="Unstructured API"></path>
+												<rect x="0.0" y="204.0" height="124.0" width="148.0" data-name="Unstructured API"></rect>
+											<path d="M0.0 235.0 L148.0 235.0" fill="none" data-name="Unstructured API"></path>
+											<path d="M0.0 266.0 L148.0 266.0" fill="none" data-name="Unstructured API"></path>
+											<path d="M0.0 297.0 L148.0 297.0" fill="none" data-name="Unstructured API"></path>
 											</g>
-										<g transform="translate(0, 212)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Unstructured API">
+										<g transform="translate(0, 204)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Unstructured API">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Unstructured API">
 													<text x="66.0" y="13.5" stroke="none" text-anchor="middle" data-name="Unstructured API">Unstructured API</text>
 												
 												</g>
 											</g>
-										<g transform="translate(0, 243)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Unstructured API">
+										<g transform="translate(0, 235)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Unstructured API">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Unstructured API">
 													<text x="0.0" y="13.5" stroke="none" data-name="Unstructured API">Document Parsing</text>
 												
 												</g>
 											</g>
-										<g transform="translate(0, 274)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Unstructured API">
+										<g transform="translate(0, 266)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Unstructured API">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Unstructured API">
 													<text x="0.0" y="13.5" stroke="none" data-name="Unstructured API">Chunk Generation</text>
 												
 												</g>
 											</g>
+										<g transform="translate(0, 297)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Unstructured API">
+												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Unstructured API">
+													<text x="0.0" y="13.5" stroke="none" data-name="Unstructured API">OCR</text>
+												
+												</g>
+											</g>
 										</g>
-									<g data-name="Local AI">
-											<g fill="#fdf6e3" stroke="#33322E" data-name="Local AI">
-												<rect x="589.0" y="212.0" height="93.0" width="105.0" data-name="Local AI"></rect>
-											<path d="M589.0 243.0 L694.0 243.0" fill="none" data-name="Local AI"></path>
-											<path d="M589.0 274.0 L694.0 274.0" fill="none" data-name="Local AI"></path>
+									<g data-name="LLM API">
+											<g fill="#fdf6e3" stroke="#33322E" data-name="LLM API">
+												<rect x="592.5" y="219.5" height="93.0" width="105.0" data-name="LLM API"></rect>
+											<path d="M592.5 250.5 L697.5 250.5" fill="none" data-name="LLM API"></path>
+											<path d="M592.5 281.5 L697.5 281.5" fill="none" data-name="LLM API"></path>
 											</g>
-										<g transform="translate(589, 212)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Local AI">
-												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Local AI">
-													<text x="44.5" y="13.5" stroke="none" text-anchor="middle" data-name="Local AI">Local AI</text>
+										<g transform="translate(592.5, 219.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="LLM API">
+												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="LLM API">
+													<text x="44.5" y="13.5" stroke="none" text-anchor="middle" data-name="LLM API">LLM API</text>
 												
 												</g>
 											</g>
-										<g transform="translate(589, 243)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Local AI">
-												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Local AI">
-													<text x="0.0" y="13.5" stroke="none" data-name="Local AI">Completions</text>
+										<g transform="translate(592.5, 250.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LLM API">
+												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LLM API">
+													<text x="0.0" y="13.5" stroke="none" data-name="LLM API">Completions</text>
 												
 												</g>
 											</g>
-										<g transform="translate(589, 274)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Local AI">
-												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Local AI">
-													<text x="0.0" y="13.5" stroke="none" data-name="Local AI">Embeddings</text>
+										<g transform="translate(592.5, 281.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LLM API">
+												<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LLM API">
+													<text x="0.0" y="13.5" stroke="none" data-name="LLM API">Embeddings</text>
 												
 												</g>
 											</g>
 										</g>
 									<g data-name="Postgres">
 											<g fill="#fdf6e3" stroke="#33322E" data-name="Postgres">
-												<rect x="376.0" y="212.0" height="93.0" width="153.0" stroke="none" data-name="Postgres"></rect>
-											<path d="M376.0 212.0 L376.0 305.0" fill="none" data-name="Postgres"></path>
-											<path d="M529.0 212.0 L529.0 305.0" fill="none" data-name="Postgres"></path>
-											<ellipse cx="452.5" cy="212.0" rx="76.5" ry="6.0" data-name="Postgres"></ellipse>
-											<path d="M529.0 305.0 L528.9 305.3 L528.6 305.6 L528.1 305.9 L527.5 306.2 L526.6 306.5 L525.6 306.8 L524.4 307.1 L523.0 307.3 L521.4 307.6 L519.7 307.9 L517.8 308.1 L515.7 308.4 L513.5 308.6 L511.1 308.9 L508.6 309.1 L505.9 309.3 L503.1 309.5 L500.2 309.7 L497.2 309.9 L494.0 310.0 L490.7 310.2 L487.4 310.3 L484.0 310.5 L480.4 310.6 L476.9 310.7 L473.2 310.8 L469.5 310.8 L465.8 310.9 L462.0 311.0 L458.2 311.0 L454.4 311.0 L450.6 311.0 L446.8 311.0 L443.0 311.0 L439.2 310.9 L435.5 310.8 L431.8 310.8 L428.1 310.7 L424.6 310.6 L421.0 310.5 L417.6 310.3 L414.2 310.2 L411.0 310.0 L407.8 309.9 L404.8 309.7 L401.9 309.5 L399.1 309.3 L396.4 309.1 L393.9 308.9 L391.5 308.6 L389.3 308.4 L387.2 308.1 L385.3 307.9 L383.6 307.6 L382.0 307.3 L380.6 307.1 L379.4 306.8 L378.4 306.5 L377.5 306.2 L376.9 305.9 L376.4 305.6 L376.1 305.3 L376.0 305.0" data-name="Postgres"></path>
-											<path d="M376.0 243.0 L377.7 244.2 L382.6 245.4 L390.6 246.5 L401.3 247.5 L414.3 248.2 L428.9 248.7 L444.5 249.0 L460.5 249.0 L476.1 248.7 L490.8 248.2 L503.7 247.5 L514.4 246.5 L522.4 245.4 L527.3 244.2 L529.0 243.0" fill="none" data-name="Postgres"></path>
-											<path d="M376.0 274.0 L377.7 275.2 L382.6 276.4 L390.6 277.5 L401.3 278.5 L414.3 279.2 L428.9 279.7 L444.5 280.0 L460.5 280.0 L476.1 279.7 L490.8 279.2 L503.7 278.5 L514.4 277.5 L522.4 276.4 L527.3 275.2 L529.0 274.0" fill="none" data-name="Postgres"></path>
+												<rect x="379.5" y="219.5" height="93.0" width="153.0" stroke="none" data-name="Postgres"></rect>
+											<path d="M379.5 219.5 L379.5 312.5" fill="none" data-name="Postgres"></path>
+											<path d="M532.5 219.5 L532.5 312.5" fill="none" data-name="Postgres"></path>
+											<ellipse cx="456.0" cy="219.5" rx="76.5" ry="6.0" data-name="Postgres"></ellipse>
+											<path d="M532.5 312.5 L532.4 312.8 L532.1 313.1 L531.6 313.4 L531.0 313.7 L530.1 314.0 L529.1 314.3 L527.9 314.6 L526.5 314.8 L524.9 315.1 L523.2 315.4 L521.3 315.6 L519.2 315.9 L517.0 316.1 L514.6 316.4 L512.1 316.6 L509.4 316.8 L506.6 317.0 L503.7 317.2 L500.7 317.4 L497.5 317.5 L494.2 317.7 L490.9 317.8 L487.5 318.0 L483.9 318.1 L480.4 318.2 L476.7 318.3 L473.0 318.3 L469.3 318.4 L465.5 318.5 L461.7 318.5 L457.9 318.5 L454.1 318.5 L450.3 318.5 L446.5 318.5 L442.7 318.4 L439.0 318.3 L435.3 318.3 L431.6 318.2 L428.1 318.1 L424.5 318.0 L421.1 317.8 L417.7 317.7 L414.5 317.5 L411.3 317.4 L408.3 317.2 L405.4 317.0 L402.6 316.8 L399.9 316.6 L397.4 316.4 L395.0 316.1 L392.8 315.9 L390.7 315.6 L388.8 315.4 L387.1 315.1 L385.5 314.8 L384.1 314.6 L382.9 314.3 L381.9 314.0 L381.0 313.7 L380.4 313.4 L379.9 313.1 L379.6 312.8 L379.5 312.5" data-name="Postgres"></path>
+											<path d="M379.5 250.5 L381.2 251.7 L386.1 252.9 L394.1 254.0 L404.8 255.0 L417.8 255.7 L432.4 256.2 L448.0 256.5 L464.0 256.5 L479.6 256.2 L494.3 255.7 L507.2 255.0 L517.9 254.0 L525.9 252.9 L530.8 251.7 L532.5 250.5" fill="none" data-name="Postgres"></path>
+											<path d="M379.5 281.5 L381.2 282.7 L386.1 283.9 L394.1 285.0 L404.8 286.0 L417.8 286.7 L432.4 287.2 L448.0 287.5 L464.0 287.5 L479.6 287.2 L494.3 286.7 L507.2 286.0 L517.9 285.0 L525.9 283.9 L530.8 282.7 L532.5 281.5" fill="none" data-name="Postgres"></path>
 											</g>
-										<g transform="translate(376, 216)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Postgres">
+										<g transform="translate(379.5, 223.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Postgres">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Postgres">
 													<text x="68.5" y="13.5" stroke="none" text-anchor="middle" data-name="Postgres">Postgres</text>
 												
 												</g>
 											</g>
-										<g transform="translate(376, 247)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Postgres">
+										<g transform="translate(379.5, 254.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Postgres">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Postgres">
 													<text x="68.5" y="13.5" stroke="none" text-anchor="middle" data-name="Postgres">PgVector</text>
 												
 												</g>
 											</g>
-										<g transform="translate(376, 278)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Postgres">
+										<g transform="translate(379.5, 285.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Postgres">
 												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Postgres">
 													<text x="68.5" y="13.5" stroke="none" text-anchor="middle" data-name="Postgres">Row Level Security</text>
 												
 												</g>
 											</g>
 										</g>
-									<g data-name="S3 Document Stream">
-											<g fill="#fdf6e3" stroke="#33322E" data-name="S3 Document Stream">
-												<rect x="5.5" y="117.5" height="31.0" width="177.0" stroke="none" data-name="S3 Document Stream"></rect>
-											<path d="M5.5 117.5 L182.5 117.5" fill="none" data-name="S3 Document Stream"></path>
-											<path d="M5.5 148.5 L182.5 148.5" fill="none" data-name="S3 Document Stream"></path>
-											<ellipse cx="182.5" cy="133.0" rx="6.0" ry="15.5" data-name="S3 Document Stream"></ellipse>
-											<path d="M5.5 148.5 L5.2 148.5 L4.9 148.4 L4.6 148.3 L4.3 148.2 L4.0 148.0 L3.7 147.8 L3.4 147.6 L3.2 147.3 L2.9 147.0 L2.6 146.6 L2.4 146.2 L2.1 145.8 L1.9 145.4 L1.6 144.9 L1.4 144.4 L1.2 143.8 L1.0 143.3 L0.8 142.7 L0.6 142.0 L0.5 141.4 L0.3 140.7 L0.2 140.1 L0.0 139.4 L-0.1 138.7 L-0.2 137.9 L-0.3 137.2 L-0.3 136.4 L-0.4 135.7 L-0.5 134.9 L-0.5 134.2 L-0.5 133.4 L-0.5 132.6 L-0.5 131.8 L-0.5 131.1 L-0.4 130.3 L-0.3 129.6 L-0.3 128.8 L-0.2 128.1 L-0.1 127.3 L0.0 126.6 L0.2 125.9 L0.3 125.2 L0.5 124.6 L0.6 124.0 L0.8 123.3 L1.0 122.7 L1.2 122.2 L1.4 121.6 L1.6 121.1 L1.9 120.6 L2.1 120.2 L2.4 119.8 L2.6 119.4 L2.9 119.0 L3.2 118.7 L3.4 118.4 L3.7 118.2 L4.0 118.0 L4.3 117.8 L4.6 117.7 L4.9 117.6 L5.2 117.5 L5.5 117.5" data-name="S3 Document Stream"></path>
+									<g data-name="Document Upload API">
+											<g fill="#fdf6e3" stroke="#33322E" data-name="Document Upload API">
+												<rect x="2.0" y="117.5" height="31.0" width="184.0" stroke="none" data-name="Document Upload API"></rect>
+											<path d="M2.0 117.5 L186.0 117.5" fill="none" data-name="Document Upload API"></path>
+											<path d="M2.0 148.5 L186.0 148.5" fill="none" data-name="Document Upload API"></path>
+											<ellipse cx="186.0" cy="133.0" rx="6.0" ry="15.5" data-name="Document Upload API"></ellipse>
+											<path d="M2.0 148.5 L1.7 148.5 L1.4 148.4 L1.1 148.3 L0.8 148.2 L0.5 148.0 L0.2 147.8 L-0.1 147.6 L-0.3 147.3 L-0.6 147.0 L-0.9 146.6 L-1.1 146.2 L-1.4 145.8 L-1.6 145.4 L-1.9 144.9 L-2.1 144.4 L-2.3 143.8 L-2.5 143.3 L-2.7 142.7 L-2.9 142.0 L-3.0 141.4 L-3.2 140.7 L-3.3 140.1 L-3.5 139.4 L-3.6 138.7 L-3.7 137.9 L-3.8 137.2 L-3.8 136.4 L-3.9 135.7 L-4.0 134.9 L-4.0 134.2 L-4.0 133.4 L-4.0 132.6 L-4.0 131.8 L-4.0 131.1 L-3.9 130.3 L-3.8 129.6 L-3.8 128.8 L-3.7 128.1 L-3.6 127.3 L-3.5 126.6 L-3.3 125.9 L-3.2 125.2 L-3.0 124.6 L-2.9 124.0 L-2.7 123.3 L-2.5 122.7 L-2.3 122.2 L-2.1 121.6 L-1.9 121.1 L-1.6 120.6 L-1.4 120.2 L-1.1 119.8 L-0.9 119.4 L-0.6 119.0 L-0.3 118.7 L-0.1 118.4 L0.2 118.2 L0.5 118.0 L0.8 117.8 L1.1 117.7 L1.4 117.6 L1.7 117.5 L2.0 117.5" data-name="Document Upload API"></path>
 											</g>
-										<g transform="translate(1.5, 117.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="S3 Document Stream">
-												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="S3 Document Stream">
-													<text x="80.5" y="13.5" stroke="none" text-anchor="middle" data-name="S3 Document Stream">S3 Document Stream</text>
+										<g transform="translate(-2, 117.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Document Upload API">
+												<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Document Upload API">
+													<text x="84.0" y="13.5" stroke="none" text-anchor="middle" data-name="Document Upload API">Document Upload API</text>
 												
 												</g>
 											</g>
@@ -290,12 +297,12 @@
 						</g>
 					<g data-name="Users">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Users">
-								<circle r="4.0" cx="236.5" cy="110.5" data-name="Users"></circle>
-							<path d="M236.5 114.5 L236.5 122.5" fill="none" data-name="Users"></path>
-							<path d="M232.5 118.5 L240.5 118.5" fill="none" data-name="Users"></path>
-							<path d="M232.5 126.5 L236.5 122.5 L240.5 126.5" fill="none" data-name="Users"></path>
+								<circle r="4.0" cx="238.3" cy="110.5" data-name="Users"></circle>
+							<path d="M238.3 114.5 L238.3 122.5" fill="none" data-name="Users"></path>
+							<path d="M234.3 118.5 L242.3 118.5" fill="none" data-name="Users"></path>
+							<path d="M234.3 126.5 L238.3 122.5 L242.3 126.5" fill="none" data-name="Users"></path>
 							</g>
-						<g transform="translate(206.5, 122.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Users">
+						<g transform="translate(208.25, 122.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Users">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Users">
 									<text x="22.0" y="13.5" stroke="none" text-anchor="middle" data-name="Users">Users</text>
 								
@@ -304,12 +311,12 @@
 						</g>
 					<g data-name="Operations">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Operations">
-								<circle r="4.0" cx="375.0" cy="110.5" data-name="Operations"></circle>
-							<path d="M375.0 114.5 L375.0 122.5" fill="none" data-name="Operations"></path>
-							<path d="M371.0 118.5 L379.0 118.5" fill="none" data-name="Operations"></path>
-							<path d="M371.0 126.5 L375.0 122.5 L379.0 126.5" fill="none" data-name="Operations"></path>
+								<circle r="4.0" cx="376.8" cy="110.5" data-name="Operations"></circle>
+							<path d="M376.8 114.5 L376.8 122.5" fill="none" data-name="Operations"></path>
+							<path d="M372.8 118.5 L380.8 118.5" fill="none" data-name="Operations"></path>
+							<path d="M372.8 126.5 L376.8 122.5 L380.8 126.5" fill="none" data-name="Operations"></path>
 							</g>
-						<g transform="translate(325, 122.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Operations">
+						<g transform="translate(326.75, 122.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Operations">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Operations">
 									<text x="42.0" y="13.5" stroke="none" text-anchor="middle" data-name="Operations">Operations</text>
 								
@@ -318,9 +325,9 @@
 						</g>
 					<g data-name="Infra as Code">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Infra as Code">
-								<rect x="316.5" y="197.0" height="31.0" width="117.0" data-name="Infra as Code"></rect>
+								<rect x="318.3" y="197.0" height="31.0" width="117.0" data-name="Infra as Code"></rect>
 							</g>
-						<g transform="translate(316.5, 197)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Infra as Code">
+						<g transform="translate(318.25, 197)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Infra as Code">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Infra as Code">
 									<text x="50.5" y="13.5" stroke="none" text-anchor="middle" data-name="Infra as Code">Infra as Code</text>
 								
@@ -329,12 +336,12 @@
 						</g>
 					<g data-name="Developers">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Developers">
-								<circle r="4.0" cx="581.0" cy="12.0" data-name="Developers"></circle>
-							<path d="M581.0 16.0 L581.0 24.0" fill="none" data-name="Developers"></path>
-							<path d="M577.0 20.0 L585.0 20.0" fill="none" data-name="Developers"></path>
-							<path d="M577.0 28.0 L581.0 24.0 L585.0 28.0" fill="none" data-name="Developers"></path>
+								<circle r="4.0" cx="582.8" cy="12.0" data-name="Developers"></circle>
+							<path d="M582.8 16.0 L582.8 24.0" fill="none" data-name="Developers"></path>
+							<path d="M578.8 20.0 L586.8 20.0" fill="none" data-name="Developers"></path>
+							<path d="M578.8 28.0 L582.8 24.0 L586.8 28.0" fill="none" data-name="Developers"></path>
 							</g>
-						<g transform="translate(530, 24)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Developers">
+						<g transform="translate(531.75, 24)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Developers">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Developers">
 									<text x="43.0" y="13.5" stroke="none" text-anchor="middle" data-name="Developers">Developers</text>
 								
@@ -343,16 +350,16 @@
 						</g>
 					<g data-name="Github">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Github">
-								<rect x="547.0" y="95.0" height="62.0" width="68.0" data-name="Github"></rect>
-							<path d="M547.0 126.0 L615.0 126.0" fill="none" data-name="Github"></path>
+								<rect x="548.8" y="95.0" height="62.0" width="68.0" data-name="Github"></rect>
+							<path d="M548.8 126.0 L616.8 126.0" fill="none" data-name="Github"></path>
 							</g>
-						<g transform="translate(547, 95)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Github">
+						<g transform="translate(548.75, 95)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Github">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Github">
 									<text x="26.0" y="13.5" stroke="none" text-anchor="middle" data-name="Github">Github</text>
 								
 								</g>
 							</g>
-						<g transform="translate(547, 126)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Github">
+						<g transform="translate(548.75, 126)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Github">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Github">
 									<text x="0.0" y="13.5" stroke="none" data-name="Github">CI CD</text>
 								
@@ -361,9 +368,9 @@
 						</g>
 					<g data-name="Github Container Registry">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Github Container Registry">
-								<rect x="473.5" y="197.0" height="31.0" width="215.0" data-name="Github Container Registry"></rect>
+								<rect x="475.3" y="197.0" height="31.0" width="215.0" data-name="Github Container Registry"></rect>
 							</g>
-						<g transform="translate(473.5, 197)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Github Container Registry">
+						<g transform="translate(475.25, 197)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Github Container Registry">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Github Container Registry">
 									<text x="99.5" y="13.5" stroke="none" text-anchor="middle" data-name="Github Container Registry">Github Container Registry</text>
 								
@@ -372,9 +379,9 @@
 						</g>
 					<g data-name="OpenAI Compatible API">
 							<g fill="#eee8d5" stroke="#33322E" data-name="OpenAI Compatible API">
-								<rect x="207.8" y="708.0" height="31.0" width="196.0" data-name="OpenAI Compatible API"></rect>
+								<rect x="209.5" y="723.0" height="31.0" width="196.0" data-name="OpenAI Compatible API"></rect>
 							</g>
-						<g transform="translate(207.75, 708)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="OpenAI Compatible API">
+						<g transform="translate(209.5, 723)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="OpenAI Compatible API">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="OpenAI Compatible API">
 									<text x="90.0" y="13.5" stroke="none" text-anchor="middle" data-name="OpenAI Compatible API">OpenAI Compatible API</text>
 								
@@ -383,9 +390,9 @@
 						</g>
 					<g data-name="Corporate Data">
 							<g fill="#eee8d5" stroke="#33322E" data-name="Corporate Data">
-								<rect x="443.8" y="708.0" height="31.0" width="132.0" data-name="Corporate Data"></rect>
+								<rect x="445.5" y="723.0" height="31.0" width="132.0" data-name="Corporate Data"></rect>
 							</g>
-						<g transform="translate(443.75, 708)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Corporate Data">
+						<g transform="translate(445.5, 723)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Corporate Data">
 								<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Corporate Data">
 									<text x="58.0" y="13.5" stroke="none" text-anchor="middle" data-name="Corporate Data">Corporate Data</text>
 								
