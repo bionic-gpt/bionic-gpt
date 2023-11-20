@@ -85,7 +85,7 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -
                                                         td {
                                                             class: "text-right",
                                                             DropDown {
-                                                                direction: Direction::West,
+                                                                direction: Direction::Left,
                                                                 button_text: "...",
                                                                 DropDownLink {
                                                                     href: "{crate::routes::documents::index_route(cx.props.organisation_id, dataset.id)}",

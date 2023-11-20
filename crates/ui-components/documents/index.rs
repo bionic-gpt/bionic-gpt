@@ -116,7 +116,7 @@ pub fn index(
                                                         td {
                                                             class: "text-right",
                                                             DropDown {
-                                                                direction: Direction::West,
+                                                                direction: Direction::Left,
                                                                 button_text: "...",
                                                                 DropDownLink {
                                                                     drawer_trigger: format!("delete-doc-trigger-{}-{}", 

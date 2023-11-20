@@ -164,7 +164,7 @@ pub fn members(
                                                     td {
                                                         class: "text-right",
                                                         DropDown {
-                                                            direction: Direction::SouthWest,
+                                                            direction: Direction::Left,
                                                             button_text: "...",
                                                             DropDownLink {
                                                                 drawer_trigger: format!("remove-member-trigger-{}-{}", 
@@ -214,7 +214,7 @@ pub fn members(
                                                     td {
                                                         class: "text-right",
                                                         DropDown {
-                                                            direction: Direction::West,
+                                                            direction: Direction::Left,
                                                             button_text: "",
                                                             DropDownLink {
                                                                 href: "#",

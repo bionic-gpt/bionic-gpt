@@ -15,7 +15,7 @@ pub fn profile_popup(user: User, organisation_id: i32) -> String {
                 class: "full-width",
                 id: "profile-popup",
                 DropDown {
-                    direction: Direction::NorthEast,
+                    direction: Direction::Top,
                     button_text: &cx.props.user_name_or_email,
                     prefix_image_src: profile_svg.name,
                     suffix_image_src: button_select_svg.name,

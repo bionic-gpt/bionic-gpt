@@ -72,7 +72,7 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                                 td {
                                                     class: "text-right",
                                                     DropDown {
-                                                        direction: Direction::West,
+                                                        direction: Direction::Left,
                                                         button_text: "...",
                                                         DropDownLink {
                                                             href: "#",
