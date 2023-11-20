@@ -98,138 +98,137 @@ pub fn members(
                         }
                     }
                     BoxBody {
-                        DataTable {
-                            table {
-                                thead {
-                                    th { "Name or Email" }
-                                    th { "Status" }
-                                    th { "Special Privelages" }
-                                    if cx.props.can_manage_team {
-                                        cx.render(rsx!(
-                                            th {
-                                                class: "text-right",
-                                                "Action"
-                                            }
-                                        ))
-                                    } else {
-                                        None
-                                    }
-                                }
-                                tbody {
-                                    cx.props.members.iter().map(|member| rsx!(
-                                        tr {
-                                            td {
-                                                if let (Some(first_name), Some(last_name)) = (&member.first_name, &member.last_name) {
-                                                    cx.render(rsx!(
-                                                        Avatar {
-                                                            name: "{first_name}",
-                                                            avatar_type: avatar::AvatarType::User
-                                                        }
-                                                        span {
-                                                            class: "ml-2",
-                                                            "{first_name} {last_name}"
-                                                        }
-                                                    ))
-                                                } else {
-                                                    cx.render(rsx!(
-                                                        Avatar {
-                                                            name: "{member.email}",
-                                                            avatar_type: avatar::AvatarType::User
-                                                        }
-                                                        span {
-                                                            class: "ml-2",
-                                                            "{member.email}"
-                                                        }
-                                                    ))
-                                                }
-                                            }
-                                            td {
-                                                Label {
-                                                    label_color: LabelColor::Primary,
-                                                    label_contrast: LabelContrast::Primary,
-                                                    "Active"
-                                                }
-                                            }
-                                            td {
-                                                member.roles.iter().map(|role|
-                                                    cx.render(rsx!(
-                                                        super::team_role::Role {
-                                                            role: role
-                                                        }
-                                                    ))
-                                                )
-                                            }
-                                            if cx.props.can_manage_team {
-                                                cx.render(rsx!(
-                                                    td {
-                                                        class: "text-right",
-                                                        DropDown {
-                                                            direction: Direction::Left,
-                                                            button_text: "...",
-                                                            DropDownLink {
-                                                                drawer_trigger: format!("remove-member-trigger-{}-{}", 
-                                                                    member.id, member.organisation_id),
-                                                                href: "#",
-                                                                target: "_top",
-                                                                "Remove User From Team"
-                                                            }
-                                                        }
-                                                    }
-                                                ))
-                                            } else {
-                                                None
-                                            }
+                        table {
+                            class: "table table-sm",
+                            thead {
+                                th { "Name or Email" }
+                                th { "Status" }
+                                th { "Special Privelages" }
+                                if cx.props.can_manage_team {
+                                    cx.render(rsx!(
+                                        th {
+                                            class: "text-right",
+                                            "Action"
                                         }
                                     ))
-                                    cx.props.invites.iter().map(|invite| rsx!(
-                                        tr {
-                                            td {
+                                } else {
+                                    None
+                                }
+                            }
+                            tbody {
+                                cx.props.members.iter().map(|member| rsx!(
+                                    tr {
+                                        td {
+                                            if let (Some(first_name), Some(last_name)) = (&member.first_name, &member.last_name) {
+                                                cx.render(rsx!(
                                                     Avatar {
-                                                        name: "{invite.first_name}",
+                                                        name: "{first_name}",
                                                         avatar_type: avatar::AvatarType::User
                                                     }
                                                     span {
                                                         class: "ml-2",
-                                                        "{invite.first_name} {invite.last_name}"
-                                                    }
-                                            }
-                                            td {
-                                                Label {
-                                                    label_color: LabelColor::Accent,
-                                                    label_contrast: LabelContrast::Primary,
-                                                    "Invite Pending"
-                                                }
-                                            }
-                                            td {
-                                                invite.roles.iter().map(|role|
-                                                    cx.render(rsx!(
-                                                        super::team_role::Role {
-                                                            role: role
-                                                        }
-                                                    ))
-                                                )
-                                            }
-                                            if cx.props.can_manage_team {
-                                                cx.render(rsx!(
-                                                    td {
-                                                        class: "text-right",
-                                                        DropDown {
-                                                            direction: Direction::Left,
-                                                            button_text: "",
-                                                            DropDownLink {
-                                                                href: "#",
-                                                                target: "_top",
-                                                                "Resend Invite"
-                                                            }
-                                                        }
+                                                        "{first_name} {last_name}"
                                                     }
                                                 ))
                                             } else {
-                                                None
+                                                cx.render(rsx!(
+                                                    Avatar {
+                                                        name: "{member.email}",
+                                                        avatar_type: avatar::AvatarType::User
+                                                    }
+                                                    span {
+                                                        class: "ml-2",
+                                                        "{member.email}"
+                                                    }
+                                                ))
                                             }
                                         }
-                                    ))
-                                }
+                                        td {
+                                            Label {
+                                                label_color: LabelColor::Primary,
+                                                label_contrast: LabelContrast::Primary,
+                                                "Active"
+                                            }
+                                        }
+                                        td {
+                                            member.roles.iter().map(|role|
+                                                cx.render(rsx!(
+                                                    super::team_role::Role {
+                                                        role: role
+                                                    }
+                                                ))
+                                            )
+                                        }
+                                        if cx.props.can_manage_team {
+                                            cx.render(rsx!(
+                                                td {
+                                                    class: "text-right",
+                                                    DropDown {
+                                                        direction: Direction::Left,
+                                                        button_text: "...",
+                                                        DropDownLink {
+                                                            drawer_trigger: format!("remove-member-trigger-{}-{}", 
+                                                                member.id, member.organisation_id),
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Remove User From Team"
+                                                        }
+                                                    }
+                                                }
+                                            ))
+                                        } else {
+                                            None
+                                        }
+                                    }
+                                ))
+                                cx.props.invites.iter().map(|invite| rsx!(
+                                    tr {
+                                        td {
+                                                Avatar {
+                                                    name: "{invite.first_name}",
+                                                    avatar_type: avatar::AvatarType::User
+                                                }
+                                                span {
+                                                    class: "ml-2",
+                                                    "{invite.first_name} {invite.last_name}"
+                                                }
+                                        }
+                                        td {
+                                            Label {
+                                                label_color: LabelColor::Accent,
+                                                label_contrast: LabelContrast::Primary,
+                                                "Invite Pending"
+                                            }
+                                        }
+                                        td {
+                                            invite.roles.iter().map(|role|
+                                                cx.render(rsx!(
+                                                    super::team_role::Role {
+                                                        role: role
+                                                    }
+                                                ))
+                                            )
+                                        }
+                                        if cx.props.can_manage_team {
+                                            cx.render(rsx!(
+                                                td {
+                                                    class: "text-right",
+                                                    DropDown {
+                                                        direction: Direction::Left,
+                                                        button_text: "",
+                                                        DropDownLink {
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Resend Invite"
+                                                        }
+                                                    }
+                                                }
+                                            ))
+                                        } else {
+                                            None
+                                        }
+                                    }
+                                ))
                             }
                         }
                     }

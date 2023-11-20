@@ -52,48 +52,47 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                                 title: "API Keys"
                             }
                             BoxBody {
-                                DataTable {
-                                    table {
-                                        thead {
-                                            th { "Name" }
-                                            th { "API Key" }
-                                            th { "Prompt" }
-                                            th {
-                                                class: "text-right",
-                                                "Action"
-                                            }
+                                table {
+                                    class: "table table-sm",
+                                    thead {
+                                        th { "Name" }
+                                        th { "API Key" }
+                                        th { "Prompt" }
+                                        th {
+                                            class: "text-right",
+                                            "Action"
                                         }
-                                        tbody {
-                                            cx.props.api_keys.iter().map(|key| rsx!(
-                                                tr {
-                                                    td {
-                                                        "{key.name}"
+                                    }
+                                    tbody {
+                                        cx.props.api_keys.iter().map(|key| rsx!(
+                                            tr {
+                                                td {
+                                                    "{key.name}"
+                                                }
+                                                td {
+                                                    Input {
+                                                        value: &key.api_key,
+                                                        name: "api_key",
+                                                        disabled: true
                                                     }
-                                                    td {
-                                                        Input {
-                                                            value: &key.api_key,
-                                                            name: "api_key",
-                                                            disabled: true
-                                                        }
-                                                    }
-                                                    td {
-                                                        "{key.prompt_name}"
-                                                    }
-                                                    td {
-                                                        class: "text-right",
-                                                        DropDown {
-                                                            direction: Direction::Left,
-                                                            button_text: "...",
-                                                            DropDownLink {
-                                                                href: "#",
-                                                                target: "_top",
-                                                                "Not Implemented"
-                                                            }
+                                                }
+                                                td {
+                                                    "{key.prompt_name}"
+                                                }
+                                                td {
+                                                    class: "text-right",
+                                                    DropDown {
+                                                        direction: Direction::Left,
+                                                        button_text: "...",
+                                                        DropDownLink {
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Not Implemented"
                                                         }
                                                     }
                                                 }
-                                            ))
-                                        }
+                                            }
+                                        ))
                                     }
                                 }
                             }

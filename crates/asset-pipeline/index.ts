@@ -4,7 +4,6 @@ import './scss/index.scss'
 import './web-components/side-drawer'
 import './web-components/side-drawer-trigger'
 import './web-components/snack-bar'
-import './web-components/data-table'
 import './web-components/streaming-chat'
 import './web-components/response-formatter'
 import '@github/relative-time-element';

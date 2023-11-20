@@ -33,77 +33,75 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
                         title: "Teams"
                     }
                     BoxBody {
-                        DataTable {
-                            table {
-                                thead {
-                                    th { "Team" }
-                                    th {
-                                        class: "text-right",
-                                        "Team Creator" 
+                        table {
+                            thead {
+                                th { "Team" }
+                                th {
+                                    class: "text-right",
+                                    "Team Creator" 
+                                }
+                            }
+                            tbody {
+                                cx.props.teams.iter().map(|team| rsx!(
+                                    if let Some(name) = &team.organisation_name {
+                                        cx.render(rsx! {
+                                            tr {
+                                                td {
+                                                    Avatar {
+                                                        name: "{name}",
+                                                        avatar_type: avatar::AvatarType::Organisation
+                                                    }
+                                                    span {
+                                                        class: "ml-2 mr-2",
+                                                        "{name}"
+                                                    }
+                                                    if team.id != cx.props.organisation_id {
+                                                        cx.render(rsx! {
+                                                            a {
+                                                                href: "../{team.id}",
+                                                                "(Switch to this Team)"
+                                                            }
+                                                        })
+                                                    } else {
+                                                        None
+                                                    }
+                                                }
+                                                td {
+                                                    class: "text-right",
+                                                    "{team.team_owner}"
+                                                }
+                                            }
+                                        })
+                                    } else {
+                                        cx.render(rsx! {
+                                            tr {
+                                                td {
+                                                    Avatar {
+                                                        avatar_type: avatar::AvatarType::Organisation
+                                                    }
+                                                    span {
+                                                        class: "ml-2 mr-2",
+                                                        "Name Not Set"
+                                                    }
+                                                    if team.id != cx.props.organisation_id {
+                                                        cx.render(rsx! {
+                                                            a {
+                                                                href: "../{team.id}/team",
+                                                                "(Switch to this Team)"
+                                                            }
+                                                        })
+                                                    } else {
+                                                        None
+                                                    }
+                                                }
+                                                td {
+                                                    class: "text-right",
+                                                    "{team.team_owner}"
+                                                }
+                                            }
+                                        })
                                     }
-                                }
-                                tbody {
-                                    cx.props.teams.iter().map(|team| rsx!(
-                                        if let Some(name) = &team.organisation_name {
-                                            cx.render(rsx! {
-                                                tr {
-                                                    td {
-                                                        Avatar {
-                                                            name: "{name}",
-                                                            avatar_type: avatar::AvatarType::Organisation
-                                                        }
-                                                        span {
-                                                            class: "ml-2 mr-2",
-                                                            "{name}"
-                                                        }
-                                                        if team.id != cx.props.organisation_id {
-                                                            cx.render(rsx! {
-                                                                a {
-                                                                    href: "../{team.id}",
-                                                                    "(Switch to this Team)"
-                                                                }
-                                                            })
-                                                        } else {
-                                                            None
-                                                        }
-                                                    }
-                                                    td {
-                                                        class: "text-right",
-                                                        "{team.team_owner}"
-                                                    }
-                                                }
-                                            })
-                                        } else {
-                                            cx.render(rsx! {
-                                                tr {
-                                                    td {
-                                                        Avatar {
-                                                            avatar_type: avatar::AvatarType::Organisation
-                                                        }
-                                                        span {
-                                                            class: "ml-2 mr-2",
-                                                            "Name Not Set"
-                                                        }
-                                                        if team.id != cx.props.organisation_id {
-                                                            cx.render(rsx! {
-                                                                a {
-                                                                    href: "../{team.id}/team",
-                                                                    "(Switch to this Team)"
-                                                                }
-                                                            })
-                                                        } else {
-                                                            None
-                                                        }
-                                                    }
-                                                    td {
-                                                        class: "text-right",
-                                                        "{team.team_owner}"
-                                                    }
-                                                }
-                                            })
-                                        }
-                                    ))
-                                }
+                                ))
                             }
                         }
                     }

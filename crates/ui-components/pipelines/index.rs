@@ -55,48 +55,47 @@ pub fn index(
                                 title: "Document Pipelines"
                             }
                             BoxBody {
-                                DataTable {
-                                    table {
-                                        thead {
-                                            th { "Name" }
-                                            th { "API Key" }
-                                            th { "Dataset" }
-                                            th {
-                                                class: "text-right",
-                                                "Action"
-                                            }
+                                table {
+                                    class: "table table-sm",
+                                    thead {
+                                        th { "Name" }
+                                        th { "API Key" }
+                                        th { "Dataset" }
+                                        th {
+                                            class: "text-right",
+                                            "Action"
                                         }
-                                        tbody {
-                                            cx.props.pipelines.iter().map(|key| rsx!(
-                                                tr {
-                                                    td {
-                                                        "{key.name}"
+                                    }
+                                    tbody {
+                                        cx.props.pipelines.iter().map(|key| rsx!(
+                                            tr {
+                                                td {
+                                                    "{key.name}"
+                                                }
+                                                td {
+                                                    Input {
+                                                        value: &key.api_key,
+                                                        name: "api_key",
+                                                        disabled: true
                                                     }
-                                                    td {
-                                                        Input {
-                                                            value: &key.api_key,
-                                                            name: "api_key",
-                                                            disabled: true
-                                                        }
-                                                    }
-                                                    td {
-                                                        "{key.dataset_name}"
-                                                    }
-                                                    td {
-                                                        class: "text-right",
-                                                        DropDown {
-                                                            direction: Direction::Left,
-                                                            button_text: "...",
-                                                            DropDownLink {
-                                                                href: "#",
-                                                                target: "_top",
-                                                                "Not Implemented"
-                                                            }
+                                                }
+                                                td {
+                                                    "{key.dataset_name}"
+                                                }
+                                                td {
+                                                    class: "text-right",
+                                                    DropDown {
+                                                        direction: Direction::Left,
+                                                        button_text: "...",
+                                                        DropDownLink {
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Not Implemented"
                                                         }
                                                     }
                                                 }
-                                            ))
-                                        }
+                                            }
+                                        ))
                                     }
                                 }
                             }
