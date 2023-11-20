@@ -17,7 +17,7 @@ pub fn Drawer<'a>(cx: Scope<'a, DrawerProps<'a>>) -> Element {
                 action: "{submit_action}",
                 method: "post",
                 side-drawer {
-                    class: "side_drawer d-flex flex-column",
+                    class: "side_drawer flex flex-col",
                     label: cx.props.label,
                     id: cx.props.trigger_id,
                     &cx.props.children
@@ -27,7 +27,7 @@ pub fn Drawer<'a>(cx: Scope<'a, DrawerProps<'a>>) -> Element {
     } else {
         cx.render(rsx!(
             side-drawer {
-                class: "side_drawer d-flex flex-column",
+                class: "side_drawer flex flex-col",
                 label: cx.props.label,
                 id: cx.props.trigger_id,
                 &cx.props.children

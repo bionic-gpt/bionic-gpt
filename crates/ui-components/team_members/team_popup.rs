@@ -14,14 +14,14 @@ pub fn team_popup(teams: Vec<GetTeams>, organisation: Organisation) -> String {
             cx.render(rsx! {
                 turbo-frame {
                     id: "teams-popup",
-                    class: "width-full",
+                    class: "w-full",
                     SelectMenu {
                         summary: cx.render(rsx!(
                             summary {
-                                class: "btn d-flex flex-justify-between width-full flex-items-center",
+                                class: "btn flex justify-between w-full items-center",
                                 "aria-haspopup": "true",
                                 span {
-                                    class: "mr-2 d-flex flex-items-center",
+                                    class: "mr-2 flex items-center",
                                     Avatar {
                                         avatar_size: AvatarSize::Small,
                                         name: "{name}",
@@ -75,9 +75,9 @@ pub fn team_popup(teams: Vec<GetTeams>, organisation: Organisation) -> String {
             cx.render(rsx! {
                 turbo-frame {
                     id: "teams-popup",
-                    class: "width-full",
+                    class: "w-full",
                     div {
-                        class: "d-flex flex-justify-center height-full width-full flex-items-center",
+                        class: "flex justify-center height-full w-full items-center",
                         h4 {
                             "BionicGPT"
                         }

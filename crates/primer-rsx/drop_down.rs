@@ -55,7 +55,7 @@ pub fn DropDown<'a>(cx: Scope<'a, DropDownProps<'a>>) -> Element {
         details {
             class: "dropdown details-reset details-overlay d-inline-block {class}",
             summary {
-                class: "btn d-flex flex-justify-between width-full flex-items-center",
+                class: "btn flex justify-between w-full items-center",
                 "aria-haspopup": "true",
                 if let Some(img_src) = cx.props.prefix_image_src {
                     cx.render(rsx! {

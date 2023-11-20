@@ -39,7 +39,7 @@ pub fn BoxHeader<'a>(cx: Scope<'a, BoxHeadersProps<'a>>) -> Element {
         ""
     };
 
-    let class = format!("Box-header d-flex flex-items-center {}", class);
+    let class = format!("Box-header flex items-center {}", class);
 
     cx.render(rsx!(
         div {

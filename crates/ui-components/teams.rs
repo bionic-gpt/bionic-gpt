@@ -119,7 +119,7 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
                     trigger_id: "create-new-team",
                     DrawerBody {
                         div {
-                            class: "d-flex flex-column",
+                            class: "flex flex-col",
                             Input {
                                 input_type: InputType::Text,
                                 placeholder: "Team Name",

@@ -6,6 +6,7 @@
         display: none;
         grid-area: sidenav;
         height: 100vh;
+        border-right: 1px solid #ccc;
 
         // Display flex is set in the responsive css at bottom of the code
         flex-direction: column;
@@ -14,6 +15,7 @@
             height: 72px;
             flex-shrink: 0;
             padding: 1rem;
+            border-bottom: 1px solid #ccc;
 
             details > div {
                 z-index: 112;
@@ -55,6 +57,7 @@
             align-items: center;
             height: 72px;
             padding: 1rem;
+            border-bottom: 1px solid #ccc;
 
             > h3 {
                 font-size: 1rem;

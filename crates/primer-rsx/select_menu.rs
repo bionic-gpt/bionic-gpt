@@ -34,7 +34,7 @@ pub fn SelectMenu<'a>(cx: Scope<'a, SelectMenuProps<'a>>) -> Element {
     if cx.props.alignment.is_some() && cx.props.alignment.unwrap() == SelectMenuAlignment::Right {
         cx.render(rsx!(
             div {
-                class: "d-flex flex-justify-end position-relative",
+                class: "flex justify-end position-relative",
                 details {
                     class: "details-reset details-overlay",
                     &cx.props.summary,

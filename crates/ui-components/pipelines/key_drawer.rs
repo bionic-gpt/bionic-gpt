@@ -19,7 +19,7 @@ pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
                 trigger_id: "create-api-key",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col",
                         Input {
                             input_type: InputType::Text,
                             placeholder: "My Document Pipeline",

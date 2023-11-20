@@ -61,9 +61,9 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                     id: "nav-toggle"
                 }
                 nav {
-                    class: "l_navigation border-right color-bg-subtle",
+                    class: "l_navigation",
                     div {
-                        class: "l_nav_header border-bottom d-flex flex-items-center",
+                        class: "l_nav_header flex items-center",
                         &cx.props.sidebar_header
                     }
                     div {
@@ -81,7 +81,6 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                     target: "_top",
                     class: "l_content",
                     header {
-                        class: "border-bottom",
                         label {
                             class: "hamburger",
                             "for": "nav-toggle",

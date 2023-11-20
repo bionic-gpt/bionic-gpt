@@ -25,7 +25,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                 trigger_id: "{cx.props.trigger_id}",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col",
                         if let Some(id) = cx.props.id {
                             cx.render(rsx!(
                                 input {

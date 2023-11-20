@@ -55,7 +55,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             hidden: false,
                             id: "all-panel",
                             div {
-                                class: "d-flex flex-column mt-3",
+                                class: "flex flex-col mt-3",
                                 if let Some(id) = cx.props.id {
                                     cx.render(rsx!(
                                         input {
@@ -128,7 +128,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             hidden: true,
                             id: "datasets-panel",
                             div {
-                                class: "d-flex flex-column mt-3",
+                                class: "flex flex-col mt-3",
                                 Select {
                                     name: "dataset_connection",
                                     label: "How shall we handle datasets with this prompt?",
@@ -192,7 +192,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             hidden: true,
                             id: "advanced-panel",
                             div {
-                                class: "d-flex flex-column mt-3",
+                                class: "flex flex-col mt-3",
 
                                 Input {
                                     input_type: InputType::Number,

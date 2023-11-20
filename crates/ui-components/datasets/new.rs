@@ -22,9 +22,9 @@ pub fn New(cx: Scope<Props>) -> Element {
                 trigger_id: "new-dataset-form",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column flex-justify-between height-full",
+                        class: "flex flex-col justify-between height-full",
                         div {
-                            class: "d-flex flex-column",
+                            class: "flex flex-col",
                             Input {
                                 input_type: InputType::Text,
                                 placeholder: "Dataset Name",
@@ -51,7 +51,7 @@ pub fn New(cx: Scope<Props>) -> Element {
                         }
 
                         div {
-                            class: "border d-flex flex-column p-2",
+                            class: "border flex flex-col p-2",
                             strong {
                                 class: "mb-2",
                                 "Advanced Configuration"

@@ -119,7 +119,7 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                     trigger_id: "create-api-key",
                     DrawerBody {
                         div {
-                            class: "d-flex flex-column",
+                            class: "flex flex-col",
                             Input {
                                 input_type: InputType::Text,
                                 placeholder: "Production API Key",

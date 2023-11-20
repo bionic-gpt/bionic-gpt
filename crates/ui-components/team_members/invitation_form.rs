@@ -18,7 +18,7 @@ pub fn InvitationForm(cx: Scope<InvitationFormProps>) -> Element {
                 trigger_id: "create-invite-form",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col",
                         Input {
                             input_type: InputType::Email,
                             help_text: "The email address of the person you wish to invite",
