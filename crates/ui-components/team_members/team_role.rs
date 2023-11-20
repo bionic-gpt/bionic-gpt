@@ -13,7 +13,7 @@ pub fn Role<'a>(cx: Scope<'a, RoleProps<'a>>) -> Element {
         Role::Administrator => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Done,
+                label_color: LabelColor::Primary,
                 label_contrast: LabelContrast::Primary,
                 "Administrator"
             }
@@ -21,14 +21,14 @@ pub fn Role<'a>(cx: Scope<'a, RoleProps<'a>>) -> Element {
         Role::Collaborator => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Attention,
+                label_color: LabelColor::Secondary,
                 "Collaborator"
             }
         )),
         Role::SystemAdministrator => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Attention,
+                label_color: LabelColor::Neutral,
                 "System Administrator"
             }
         )),

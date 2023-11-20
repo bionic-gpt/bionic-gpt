@@ -13,7 +13,7 @@ pub fn VisLabel<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         Visibility::Company => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Done,
+                label_color: LabelColor::Primary,
                 label_contrast: LabelContrast::Primary,
                 "Company"
             }
@@ -21,14 +21,14 @@ pub fn VisLabel<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         Visibility::Private => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Attention,
+                label_color: LabelColor::Accent,
                 "Private"
             }
         )),
         Visibility::Team => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Attention,
+                label_color: LabelColor::Accent,
                 "Team"
             }
         )),

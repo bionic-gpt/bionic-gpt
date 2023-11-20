@@ -129,7 +129,7 @@ pub fn index(
                                             cx.render(rsx!(
                                                 Label {
                                                     class: "ml-2",
-                                                    label_color: LabelColor::Danger,
+                                                    label_color: LabelColor::Accent,
                                                     a {
                                                         id: "stop-processing",
                                                         "Stop Processing"

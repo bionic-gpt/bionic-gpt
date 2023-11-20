@@ -13,7 +13,7 @@ pub fn Model<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         ModelType::LLM => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Done,
+                label_color: LabelColor::Primary,
                 label_contrast: LabelContrast::Primary,
                 "Large Language Model"
             }
@@ -21,7 +21,7 @@ pub fn Model<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         ModelType::Embeddings => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Attention,
+                label_color: LabelColor::Accent,
                 "Embeddings Model"
             }
         )),

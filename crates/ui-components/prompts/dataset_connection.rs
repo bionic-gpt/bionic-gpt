@@ -14,7 +14,7 @@ pub fn DatasetConnection(cx: Scope<Props>) -> Element {
         DatasetConnection::All => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Done,
+                label_color: LabelColor::Primary,
                 label_contrast: LabelContrast::Primary,
                 "Use All the Teams Datasets"
             }
@@ -22,13 +22,13 @@ pub fn DatasetConnection(cx: Scope<Props>) -> Element {
         DatasetConnection::None => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Attention,
+                label_color: LabelColor::Accent,
                 "Don't use any datasets"
             }
         )),
         DatasetConnection::Selected => cx.render(rsx!(Label {
             class: "mr-2",
-            label_color: LabelColor::Attention,
+            label_color: LabelColor::Accent,
             "Use selected Datasets"
         })),
     }

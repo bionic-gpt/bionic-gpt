@@ -77,7 +77,7 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -
                                                         td { "{dataset.count}" }
                                                         td {
                                                             Label {
-                                                                label_color: LabelColor::Done,
+                                                                label_color: LabelColor::Primary,
                                                                 label_contrast: LabelContrast::Primary,
                                                                 "By Title"
                                                             }

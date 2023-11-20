@@ -21,30 +21,22 @@ impl LabelContrast {
 pub enum LabelColor {
     #[default]
     Default,
+    Neutral,
+    Primary,
+    Secondary,
     Accent,
-    Success,
-    Attention,
-    Severe,
-    Danger,
-    Open,
-    Closed,
-    Done,
-    Sponsors,
+    Ghost,
 }
 
 impl LabelColor {
     pub fn to_string(&self) -> &'static str {
         match self {
             LabelColor::Default => "",
-            LabelColor::Accent => "Label--accent",
-            LabelColor::Success => "Label--success",
-            LabelColor::Attention => "Label--attention",
-            LabelColor::Severe => "Label--severe",
-            LabelColor::Danger => "Label--danger",
-            LabelColor::Open => "Label--open",
-            LabelColor::Closed => "Label--closed",
-            LabelColor::Done => "Label--done",
-            LabelColor::Sponsors => "Label--sponsors",
+            LabelColor::Neutral => "badge-neutral",
+            LabelColor::Primary => "badge-primary",
+            LabelColor::Secondary => "badge-secondary",
+            LabelColor::Accent => "badge-accent",
+            LabelColor::Ghost => "badge-ghost",
         }
     }
 }
@@ -60,7 +52,7 @@ impl LabelSize {
     pub fn to_string(&self) -> &'static str {
         match self {
             LabelSize::Small => "",
-            LabelSize::Large => "Label--large",
+            LabelSize::Large => "badge-lg",
         }
     }
 }
@@ -100,7 +92,7 @@ pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
     };
 
     let class = format!(
-        "Label {} {} {} {}",
+        "badge {} {} {} {}",
         label_contrast.to_string(),
         label_color.to_string(),
         label_size.to_string(),
