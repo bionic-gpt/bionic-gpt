@@ -21,3 +21,7 @@
     inline-size: 100%;
     height: calc(100% - 79px);
 }
+
+#console-panel form {
+    max-height: 90px;
+}
