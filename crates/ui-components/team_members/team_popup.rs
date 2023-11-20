@@ -1,3 +1,4 @@
+use assets::files::{button_select_svg, profile_svg};
 use db::queries::organisations::GetTeams;
 use db::queries::organisations::Organisation;
 use dioxus::prelude::*;
@@ -15,59 +16,19 @@ pub fn team_popup(teams: Vec<GetTeams>, organisation: Organisation) -> String {
                 turbo-frame {
                     id: "teams-popup",
                     class: "w-full",
-                    SelectMenu {
-                        summary: cx.render(rsx!(
-                            summary {
-                                class: "btn flex justify-between w-full items-center",
-                                "aria-haspopup": "true",
-                                span {
-                                    class: "mr-2 flex items-center",
-                                    Avatar {
-                                        avatar_size: AvatarSize::Small,
-                                        name: "{name}",
-                                        avatar_type: AvatarType::Organisation
-                                    }
-                                }
-                                span {
-                                    class: "Truncate",
-                                    span {
-                                        class: "Truncate-text",
-                                        "{name}"
-                                    }
-                                }
-                                span {
-                                    class: "ml-2 dropdown-caret"
-                                }
+                    DropDown {
+                        direction: Direction::Bottom,
+                        button_text: "{name}",
+                        prefix_image_src: profile_svg.name,
+                        suffix_image_src: button_select_svg.name,
+                        class: "w-full",
+                        cx.props.teams.iter().map(|team| rsx!(
+                            DropDownLink {
+                                href: "{team.1}",
+                                target: "_top",
+                                "{team.0}"
                             }
-                        )),
-                        SelectMenuModal {
-                            header {
-                                class: "SelectMenu-header",
-                                h3 {
-                                    class: "SelectMenu-title",
-                                    "Your Teams"
-                                }
-                            }
-                            SelectMenuList {
-                                cx.props.teams.iter().map(|team| rsx!(
-                                    a {
-                                        class: "SelectMenu-item",
-                                        href: "{team.1}",
-                                        target: "_top",
-                                        role: "menuitemcheckbox",
-                                        Avatar {
-                                            avatar_size: AvatarSize::Small,
-                                            name: "{team.0}",
-                                            avatar_type: AvatarType::Organisation
-                                        }
-                                        span {
-                                            class: "ml-2",
-                                            "{team.0}"
-                                        }
-                                    }
-                                ))
-                            }
-                        }
+                        ))
                     }
                 }
             })

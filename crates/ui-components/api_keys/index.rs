@@ -81,23 +81,13 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                                                     }
                                                     td {
                                                         class: "text-right",
-                                                        SelectMenu {
-                                                            alignment: SelectMenuAlignment::Right,
-                                                            summary: cx.render(rsx!(
-                                                                summary {
-                                                                    class: "btn",
-                                                                    "aria-haspopup": "true",
-                                                                    "..."
-                                                                }
-                                                            )),
-                                                            SelectMenuModal {
-                                                                SelectMenuList {
-                                                                    button {
-                                                                        class: "SelectMenu-item",
-                                                                        role: "menuitemcheckbox",
-                                                                        "Not Implemented"
-                                                                    }
-                                                                }
+                                                        DropDown {
+                                                            direction: Direction::Left,
+                                                            button_text: "...",
+                                                            DropDownLink {
+                                                                href: "#",
+                                                                target: "_top",
+                                                                "Not Implemented"
                                                             }
                                                         }
                                                     }
