@@ -173,7 +173,7 @@ pub fn index(
                             if cx.props.lock_console {
                                 cx.render(rsx!(
                                     textarea {
-                                        class: "flex-1 mr-2 form-control",
+                                        class: "textarea textarea-bordered flex-1 mr-2 form-control",
                                         rows: "4",
                                         name: "message",
                                         disabled: true
@@ -209,7 +209,7 @@ pub fn index(
                             } else {
                                 cx.render(rsx!(
                                     textarea {
-                                        class: "submit-on-enter flex-1 mr-2 form-control",
+                                        class: "textarea textarea-bordered submit-on-enter flex-1 mr-2 form-control",
                                         rows: "4",
                                         name: "message"
                                     }

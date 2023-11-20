@@ -60,7 +60,7 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
             required: cx.props.required,
             disabled: cx.props.disabled,
             multiple: cx.props.multiple,
-            class: "{class}",
+            class: "select select-bordered {class}",
             value: "{value}",
             name: "{cx.props.name}",
             &cx.props.children

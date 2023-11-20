@@ -96,7 +96,7 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
         }
         input {
             id: cx.props.id,
-            class: "{input_class}",
+            class: "input input-bordered {input_class}",
             value: cx.props.value,
             required: cx.props.required,
             disabled: cx.props.disabled,

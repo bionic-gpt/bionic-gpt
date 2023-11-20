@@ -78,7 +78,7 @@ pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         }
         textarea {
             id: "{id}",
-            class: "{class}",
+            class: "textarea textarea-bordered textarea-sm {class}",
             value: "{value}",
             name: "{cx.props.name}",
             placeholder: "{placeholder}",
