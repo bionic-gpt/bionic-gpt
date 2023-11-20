@@ -15,7 +15,7 @@ pub fn Box<'a>(cx: Scope<'a, BoxProps<'a>>) -> Element {
         ""
     };
 
-    let class = format!("Box {}", class);
+    let class = format!("card {}", class);
 
     cx.render(rsx!(
         div {
@@ -39,13 +39,13 @@ pub fn BoxHeader<'a>(cx: Scope<'a, BoxHeadersProps<'a>>) -> Element {
         ""
     };
 
-    let class = format!("Box-header flex items-center {}", class);
+    let class = format!("card-header flex items-center {}", class);
 
     cx.render(rsx!(
         div {
             class: "{class}",
             h3 {
-                class: "Box-title overflow-hidden",
+                class: "card-title overflow-hidden",
                 "{cx.props.title}"
             }
             &cx.props.children
@@ -61,7 +61,7 @@ pub struct BoxBodyProps<'a> {
 pub fn BoxBody<'a>(cx: Scope<'a, BoxBodyProps<'a>>) -> Element {
     cx.render(rsx!(
         div {
-            class: "Box-body",
+            class: "card-body",
             &cx.props.children
         }
     ))

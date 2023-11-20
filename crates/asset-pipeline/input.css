@@ -12,3 +12,12 @@
         filter: invert(1);
     }
 }
+
+.card {
+    border: 1px solid #ccc;
+
+    .card-header {
+        padding: 1rem;
+        border-bottom: 1px solid #ccc;
+    }
+}
