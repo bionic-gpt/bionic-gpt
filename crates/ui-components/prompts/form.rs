@@ -34,26 +34,10 @@ pub fn Form(cx: Scope<Props>) -> Element {
                 trigger_id: "{cx.props.trigger_id}",
                 DrawerBody {
                     TabContainer {
-                        tabs: cx.render(rsx! {
-                            TabHeader {
-                                selected: true,
-                                tab: "all-panel",
-                                name: "Prompt"
-                            }
-                            TabHeader {
-                                selected: false,
-                                tab: "datasets-panel",
-                                name: "Datasets"
-                            }
-                            TabHeader {
-                                selected: false,
-                                tab: "advanced-panel",
-                                name: "Advanced"
-                            }
-                        }),
                         TabPanel {
-                            hidden: false,
-                            id: "all-panel",
+                            checked: true,
+                            name: "prompt-tabs",
+                            tab_name: "Prompt",
                             div {
                                 class: "flex flex-col mt-3",
                                 if let Some(id) = cx.props.id {
@@ -125,8 +109,8 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             }
                         }
                         TabPanel {
-                            hidden: true,
-                            id: "datasets-panel",
+                            name: "prompt-tabs",
+                            tab_name: "Datasets",
                             div {
                                 class: "flex flex-col mt-3",
                                 Select {
@@ -189,8 +173,8 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             }
                         }
                         TabPanel {
-                            hidden: true,
-                            id: "advanced-panel",
+                            name: "prompt-tabs",
+                            tab_name: "Advanced",
                             div {
                                 class: "flex flex-col mt-3",
 
