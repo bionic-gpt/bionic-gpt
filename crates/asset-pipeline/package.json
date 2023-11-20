@@ -18,6 +18,7 @@
         "@primer/view-components": "0.0.111",
         "@protobuf-ts/grpcweb-transport": "^2.2.2",
         "@protobuf-ts/plugin": "^2.2.2",
+        "daisyui": "^4.4.2",
         "parcel": "^2.0.0",
         "tailwindcss": "^3.3.5"
     },
