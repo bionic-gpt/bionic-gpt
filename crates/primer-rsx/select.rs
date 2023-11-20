@@ -6,17 +6,19 @@ pub enum SelectSize {
     #[default]
     Default,
     Small,
+    ExtraSmall,
     Large,
-    ExtraLarge,
+    Medium,
 }
 
 impl SelectSize {
     pub fn to_string(&self) -> &'static str {
         match self {
             SelectSize::Default => "select-sm",
-            SelectSize::Small => "select-xs",
-            SelectSize::Large => "",
-            SelectSize::ExtraLarge => "select-large",
+            SelectSize::Small => "select-sm",
+            SelectSize::ExtraSmall => "select-xs",
+            SelectSize::Large => "select-lg",
+            SelectSize::Medium => "select-md",
         }
     }
 }

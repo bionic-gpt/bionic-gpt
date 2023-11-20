@@ -155,14 +155,14 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
             sidebar_header: cx.render(rsx!(
                 turbo-frame {
                     id: "teams-popup",
-                    class: "w-full",
+                    class: "min-w-full",
                     src: "{super::routes::team::teams_popup_route(cx.props.team_id)}"
                 }
             )),
             sidebar_footer: cx.render(rsx!(
                 turbo-frame {
                     id: "profile-popup",
-                    class: "w-full",
+                    class: "min-w-full",
                     src: "{super::routes::profile::profile_popup_route(cx.props.team_id)}"
                 }
             )),

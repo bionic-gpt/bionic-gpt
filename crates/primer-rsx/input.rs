@@ -26,17 +26,19 @@ pub enum InputSize {
     #[default]
     Default,
     Small,
+    ExtraSmall,
     Large,
-    ExtraLarge,
+    Medium,
 }
 
 impl InputSize {
     pub fn to_string(&self) -> &'static str {
         match self {
             InputSize::Default => "input-sm",
-            InputSize::Small => "input-xs",
-            InputSize::Large => "",
-            InputSize::ExtraLarge => "input-xl",
+            InputSize::ExtraSmall => "input-xs",
+            InputSize::Small => "input-sm",
+            InputSize::Large => "input-lg",
+            InputSize::Medium => "input-md",
         }
     }
 }
