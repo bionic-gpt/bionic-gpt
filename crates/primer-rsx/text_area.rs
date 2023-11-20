@@ -7,14 +7,16 @@ pub enum TextAreaSize {
     Default,
     Small,
     Large,
+    ExtraLarge,
 }
 
 impl TextAreaSize {
     pub fn to_string(&self) -> &'static str {
         match self {
-            TextAreaSize::Default => "",
-            TextAreaSize::Small => "sm",
-            TextAreaSize::Large => "large",
+            TextAreaSize::Default => "textarea-sm",
+            TextAreaSize::Small => "textarea-xs",
+            TextAreaSize::Large => "",
+            TextAreaSize::ExtraLarge => "textarea-large",
         }
     }
 }
