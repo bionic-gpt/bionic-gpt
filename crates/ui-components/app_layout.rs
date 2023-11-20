@@ -36,11 +36,16 @@ pub struct LayoutProps<'a> {
 }
 
 pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
+    let stylesheets = vec![
+        primer_view_components_css.name.to_string(),
+        index_css.name.to_string(),
+        output_css.name.to_string(),
+    ];
+
     cx.render(rsx! {
         AppLayout {
             title: cx.props.title,
-            css_href1: primer_view_components_css.name,
-            css_href2: index_css.name,
+            stylesheets: stylesheets,
             js_href: index_js.name,
             section_class: cx.props.section_class,
             fav_icon_src: favicon_svg.name,

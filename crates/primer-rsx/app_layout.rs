@@ -7,8 +7,7 @@ use dioxus::prelude::*;
 pub struct AppLayoutProps<'a> {
     title: &'a str,
     fav_icon_src: &'a str,
-    css_href1: &'a str,
-    css_href2: &'a str,
+    stylesheets: Vec<String>,
     section_class: &'a str,
     js_href: &'a str,
     header: Element<'a>,
@@ -35,15 +34,14 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                 name: "viewport",
                 content: "width=device-width, initial-scale=1"
             }
-            link {
-                rel: "stylesheet",
-                href: "{cx.props.css_href1}",
-                "type": "text/css"
-            }
-            link {
-                rel: "stylesheet",
-                href: "{cx.props.css_href2}",
-                "type": "text/css"
+            for href in &cx.props.stylesheets {
+                cx.render(rsx!(
+                    link {
+                        rel: "stylesheet",
+                        href: "{href}",
+                        "type": "text/css"
+                    }
+                ))
             }
             script {
                 "type": "module",
