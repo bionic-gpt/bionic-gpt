@@ -41,7 +41,6 @@ pub fn index(
                             Button {
                                 class: "mr-2",
                                 button_scheme: ButtonScheme::Default,
-                                button_size: ButtonSize::Small,
                                 button_type: ButtonType::Submit,
                                 "New Chat"
                             }
@@ -49,7 +48,6 @@ pub fn index(
                         Button {
                             drawer_trigger: "history-selector",
                             button_scheme: ButtonScheme::Default,
-                            button_size: ButtonSize::Small,
                             "Show History"
                         }
                         super::history_drawer::HistoryDrawer{
@@ -201,7 +199,6 @@ pub fn index(
                                             disabled: true,
                                             button_type: ButtonType::Submit,
                                             button_scheme: ButtonScheme::Default,
-                                            button_size: ButtonSize::Small,
                                             "Send Message"
                                         }
                                     }
@@ -239,7 +236,6 @@ pub fn index(
                                         Button {
                                             button_type: ButtonType::Submit,
                                             button_scheme: ButtonScheme::Primary,
-                                            button_size: ButtonSize::Small,
                                             "Send Message"
                                         }
                                     }

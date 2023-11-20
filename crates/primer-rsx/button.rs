@@ -45,14 +45,16 @@ pub enum ButtonSize {
     Default,
     Small,
     Large,
+    ExtraLarge,
 }
 
 impl ButtonSize {
     pub fn to_string(&self) -> &'static str {
         match self {
-            ButtonSize::Default => "",
-            ButtonSize::Small => "btn-sm",
-            ButtonSize::Large => "btn-large",
+            ButtonSize::Default => "btn-sm",
+            ButtonSize::Small => "btn-xs",
+            ButtonSize::Large => "btn-md",
+            ButtonSize::ExtraLarge => "btn-large",
         }
     }
 }
