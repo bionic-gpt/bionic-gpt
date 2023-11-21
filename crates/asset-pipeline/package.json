@@ -7,7 +7,8 @@
         "release": "npm run copy-primer && ./patch-turbo.sh && parcel build ./index.ts --public-url /auth/static",
         "report": "npm run copy-primer && parcel build ./index.ts --reporter @parcel/reporter-bundle-buddy",
         "protoc": "npx protoc --ts_out ./ --proto_path ../grpc-api ../grpc-api/api.proto",
-        "copy-primer": "mkdir -p ./dist && cp ./node_modules/@primer/view-components/app/assets/styles/primer_view_components.css ./dist/"
+        "copy-primer": "mkdir -p ./dist && cp ./node_modules/@primer/view-components/app/assets/styles/primer_view_components.css ./dist/",
+        "tailwind": "npx tailwindcss -i ./input.css -o ./dist/output.css"
     },
     "devDependencies": {
         "@github/relative-time-element": "^4.1.5",
