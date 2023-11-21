@@ -20,14 +20,14 @@ pub fn Role<'a>(cx: Scope<'a, RoleProps<'a>>) -> Element {
         Role::Collaborator => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_role: LabelRole::Highlight,
+                label_role: LabelRole::Neutral,
                 "Collaborator"
             }
         )),
         Role::SystemAdministrator => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_role: LabelRole::Highlight,
+                label_role: LabelRole::Info,
                 "System Administrator"
             }
         )),

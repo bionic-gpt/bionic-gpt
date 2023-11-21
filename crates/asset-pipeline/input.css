@@ -79,6 +79,10 @@ a {
     color: white;
 }
 
+.menu li a {
+    text-decoration: none;
+}
+
 /** Tables **/
 table > thead {
     background-color: #fafbfb;

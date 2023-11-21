@@ -145,7 +145,7 @@ pub fn members(
                                         }
                                         td {
                                             Label {
-                                                label_role: LabelRole::Highlight,
+                                                label_role: LabelRole::Success,
                                                 "Active"
                                             }
                                         }
