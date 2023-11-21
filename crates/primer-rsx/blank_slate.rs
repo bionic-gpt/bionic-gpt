@@ -15,22 +15,23 @@ pub struct BlankSlateProps<'a> {
 pub fn BlankSlate<'a>(cx: Scope<'a, BlankSlateProps<'a>>) -> Element {
     cx.render(rsx!(
         div {
-            class: "blankslate",
+            class: "flex flex-col justify-center items-center",
             img {
+                class: "mb-4",
                 src: "{cx.props.visual}",
-                width: "15%"
+                width: "10%"
             }
             h2 {
-                class: "blankslate-heading",
+                class: "text-center mb-4",
                 "{cx.props.heading}"
             }
             p {
+                class: "mb-4",
                 "{cx.props.description}"
             }
             match &cx.props.primary_action {
                 Some(pa) => cx.render(rsx!(
                     div {
-                        class: "blankslate-action",
                         a {
                             href: "{pa.1}",
                             span {
@@ -45,7 +46,6 @@ pub fn BlankSlate<'a>(cx: Scope<'a, BlankSlateProps<'a>>) -> Element {
             match cx.props.primary_action_drawer {
                 Some(pa) => cx.render(rsx!(
                     div {
-                        class: "blankslate-action",
                         Button {
                             button_scheme: ButtonScheme::Primary,
                             drawer_trigger: "{pa.1}",
@@ -58,7 +58,6 @@ pub fn BlankSlate<'a>(cx: Scope<'a, BlankSlateProps<'a>>) -> Element {
             match cx.props.secondary_action {
                 Some(pa) => cx.render(rsx!(
                     div {
-                        class: "blankslate-action",
                         a {
                             href: "{pa.1}",
                             "{pa.0}"

@@ -83,17 +83,13 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
             (Some(l), Some(_)) => cx.render(rsx!(
                 label {
                     class: cx.props.label_class,
-                    strong {
-                        "{l} *"
-                    }
+                    "{l} *"
                 }
             )),
             (Some(l), None) => cx.render(rsx!(
                 label {
                     class: cx.props.label_class,
-                    strong {
-                        "{l}"
-                    }
+                    "{l}"
                 }
             )),
             (None, _) => None
@@ -112,9 +108,11 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
         }
         match cx.props.help_text {
             Some(l) => cx.render(rsx!(
-                span {
-                    class: "note mb-3",
-                    "{l}"
+                label {
+                    span {
+                        class: "label-text-alt",
+                        "{l}"
+                    }
                 }
             )),
             None => None
