@@ -34,6 +34,7 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
                     }
                     BoxBody {
                         table {
+                            class: "table table-sm",
                             thead {
                                 th { "Team" }
                                 th {
@@ -68,7 +69,9 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
                                                 }
                                                 td {
                                                     class: "text-right",
-                                                    "{team.team_owner}"
+                                                    strong {
+                                                        "{team.team_owner}"
+                                                    }
                                                 }
                                             }
                                         })
@@ -96,7 +99,9 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
                                                 }
                                                 td {
                                                     class: "text-right",
-                                                    "{team.team_owner}"
+                                                    strong {
+                                                        "{team.team_owner}"
+                                                    }
                                                 }
                                             }
                                         })

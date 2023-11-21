@@ -9,6 +9,10 @@
     --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
 }
 
+a {
+    text-decoration: underline;
+}
+
 .l_nav_items > .menu {
     border: 0;
     margin: 0;
@@ -17,6 +21,10 @@
 
     > li > a.active > img {
         filter: invert(1);
+    }
+
+    > li > a {
+        text-decoration: none;
     }
 }
 
@@ -71,8 +79,13 @@
     color: white;
 }
 
+/** Tables **/
 table > thead {
     background-color: #fafbfb;
+}
+
+.table td svg {
+    display: inline;
 }
 
 /** Badges / Labels **/
