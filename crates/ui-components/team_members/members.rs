@@ -145,8 +145,7 @@ pub fn members(
                                         }
                                         td {
                                             Label {
-                                                label_color: LabelColor::Primary,
-                                                label_contrast: LabelContrast::Primary,
+                                                label_role: LabelRole::Highlight,
                                                 "Active"
                                             }
                                         }
@@ -195,8 +194,7 @@ pub fn members(
                                         }
                                         td {
                                             Label {
-                                                label_color: LabelColor::Accent,
-                                                label_contrast: LabelContrast::Primary,
+                                                label_role: LabelRole::Highlight,
                                                 "Invite Pending"
                                             }
                                         }

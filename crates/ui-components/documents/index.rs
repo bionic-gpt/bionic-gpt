@@ -100,14 +100,14 @@ pub fn index(
                                                         } else if doc.fail_count > 0 {
                                                             cx.render(rsx!(
                                                                 Label {
-                                                                    label_color: LabelColor::Primary,
+                                                                    label_role: LabelRole::Highlight,
                                                                     "Processed ({doc.fail_count} failed)"
                                                                 }
                                                             ))
                                                         } else {
                                                             cx.render(rsx!(
                                                                 Label {
-                                                                    label_color: LabelColor::Secondary,
+                                                                    label_role: LabelRole::Highlight,
                                                                     "Processed"
                                                                 }
                                                             ))

@@ -13,15 +13,14 @@ pub fn Model<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         ModelType::LLM => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Primary,
-                label_contrast: LabelContrast::Primary,
+                label_role: LabelRole::Info,
                 "Large Language Model"
             }
         )),
         ModelType::Embeddings => cx.render(rsx!(
             Label {
                 class: "mr-2",
-                label_color: LabelColor::Accent,
+                label_role: LabelRole::Highlight,
                 "Embeddings Model"
             }
         )),

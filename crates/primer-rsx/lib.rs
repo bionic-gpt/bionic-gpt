@@ -25,7 +25,7 @@ pub use card::{Box, BoxBody, BoxHeader};
 pub use drawer::{Drawer, DrawerBody, DrawerFooter};
 pub use drop_down::{Direction, DropDown, DropDownLink};
 pub use input::{Input, InputSize, InputType};
-pub use label::{Label, LabelColor, LabelContrast, LabelSize};
+pub use label::{Label, LabelRole, LabelSize};
 pub use nav_item::{NavGroup, NavItem, NavSubGroup, NavSubItem};
 pub use pagination::Pagination;
 pub use relative_time::{RelativeTime, RelativeTimeFormat};
