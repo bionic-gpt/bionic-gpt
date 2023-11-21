@@ -41,6 +41,17 @@
     font-weight: 400;
 }
 
+.btn-default {
+    border: 1px solid var(--default-border-color);
+    background-color: var(--bg-color-surface);
+    box-shadow: rgba(12, 12, 12, 0.09) 0px 1px 3px 0px;
+
+    &:hover {
+        border: 1px solid black;
+        background-color: var(--bg-color-surface);
+    }
+}
+
 .btn-primary {
     color: white;
 }

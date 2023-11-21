@@ -13,7 +13,7 @@ pub enum ButtonScheme {
 impl ButtonScheme {
     pub fn to_string(&self) -> &'static str {
         match self {
-            ButtonScheme::Default => "",
+            ButtonScheme::Default => "btn-default",
             ButtonScheme::Primary => "btn-primary",
             ButtonScheme::Outline => "btn-outline",
             ButtonScheme::Danger => "btn-danger",
