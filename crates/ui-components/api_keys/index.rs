@@ -48,6 +48,7 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                             }
                         )),
                         Box {
+                            class: "has-data-table",
                             BoxHeader {
                                 title: "API Keys"
                             }
@@ -120,6 +121,7 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                             Select {
                                 name: "prompt_id",
                                 label: "Please select a prompt",
+                                label_class: "mt-4",
                                 help_text: "All access via this API key will use the above prompt",
                                 cx.props.prompts.iter().map(|prompt| rsx!(
                                     SelectOption {
