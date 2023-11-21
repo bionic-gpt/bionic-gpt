@@ -35,6 +35,11 @@
 
         >.l_nav_items {
             flex-grow: 4;
+            padding-top: 1rem;
+
+            .menu:first-of-type > li:first-of-type {
+                padding-top: 0;
+            }
 
             > .heading {
                 min-inline-size: 100%;

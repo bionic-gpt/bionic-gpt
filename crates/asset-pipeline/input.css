@@ -41,13 +41,18 @@ a {
         }
     }
 
-    &.has-data-table .card-body {
-        padding: 0;
-
-        > .table {
-
-            > tbody > tr:last-child {
-                border-bottom-width: 0px;
+    &.has-data-table {
+        .card-header {
+            padding-left: 0.75rem;
+        }
+        .card-body {
+            padding: 0;
+    
+            > .table {
+    
+                > tbody > tr:last-child {
+                    border-bottom-width: 0px;
+                }
             }
         }
     }
