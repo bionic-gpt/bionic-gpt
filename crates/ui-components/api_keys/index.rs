@@ -73,8 +73,7 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                                                 td {
                                                     Input {
                                                         value: &key.api_key,
-                                                        name: "api_key",
-                                                        disabled: true
+                                                        name: "api_key"
                                                     }
                                                 }
                                                 td {

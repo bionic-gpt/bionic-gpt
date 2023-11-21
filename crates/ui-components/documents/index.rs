@@ -100,14 +100,14 @@ pub fn index(
                                                         } else if doc.fail_count > 0 {
                                                             cx.render(rsx!(
                                                                 Label {
-                                                                    label_role: LabelRole::Highlight,
+                                                                    label_role: LabelRole::Danger,
                                                                     "Processed ({doc.fail_count} failed)"
                                                                 }
                                                             ))
                                                         } else {
                                                             cx.render(rsx!(
                                                                 Label {
-                                                                    label_role: LabelRole::Highlight,
+                                                                    label_role: LabelRole::Success,
                                                                     "Processed"
                                                                 }
                                                             ))

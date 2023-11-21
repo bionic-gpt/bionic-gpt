@@ -75,8 +75,7 @@ pub fn index(
                                                 td {
                                                     Input {
                                                         value: &key.api_key,
-                                                        name: "api_key",
-                                                        disabled: true
+                                                        name: "api_key"
                                                     }
                                                 }
                                                 td {

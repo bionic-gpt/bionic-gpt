@@ -346,7 +346,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .query(By::XPath("//button[contains(@class, 'Label--success')]"))
+        .query(By::XPath("//button[contains(@class, 'lebel-success')]"))
         .first()
         .await?
         .wait_until()

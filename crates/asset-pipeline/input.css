@@ -126,6 +126,9 @@ table > thead {
 }
 
 /** Alerts **/
+.alert {
+    font-size: 0.9rem;
+}
 
 .alert-danger {
     background-color: rgb(255, 240, 238);
