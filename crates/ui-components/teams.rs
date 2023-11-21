@@ -59,7 +59,7 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
                                                     if team.id != cx.props.organisation_id {
                                                         cx.render(rsx! {
                                                             a {
-                                                                href: "../{team.id}",
+                                                                href: "{crate::routes::team::index_route(team.id)}",
                                                                 "(Switch to this Team)"
                                                             }
                                                         })
@@ -89,7 +89,7 @@ pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
                                                     if team.id != cx.props.organisation_id {
                                                         cx.render(rsx! {
                                                             a {
-                                                                href: "../{team.id}/team",
+                                                                href: "{crate::routes::team::index_route(team.id)}",
                                                                 "(Switch to this Team)"
                                                             }
                                                         })

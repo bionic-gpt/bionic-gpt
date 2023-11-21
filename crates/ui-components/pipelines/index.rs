@@ -51,6 +51,7 @@ pub fn index(
                             }
                         )),
                         Box {
+                            class: "has-data-table",
                             BoxHeader {
                                 title: "Document Pipelines"
                             }
