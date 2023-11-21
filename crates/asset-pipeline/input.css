@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --main-bg-color: #fafbfb;
+    --bg-color-surface: white;
+    --default-border-color: #d8dee4;
+    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+}
+
 .l_nav_items > .menu {
     border: 0;
     margin: 0;
@@ -14,11 +21,11 @@
 }
 
 .card {
-    border: 1px solid #ccc;
+    border: 1px solid var(--default-border-color);
 
     .card-header {
         padding: 1rem;
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid var(--default-border-color);
 
         > .card-title {
             font-size: 0.875rem;
@@ -43,4 +50,8 @@
 .menu li > details > summary:active {
     background-color: #3559c7;
     color: white;
+}
+
+table > thead {
+    background-color: #fafbfb;
 }
