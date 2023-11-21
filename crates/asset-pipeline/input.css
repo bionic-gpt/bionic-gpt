@@ -19,5 +19,28 @@
     .card-header {
         padding: 1rem;
         border-bottom: 1px solid #ccc;
+
+        > .card-title {
+            font-size: 0.875rem;
+        }
     }
+
+    &.has-data-table .card-body {
+        padding: 0;
+    }
+}
+
+.btn {
+    font-weight: 400;
+}
+
+.btn-primary {
+    color: white;
+}
+
+.menu li > *:not(ul):not(.menu-title):not(details):active, 
+.menu li > *:not(ul):not(.menu-title):not(details).active, 
+.menu li > details > summary:active {
+    background-color: #3559c7;
+    color: white;
 }

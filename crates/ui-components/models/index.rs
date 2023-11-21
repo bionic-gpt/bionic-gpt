@@ -53,10 +53,14 @@ pub fn index(organisation_id: i32, models: Vec<Model>) -> String {
                                     cx.render(rsx!(
                                         tr {
                                             td {
-                                                "{model.name}"
+                                                strong {
+                                                    "{model.name}"
+                                                }
                                             }
                                             td {
-                                                "{model.base_url}"
+                                                code {
+                                                    "{model.base_url}"
+                                                }
                                             }
                                             td {
                                                 super::model_type::Model {
