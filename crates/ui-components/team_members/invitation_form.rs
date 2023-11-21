@@ -24,6 +24,7 @@ pub fn InvitationForm(cx: Scope<InvitationFormProps>) -> Element {
                             help_text: "The email address of the person you wish to invite",
                             required: true,
                             label: "Email",
+                            label_class: "mt-4",
                             name: "email"
                         }
                         Input {
@@ -31,6 +32,7 @@ pub fn InvitationForm(cx: Scope<InvitationFormProps>) -> Element {
                             help_text: "The first name of the person you wish to invite",
                             required: true,
                             label: "First Name",
+                            label_class: "mt-4",
                             name: "first_name"
                         }
                         Input {
@@ -38,11 +40,12 @@ pub fn InvitationForm(cx: Scope<InvitationFormProps>) -> Element {
                             help_text: "The last name of the person you wish to invite",
                             required: true,
                             label: "Last Name",
+                            label_class: "mt-4",
                             name: "last_name"
                         }
                         Alert {
                             alert_color: AlertColor::Success,
-                            class: "mb-3",
+                            class: "mt-4 flex flex-col items-start",
                             label {
                                 input {
                                     "type": "checkbox",

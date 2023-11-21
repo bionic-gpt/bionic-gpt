@@ -125,6 +125,39 @@ table > thead {
     border-color: rgb(227,204,244);
 }
 
+/** Alerts **/
+
+.alert-danger {
+    background-color: rgb(255, 240, 238);
+    color: rgb(178, 48, 21);
+    border-color: rgb(250, 199, 190);
+}
+.alert-info{
+    background-color: rgb(240, 244, 255);
+    color: rgb(52, 81, 178);
+    border-color: rgb(198, 212, 249);
+}
+.alert-neutral {
+    background-color: rgb(241, 243, 245);
+    color: rgb(85, 89, 83);
+    border-color: rgb(216,220,224);
+}
+.alert-warning {
+    background-color: rgb(255, 250, 225);
+    color: rgb(148, 105, 0);
+    border-color: rgb(248, 216, 124);
+}
+.alert-success {
+    background-color: rgb(235, 249, 235);
+    color: rgb(17, 118, 39);
+    border-color: rgb(183, 223, 186);
+}
+.alert-highlight {
+    background-color: rgb(249, 241, 254);
+    color: rgb(121, 58, 175);
+    border-color: rgb(227,204,244);
+}
+
 /** Drop down menu **/
 .dropdown ul {
     border: 1px solid var(--default-border-color);
