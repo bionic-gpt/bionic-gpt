@@ -16,7 +16,7 @@ impl ButtonScheme {
             ButtonScheme::Default => "btn-default",
             ButtonScheme::Primary => "btn-primary",
             ButtonScheme::Outline => "btn-outline",
-            ButtonScheme::Danger => "btn-danger",
+            ButtonScheme::Danger => "btn-warning",
         }
     }
 }

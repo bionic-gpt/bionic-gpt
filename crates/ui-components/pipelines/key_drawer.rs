@@ -31,6 +31,7 @@ pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
                         Select {
                             name: "dataset_id",
                             label: "Please select a dataset",
+                            label_class: "mt-4",
                             required: true,
                             help_text: "All access via this API key will use the above dataset",
                             cx.props.datasets.iter().map(|dataset| rsx!(

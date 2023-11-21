@@ -66,9 +66,8 @@ pub fn DropDown<'a>(cx: Scope<'a, DropDownProps<'a>>) -> Element {
                     None
                 },
                 span {
-                    span {
-                        "{cx.props.button_text}"
-                    }
+                    class: "text-ellipsis overflow-hidden",
+                    "{cx.props.button_text}"
                 }
                 if let Some(img_src) = cx.props.suffix_image_src {
                     cx.render(rsx! {
