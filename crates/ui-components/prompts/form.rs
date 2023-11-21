@@ -62,6 +62,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                 Select {
                                     name: "visibility",
                                     label: "Who should be able to see this prompt?",
+                                    label_class: "mt-4",
                                     help_text: "Set to private if you don't want to share this prompt.",
                                     value: "{crate::visibility_to_string(cx.props.visibility)}",
                                     SelectOption {
@@ -84,6 +85,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                 Select {
                                     name: "model_id",
                                     label: "Select the model this prompt will use for inference",
+                                    label_class: "mt-4",
                                     help_text: "The prompt will be passed to the model",
                                     value: &cx.props.model_id.to_string(),
                                     required: true,
@@ -104,6 +106,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     name: "system_prompt",
                                     rows: "10",
                                     label: "Prompt",
+                                    label_class: "mt-4",
                                     "{cx.props.system_prompt}",
                                 }
                             }
@@ -139,6 +142,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                 Select {
                                     name: "datasets",
                                     label: "Select datasets to connect to this prompt",
+                                    label_class: "mt-4",
                                     help_text: "These datasets will only be used when the above is set to 'Use Selected Datasets'",
                                     value: &cx.props.name,
                                     multiple: true,
@@ -166,6 +170,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "max_chunks",
                                     label: "Maximum number of Chunks",
+                                    label_class: "mt-4",
                                     help_text: "We don't add more chunks to the prompt than this.",
                                     value: "{cx.props.max_chunks}",
                                     required: true
@@ -192,6 +197,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "max_history_items",
                                     label: "Max number of history items",
+                                    label_class: "mt-4",
                                     help_text: "This decides how much history we add to the prompt",
                                     value: "{cx.props.max_history_items}",
                                     required: true
@@ -201,6 +207,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "max_tokens",
                                     label: "Max Tokens",
+                                    label_class: "mt-4",
                                     help_text: "How much of the context to leave for the LLM's reply",
                                     value: "{cx.props.max_tokens}",
                                     required: true
@@ -210,6 +217,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "top_p",
                                     label: "Alternative to Temperature",
+                                    label_class: "mt-4",
                                     help_text: "Value between 0 and 2.",
                                     value: "{cx.props.top_p}",
                                     required: true
