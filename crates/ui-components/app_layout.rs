@@ -36,14 +36,16 @@ pub struct LayoutProps<'a> {
 }
 
 pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
+    let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
+
     cx.render(rsx! {
         AppLayout {
             title: cx.props.title,
-            css_href1: primer_view_components_css.name,
-            css_href2: index_css.name,
+            stylesheets: stylesheets,
             js_href: index_js.name,
             section_class: cx.props.section_class,
             fav_icon_src: favicon_svg.name,
+            collapse_svg_src: collapse_svg.name,
             header: cx.render(rsx!(
                 &cx.props.header
             )),
@@ -77,11 +79,6 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             icon: nav_ccsds_data_svg.name,
                             title: "Team Datasets"
                         }
-                    ))
-                }
-                NavGroup {
-                    heading: "Pipelines",
-                    content:  cx.render(rsx!(
                         NavItem {
                             id: SideBar::DocumentPipelines.to_string(),
                             selected_item_id: cx.props.selected_item.to_string(),
@@ -150,14 +147,14 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
             sidebar_header: cx.render(rsx!(
                 turbo-frame {
                     id: "teams-popup",
-                    class: "width-full",
+                    class: "min-w-full",
                     src: "{super::routes::team::teams_popup_route(cx.props.team_id)}"
                 }
             )),
             sidebar_footer: cx.render(rsx!(
                 turbo-frame {
                     id: "profile-popup",
-                    class: "width-full",
+                    class: "min-w-full",
                     src: "{super::routes::profile::profile_popup_route(cx.props.team_id)}"
                 }
             )),

@@ -61,10 +61,12 @@ view-account {
                 display: flex;
                 height: 72px;
                 align-items: center;
+                border-bottom: 1px solid var(--default-border-color);
 
                 >.drawer__title {
                     flex: 1 1 auto;
-                    line-height: var(--sl-line-height-dense);
+                    font-size: 1rem;
+                    font-weight: 600;
                     padding: var(--header-spacing);
                 }
 

@@ -6,6 +6,7 @@ pub enum AlertColor {
     #[default]
     Default,
     Warn,
+    Info,
     Error,
     Success,
 }
@@ -13,10 +14,11 @@ pub enum AlertColor {
 impl AlertColor {
     pub fn to_string(&self) -> &'static str {
         match self {
-            AlertColor::Default => "flash",
-            AlertColor::Warn => "flash flash-warn",
-            AlertColor::Error => "flash flash-error",
-            AlertColor::Success => "flash flash-success",
+            AlertColor::Default => "alert alert-info",
+            AlertColor::Info => "alert alert-info",
+            AlertColor::Warn => "alert alert-warning",
+            AlertColor::Error => "alert alert-error",
+            AlertColor::Success => "alert alert-success",
         }
     }
 }

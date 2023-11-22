@@ -15,11 +15,32 @@ pub fn profile_popup(user: User, organisation_id: i32) -> String {
                 class: "full-width",
                 id: "profile-popup",
                 DropDown {
-                    direction: Direction::NorthEast,
+                    direction: Direction::Top,
                     button_text: &cx.props.user_name_or_email,
                     prefix_image_src: profile_svg.name,
                     suffix_image_src: button_select_svg.name,
-                    class: "width-full",
+                    class: "w-full",
+                    strong {
+                        "Theme"
+                    }
+                    DropDownLink {
+                        href: "#light",
+                        class: "theme",
+                        "Light Theme"
+                    }
+                    DropDownLink {
+                        href: "#dark",
+                        class: "theme",
+                        "Dark Theme (Experimental)"
+                    }
+                    DropDownLink {
+                        href: "#mixed",
+                        class: "theme",
+                        "Mixed Theme (Experimental)"
+                    }
+                    strong {
+                        "Profile"
+                    }
                     DropDownLink {
                         href: &cx.props.profile_url,
                         target: "_top",

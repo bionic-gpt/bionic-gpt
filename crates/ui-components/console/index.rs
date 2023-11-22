@@ -34,7 +34,7 @@ pub fn index(
                 header: cx.render(rsx!(
                     h3 { "AI Chat Console" }
                     div {
-                        class: "d-flex flex-row",
+                        class: "flex flex-row",
                         form {
                             method: "post",
                             action: "{crate::routes::console::new_chat_route(cx.props.organisation_id)}",
@@ -61,7 +61,7 @@ pub fn index(
                     id: "console-panel",
                     div {
                         id: "console-stream",
-                        class: "d-flex flex-column-reverse",
+                        class: "flex flex-col-reverse",
                         cx.props.chats.iter().rev().map(|chat| {
                             cx.render(rsx!(
                                 super::prompt_drawer::PromptDrawer {
@@ -119,7 +119,7 @@ pub fn index(
                                         Label {
                                             "Model: "
                                             strong {
-                                                "{chat.model_name}"
+                                                " {chat.model_name}"
                                             }
                                         }
 
@@ -127,7 +127,7 @@ pub fn index(
                                             cx.render(rsx!(
                                                 Label {
                                                     class: "ml-2",
-                                                    label_color: LabelColor::Danger,
+                                                    label_role: LabelRole::Highlight,
                                                     a {
                                                         id: "stop-processing",
                                                         "Stop Processing"
@@ -161,9 +161,9 @@ pub fn index(
                         })
                     }
                     div {
-                        class: "position-relative width-full bottom-0 p-2 border-top color-bg-subtle",
+                        class: "position-relative w-full bottom-0 p-2 border-top color-bg-subtle",
                         form {
-                            class: "remember width-full d-flex",
+                            class: "remember w-full flex",
                             method: "post",
                             "data-remember-name": "console-prompt",
                             "data-remember-reset": "false",
@@ -171,15 +171,15 @@ pub fn index(
                             if cx.props.lock_console {
                                 cx.render(rsx!(
                                     textarea {
-                                        class: "flex-1 mr-2 form-control",
+                                        class: "textarea textarea-bordered flex-1 mr-2 form-control",
                                         rows: "4",
                                         name: "message",
                                         disabled: true
                                     }
                                     div {
-                                        class: "d-flex flex-column flex-justify-between",
+                                        class: "flex flex-col justify-between",
                                         div {
-                                            class: "d-flex flex-row ",
+                                            class: "flex flex-row ",
                                             label {
                                                 class: "mr-2",
                                                 "Prompt"
@@ -206,14 +206,14 @@ pub fn index(
                             } else {
                                 cx.render(rsx!(
                                     textarea {
-                                        class: "submit-on-enter flex-1 mr-2 form-control",
+                                        class: "textarea textarea-bordered submit-on-enter flex-1 mr-2 form-control",
                                         rows: "4",
                                         name: "message"
                                     }
                                     div {
-                                        class: "d-flex flex-column flex-justify-between",
+                                        class: "flex flex-col justify-between",
                                         div {
-                                            class: "d-flex flex-row ",
+                                            class: "flex flex-row ",
                                             label {
                                                 class: "mr-2",
                                                 "Prompt"

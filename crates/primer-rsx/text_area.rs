@@ -6,15 +6,19 @@ pub enum TextAreaSize {
     #[default]
     Default,
     Small,
+    ExtraSmall,
     Large,
+    Medium,
 }
 
 impl TextAreaSize {
     pub fn to_string(&self) -> &'static str {
         match self {
-            TextAreaSize::Default => "",
-            TextAreaSize::Small => "sm",
-            TextAreaSize::Large => "large",
+            TextAreaSize::Default => "textarea-sm",
+            TextAreaSize::Small => "textarea-sm",
+            TextAreaSize::ExtraSmall => "textarea-xs",
+            TextAreaSize::Large => "textarea-lg",
+            TextAreaSize::Medium => "textarea-md",
         }
     }
 }
@@ -78,7 +82,7 @@ pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         }
         textarea {
             id: "{id}",
-            class: "{class}",
+            class: "textarea textarea-bordered textarea-sm {class}",
             value: "{value}",
             name: "{cx.props.name}",
             placeholder: "{placeholder}",

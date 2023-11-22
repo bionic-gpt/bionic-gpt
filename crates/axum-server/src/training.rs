@@ -5,6 +5,7 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::Pool;
+use ui_components::training;
 
 use ui_components::routes::training::INDEX;
 
@@ -22,5 +23,7 @@ pub async fn index(
 
     super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    Ok(Html(ui_components::training::index(team_id)))
+    Ok(Html(training::index(training::PageProps {
+        organisation_id: team_id,
+    })))
 }

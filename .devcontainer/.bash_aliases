@@ -27,6 +27,8 @@ alias watch-pipeline='npm install --prefix /workspace/crates/asset-pipeline && n
 alias wp=watch-pipeline
 alias watch-embeddings='mold -run cargo watch --workdir /workspace/ -w crates/open-api -w crates/pipeline-job --no-gitignore -x "run --bin pipeline-job"'
 alias we=watch-embeddings
+alias watch-tailwind='cd /workspace/crates/asset-pipeline && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
+alias wt=watch-tailwind
 
 # Spell check
 alias spell='docker run --rm -ti -v $HOST_PROJECT_PATH/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'

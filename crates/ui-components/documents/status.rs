@@ -26,14 +26,14 @@ pub fn status(document: Document) -> String {
                 }  else if cx.props.document.fail_count > 0 {
                     cx.render(rsx!(
                         Label {
-                            label_color: LabelColor::Attention,
+                            label_role: LabelRole::Success,
                             "Processed ({cx.props.document.fail_count} failed)"
                         }
                     ))
                 } else {
                     cx.render(rsx!(
                         Label {
-                            label_color: LabelColor::Success,
+                            label_role: LabelRole::Success,
                             "Processed"
                         }
                     ))

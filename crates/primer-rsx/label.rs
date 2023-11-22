@@ -2,49 +2,25 @@
 use dioxus::prelude::*;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
-pub enum LabelContrast {
-    Primary,
+pub enum LabelRole {
     #[default]
-    Secondary,
-}
-
-impl LabelContrast {
-    pub fn to_string(&self) -> &'static str {
-        match self {
-            LabelContrast::Primary => "Label--primary",
-            LabelContrast::Secondary => "Label--secondary",
-        }
-    }
-}
-
-#[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
-pub enum LabelColor {
-    #[default]
-    Default,
-    Accent,
-    Success,
-    Attention,
-    Severe,
+    Neutral,
     Danger,
-    Open,
-    Closed,
-    Done,
-    Sponsors,
+    Warning,
+    Success,
+    Info,
+    Highlight,
 }
 
-impl LabelColor {
+impl LabelRole {
     pub fn to_string(&self) -> &'static str {
         match self {
-            LabelColor::Default => "",
-            LabelColor::Accent => "Label--accent",
-            LabelColor::Success => "Label--success",
-            LabelColor::Attention => "Label--attention",
-            LabelColor::Severe => "Label--severe",
-            LabelColor::Danger => "Label--danger",
-            LabelColor::Open => "Label--open",
-            LabelColor::Closed => "Label--closed",
-            LabelColor::Done => "Label--done",
-            LabelColor::Sponsors => "Label--sponsors",
+            LabelRole::Neutral => "label-neutral",
+            LabelRole::Danger => "label-danger",
+            LabelRole::Warning => "label-warning",
+            LabelRole::Success => "label-success",
+            LabelRole::Info => "label-info",
+            LabelRole::Highlight => "label-highlight",
         }
     }
 }
@@ -60,7 +36,7 @@ impl LabelSize {
     pub fn to_string(&self) -> &'static str {
         match self {
             LabelSize::Small => "",
-            LabelSize::Large => "Label--large",
+            LabelSize::Large => "badge-lg",
         }
     }
 }
@@ -69,20 +45,13 @@ impl LabelSize {
 pub struct LabelProps<'a> {
     children: Element<'a>,
     class: Option<&'a str>,
-    label_contrast: Option<LabelContrast>,
-    label_color: Option<LabelColor>,
+    label_role: Option<LabelRole>,
     label_size: Option<LabelSize>,
 }
 
 pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
-    let label_contrast = if cx.props.label_contrast.is_some() {
-        cx.props.label_contrast.unwrap()
-    } else {
-        Default::default()
-    };
-
-    let label_color = if cx.props.label_color.is_some() {
-        cx.props.label_color.unwrap()
+    let label_role = if cx.props.label_role.is_some() {
+        cx.props.label_role.unwrap()
     } else {
         Default::default()
     };
@@ -100,9 +69,8 @@ pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
     };
 
     let class = format!(
-        "Label {} {} {} {}",
-        label_contrast.to_string(),
-        label_color.to_string(),
+        "badge {} {} {}",
+        label_role.to_string(),
         label_size.to_string(),
         class
     );

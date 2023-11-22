@@ -26,15 +26,19 @@ pub enum InputSize {
     #[default]
     Default,
     Small,
+    ExtraSmall,
     Large,
+    Medium,
 }
 
 impl InputSize {
     pub fn to_string(&self) -> &'static str {
         match self {
-            InputSize::Default => "",
-            InputSize::Small => "sm",
-            InputSize::Large => "large",
+            InputSize::Default => "input-sm",
+            InputSize::ExtraSmall => "input-xs",
+            InputSize::Small => "input-sm",
+            InputSize::Large => "input-lg",
+            InputSize::Medium => "input-md",
         }
     }
 }
@@ -79,24 +83,20 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
             (Some(l), Some(_)) => cx.render(rsx!(
                 label {
                     class: cx.props.label_class,
-                    strong {
-                        "{l} *"
-                    }
+                    "{l} *"
                 }
             )),
             (Some(l), None) => cx.render(rsx!(
                 label {
                     class: cx.props.label_class,
-                    strong {
-                        "{l}"
-                    }
+                    "{l}"
                 }
             )),
             (None, _) => None
         }
         input {
             id: cx.props.id,
-            class: "{input_class}",
+            class: "input input-bordered {input_class}",
             value: cx.props.value,
             required: cx.props.required,
             disabled: cx.props.disabled,
@@ -108,9 +108,11 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
         }
         match cx.props.help_text {
             Some(l) => cx.render(rsx!(
-                span {
-                    class: "note mb-3",
-                    "{l}"
+                label {
+                    span {
+                        class: "label-text-alt",
+                        "{l}"
+                    }
                 }
             )),
             None => None

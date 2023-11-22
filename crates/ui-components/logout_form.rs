@@ -13,9 +13,11 @@ pub fn LogoutForm(cx: Scope) -> Element {
                 trigger_id: "logout-drawer",
                 DrawerBody {
                     p {
+                        class: "mb-4",
                         "Are you sure you want to log out?"
                     }
                     Alert {
+                        alert_color: AlertColor::Warn,
                         "During logout we delete all cookies associated with your account
                         and any private keys stored in local storage."
                     }

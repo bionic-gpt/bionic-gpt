@@ -64,6 +64,8 @@ fn ructe() -> Result<()> {
     let mut statics = ructe.statics().unwrap();
 
     statics.add_files("./images").unwrap();
+    statics.add_files("./images/layout").unwrap();
+    statics.add_files("./images/sidebar").unwrap();
     statics.add_files("./dist").unwrap();
     ructe.compile_templates("./dist").unwrap();
 

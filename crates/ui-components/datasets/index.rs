@@ -46,58 +46,56 @@ pub fn index(organisation_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -
                                 title: "Datasets"
                             }
                             BoxBody {
-                                DataTable {
-                                    table {
-                                        thead {
-                                            th { "Name" }
-                                            th { "Visibility" }
-                                            th { "Document Count" }
-                                            th { "Chunking Strategy" }
-                                            th {
-                                                class: "text-right",
-                                                "Action"
-                                            }
+                                table {
+                                    class: "table table-sm",
+                                    thead {
+                                        th { "Name" }
+                                        th { "Visibility" }
+                                        th { "Document Count" }
+                                        th { "Chunking Strategy" }
+                                        th {
+                                            class: "text-right",
+                                            "Action"
                                         }
-                                        tbody {
+                                    }
+                                    tbody {
 
-                                            cx.props.datasets.iter().map(|dataset| {
-                                                cx.render(rsx!(
-                                                    tr {
-                                                        td {
-                                                            a {
+                                        cx.props.datasets.iter().map(|dataset| {
+                                            cx.render(rsx!(
+                                                tr {
+                                                    td {
+                                                        a {
+                                                            href: "{crate::routes::documents::index_route(cx.props.organisation_id, dataset.id)}",
+                                                            "{dataset.name}" 
+                                                        }
+                                                    }
+                                                    td {
+                                                        crate::prompts::visibility::VisLabel {
+                                                            visibility: &dataset.visibility
+                                                        }
+                                                    }
+                                                    td { "{dataset.count}" }
+                                                    td {
+                                                        Label {
+                                                            label_role: LabelRole::Highlight,
+                                                            "By Title"
+                                                        }
+                                                        }
+                                                    td {
+                                                        class: "text-right",
+                                                        DropDown {
+                                                            direction: Direction::Left,
+                                                            button_text: "...",
+                                                            DropDownLink {
                                                                 href: "{crate::routes::documents::index_route(cx.props.organisation_id, dataset.id)}",
-                                                                "{dataset.name}" 
-                                                            }
-                                                        }
-                                                        td {
-                                                            crate::prompts::visibility::VisLabel {
-                                                                visibility: &dataset.visibility
-                                                            }
-                                                        }
-                                                        td { "{dataset.count}" }
-                                                        td {
-                                                            Label {
-                                                                label_color: LabelColor::Done,
-                                                                label_contrast: LabelContrast::Primary,
-                                                                "By Title"
-                                                            }
-                                                         }
-                                                        td {
-                                                            class: "text-right",
-                                                            DropDown {
-                                                                direction: Direction::West,
-                                                                button_text: "...",
-                                                                DropDownLink {
-                                                                    href: "{crate::routes::documents::index_route(cx.props.organisation_id, dataset.id)}",
-                                                                    target: "_top",
-                                                                    "View"
-                                                                }
+                                                                target: "_top",
+                                                                "View"
                                                             }
                                                         }
                                                     }
-                                                ))
-                                            })
-                                        }
+                                                }
+                                            ))
+                                        })
                                     }
                                 }
                             }

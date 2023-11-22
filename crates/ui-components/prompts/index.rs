@@ -55,62 +55,61 @@ pub fn index(
                                 title: "Prompts"
                             }
                             BoxBody {
-                                DataTable {
-                                    table {
-                                        thead {
-                                            th { "Name" }
-                                            th { "Dataset(s)" }
-                                            th { "Visibility" }
-                                            th { "Model" }
-                                            th { "Updated" }
-                                            th {
-                                                class: "text-right",
-                                                "Action"
-                                            }
+                                table {
+                                    class: "table table-sm",
+                                    thead {
+                                        th { "Name" }
+                                        th { "Dataset(s)" }
+                                        th { "Visibility" }
+                                        th { "Model" }
+                                        th { "Updated" }
+                                        th {
+                                            class: "text-right",
+                                            "Action"
                                         }
-                                        tbody {
+                                    }
+                                    tbody {
 
-                                            cx.props.prompts.iter().map(|prompt| {
-                                                cx.render(rsx!(
-                                                    tr {
-                                                        td {
-                                                            "{prompt.name}"
+                                        cx.props.prompts.iter().map(|prompt| {
+                                            cx.render(rsx!(
+                                                tr {
+                                                    td {
+                                                        "{prompt.name}"
+                                                    }
+                                                    td {
+                                                        super::dataset_connection::DatasetConnection {
+                                                            connection: prompt.dataset_connection,
+                                                            datasets: prompt.datasets.clone()
                                                         }
-                                                        td {
-                                                            super::dataset_connection::DatasetConnection {
-                                                                connection: prompt.dataset_connection,
-                                                                datasets: prompt.datasets.clone()
-                                                            }
+                                                    }
+                                                    td {
+                                                        super::visibility::VisLabel {
+                                                            visibility: &prompt.visibility
                                                         }
-                                                        td {
-                                                            super::visibility::VisLabel {
-                                                                visibility: &prompt.visibility
-                                                            }
+                                                    }
+                                                    td {
+                                                        "{prompt.model_name}"
+                                                    }
+                                                    td {
+                                                        RelativeTime {
+                                                            datetime: "{prompt.updated_at}"
                                                         }
-                                                        td {
-                                                            "{prompt.model_name}"
-                                                        }
-                                                        td {
-                                                            RelativeTime {
-                                                                datetime: "{prompt.updated_at}"
-                                                            }
-                                                        }
-                                                        td {
-                                                            class: "text-right",
-                                                            DropDown {
-                                                                direction: Direction::West,
-                                                                button_text: "...",
-                                                                DropDownLink {
-                                                                    href: "#",
-                                                                    drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                                    "Edit"
-                                                                }
+                                                    }
+                                                    td {
+                                                        class: "text-right",
+                                                        DropDown {
+                                                            direction: Direction::Left,
+                                                            button_text: "...",
+                                                            DropDownLink {
+                                                                href: "#",
+                                                                drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                                                "Edit"
                                                             }
                                                         }
                                                     }
-                                                ))
-                                            })
-                                        }
+                                                }
+                                            ))
+                                        })
                                     }
                                 }
                             }

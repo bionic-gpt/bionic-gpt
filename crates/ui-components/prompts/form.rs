@@ -34,28 +34,12 @@ pub fn Form(cx: Scope<Props>) -> Element {
                 trigger_id: "{cx.props.trigger_id}",
                 DrawerBody {
                     TabContainer {
-                        tabs: cx.render(rsx! {
-                            TabHeader {
-                                selected: true,
-                                tab: "all-panel",
-                                name: "Prompt"
-                            }
-                            TabHeader {
-                                selected: false,
-                                tab: "datasets-panel",
-                                name: "Datasets"
-                            }
-                            TabHeader {
-                                selected: false,
-                                tab: "advanced-panel",
-                                name: "Advanced"
-                            }
-                        }),
                         TabPanel {
-                            hidden: false,
-                            id: "all-panel",
+                            checked: true,
+                            name: "prompt-tabs",
+                            tab_name: "Prompt",
                             div {
-                                class: "d-flex flex-column mt-3",
+                                class: "flex flex-col mt-3",
                                 if let Some(id) = cx.props.id {
                                     cx.render(rsx!(
                                         input {
@@ -78,6 +62,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                 Select {
                                     name: "visibility",
                                     label: "Who should be able to see this prompt?",
+                                    label_class: "mt-4",
                                     help_text: "Set to private if you don't want to share this prompt.",
                                     value: "{crate::visibility_to_string(cx.props.visibility)}",
                                     SelectOption {
@@ -100,6 +85,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                 Select {
                                     name: "model_id",
                                     label: "Select the model this prompt will use for inference",
+                                    label_class: "mt-4",
                                     help_text: "The prompt will be passed to the model",
                                     value: &cx.props.model_id.to_string(),
                                     required: true,
@@ -120,15 +106,16 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     name: "system_prompt",
                                     rows: "10",
                                     label: "Prompt",
+                                    label_class: "mt-4",
                                     "{cx.props.system_prompt}",
                                 }
                             }
                         }
                         TabPanel {
-                            hidden: true,
-                            id: "datasets-panel",
+                            name: "prompt-tabs",
+                            tab_name: "Datasets",
                             div {
-                                class: "d-flex flex-column mt-3",
+                                class: "flex flex-col mt-3",
                                 Select {
                                     name: "dataset_connection",
                                     label: "How shall we handle datasets with this prompt?",
@@ -155,6 +142,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                 Select {
                                     name: "datasets",
                                     label: "Select datasets to connect to this prompt",
+                                    label_class: "mt-4",
                                     help_text: "These datasets will only be used when the above is set to 'Use Selected Datasets'",
                                     value: &cx.props.name,
                                     multiple: true,
@@ -182,6 +170,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "max_chunks",
                                     label: "Maximum number of Chunks",
+                                    label_class: "mt-4",
                                     help_text: "We don't add more chunks to the prompt than this.",
                                     value: "{cx.props.max_chunks}",
                                     required: true
@@ -189,10 +178,10 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             }
                         }
                         TabPanel {
-                            hidden: true,
-                            id: "advanced-panel",
+                            name: "prompt-tabs",
+                            tab_name: "Advanced",
                             div {
-                                class: "d-flex flex-column mt-3",
+                                class: "flex flex-col mt-3",
 
                                 Input {
                                     input_type: InputType::Number,
@@ -208,6 +197,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "max_history_items",
                                     label: "Max number of history items",
+                                    label_class: "mt-4",
                                     help_text: "This decides how much history we add to the prompt",
                                     value: "{cx.props.max_history_items}",
                                     required: true
@@ -217,6 +207,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "max_tokens",
                                     label: "Max Tokens",
+                                    label_class: "mt-4",
                                     help_text: "How much of the context to leave for the LLM's reply",
                                     value: "{cx.props.max_tokens}",
                                     required: true
@@ -226,6 +217,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     input_type: InputType::Number,
                                     name: "top_p",
                                     label: "Alternative to Temperature",
+                                    label_class: "mt-4",
                                     help_text: "Value between 0 and 2.",
                                     value: "{cx.props.top_p}",
                                     required: true

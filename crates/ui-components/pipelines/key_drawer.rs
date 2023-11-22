@@ -19,7 +19,7 @@ pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
                 trigger_id: "create-api-key",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col",
                         Input {
                             input_type: InputType::Text,
                             placeholder: "My Document Pipeline",
@@ -31,6 +31,7 @@ pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
                         Select {
                             name: "dataset_id",
                             label: "Please select a dataset",
+                            label_class: "mt-4",
                             required: true,
                             help_text: "All access via this API key will use the above dataset",
                             cx.props.datasets.iter().map(|dataset| rsx!(
