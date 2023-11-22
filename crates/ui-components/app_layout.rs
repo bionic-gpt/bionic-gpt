@@ -36,11 +36,7 @@ pub struct LayoutProps<'a> {
 }
 
 pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
-    let stylesheets = vec![
-        primer_view_components_css.name.to_string(),
-        index_css.name.to_string(),
-        output_css.name.to_string(),
-    ];
+    let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
     cx.render(rsx! {
         AppLayout {
