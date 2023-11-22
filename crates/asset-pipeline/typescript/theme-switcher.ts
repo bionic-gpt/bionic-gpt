@@ -1,15 +1,19 @@
-document.addEventListener('turbo:load', () => {
-    console.log('here')
+document.addEventListener('turbo:frame-render', () => {
     // We can create a trigger to open drawers
     document.querySelectorAll('a.theme').forEach(async (row) => {
-        console.log(row)
         // Detect when a user clicks a row
         row.addEventListener('click', (event) => {
 
-            const theme = row.getAttribute('href')
+            var theme = row.getAttribute('href')
             if(theme) {
-                console.log(theme)
+                theme = theme.substring(1)
+                const body = document.getElementsByTagName('body')[0]
+    
+                if(body) {
+                    body.setAttribute('data-theme', theme)
+                }
             }
+
             event.stopImmediatePropagation()
         })
     })

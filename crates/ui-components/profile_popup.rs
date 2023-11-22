@@ -24,17 +24,17 @@ pub fn profile_popup(user: User, organisation_id: i32) -> String {
                         "Theme"
                     }
                     DropDownLink {
-                        href: "light-theme",
+                        href: "#light",
                         class: "theme",
                         "Light Theme"
                     }
                     DropDownLink {
-                        href: "dark-theme",
+                        href: "#dark",
                         class: "theme",
                         "Dark Theme (Experimental)"
                     }
                     DropDownLink {
-                        href: "mixed-theme",
+                        href: "#mixed",
                         class: "theme",
                         "Mixed Theme (Experimental)"
                     }
