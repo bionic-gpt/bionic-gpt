@@ -1,6 +1,30 @@
+#nav-toggle {
+    display: none;
+}
+
+#collapse-button {
+    transform: rotate(180deg);
+    display: none;
+    border: 1px solid #d8dee4;
+    background-color: white;
+    width: 24px;
+    position: absolute;
+    border-radius: 50%;
+    padding: 3px;
+    top: 100px;
+    left: 258px;
+}
+
 .l_layout {
 
     >.l_navigation {
+
+        &:hover {
+            #collapse-button {
+                display: block;
+            }
+        }
+
         // Set this so then our footer with absolute will be relative.
         position: relative; 
         display: none;
@@ -78,40 +102,8 @@
         }
     }
 
-
-    .hamburger {
-        cursor: pointer;
-        display: block;
-        z-index: 2000;
-
-        > div {
-            position: relative;
-            width: 2em;
-            height: 5px;
-            border-radius: 1px;
-            background-color: currentColor;
-            margin-top: 6px;
-            margin-bottom: 6px;
-            transition: all 0.3s ease-in-out;
-        }
-    }
-
-    #nav-toggle {
-        display: none;
-    }
-
-    // Toggle in and out the side menu as an overlay
-    #nav-toggle:checked ~ nav {
-        display: block;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 100vh;
-        z-index: 1000;
-    }
-
     @include for-tablet-landscape-up {
+
         display: grid;
         grid-template-columns: 270px 1fr;
         grid-template-rows: 1fr;
@@ -121,13 +113,42 @@
         >.l_navigation {
             display: flex;
         }
-        
+
         .hamburger {
             display: none;
-        } 
+        }
+    }
+}
 
-        > #nav-toggle {
-            display: none;
+@include for-tablet-landscape-up {
+    #nav-toggle:checked {
+
+        ~ .l_layout {
+            .hamburger {
+                cursor: pointer;
+                display: block;
+                z-index: 2000;
+
+                > div {
+                    position: relative;
+                    width: 2em;
+                    height: 5px;
+                    border-radius: 1px;
+                    background-color: currentColor;
+                    margin-top: 6px;
+                    margin-bottom: 6px;
+                    transition: all 0.3s ease-in-out;
+                }
+            }
+        
+            display: flex;
+            width: 100vw;
+            >.l_navigation {
+                display: none;
+            }
+            >.l_content {
+                width: 100vw;
+            }
         }
     }
 }

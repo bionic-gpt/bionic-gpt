@@ -49,6 +49,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
             js_href: index_js.name,
             section_class: cx.props.section_class,
             fav_icon_src: favicon_svg.name,
+            collapse_svg_src: collapse_svg.name,
             header: cx.render(rsx!(
                 &cx.props.header
             )),

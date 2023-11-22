@@ -27,7 +27,7 @@ alias watch-pipeline='npm install --prefix /workspace/crates/asset-pipeline && n
 alias wp=watch-pipeline
 alias watch-embeddings='mold -run cargo watch --workdir /workspace/ -w crates/open-api -w crates/pipeline-job --no-gitignore -x "run --bin pipeline-job"'
 alias we=watch-embeddings
-alias watch-tailwind='npx tailwindcss -i /workspace/crates/asset-pipeline/input.css -o /workspace/crates/asset-pipeline/dist/output.css --watch'
+alias watch-tailwind='cd /workspace/crates/asset-pipeline && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
 alias wt=watch-tailwind
 
 # Spell check

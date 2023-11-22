@@ -7,6 +7,7 @@ use dioxus::prelude::*;
 pub struct AppLayoutProps<'a> {
     title: &'a str,
     fav_icon_src: &'a str,
+    collapse_svg_src: &'a str,
     stylesheets: Vec<String>,
     section_class: &'a str,
     js_href: &'a str,
@@ -54,14 +55,21 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
             }
         }
         body {
+            input {
+                "type": "checkbox",
+                id: "nav-toggle"
+            }
             div {
                 class: "l_layout",
-                input {
-                    "type": "checkbox",
-                    id: "nav-toggle"
-                }
                 nav {
                     class: "l_navigation",
+                    label {
+                        id: "collapse-button",
+                        "for": "nav-toggle",
+                        img {
+                            src: cx.props.collapse_svg_src
+                        }
+                    }
                     div {
                         class: "l_nav_header flex items-center",
                         &cx.props.sidebar_header
