@@ -6,7 +6,7 @@ template.innerHTML = `
     </div>
     <div part="panel" class="drawer__panel border-left" role="dialog" aria-modal="true"  tabindex="0">
 
-        <header part="header" class="drawer__header border-bottom">
+        <header part="header" class="drawer__header border-b">
             <h4 part="title" class="drawer__title" id="title">Title</h4>
             <a href="#" class="drawer__close" name="x" library="system">X</a>
         </header>

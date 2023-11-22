@@ -21,95 +21,109 @@ pub fn New(cx: Scope<Props>) -> Element {
                 label: "Create a new Dataset",
                 trigger_id: "new-dataset-form",
                 DrawerBody {
-                    div {
-                        class: "d-flex flex-column flex-justify-between height-full",
-                        div {
-                            class: "d-flex flex-column",
-                            Input {
-                                input_type: InputType::Text,
-                                placeholder: "Dataset Name",
-                                help_text: "Give your new dataset a name",
-                                required: true,
-                                label: "Name",
-                                name: "name"
-                            }
+                    TabContainer {
+                        TabPanel {
+                            checked: true,
+                            name: "prompt-tabs",
+                            tab_name: "Dataset",
+                            div {
+                                class: "flex flex-col justify-between height-full",
+                                div {
+                                    class: "flex flex-col",
+                                    Input {
+                                        input_type: InputType::Text,
+                                        placeholder: "Dataset Name",
+                                        help_text: "Give your new dataset a name",
+                                        required: true,
+                                        label: "Name",
+                                        label_class: "mt-4",
+                                        name: "name"
+                                    }
 
-                            Select {
-                                name: "visibility",
-                                label: "Who should be able to see this dataset?",
-                                help_text: "Set to private if you don't want to share this dataset",
-                                value: "Private",
-                                option {
-                                    value: "Private",
-                                    "Just Me"
-                                },
-                                option {
-                                    value: "Team",
-                                    "Team"
+                                    Select {
+                                        name: "visibility",
+                                        label: "Who should be able to see this dataset?",
+                                        label_class: "mt-4",
+                                        help_text: "Set to private if you don't want to share this dataset",
+                                        value: "Private",
+                                        option {
+                                            value: "Private",
+                                            "Just Me"
+                                        },
+                                        option {
+                                            value: "Team",
+                                            "Team"
+                                        }
+                                    }
                                 }
                             }
                         }
+                        TabPanel {
+                            name: "prompt-tabs",
+                            tab_name: "Advanced Configuration",
 
-                        div {
-                            class: "border d-flex flex-column p-2",
-                            strong {
-                                class: "mb-2",
-                                "Advanced Configuration"
-                            }
+                            div {
+                                class: "flex flex-col",
 
-                            Select {
-                                name: "embeddings_model_id",
-                                label: "Select the Embedding Model to use",
-                                help_text: "Embeddings are vector stored in the database",
-                                for model in &cx.props.models {
-                                    cx.render(rsx!(
-                                        option {
-                                            value: "{model.id}",
-                                            "{model.name}"
-                                        }
-                                    ))
+                                Select {
+                                    name: "embeddings_model_id",
+                                    label: "Select the Embedding Model to use",
+                                    label_class: "mt-4",
+                                    help_text: "Embeddings are vector stored in the database",
+                                    for model in &cx.props.models {
+                                        cx.render(rsx!(
+                                            option {
+                                                value: "{model.id}",
+                                                "{model.name}"
+                                            }
+                                        ))
+                                    }
                                 }
-                            }
 
-                            Select {
-                                name: "chunking_strategy",
-                                label: "Select the Chunking Strategy",
-                                help_text: "These are the chunking strategies supported by unstructured.",
-                                value: "By Title",
-                                option {
+                                Select {
+                                    name: "chunking_strategy",
+                                    label: "Select the Chunking Strategy",
+                                    label_class: "mt-4",
+                                    help_text: "These are the chunking strategies supported by unstructured.",
                                     value: "By Title",
-                                    "By Title"
+                                    option {
+                                        value: "By Title",
+                                        "By Title"
+                                    }
                                 }
-                            }
 
-                            Input {
-                                input_type: InputType::Text,
-                                help_text: "combine_under_n_chars",
-                                value: "{cx.props.combine_under_n_chars}",
-                                required: true,
-                                label: "combine_under_n_chars",
-                                name: "combine_under_n_chars"
-                            }
-                            Input {
-                                input_type: InputType::Text,
-                                help_text: "new_after_n_chars",
-                                value: "{cx.props.new_after_n_chars}",
-                                required: true,
-                                label: "new_after_n_chars",
-                                name: "new_after_n_chars"
-                            }
-
-                            Select {
-                                name: "multipage_sections",
-                                label: "multipage_sections",
-                                help_text: "multipage_sections",
-                                option {
-                                    value: "true",
-                                    "Yes"
+                                Input {
+                                    input_type: InputType::Text,
+                                    help_text: "combine_under_n_chars",
+                                    value: "{cx.props.combine_under_n_chars}",
+                                    required: true,
+                                    label: "combine_under_n_chars",
+                                    label_class: "mt-4",
+                                    name: "combine_under_n_chars"
                                 }
-                                option {
-                                    value: "false",
-                                    "No"
+                                Input {
+                                    input_type: InputType::Text,
+                                    help_text: "new_after_n_chars",
+                                    value: "{cx.props.new_after_n_chars}",
+                                    required: true,
+                                    label: "new_after_n_chars",
+                                    label_class: "mt-4",
+                                    name: "new_after_n_chars"
+                                }
+
+                                Select {
+                                    name: "multipage_sections",
+                                    label: "multipage_sections",
+                                    label_class: "mt-4",
+                                    help_text: "multipage_sections",
+                                    option {
+                                        value: "true",
+                                        "Yes"
+                                    }
+                                    option {
+                                        value: "false",
+                                        "No"
+                                    }
                                 }
                             }
                         }

@@ -13,10 +13,10 @@ pub enum ButtonScheme {
 impl ButtonScheme {
     pub fn to_string(&self) -> &'static str {
         match self {
-            ButtonScheme::Default => "",
+            ButtonScheme::Default => "btn-default",
             ButtonScheme::Primary => "btn-primary",
             ButtonScheme::Outline => "btn-outline",
-            ButtonScheme::Danger => "btn-danger",
+            ButtonScheme::Danger => "btn-warning",
         }
     }
 }
@@ -44,15 +44,19 @@ pub enum ButtonSize {
     #[default]
     Default,
     Small,
+    ExtraSmall,
     Large,
+    Medium,
 }
 
 impl ButtonSize {
     pub fn to_string(&self) -> &'static str {
         match self {
-            ButtonSize::Default => "",
+            ButtonSize::Default => "btn-sm",
+            ButtonSize::ExtraSmall => "btn-xs",
             ButtonSize::Small => "btn-sm",
-            ButtonSize::Large => "btn-large",
+            ButtonSize::Medium => "btn-md",
+            ButtonSize::Large => "btn-lg",
         }
     }
 }

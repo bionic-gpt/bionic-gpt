@@ -3,22 +3,19 @@
     "version": "1.0.0",
     "description": "",
     "scripts": {
-        "start": "npm run copy-primer && ./patch-turbo.sh && parcel watch ./index.ts --no-hmr --public-url /auth/static",
-        "release": "npm run copy-primer && ./patch-turbo.sh && parcel build ./index.ts --public-url /auth/static",
-        "report": "npm run copy-primer && parcel build ./index.ts --reporter @parcel/reporter-bundle-buddy",
-        "protoc": "npx protoc --ts_out ./ --proto_path ../grpc-api ../grpc-api/api.proto",
-        "copy-primer": "mkdir -p ./dist && cp ./node_modules/@primer/view-components/app/assets/styles/primer_view_components.css ./dist/"
+        "start": "./patch-turbo.sh && parcel watch ./index.ts --no-hmr --public-url /auth/static",
+        "release": "npm run tailwind && ./patch-turbo.sh && parcel build ./index.ts --public-url /auth/static",
+        "report": "parcel build ./index.ts --reporter @parcel/reporter-bundle-buddy",
+        "tailwind": "npx tailwindcss -i ./input.css -o ./dist/output.css"
     },
     "devDependencies": {
         "@github/relative-time-element": "^4.1.5",
         "@hotwired/turbo": "^7.2.4",
         "@parcel/reporter-bundle-buddy": "^2.3.2",
         "@parcel/transformer-sass": "^2.2.1",
-        "@primer/css": "20.6.0",
-        "@primer/view-components": "0.0.111",
-        "@protobuf-ts/grpcweb-transport": "^2.2.2",
-        "@protobuf-ts/plugin": "^2.2.2",
-        "parcel": "^2.0.0"
+        "daisyui": "^4.4.2",
+        "parcel": "^2.0.0",
+        "tailwindcss": "^3.3.5"
     },
     "dependencies": {
         "highlight.js": "^11.8.0",

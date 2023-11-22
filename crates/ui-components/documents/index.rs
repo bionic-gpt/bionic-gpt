@@ -54,83 +54,82 @@ pub fn index(
                                 title: "Documents"
                             }
                             BoxBody {
-                                DataTable {
-                                    table {
-                                        thead {
-                                            th { "Name" }
-                                            th { "No. Chunks" }
-                                            th { "Content Size (Bytes)" }
-                                            th { "Status" }
-                                            th {
-                                                class: "text-right",
-                                                "Action"
-                                            }
+                                table {
+                                    class: "table table-sm",
+                                    thead {
+                                        th { "Name" }
+                                        th { "No. Chunks" }
+                                        th { "Content Size (Bytes)" }
+                                        th { "Status" }
+                                        th {
+                                            class: "text-right",
+                                            "Action"
                                         }
-                                        tbody {
+                                    }
+                                    tbody {
 
-                                            cx.props.documents.iter().map(|doc| {
-                                                cx.render(rsx!(
-                                                    tr {
-                                                        td { "{doc.file_name}" }
-                                                        td { "{doc.batches}" }
-                                                        td { "{doc.content_size}" }
-                                                        td {
-                                                            if doc.waiting > 0 {
-                                                                cx.render(rsx!(
-                                                                    turbo-frame {
-                                                                        id: "status-{doc.id}",
-                                                                        loading: "lazy",
-                                                                        src: "{super::super::routes::documents::status_route(doc.id)}",
-                                                                        Label {
-                                                                            "Processing ({doc.waiting} remaining)"
-                                                                        }
-                                                                    }
-                                                                ))
-                                                            } else if doc.batches == 0 {
-                                                                cx.render(rsx!(
-                                                                    turbo-frame {
-                                                                        id: "status-{doc.id}",
-                                                                        loading: "lazy",
-                                                                        src: "{super::super::routes::documents::status_route(doc.id)}",
-                                                                        Label {
-                                                                            "Queued"
-                                                                        }
-                                                                    }
-                                                                ))
-                                                            } else if doc.fail_count > 0 {
-                                                                cx.render(rsx!(
+                                        cx.props.documents.iter().map(|doc| {
+                                            cx.render(rsx!(
+                                                tr {
+                                                    td { "{doc.file_name}" }
+                                                    td { "{doc.batches}" }
+                                                    td { "{doc.content_size}" }
+                                                    td {
+                                                        if doc.waiting > 0 {
+                                                            cx.render(rsx!(
+                                                                turbo-frame {
+                                                                    id: "status-{doc.id}",
+                                                                    loading: "lazy",
+                                                                    src: "{super::super::routes::documents::status_route(doc.id)}",
                                                                     Label {
-                                                                        label_color: LabelColor::Attention,
-                                                                        "Processed ({doc.fail_count} failed)"
+                                                                        "Processing ({doc.waiting} remaining)"
                                                                     }
-                                                                ))
-                                                            } else {
-                                                                cx.render(rsx!(
-                                                                    Label {
-                                                                        label_color: LabelColor::Success,
-                                                                        "Processed"
-                                                                    }
-                                                                ))
-                                                            }
-                                                        }
-                                                        td {
-                                                            class: "text-right",
-                                                            DropDown {
-                                                                direction: Direction::West,
-                                                                button_text: "...",
-                                                                DropDownLink {
-                                                                    drawer_trigger: format!("delete-doc-trigger-{}-{}", 
-                                                                        doc.id, cx.props.organisation_id),
-                                                                    href: "#",
-                                                                    target: "_top",
-                                                                    "Delete Document"
                                                                 }
+                                                            ))
+                                                        } else if doc.batches == 0 {
+                                                            cx.render(rsx!(
+                                                                turbo-frame {
+                                                                    id: "status-{doc.id}",
+                                                                    loading: "lazy",
+                                                                    src: "{super::super::routes::documents::status_route(doc.id)}",
+                                                                    Label {
+                                                                        "Queued"
+                                                                    }
+                                                                }
+                                                            ))
+                                                        } else if doc.fail_count > 0 {
+                                                            cx.render(rsx!(
+                                                                Label {
+                                                                    label_role: LabelRole::Danger,
+                                                                    "Processed ({doc.fail_count} failed)"
+                                                                }
+                                                            ))
+                                                        } else {
+                                                            cx.render(rsx!(
+                                                                Label {
+                                                                    label_role: LabelRole::Success,
+                                                                    "Processed"
+                                                                }
+                                                            ))
+                                                        }
+                                                    }
+                                                    td {
+                                                        class: "text-right",
+                                                        DropDown {
+                                                            direction: Direction::Left,
+                                                            button_text: "...",
+                                                            DropDownLink {
+                                                                drawer_trigger: format!("delete-doc-trigger-{}-{}", 
+                                                                    doc.id, cx.props.organisation_id),
+                                                                href: "#",
+                                                                target: "_top",
+                                                                "Delete Document"
                                                             }
                                                         }
                                                     }
-                                                ))
-                                            })
-                                        }
+                                                }
+                                            ))
+                                        })
                                     }
                                 }
                             }

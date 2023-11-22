@@ -18,7 +18,7 @@ pub fn DeleteDrawer(cx: Scope<DrawerProps>) -> Element {
             trigger_id: &cx.props.trigger_id,
             DrawerBody {
                 div {
-                    class: "d-flex flex-column",
+                    class: "flex flex-col",
                     Alert {
                         alert_color: AlertColor::Warn,
                         class: "mb-3",

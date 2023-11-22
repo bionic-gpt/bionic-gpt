@@ -4,7 +4,6 @@ import './scss/index.scss'
 import './web-components/side-drawer'
 import './web-components/side-drawer-trigger'
 import './web-components/snack-bar'
-import './web-components/data-table'
 import './web-components/streaming-chat'
 import './web-components/response-formatter'
 import '@github/relative-time-element';
@@ -15,14 +14,13 @@ document.addEventListener('turbo:load', () => {
 })
 
 // Misc.
-import './remember-form'
-import './textarea-submit'
-import './filter-trigger'
-import './select-div'
-import './refresh-status'
-import './disable-submit-button'
-
-import '@primer/view-components/app/components/primer/tab_container_component';
+import './typescript/remember-form'
+import './typescript/textarea-submit'
+import './typescript/filter-trigger'
+import './typescript/select-div'
+import './typescript/refresh-status'
+import './typescript/disable-submit-button'
+import './typescript/theme-switcher'
 
 // Hotwired Turbo
 import '@hotwired/turbo'

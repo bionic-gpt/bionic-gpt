@@ -17,10 +17,10 @@ pub fn TimeLine<'a>(cx: Scope<'a, TimeLineProps<'a>>) -> Element {
         ""
     };
 
-    let the_class = format!("TimelineItem {}", class);
+    let the_class = format!("timeline-item {}", class);
 
     let class = if cx.props.condensed.is_some() {
-        format!("TimelineItem--condensed {}", the_class)
+        format!("timeline-condensed {}", the_class)
     } else {
         the_class
     };
@@ -46,7 +46,7 @@ pub fn TimeLineBadge<'a>(cx: Scope<'a, TimeLineBadgeProps<'a>>) -> Element {
         ""
     };
 
-    let class = format!("TimelineItem-badge {}", class);
+    let class = format!("timeline-badge {}", class);
     cx.render(rsx!(
         div {
             class: "{class}",
@@ -66,7 +66,7 @@ pub struct TimeLineBodyProps<'a> {
 pub fn TimeLineBody<'a>(cx: Scope<'a, TimeLineBodyProps<'a>>) -> Element {
     cx.render(rsx!(
         div {
-            class: "TimelineItem-body",
+            class: "timeline-body",
             &cx.props.children
         }
     ))

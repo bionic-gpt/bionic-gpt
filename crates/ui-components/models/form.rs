@@ -18,6 +18,7 @@ pub struct Props {
 pub fn Form(cx: Scope<Props>) -> Element {
     cx.render(rsx!(
         form {
+            class: "form-control",
             action: "{crate::routes::models::new_route(cx.props.organisation_id)}",
             method: "post",
             Drawer {
@@ -25,7 +26,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                 trigger_id: "{cx.props.trigger_id}",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col",
                         if let Some(id) = cx.props.id {
                             cx.render(rsx!(
                                 input {
@@ -38,6 +39,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                         Input {
                             input_type: InputType::Text,
+                            label_class: "mt-4",
                             name: "name",
                             label: "Model Name",
                             help_text: "Make the name memorable and imply it's usage.",
@@ -48,6 +50,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                         Select {
                             name: "model_type",
                             label: "Is this model for LLM or Embeddings",
+                            label_class: "mt-4",
                             help_text: "Some models can do both, in which case enter it twice.",
                             value: &cx.props.model_type,
                             SelectOption {
@@ -64,6 +67,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                         Input {
                             input_type: InputType::Text,
+                            label_class: "mt-4",
                             name: "base_url",
                             label: "The Base URL of the model",
                             help_text: "The URL location of the OpenAI compatible API",
@@ -74,6 +78,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                         Input {
                             input_type: InputType::Text,
+                            label_class: "mt-4",
                             name: "api_key",
                             label: "The API secret from your provider",
                             help_text: "This will be given in the providers console",
@@ -82,6 +87,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                         Input {
                             input_type: InputType::Number,
+                            label_class: "mt-4",
                             name: "billion_parameters",
                             label: "How many billion parameters is the model",
                             help_text: "This is used only for information purposes.",
@@ -91,6 +97,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
 
                         Input {
                             input_type: InputType::Number,
+                            label_class: "mt-4",
                             name: "context_size",
                             label: "Context Size",
                             help_text: "How much data can be passed to the prompt",
