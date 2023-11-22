@@ -52,7 +52,7 @@ pub fn DropDown<'a>(cx: Scope<'a, DropDownProps<'a>>) -> Element {
             class: "dropdown {class} {direction}",
             label {
                 tabindex: "0", 
-                class: "btn btn-default btn-sm m-1 w-full flex justify-between",
+                class: "btn btn-default btn-sm m-1 w-full flex flex-nowrap justify-between",
                 "aria-haspopup": "true",
                 if let Some(img_src) = cx.props.prefix_image_src {
                     cx.render(rsx! {
