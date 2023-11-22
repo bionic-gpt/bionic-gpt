@@ -9,6 +9,13 @@
     --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
 }
 
+[data-theme="dark"] {
+    --main-bg-color: #333;
+    --bg-color-surface: 3333;
+    --default-border-color: #28313a;
+    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+}
+
 a {
     text-decoration: underline;
 }
