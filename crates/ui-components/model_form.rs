@@ -13,7 +13,7 @@ pub fn Form(cx: Scope) -> Element {
                 trigger_id: "create-model-form",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col",
                         Input {
                             input_type: InputType::Text,
                             help_text: "Give the model a name",

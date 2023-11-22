@@ -38,7 +38,7 @@ pub fn profile(user: User, organisation_id: i32) -> String {
                             method: "post",
                             action: "{cx.props.form_action}",
                             div {
-                                class: "d-flex flex-column",
+                                class: "flex flex-col",
 
                                 Input {
                                     input_type: InputType::Text,

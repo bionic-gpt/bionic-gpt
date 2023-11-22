@@ -7,8 +7,8 @@ use dioxus::prelude::*;
 pub struct AppLayoutProps<'a> {
     title: &'a str,
     fav_icon_src: &'a str,
-    css_href1: &'a str,
-    css_href2: &'a str,
+    collapse_svg_src: &'a str,
+    stylesheets: Vec<String>,
     section_class: &'a str,
     js_href: &'a str,
     header: Element<'a>,
@@ -35,15 +35,14 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                 name: "viewport",
                 content: "width=device-width, initial-scale=1"
             }
-            link {
-                rel: "stylesheet",
-                href: "{cx.props.css_href1}",
-                "type": "text/css"
-            }
-            link {
-                rel: "stylesheet",
-                href: "{cx.props.css_href2}",
-                "type": "text/css"
+            for href in &cx.props.stylesheets {
+                cx.render(rsx!(
+                    link {
+                        rel: "stylesheet",
+                        href: "{href}",
+                        "type": "text/css"
+                    }
+                ))
             }
             script {
                 "type": "module",
@@ -56,16 +55,23 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
             }
         }
         body {
+            input {
+                "type": "checkbox",
+                id: "nav-toggle"
+            }
             div {
                 class: "l_layout",
-                input {
-                    "type": "checkbox",
-                    id: "nav-toggle"
-                }
                 nav {
-                    class: "l_navigation border-right color-bg-subtle",
+                    class: "l_navigation",
+                    label {
+                        id: "collapse-button",
+                        "for": "nav-toggle",
+                        img {
+                            src: cx.props.collapse_svg_src
+                        }
+                    }
                     div {
-                        class: "l_nav_header border-bottom d-flex flex-items-center",
+                        class: "l_nav_header flex items-center",
                         &cx.props.sidebar_header
                     }
                     div {
@@ -83,7 +89,6 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                     target: "_top",
                     class: "l_content",
                     header {
-                        class: "border-bottom",
                         label {
                             class: "hamburger",
                             "for": "nav-toggle",
@@ -97,7 +102,9 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                                 class: "bottom_bun"
                             }
                         }
-                        &cx.props.header
+                        div {
+                            &cx.props.header
+                        }
                     }
                     section {
                         class: cx.props.section_class,

@@ -17,7 +17,7 @@ pub fn TeamNameForm(cx: Scope<TeamNameProps>) -> Element {
                 trigger_id: "set-name-drawer",
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col",
                         Input {
                             input_type: InputType::Text,
                             placeholder: "Team Name",

@@ -48,62 +48,51 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                             }
                         )),
                         Box {
+                            class: "has-data-table",
                             BoxHeader {
                                 title: "API Keys"
                             }
                             BoxBody {
-                                DataTable {
-                                    table {
-                                        thead {
-                                            th { "Name" }
-                                            th { "API Key" }
-                                            th { "Prompt" }
-                                            th {
-                                                class: "text-right",
-                                                "Action"
-                                            }
+                                table {
+                                    class: "table table-sm",
+                                    thead {
+                                        th { "Name" }
+                                        th { "API Key" }
+                                        th { "Prompt" }
+                                        th {
+                                            class: "text-right",
+                                            "Action"
                                         }
-                                        tbody {
-                                            cx.props.api_keys.iter().map(|key| rsx!(
-                                                tr {
-                                                    td {
-                                                        "{key.name}"
+                                    }
+                                    tbody {
+                                        cx.props.api_keys.iter().map(|key| rsx!(
+                                            tr {
+                                                td {
+                                                    "{key.name}"
+                                                }
+                                                td {
+                                                    Input {
+                                                        value: &key.api_key,
+                                                        name: "api_key"
                                                     }
-                                                    td {
-                                                        Input {
-                                                            value: &key.api_key,
-                                                            name: "api_key",
-                                                            disabled: true
-                                                        }
-                                                    }
-                                                    td {
-                                                        "{key.prompt_name}"
-                                                    }
-                                                    td {
-                                                        class: "text-right",
-                                                        SelectMenu {
-                                                            alignment: SelectMenuAlignment::Right,
-                                                            summary: cx.render(rsx!(
-                                                                summary {
-                                                                    class: "btn",
-                                                                    "aria-haspopup": "true",
-                                                                    "..."
-                                                                }
-                                                            )),
-                                                            SelectMenuModal {
-                                                                SelectMenuList {
-                                                                    button {
-                                                                        class: "SelectMenu-item",
-                                                                        role: "menuitemcheckbox",
-                                                                        "Not Implemented"
-                                                                    }
-                                                                }
-                                                            }
+                                                }
+                                                td {
+                                                    "{key.prompt_name}"
+                                                }
+                                                td {
+                                                    class: "text-right",
+                                                    DropDown {
+                                                        direction: Direction::Left,
+                                                        button_text: "...",
+                                                        DropDownLink {
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Not Implemented"
                                                         }
                                                     }
                                                 }
-                                            ))
-                                        }
+                                            }
+                                        ))
                                     }
                                 }
                             }
@@ -119,7 +108,7 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                     trigger_id: "create-api-key",
                     DrawerBody {
                         div {
-                            class: "d-flex flex-column",
+                            class: "flex flex-col",
                             Input {
                                 input_type: InputType::Text,
                                 placeholder: "Production API Key",
@@ -131,6 +120,7 @@ pub fn index(api_keys: Vec<ApiKey>, prompts: Vec<Prompt>, organisation_id: i32) 
                             Select {
                                 name: "prompt_id",
                                 label: "Please select a prompt",
+                                label_class: "mt-4",
                                 help_text: "All access via this API key will use the above prompt",
                                 cx.props.prompts.iter().map(|prompt| rsx!(
                                     SelectOption {

@@ -30,38 +30,14 @@
     }
 }
 
-// Primer Design System https://primer.style/
-@import '@primer/css/actionlist/index.scss';
-@import '@primer/css/alerts/index.scss';
-@import '@primer/css/base/index.scss';
-@import '@primer/css/box/index.scss';
-@import '@primer/css/buttons/index.scss';
-@import '@primer/css/color-modes/index.scss';
-@import '@primer/css/labels/index.scss';
-@import '@primer/css/overlay/index.scss';
-@import '@primer/css/navigation/index.scss';
-@import '@primer/css/pagination/index.scss';
-@import '@primer/css/select-menu/index.scss';
-@import '@primer/css/timeline/index.scss';
-@import '@primer/css/utilities/index.scss';
-@import '@primer/css/loaders/index.scss';
-
 // Our custom SCSS and web components
 @import './layout';
 @import './console';
+@import './timeline';
 @import '../web-components/snack-bar';
 @import '../web-components/side-drawer';
-@import '../web-components/data-table';
 
 @import '../node_modules/highlight.js/scss/dark.scss';
-
-.paginate-container {
-    margin: 0;
-}
-
-.Box-header {
-    background-color: var(--color-canvas-default);
-}
 
 // Fix side menu so the z-index takes effect. Otherwise
 // they are hidden behind other items.
@@ -69,18 +45,4 @@
     .SelectMenu {
         position: fixed;
     }
-}
-
-// Wrap the ext in the secrets view
-overflow-wrap {
-    overflow-wrap: break-word;
-}
-
-// Set the primary button from green to blue.
-:root {
-    --color-btn-primary-bg: rgb(53, 89, 199);
-    --color-btn-primary-border: rgb(53, 89, 199);
-    --color-btn-primary-hover-bg: rgb(39, 90, 243);
-    --color-btn-primary-selected-bg: rgb(39, 90, 243);
-    --color-btn-primary-hover-border: rgb(53, 89, 199);
 }

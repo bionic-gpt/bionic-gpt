@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --main-bg-color: #fafbfb;
+    --bg-color-surface: white;
+    --default-border-color: #d8dee4;
+    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+}
+
+[data-theme="dark"] {
+    --main-bg-color: #333;
+    --bg-color-surface: 3333;
+    --default-border-color: #28313a;
+    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+}
+
+a {
+    text-decoration: underline;
+}
+
+.l_nav_items > .menu {
+    border: 0;
+    margin: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+
+    > li > a.active > img {
+        filter: invert(1);
+    }
+
+    > li > a {
+        text-decoration: none;
+    }
+}
+
+/** Cards **/
+.card {
+    border: 1px solid var(--default-border-color);
+    background-color: var(--bg-color-surface);
+
+    .card-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--default-border-color);
+
+        > .card-title {
+            font-size: 0.875rem;
+        }
+    }
+
+    &.has-data-table {
+        .card-header {
+            padding-left: 0.75rem;
+        }
+        .card-body {
+            padding: 0;
+    
+            > .table {
+    
+                > tbody > tr:last-child {
+                    border-bottom-width: 0px;
+                }
+            }
+        }
+    }
+}
+
+.btn {
+    font-weight: 400;
+}
+
+.btn-default {
+    border: 1px solid var(--default-border-color);
+    background-color: var(--bg-color-surface);
+    box-shadow: rgba(12, 12, 12, 0.09) 0px 1px 3px 0px;
+
+    &:hover {
+        border: 1px solid black;
+        background-color: var(--bg-color-surface);
+    }
+}
+
+.btn-primary {
+    color: white;
+}
+
+.menu li > *:not(ul):not(.menu-title):not(details):active, 
+.menu li > *:not(ul):not(.menu-title):not(details).active, 
+.menu li > details > summary:active {
+    background-color: #3559c7;
+    color: white;
+}
+
+.menu li a {
+    text-decoration: none;
+}
+
+/** Tables **/
+table > thead {
+    background-color: #fafbfb;
+}
+
+.table td svg {
+    display: inline;
+}
+
+/** Badges / Labels **/
+
+.label-danger {
+    background-color: rgb(255, 240, 238);
+    color: rgb(178, 48, 21);
+    border-color: rgb(250, 199, 190);
+}
+.label-info{
+    background-color: rgb(240, 244, 255);
+    color: rgb(52, 81, 178);
+    border-color: rgb(198, 212, 249);
+}
+.label-neutral {
+    background-color: rgb(241, 243, 245);
+    color: rgb(85, 89, 83);
+    border-color: rgb(216,220,224);
+}
+.label-warning {
+    background-color: rgb(255, 250, 225);
+    color: rgb(148, 105, 0);
+    border-color: rgb(248, 216, 124);
+}
+.label-success {
+    background-color: rgb(235, 249, 235);
+    color: rgb(17, 118, 39);
+    border-color: rgb(183, 223, 186);
+}
+.label-highlight {
+    background-color: rgb(249, 241, 254);
+    color: rgb(121, 58, 175);
+    border-color: rgb(227,204,244);
+}
+
+/** Alerts **/
+.alert {
+    font-size: 0.9rem;
+}
+
+.alert-danger {
+    background-color: rgb(255, 240, 238);
+    color: rgb(178, 48, 21);
+    border-color: rgb(250, 199, 190);
+}
+.alert-info{
+    background-color: rgb(240, 244, 255);
+    color: rgb(52, 81, 178);
+    border-color: rgb(198, 212, 249);
+}
+.alert-neutral {
+    background-color: rgb(241, 243, 245);
+    color: rgb(85, 89, 83);
+    border-color: rgb(216,220,224);
+}
+.alert-warning {
+    background-color: rgb(255, 250, 225);
+    color: rgb(148, 105, 0);
+    border-color: rgb(248, 216, 124);
+}
+.alert-success {
+    background-color: rgb(235, 249, 235);
+    color: rgb(17, 118, 39);
+    border-color: rgb(183, 223, 186);
+}
+.alert-highlight {
+    background-color: rgb(249, 241, 254);
+    color: rgb(121, 58, 175);
+    border-color: rgb(227,204,244);
+}
+
+/** Drop down menu **/
+.dropdown ul {
+    border: 1px solid var(--default-border-color);
+}

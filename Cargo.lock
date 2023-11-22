@@ -205,7 +205,7 @@ dependencies = [
  "hyper-rustls 0.24.1",
  "lettre",
  "open-api",
- "pgvector 0.3.2",
+ "pgvector",
  "pin-project",
  "quoted_printable 0.5.0",
  "rand",
@@ -502,7 +502,7 @@ dependencies = [
  "cornucopia_async",
  "deadpool-postgres",
  "futures",
- "pgvector 0.2.2",
+ "pgvector",
  "postgres-types",
  "rustls 0.21.6",
  "serde_json",
@@ -1531,17 +1531,6 @@ checksum = "9b2a4787296e9989611394c33f193f676704af1686e70b8f8033ab5ba9a35a94"
 
 [[package]]
 name = "pgvector"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f10a73115ede70321c1c42752ff767893345f750aca0be388aaa1aa585580d5a"
-dependencies = [
- "byteorder",
- "bytes",
- "postgres",
-]
-
-[[package]]
-name = "pgvector"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1f4c0c07ceb64a0020f2f0e610cfe51122d2e72723499f0154877b7c76c8c31"
@@ -1606,7 +1595,7 @@ version = "0.1.0"
 dependencies = [
  "db",
  "open-api",
- "pgvector 0.3.2",
+ "pgvector",
  "reqwest",
  "serde",
  "serde_json",
