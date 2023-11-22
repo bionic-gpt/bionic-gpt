@@ -43,6 +43,7 @@ pub fn profile_popup(user: User, organisation_id: i32) -> String {
                     }
                     DropDownLink {
                         href: &cx.props.profile_url,
+                        target: "_top",
                         "Profile"
                     }
                     DropDownLink {

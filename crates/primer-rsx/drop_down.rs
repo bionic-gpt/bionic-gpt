@@ -112,19 +112,13 @@ pub fn DropDownLink<'a>(cx: Scope<'a, DropDownLinkProps<'a>>) -> Element {
         "dropdown-item".to_string()
     };
 
-    let target = if let Some(target) = cx.props.target {
-        target
-    } else {
-        ""
-    };
-
     if let Some(trigger) = &cx.props.drawer_trigger {
         cx.render(rsx!(
             li {
                 a {
                     class: "{class}",
                     "data-drawer-target": "{trigger}",
-                    target: "{target}",
+                    target: cx.props.target,
                     href: "{cx.props.href}",
                     &cx.props.children,
                 }
@@ -135,7 +129,7 @@ pub fn DropDownLink<'a>(cx: Scope<'a, DropDownLinkProps<'a>>) -> Element {
             li {
                 a {
                     class: "{class}",
-                    target: "{target}",
+                    target: cx.props.target,
                     href: "{cx.props.href}",
                     &cx.props.children,
                 }
