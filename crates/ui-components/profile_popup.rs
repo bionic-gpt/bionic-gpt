@@ -20,9 +20,29 @@ pub fn profile_popup(user: User, organisation_id: i32) -> String {
                     prefix_image_src: profile_svg.name,
                     suffix_image_src: button_select_svg.name,
                     class: "w-full",
+                    strong {
+                        "Theme"
+                    }
+                    DropDownLink {
+                        href: "light-theme",
+                        class: "theme",
+                        "Light Theme"
+                    }
+                    DropDownLink {
+                        href: "dark-theme",
+                        class: "theme",
+                        "Dark Theme (Experimental)"
+                    }
+                    DropDownLink {
+                        href: "mixed-theme",
+                        class: "theme",
+                        "Mixed Theme (Experimental)"
+                    }
+                    strong {
+                        "Profile"
+                    }
                     DropDownLink {
                         href: &cx.props.profile_url,
-                        target: "_top",
                         "Profile"
                     }
                     DropDownLink {
