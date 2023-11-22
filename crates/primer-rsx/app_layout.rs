@@ -102,7 +102,9 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                                 class: "bottom_bun"
                             }
                         }
-                        &cx.props.header
+                        div {
+                            &cx.props.header
+                        }
                     }
                     section {
                         class: cx.props.section_class,

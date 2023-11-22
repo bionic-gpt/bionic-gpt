@@ -82,13 +82,19 @@
 
         > header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             height: 72px;
             padding: 1rem;
             border-bottom: 1px solid #d8dee4;
             box-shadow: var(--header-box-shadow);
             background-color: var(--bg-color-surface);
+
+            > div {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
 
             > h3 {
                 font-size: 1rem;
@@ -125,14 +131,16 @@
 
         ~ .l_layout {
             .hamburger {
+                margin-right: 1rem;
                 cursor: pointer;
                 display: block;
                 z-index: 2000;
 
                 > div {
                     position: relative;
-                    width: 2em;
-                    height: 5px;
+                    color: #333;
+                    width: 1.5rem;
+                    height: 3px;
                     border-radius: 1px;
                     background-color: currentColor;
                     margin-top: 6px;
