@@ -1,0 +1,107 @@
+
+$spacer: 8px !default;
+// Our spacing scale
+$spacer-0: 0 !default;                  // 0
+$spacer-1: $spacer * 0.5 !default;      // 4px
+$spacer-2: $spacer !default;            // 8px
+$spacer-3: $spacer * 2 !default;        // 16px
+$spacer-4: $spacer * 3 !default;        // 24px
+$spacer-5: $spacer * 4 !default;        // 32px
+$spacer-6: $spacer * 5 !default;        // 40px
+
+:root {
+    --color-timeline-badge-bg: #e1e4e8;
+    --color-timeline-target-badge-border: #2188ff;
+}
+
+.timeline-item {
+    position: relative;
+    display: flex;
+    padding: $spacer-3 0;
+    margin-left: $spacer-3;
+    font-size: 0.9rem;
+  
+    // The Timeline
+    &::before {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      display: block;
+      width: 2px;
+      content: '';
+      background-color: #ccc;
+    }
+  
+    &:target .timeline-badge {
+      border-color: #ccc;
+    }
+  }
+  
+  .timeline-badge {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: $spacer-5;
+    height: $spacer-5;
+    margin-right: $spacer-2;
+    margin-left: -$spacer-3 + 1;
+    color: var(--color-timeline-target-badge-border);
+    align-items: center;
+    background-color: var(--color-timeline-badge-bg);
+    // stylelint-disable-next-line primer/borders
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+  
+    &--success {
+      color: var(--color-fg-on-emphasis);
+      background-color: var(--color-success-emphasis);
+    }
+  }
+  
+  .timeline-body {
+    min-width: 0;
+    max-width: 100%;
+    margin-top: $spacer-1;
+    color: var(--color-fg-muted);
+    flex: auto;
+  }
+  
+  .timeline-avatar {
+    position: absolute;
+    left: -($spacer-6 + $spacer-5);
+    z-index: 1;
+  }
+  
+  .timeline-break {
+    position: relative;
+    z-index: 1;
+    height: $spacer-4;
+    margin: 0;
+    margin-bottom: -$spacer-3;
+    margin-left: -($spacer-6 + $spacer-3);
+    background-color: var(--color-canvas-default);
+    border: 0;
+    // stylelint-disable-next-line primer/borders
+  }
+  
+  .timeline-condensed {
+    padding-top: $spacer-1;
+    padding-bottom: 0;
+  
+    // TimelineItem--condensed is often grouped. (commits)
+    &:last-child {
+      padding-bottom: $spacer-3;
+    }
+  
+    .timeline-badge {
+      height: $spacer-3;
+      margin-top: $spacer-2;
+      margin-bottom: $spacer-2;
+      color: var(--color-fg-muted);
+      background-color: var(--color-canvas-default);
+      border: 0;
+    }
+  }
+  

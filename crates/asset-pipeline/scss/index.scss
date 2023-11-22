@@ -30,34 +30,14 @@
     }
 }
 
-// Primer Design System https://primer.style/
-//@import '@primer/css/actionlist/index.scss';
-//@import '@primer/css/base/index.scss';
-//@import '@primer/css/buttons/index.scss';
-//@import '@primer/css/color-modes/index.scss';
-//@import '@primer/css/labels/index.scss';
-//@import '@primer/css/pagination/index.scss';
-//@import '@primer/css/utilities/index.scss';
-//@import '@primer/css/loaders/index.scss';
-//@import '@primer/css/alerts/index.scss';
-//@import '@primer/css/box/index.scss';
-//@import '@primer/css/overlay/index.scss';
-//@import '@primer/css/navigation/index.scss';
-//@import '@primer/css/select-menu/index.scss';
-@import '@primer/css/color-modes/index.scss';
-@import '@primer/css/timeline/index.scss';
-
 // Our custom SCSS and web components
 @import './layout';
 @import './console';
+@import './timeline';
 @import '../web-components/snack-bar';
 @import '../web-components/side-drawer';
 
 @import '../node_modules/highlight.js/scss/dark.scss';
-
-.Box-header {
-    background-color: var(--color-canvas-default);
-}
 
 // Fix side menu so the z-index takes effect. Otherwise
 // they are hidden behind other items.

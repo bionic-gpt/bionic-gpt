@@ -35,6 +35,7 @@ a {
     }
 }
 
+/** Cards **/
 .card {
     border: 1px solid var(--default-border-color);
     background-color: var(--bg-color-surface);

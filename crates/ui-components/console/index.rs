@@ -119,7 +119,7 @@ pub fn index(
                                         Label {
                                             "Model: "
                                             strong {
-                                                "{chat.model_name}"
+                                                " {chat.model_name}"
                                             }
                                         }
 
