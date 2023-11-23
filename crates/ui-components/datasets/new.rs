@@ -3,19 +3,18 @@ use db::queries::models;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq)]
-pub struct Props {
-    pub models: Vec<models::Model>,
-    pub organisation_id: i32,
-    pub combine_under_n_chars: i32,
-    pub new_after_n_chars: i32,
-    pub multipage_sections: bool,
-}
-
-pub fn New(cx: Scope<Props>) -> Element {
+#[inline_props]
+pub fn New(
+    cx: Scope,
+    models: Vec<models::Model>,
+    organisation_id: i32,
+    combine_under_n_chars: i32,
+    new_after_n_chars: i32,
+    _multipage_sections: bool,
+) -> Element {
     cx.render(rsx!(
         form {
-            action: "{crate::routes::datasets::new_route(cx.props.organisation_id)}",
+            action: "{crate::routes::datasets::new_route(*organisation_id)}",
             method: "post",
             Drawer {
                 label: "Create a new Dataset",
@@ -70,7 +69,7 @@ pub fn New(cx: Scope<Props>) -> Element {
                                     label: "Select the Embedding Model to use",
                                     label_class: "mt-4",
                                     help_text: "Embeddings are vector stored in the database",
-                                    for model in &cx.props.models {
+                                    for model in &models {
                                         cx.render(rsx!(
                                             option {
                                                 value: "{model.id}",
@@ -95,7 +94,7 @@ pub fn New(cx: Scope<Props>) -> Element {
                                 Input {
                                     input_type: InputType::Text,
                                     help_text: "combine_under_n_chars",
-                                    value: "{cx.props.combine_under_n_chars}",
+                                    value: "{combine_under_n_chars}",
                                     required: true,
                                     label: "combine_under_n_chars",
                                     label_class: "mt-4",
@@ -104,7 +103,7 @@ pub fn New(cx: Scope<Props>) -> Element {
                                 Input {
                                     input_type: InputType::Text,
                                     help_text: "new_after_n_chars",
-                                    value: "{cx.props.new_after_n_chars}",
+                                    value: "{new_after_n_chars}",
                                     required: true,
                                     label: "new_after_n_chars",
                                     label_class: "mt-4",

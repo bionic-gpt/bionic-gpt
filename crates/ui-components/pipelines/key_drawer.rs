@@ -3,17 +3,12 @@ use db::queries::datasets::Dataset;
 use dioxus::prelude::*;
 use primer_rsx::{select::SelectOption, *};
 
-#[derive(Props, PartialEq)]
-pub struct DrawerProps {
-    datasets: Vec<Dataset>,
-    organisation_id: i32,
-}
-
-pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
+#[inline_props]
+pub fn KeyDrawer(cx: Scope, datasets: Vec<Dataset>, organisation_id: i32) -> Element {
     cx.render(rsx! {
         form {
             method: "post",
-            action: "{crate::routes::document_pipelines::new_route(cx.props.organisation_id)}",
+            action: "{crate::routes::document_pipelines::new_route(*organisation_id)}",
             Drawer {
                 label: "New Document Pipeline",
                 trigger_id: "create-api-key",
@@ -34,7 +29,7 @@ pub fn KeyDrawer(cx: Scope<DrawerProps>) -> Element {
                             label_class: "mt-4",
                             required: true,
                             help_text: "All access via this API key will use the above dataset",
-                            cx.props.datasets.iter().map(|dataset| rsx!(
+                            datasets.iter().map(|dataset| rsx!(
                                 SelectOption {
                                     value: "{dataset.id}",
                                     "{dataset.name}"

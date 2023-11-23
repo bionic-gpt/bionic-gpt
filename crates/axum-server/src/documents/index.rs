@@ -6,7 +6,7 @@ use db::queries::{datasets, documents};
 use db::Pool;
 
 pub async fn index(
-    Path((team_id, dataset_id)): Path<(i32, i32)>,
+    Path((organisation_id, dataset_id)): Path<(i32, i32)>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -15,7 +15,7 @@ pub async fn index(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let docs = documents::documents()
+    let documents = documents::documents()
         .bind(&transaction, &dataset_id)
         .all()
         .await?;
@@ -26,9 +26,10 @@ pub async fn index(
         .await?;
 
     Ok(Html(ui_components::documents::index(
-        team_id,
-        ui_components::routes::documents::upload_route(team_id, dataset_id),
-        dataset,
-        docs,
+        ui_components::documents::index::PageProps {
+            organisation_id,
+            dataset,
+            documents,
+        },
     )))
 }

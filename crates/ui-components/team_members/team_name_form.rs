@@ -2,16 +2,12 @@
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct TeamNameProps {
-    submit_action: String,
-}
-
-pub fn TeamNameForm(cx: Scope<TeamNameProps>) -> Element {
+#[inline_props]
+pub fn TeamNameForm(cx: Scope, submit_action: String) -> Element {
     cx.render(rsx! {
         form {
             method: "post",
-            action: "{cx.props.submit_action}",
+            action: "{submit_action}",
             Drawer {
                 label: "Set Team Name",
                 trigger_id: "set-name-drawer",

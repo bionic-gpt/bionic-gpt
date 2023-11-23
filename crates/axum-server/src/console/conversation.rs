@@ -4,9 +4,10 @@ use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::queries::{chats, conversations, prompts};
 use db::Pool;
+use ui_components::console;
 
 pub async fn conversation(
-    Path((team_id, conversation_id)): Path<(i32, i64)>,
+    Path((organisation_id, conversation_id)): Path<(i32, i64)>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -22,7 +23,7 @@ pub async fn conversation(
         .all()
         .await?;
     let prompts = prompts::prompts()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &organisation_id)
         .all()
         .await?;
 
@@ -30,12 +31,12 @@ pub async fn conversation(
     // Otherwise the user can issue multiple requests
     let lock_console = chats.iter().any(|chat| chat.response.is_none());
 
-    Ok(Html(ui_components::console::index(
-        team_id,
+    Ok(Html(console::index(console::index::PageProps {
+        organisation_id,
         conversation_id,
         chats,
         prompts,
         history,
         lock_console,
-    )))
+    })))
 }

@@ -3,13 +3,9 @@ use db::Role;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct RoleProps<'a> {
-    pub role: &'a Role,
-}
-
-pub fn Role<'a>(cx: Scope<'a, RoleProps<'a>>) -> Element {
-    match cx.props.role {
+#[inline_props]
+pub fn Role(cx: Scope, role: Role) -> Element {
+    match role {
         Role::Administrator => cx.render(rsx!(
             Label {
                 class: "mr-2",

@@ -4,8 +4,9 @@ use db::{Dataset, DatasetConnection, Model, Visibility};
 use dioxus::prelude::*;
 use primer_rsx::{select::SelectOption, *};
 
-#[derive(Props, PartialEq)]
-pub struct Props {
+#[inline_props]
+pub fn Form(
+    cx: Scope,
     trigger_id: String,
     organisation_id: i32,
     name: String,
@@ -22,16 +23,14 @@ pub struct Props {
     max_tokens: i32,
     temperature: f32,
     top_p: f32,
-}
-
-pub fn Form(cx: Scope<Props>) -> Element {
+) -> Element {
     cx.render(rsx!(
         form {
-            action: "{crate::routes::prompts::new_route(cx.props.organisation_id)}",
+            action: "{crate::routes::prompts::new_route(*organisation_id)}",
             method: "post",
             Drawer {
                 label: "Prompt",
-                trigger_id: "{cx.props.trigger_id}",
+                trigger_id: "{trigger_id}",
                 DrawerBody {
                     TabContainer {
                         TabPanel {
@@ -40,7 +39,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                             tab_name: "Prompt",
                             div {
                                 class: "flex flex-col mt-3",
-                                if let Some(id) = cx.props.id {
+                                if let Some(id) = id {
                                     cx.render(rsx!(
                                         input {
                                             "type": "hidden",
@@ -55,7 +54,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     name: "name",
                                     label: "Prompt Name",
                                     help_text: "Make the name memorable and imply it's usage.",
-                                    value: &cx.props.name,
+                                    value: &name,
                                     required: true
                                 }
 
@@ -64,20 +63,20 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Who should be able to see this prompt?",
                                     label_class: "mt-4",
                                     help_text: "Set to private if you don't want to share this prompt.",
-                                    value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                    value: "{crate::visibility_to_string(*visibility)}",
                                     SelectOption {
                                         value: "{crate::visibility_to_string(Visibility::Private)}",
-                                        selected_value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                        selected_value: "{crate::visibility_to_string(*visibility)}",
                                         crate::visibility_to_string(Visibility::Private)
                                     },
                                     SelectOption {
                                         value: "{crate::visibility_to_string(Visibility::Team)}",
-                                        selected_value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                        selected_value: "{crate::visibility_to_string(*visibility)}",
                                         crate::visibility_to_string(Visibility::Team)
                                     },
                                     SelectOption {
                                         value: "{crate::visibility_to_string(Visibility::Company)}",
-                                        selected_value: "{crate::visibility_to_string(cx.props.visibility)}",
+                                        selected_value: "{crate::visibility_to_string(*visibility)}",
                                         crate::visibility_to_string(Visibility::Company)
                                     }
                                 }
@@ -87,13 +86,13 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Select the model this prompt will use for inference",
                                     label_class: "mt-4",
                                     help_text: "The prompt will be passed to the model",
-                                    value: &cx.props.model_id.to_string(),
+                                    value: &model_id.to_string(),
                                     required: true,
-                                    cx.props.models.iter().map(|model| {
+                                    models.iter().map(|model| {
                                         cx.render(rsx!(
                                             SelectOption {
                                                 value: "{model.id}",
-                                                selected_value: "{cx.props.model_id}",
+                                                selected_value: "{model_id}",
                                                 "{model.name}"
                                             }
                                         ))
@@ -107,7 +106,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     rows: "10",
                                     label: "Prompt",
                                     label_class: "mt-4",
-                                    "{cx.props.system_prompt}",
+                                    "{system_prompt}",
                                 }
                             }
                         }
@@ -120,21 +119,21 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     name: "dataset_connection",
                                     label: "How shall we handle datasets with this prompt?",
                                     help_text: "The prompt will be passed to the model",
-                                    value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
+                                    value: "{dataset_connection_to_string(*dataset_connection)}",
                                     required: true,
                                     SelectOption {
                                         value: "{dataset_connection_to_string(DatasetConnection::All)}",
-                                        selected_value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
+                                        selected_value: "{dataset_connection_to_string(*dataset_connection)}",
                                         dataset_connection_to_string(DatasetConnection::All)
                                     }
                                     SelectOption {
                                         value: "{dataset_connection_to_string(DatasetConnection::None)}",
-                                        selected_value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
+                                        selected_value: "{dataset_connection_to_string(*dataset_connection)}",
                                         dataset_connection_to_string(DatasetConnection::None)
                                     }
                                     SelectOption {
                                         value: "{dataset_connection_to_string(DatasetConnection::Selected)}",
-                                        selected_value: "{dataset_connection_to_string(cx.props.dataset_connection)}",
+                                        selected_value: "{dataset_connection_to_string(*dataset_connection)}",
                                         dataset_connection_to_string(DatasetConnection::Selected)
                                     }
                                 }
@@ -144,10 +143,10 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Select datasets to connect to this prompt",
                                     label_class: "mt-4",
                                     help_text: "These datasets will only be used when the above is set to 'Use Selected Datasets'",
-                                    value: &cx.props.name,
+                                    value: &name,
                                     multiple: true,
-                                    cx.props.datasets.iter().map(|dataset| {
-                                        if cx.props.selected_dataset_ids.contains(&dataset.id) {
+                                    datasets.iter().map(|dataset| {
+                                        if selected_dataset_ids.contains(&dataset.id) {
                                             cx.render(rsx!(
                                                 option {
                                                     value: "{dataset.id}",
@@ -172,7 +171,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Maximum number of Chunks",
                                     label_class: "mt-4",
                                     help_text: "We don't add more chunks to the prompt than this.",
-                                    value: "{cx.props.max_chunks}",
+                                    value: "{*max_chunks}",
                                     required: true
                                 }
                             }
@@ -189,7 +188,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     name: "temperature",
                                     label: "Temperature",
                                     help_text: "Value between 0 and 2.",
-                                    value: "{cx.props.temperature}",
+                                    value: "{*temperature}",
                                     required: true
                                 }
 
@@ -199,7 +198,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Max number of history items",
                                     label_class: "mt-4",
                                     help_text: "This decides how much history we add to the prompt",
-                                    value: "{cx.props.max_history_items}",
+                                    value: "{max_history_items}",
                                     required: true
                                 }
 
@@ -209,7 +208,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Max Tokens",
                                     label_class: "mt-4",
                                     help_text: "How much of the context to leave for the LLM's reply",
-                                    value: "{cx.props.max_tokens}",
+                                    value: "{*max_tokens}",
                                     required: true
                                 }
 
@@ -219,7 +218,7 @@ pub fn Form(cx: Scope<Props>) -> Element {
                                     label: "Alternative to Temperature",
                                     label_class: "mt-4",
                                     help_text: "Value between 0 and 2.",
-                                    value: "{cx.props.top_p}",
+                                    value: "{*top_p}",
                                     required: true
                                 }
                             }

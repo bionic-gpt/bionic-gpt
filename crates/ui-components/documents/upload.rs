@@ -2,15 +2,11 @@
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct Props<'a> {
-    pub upload_action: &'a str,
-}
-
-pub fn Upload<'a>(cx: Scope<'a, Props<'a>>) -> Element {
+#[inline_props]
+pub fn Upload(cx: Scope, upload_action: String) -> Element {
     cx.render(rsx!(
         form {
-            action: cx.props.upload_action,
+            action: "{upload_action}",
             method: "post",
             enctype: "multipart/form-data",
             Drawer {

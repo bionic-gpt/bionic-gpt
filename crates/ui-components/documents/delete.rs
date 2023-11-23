@@ -2,20 +2,19 @@
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct DrawerProps {
+#[inline_props]
+pub fn DeleteDrawer(
+    cx: Scope<DrawerProps>,
     organisation_id: i32,
     document_id: i32,
     dataset_id: i32,
     trigger_id: String,
-}
-
-pub fn DeleteDrawer(cx: Scope<DrawerProps>) -> Element {
+) -> Element {
     cx.render(rsx! {
         Drawer {
-            submit_action: crate::routes::documents::delete_route(cx.props.organisation_id, cx.props.document_id),
+            submit_action: crate::routes::documents::delete_route(*organisation_id, *document_id),
             label: "Delete this document?",
-            trigger_id: &cx.props.trigger_id,
+            trigger_id: trigger_id,
             DrawerBody {
                 div {
                     class: "flex flex-col",
@@ -29,17 +28,17 @@ pub fn DeleteDrawer(cx: Scope<DrawerProps>) -> Element {
                     input {
                         "type": "hidden",
                         "name": "organisation_id",
-                        "value": "{cx.props.organisation_id}"
+                        "value": "{*organisation_id}"
                     }
                     input {
                         "type": "hidden",
                         "name": "document_id",
-                        "value": "{cx.props.document_id}"
+                        "value": "{*document_id}"
                     }
                     input {
                         "type": "hidden",
                         "name": "dataset_id",
-                        "value": "{cx.props.dataset_id}"
+                        "value": "{*dataset_id}"
                     }
                 }
             }

@@ -3,13 +3,9 @@ use db::Visibility;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct Props<'a> {
-    pub visibility: &'a Visibility,
-}
-
-pub fn VisLabel<'a>(cx: Scope<'a, Props<'a>>) -> Element {
-    match cx.props.visibility {
+#[inline_props]
+pub fn VisLabel(cx: Scope, visibility: Visibility) -> Element {
+    match visibility {
         Visibility::Company => cx.render(rsx!(
             Label {
                 class: "mr-2",

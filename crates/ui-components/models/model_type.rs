@@ -3,13 +3,9 @@ use db::ModelType;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct Props<'a> {
-    pub model_type: &'a ModelType,
-}
-
-pub fn Model<'a>(cx: Scope<'a, Props<'a>>) -> Element {
-    match cx.props.model_type {
+#[inline_props]
+pub fn Model(cx: Scope, model_type: ModelType) -> Element {
+    match model_type {
         ModelType::LLM => cx.render(rsx!(
             Label {
                 class: "mr-2",

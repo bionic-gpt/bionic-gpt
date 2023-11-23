@@ -2,17 +2,13 @@
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct InvitationFormProps {
-    submit_action: String,
-}
-
-pub fn InvitationForm(cx: Scope<InvitationFormProps>) -> Element {
+#[inline_props]
+pub fn InvitationForm(cx: Scope, submit_action: String) -> Element {
     cx.render(rsx! {
         // The form to create an invitation
         form {
             method: "post",
-            action: "{cx.props.submit_action}",
+            action: "{submit_action}",
             Drawer {
                 label: "Invite people into your team.",
                 trigger_id: "create-invite-form",

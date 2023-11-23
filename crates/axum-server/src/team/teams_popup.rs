@@ -20,12 +20,24 @@ pub async fn index(
         .all()
         .await?;
 
-    let team = queries::organisations::organisation()
+    let organisation = queries::organisations::organisation()
         .bind(&transaction, &organisation_id)
         .one()
         .await?;
 
+    let teams: Vec<(String, String)> = teams
+        .iter()
+        .filter_map(|team| {
+            team.organisation_name
+                .clone()
+                .map(|name| (name, ui_components::routes::team::index_route(team.id)))
+        })
+        .collect();
+
     Ok(Html(ui_components::team_members::team_popup::team_popup(
-        teams, team,
+        ui_components::team_members::team_popup::PageProps {
+            teams,
+            organisation,
+        },
     )))
 }

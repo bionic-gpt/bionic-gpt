@@ -3,24 +3,23 @@ use db::queries::conversations::History;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq)]
-pub struct DrawerProps {
+#[inline_props]
+pub fn HistoryDrawer(
+    cx: Scope,
     trigger_id: String,
     organisation_id: i32,
     history: Vec<History>,
-}
-
-pub fn HistoryDrawer(cx: Scope<DrawerProps>) -> Element {
+) -> Element {
     cx.render(rsx! {
         Drawer {
             label: "Your History",
-            trigger_id: &cx.props.trigger_id,
+            trigger_id: &trigger_id,
             DrawerBody {
-                cx.props.history.iter().map(|history| {
+                history.iter().map(|history| {
                     cx.render(rsx!(
                         li {
                             a {
-                                href: "{crate::routes::console::conversation_route(cx.props.organisation_id, history.id)}",
+                                href: "{crate::routes::console::conversation_route(*organisation_id, history.id)}",
                                 history.summary.clone()
                             }
                         }

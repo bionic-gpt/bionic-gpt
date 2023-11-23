@@ -2,16 +2,12 @@
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct DrawerProps {
-    trigger_id: String,
-}
-
-pub fn RemoveMemberWarningDrawer(cx: Scope<DrawerProps>) -> Element {
+#[inline_props]
+pub fn RemoveMemberWarningDrawer(cx: Scope, trigger_id: String) -> Element {
     cx.render(rsx! {
         Drawer {
             label: "A vault must have at least one admin user",
-            trigger_id: &cx.props.trigger_id,
+            trigger_id: &trigger_id,
             DrawerBody {
                 div {
                     class: "flex flex-col",

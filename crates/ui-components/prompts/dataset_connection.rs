@@ -3,14 +3,9 @@ use db::DatasetConnection;
 use dioxus::prelude::*;
 use primer_rsx::*;
 
-#[derive(Props, PartialEq, Eq)]
-pub struct Props {
-    pub connection: DatasetConnection,
-    pub datasets: String,
-}
-
-pub fn DatasetConnection(cx: Scope<Props>) -> Element {
-    match cx.props.connection {
+#[inline_props]
+pub fn DatasetConnection(cx: Scope, connection: DatasetConnection) -> Element {
+    match connection {
         DatasetConnection::All => cx.render(rsx!(
             Label {
                 class: "mr-2",

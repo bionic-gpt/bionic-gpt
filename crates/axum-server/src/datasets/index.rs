@@ -6,7 +6,7 @@ use db::queries::{datasets, models};
 use db::{ModelType, Pool};
 
 pub async fn index(
-    Path(team_id): Path<i32>,
+    Path(organisation_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -15,12 +15,18 @@ pub async fn index(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let docs = datasets::datasets().bind(&transaction).all().await?;
+    let datasets = datasets::datasets().bind(&transaction).all().await?;
 
     let models = models::models()
         .bind(&transaction, &ModelType::Embeddings)
         .all()
         .await?;
 
-    Ok(Html(ui_components::datasets::index(team_id, docs, models)))
+    Ok(Html(ui_components::datasets::index(
+        ui_components::datasets::index::PageProps {
+            organisation_id,
+            datasets,
+            models,
+        },
+    )))
 }
