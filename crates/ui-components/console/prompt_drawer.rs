@@ -10,7 +10,6 @@ pub fn PromptDrawer(cx: Scope, prompt: String, trigger_id: String) -> Element {
             trigger_id: &trigger_id,
             DrawerBody {
                 pre {
-                    style: "white-space: pre-wrap",
                     "{prompt}"
                 }
             }
