@@ -5,13 +5,17 @@
 [data-theme="dark"] {
     --main-bg-color: #333;
     --bg-color-surface: 3333;
-    --default-border-color: #02080e;
+    --default-border-color: #606c79;
     --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
 
     .l_nav_items > .menu {
         > li > a > img {
             filter: invert(0.6);
         }
+    }
+
+    .dropdown > label > img {
+        filter: invert(0.6);
     }
 }
 
