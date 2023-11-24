@@ -95,6 +95,13 @@ async fn test_api_keys(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath("//button[text()='New API Key']"))
         .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New API Key']"))
+        .await?
         .click()
         .await?;
 
