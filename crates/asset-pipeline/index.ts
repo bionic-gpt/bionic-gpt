@@ -12,8 +12,9 @@ import hljs from 'highlight.js';
 import { triggers} from './typescript/side-drawer-trigger'
 import './typescript/remember-form'
 import './typescript/textarea-submit'
-import './typescript/filter-trigger'
-//import './typescript/select-div'
+// Remove this?
+//import './typescript/filter-trigger'
+import './typescript/update-sidebar'
 import './typescript/refresh-status'
 import './typescript/disable-submit-button'
 import './typescript/theme-switcher'
