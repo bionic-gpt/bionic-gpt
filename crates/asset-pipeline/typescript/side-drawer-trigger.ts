@@ -1,6 +1,4 @@
-import { SideDrawer } from './side-drawer'
-
-const triggers = () => {
+export const triggers = () => {
     document.querySelectorAll('[data-drawer-target]').forEach(async (row) => {
         // Detect when a user clicks a row
         row.addEventListener('click', (event) => {
@@ -11,6 +9,8 @@ const triggers = () => {
                 const drawer = document.getElementById(attr)
                 if(drawer) {
                     drawer.setAttribute("open", "true")
+                } else {
+                    console.log(`The drawer ${attr} not there`)
                 }
             } else {
                 console.log("side-drawer-trigger could not find data-drawer-target")
@@ -18,6 +18,3 @@ const triggers = () => {
         })
     })
 }
-
-document.addEventListener("turbo:load", triggers)
-document.addEventListener("turbo:frame-load", triggers)

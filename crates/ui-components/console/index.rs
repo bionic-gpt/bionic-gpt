@@ -159,78 +159,43 @@ pub fn Page(
                         "data-remember-name": "console-prompt",
                         "data-remember-reset": "false",
                         action: "{routes::console::send_message_route(*organisation_id)}",
-                        if *lock_console {
-                            cx.render(rsx!(
-                                textarea {
-                                    class: "textarea textarea-bordered flex-1 mr-2 form-control",
-                                    rows: "4",
-                                    name: "message",
-                                    disabled: true
+
+                        TextArea {
+                            class: "flex-1 mr-2",
+                            rows: "4",
+                            name: "message",
+                            disabled: *lock_console
+                        }
+                        div {
+                            class: "flex flex-col justify-between",
+                            div {
+                                class: "flex flex-row ",
+                                label {
+                                    class: "mr-2",
+                                    "Prompt"
                                 }
-                                div {
-                                    class: "flex flex-col justify-between",
-                                    div {
-                                        class: "flex flex-row ",
-                                        label {
-                                            class: "mr-2",
-                                            "Prompt"
-                                        }
-                                        Select {
-                                            name: "prompt_id",
-                                            disabled: true,
-                                            prompts.iter().map(|prompt| rsx!(
-                                                option {
-                                                    value: "{prompt.id}",
-                                                    "{prompt.name}"
-                                                }
-                                            ))
-                                        }
-                                    }
-                                    Button {
-                                        disabled: true,
-                                        button_type: ButtonType::Submit,
-                                        button_scheme: ButtonScheme::Default,
-                                        "Send Message"
-                                    }
+                                input {
+                                    "type": "hidden",
+                                    name: "conversation_id",
+                                    value: "{conversation_id}"
                                 }
-                            ))
-                        } else {
-                            cx.render(rsx!(
-                                textarea {
-                                    class: "textarea textarea-bordered submit-on-enter flex-1 mr-2 form-control",
-                                    rows: "4",
-                                    name: "message"
+                                Select {
+                                    name: "prompt_id",
+                                    disabled: *lock_console,
+                                    prompts.iter().map(|prompt| rsx!(
+                                        option {
+                                            value: "{prompt.id}",
+                                            "{prompt.name}"
+                                        }
+                                    ))
                                 }
-                                div {
-                                    class: "flex flex-col justify-between",
-                                    div {
-                                        class: "flex flex-row ",
-                                        label {
-                                            class: "mr-2",
-                                            "Prompt"
-                                        }
-                                        input {
-                                            "type": "hidden",
-                                            name: "conversation_id",
-                                            value: "{conversation_id}"
-                                        }
-                                        Select {
-                                            name: "prompt_id",
-                                            prompts.iter().map(|prompt| rsx!(
-                                                option {
-                                                    value: "{prompt.id}",
-                                                    "{prompt.name}"
-                                                }
-                                            ))
-                                        }
-                                    }
-                                    Button {
-                                        button_type: ButtonType::Submit,
-                                        button_scheme: ButtonScheme::Primary,
-                                        "Send Message"
-                                    }
-                                }
-                            ))
+                            }
+                            Button {
+                                disabled: *lock_console,
+                                button_type: ButtonType::Submit,
+                                button_scheme: ButtonScheme::Default,
+                                "Send Message"
+                            }
                         }
                     }
                 }

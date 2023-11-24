@@ -29,6 +29,11 @@ pub fn Page(
                         description: "The upload API connects your documents to datasets for processing by our pipeline",
                         primary_action_drawer: ("New Document Pipeline", "create-api-key")
                     }
+
+                    super::key_drawer::KeyDrawer {
+                        datasets: datasets.clone(),
+                        organisation_id: *organisation_id,
+                    }
                 }
             })
         } else {
@@ -96,13 +101,13 @@ pub fn Page(
                             }
                         }
                     }
+
+                    super::key_drawer::KeyDrawer {
+                        datasets: datasets.clone(),
+                        organisation_id: *organisation_id,
+                    }
                 }
             })
-        }
-
-        super::key_drawer::KeyDrawer {
-            datasets: datasets.clone(),
-            organisation_id: *organisation_id,
         }
     })
 }

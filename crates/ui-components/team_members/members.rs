@@ -221,28 +221,28 @@ pub fn Page(
                     }
                 }
             }
-        }
 
-        members.iter().map(|member| rsx!(
-            cx.render(rsx!(
-                super::remove_member::RemoveMemberDrawer {
-                    organisation_id: member.organisation_id,
-                    user_id: member.id,
-                    email: member.email.clone(),
-                    trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.organisation_id)
-                    //organisation_id: &organisation.id
-                }
+            members.iter().map(|member| rsx!(
+                cx.render(rsx!(
+                    super::remove_member::RemoveMemberDrawer {
+                        organisation_id: member.organisation_id,
+                        user_id: member.id,
+                        email: member.email.clone(),
+                        trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.organisation_id)
+                        //organisation_id: &organisation.id
+                    }
+                ))
             ))
-        ))
 
-        // The form to create an invitation
-        super::invitation_form::InvitationForm {
-            submit_action: crate::routes::team::create_route(organisation.id)
-        }
+            // The form to create an invitation
+            super::invitation_form::InvitationForm {
+                submit_action: crate::routes::team::create_route(organisation.id)
+            }
 
-        // Form to set he org name
-        super::team_name_form::TeamNameForm {
-            submit_action: crate::routes::team::set_name_route(organisation.id)
+            // Form to set he org name
+            super::team_name_form::TeamNameForm {
+                submit_action: crate::routes::team::set_name_route(organisation.id)
+            }
         }
     })
 }

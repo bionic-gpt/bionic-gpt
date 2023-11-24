@@ -108,9 +108,3 @@ export class StreamingChat extends HTMLElement {
         }
     }
 }
-
-document.addEventListener('readystatechange', () => {
-    if (document.readyState == 'complete') {
-        customElements.define('streaming-chat', StreamingChat)
-    }
-})

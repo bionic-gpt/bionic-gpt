@@ -86,7 +86,6 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                 turbo-frame {
                     id: "main-content",
                     "data-turbo-action": "advance",
-                    target: "_top",
                     class: "l_content",
                     header {
                         label {

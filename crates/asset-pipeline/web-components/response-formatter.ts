@@ -144,9 +144,3 @@ export class ResponseFormatter extends HTMLElement {
         return src.trim();
     }
 }
-
-document.addEventListener('readystatechange', () => {
-    if (document.readyState == 'complete') {
-        customElements.define('response-formatter', ResponseFormatter)
-    }
-})

@@ -106,33 +106,33 @@ pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: St
                     }
                 }
             }
-        }
 
-        // The for to create new teams
-        form {
-            method: "post",
-            action: "{submit_action}",
-            Drawer {
-                label: "Create a new team?",
-                trigger_id: "create-new-team",
-                DrawerBody {
-                    div {
-                        class: "flex flex-col",
-                        Input {
-                            input_type: InputType::Text,
-                            placeholder: "Team Name",
-                            help_text: "Give your new team a name",
-                            required: true,
-                            label: "Name",
-                            name: "name"
+            // The for to create new teams
+            form {
+                method: "post",
+                action: "{submit_action}",
+                Drawer {
+                    label: "Create a new team?",
+                    trigger_id: "create-new-team",
+                    DrawerBody {
+                        div {
+                            class: "flex flex-col",
+                            Input {
+                                input_type: InputType::Text,
+                                placeholder: "Team Name",
+                                help_text: "Give your new team a name",
+                                required: true,
+                                label: "Name",
+                                name: "name"
+                            }
                         }
                     }
-                }
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Create Team"
+                    DrawerFooter {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            "Create Team"
+                        }
                     }
                 }
             }

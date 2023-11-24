@@ -39,6 +39,11 @@ pub fn Page(
                             "upload-form"
                         )
                     }
+
+                    // The form to create an invitation
+                    super::upload::Upload {
+                        upload_action: crate::routes::documents::upload_route(*organisation_id, dataset.id)
+                    }
                 })
             } else {
                 cx.render(rsx! {
@@ -128,26 +133,25 @@ pub fn Page(
                             }
                         }
                     }
+
+
+                    documents.iter().map(|doc| rsx!(
+                        cx.render(rsx!(
+                            super::delete::DeleteDrawer {
+                                organisation_id: *organisation_id,
+                                document_id: doc.id,
+                                dataset_id: doc.dataset_id,
+                                trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, *organisation_id)
+                            }
+                        ))
+                    ))
+
+                    // The form to create an invitation
+                    super::upload::Upload {
+                        upload_action: crate::routes::documents::upload_route(*organisation_id, dataset.id)
+                    }
                 })
             }
-        }
-
-
-        documents.iter().map(|doc| rsx!(
-            cx.render(rsx!(
-                super::delete::DeleteDrawer {
-                    organisation_id: *organisation_id,
-                    document_id: doc.id,
-                    dataset_id: doc.dataset_id,
-                    trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, *organisation_id)
-                }
-            ))
-        ))
-
-
-        // The form to create an invitation
-        super::upload::Upload {
-            upload_action: crate::routes::documents::upload_route(*organisation_id, dataset.id)
         }
     })
 }

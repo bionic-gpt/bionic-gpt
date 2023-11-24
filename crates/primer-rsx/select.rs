@@ -49,6 +49,16 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
 
     let class = select_size.to_string();
 
+    let disabled = if let Some(disabled) = cx.props.disabled {
+        if disabled {
+            Some(true)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     cx.render(rsx!(
         match cx.props.label {
             Some(l) => cx.render(rsx!(
@@ -62,7 +72,7 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
         select {
             id: cx.props.id,
             required: cx.props.required,
-            disabled: cx.props.disabled,
+            disabled: disabled,
             multiple: cx.props.multiple,
             class: "select select-bordered {class}",
             value: "{value}",

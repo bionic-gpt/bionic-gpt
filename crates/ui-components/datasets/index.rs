@@ -36,6 +36,14 @@ pub fn Page(
                         visual: nav_ccsds_data_svg.name,
                         description: "Datasets allow you to organize your documents like folders"
                     }
+
+                    super::new::New {
+                        models: models.clone(),
+                        organisation_id: *organisation_id,
+                        combine_under_n_chars: 500,
+                        new_after_n_chars: 1000,
+                        _multipage_sections: true,
+                    }
                 })
             } else {
                 cx.render(rsx! {
@@ -99,15 +107,15 @@ pub fn Page(
                             }
                         }
                     }
-                })
-            }
 
-            super::new::New {
-                models: models.clone(),
-                organisation_id: *organisation_id,
-                combine_under_n_chars: 500,
-                new_after_n_chars: 1000,
-                _multipage_sections: true,
+                    super::new::New {
+                        models: models.clone(),
+                        organisation_id: *organisation_id,
+                        combine_under_n_chars: 500,
+                        new_after_n_chars: 1000,
+                        _multipage_sections: true,
+                    }
+                })
             }
         }
     })

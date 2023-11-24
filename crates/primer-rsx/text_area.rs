@@ -68,6 +68,16 @@ pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         ""
     };
 
+    let disabled = if let Some(disabled) = cx.props.disabled {
+        if disabled {
+            Some(true)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     let id = if let Some(id) = cx.props.id { id } else { "" };
 
     cx.render(rsx!(
@@ -87,7 +97,7 @@ pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
             name: "{cx.props.name}",
             placeholder: "{placeholder}",
             required: cx.props.required,
-            disabled: cx.props.disabled,
+            disabled: disabled,
             readonly: cx.props.readonly,
             rows: cx.props.rows,
             &cx.props.children,

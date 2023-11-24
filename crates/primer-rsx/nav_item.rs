@@ -23,6 +23,7 @@ pub fn NavItem<'a>(cx: Scope<'a, NavItemProps<'a>>) -> Element {
             a {
                 class: "{class}",
                 href: "{cx.props.href}",
+                "data-turbo-frame": "main-content",
                 img {
                     width: "16",
                     height: "16",

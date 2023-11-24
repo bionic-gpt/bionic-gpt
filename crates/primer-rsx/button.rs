@@ -102,6 +102,16 @@ pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element {
         ""
     };
 
+    let disabled = if let Some(disabled) = cx.props.disabled {
+        if disabled {
+            Some(true)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     let class = format!(
         "btn {} {} {}",
         class,
@@ -113,7 +123,7 @@ pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element {
         button {
             class: "{class}",
             id: cx.props.id,
-            disabled: cx.props.disabled,
+            disabled: disabled,
             "data-drawer-target": cx.props.drawer_trigger,
             "type": "{button_type}",
             "data-disabled-text": cx.props.disabled_text,
