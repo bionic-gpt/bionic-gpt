@@ -2,18 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+[data-theme="dark"] {
+    --main-bg-color: #333;
+    --bg-color-surface: 3333;
+    --default-border-color: #02080e;
+    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+
+    .l_nav_items > .menu {
+        > li > a > img {
+            filter: invert(0.6);
+        }
+    }
+}
+
+
+[data-theme="light"] {
     --main-bg-color: #fafbfb;
     --bg-color-surface: white;
     --default-border-color: #d8dee4;
     --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
-}
 
-[data-theme="dark"] {
-    --main-bg-color: #333;
-    --bg-color-surface: 3333;
-    --default-border-color: #28313a;
-    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+    /** Cards **/
+    .card {
+        border: 1px solid var(--default-border-color);
+        background-color: var(--bg-color-surface);
+    
+        .card-header {
+            border-bottom: 1px solid var(--default-border-color);
+        }
+    }
+
+    .btn-primary {
+        color: white;
+    }
 }
 
 a {
@@ -25,7 +46,7 @@ a {
     margin: 0;
     padding-bottom: 0;
     padding-top: 0;
-
+    
     > li > a.active > img {
         filter: invert(1);
     }
@@ -37,12 +58,8 @@ a {
 
 /** Cards **/
 .card {
-    border: 1px solid var(--default-border-color);
-    background-color: var(--bg-color-surface);
-
     .card-header {
         padding: 1rem;
-        border-bottom: 1px solid var(--default-border-color);
 
         > .card-title {
             font-size: 0.875rem;
@@ -79,10 +96,6 @@ a {
         border: 1px solid black;
         background-color: var(--bg-color-surface);
     }
-}
-
-.btn-primary {
-    color: white;
 }
 
 .menu li > *:not(ul):not(.menu-title):not(details):active, 

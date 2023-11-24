@@ -27,12 +27,12 @@ fn Page(cx: Scope, user_name_or_email: String, profile_url: String) -> Element {
                 DropDownLink {
                     href: "#dark",
                     class: "theme",
-                    "Dark Theme (Experimental)"
+                    "Dark Theme"
                 }
                 DropDownLink {
                     href: "#mixed",
                     class: "theme",
-                    "Mixed Theme (Experimental)"
+                    "Mixed Theme"
                 }
                 strong {
                     "Profile"
