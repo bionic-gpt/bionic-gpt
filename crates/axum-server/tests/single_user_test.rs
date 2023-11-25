@@ -303,6 +303,13 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath("//button[text()='Add Dataset']"))
         .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Add Dataset']"))
+        .await?
         .click()
         .await?;
 
