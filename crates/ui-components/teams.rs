@@ -54,6 +54,7 @@ pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: St
                                                 if team.id != *organisation_id {
                                                     cx.render(rsx! {
                                                         a {
+                                                            "data-turbo-frame": "_top",
                                                             href: "{crate::routes::team::index_route(team.id)}",
                                                             "(Switch to this Team)"
                                                         }
@@ -84,6 +85,7 @@ pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: St
                                                 if team.id != *organisation_id {
                                                     cx.render(rsx! {
                                                         a {
+                                                            "data-turbo-frame": "_top",
                                                             href: "{crate::routes::team::index_route(team.id)}",
                                                             "(Switch to this Team)"
                                                         }
@@ -110,6 +112,7 @@ pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: St
             // The for to create new teams
             form {
                 method: "post",
+                "data-turbo-frame": "_top",
                 action: "{submit_action}",
                 Drawer {
                     label: "Create a new team?",
