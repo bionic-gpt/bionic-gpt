@@ -161,7 +161,7 @@ pub fn Page(
                         action: "{routes::console::send_message_route(*organisation_id)}",
 
                         TextArea {
-                            class: "flex-1 mr-2",
+                            class: "submit-on-enter flex-1 mr-2",
                             rows: "4",
                             name: "message",
                             disabled: *lock_console
