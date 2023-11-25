@@ -193,7 +193,7 @@ pub fn Page(
                             Button {
                                 disabled: *lock_console,
                                 button_type: ButtonType::Submit,
-                                button_scheme: ButtonScheme::Default,
+                                button_scheme: ButtonScheme::Primary,
                                 "Send Message"
                             }
                         }
