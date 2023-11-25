@@ -53,6 +53,13 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath("//button[text()='New Document Pipeline']"))
         .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New Document Pipeline']"))
+        .await?
         .click()
         .await?;
 
