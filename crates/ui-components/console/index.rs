@@ -18,7 +18,7 @@ pub fn Page(
 ) -> Element {
     cx.render(rsx! {
         Layout {
-            section_class: "console",
+            section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
             selected_item: SideBar::Console,
             team_id: *organisation_id,
             title: "AI Chat Console",
@@ -50,112 +50,116 @@ pub fn Page(
             )),
             div {
                 id: "console-panel",
+                class: "h-full",
                 div {
+                    class: "flex flex-col-reverse h-[calc(100%-100px)] overflow-y-auto",
                     id: "console-stream",
-                    class: "flex flex-col-reverse",
-                    chats.iter().rev().map(|chat| {
-                        cx.render(rsx!(
-                            super::prompt_drawer::PromptDrawer {
-                                trigger_id: format!("show-prompt-{}", chat.id),
-                                prompt: chat.prompt.clone()
-                            }
-                            TimeLine {
-                                TimeLineBadge {
-                                    image_src: handshake_svg.name
+                    div {
+                        class: "flex flex-col-reverse max-w-prose m-auto",
+                        chats.iter().rev().map(|chat| {
+                            cx.render(rsx!(
+                                super::prompt_drawer::PromptDrawer {
+                                    trigger_id: format!("show-prompt-{}", chat.id),
+                                    prompt: chat.prompt.clone()
                                 }
-                                TimeLineBody {
-                                    class: "prose prose-sm",
-                                    if let Some(response) = &chat.response {
-                                        cx.render(rsx!(
-                                            response-formatter {
-                                                response: "{convert_quotes(response)}"
-                                            }
-                                        ))
-                                    } else {
-                                        cx.render(rsx!(
-                                            streaming-chat {
-                                                prompt: "{chat.prompt}",
-                                                "chat-id": "{chat.id}",
-                                                span {
-                                                    "Processing prompt"
-                                                }
-                                                span {
-                                                    class: "AnimatedEllipsis"
-                                                }
-                                            }
-                                            form {
-                                                method: "post",
-                                                id: "chat-form-{chat.id}",
-                                                action: "{routes::console::update_response_route(*organisation_id)}",
-                                                input {
-                                                    name: "response",
-                                                    id: "chat-result-{chat.id}",
-                                                    "type": "hidden"
-                                                }
-                                                input {
-                                                    name: "chat_id",
-                                                    value: "{chat.id}",
-                                                    "type": "hidden"
-                                                }
-                                            }
-                                        ))
+                                TimeLine {
+                                    TimeLineBadge {
+                                        image_src: handshake_svg.name
                                     }
-                                }
-                            }
-                            TimeLine {
-                                class: "TimelineItem--condensed",
-                                TimeLineBadge {
-                                    image_src: commit_svg.name
-                                }
-                                TimeLineBody {
-                                    Label {
-                                        "Model: "
-                                        strong {
-                                            " {chat.model_name}"
+                                    TimeLineBody {
+                                        class: "prose prose-sm",
+                                        if let Some(response) = &chat.response {
+                                            cx.render(rsx!(
+                                                response-formatter {
+                                                    response: "{convert_quotes(response)}"
+                                                }
+                                            ))
+                                        } else {
+                                            cx.render(rsx!(
+                                                streaming-chat {
+                                                    prompt: "{chat.prompt}",
+                                                    "chat-id": "{chat.id}",
+                                                    span {
+                                                        "Processing prompt"
+                                                    }
+                                                    span {
+                                                        class: "AnimatedEllipsis"
+                                                    }
+                                                }
+                                                form {
+                                                    method: "post",
+                                                    id: "chat-form-{chat.id}",
+                                                    action: "{routes::console::update_response_route(*organisation_id)}",
+                                                    input {
+                                                        name: "response",
+                                                        id: "chat-result-{chat.id}",
+                                                        "type": "hidden"
+                                                    }
+                                                    input {
+                                                        name: "chat_id",
+                                                        value: "{chat.id}",
+                                                        "type": "hidden"
+                                                    }
+                                                }
+                                            ))
                                         }
                                     }
+                                }
+                                TimeLine {
+                                    class: "TimelineItem--condensed",
+                                    TimeLineBadge {
+                                        image_src: commit_svg.name
+                                    }
+                                    TimeLineBody {
+                                        Label {
+                                            "Model: "
+                                            strong {
+                                                " {chat.model_name}"
+                                            }
+                                        }
 
-                                    if chat.response.is_none() {
-                                        cx.render(rsx!(
-                                            Label {
-                                                class: "ml-2",
-                                                label_role: LabelRole::Highlight,
-                                                a {
-                                                    id: "stop-processing",
-                                                    "Stop Processing"
+                                        if chat.response.is_none() {
+                                            cx.render(rsx!(
+                                                Label {
+                                                    class: "ml-2",
+                                                    label_role: LabelRole::Highlight,
+                                                    a {
+                                                        id: "stop-processing",
+                                                        "Stop Processing"
+                                                    }
                                                 }
-                                            }
-                                        ))
-                                    } else {
-                                        cx.render(rsx!(
-                                            Label {
-                                                class: "ml-2",
-                                                a {
-                                                    "data-drawer-target": "show-prompt-{chat.id}",
-                                                    "View Prompt"
+                                            ))
+                                        } else {
+                                            cx.render(rsx!(
+                                                Label {
+                                                    class: "ml-2",
+                                                    a {
+                                                        "data-drawer-target": "show-prompt-{chat.id}",
+                                                        "View Prompt"
+                                                    }
                                                 }
-                                            }
-                                        ))
+                                            ))
+                                        }
                                     }
                                 }
-                            }
-                            TimeLine {
-                                TimeLineBadge {
-                                    image_src: profile_svg.name
-                                }
-                                TimeLineBody {
-                                    span {
-                                        "{chat.user_request} "
+                                TimeLine {
+                                    TimeLineBadge {
+                                        image_src: profile_svg.name
+                                    }
+                                    TimeLineBody {
+                                        span {
+                                            "{chat.user_request} "
+                                        }
                                     }
                                 }
-                            }
-                        ))
-                    })
+                            ))
+                        })
+                    }
                 }
                 div {
-                    class: "position-relative w-full bottom-0 p-2 border-top color-bg-subtle",
+                    class: "position-relative w-full bottom-0 p-2 border-t color-bg-subtle",
                     form {
-                        class: "remember w-full flex",
+                        class: "remember w-full flex max-h-[79px]",
                         method: "post",
                         "data-remember-name": "console-prompt",
                         "data-remember-reset": "false",

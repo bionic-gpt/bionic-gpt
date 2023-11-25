@@ -106,6 +106,10 @@
             padding: 1rem;
             min-height: calc(100% - 72px);
         }
+
+        > section.console {
+            padding: 0;
+        }
     }
 
     @include for-tablet-landscape-up {
