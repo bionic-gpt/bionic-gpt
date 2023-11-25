@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["../ui-pages/**/*.rs", "../primer-rsx/**/*.rs"],
+  content: ["../ui-pages/**/*.rs", "../daisy-rsx/**/*.rs"],
   theme: {
     extend: {},
   },
