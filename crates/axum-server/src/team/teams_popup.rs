@@ -30,12 +30,12 @@ pub async fn index(
         .filter_map(|team| {
             team.organisation_name
                 .clone()
-                .map(|name| (name, ui_components::routes::team::index_route(team.id)))
+                .map(|name| (name, ui_pages::routes::team::index_route(team.id)))
         })
         .collect();
 
-    Ok(Html(ui_components::team_members::team_popup::team_popup(
-        ui_components::team_members::team_popup::PageProps {
+    Ok(Html(ui_pages::team_members::team_popup::team_popup(
+        ui_pages::team_members::team_popup::PageProps {
             teams,
             organisation,
         },

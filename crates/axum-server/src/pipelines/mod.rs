@@ -6,7 +6,7 @@ use axum::{
     Router,
 };
 
-use ui_components::routes::document_pipelines::{INDEX, NEW};
+use ui_pages::routes::document_pipelines::{INDEX, NEW};
 
 pub fn routes() -> Router {
     Router::new()

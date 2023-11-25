@@ -4,7 +4,7 @@ use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::queries::{chats, conversations, prompts};
 use db::Pool;
-use ui_components::console;
+use ui_pages::console;
 
 pub async fn conversation(
     Path((organisation_id, conversation_id)): Path<(i32, i64)>,

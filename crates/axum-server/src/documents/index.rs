@@ -25,8 +25,8 @@ pub async fn index(
         .one()
         .await?;
 
-    Ok(Html(ui_components::documents::index(
-        ui_components::documents::index::PageProps {
+    Ok(Html(ui_pages::documents::index(
+        ui_pages::documents::index::PageProps {
             organisation_id,
             dataset,
             documents,

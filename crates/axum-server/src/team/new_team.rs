@@ -48,7 +48,7 @@ pub async fn new_team(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_components::routes::team::switch_route(organisation_id),
+        &ui_pages::routes::team::switch_route(organisation_id),
         "New Team Created",
     )
 }

@@ -53,8 +53,8 @@ pub async fn index(
         "Team : No Name ".to_string()
     };
 
-    Ok(Html(ui_components::team_members::members::members(
-        ui_components::team_members::members::PageProps {
+    Ok(Html(ui_pages::team_members::members::members(
+        ui_pages::team_members::members::PageProps {
             invites,
             members,
             organisation,

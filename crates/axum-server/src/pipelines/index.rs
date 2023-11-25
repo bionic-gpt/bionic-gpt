@@ -24,8 +24,8 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(ui_components::pipelines::index::index(
-        ui_components::pipelines::index::PageProps {
+    Ok(Html(ui_pages::pipelines::index::index(
+        ui_pages::pipelines::index::PageProps {
             pipelines,
             datasets,
             organisation_id,

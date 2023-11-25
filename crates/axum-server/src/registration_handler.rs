@@ -33,7 +33,7 @@ pub async fn post_registration(
         .await;
 
     if let Ok(org) = org {
-        Ok(Redirect::to(&ui_components::routes::console::index_route(
+        Ok(Redirect::to(&ui_pages::routes::console::index_route(
             org.id,
         )))
     } else {
@@ -83,7 +83,7 @@ pub async fn post_registration(
 
         transaction.commit().await?;
 
-        Ok(Redirect::to(&ui_components::routes::console::index_route(
+        Ok(Redirect::to(&ui_pages::routes::console::index_route(
             inserted_org_id,
         )))
     }

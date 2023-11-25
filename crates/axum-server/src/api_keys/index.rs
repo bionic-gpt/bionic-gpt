@@ -3,7 +3,7 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::{queries, Pool};
-use ui_components::api_keys;
+use ui_pages::api_keys;
 
 pub async fn index(
     Path(team_id): Path<i32>,

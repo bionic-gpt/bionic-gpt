@@ -27,5 +27,5 @@ pub async fn switch(
         .all()
         .await?;
 
-    Ok(Html(ui_components::teams::teams(teams, team.id)))
+    Ok(Html(ui_pages::teams::teams(teams, team.id)))
 }

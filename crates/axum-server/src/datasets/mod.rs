@@ -4,7 +4,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use ui_components::routes::datasets::{INDEX, NEW};
+use ui_pages::routes::datasets::{INDEX, NEW};
 
 pub fn routes() -> Router {
     Router::new()

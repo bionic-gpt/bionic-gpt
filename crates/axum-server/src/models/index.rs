@@ -26,8 +26,8 @@ pub async fn index(
             .await?,
     );
 
-    Ok(Html(ui_components::models::index(
-        ui_components::models::index::PageProps {
+    Ok(Html(ui_pages::models::index(
+        ui_pages::models::index::PageProps {
             organisation_id,
             models,
         },

@@ -30,8 +30,8 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(ui_components::prompts::index(
-        ui_components::prompts::index::PageProps {
+    Ok(Html(ui_pages::prompts::index(
+        ui_pages::prompts::index::PageProps {
             organisation_id,
             prompts,
             datasets,

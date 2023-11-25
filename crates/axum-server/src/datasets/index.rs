@@ -22,8 +22,8 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(ui_components::datasets::index(
-        ui_components::datasets::index::PageProps {
+    Ok(Html(ui_pages::datasets::index(
+        ui_pages::datasets::index::PageProps {
             organisation_id,
             datasets,
             models,
