@@ -37,8 +37,6 @@
 @import '../web-components/snack-bar';
 @import '../web-components/side-drawer';
 
-@import '../node_modules/highlight.js/scss/dark.scss';
-
 // Fix side menu so the z-index takes effect. Otherwise
 // they are hidden behind other items.
 @media (min-width: 544px) {

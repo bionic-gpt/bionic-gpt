@@ -61,12 +61,21 @@ pub fn TimeLineBadge<'a>(cx: Scope<'a, TimeLineBadgeProps<'a>>) -> Element {
 #[derive(Props)]
 pub struct TimeLineBodyProps<'a> {
     children: Element<'a>,
+    class: Option<&'a str>,
 }
 
 pub fn TimeLineBody<'a>(cx: Scope<'a, TimeLineBodyProps<'a>>) -> Element {
+    let class = if let Some(class) = cx.props.class {
+        class
+    } else {
+        ""
+    };
+
+    let class = format!("timeline-body {}", class);
+
     cx.render(rsx!(
         div {
-            class: "timeline-body",
+            class: "{class}",
             &cx.props.children
         }
     ))

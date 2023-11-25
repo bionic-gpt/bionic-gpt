@@ -15,10 +15,7 @@
         "@parcel/transformer-sass": "^2.2.1",
         "daisyui": "^4.4.2",
         "parcel": "^2.0.0",
+        "@tailwindcss/typography": "^0.5.10",
         "tailwindcss": "^3.3.5"
-    },
-    "dependencies": {
-        "highlight.js": "^11.8.0",
-        "idb": "^7.0.0"
     }
 }

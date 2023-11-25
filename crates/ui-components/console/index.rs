@@ -64,6 +64,7 @@ pub fn Page(
                                     image_src: handshake_svg.name
                                 }
                                 TimeLineBody {
+                                    class: "prose prose-sm",
                                     if let Some(response) = &chat.response {
                                         cx.render(rsx!(
                                             response-formatter {
