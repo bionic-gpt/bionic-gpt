@@ -29,11 +29,6 @@ export const drawers = () => {
                     }
                 }
               }, false);
-
-            // Catch all clicks in the panel so they don't propogate up to the document
-            /**panel.addEventListener("click", function(e) {
-                e.stopPropagation()
-            });**/
     
         } else {
             console.error("side-drawer: could not find required elements.")
