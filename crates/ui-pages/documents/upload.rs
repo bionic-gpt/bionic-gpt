@@ -26,14 +26,14 @@ pub fn Upload(cx: Scope, upload_action: String) -> Element {
                     }
 
                     Alert {
-                        class: "mt-4",
+                        class: "mt-4 flex flex-col items-start",
                         alert_color: AlertColor::Default,
                         h5 {
                             "Supported File Types"
                         }
 
                         ul {
-                            class: "pl-3 mt-4",
+                            class: "mt-4",
                             li {
                                 strong {"Plaintext "}
                                 ".eml, .html, .json, .md, .msg, .rst, .rtf, .txt, .xml"
