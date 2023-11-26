@@ -218,6 +218,13 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
 }
 
 async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
+    driver
+        .find(By::LinkText("Prompts"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
     driver.find(By::LinkText("Prompts")).await?.click().await?;
 
     driver
@@ -361,7 +368,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//footer//button[text()='Upload File']"))
+        .find(By::XPath("//button[text()='Upload File']"))
         .await?
         .click()
         .await?;
