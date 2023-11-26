@@ -103,7 +103,7 @@ export class StreamingChat extends HTMLElement {
             if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
                 llmResult.value = this.result
                 this.result = ''
-                form.submit()
+                form.requestSubmit()
             }
         }
     }

@@ -10,11 +10,11 @@ document.addEventListener('turbo:load', () => {
     
                             // Find the containing form and submit it.
                             if(area.form) {
-                                area.form.submit()
+                                area.form.requestSubmit()
                             }
                         }
                         // Prevent the addition of a new line in the text field
-                        //event.preventDefault(); 
+                        event.preventDefault(); 
                     }
                 }
             });
