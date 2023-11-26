@@ -33,8 +33,8 @@
 // Our custom SCSS and web components
 @import './layout';
 @import './timeline';
+@import './side-drawer';
 @import '../web-components/snack-bar';
-@import '../web-components/side-drawer';
 
 // Fix side menu so the z-index takes effect. Otherwise
 // they are hidden behind other items.

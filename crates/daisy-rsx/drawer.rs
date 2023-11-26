@@ -11,29 +11,43 @@ pub struct DrawerProps<'a> {
 }
 
 pub fn Drawer<'a>(cx: Scope<'a, DrawerProps<'a>>) -> Element {
-    if let Some(submit_action) = cx.props.submit_action.clone() {
-        cx.render(rsx!(
-            form {
-                action: "{submit_action}",
-                method: "post",
-                side-drawer {
-                    class: "side_drawer flex flex-col",
-                    label: cx.props.label,
+    let action = if let Some(action) = &cx.props.submit_action {
+        action.to_string()
+    } else {
+        "".to_string()
+    };
+    cx.render(rsx!(
+        form {
+            action: "{action}",
+            method: "post",
+            div {
+                div {
+                    class: "side-drawer flex flex-col",
                     id: cx.props.trigger_id,
-                    &cx.props.children
+                    div {
+                        class: "drawer__overlay",
+                        tabindex: "-1"
+                    }
+                    div {
+                        class: "drawer__panel",
+                        header {
+                            class: "drawer__header",
+                            h4 {
+                                class: "drawer__title",
+                                "{cx.props.label}"
+                            }
+                            a {
+                                href: "#",
+                                class: "drawer__close",
+                                "X"
+                            }
+                        }
+                        &cx.props.children
+                    }
                 }
             }
-        ))
-    } else {
-        cx.render(rsx!(
-            side-drawer {
-                class: "side_drawer flex flex-col",
-                label: cx.props.label,
-                id: cx.props.trigger_id,
-                &cx.props.children
-            }
-        ))
-    }
+        }
+    ))
 }
 
 #[derive(Props)]
@@ -43,8 +57,8 @@ pub struct DrawerFooterProps<'a> {
 
 pub fn DrawerFooter<'a>(cx: Scope<'a, DrawerFooterProps<'a>>) -> Element {
     cx.render(rsx!(
-        template {
-            "slot": "footer",
+        div {
+            class: "drawer__footer",
             &cx.props.children
         }
     ))
@@ -57,8 +71,8 @@ pub struct DrawerBodyProps<'a> {
 
 pub fn DrawerBody<'a>(cx: Scope<'a, DrawerBodyProps<'a>>) -> Element {
     cx.render(rsx!(cx.render(rsx!(
-        template {
-            "slot": "body",
+        div {
+            class: "drawer__body",
             &cx.props.children
         }
     ))))

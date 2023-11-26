@@ -8,7 +8,8 @@ export const triggers = () => {
             if(attr) {
                 const drawer = document.getElementById(attr)
                 if(drawer) {
-                    drawer.setAttribute("open", "true")
+                    drawer.classList.remove('drawer--open')
+                    drawer.classList.add('drawer--open')
                 } else {
                     console.log(`The drawer ${attr} not there`)
                 }

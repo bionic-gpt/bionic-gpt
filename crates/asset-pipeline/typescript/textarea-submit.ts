@@ -14,7 +14,7 @@ document.addEventListener('turbo:load', () => {
                             }
                         }
                         // Prevent the addition of a new line in the text field
-                        event.preventDefault(); 
+                        //event.preventDefault(); 
                     }
                 }
             });
