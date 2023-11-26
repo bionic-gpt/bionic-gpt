@@ -7,6 +7,7 @@ pub fn TeamNameForm(cx: Scope, submit_action: String) -> Element {
     cx.render(rsx! {
         form {
             method: "post",
+            "data-turbo-frame": "_top",
             action: "{submit_action}",
             Drawer {
                 label: "Set Team Name",
