@@ -9,7 +9,9 @@ pub fn PromptDrawer(cx: Scope, prompt: String, trigger_id: String) -> Element {
             label: "Full Prompt",
             trigger_id: &trigger_id,
             DrawerBody {
+                class: "prose prose-sm",
                 pre {
+                    class: "json",
                     "{prompt}"
                 }
             }

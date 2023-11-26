@@ -9,6 +9,7 @@ import '@github/relative-time-element';
 // Misc.
 import { triggers } from './typescript/side-drawer-trigger'
 import { drawers } from './typescript/side-drawer'
+import { formatter } from './typescript/format-json'
 import './typescript/remember-form'
 import './typescript/textarea-submit'
 import './typescript/update-sidebar'
@@ -28,6 +29,7 @@ function loadEverything() {
     }
     triggers()
     drawers()
+    formatter()
 }
 
 document.addEventListener('turbo:load', () => {

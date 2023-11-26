@@ -67,12 +67,20 @@ pub fn DrawerFooter<'a>(cx: Scope<'a, DrawerFooterProps<'a>>) -> Element {
 #[derive(Props)]
 pub struct DrawerBodyProps<'a> {
     children: Element<'a>,
+    class: Option<&'a str>,
 }
 
 pub fn DrawerBody<'a>(cx: Scope<'a, DrawerBodyProps<'a>>) -> Element {
+    let class = if let Some(class) = cx.props.class {
+        class
+    } else {
+        ""
+    };
+
+    let class = format!("drawer__body {}", class);
     cx.render(rsx!(cx.render(rsx!(
         div {
-            class: "drawer__body",
+            class: "{class}",
             &cx.props.children
         }
     ))))
