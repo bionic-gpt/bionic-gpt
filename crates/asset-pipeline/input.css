@@ -26,18 +26,12 @@
     --default-border-color: #d8dee4;
     --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
 
-    /** Cards **/
-    .card {
-        border: 1px solid var(--default-border-color);
-        background-color: var(--bg-color-surface);
-    
-        .card-header {
-            border-bottom: 1px solid var(--default-border-color);
-        }
-    }
-
     .btn-primary {
         color: white;
+    }
+    
+    table > thead {
+        background-color: #fafbfb;
     }
 }
 
@@ -62,7 +56,10 @@ a {
 
 /** Cards **/
 .card {
+    border: 1px solid var(--default-border-color);
+    background-color: var(--bg-color-surface);
     .card-header {
+        border-bottom: 1px solid var(--default-border-color);
         padding: 1rem;
 
         > .card-title {
@@ -114,9 +111,6 @@ a {
 }
 
 /** Tables **/
-table > thead {
-    background-color: #fafbfb;
-}
 
 .table td svg {
     display: inline;

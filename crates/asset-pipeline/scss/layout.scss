@@ -30,7 +30,7 @@
         display: none;
         grid-area: sidenav;
         height: 100vh;
-        border-right: 1px solid #d8dee4;
+        border-right: 1px solid var(--default-border-color);
 
         // Display flex is set in the responsive css at bottom of the code
         flex-direction: column;
@@ -39,7 +39,7 @@
             height: 72px;
             flex-shrink: 0;
             padding: 1rem;
-            border-bottom: 1px solid #d8dee4;
+            border-bottom: 1px solid var(--default-border-color);
 
             details > div {
                 z-index: 112;
@@ -85,7 +85,7 @@
             align-items: center;
             height: 72px;
             padding: 1rem;
-            border-bottom: 1px solid #d8dee4;
+            border-bottom: 1px solid var(--default-border-color);
             box-shadow: var(--header-box-shadow);
             background-color: var(--bg-color-surface);
 
