@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use super::super::routes;
 use crate::app_layout::{Layout, SideBar};
-use assets::files::{commit_svg, handshake_svg, profile_svg};
+use assets::files::{commit_svg, handshake_svg, profile_svg, spinner_svg};
 use daisy_rsx::*;
 use db::queries::{chats::Chat, conversations::History, prompts::Prompt};
 use dioxus::prelude::*;
@@ -63,19 +63,27 @@ pub fn Page(
                                     prompt: chat.prompt.clone()
                                 }
                                 TimeLine {
-                                    TimeLineBadge {
-                                        image_src: handshake_svg.name
-                                    }
-                                    TimeLineBody {
-                                        class: "prose -mt-5",
-                                        if let Some(response) = &chat.response {
-                                            cx.render(rsx!(
+                                    if let Some(response) = &chat.response {
+                                        // We are generating text
+                                        cx.render(rsx!(
+                                            TimeLineBadge {
+                                                image_src: handshake_svg.name
+                                            }
+                                            TimeLineBody {
+                                                class: "prose",
                                                 response-formatter {
                                                     response: "{convert_quotes(response)}"
                                                 }
-                                            ))
-                                        } else {
-                                            cx.render(rsx!(
+                                            }
+                                        ))
+                                    } else {
+                                        // The generated text
+                                        cx.render(rsx!(
+                                            TimeLineBadge {
+                                                image_src: spinner_svg.name
+                                            }
+                                            TimeLineBody {
+                                                class: "prose",
                                                 streaming-chat {
                                                     prompt: "{chat.prompt}",
                                                     "chat-id": "{chat.id}",
@@ -98,8 +106,8 @@ pub fn Page(
                                                         "type": "hidden"
                                                     }
                                                 }
-                                            ))
-                                        }
+                                            }
+                                        ))
                                     }
                                 }
                                 TimeLine {

@@ -39,12 +39,18 @@ a {
     text-decoration: underline;
 }
 
+/** In the chat the first p has margin, we need to remove it **/
+response-formatter > p:first-child, streaming-chat > p:first-child {
+    margin-top: 0;
+}
+
 .l_nav_items > .menu {
     border: 0;
     margin: 0;
     padding-bottom: 0;
     padding-top: 0;
     
+    /** Invert the svg images, this is the way to handle dark mode **/
     > li > a.active > img {
         filter: invert(1);
     }
@@ -54,7 +60,7 @@ a {
     }
 }
 
-/** Cards **/
+/** Override daisy cards **/
 .card {
     border: 1px solid var(--default-border-color);
     background-color: var(--bg-color-surface);
@@ -84,6 +90,7 @@ a {
     }
 }
 
+/** Override daisy buttons **/
 .btn {
     font-weight: 400;
 }
