@@ -67,7 +67,7 @@ pub fn Page(
                                         image_src: handshake_svg.name
                                     }
                                     TimeLineBody {
-                                        class: "prose",
+                                        class: "prose -mt-5",
                                         if let Some(response) = &chat.response {
                                             cx.render(rsx!(
                                                 response-formatter {
@@ -81,9 +81,6 @@ pub fn Page(
                                                     "chat-id": "{chat.id}",
                                                     span {
                                                         "Processing prompt"
-                                                    }
-                                                    span {
-                                                        class: "AnimatedEllipsis"
                                                     }
                                                 }
                                                 form {
