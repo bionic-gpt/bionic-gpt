@@ -12,7 +12,7 @@ export const drawers = () => {
             closeButton.addEventListener("click", function(e) {
                 e.stopPropagation()
                 e.preventDefault()
-                close(drawer)
+                close(drawer,)
             });
 
             overlay.addEventListener("click", function(e) {
@@ -21,14 +21,14 @@ export const drawers = () => {
                 close(drawer)
             });
 
-            overlay.addEventListener('keydown', (event : Event) => {
+            document.addEventListener('keydown', (event : Event) => {
                 console.log(event)
                 if(event instanceof KeyboardEvent) {
                     if (event.key === 'Escape') {
                         close(drawer)
                     }
                 }
-              }, false);
+            }, false);
     
         } else {
             console.error("side-drawer: could not find required elements.")
