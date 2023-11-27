@@ -4,7 +4,7 @@
     "description": "",
     "scripts": {
         "start": "./patch-turbo.sh && parcel watch ./index.ts --no-hmr --public-url /auth/static",
-        "release": "./patch-turbo.sh && pnpm run tailwind && parcel build ./index.ts --public-url /auth/static",
+        "release": "./patch-turbo.sh && npm run tailwind && parcel build ./index.ts --public-url /auth/static",
         "report": "parcel build ./index.ts --reporter @parcel/reporter-bundle-buddy",
         "tailwind": "npx tailwindcss -i ./input.css -o ./dist/output.css"
     },
