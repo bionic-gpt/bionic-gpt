@@ -6,7 +6,7 @@ use axum_extra::extract::Form;
 use db::Pool;
 use db::{queries, Transaction};
 use serde::Deserialize;
-use ui_components::{prompts::string_to_dataset_connection, string_to_visibility};
+use ui_pages::{prompts::string_to_dataset_connection, string_to_visibility};
 use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -75,7 +75,7 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(crate::layout::redirect_and_snackbar(
-                &ui_components::routes::prompts::index_route(team_id),
+                &ui_pages::routes::prompts::index_route(team_id),
                 "Prompt Template Updated",
             )
             .into_response())
@@ -106,13 +106,13 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(crate::layout::redirect_and_snackbar(
-                &ui_components::routes::prompts::index_route(team_id),
+                &ui_pages::routes::prompts::index_route(team_id),
                 "Prompt Template Created",
             )
             .into_response())
         }
         (Err(_), _) => Ok(crate::layout::redirect_and_snackbar(
-            &ui_components::routes::prompts::index_route(team_id),
+            &ui_pages::routes::prompts::index_route(team_id),
             "Problem with Prompt Validation",
         )
         .into_response()),

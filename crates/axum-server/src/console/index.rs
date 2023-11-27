@@ -33,7 +33,7 @@ pub async fn index(
 
     transaction.commit().await?;
 
-    crate::layout::redirect(&ui_components::routes::console::conversation_route(
+    crate::layout::redirect(&ui_pages::routes::console::conversation_route(
         team_id, conv_id,
     ))
 }

@@ -53,6 +53,13 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath("//button[text()='New Document Pipeline']"))
         .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New Document Pipeline']"))
+        .await?
         .click()
         .await?;
 
@@ -90,6 +97,13 @@ async fn test_api_keys(driver: &WebDriver) -> WebDriverResult<()> {
         .find(By::LinkText("Chat API Keys"))
         .await?
         .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New API Key']"))
+        .await?
+        .wait_until()
+        .displayed()
         .await?;
 
     driver
@@ -204,6 +218,13 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
 }
 
 async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
+    driver
+        .find(By::LinkText("Prompts"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
     driver.find(By::LinkText("Prompts")).await?.click().await?;
 
     driver
@@ -296,6 +317,13 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath("//button[text()='Add Dataset']"))
         .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Add Dataset']"))
+        .await?
         .click()
         .await?;
 
@@ -340,7 +368,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//footer//button[text()='Upload File']"))
+        .find(By::XPath("//button[text()='Upload File']"))
         .await?
         .click()
         .await?;

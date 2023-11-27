@@ -3,6 +3,7 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::{queries, Pool};
+use ui_pages::api_keys;
 
 pub async fn index(
     Path(team_id): Path<i32>,
@@ -24,7 +25,9 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(ui_components::api_keys::index(
-        api_keys, prompts, team_id,
-    )))
+    Ok(Html(api_keys::index(api_keys::index::PageProps {
+        organisation_id: team_id,
+        api_keys,
+        prompts,
+    })))
 }

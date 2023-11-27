@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 db = { path = "../db" }
 assets = { path = "../asset-pipeline" }
-ui-components = { path = "../ui-components" }
+ui-pages = { path = "../ui-pages" }
 open-api = { path = "../open-api" }
 
 axum = { version = "0.6", default-features = false, features = ["multipart", "form"] }

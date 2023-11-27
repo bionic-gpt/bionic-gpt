@@ -52,8 +52,8 @@ npm-build:
     FROM +npm-deps
     COPY $PIPELINE_FOLDER $PIPELINE_FOLDER
     COPY +npm-deps/node_modules $PIPELINE_FOLDER/node_modules
-    COPY --dir crates/ui-components crates/ui-components
-    COPY --dir crates/primer-rsx crates/primer-rsx
+    COPY --dir crates/ui-pages crates/ui-pages
+    COPY --dir crates/daisy-rsx crates/daisy-rsx
     RUN cd $PIPELINE_FOLDER && npm run release
     SAVE ARTIFACT $PIPELINE_FOLDER/dist
 

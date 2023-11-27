@@ -5,7 +5,7 @@ use axum::{
     Router,
 };
 
-use ui_components::routes::models::{INDEX, NEW};
+use ui_pages::routes::models::{INDEX, NEW};
 
 pub fn routes() -> Router {
     Router::new()

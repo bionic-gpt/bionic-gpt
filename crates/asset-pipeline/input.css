@@ -2,22 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+[data-theme="dark"] {
+    --main-bg-color: #333;
+    --bg-color-surface: 3333;
+    --default-border-color: #606c79;
+    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+
+    .l_nav_items > .menu {
+        > li > a > img {
+            filter: invert(0.6);
+        }
+    }
+
+    .dropdown > label > img {
+        filter: invert(0.6);
+    }
+}
+
+
+[data-theme="light"] {
     --main-bg-color: #fafbfb;
     --bg-color-surface: white;
     --default-border-color: #d8dee4;
     --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
-}
 
-[data-theme="dark"] {
-    --main-bg-color: #333;
-    --bg-color-surface: 3333;
-    --default-border-color: #28313a;
-    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+    .btn-primary {
+        color: white;
+    }
+    
+    table > thead {
+        background-color: #fafbfb;
+    }
 }
 
 a {
     text-decoration: underline;
+}
+
+/** In the chat the first p has margin, we need to remove it **/
+response-formatter > p:first-child, streaming-chat > p:first-child {
+    margin-top: 0;
 }
 
 .l_nav_items > .menu {
@@ -25,7 +49,8 @@ a {
     margin: 0;
     padding-bottom: 0;
     padding-top: 0;
-
+    
+    /** Invert the svg images, this is the way to handle dark mode **/
     > li > a.active > img {
         filter: invert(1);
     }
@@ -35,14 +60,13 @@ a {
     }
 }
 
-/** Cards **/
+/** Override daisy cards **/
 .card {
     border: 1px solid var(--default-border-color);
     background-color: var(--bg-color-surface);
-
     .card-header {
-        padding: 1rem;
         border-bottom: 1px solid var(--default-border-color);
+        padding: 1rem;
 
         > .card-title {
             font-size: 0.875rem;
@@ -66,6 +90,7 @@ a {
     }
 }
 
+/** Override daisy buttons **/
 .btn {
     font-weight: 400;
 }
@@ -81,10 +106,6 @@ a {
     }
 }
 
-.btn-primary {
-    color: white;
-}
-
 .menu li > *:not(ul):not(.menu-title):not(details):active, 
 .menu li > *:not(ul):not(.menu-title):not(details).active, 
 .menu li > details > summary:active {
@@ -97,9 +118,6 @@ a {
 }
 
 /** Tables **/
-table > thead {
-    background-color: #fafbfb;
-}
 
 .table td svg {
     display: inline;
