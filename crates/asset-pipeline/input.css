@@ -2,11 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --main-bg-color: #fafbfb;
+    --bg-color-surface: white;
+    --default-border-color: #d8dee4;
+    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+}
+
 [data-theme="dark"] {
     --main-bg-color: #333;
     --bg-color-surface: 3333;
     --default-border-color: #606c79;
-    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
 
     .l_nav_items > .menu {
         > li > a > img {
@@ -21,11 +27,6 @@
 
 
 [data-theme="light"] {
-    --main-bg-color: #fafbfb;
-    --bg-color-surface: white;
-    --default-border-color: #d8dee4;
-    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
-
     .btn-primary {
         color: white;
     }
