@@ -15,7 +15,7 @@ pub struct BlankSlateProps<'a> {
 pub fn BlankSlate<'a>(cx: Scope<'a, BlankSlateProps<'a>>) -> Element {
     cx.render(rsx!(
         div {
-            class: "flex flex-col justify-center items-center",
+            class: "mt-4 flex flex-col justify-center items-center",
             img {
                 class: "mb-4",
                 src: "{cx.props.visual}",

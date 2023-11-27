@@ -55,7 +55,7 @@ pub fn Page(
                     class: "flex flex-col-reverse h-[calc(100%-100px)] overflow-y-auto",
                     id: "console-stream",
                     div {
-                        class: "flex flex-col-reverse max-w-prose m-auto h-full",
+                        class: "flex flex-col-reverse min-w-[65ch] max-w-prose m-auto h-full",
                         chats.iter().rev().map(|chat| {
                             cx.render(rsx!(
                                 super::prompt_drawer::PromptDrawer {
@@ -67,7 +67,7 @@ pub fn Page(
                                         image_src: handshake_svg.name
                                     }
                                     TimeLineBody {
-                                        class: "prose prose-sm",
+                                        class: "prose",
                                         if let Some(response) = &chat.response {
                                             cx.render(rsx!(
                                                 response-formatter {
