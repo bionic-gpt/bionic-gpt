@@ -105,7 +105,12 @@ pub async fn register_random_user(driver: &WebDriver) -> WebDriverResult<String>
 
     // OTP Code
     // Wait for page to load as code might not be in database yet.
-    driver.find(By::Id("console-panel")).await?;
+    driver
+        .find(By::Id("console-panel"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     Ok(email)
 }

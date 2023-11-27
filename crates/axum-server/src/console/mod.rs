@@ -8,9 +8,7 @@ use axum::{
     Router,
 };
 
-use ui_components::routes::console::{
-    CONVERSATION, INDEX, NEW_CHAT, SEND_MESSAGE, UPDATE_RESPONSE,
-};
+use ui_pages::routes::console::{CONVERSATION, INDEX, NEW_CHAT, SEND_MESSAGE, UPDATE_RESPONSE};
 
 pub fn routes() -> Router {
     Router::new()

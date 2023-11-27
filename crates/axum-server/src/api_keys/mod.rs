@@ -6,7 +6,7 @@ use axum::{
     Router,
 };
 
-use ui_components::routes::api_keys::{INDEX, NEW};
+use ui_pages::routes::api_keys::{INDEX, NEW};
 
 pub fn routes() -> Router {
     Router::new()

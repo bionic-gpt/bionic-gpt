@@ -7,7 +7,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use ui_components::routes::documents::{DELETE, INDEX, STATUS, UPLOAD};
+use ui_pages::routes::documents::{DELETE, INDEX, STATUS, UPLOAD};
 
 pub fn routes() -> Router {
     Router::new()

@@ -33,7 +33,7 @@ pub async fn delete(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_components::routes::documents::index_route(
+        &ui_pages::routes::documents::index_route(
             delete_doc.organisation_id,
             delete_doc.dataset_id,
         ),

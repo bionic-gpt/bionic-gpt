@@ -28,6 +28,9 @@ static_resources:
                   envoy.filters.http.ext_authz:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                     disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
 
               # API requests to the LLM (they all start with /v1)
               - match: 
@@ -40,6 +43,9 @@ static_resources:
                 typed_per_filter_config:
                   envoy.filters.http.ext_authz:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
                     disabled: true
 
               # These are requests coming from the front end typescript
@@ -56,6 +62,12 @@ static_resources:
                 route: 
                   cluster: app
                   timeout: 60s
+                # We have a function to add security headers as the web app needed to open up
+                # some permissions
+                typed_per_filter_config:
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    name: security_headers.lua
 
               # Paths that don't need authentication
 
@@ -66,6 +78,9 @@ static_resources:
                   envoy.filters.http.ext_authz:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                     disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
                     
               # Everything else passes in to here. The marketing pages
               - match: { prefix: "/" }
@@ -73,6 +88,9 @@ static_resources:
                 typed_per_filter_config:
                   envoy.filters.http.ext_authz:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
                     disabled: true
      
           http_filters:
@@ -93,6 +111,44 @@ static_resources:
                   allowed_upstream_headers_to_append:
                     patterns: 
                       - exact: "x-user-id"
+
+          # Add all the security headers, if an item is already set, it will be left alone.
+          - name: envoy.filters.http.lua
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+
+              source_codes:
+                # Lock everything down
+                security_headers.lua:
+                  inline_string: |
+                    function envoy_on_response(response_handle)
+
+                      response_handle:headers():add("Cache-Control", "none");
+
+                      csp = "default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
+                      response_handle:headers():add("Content-Security-Policy", csp);
+                      response_handle:headers():add("X-Frame-Options", "deny");
+                      response_handle:headers():add("X-XSS-Protection", "1; mode=block");
+                      response_handle:headers():add("X-Content-Type-Options", "nosniff");
+                      response_handle:headers():add("Referrer-Policy", "no-referrer");
+                      response_handle:headers():add("X-Download-Options", "noopen");
+                      response_handle:headers():add("X-DNS-Prefetch-Control", "off");
+                      response_handle:headers():add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+                      response_handle:headers():add("Permissions-Policy",
+                                                    "accelerometer=(), "..
+                                                    "camera=(), "..
+                                                    "geolocation=(), "..
+                                                    "gyroscope=(), "..
+                                                    "magnetometer=(), "..
+                                                    "microphone=(), "..
+                                                    "payment=(), "..
+                                                    "usb=()");
+                      response_handle:headers():remove("X-Powered-By");
+                    end
+              inline_code: |
+                function envoy_on_response(response_handle)
+                end
+
           - name: envoy.filters.http.router
 
   clusters:

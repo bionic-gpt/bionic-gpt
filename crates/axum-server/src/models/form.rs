@@ -57,7 +57,7 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(crate::layout::redirect_and_snackbar(
-                &ui_components::routes::models::index_route(team_id),
+                &ui_pages::routes::models::index_route(team_id),
                 "Model Updated",
             )
             .into_response())
@@ -80,13 +80,13 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(crate::layout::redirect_and_snackbar(
-                &ui_components::routes::models::index_route(team_id),
+                &ui_pages::routes::models::index_route(team_id),
                 "Model Created",
             )
             .into_response())
         }
         (Err(_), _) => Ok(crate::layout::redirect_and_snackbar(
-            &ui_components::routes::models::index_route(team_id),
+            &ui_pages::routes::models::index_route(team_id),
             "Problem with Model Validation",
         )
         .into_response()),

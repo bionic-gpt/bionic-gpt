@@ -27,5 +27,5 @@ pub async fn index(
         .one()
         .await?;
 
-    Ok(Html(ui_components::profile::profile(user, team.id)))
+    Ok(Html(ui_pages::profile::profile(user, team.id)))
 }

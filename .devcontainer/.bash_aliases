@@ -21,7 +21,7 @@ alias p='sudo chmod 777 /var/run/docker.sock'
 # Watch Zola
 alias watch-zola='cd /workspace/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
 alias wz=watch-zola
-alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/primer-rsx -w crates/ui-components -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"'
+alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/ui-pages -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"'
 alias wa=watch-app
 alias watch-pipeline='npm install --prefix /workspace/crates/asset-pipeline && npm run start --prefix /workspace/crates/asset-pipeline'
 alias wp=watch-pipeline

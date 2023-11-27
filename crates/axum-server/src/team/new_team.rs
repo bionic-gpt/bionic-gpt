@@ -1,12 +1,12 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
-use db::queries;
 use db::types;
 use db::Pool;
+use db::{queries, DatasetConnection, Visibility};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -18,7 +18,6 @@ pub struct NewTeam {
 
 pub async fn new_team(
     Extension(pool): Extension<Pool>,
-    Path(organisation_id): Path<i32>,
     current_user: Authentication,
     Form(new_team): Form<NewTeam>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -45,10 +44,35 @@ pub async fn new_team(
         .bind(&transaction, &new_team.name, &org_id)
         .await?;
 
+    let model = queries::models::get_system_model()
+        .bind(&transaction)
+        .one()
+        .await?;
+
+    let system_prompt: Option<String> = None;
+
+    queries::prompts::insert()
+        .bind(
+            &transaction,
+            &org_id,
+            &model.id,
+            &"Default (Exclude All Datasets)",
+            &Visibility::Private,
+            &DatasetConnection::None,
+            &system_prompt,
+            &3,
+            &10,
+            &1024,
+            &0.7,
+            &0.1,
+        )
+        .one()
+        .await?;
+
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_components::routes::team::switch_route(organisation_id),
+        &ui_pages::routes::team::switch_route(org_id),
         "New Team Created",
     )
 }
