@@ -18,12 +18,12 @@ pub async fn index(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let team = queries::organisations::organisation()
+    let organisation = queries::organisations::organisation()
         .bind(&transaction, &organisation_id)
         .one()
         .await?;
 
-    let users = queries::organisations::get_users()
+    let members = queries::organisations::get_users()
         .bind(&transaction, &organisation_id)
         .all()
         .await?;
@@ -47,11 +47,20 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(ui_components::team_members::members::members(
-        invites,
-        users,
-        team,
-        user,
-        can_manage_team,
+    let team_name = if let Some(team) = &organisation.name {
+        format!("Team : {}", team)
+    } else {
+        "Team : No Name ".to_string()
+    };
+
+    Ok(Html(ui_pages::team_members::members::members(
+        ui_pages::team_members::members::PageProps {
+            invites,
+            members,
+            organisation,
+            user,
+            team_name,
+            can_manage_team,
+        },
     )))
 }

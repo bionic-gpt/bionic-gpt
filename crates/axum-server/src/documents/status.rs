@@ -20,5 +20,5 @@ pub async fn status(
         .one()
         .await?;
 
-    Ok(Html(ui_components::documents::status(document)))
+    Ok(Html(ui_pages::documents::status(document)))
 }

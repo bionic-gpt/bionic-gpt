@@ -62,9 +62,3 @@ export class SnackBar extends HTMLElement {
         document.cookie = name+'=; Max-Age=-99999999;';  
     }
 }
-
-document.addEventListener('readystatechange', () => {
-    if (document.readyState == 'complete') {
-        customElements.define('snack-bar', SnackBar)
-    }
-})

@@ -41,11 +41,11 @@ pub async fn send_message(
 
         transaction.commit().await?;
 
-        crate::layout::redirect(&ui_components::routes::console::conversation_route(
+        crate::layout::redirect(&ui_pages::routes::console::conversation_route(
             team_id,
             message.conversation_id,
         ))
     } else {
-        crate::layout::redirect(&ui_components::routes::console::index_route(team_id))
+        crate::layout::redirect(&ui_pages::routes::console::index_route(team_id))
     }
 }

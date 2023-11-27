@@ -103,14 +103,8 @@ export class StreamingChat extends HTMLElement {
             if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
                 llmResult.value = this.result
                 this.result = ''
-                form.submit()
+                form.requestSubmit()
             }
         }
     }
 }
-
-document.addEventListener('readystatechange', () => {
-    if (document.readyState == 'complete') {
-        customElements.define('streaming-chat', StreamingChat)
-    }
-})

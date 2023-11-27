@@ -6,7 +6,7 @@ use db::queries::models;
 use db::{ModelType, Pool};
 
 pub async fn index(
-    Path(team_id): Path<i32>,
+    Path(organisation_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -26,5 +26,10 @@ pub async fn index(
             .await?,
     );
 
-    Ok(Html(ui_components::models::index(team_id, models)))
+    Ok(Html(ui_pages::models::index(
+        ui_pages::models::index::PageProps {
+            organisation_id,
+            models,
+        },
+    )))
 }

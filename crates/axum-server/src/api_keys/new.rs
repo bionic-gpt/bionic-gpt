@@ -7,7 +7,7 @@ use axum::{
 use db::queries::api_keys;
 use db::Pool;
 use serde::Deserialize;
-use ui_components::routes::api_keys::index_route;
+use ui_pages::routes::api_keys::index_route;
 use validator::Validate;
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};

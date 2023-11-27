@@ -4,7 +4,7 @@
     "description": "",
     "scripts": {
         "start": "./patch-turbo.sh && parcel watch ./index.ts --no-hmr --public-url /auth/static",
-        "release": "npm run tailwind && ./patch-turbo.sh && parcel build ./index.ts --public-url /auth/static",
+        "release": "./patch-turbo.sh && npm run tailwind && parcel build ./index.ts --public-url /auth/static",
         "report": "parcel build ./index.ts --reporter @parcel/reporter-bundle-buddy",
         "tailwind": "npx tailwindcss -i ./input.css -o ./dist/output.css"
     },
@@ -15,10 +15,7 @@
         "@parcel/transformer-sass": "^2.2.1",
         "daisyui": "^4.4.2",
         "parcel": "^2.0.0",
+        "@tailwindcss/typography": "^0.5.10",
         "tailwindcss": "^3.3.5"
-    },
-    "dependencies": {
-        "highlight.js": "^11.8.0",
-        "idb": "^7.0.0"
     }
 }

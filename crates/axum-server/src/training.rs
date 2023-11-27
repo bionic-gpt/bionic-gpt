@@ -5,9 +5,9 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::Pool;
-use ui_components::training;
+use ui_pages::training;
 
-use ui_components::routes::training::INDEX;
+use ui_pages::routes::training::INDEX;
 
 pub fn routes() -> Router {
     Router::new().route(INDEX, get(index))

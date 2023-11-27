@@ -73,7 +73,7 @@ pub async fn create_invite(
         .await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_components::routes::team::index_route(team.id),
+        &ui_pages::routes::team::index_route(team.id),
         "Invitation Created",
     )
 }

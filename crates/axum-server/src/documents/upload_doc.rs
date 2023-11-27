@@ -38,7 +38,7 @@ pub async fn upload(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_components::routes::documents::index_route(team_id, dataset_id),
+        &ui_pages::routes::documents::index_route(team_id, dataset_id),
         "Document Uploaded",
     )
 }
