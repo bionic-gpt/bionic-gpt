@@ -22,11 +22,11 @@ pub fn BlankSlate<'a>(cx: Scope<'a, BlankSlateProps<'a>>) -> Element {
                 width: "10%"
             }
             h2 {
-                class: "text-center mb-4",
+                class: "text-center mb-4  max-w-prose",
                 "{cx.props.heading}"
             }
             p {
-                class: "mb-4",
+                class: "mb-4  max-w-prose text-center",
                 "{cx.props.description}"
             }
             match &cx.props.primary_action {
