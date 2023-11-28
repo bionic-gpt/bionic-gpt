@@ -1,8 +1,10 @@
 -- migrate:up
-CREATE FUNCTION audit_create_team() 
+CREATE FUNCTION audit_by_user_and_org() 
    RETURNS TRIGGER 
    LANGUAGE PLPGSQL
 AS $$
+DECLARE
+  user_id users.id%type;
 BEGIN
    -- trigger logic
   INSERT INTO audit_trail 
@@ -10,60 +12,107 @@ BEGIN
     user_id,
     organisation_id,
     access_type,
-    action,
-    description
+    action
   )
   VALUES(
-    NEW.user_id,
+    current_app_user(),
     NEW.organisation_id,
-    'UserInterface',
-    'CreateTeam',
-    'A user has been added to the team'
+    TG_ARGV[0]::audit_access_type,
+    TG_ARGV[1]::audit_action
   );
 
   RETURN NEW;
 END;
 $$;
 
-CREATE FUNCTION audit_create_api_key() 
+CREATE FUNCTION audit_by_user() 
    RETURNS TRIGGER 
    LANGUAGE PLPGSQL
 AS $$
+DECLARE
+  user_id users.id%type;
 BEGIN
    -- trigger logic
   INSERT INTO audit_trail 
   (
     user_id,
     access_type,
-    action,
-    description
+    action
   )
   VALUES(
-    NEW.user_id,
-    'UserInterface',
-    'CreateAPIKey',
-    'An API key was created'
+    current_app_user(),
+    TG_ARGV[0]::audit_access_type,
+    TG_ARGV[1]::audit_action
   );
 
   RETURN NEW;
 END;
 $$;
 
-CREATE TRIGGER create_team
+CREATE TRIGGER create_member
   AFTER INSERT
   ON organisation_users
   FOR EACH ROW
-  EXECUTE PROCEDURE audit_create_team();
+  EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'CreateMember');
+
+CREATE TRIGGER delete_member
+  AFTER DELETE
+  ON organisation_users
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'DeleteMember');
+
+CREATE TRIGGER create_invite
+  AFTER INSERT
+  ON invitations
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'CreateInvite');
+
+CREATE TRIGGER create_team
+  AFTER INSERT
+  ON organisations
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_by_user('UserInterface', 'CreateTeam');
+
+CREATE TRIGGER delete_team
+  AFTER DELETE
+  ON organisations
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_by_user('UserInterface', 'DeleteTeam');
 
 CREATE TRIGGER create_api_key
   AFTER INSERT
   ON api_keys
   FOR EACH ROW
-  EXECUTE PROCEDURE audit_create_api_key();
+  EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'CreateAPIKey');
+
+CREATE TRIGGER revoke_api_key
+  AFTER DELETE
+  ON api_keys
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'DeleteAPIKey');
+
+CREATE TRIGGER create_pipeline_key
+  AFTER INSERT
+  ON document_pipelines
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'CreatePipelineKey');
+
+CREATE TRIGGER revoke_pipeline_key
+  AFTER DELETE
+  ON document_pipelines
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'DeletePipelineKey');
 
 -- migrate:down
+
+DROP TRIGGER create_team ON organisations RESTRICT;
+DROP TRIGGER delete_team ON organisations RESTRICT;
+DROP TRIGGER delete_member ON organisation_users RESTRICT;
+DROP TRIGGER create_member ON organisation_users RESTRICT;
+DROP TRIGGER create_invite ON invitations RESTRICT;
 DROP TRIGGER create_api_key ON api_keys RESTRICT;
-DROP FUNCTION audit_create_api_key;
-DROP TRIGGER create_team ON organisation_users RESTRICT;
-DROP FUNCTION audit_create_team;
+DROP TRIGGER revoke_api_key ON api_keys RESTRICT;
+DROP TRIGGER create_pipeline_key ON document_pipelines RESTRICT;
+DROP TRIGGER revoke_pipeline_key ON document_pipelines RESTRICT;
+DROP FUNCTION audit_by_user_and_org;
 

@@ -5,14 +5,15 @@ CREATE TYPE audit_access_type AS ENUM (
 );
 
 CREATE TYPE audit_action AS ENUM (
-    'AddMember', 
+    'CreateMember', 
     'DeleteMember', 
     'CreateInvite',
-    'RemoveTeamMember',
     'CreateTeam',
     'DeleteTeam',
     'CreateAPIKey',
-    'RevokeAPIKey',
+    'DeleteAPIKey',
+    'CreatePipelineKey',
+    'DeletePipelineKey',
     'TextGeneration'
 );
 
@@ -22,7 +23,6 @@ CREATE TABLE audit_trail (
     organisation_id INT, 
     access_type audit_access_type NOT NULL,
     action audit_action NOT NULL,
-    description VARCHAR NOT NULL,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
@@ -56,7 +56,6 @@ COMMENT ON COLUMN audit_trail.user_id IS 'The user that accessed the system';
 COMMENT ON COLUMN audit_trail.organisation_id IS 'The team the user was working on';
 COMMENT ON COLUMN audit_trail.access_type IS 'How was the system accessed i.e. by the CLI or web interface etc.';
 COMMENT ON COLUMN audit_trail.action IS 'The action committed. i.e. deleting a secret etc.';
-COMMENT ON COLUMN audit_trail.description IS 'A text description of what happened';
 
 
 COMMENT ON TABLE audit_trail_text_generation IS 'For text generation we capture extra information';
