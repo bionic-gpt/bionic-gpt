@@ -8,6 +8,7 @@ use dioxus::prelude::*;
 pub enum SideBar {
     None,
     ApiKeys,
+    AuditTrail,
     Console,
     Training,
     Prompts,
