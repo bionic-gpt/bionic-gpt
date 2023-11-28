@@ -32,13 +32,17 @@ pub fn AuditTable<'a>(cx: Scope, audits: &'a Vec<AuditTrail>) -> Element {
                                     "{audit.email}"
                                 }
                                 td {
-                                    super::access_type::AuditAccessType {
-                                        access_type: audit.access_type
+                                    Label {
+                                        class: "mr-2",
+                                        label_role: LabelRole::Neutral,
+                                        super::access_type_to_string(audit.access_type)
                                     }
                                 }
                                 td {
-                                    super::audit_action::AuditAction {
-                                        audit_action: audit.action
+                                    Label {
+                                        class: "mr-2",
+                                        label_role: LabelRole::Neutral,
+                                        super::audit_action_to_string(audit.action)
                                     }
                                 }
                             }

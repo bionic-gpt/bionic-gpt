@@ -51,76 +51,28 @@ pub fn FilterDrawer(
                             label: "Access Type",
                             help_text: "Split between user interface and CLI usage.",
                             name: "access_type",
-                            option {
-                                value: "0",
-                                "Any"
-                            }
-                            option {
-                                value: "1",
-                                "User Interface"
-                            }
-                            option {
-                                value: "2",
-                                "CLI"
-                            }
+                            super::AUDIT_ACCESS.iter().enumerate().map(|(index, access_type)| {
+                                cx.render(rsx! {
+                                    option {
+                                        value: "{index + 1}",
+                                        super::access_type_to_string(*access_type)
+                                    }
+                                })
+                            })
                         }
 
                         Select {
                             label: "Action",
                             help_text: "What action did the user perform",
                             name: "action",
-                            option {
-                                value: "0",
-                                "Any"
-                            }
-                            option {
-                                value: "1",
-                                "Add Member"
-                            }
-                            option {
-                                value: "2",
-                                "Delete Member"
-                            }
-                            option {
-                                value: "3",
-                                "Add Secret"
-                            }
-                            option {
-                                value: "4",
-                                "Delete Secret"
-                            }
-                            option {
-                                value: "5",
-                                "Access Secret"
-                            }
-                            option {
-                                value: "6",
-                                "New Service Account"
-                            }
-                            option {
-                                value: "7",
-                                "Delete Service Account"
-                            }
-                            option {
-                                value: "8",
-                                "Connect Service Account"
-                            }
-                            option {
-                                value: "9",
-                                "Create Invite"
-                            }
-                            option {
-                                value: "10",
-                                "Remove Team Member"
-                            }
-                            option {
-                                value: "11",
-                                "Create Vault"
-                            }
-                            option {
-                                value: "12",
-                                "Delete Vault"
-                            }
+                            super::AUDIT_ACTION.iter().enumerate().map(|(index, action_type)| {
+                                cx.render(rsx! {
+                                    option {
+                                        value: "{index + 1}",
+                                        super::audit_action_to_string(*action_type)
+                                    }
+                                })
+                            })
                         }
 
                         input {
