@@ -16,7 +16,7 @@ axum = { version = "0.6", default-features = false, features = ["multipart", "fo
 axum-extra = { version = "0", default-features = false, features = ["form"] }
 # Needed for the authentication.rs handler
 http = "0.2"
-hyper = { version = "0", features = ["server"] }
+hyper = { version = "0.14.27", features = ["server"] }
 hyper-rustls = { version = "0", default-features = false, features = ["webpki-roots", "tokio-runtime", "http1"] }
 rustls = "0"
 pin-project = "1"

@@ -1,6 +1,7 @@
 pub mod common;
 
 use thirtyfour::prelude::*;
+use tokio::time::{sleep, Duration};
 
 // let's set up the sequence of steps we want the browser to take
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
@@ -227,12 +228,8 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
 
     driver.find(By::LinkText("Prompts")).await?.click().await?;
 
-    driver
-        .find(By::XPath("//button[text()='New Prompt']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    // Stop stale element error
+    sleep(Duration::from_millis(1000)).await;
 
     driver
         .find(By::XPath("//button[text()='New Prompt']"))
