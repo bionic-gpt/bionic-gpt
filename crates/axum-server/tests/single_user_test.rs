@@ -274,6 +274,13 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath("//button[text()='New Prompt']"))
         .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New Prompt']"))
+        .await?
         .click()
         .await?;
 
