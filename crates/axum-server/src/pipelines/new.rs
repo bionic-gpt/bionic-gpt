@@ -42,6 +42,7 @@ pub async fn new(
                 &transaction,
                 &new_pipeline.dataset_id,
                 &current_user.user_id,
+                &team_id,
                 &new_pipeline.name,
                 &api_key,
             )

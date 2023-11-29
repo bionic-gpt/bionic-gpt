@@ -63,6 +63,7 @@ The website uses a zola theme. This will need to be loaded with
 We have created a `.bash_alias` file in the `.devcontainer` folder. Open up 3 consoles in visual studio code and run the following in each one.
 
 1. `wp` - Watch Pipeline - compiles the web assets such as typescript, scss and processes images.
+1. `wt` - Watch TailwindCSS - Runs tailwinf to create an output.css file.
 1. `wa` - Stands for watch application - compiles and runs the axum server and will recompile on file chnages.
 1. `wz` - Watch Zola - runs the static site generator.
 1. `we` - Watch Embeddings - runs the embeddings job.

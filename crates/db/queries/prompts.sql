@@ -32,8 +32,9 @@ SELECT
     p.max_tokens,
     p.temperature,
     p.top_p,
-    p.created_at,
-    p.updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(p.created_at)::text) as created_at,
+    trim(both '"' from to_json(p.updated_at)::text) as updated_at
 FROM 
     prompts p
 WHERE
@@ -79,8 +80,9 @@ SELECT
     p.max_tokens,
     p.temperature,
     p.top_p,
-    p.created_at,
-    p.updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(p.created_at)::text) as created_at,
+    trim(both '"' from to_json(p.updated_at)::text) as updated_at
 FROM 
     prompts p
 WHERE
@@ -128,8 +130,9 @@ SELECT
     p.max_tokens,
     p.temperature,
     p.top_p,
-    p.created_at,
-    p.updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(p.created_at)::text) as created_at,
+    trim(both '"' from to_json(p.updated_at)::text) as updated_at
 FROM 
     prompts p
 WHERE

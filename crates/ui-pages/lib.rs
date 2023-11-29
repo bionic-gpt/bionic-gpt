@@ -3,6 +3,7 @@ use dioxus::prelude::VirtualDom;
 
 pub mod api_keys;
 pub mod app_layout;
+pub mod audit_trail;
 pub mod console;
 pub mod datasets;
 pub mod documents;
@@ -24,6 +25,14 @@ pub fn render(mut virtual_dom: VirtualDom) -> String {
 }
 
 pub mod routes {
+
+    pub mod audit_trail {
+        pub static INDEX: &str = "/app/team/:organisation_id/audit_trail";
+
+        pub fn index_route(organisation_id: i32) -> String {
+            format!("/app/team/{}/audit_trail", organisation_id)
+        }
+    }
 
     pub mod document_pipelines {
         pub static INDEX: &str = "/app/team/:organisation_id/pipelines";

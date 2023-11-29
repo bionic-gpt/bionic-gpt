@@ -17,6 +17,9 @@ pub fn Page(cx: Scope, teams: Vec<(String, String)>, organisation: Organisation)
                     prefix_image_src: profile_svg.name,
                     suffix_image_src: button_select_svg.name,
                     class: "min-w-full",
+                    strong {
+                        "Switch Teams"
+                    },
                     teams.iter().map(|team| rsx!(
                         DropDownLink {
                             href: "{team.1}",

@@ -9,6 +9,7 @@ CREATE TABLE users (
     hashed_password VARCHAR NOT NULL, 
     reset_password_selector VARCHAR,
     reset_password_verifier_hash VARCHAR,
+    system_admin BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
