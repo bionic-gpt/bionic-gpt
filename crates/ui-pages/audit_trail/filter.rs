@@ -16,7 +16,6 @@ pub fn FilterDrawer(
         form {
             class: "remember",
             method: "post",
-            "data-turbo": "false",
             "data-remember-reset": "{reset_search}",
             "data-remember-name": "audit",
             id: "filter-form",

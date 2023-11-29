@@ -146,7 +146,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             id: SideBar::AuditTrail.to_string(),
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::audit_trail::index_route(cx.props.team_id),
-                            icon: nav_phonebook_svg.name,
+                            icon: nav_audit_svg.name,
                             title: "Audit"
                         }
                     ))

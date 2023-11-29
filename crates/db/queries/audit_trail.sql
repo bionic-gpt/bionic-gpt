@@ -1,7 +1,7 @@
 --! audit(id?, action?, access_type?, user_id?) : AuditTrail()
 SELECT 
     id,
-    (SELECT u.email from users u WHERE u.id = user_id) as email,
+    COALESCE((SELECT email from users u WHERE u.id = user_id), '') as email,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
     action, 
