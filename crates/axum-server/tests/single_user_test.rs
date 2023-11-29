@@ -135,7 +135,7 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
 
 async fn test_api_keys(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Chat API Keys"))
+        .find(By::LinkText("LLM API Keys"))
         .await?
         .click()
         .await?;
@@ -268,9 +268,6 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
 
     driver.find(By::LinkText("Prompts")).await?.click().await?;
 
-    // Stop stale element error
-    sleep(Duration::from_millis(1000)).await;
-
     driver
         .find(By::XPath("//button[text()='New Prompt']"))
         .await?
@@ -316,6 +313,13 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .find(By::XPath("//span[text()='...']"))
         .await?
         .click()
+        .await?;
+
+    driver
+        .find(By::LinkText("Edit"))
+        .await?
+        .wait_until()
+        .displayed()
         .await?;
 
     driver.find(By::LinkText("Edit")).await?.click().await?;
