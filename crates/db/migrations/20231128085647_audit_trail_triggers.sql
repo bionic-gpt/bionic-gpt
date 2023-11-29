@@ -62,32 +62,34 @@ DECLARE
   audit_id audit_trail.id%type;
 BEGIN
    -- trigger logic
-  INSERT INTO audit_trail 
-  (
-    user_id,
-    access_type,
-    action
-  )
-  VALUES(
-    current_app_user(),
-    TG_ARGV[0]::audit_access_type,
-    'TextGeneration'
-  )
-  RETURNING id INTO audit_id;
+  IF NEW.response IS NOT NULL THEN
+    INSERT INTO audit_trail 
+    (
+      user_id,
+      access_type,
+      action
+    )
+    VALUES(
+      current_app_user(),
+      TG_ARGV[0]::audit_access_type,
+      'TextGeneration'
+    )
+    RETURNING id INTO audit_id;
 
-  INSERT INTO audit_trail_text_generation (
-    audit_id, 
-    chat_id, 
-    tokens_sent,
-    tokens_received,
-    time_taken
-  ) VALUES (
-    audit_id,
-    NEW.id,
-    LENGTH(NEW.prompt),
-    LENGTH(NEW.response),
-    EXTRACT (EPOCH FROM (NEW.updated_at - NEW.created_at))
-  );
+    INSERT INTO audit_trail_text_generation (
+      audit_id, 
+      chat_id, 
+      tokens_sent,
+      tokens_received,
+      time_taken
+    ) VALUES (
+      audit_id,
+      NEW.id,
+      LENGTH(NEW.prompt),
+      LENGTH(NEW.response),
+      EXTRACT (EPOCH FROM (NEW.updated_at - NEW.created_at))
+    );
+  END IF;
 
   RETURN NEW;
 END;
