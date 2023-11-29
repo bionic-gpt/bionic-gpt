@@ -53,6 +53,52 @@ BEGIN
 END;
 $$;
 
+CREATE FUNCTION audit_chats() 
+   RETURNS TRIGGER 
+   LANGUAGE PLPGSQL
+AS $$
+DECLARE
+  user_id users.id%type;
+  audit_id audit_trail.id%type;
+BEGIN
+   -- trigger logic
+  INSERT INTO audit_trail 
+  (
+    user_id,
+    access_type,
+    action
+  )
+  VALUES(
+    current_app_user(),
+    TG_ARGV[0]::audit_access_type,
+    'TextGeneration'
+  )
+  RETURNING id INTO audit_id;
+
+  INSERT INTO audit_trail_text_generation (
+    audit_id, 
+    chat_id, 
+    tokens_sent,
+    tokens_received,
+    time_taken
+  ) VALUES (
+    audit_id,
+    NEW.id,
+    LENGTH(NEW.prompt),
+    LENGTH(NEW.response),
+    EXTRACT (EPOCH FROM (NEW.updated_at - NEW.created_at))
+  );
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER update_chats
+  AFTER UPDATE
+  ON chats
+  FOR EACH ROW
+  EXECUTE PROCEDURE audit_chats('UserInterface');
+
 CREATE TRIGGER create_member
   AFTER INSERT
   ON organisation_users
@@ -109,6 +155,7 @@ CREATE TRIGGER revoke_pipeline_key
 
 -- migrate:down
 
+DROP TRIGGER update_chats ON chats RESTRICT;
 DROP TRIGGER create_team ON organisations RESTRICT;
 DROP TRIGGER delete_team ON organisations RESTRICT;
 DROP TRIGGER delete_member ON organisation_users RESTRICT;
@@ -120,4 +167,5 @@ DROP TRIGGER create_pipeline_key ON document_pipelines RESTRICT;
 DROP TRIGGER revoke_pipeline_key ON document_pipelines RESTRICT;
 DROP FUNCTION audit_by_user_and_org;
 DROP FUNCTION audit_by_user;
+DROP FUNCTION audit_chats;
 
