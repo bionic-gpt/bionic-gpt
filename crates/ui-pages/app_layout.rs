@@ -109,7 +109,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             selected_item_id: cx.props.selected_item.to_string(),
                             href: super::routes::api_keys::index_route(cx.props.team_id),
                             icon: nav_api_keys_svg.name,
-                            title: "Chat API Keys"
+                            title: "LLM API Keys"
                         }
                     ))
                 }
