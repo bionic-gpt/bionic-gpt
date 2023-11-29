@@ -1,6 +1,7 @@
 mod api_keys;
 mod api_pipeline;
 mod api_reverse_proxy;
+mod audit_trail;
 mod authentication;
 mod config;
 mod console;
@@ -48,6 +49,7 @@ async fn main() {
         .route("/completions/:chat_id", post(ui_completions::handler))
         .route("/", get(index::index))
         .merge(team::routes())
+        .merge(audit_trail::routes())
         .merge(profile::routes())
         .merge(registration_handler::routes())
         .merge(console::routes())

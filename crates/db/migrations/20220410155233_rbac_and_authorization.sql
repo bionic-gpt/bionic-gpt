@@ -5,8 +5,7 @@
 
 CREATE TYPE role AS ENUM (
     'Administrator', 
-    'Collaborator', 
-    'SystemAdministrator'
+    'Collaborator'
 );
 COMMENT ON TYPE role IS 'Users have roles, they can be managers or administrators etc.';
 
@@ -19,7 +18,7 @@ COMMENT ON TYPE visibility IS 'For some data the user can select the visibility'
 
 CREATE TYPE permission AS ENUM (
     -- The ManageTeam permission gives the user thee ability to invite team members, 
-    -- delete team members and chnage the team name
+    -- delete team members and change the team name
     'ManageTeam'
 );
 COMMENT ON TYPE permission IS 'A permission gives the user the ability to do something. i.e. Manage users.';

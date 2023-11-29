@@ -31,4 +31,6 @@ VALUES(
 );
 
 -- migrate:down
+SET session_replication_role = replica;
 DELETE FROM models;
+SET session_replication_role = DEFAULT;
