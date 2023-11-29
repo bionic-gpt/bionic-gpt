@@ -86,6 +86,7 @@ pub fn Page(
                                                 }
                                                 td {
                                                     RelativeTime {
+                                                        format: RelativeTimeFormat::Relative,
                                                         datetime: "{prompt.updated_at}"
                                                     }
                                                 }

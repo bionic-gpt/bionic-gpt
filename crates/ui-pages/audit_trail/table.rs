@@ -13,11 +13,15 @@ pub fn AuditTable<'a>(cx: Scope, audits: &'a Vec<AuditTrail>) -> Element {
             }
             BoxBody {
                 table {
+                    class: "table",
                     thead {
                         th { "When" }
                         th { "User" }
                         th { "Access Type" }
-                        th { "Action" }
+                        th {
+                            class: "text-right",
+                            "Action"
+                        }
                     }
                     tbody {
                         audits.iter().map(|audit| rsx!(
@@ -39,8 +43,8 @@ pub fn AuditTable<'a>(cx: Scope, audits: &'a Vec<AuditTrail>) -> Element {
                                     }
                                 }
                                 td {
+                                    class: "text-right",
                                     Label {
-                                        class: "mr-2",
                                         label_role: LabelRole::Neutral,
                                         super::audit_action_to_string(audit.action)
                                     }
