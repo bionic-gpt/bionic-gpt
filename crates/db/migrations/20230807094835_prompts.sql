@@ -52,6 +52,9 @@ GRANT SELECT ON prompts TO ft_readonly;
 GRANT SELECT ON prompts_id_seq TO ft_readonly;
 GRANT SELECT ON prompt_dataset TO ft_readonly;
 
+-- Manage the updated_at column
+SELECT updated_at('prompts');
+
 -- migrate:down
 DROP TABLE prompt_dataset;
 DROP TABLE prompts;

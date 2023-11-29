@@ -6,7 +6,7 @@ ALTER TABLE organisation_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organisations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
--- Helper functions for tenacny isolation 
+-- Helper functions for tenancy isolation 
 CREATE FUNCTION current_app_user() RETURNS INTEGER AS 
 $$ 
     SELECT
@@ -18,17 +18,43 @@ $$ LANGUAGE SQL;
 COMMENT ON FUNCTION current_app_user IS 
     'These needs to be set by the application before accessing the database.';
 
-CREATE FUNCTION get_orgs_for_app_user() RETURNS setof integer AS 
-$$
+CREATE FUNCTION is_app_user_sys_admin() RETURNS BOOLEAN AS 
+$$ 
     SELECT
-        organisation_id
+        system_admin
     FROM
-        organisation_users
+        users
     WHERE
-        user_id = current_app_user()
-$$ LANGUAGE SQL SECURITY DEFINER;
+        id = current_app_user()
+    LIMIT 1
+$$ LANGUAGE SQL;
+COMMENT ON FUNCTION is_app_user_sys_admin IS 
+    'Is the current user a sys admin?';
+
+CREATE FUNCTION get_orgs_for_app_user() RETURNS SETOF INTEGER AS 
+$$
+DECLARE
+    is_sys_admin BOOLEAN;
+BEGIN
+    is_sys_admin := is_app_user_sys_admin();
+
+    IF is_sys_admin THEN
+        RETURN QUERY SELECT
+            organisation_id
+        FROM
+            organisation_users;
+    ELSE
+        RETURN QUERY SELECT
+            organisation_id
+        FROM
+            organisation_users
+        WHERE
+            user_id = current_app_user();
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON FUNCTION get_orgs_for_app_user IS 
-    'All the orgs a user has been invited to.';
+    'All the orgs a user has been invited to or all orgs for sys admin.';
 
 CREATE FUNCTION get_orgs_app_user_created() RETURNS setof integer AS 
 $$ 
@@ -44,13 +70,27 @@ COMMENT ON FUNCTION get_orgs_app_user_created IS
 
 CREATE FUNCTION get_users_for_app_user() RETURNS setof integer AS 
 $$ 
-    SELECT
-        user_id
-    FROM
-        organisation_users
-    WHERE
-        organisation_id IN (SELECT get_orgs_for_app_user())
-$$ LANGUAGE SQL SECURITY DEFINER;
+DECLARE
+    is_sys_admin BOOLEAN;
+BEGIN
+    is_sys_admin := is_app_user_sys_admin();
+
+    IF is_sys_admin THEN
+        RETURN QUERY SELECT
+            user_id
+        FROM
+            organisation_users;
+    ELSE
+        RETURN QUERY 
+            SELECT
+                user_id
+            FROM
+                organisation_users
+            WHERE
+                organisation_id IN (SELECT get_orgs_for_app_user());
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON FUNCTION get_users_for_app_user IS 
     'All the users from all the orgs this user has been invited to.';
 
@@ -65,3 +105,4 @@ DROP FUNCTION current_app_user;
 DROP FUNCTION get_orgs_for_app_user;
 DROP FUNCTION get_users_for_app_user;
 DROP FUNCTION get_orgs_app_user_created;
+DROP FUNCTION is_app_user_sys_admin;

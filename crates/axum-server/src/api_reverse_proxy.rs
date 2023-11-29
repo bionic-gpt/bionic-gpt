@@ -121,7 +121,7 @@ pub async fn handler(
             .enable_http1()
             .build();
 
-        // Give the client the option to use TLS is frequired
+        // Give the client the option to use TLS if required
         let client: client::Client<_, hyper::Body> = client::Client::builder().build(https);
 
         Ok(client.request(req).await?.into_response())

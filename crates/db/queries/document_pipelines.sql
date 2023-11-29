@@ -12,21 +12,16 @@ SELECT
 FROM
     document_pipelines a
 WHERE 
-    a.dataset_id IN (
-        SELECT id FROM datasets WHERE organisation_id IN(
-            SELECT organisation_id 
-            FROM organisation_users 
-            WHERE user_id = current_app_user()
-            AND organisation_id = :organisation_id
-        )
-    )
+    a.organisation_id = :organisation_id
+AND
+    a.user_id = current_app_user()
 ORDER BY created_at DESC;
 
 --! insert
 INSERT INTO document_pipelines 
-    (dataset_id, user_id, name, api_key)
+    (dataset_id, user_id, organisation_id, name, api_key)
 VALUES
-    (:dataset_id, :user_id, :name, :api_key);
+    (:dataset_id, :user_id, :organisation_id, :name, :api_key);
 
 --! find_api_key : DocumentPipeline
 SELECT

@@ -1,6 +1,7 @@
 pub mod common;
 
-use thirtyfour::prelude::*;
+use thirtyfour::{components::SelectElement, prelude::*};
+use tokio::time::{sleep, Duration};
 
 // let's set up the sequence of steps we want the browser to take
 #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
@@ -28,7 +29,9 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
 
     println!("Testing : register_user");
 
-    let _email = common::register_user(driver, config).await?;
+    let email = common::register_user(driver, config).await?;
+
+    audit_filter(driver, &email).await?;
 
     test_documents(driver).await?;
 
@@ -39,6 +42,44 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
     test_api_keys(driver).await?;
 
     test_pipelines(driver).await?;
+
+    Ok(())
+}
+
+async fn audit_filter(driver: &WebDriver, email: &str) -> WebDriverResult<()> {
+    let audit_link = driver.find(By::LinkText("Audit Trail")).await?;
+    audit_link.click().await?;
+
+    // Stop stale element error
+    sleep(Duration::from_millis(1000)).await;
+
+    let filter_button = driver.find(By::XPath("//button[text()='Filter']")).await?;
+    filter_button.click().await?;
+
+    driver
+        .find(By::Css("select:first-of-type"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    let user_selector = driver.find(By::Css("select:first-of-type")).await?;
+    let select = SelectElement::new(&user_selector).await?;
+    select.select_by_exact_text(email).await?;
+
+    driver
+        .find(By::XPath("//button[text()='Apply Filter']"))
+        .await?
+        .click()
+        .await?;
+
+    // Stop stale element error
+    sleep(Duration::from_millis(1000)).await;
+
+    // See it in the search results
+    let table_cell = driver.find(By::XPath("//tbody/tr[last()]/td[2]")).await?;
+
+    assert_eq!(table_cell.text().await?, email);
 
     Ok(())
 }
@@ -94,7 +135,7 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
 
 async fn test_api_keys(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Chat API Keys"))
+        .find(By::LinkText("LLM API Keys"))
         .await?
         .click()
         .await?;
@@ -272,6 +313,13 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .find(By::XPath("//span[text()='...']"))
         .await?
         .click()
+        .await?;
+
+    driver
+        .find(By::LinkText("Edit"))
+        .await?
+        .wait_until()
+        .displayed()
         .await?;
 
     driver.find(By::LinkText("Edit")).await?.click().await?;

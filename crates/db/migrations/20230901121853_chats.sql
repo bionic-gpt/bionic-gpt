@@ -49,6 +49,10 @@ GRANT USAGE, SELECT ON chats_id_seq, conversations_id_seq TO ft_application;
 GRANT SELECT ON chats, conversations TO ft_readonly;
 GRANT SELECT ON chats_id_seq, conversations_id_seq TO ft_readonly;
 
+
+-- Manage the updated_at column
+SELECT updated_at('chats');
+
 -- migrate:down
 
 DROP TABLE chats;
