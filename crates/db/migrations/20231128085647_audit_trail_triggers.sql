@@ -1,4 +1,8 @@
 -- migrate:up
+
+-- Make sure the postgres user doesn't have to worry about triggers
+ALTER ROLE postgres SET session_replication_role = 'replica';
+
 CREATE FUNCTION audit_by_user_and_org() 
    RETURNS TRIGGER 
    LANGUAGE PLPGSQL
@@ -115,4 +119,5 @@ DROP TRIGGER revoke_api_key ON api_keys RESTRICT;
 DROP TRIGGER create_pipeline_key ON document_pipelines RESTRICT;
 DROP TRIGGER revoke_pipeline_key ON document_pipelines RESTRICT;
 DROP FUNCTION audit_by_user_and_org;
+DROP FUNCTION audit_by_user;
 

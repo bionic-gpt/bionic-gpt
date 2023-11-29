@@ -27,7 +27,7 @@ pub fn FilterDrawer(
                 trigger_id: DRAW_TRIGGER,
                 DrawerBody {
                     div {
-                        class: "d-flex flex-column",
+                        class: "flex flex-col ",
 
                         Select {
                             label: "User",

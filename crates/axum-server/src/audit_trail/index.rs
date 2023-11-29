@@ -29,7 +29,6 @@ pub async fn index(
             &None,
             &None,
             &None,
-            &organisation_id,
             &(super::PAGE_SIZE + 1),
         )
         .all()
