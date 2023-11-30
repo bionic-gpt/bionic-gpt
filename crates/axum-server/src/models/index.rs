@@ -2,7 +2,7 @@ use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
-use db::queries::models;
+use db::queries::{audit_trail, models};
 use db::{ModelType, Pool};
 
 pub async fn index(
@@ -26,10 +26,13 @@ pub async fn index(
             .await?,
     );
 
+    let top_users = audit_trail::top_users().bind(&transaction).all().await?;
+
     Ok(Html(ui_pages::models::index(
         ui_pages::models::index::PageProps {
             organisation_id,
             models,
+            top_users,
         },
     )))
 }
