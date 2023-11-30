@@ -259,6 +259,10 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
 }
 
 async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
+    sleep(Duration::from_millis(3000)).await;
+
+    driver.refresh().await?;
+
     driver
         .find(By::LinkText("Prompts"))
         .await?
@@ -267,8 +271,6 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver.find(By::LinkText("Prompts")).await?.click().await?;
-
-    sleep(Duration::from_millis(3000)).await;
 
     driver
         .find(By::XPath("//button[text()='New Prompt']"))
