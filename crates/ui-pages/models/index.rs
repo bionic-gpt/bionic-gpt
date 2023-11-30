@@ -3,11 +3,16 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::queries::models::Model;
-use db::ModelType;
+use db::{ModelType, TopUser};
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(cx: Scope<Props>, organisation_id: i32, models: Vec<Model>) -> Element {
+pub fn Page(
+    cx: Scope<Props>,
+    organisation_id: i32,
+    models: Vec<Model>,
+    top_users: Vec<TopUser>,
+) -> Element {
     cx.render(rsx! {
         Layout {
             section_class: "normal",
@@ -24,69 +29,12 @@ pub fn Page(cx: Scope<Props>, organisation_id: i32, models: Vec<Model>) -> Eleme
                 }
             )),
 
-            Box {
-                class: "has-data-table",
-                BoxHeader {
-                    title: "Models"
-                }
-                BoxBody {
-                    table {
-                        class: "table table-sm",
-                        thead {
-                            th { "Name" }
-                            th { "Base URL" }
-                            th { "Model Type" }
-                            th { "Parameters" }
-                            th { "Context Length" }
-                            th {
-                                class: "text-right",
-                                "Action"
-                            }
-                        }
-                        tbody {
+            super::model_table::ModelTable {
+                models: &models
+            }
 
-                            models.iter().map(|model| {
-                                cx.render(rsx!(
-                                    tr {
-                                        td {
-                                            strong {
-                                                "{model.name}"
-                                            }
-                                        }
-                                        td {
-                                            code {
-                                                "{model.base_url}"
-                                            }
-                                        }
-                                        td {
-                                            super::model_type::Model {
-                                                model_type: model.model_type
-                                            }
-                                        }
-                                        td {
-                                            "{model.billion_parameters} Billion"
-                                        }
-                                        td {
-                                            "{model.context_size}"
-                                        }
-                                        td {
-                                            class: "text-right",
-                                            DropDown {
-                                                direction: Direction::Left,
-                                                button_text: "...",
-                                                DropDownLink {
-                                                    href: "#",
-                                                    drawer_trigger: format!("edit-model-form-{}", model.id),
-                                                    "Edit"
-                                                }
-                                            }
-                                        }
-                                    }
-                                ))
-                            })
-                        }
-                    }
-                }
+            super::top_users_table::TopUserTable {
+                top_users: &top_users
             }
 
             // The form to create a model
