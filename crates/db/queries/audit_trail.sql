@@ -20,7 +20,8 @@ LIMIT :limit;
 --! top_users : TopUser()
 SELECT
     COALESCE((SELECT email from users u WHERE u.id = at.user_id), '') as email, 
-    SUM(attg.tokens_sent) AS total_tokens_sent
+    SUM(attg.tokens_sent) AS total_tokens_sent,
+    (SELECT name FROM models m WHERE m.id IN (SELECT model_id FROM prompts p WHERE p.id IN (SELECT prompt_id FROM chats c WHERE c.id = attg.chat_id))) as model_name
 FROM 
     audit_trail AS at
 JOIN 
@@ -28,7 +29,7 @@ JOIN
 WHERE 
     at.created_at >= NOW() - INTERVAL '24 HOURS'  -- Filter for the last 24 hours
 GROUP BY 
-    at.user_id
+    at.user_id, attg.chat_id
 ORDER BY 
     total_tokens_sent DESC
 LIMIT 10;

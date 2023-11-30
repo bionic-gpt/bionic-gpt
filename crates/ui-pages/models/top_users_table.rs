@@ -9,13 +9,15 @@ pub fn TopUserTable<'a>(cx: Scope, top_users: &'a Vec<TopUser>) -> Element {
         Box {
             class: "has-data-table mt-4",
             BoxHeader {
-                title: "Top User by Character Sent"
+                title: "Top 10 Users in the last 24 hours (by Characters Sent)"
             }
             BoxBody {
                 table {
                     class: "table table-sm",
                     thead {
                         th { "Email" }
+                        th { "Model Name" }
+                        th { "Access Type" }
                         th {
                             class: "text-right",
                             "Characters Sent" }
@@ -28,6 +30,16 @@ pub fn TopUserTable<'a>(cx: Scope, top_users: &'a Vec<TopUser>) -> Element {
                                     td {
                                         strong {
                                             "{user.email}"
+                                        }
+                                    }
+                                    td {
+                                        "{user.model_name}"
+                                    }
+                                    td {
+                                        Label {
+                                            class: "mr-2",
+                                            label_role: LabelRole::Neutral,
+                                            "User Interface"
                                         }
                                     }
                                     td {
