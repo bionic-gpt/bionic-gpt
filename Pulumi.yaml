@@ -9,7 +9,7 @@ variables:
         app: app
     authLabels:
         app: auth
-    version: 1.4.0
+    version: 1.4.1
     hash-bionicgpt: sha256:3f02863f33079eac580918bea10f09c6948cea91c5ab62d25aa01b21cdc8b54f
     hash-bionicgpt-envoy: sha256:9a011653aa923683847c95cead4052f7d469f6c9eff10e722c7d100f777f3907
     hash-bionicgpt-pipeline-job: sha256:9a011653aa923683847c95cead4052f7d469f6c9eff10e722c7d100f777f3907
