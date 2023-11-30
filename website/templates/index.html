@@ -24,8 +24,8 @@
 <div class="flex flex-col items-center">
 
   {{ macros_hero::image_hero(
-    title='An End 2 End Open Source, On Premise Generative AI Solution.', 
-    sub_title='Get the productivity benefits of Chat GPT without worrying about
+    title="Run Generative AI On Premise and Boost Enterprise Productivity", 
+    sub_title='Our open source solution gives you the benefits of Chat GPT without worrying about
     data leakage. Run AI on your private data securely with our integrated R.A.G features.',
       cta2='Read the Documentation',
       cta2_url='/docs',
@@ -37,20 +37,42 @@
 
   {{ macros_features::image_feature(
     title='Accelerate Generative AI Adoption', 
-    sub_title='Enterprise Grade User Interface',
-    text='A multi user, multi team web UI designed for ease of use and ease of deployment.',
-    title1='Prompt Engineering.',
-    text1='The prompt is where it all starts. With BionicGPT you can have multiple prompts per team and per user.',
-    title2='Retreival Augmented Generation.',
-    text2="We've implemented a complete RAG pipeline with sensible defaults. Chunking, 
-      Embeddings, Vector Database, all taken care of.",
-    title3="API's.",
-    text3='Once you are happy with your prompt and RAG setup deploy it as an API for other 
-      applications to use. i.e. Chat bot.',
+    sub_title='Text and Code Generation',
+    text='The low hanging fruit of Gen AI. With just these 2 features you unlock proven productivity gains.',
+    title1='Text Generation.',
+    text1='Generative AI excels in creative writing and automated content creation. LLMs can produce human-like text for various purposes, from generating news articles to crafting marketing copy.',
+    title2='Code Generation.',
+    text2="LLM's are trained on a vast corpus of code data from different programming languages, and therefore they're familiar with a wide array of coding styles, idioms, and best practices.",
+    title3="Chat Console",
+    text3='Our console gives your enterprise a Chat GPT user experience but with the safety of being on premise and therefore no data leakage.',
     image='/github-readme.png'
   ) }}
 
 
+  {{ macros_features::small_image_feature(
+    title="LLM's are scarce resources you need the protection of who is doing what and when", 
+    sub_title="Give your Data Scientists and Engineers an API for Innovation",
+    text='Our API gateway allows you to share LLM resources with the safety of a secure audit trail.',
+    image='/landing-page/jupyter-notebook.jpeg'
+  ) }}
+
+
+
+  {{ macros_features::image_feature(
+    title='A Team Based Approach', 
+    sub_title='No Code Retrieval Augmented Generation',
+    text='Teams manage their own datasets for use in R.A.G and fine tuning.',
+    title1='Segmented Data.',
+    text1="Teams manage their own data and can decide how best to share it. 
+      Data is segregated at the database level.",
+    title2='Self Manage Teams.',
+    text2='There are no restrictions on the number of teams and teams are self managed.
+      Team administrators can add new users.',
+    title3="Role Based Access Control",
+    text3='Teams can manage the roles a user has from contributer to administrator. A central
+      system administrator role can manage the whole system.',
+    image='landing-page/teams.png'
+  ) }}
 
   {{ macros_features::quad_feature(
     title='Deploy one of our models or integrate with any provider', 
@@ -71,34 +93,18 @@
   ) }}
 
 
-  {{ macros_features::image_feature(
-    title='A Team Based Approach', 
-    sub_title='Crowd Sourced Retrieval Augmented Generation',
-    text='Teams manage their own datasets for use in R.A.G and fine tuning.',
-    title1='Segmented Data.',
-    text1="Teams manage their own data and can decide how best to share it. 
-      Data is segregated at the database level.",
-    title2='Self Manage Teams.',
-    text2='There are no restrictions on the number of teams and teams are self managed.
-      Team administrators can add new users.',
-    title3="Role Based Access Control",
-    text3='Teams can manage the roles a user has from contributer to administrator. A central
-      system administrator role can manage the whole system.',
-    image='landing-page/teams.png'
-  ) }}
-
 
   {{ macros_features::small_image_feature(
     title='Support for PDF, Excel, Word, TXT, and more including OCR', 
     sub_title='Integration with over 300 Data Sources',
-    text='Our Data Pipeline API allows you to automate document uplaods.',
+    text='Our Data Pipeline API allows you to automate document uploads.',
     image='/landing-page/airbyte.png'
   ) }}
 
 
   {{ macros_features::image_feature(
-    title='Open Source & Enterprise Ready', 
-    sub_title='Enterprise Grade Security',
+    title='Enterprise Grade Security', 
+    sub_title='Open Source and Enterprise Ready',
     text='Transport encryption, authentication, authorization, data segragation and more...',
     title1='SSO and Siem',
     text1='Our modular architecture allows us to adapt to your authentication and security needs.',
@@ -112,8 +118,8 @@
 
 
   {{ macros_features::small_image_feature(
-    title='Scalability and fault tolerence',
-    text='BionicGPT deploys easily to Kubernetes and includes the infrastructure as code to make that easy.',
+    title="The easiest enterprise deployment you've ever seen",
+    text='BionicGPT can deploy to a Laptop for testing and scales seemlessly to Kubernetes for production.',
     image='landing-page/Kubernetes_logo.svg'
   ) }}
 
