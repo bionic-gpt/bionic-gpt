@@ -9,7 +9,7 @@ use rustls::ServerName;
 pub use tokio_postgres::Error as TokioPostgresError;
 
 pub use queries::api_keys::ApiKey;
-pub use queries::audit_trail::AuditTrail;
+pub use queries::audit_trail::{AuditTrail, TopUser};
 pub use queries::chats::Chat;
 pub use queries::conversations::Conversation;
 pub use queries::datasets::Dataset;

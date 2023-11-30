@@ -33,12 +33,12 @@
 <!-- ROADMAP -->
 ## Roadmap
 
-- [x] Chat Console
+- [x] Text Generation
     - [x] Connect to Open AI compatible API's i.e. LocalAI
     - [x] Select different prompts
-    - [ ] Multi Modal (Show images and text)
     - [x] Syntax highlighting for code
-    - [ ] Mixture of Experts?
+- [ ] Image Generation
+    - [ ] Connect to stable diffusion
 - [x] Authentication
     - [x] Email/Password sign in and registration
     - [ ] SSO
@@ -77,9 +77,10 @@
     - [ ] Revoke keys
 - [ ] Fine Tuning
     - [ ] QLORA adapters
-- [ ] System Admin
-    - [ ] Hardware Status
-    - [ ] Audit Trail
+- [x] System Admin
+    - [x] Usage Statistics
+    - [x] Audit Trail
+    - [ ] Set API limits
 - [x] Deployment
     - [x] Docker compose so people can test quickly.
     - [x] Kubernetes deployment strategy.
