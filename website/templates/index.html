@@ -74,6 +74,14 @@
     image='landing-page/teams.png'
   ) }}
 
+
+  {{ macros_features::small_image_feature(
+    title="LLM's models are resource intensive you controls to help find issues.", 
+    sub_title='Full Audit Trail',
+    text='We audit all accesses to your models to help identify issues with performance and rogue processes.',
+    image='/landing-page/audit-trail.png'
+  ) }}
+
   {{ macros_features::quad_feature(
     title='Deploy one of our models or integrate with any provider', 
     sub_title='Private Cloud or Your Data Center',
@@ -119,8 +127,9 @@
 
   {{ macros_features::small_image_feature(
     title="The easiest enterprise deployment you've ever seen",
-    text='BionicGPT can deploy to a Laptop for testing and scales seemlessly to Kubernetes for production.',
-    image='landing-page/Kubernetes_logo.svg'
+    sub_title='Try it out on a Laptop and then scale to the data center.',
+    text='BionicGPT can deploy to a Laptop for testing (docker-compose) and scales seemlessly to Kubernetes for production.',
+    image='landing-page/kubernetes.png'
   ) }}
 
 </div>
