@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn Form(
     cx: Scope,
-    organisation_id: i32,
+    team_id: i32,
     name: String,
     base_url: String,
     model_type: String,
@@ -18,7 +18,7 @@ pub fn Form(
     cx.render(rsx!(
         form {
             class: "form-control",
-            action: "{crate::routes::models::new_route(*organisation_id)}",
+            action: "{crate::routes::models::new_route(*team_id)}",
             method: "post",
             Drawer {
                 label: "Add a Model",

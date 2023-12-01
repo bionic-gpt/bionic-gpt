@@ -7,14 +7,14 @@ use dioxus::prelude::*;
 pub fn New(
     cx: Scope,
     models: Vec<models::Model>,
-    organisation_id: i32,
+    team_id: i32,
     combine_under_n_chars: i32,
     new_after_n_chars: i32,
     _multipage_sections: bool,
 ) -> Element {
     cx.render(rsx!(
         form {
-            action: "{crate::routes::datasets::new_route(*organisation_id)}",
+            action: "{crate::routes::datasets::new_route(*team_id)}",
             method: "post",
             Drawer {
                 label: "Create a new Dataset",

@@ -7,17 +7,12 @@ use db::queries::{datasets::Dataset, models::Model};
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(
-    cx: Scope,
-    organisation_id: i32,
-    datasets: Vec<Dataset>,
-    models: Vec<Model>,
-) -> Element {
+pub fn Page(cx: Scope, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -> Element {
     cx.render(rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Datasets,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "Datasets",
             header: cx.render(rsx!(
                 h3 { "Datasets" }
@@ -39,7 +34,7 @@ pub fn Page(
 
                     super::new::New {
                         models: models.clone(),
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                         combine_under_n_chars: 500,
                         new_after_n_chars: 1000,
                         _multipage_sections: true,
@@ -72,7 +67,7 @@ pub fn Page(
                                             tr {
                                                 td {
                                                     a {
-                                                        href: "{crate::routes::documents::index_route(*organisation_id, dataset.id)}",
+                                                        href: "{crate::routes::documents::index_route(*team_id, dataset.id)}",
                                                         "{dataset.name}" 
                                                     }
                                                 }
@@ -94,7 +89,7 @@ pub fn Page(
                                                         direction: Direction::Left,
                                                         button_text: "...",
                                                         DropDownLink {
-                                                            href: "{crate::routes::documents::index_route(*organisation_id, dataset.id)}",
+                                                            href: "{crate::routes::documents::index_route(*team_id, dataset.id)}",
                                                             target: "_top",
                                                             "View"
                                                         }
@@ -110,7 +105,7 @@ pub fn Page(
 
                     super::new::New {
                         models: models.clone(),
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                         combine_under_n_chars: 500,
                         new_after_n_chars: 1000,
                         _multipage_sections: true,

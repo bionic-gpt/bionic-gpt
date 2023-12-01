@@ -27,8 +27,8 @@ WHERE
     dataset_id = :dataset_id
 AND
     dataset_id 
-    IN (SELECT id FROM datasets WHERE organisation_id
-        IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
+    IN (SELECT id FROM datasets WHERE team_id
+        IN (SELECT team_id FROM team_users WHERE user_id = current_app_user())
     )
 ORDER BY updated_at;
 
@@ -51,8 +51,8 @@ WHERE
 AND
     d.id 
     IN (SELECT id FROM documents WHERE dataset_id
-        IN (SELECT id FROM datasets WHERE organisation_id
-            IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
+        IN (SELECT id FROM datasets WHERE team_id
+            IN (SELECT team_id FROM team_users WHERE user_id = current_app_user())
         )
     );
 
@@ -74,7 +74,7 @@ WHERE
 AND
     id
     IN (SELECT id FROM documents WHERE dataset_id
-        IN (SELECT id FROM datasets WHERE organisation_id
-            IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
+        IN (SELECT id FROM datasets WHERE team_id
+            IN (SELECT team_id FROM team_users WHERE user_id = current_app_user())
         )
     );

@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 
 #[derive(Default, Copy, Clone, Debug, PartialEq, Eq)]
 pub enum AvatarType {
-    Organisation,
+    Team,
     #[default]
     User,
 }

@@ -7,7 +7,7 @@ use db::Pool;
 
 pub async fn index(
     current_user: Authentication,
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
@@ -15,29 +15,26 @@ pub async fn index(
 
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let teams = queries::organisations::get_teams()
+    let teams = queries::teams::get_teams()
         .bind(&transaction, &current_user.user_id)
         .all()
         .await?;
 
-    let organisation = queries::organisations::organisation()
-        .bind(&transaction, &organisation_id)
+    let team = queries::teams::team()
+        .bind(&transaction, &team_id)
         .one()
         .await?;
 
     let teams: Vec<(String, String)> = teams
         .iter()
         .filter_map(|team| {
-            team.organisation_name
+            team.team_name
                 .clone()
                 .map(|name| (name, ui_pages::routes::team::index_route(team.id)))
         })
         .collect();
 
     Ok(Html(ui_pages::team_members::team_popup::team_popup(
-        ui_pages::team_members::team_popup::PageProps {
-            teams,
-            organisation,
-        },
+        ui_pages::team_members::team_popup::PageProps { teams, team },
     )))
 }

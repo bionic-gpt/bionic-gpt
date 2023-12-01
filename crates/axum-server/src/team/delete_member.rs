@@ -11,7 +11,7 @@ use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct DeleteMember {
-    pub organisation_id: i32,
+    pub team_id: i32,
     pub user_id: i32,
 }
 
@@ -25,12 +25,8 @@ pub async fn delete(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    queries::organisations::remove_user()
-        .bind(
-            &transaction,
-            &delete_member.user_id,
-            &delete_member.organisation_id,
-        )
+    queries::teams::remove_user()
+        .bind(&transaction, &delete_member.user_id, &delete_member.team_id)
         .await?;
 
     transaction.commit().await?;

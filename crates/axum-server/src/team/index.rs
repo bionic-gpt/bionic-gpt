@@ -9,7 +9,7 @@ use db::types;
 use db::Pool;
 
 pub async fn index(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     Extension(pool): Extension<Pool>,
     current_user: Authentication,
 ) -> Result<Html<String>, CustomError> {
@@ -18,18 +18,18 @@ pub async fn index(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let organisation = queries::organisations::organisation()
-        .bind(&transaction, &organisation_id)
+    let team = queries::teams::team()
+        .bind(&transaction, &team_id)
         .one()
         .await?;
 
-    let members = queries::organisations::get_users()
-        .bind(&transaction, &organisation_id)
+    let members = queries::teams::get_users()
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
     let permissions: Vec<types::public::Permission> = queries::rbac::permissions()
-        .bind(&transaction, &current_user.user_id, &organisation_id)
+        .bind(&transaction, &current_user.user_id, &team_id)
         .all()
         .await?;
 
@@ -43,11 +43,11 @@ pub async fn index(
         .await?;
 
     let invites = queries::invitations::get_all()
-        .bind(&transaction, &organisation_id)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
-    let team_name = if let Some(team) = &organisation.name {
+    let team_name = if let Some(team) = &team.name {
         format!("Team : {}", team)
     } else {
         "Team : No Name ".to_string()
@@ -57,7 +57,7 @@ pub async fn index(
         ui_pages::team_members::members::PageProps {
             invites,
             members,
-            organisation,
+            team,
             user,
             team_name,
             can_manage_team,

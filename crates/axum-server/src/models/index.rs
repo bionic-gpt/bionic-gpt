@@ -6,7 +6,7 @@ use db::queries::{audit_trail, models};
 use db::{ModelType, Pool};
 
 pub async fn index(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -30,7 +30,7 @@ pub async fn index(
 
     Ok(Html(ui_pages::models::index(
         ui_pages::models::index::PageProps {
-            organisation_id,
+            team_id,
             models,
             top_users,
         },

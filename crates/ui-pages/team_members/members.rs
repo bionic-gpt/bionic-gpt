@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
-use db::{Invitation, Member, Organisation, User};
+use db::{Invitation, Member, Team, User};
 use dioxus::prelude::*;
 
 #[inline_props]
@@ -10,7 +10,7 @@ pub fn Page(
     cx: Scope,
     members: Vec<Member>,
     invites: Vec<Invitation>,
-    organisation: Organisation,
+    team: Team,
     user: User,
     can_manage_team: bool,
     team_name: String,
@@ -19,7 +19,7 @@ pub fn Page(
         Layout {
             section_class: "normal",
             selected_item: SideBar::Team,
-            team_id: organisation.id,
+            team_id: team.id,
             title: "Team Members",
             header: cx.render(rsx!(
                 h3 { "Team Members" }
@@ -33,7 +33,7 @@ pub fn Page(
 
             // If the user hasn't set their org name or their own name
             // get them to do it.
-            if *can_manage_team && (user.first_name.is_none() || organisation.name.is_none()) {
+            if *can_manage_team && (user.first_name.is_none() || team.name.is_none()) {
 
                 cx.render(rsx! {
                     Box {
@@ -42,7 +42,7 @@ pub fn Page(
                             title: "Before you are able to invite people to your team you will need to do the following"
                         }
                         BoxBody {
-                            if organisation.name.is_none() {
+                            if team.name.is_none() {
                                 cx.render(rsx! {
                                     p {
                                         "Please set your "
@@ -61,7 +61,7 @@ pub fn Page(
                                     p {
                                         "Please set your "
                                         a {
-                                            href: "{crate::routes::profile::index_route(organisation.id)}",
+                                            href: "{crate::routes::profile::index_route(team.id)}",
                                             "name"
                                         }
                                     }
@@ -157,7 +157,7 @@ pub fn Page(
                                                     button_text: "...",
                                                     DropDownLink {
                                                         drawer_trigger: format!("remove-member-trigger-{}-{}", 
-                                                            member.id, member.organisation_id),
+                                                            member.id, member.team_id),
                                                         href: "#",
                                                         target: "_top",
                                                         "Remove User From Team"
@@ -225,23 +225,23 @@ pub fn Page(
             members.iter().map(|member| rsx!(
                 cx.render(rsx!(
                     super::remove_member::RemoveMemberDrawer {
-                        organisation_id: member.organisation_id,
+                        team_id: member.team_id,
                         user_id: member.id,
                         email: member.email.clone(),
-                        trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.organisation_id)
-                        //organisation_id: &organisation.id
+                        trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.team_id)
+                        //team_id: &team.id
                     }
                 ))
             ))
 
             // The form to create an invitation
             super::invitation_form::InvitationForm {
-                submit_action: crate::routes::team::create_route(organisation.id)
+                submit_action: crate::routes::team::create_route(team.id)
             }
 
             // Form to set he org name
             super::team_name_form::TeamNameForm {
-                submit_action: crate::routes::team::set_name_route(organisation.id)
+                submit_action: crate::routes::team::set_name_route(team.id)
             }
         }
     })

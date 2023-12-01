@@ -7,13 +7,13 @@ use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 pub async fn execute_prompt(
     transaction: &Transaction<'_>,
     prompt_id: i32,
-    organisation_id: i32,
+    team_id: i32,
     conversation_id: Option<i64>,
     chat: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     // Get the prompt
     let prompt = prompts::prompt()
-        .bind(transaction, &prompt_id, &organisation_id)
+        .bind(transaction, &prompt_id, &team_id)
         .one()
         .await?;
 
@@ -30,7 +30,7 @@ pub async fn execute_prompt(
         &question,
         prompt.dataset_connection,
         prompt_id,
-        organisation_id,
+        team_id,
         prompt.max_chunks,
     )
     .await?;
@@ -177,7 +177,7 @@ async fn get_related_context(
     message: &str,
     dataset_connection: DatasetConnection,
     prompt_id: i32,
-    organisation_id: i32,
+    team_id: i32,
     limit: i32,
 ) -> Result<Vec<String>, CustomError> {
     if dataset_connection == DatasetConnection::None {
@@ -215,10 +215,10 @@ async fn get_related_context(
                     WHERE
                         document_id IN (
                             SELECT id FROM documents WHERE dataset_id IN (
-                                SELECT id FROM datasets WHERE organisation_id IN (
-                                    SELECT organisation_id FROM organisation_users 
+                                SELECT id FROM datasets WHERE team_id IN (
+                                    SELECT team_id FROM team_users 
                                     WHERE user_id = current_app_user()
-                                    AND organisation_id = $1
+                                    AND team_id = $1
                                 )
                             )
                         )
@@ -226,7 +226,7 @@ async fn get_related_context(
                         embeddings <-> $2 
                     LIMIT $3;
                     ",
-                    &[&organisation_id, &embedding_data, &(limit as i64)],
+                    &[&team_id, &embedding_data, &(limit as i64)],
                 )
                 .await
                 .map_err(|e| {
@@ -253,10 +253,10 @@ async fn get_related_context(
                     WHERE
                         document_id IN (
                             SELECT id FROM documents WHERE dataset_id IN (
-                                SELECT id FROM datasets WHERE organisation_id IN (
-                                    SELECT organisation_id FROM organisation_users 
+                                SELECT id FROM datasets WHERE team_id IN (
+                                    SELECT team_id FROM team_users 
                                     WHERE user_id = current_app_user()
-                                    AND organisation_id = $1
+                                    AND team_id = $1
                                 )
                                 AND dataset_id = ANY($2)
                             )
@@ -265,12 +265,7 @@ async fn get_related_context(
                         embeddings <-> $3 
                     LIMIT $4;
                     ",
-                    &[
-                        &organisation_id,
-                        &datasets,
-                        &embedding_data,
-                        &(limit as i64),
-                    ],
+                    &[&team_id, &datasets, &embedding_data, &(limit as i64)],
                 )
                 .await
                 .map_err(|e| {

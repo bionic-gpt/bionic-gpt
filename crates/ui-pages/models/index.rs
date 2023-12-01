@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn Page(
     cx: Scope<Props>,
-    organisation_id: i32,
+    team_id: i32,
     models: Vec<Model>,
     top_users: Vec<TopUser>,
 ) -> Element {
@@ -17,7 +17,7 @@ pub fn Page(
         Layout {
             section_class: "normal",
             selected_item: SideBar::Models,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "Models",
             header: cx.render(rsx!(
                 h3 { "Models" }
@@ -39,7 +39,7 @@ pub fn Page(
 
             // The form to create a model
             super::form::Form {
-                organisation_id: *organisation_id,
+                team_id: *team_id,
                 trigger_id: "new-model-form".to_string(),
                 name: "".to_string(),
                 model_type: "LLM".to_string(),
@@ -60,7 +60,7 @@ pub fn Page(
                 cx.render(rsx!(
                     super::form::Form {
                         id: model.id,
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                         trigger_id: format!("edit-model-form-{}", model.id),
                         name: model.name.clone(),
                         model_type: model_type.to_string(),

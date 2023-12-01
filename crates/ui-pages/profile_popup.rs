@@ -53,7 +53,7 @@ fn Page(cx: Scope, user_name_or_email: String, profile_url: String) -> Element {
     })
 }
 
-pub fn profile_popup(user: User, organisation_id: i32) -> String {
+pub fn profile_popup(user: User, team_id: i32) -> String {
     let name = if user.first_name.is_some() && user.last_name.is_some() {
         format!("{} {}", user.first_name.unwrap(), user.last_name.unwrap())
     } else {
@@ -64,7 +64,7 @@ pub fn profile_popup(user: User, organisation_id: i32) -> String {
         Page,
         PageProps {
             user_name_or_email: name,
-            profile_url: crate::routes::profile::index_route(organisation_id),
+            profile_url: crate::routes::profile::index_route(team_id),
         },
     ))
 }

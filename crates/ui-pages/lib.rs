@@ -27,129 +27,123 @@ pub fn render(mut virtual_dom: VirtualDom) -> String {
 pub mod routes {
 
     pub mod audit_trail {
-        pub static INDEX: &str = "/app/team/:organisation_id/audit_trail";
+        pub static INDEX: &str = "/app/team/:team_id/audit_trail";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/audit_trail", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/audit_trail", team_id)
         }
     }
 
     pub mod document_pipelines {
-        pub static INDEX: &str = "/app/team/:organisation_id/pipelines";
-        pub static NEW: &str = "/app/team/:organisation_id/pipelines/new";
+        pub static INDEX: &str = "/app/team/:team_id/pipelines";
+        pub static NEW: &str = "/app/team/:team_id/pipelines/new";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/pipelines", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/pipelines", team_id)
         }
 
-        pub fn new_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/pipelines/new", organisation_id)
+        pub fn new_route(team_id: i32) -> String {
+            format!("/app/team/{}/pipelines/new", team_id)
         }
     }
 
     pub mod console {
-        pub static INDEX: &str = "/app/team/:organisation_id/console";
-        pub static CONVERSATION: &str = "/app/team/:organisation_id/console/:conversation_id";
-        pub static SEND_MESSAGE: &str = "/app/team/:organisation_id/send_message";
-        pub static UPDATE_RESPONSE: &str = "/app/team/:organisation_id/update_response";
-        pub static NEW_CHAT: &str = "/app/team/:organisation_id/new_chat";
+        pub static INDEX: &str = "/app/team/:team_id/console";
+        pub static CONVERSATION: &str = "/app/team/:team_id/console/:conversation_id";
+        pub static SEND_MESSAGE: &str = "/app/team/:team_id/send_message";
+        pub static UPDATE_RESPONSE: &str = "/app/team/:team_id/update_response";
+        pub static NEW_CHAT: &str = "/app/team/:team_id/new_chat";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/console", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/console", team_id)
         }
 
-        pub fn conversation_route(organisation_id: i32, conversation_id: i64) -> String {
-            format!("/app/team/{}/console/{}", organisation_id, conversation_id)
+        pub fn conversation_route(team_id: i32, conversation_id: i64) -> String {
+            format!("/app/team/{}/console/{}", team_id, conversation_id)
         }
 
-        pub fn send_message_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/send_message", organisation_id)
+        pub fn send_message_route(team_id: i32) -> String {
+            format!("/app/team/{}/send_message", team_id)
         }
 
-        pub fn update_response_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/update_response", organisation_id)
+        pub fn update_response_route(team_id: i32) -> String {
+            format!("/app/team/{}/update_response", team_id)
         }
 
-        pub fn new_chat_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/new_chat", organisation_id)
+        pub fn new_chat_route(team_id: i32) -> String {
+            format!("/app/team/{}/new_chat", team_id)
         }
     }
 
     pub mod training {
-        pub static INDEX: &str = "/app/team/:organisation_id/training";
+        pub static INDEX: &str = "/app/team/:team_id/training";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/training", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/training", team_id)
         }
     }
 
     pub mod prompts {
-        pub static INDEX: &str = "/app/team/:organisation_id/prompts";
-        pub static NEW: &str = "/app/team/:organisation_id/prompts/new";
-        pub static EDIT: &str = "/app/team/:organisation_id/prompts/:prompt_id/edit";
+        pub static INDEX: &str = "/app/team/:team_id/prompts";
+        pub static NEW: &str = "/app/team/:team_id/prompts/new";
+        pub static EDIT: &str = "/app/team/:team_id/prompts/:prompt_id/edit";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/prompts", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/prompts", team_id)
         }
 
-        pub fn new_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/prompts/new", organisation_id)
+        pub fn new_route(team_id: i32) -> String {
+            format!("/app/team/{}/prompts/new", team_id)
         }
 
-        pub fn edit_route(organisation_id: i32, prompt_id: i32) -> String {
-            format!("/app/team/{}/prompts/{}/edit", organisation_id, prompt_id)
+        pub fn edit_route(team_id: i32, prompt_id: i32) -> String {
+            format!("/app/team/{}/prompts/{}/edit", team_id, prompt_id)
         }
     }
 
     pub mod models {
-        pub static INDEX: &str = "/app/team/:organisation_id/models";
-        pub static NEW: &str = "/app/team/:organisation_id/models/new";
+        pub static INDEX: &str = "/app/team/:team_id/models";
+        pub static NEW: &str = "/app/team/:team_id/models/new";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/models", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/models", team_id)
         }
 
-        pub fn new_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/models/new", organisation_id)
+        pub fn new_route(team_id: i32) -> String {
+            format!("/app/team/{}/models/new", team_id)
         }
     }
 
     pub mod datasets {
-        pub static INDEX: &str = "/app/team/:organisation_id/datasets";
-        pub static NEW: &str = "/app/team/:organisation_id/datasets/new";
+        pub static INDEX: &str = "/app/team/:team_id/datasets";
+        pub static NEW: &str = "/app/team/:team_id/datasets/new";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/datasets", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/datasets", team_id)
         }
 
-        pub fn new_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/datasets/new", organisation_id)
+        pub fn new_route(team_id: i32) -> String {
+            format!("/app/team/{}/datasets/new", team_id)
         }
     }
 
     pub mod documents {
-        pub static INDEX: &str = "/app/team/:organisation_id/dataset/:dataset_id/documents";
-        pub static BULK: &str = "/app/team/:organisation_id/bulk_import";
-        pub static UPLOAD: &str = "/app/team/:organisation_id/dataset/:dataset_id/doc_upload";
-        pub static DELETE: &str = "/app/team/:organisation_id/delete_doc/:document_id";
+        pub static INDEX: &str = "/app/team/:team_id/dataset/:dataset_id/documents";
+        pub static BULK: &str = "/app/team/:team_id/bulk_import";
+        pub static UPLOAD: &str = "/app/team/:team_id/dataset/:dataset_id/doc_upload";
+        pub static DELETE: &str = "/app/team/:team_id/delete_doc/:document_id";
         pub static STATUS: &str = "/app/team/doc_status/:document_id";
 
-        pub fn index_route(organisation_id: i32, dataset_id: i32) -> String {
-            format!(
-                "/app/team/{}/dataset/{}/documents",
-                organisation_id, dataset_id
-            )
+        pub fn index_route(team_id: i32, dataset_id: i32) -> String {
+            format!("/app/team/{}/dataset/{}/documents", team_id, dataset_id)
         }
 
-        pub fn upload_route(organisation_id: i32, dataset_id: i32) -> String {
-            format!(
-                "/app/team/{}/dataset/{}/doc_upload",
-                organisation_id, dataset_id
-            )
+        pub fn upload_route(team_id: i32, dataset_id: i32) -> String {
+            format!("/app/team/{}/dataset/{}/doc_upload", team_id, dataset_id)
         }
 
-        pub fn delete_route(organisation_id: i32, document_id: i32) -> String {
-            format!("/app/team/{}/delete_doc/{}", organisation_id, document_id)
+        pub fn delete_route(team_id: i32, document_id: i32) -> String {
+            format!("/app/team/{}/delete_doc/{}", team_id, document_id)
         }
 
         pub fn status_route(document_id: i32) -> String {
@@ -158,60 +152,60 @@ pub mod routes {
     }
 
     pub mod api_keys {
-        pub static INDEX: &str = "/app/team/:organisation_id/api_keys";
-        pub static NEW: &str = "/app/team/:organisation_id/api_keys/new";
+        pub static INDEX: &str = "/app/team/:team_id/api_keys";
+        pub static NEW: &str = "/app/team/:team_id/api_keys/new";
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/api_keys", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/api_keys", team_id)
         }
 
-        pub fn new_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/api_keys/new", organisation_id)
+        pub fn new_route(team_id: i32) -> String {
+            format!("/app/team/{}/api_keys/new", team_id)
         }
     }
 
     pub mod team {
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}", team_id)
         }
 
-        pub fn switch_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/switch", organisation_id)
+        pub fn switch_route(team_id: i32) -> String {
+            format!("/app/team/{}/switch", team_id)
         }
 
-        pub fn teams_popup_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/teams_popup", organisation_id)
+        pub fn teams_popup_route(team_id: i32) -> String {
+            format!("/app/team/{}/teams_popup", team_id)
         }
 
-        pub fn create_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/create_invite", organisation_id)
+        pub fn create_route(team_id: i32) -> String {
+            format!("/app/team/{}/create_invite", team_id)
         }
 
-        pub fn delete_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/delete", organisation_id)
+        pub fn delete_route(team_id: i32) -> String {
+            format!("/app/team/{}/delete", team_id)
         }
 
-        pub fn set_name_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/set_name", organisation_id)
+        pub fn set_name_route(team_id: i32) -> String {
+            format!("/app/team/{}/set_name", team_id)
         }
 
-        pub fn new_team_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/new", organisation_id)
+        pub fn new_team_route(team_id: i32) -> String {
+            format!("/app/team/{}/new", team_id)
         }
     }
 
     pub mod profile {
 
-        pub fn set_details_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/set_details", organisation_id)
+        pub fn set_details_route(team_id: i32) -> String {
+            format!("/app/team/{}/set_details", team_id)
         }
 
-        pub fn index_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/profile", organisation_id)
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/profile", team_id)
         }
 
-        pub fn profile_popup_route(organisation_id: i32) -> String {
-            format!("/app/team/{}/profile_popup", organisation_id)
+        pub fn profile_popup_route(team_id: i32) -> String {
+            format!("/app/team/{}/profile_popup", team_id)
         }
     }
 }

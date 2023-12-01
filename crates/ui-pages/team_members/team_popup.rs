@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 use assets::files::{button_select_svg, profile_svg};
 use daisy_rsx::*;
-use db::queries::organisations::Organisation;
+use db::queries::teams::Team;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(cx: Scope, teams: Vec<(String, String)>, organisation: Organisation) -> Element {
-    if let Some(name) = &organisation.name.clone() {
+pub fn Page(cx: Scope, teams: Vec<(String, String)>, team: Team) -> Element {
+    if let Some(name) = &team.name.clone() {
         cx.render(rsx! {
             turbo-frame {
                 id: "teams-popup",

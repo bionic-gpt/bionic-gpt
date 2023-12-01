@@ -8,7 +8,7 @@ use db::queries;
 use db::Pool;
 
 pub async fn index(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -17,8 +17,8 @@ pub async fn index(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let team = queries::organisations::organisation()
-        .bind(&transaction, &organisation_id)
+    let team = queries::teams::team()
+        .bind(&transaction, &team_id)
         .one()
         .await?;
 
