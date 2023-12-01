@@ -12,16 +12,16 @@ SELECT
 FROM
     api_keys a
 WHERE 
-    a.organisation_id = :organisation_id
+    a.team_id = :team_id
 AND
     a.user_id = current_app_user()
 ORDER BY created_at DESC;
 
 --! new_api_key
 INSERT INTO api_keys 
-    (prompt_id, user_id, organisation_id, name, api_key)
+    (prompt_id, user_id, team_id, name, api_key)
 VALUES
-    (:prompt_id, :user_id, :organisation_id, :name, :api_key);
+    (:prompt_id, :user_id, :team_id, :name, :api_key);
 
 --! find_api_key : ApiKey
 SELECT

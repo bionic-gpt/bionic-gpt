@@ -7,7 +7,7 @@ use db::Pool;
 use ui_pages::console;
 
 pub async fn conversation(
-    Path((organisation_id, conversation_id)): Path<(i32, i64)>,
+    Path((team_id, conversation_id)): Path<(i32, i64)>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -23,7 +23,7 @@ pub async fn conversation(
         .all()
         .await?;
     let prompts = prompts::prompts()
-        .bind(&transaction, &organisation_id)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
@@ -32,7 +32,7 @@ pub async fn conversation(
     let lock_console = chats.iter().any(|chat| chat.response.is_none());
 
     Ok(Html(console::index(console::index::PageProps {
-        organisation_id,
+        team_id,
         conversation_id,
         chats,
         prompts,

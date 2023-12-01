@@ -4,11 +4,11 @@ use db::Prompt;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Form(cx: Scope, organisation_id: i32, prompts: Vec<Prompt>) -> Element {
+pub fn Form(cx: Scope, team_id: i32, prompts: Vec<Prompt>) -> Element {
     cx.render(rsx!(
         form {
             method: "post",
-            action: "{crate::routes::api_keys::new_route(*organisation_id)}",
+            action: "{crate::routes::api_keys::new_route(*team_id)}",
             Drawer {
                 label: "New API Key",
                 trigger_id: "create-api-key",

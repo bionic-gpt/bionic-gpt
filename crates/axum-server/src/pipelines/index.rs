@@ -5,7 +5,7 @@ use axum::response::Html;
 use db::{queries, Pool};
 
 pub async fn index(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -15,7 +15,7 @@ pub async fn index(
     crate::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let pipelines = queries::document_pipelines::document_pipelines()
-        .bind(&transaction, &organisation_id)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
@@ -28,7 +28,7 @@ pub async fn index(
         ui_pages::pipelines::index::PageProps {
             pipelines,
             datasets,
-            organisation_id,
+            team_id,
         },
     )))
 }

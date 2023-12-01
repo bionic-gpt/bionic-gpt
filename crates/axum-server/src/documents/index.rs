@@ -6,7 +6,7 @@ use db::queries::{datasets, documents};
 use db::Pool;
 
 pub async fn index(
-    Path((organisation_id, dataset_id)): Path<(i32, i32)>,
+    Path((team_id, dataset_id)): Path<(i32, i32)>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -27,7 +27,7 @@ pub async fn index(
 
     Ok(Html(ui_pages::documents::index(
         ui_pages::documents::index::PageProps {
-            organisation_id,
+            team_id,
             dataset,
             documents,
         },

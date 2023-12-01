@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 #[inline_props]
 fn Page(
     cx: Scope,
-    organisation_id: i32,
+    team_id: i32,
     first_name: String,
     last_name: String,
     users_name_or_email: String,
@@ -19,7 +19,7 @@ fn Page(
             section_class: "normal",
             selected_item: SideBar::None,
             title: "Your Profile",
-            team_id: *organisation_id,
+            team_id: *team_id,
             header: cx.render(rsx!(
                 h3 { "Your Profile" }
             )),
@@ -70,7 +70,7 @@ fn Page(
     })
 }
 
-pub fn profile(user: User, organisation_id: i32) -> String {
+pub fn profile(user: User, team_id: i32) -> String {
     let (mut first_name, mut last_name) = ("".to_string(), "".to_string());
     if let (Some(first), Some(last)) = (user.first_name, user.last_name) {
         first_name = first;
@@ -83,12 +83,12 @@ pub fn profile(user: User, organisation_id: i32) -> String {
         user.email
     };
 
-    let form_action = crate::routes::profile::set_details_route(organisation_id);
+    let form_action = crate::routes::profile::set_details_route(team_id);
 
     crate::render(VirtualDom::new_with_props(
         Page,
         PageProps {
-            organisation_id,
+            team_id,
             first_name,
             last_name,
             users_name_or_email,

@@ -50,7 +50,7 @@ impl Filter {
 }
 
 pub async fn filter(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(filter_form): Form<Filter>,
@@ -60,8 +60,8 @@ pub async fn filter(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let team_users = queries::organisations::get_users()
-        .bind(&transaction, &organisation_id)
+    let team_users = queries::teams::get_users()
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
@@ -79,7 +79,7 @@ pub async fn filter(
 
     Ok(Html(ui_pages::audit_trail::index::index(
         ui_pages::audit_trail::index::PageProps {
-            organisation_id,
+            team_id,
             team_users,
             audits,
             reset_search: false,

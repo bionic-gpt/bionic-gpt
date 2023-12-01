@@ -4,11 +4,11 @@ use db::queries::datasets::Dataset;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn KeyDrawer(cx: Scope, datasets: Vec<Dataset>, organisation_id: i32) -> Element {
+pub fn KeyDrawer(cx: Scope, datasets: Vec<Dataset>, team_id: i32) -> Element {
     cx.render(rsx! {
         form {
             method: "post",
-            action: "{crate::routes::document_pipelines::new_route(*organisation_id)}",
+            action: "{crate::routes::document_pipelines::new_route(*team_id)}",
             Drawer {
                 label: "New Document Pipeline",
                 trigger_id: "create-api-key",

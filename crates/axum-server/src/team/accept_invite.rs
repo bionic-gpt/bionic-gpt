@@ -66,11 +66,11 @@ pub async fn accept_invitation(
                 .one()
                 .await?;
 
-            queries::organisations::add_user_to_organisation()
+            queries::teams::add_user_to_team()
                 .bind(
                     &transaction,
                     &user.id,
-                    &invitation.organisation_id,
+                    &invitation.team_id,
                     &invitation.roles,
                 )
                 .await?;
@@ -88,12 +88,12 @@ pub async fn accept_invitation(
             }
 
             queries::invitations::delete_invitation()
-                .bind(&transaction, &invitation.email, &invitation.organisation_id)
+                .bind(&transaction, &invitation.email, &invitation.team_id)
                 .await?;
         }
     }
 
     transaction.commit().await?;
 
-    Ok(invitation.organisation_id)
+    Ok(invitation.team_id)
 }

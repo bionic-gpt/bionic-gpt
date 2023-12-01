@@ -12,16 +12,16 @@ SELECT
 FROM
     document_pipelines a
 WHERE 
-    a.organisation_id = :organisation_id
+    a.team_id = :team_id
 AND
     a.user_id = current_app_user()
 ORDER BY created_at DESC;
 
 --! insert
 INSERT INTO document_pipelines 
-    (dataset_id, user_id, organisation_id, name, api_key)
+    (dataset_id, user_id, team_id, name, api_key)
 VALUES
-    (:dataset_id, :user_id, :organisation_id, :name, :api_key);
+    (:dataset_id, :user_id, :team_id, :name, :api_key);
 
 --! find_api_key : DocumentPipeline
 SELECT

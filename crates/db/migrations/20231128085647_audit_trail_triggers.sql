@@ -14,13 +14,13 @@ BEGIN
   INSERT INTO audit_trail 
   (
     user_id,
-    organisation_id,
+    team_id,
     access_type,
     action
   )
   VALUES(
     current_app_user(),
-    NEW.organisation_id,
+    NEW.team_id,
     TG_ARGV[0]::audit_access_type,
     TG_ARGV[1]::audit_action
   );
@@ -103,13 +103,13 @@ CREATE TRIGGER update_chats
 
 CREATE TRIGGER create_member
   AFTER INSERT
-  ON organisation_users
+  ON team_users
   FOR EACH ROW
   EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'CreateMember');
 
 CREATE TRIGGER delete_member
   AFTER DELETE
-  ON organisation_users
+  ON team_users
   FOR EACH ROW
   EXECUTE PROCEDURE audit_by_user_and_org('UserInterface', 'DeleteMember');
 
@@ -121,13 +121,13 @@ CREATE TRIGGER create_invite
 
 CREATE TRIGGER create_team
   AFTER INSERT
-  ON organisations
+  ON teams
   FOR EACH ROW
   EXECUTE PROCEDURE audit_by_user('UserInterface', 'CreateTeam');
 
 CREATE TRIGGER delete_team
   AFTER DELETE
-  ON organisations
+  ON teams
   FOR EACH ROW
   EXECUTE PROCEDURE audit_by_user('UserInterface', 'DeleteTeam');
 
@@ -158,10 +158,10 @@ CREATE TRIGGER revoke_pipeline_key
 -- migrate:down
 
 DROP TRIGGER update_chats ON chats RESTRICT;
-DROP TRIGGER create_team ON organisations RESTRICT;
-DROP TRIGGER delete_team ON organisations RESTRICT;
-DROP TRIGGER delete_member ON organisation_users RESTRICT;
-DROP TRIGGER create_member ON organisation_users RESTRICT;
+DROP TRIGGER create_team ON teams RESTRICT;
+DROP TRIGGER delete_team ON teams RESTRICT;
+DROP TRIGGER delete_member ON team_users RESTRICT;
+DROP TRIGGER create_member ON team_users RESTRICT;
 DROP TRIGGER create_invite ON invitations RESTRICT;
 DROP TRIGGER create_api_key ON api_keys RESTRICT;
 DROP TRIGGER revoke_api_key ON api_keys RESTRICT;

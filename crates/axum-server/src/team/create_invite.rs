@@ -25,14 +25,14 @@ pub struct NewInvite {
 }
 
 pub async fn create_invite(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     authentication: Authentication,
     Extension(config): Extension<crate::config::Config>,
     Form(new_invite): Form<NewInvite>,
 ) -> Result<impl IntoResponse, CustomError> {
-    let invite_hash = create(&pool, &authentication, &new_invite, organisation_id).await?;
+    let invite_hash = create(&pool, &authentication, &new_invite, team_id).await?;
 
     let invitation_verifier_base64 = invite_hash.0;
     let invitation_selector_base64 = invite_hash.1;
@@ -67,8 +67,8 @@ pub async fn create_invite(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let team = queries::organisations::organisation()
-        .bind(&transaction, &organisation_id)
+    let team = queries::teams::team()
+        .bind(&transaction, &team_id)
         .one()
         .await?;
 
@@ -82,7 +82,7 @@ pub async fn create(
     pool: &Pool,
     current_user: &Authentication,
     new_invite: &NewInvite,
-    organisation_id: i32,
+    team_id: i32,
 ) -> Result<(String, String), CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
@@ -111,7 +111,7 @@ pub async fn create(
     queries::invitations::insert_invitation()
         .bind(
             &transaction,
-            &organisation_id,
+            &team_id,
             &new_invite.email,
             &new_invite.first_name,
             &new_invite.last_name,

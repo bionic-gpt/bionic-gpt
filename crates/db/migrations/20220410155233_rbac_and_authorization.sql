@@ -1,6 +1,6 @@
 -- migrate:up
 
--- The very simplest RBAC implementation, the roles get added to the organisation_users table
+-- The very simplest RBAC implementation, the roles get added to the team_users table
 -- as users are added to an org.
 
 CREATE TYPE role AS ENUM (

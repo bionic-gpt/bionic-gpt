@@ -1,7 +1,7 @@
 --! datasets : Dataset()
 SELECT
     id,
-    organisation_id, 
+    team_id, 
     name,
     chunking_strategy,
     visibility,
@@ -14,13 +14,13 @@ SELECT
 FROM 
     datasets d
 WHERE
-    organisation_id IN (SELECT organisation_id FROM organisation_users WHERE user_id = current_app_user())
+    team_id IN (SELECT team_id FROM team_users WHERE user_id = current_app_user())
 ORDER BY updated_at;
 
 --! dataset_by_pipeline_key : Dataset()
 SELECT
     id,
-    organisation_id, 
+    team_id, 
     name,
     chunking_strategy,
     visibility,
@@ -40,7 +40,7 @@ WHERE
 --! dataset : Dataset()
 SELECT
     id,
-    organisation_id, 
+    team_id, 
     name,
     chunking_strategy,
     visibility,
@@ -55,16 +55,16 @@ FROM
 WHERE
     id = :dataset_id
 AND
-    organisation_id IN (
+    team_id IN (
         SELECT 
-            organisation_id 
-        FROM organisation_users WHERE user_id = current_app_user())
+            team_id 
+        FROM team_users WHERE user_id = current_app_user())
 ORDER BY updated_at;
 
 --! pipeline_dataset : Dataset()
 SELECT
     id,
-    organisation_id, 
+    team_id, 
     name,
     chunking_strategy,
     visibility,
@@ -83,7 +83,7 @@ ORDER BY updated_at;
 --! insert
 INSERT INTO 
     datasets (
-        organisation_id, 
+        team_id, 
         name,
         embeddings_model_id,
         chunking_strategy,
@@ -93,7 +93,7 @@ INSERT INTO
         visibility
     )
 VALUES(
-    :organisation_id, 
+    :team_id, 
     :name,
     :embeddings_model_id,
     :chunking_strategy,

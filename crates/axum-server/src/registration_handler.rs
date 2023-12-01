@@ -17,7 +17,7 @@ pub fn routes() -> Router {
 }
 
 // After a user has logged in or registered, check they have an entry in
-// the organisation table. If not, then create one.
+// the team table. If not, then create one.
 pub async fn post_registration(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
@@ -27,7 +27,7 @@ pub async fn post_registration(
     let transaction = client.transaction().await?;
     super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let org = queries::organisations::get_primary_organisation()
+    let org = queries::teams::get_primary_team()
         .bind(&transaction, &current_user.user_id)
         .one()
         .await;
@@ -37,7 +37,7 @@ pub async fn post_registration(
             org.id,
         )))
     } else {
-        let inserted_org_id = queries::organisations::insert_organisation()
+        let inserted_org_id = queries::teams::insert_team()
             .bind(&transaction)
             .one()
             .await?;
@@ -47,7 +47,7 @@ pub async fn post_registration(
             types::public::Role::Collaborator,
         ];
 
-        queries::organisations::add_user_to_organisation()
+        queries::teams::add_user_to_team()
             .bind(
                 &transaction,
                 &current_user.user_id,

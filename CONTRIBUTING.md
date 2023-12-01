@@ -33,7 +33,7 @@ $ dbmate status
 [ ] 20220410155201_initial_setup.sql
 [ ] 20220410155211_authentication.sql
 [ ] 20220410155233_rbac_and_authorization.sql
-[ ] 20220410155252_teams_and_organisations.sql
+[ ] 20220410155252_teams.sql
 [ ] 20220728091159_rls_setup.sql
 [ ] 20220808093939_auth_and_readonly_policies.sql
 [ ] 20220808094314_tenancy_isolation.sql
