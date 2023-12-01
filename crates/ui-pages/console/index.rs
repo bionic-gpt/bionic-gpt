@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    organisation_id: i32,
+    team_id: i32,
     chats: Vec<Chat>,
     prompts: Vec<Prompt>,
     conversation_id: i64,
@@ -20,7 +20,7 @@ pub fn Page(
         Layout {
             section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
             selected_item: SideBar::Console,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "AI Chat Console",
             header: cx.render(rsx!(
                 h3 { "AI Chat Console" }
@@ -28,7 +28,7 @@ pub fn Page(
                     class: "flex flex-row",
                     form {
                         method: "post",
-                        action: "{crate::routes::console::new_chat_route(*organisation_id)}",
+                        action: "{crate::routes::console::new_chat_route(*team_id)}",
                         Button {
                             class: "mr-2",
                             button_scheme: ButtonScheme::Default,
@@ -43,7 +43,7 @@ pub fn Page(
                     }
                     super::history_drawer::HistoryDrawer{
                         trigger_id: "history-selector".to_string(),
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                         history: history.clone()
                     }
                 }
@@ -94,7 +94,7 @@ pub fn Page(
                                                 form {
                                                     method: "post",
                                                     id: "chat-form-{chat.id}",
-                                                    action: "{routes::console::update_response_route(*organisation_id)}",
+                                                    action: "{routes::console::update_response_route(*team_id)}",
                                                     input {
                                                         name: "response",
                                                         id: "chat-result-{chat.id}",
@@ -168,7 +168,7 @@ pub fn Page(
                         method: "post",
                         "data-remember-name": "console-prompt",
                         "data-remember-reset": "false",
-                        action: "{routes::console::send_message_route(*organisation_id)}",
+                        action: "{routes::console::send_message_route(*team_id)}",
 
                         TextArea {
                             class: "submit-on-enter flex-1 mr-2",

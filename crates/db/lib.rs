@@ -16,10 +16,9 @@ pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
 pub use queries::invitations::Invitation;
 pub use queries::models::Model;
-pub use queries::organisations::GetTeams as Team;
-pub use queries::organisations::GetUsers as Member;
-pub use queries::organisations::Organisation;
 pub use queries::prompts::Prompt;
+pub use queries::teams::GetUsers as Member;
+pub use queries::teams::{Team, TeamOwner};
 pub use queries::users::User;
 pub use types::public::{
     AuditAccessType, AuditAction, ChatStatus, DatasetConnection, ModelType, Role, Visibility,

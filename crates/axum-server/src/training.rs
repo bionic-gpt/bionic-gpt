@@ -23,7 +23,5 @@ pub async fn index(
 
     super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    Ok(Html(training::index(training::PageProps {
-        organisation_id: team_id,
-    })))
+    Ok(Html(training::index(training::PageProps { team_id })))
 }

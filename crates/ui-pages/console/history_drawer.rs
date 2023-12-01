@@ -7,7 +7,7 @@ use dioxus::prelude::*;
 pub fn HistoryDrawer(
     cx: Scope,
     trigger_id: String,
-    organisation_id: i32,
+    team_id: i32,
     history: Vec<History>,
 ) -> Element {
     cx.render(rsx! {
@@ -19,7 +19,7 @@ pub fn HistoryDrawer(
                     cx.render(rsx!(
                         li {
                             a {
-                                href: "{crate::routes::console::conversation_route(*organisation_id, history.id)}",
+                                href: "{crate::routes::console::conversation_route(*team_id, history.id)}",
                                 history.summary.clone()
                             }
                         }

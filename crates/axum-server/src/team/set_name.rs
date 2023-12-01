@@ -16,7 +16,7 @@ pub struct SetName {
 }
 
 pub async fn set_name(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(set_name): Form<SetName>,
@@ -26,14 +26,14 @@ pub async fn set_name(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    queries::organisations::set_name()
-        .bind(&transaction, &set_name.name, &organisation_id)
+    queries::teams::set_name()
+        .bind(&transaction, &set_name.name, &team_id)
         .await?;
 
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_pages::routes::team::index_route(organisation_id),
+        &ui_pages::routes::team::index_route(team_id),
         "Team Name Updated",
     )
 }

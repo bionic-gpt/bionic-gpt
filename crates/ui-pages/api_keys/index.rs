@@ -6,19 +6,14 @@ use db::{ApiKey, Prompt};
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(
-    cx: Scope,
-    organisation_id: i32,
-    api_keys: Vec<ApiKey>,
-    prompts: Vec<Prompt>,
-) -> Element {
+pub fn Page(cx: Scope, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>) -> Element {
     cx.render(rsx! {
         if api_keys.is_empty() {
             cx.render(rsx! {
                 Layout {
                     section_class: "normal",
                     selected_item: SideBar::ApiKeys,
-                    team_id: *organisation_id,
+                    team_id: *team_id,
                     title: "API Keys",
                     header: cx.render(rsx!(
                         h3 { "API Keys" }
@@ -30,7 +25,7 @@ pub fn Page(
                         primary_action_drawer: ("New API Key", "create-api-key")
                     },
                     super::form::Form {
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                         prompts: prompts.clone()
                     }
                 }
@@ -40,7 +35,7 @@ pub fn Page(
                 Layout {
                     section_class: "normal",
                     selected_item: SideBar::ApiKeys,
-                    team_id: *organisation_id,
+                    team_id: *team_id,
                     title: "API Keys",
                     header: cx.render(rsx!(
                         h3 { "API Keys" }
@@ -103,7 +98,7 @@ pub fn Page(
                     // Drawers have to be fairly high up in the hierarchy or they
                     // get missed off in turbo::load
                     super::form::Form {
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                         prompts: prompts.clone()
                     }
                 }

@@ -2,16 +2,16 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
-use db::Team;
+use db::TeamOwner;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: String) -> Element {
+pub fn Page(cx: Scope, team_id: i32, teams: Vec<TeamOwner>, submit_action: String) -> Element {
     cx.render(rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Switch,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "Your Teams",
             header: cx.render(rsx!(
                 h3 { "Your Teams" }
@@ -39,19 +39,19 @@ pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: St
                         }
                         tbody {
                             teams.iter().map(|team| rsx!(
-                                if let Some(name) = &team.organisation_name {
+                                if let Some(name) = &team.team_name {
                                     cx.render(rsx! {
                                         tr {
                                             td {
                                                 Avatar {
                                                     name: "{name}",
-                                                    avatar_type: avatar::AvatarType::Organisation
+                                                    avatar_type: avatar::AvatarType::Team
                                                 }
                                                 span {
                                                     class: "ml-2 mr-2",
                                                     "{name}"
                                                 }
-                                                if team.id != *organisation_id {
+                                                if team.id != *team_id {
                                                     cx.render(rsx! {
                                                         a {
                                                             "data-turbo-frame": "_top",
@@ -76,13 +76,13 @@ pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: St
                                         tr {
                                             td {
                                                 Avatar {
-                                                    avatar_type: avatar::AvatarType::Organisation
+                                                    avatar_type: avatar::AvatarType::Team
                                                 }
                                                 span {
                                                     class: "ml-2 mr-2",
                                                     "Name Not Set"
                                                 }
-                                                if team.id != *organisation_id {
+                                                if team.id != *team_id {
                                                     cx.render(rsx! {
                                                         a {
                                                             "data-turbo-frame": "_top",
@@ -143,13 +143,13 @@ pub fn Page(cx: Scope, organisation_id: i32, teams: Vec<Team>, submit_action: St
     })
 }
 
-pub fn teams(teams: Vec<Team>, organisation_id: i32) -> String {
-    let submit_action = crate::routes::team::new_team_route(organisation_id);
+pub fn teams(teams: Vec<TeamOwner>, team_id: i32) -> String {
+    let submit_action = crate::routes::team::new_team_route(team_id);
 
     crate::render(VirtualDom::new_with_props(
         Page,
         PageProps {
-            organisation_id,
+            team_id,
             teams,
             submit_action,
         },

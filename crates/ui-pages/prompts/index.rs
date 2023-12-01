@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    organisation_id: i32,
+    team_id: i32,
     prompts: Vec<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
@@ -17,7 +17,7 @@ pub fn Page(
         Layout {
             section_class: "normal",
             selected_item: SideBar::Prompts,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "Prompts",
             header: cx.render(rsx!(
                 h3 { "Prompts" }
@@ -115,7 +115,7 @@ pub fn Page(
                         cx.render(rsx!(
                             super::form::Form {
                                 id: prompt.id,
-                                organisation_id: *organisation_id,
+                                team_id: *team_id,
                                 trigger_id: format!("edit-prompt-form-{}", prompt.id),
                                 name: prompt.name.clone(),
                                 system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
@@ -138,7 +138,7 @@ pub fn Page(
 
             // The form to create a model
             super::form::Form {
-                organisation_id: *organisation_id,
+                team_id: *team_id,
                 trigger_id: "new-prompt-form".to_string(),
                 name: "".to_string(),
                 system_prompt: "".to_string(),

@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 pub fn Form(
     cx: Scope,
     trigger_id: String,
-    organisation_id: i32,
+    team_id: i32,
     name: String,
     system_prompt: String,
     datasets: Vec<Dataset>,
@@ -26,7 +26,7 @@ pub fn Form(
 ) -> Element {
     cx.render(rsx!(
         form {
-            action: "{crate::routes::prompts::new_route(*organisation_id)}",
+            action: "{crate::routes::prompts::new_route(*team_id)}",
             method: "post",
             Drawer {
                 label: "Prompt",

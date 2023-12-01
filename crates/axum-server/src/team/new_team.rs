@@ -26,7 +26,7 @@ pub async fn new_team(
     let transaction = client.transaction().await?;
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
-    let org_id = queries::organisations::insert_organisation()
+    let org_id = queries::teams::insert_team()
         .bind(&transaction)
         .one()
         .await?;
@@ -36,11 +36,11 @@ pub async fn new_team(
         types::public::Role::Collaborator,
     ];
 
-    queries::organisations::add_user_to_organisation()
+    queries::teams::add_user_to_team()
         .bind(&transaction, &current_user.user_id, &org_id, &roles)
         .await?;
 
-    queries::organisations::set_name()
+    queries::teams::set_name()
         .bind(&transaction, &new_team.name, &org_id)
         .await?;
 

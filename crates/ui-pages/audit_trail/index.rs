@@ -9,7 +9,7 @@ use crate::app_layout::{Layout, SideBar};
 pub struct AuditProps {
     team_users: Vec<Member>,
     audits: Vec<AuditTrail>,
-    organisation_id: i32,
+    team_id: i32,
     reset_search: bool,
 }
 
@@ -18,7 +18,7 @@ pub fn Page(
     cx: Scope,
     team_users: Vec<Member>,
     audits: Vec<AuditTrail>,
-    organisation_id: i32,
+    team_id: i32,
     reset_search: bool,
 ) -> Element {
     cx.render(rsx! {
@@ -26,7 +26,7 @@ pub fn Page(
         Layout {
             section_class: "normal",
             selected_item: SideBar::AuditTrail,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "Audit Trail",
             header: cx.render(rsx!(
                 h3 { "Audit Trail" }
@@ -42,7 +42,7 @@ pub fn Page(
             super::filter::FilterDrawer {
                 team_users: team_users.clone(),
                 reset_search: *reset_search,
-                submit_action: crate::routes::audit_trail::index_route(*organisation_id)
+                submit_action: crate::routes::audit_trail::index_route(*team_id)
             }
         }
     })

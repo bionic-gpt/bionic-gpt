@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    organisation_id: i32,
+    team_id: i32,
     pipelines: Vec<DocumentPipeline>,
     datasets: Vec<Dataset>,
 ) -> Element {
@@ -18,7 +18,7 @@ pub fn Page(
                 Layout {
                     section_class: "normal",
                     selected_item: SideBar::DocumentPipelines,
-                    team_id: *organisation_id,
+                    team_id: *team_id,
                     title: "Document Pipelines",
                     header: cx.render(rsx!(
                         h3 { "Document Pipelines" }
@@ -32,7 +32,7 @@ pub fn Page(
 
                     super::key_drawer::KeyDrawer {
                         datasets: datasets.clone(),
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                     }
                 }
             })
@@ -41,7 +41,7 @@ pub fn Page(
                 Layout {
                     section_class: "normal",
                     selected_item: SideBar::DocumentPipelines,
-                    team_id: *organisation_id,
+                    team_id: *team_id,
                     title: "Document Pipelines",
                     header: cx.render(rsx!(
                         h3 { "Document Pipelines" }
@@ -104,7 +104,7 @@ pub fn Page(
 
                     super::key_drawer::KeyDrawer {
                         datasets: datasets.clone(),
-                        organisation_id: *organisation_id,
+                        team_id: *team_id,
                     }
                 }
             })

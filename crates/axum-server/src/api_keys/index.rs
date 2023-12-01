@@ -26,7 +26,7 @@ pub async fn index(
         .await?;
 
     Ok(Html(api_keys::index(api_keys::index::PageProps {
-        organisation_id: team_id,
+        team_id,
         api_keys,
         prompts,
     })))
