@@ -78,7 +78,7 @@ pub async fn handler(
             let messages = crate::prompt::execute_prompt(
                 &transaction,
                 prompt.id,
-                prompt.organisation_id,
+                prompt.team_id,
                 None,
                 completion.messages,
             )

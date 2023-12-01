@@ -43,7 +43,7 @@ pub async fn handler(
         .await?;
 
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &chat.prompt_id, &conversation.organisation_id)
+        .bind(&transaction, &chat.prompt_id, &conversation.team_id)
         .one()
         .await?;
 
@@ -55,7 +55,7 @@ pub async fn handler(
     let messages = crate::prompt::execute_prompt(
         &transaction,
         prompt.id,
-        conversation.organisation_id,
+        conversation.team_id,
         Some(conversation.id),
         vec![chat_request],
     )

@@ -10,11 +10,11 @@ COMMENT ON TYPE chat_status IS 'The status of this part of the conversation with
 CREATE TABLE conversations (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     user_id INT NOT NULL, 
-    organisation_id INT NOT NULL, 
+    team_id INT NOT NULL, 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT FK_organisation FOREIGN KEY(organisation_id)
-        REFERENCES organisations(id) ON DELETE CASCADE,
+    CONSTRAINT FK_team FOREIGN KEY(team_id)
+        REFERENCES teams(id) ON DELETE CASCADE,
 
     CONSTRAINT FK_user FOREIGN KEY(user_id)
         REFERENCES users(id) ON DELETE CASCADE

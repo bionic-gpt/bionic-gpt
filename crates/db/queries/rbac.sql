@@ -8,6 +8,6 @@ WHERE
 IN 
     (
         SELECT UNNEST(roles) 
-        FROM organisation_users 
-        WHERE user_id = :current_user_id AND organisation_id = :organisation_id
+        FROM team_users 
+        WHERE user_id = :current_user_id AND team_id = :team_id
     );

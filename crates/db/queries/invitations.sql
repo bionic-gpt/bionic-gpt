@@ -3,7 +3,7 @@
 --! insert_invitation
 INSERT INTO 
     invitations (
-        organisation_id, 
+        team_id, 
         email, 
         first_name, 
         last_name, 
@@ -11,7 +11,7 @@ INSERT INTO
         invitation_verifier_hash, 
         roles)
     VALUES(
-        :organisation_id, 
+        :team_id, 
         :email, 
         :first_name, 
         :last_name, 
@@ -22,7 +22,7 @@ INSERT INTO
 --! get_invitation : Invitation
 SELECT
     id, 
-    organisation_id, 
+    team_id, 
     email, 
     first_name, 
     last_name, 
@@ -41,7 +41,7 @@ DELETE FROM
 WHERE
     email = :email
 AND
-    organisation_id = :organisation_id;
+    team_id = :team_id;
 
 --! get_all : Invitation
 SELECT  
@@ -51,9 +51,9 @@ SELECT
     last_name, 
     invitation_selector, 
     invitation_verifier_hash,
-    organisation_id,
+    team_id,
     roles,
     created_at  
 FROM 
     invitations 
-WHERE organisation_id = :organisation_id;
+WHERE team_id = :team_id;

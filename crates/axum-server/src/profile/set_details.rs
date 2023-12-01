@@ -18,7 +18,7 @@ pub struct SetDetails {
 }
 
 pub async fn set_details(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(set_name): Form<SetDetails>,
@@ -39,8 +39,5 @@ pub async fn set_details(
 
     transaction.commit().await?;
 
-    crate::layout::redirect_and_snackbar(
-        &crate::profile::index_route(organisation_id),
-        "Details Updated",
-    )
+    crate::layout::redirect_and_snackbar(&crate::profile::index_route(team_id), "Details Updated")
 }

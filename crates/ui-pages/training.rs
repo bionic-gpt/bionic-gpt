@@ -5,12 +5,12 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(cx: Scope, organisation_id: i32) -> Element {
+pub fn Page(cx: Scope, team_id: i32) -> Element {
     cx.render(rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Training,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "Model Training",
             header: cx.render(rsx!(
                 h3 { "Model Training" }

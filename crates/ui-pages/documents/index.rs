@@ -6,17 +6,12 @@ use db::queries::{datasets::Dataset, documents::Document};
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(
-    cx: Scope,
-    organisation_id: i32,
-    dataset: Dataset,
-    documents: Vec<Document>,
-) -> Element {
+pub fn Page(cx: Scope, team_id: i32, dataset: Dataset, documents: Vec<Document>) -> Element {
     cx.render(rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Datasets,
-            team_id: *organisation_id,
+            team_id: *team_id,
             title: "{dataset.name} / Documents",
             header: cx.render(rsx!(
                 h3 { "{dataset.name} / Documents" }
@@ -42,7 +37,7 @@ pub fn Page(
 
                     // The form to create an invitation
                     super::upload::Upload {
-                        upload_action: crate::routes::documents::upload_route(*organisation_id, dataset.id)
+                        upload_action: crate::routes::documents::upload_route(*team_id, dataset.id)
                     }
                 })
             } else {
@@ -119,7 +114,7 @@ pub fn Page(
                                                         button_text: "...",
                                                         DropDownLink {
                                                             drawer_trigger: format!("delete-doc-trigger-{}-{}", 
-                                                                doc.id, *organisation_id),
+                                                                doc.id, *team_id),
                                                             href: "#",
                                                             target: "_top",
                                                             "Delete Document"
@@ -138,17 +133,17 @@ pub fn Page(
                     documents.iter().map(|doc| rsx!(
                         cx.render(rsx!(
                             super::delete::DeleteDrawer {
-                                organisation_id: *organisation_id,
+                                team_id: *team_id,
                                 document_id: doc.id,
                                 dataset_id: doc.dataset_id,
-                                trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, *organisation_id)
+                                trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, *team_id)
                             }
                         ))
                     ))
 
                     // The form to create an invitation
                     super::upload::Upload {
-                        upload_action: crate::routes::documents::upload_route(*organisation_id, dataset.id)
+                        upload_action: crate::routes::documents::upload_route(*team_id, dataset.id)
                     }
                 })
             }

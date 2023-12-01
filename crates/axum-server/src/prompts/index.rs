@@ -6,7 +6,7 @@ use db::Pool;
 use db::{queries, ModelType};
 
 pub async fn index(
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -16,7 +16,7 @@ pub async fn index(
     super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let prompts = queries::prompts::prompts()
-        .bind(&transaction, &organisation_id)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
@@ -32,7 +32,7 @@ pub async fn index(
 
     Ok(Html(ui_pages::prompts::index(
         ui_pages::prompts::index::PageProps {
-            organisation_id,
+            team_id,
             prompts,
             datasets,
             models,

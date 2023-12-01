@@ -6,7 +6,7 @@ SELECT
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
-    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
+    (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
     p.model_id,
     p.name,
     p.visibility,
@@ -39,12 +39,12 @@ FROM
     prompts p
 WHERE
     p.model_id IN (
-        SELECT id FROM models WHERE organisation_id IN(
-            SELECT organisation_id 
-            FROM organisation_users 
+        SELECT id FROM models WHERE team_id IN(
+            SELECT team_id 
+            FROM team_users 
             WHERE user_id = current_app_user()
         )
-        AND organisation_id = :organisation_id
+        AND team_id = :team_id
     )
 ORDER BY updated_at;
 
@@ -54,7 +54,7 @@ SELECT
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
-    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
+    (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
     p.model_id,
     p.name,
     p.visibility,
@@ -89,12 +89,12 @@ WHERE
     p.id = :prompts_id
 AND
     p.model_id IN (
-        SELECT id FROM models WHERE organisation_id IN(
-            SELECT organisation_id 
-            FROM organisation_users 
+        SELECT id FROM models WHERE team_id IN(
+            SELECT team_id 
+            FROM team_users 
             WHERE user_id = current_app_user()
         )
-        AND organisation_id = :organisation_id
+        AND team_id = :team_id
     )
 ORDER BY updated_at;
 
@@ -104,7 +104,7 @@ SELECT
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
-    (SELECT organisation_id FROM models WHERE id = p.model_id) as organisation_id, 
+    (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
     p.model_id,
     p.name,
     p.visibility,
@@ -155,9 +155,9 @@ LEFT JOIN
 WHERE
     p.prompt_id = :prompts_id
 AND
-    d.organisation_id IN (
-        SELECT organisation_id 
-        FROM organisation_users 
+    d.team_id IN (
+        SELECT team_id 
+        FROM team_users 
         WHERE user_id = current_app_user()
     );
 
@@ -168,9 +168,9 @@ WHERE
 AND
     prompt_id IN (
         SELECT id FROM prompts WHERE model_id IN(
-            SELECT id FROM models WHERE organisation_id IN(
-                SELECT organisation_id 
-                FROM organisation_users 
+            SELECT id FROM models WHERE team_id IN(
+                SELECT team_id 
+                FROM team_users 
                 WHERE user_id = current_app_user()
             )
         )
@@ -188,7 +188,7 @@ VALUES(
 
 --! insert(system_prompt?)
 INSERT INTO prompts (
-    organisation_id, 
+    team_id, 
     model_id, 
     name,
     visibility,
@@ -201,7 +201,7 @@ INSERT INTO prompts (
     top_p
 )
 VALUES(
-    :organisation_id, 
+    :team_id, 
     :model_id,
     :name,
     :visibility,
@@ -234,18 +234,18 @@ WHERE
 AND
     id IN (
         SELECT id FROM prompts WHERE model_id IN(
-            SELECT id FROM models WHERE organisation_id IN(
-                SELECT organisation_id 
-                FROM organisation_users 
+            SELECT id FROM models WHERE team_id IN(
+                SELECT team_id 
+                FROM team_users 
                 WHERE user_id = current_app_user()
             )
         )
     )
 AND 
     model_id IN (
-        SELECT id FROM models WHERE organisation_id IN(
-            SELECT organisation_id 
-            FROM organisation_users 
+        SELECT id FROM models WHERE team_id IN(
+            SELECT team_id 
+            FROM team_users 
             WHERE user_id = current_app_user()
         )
     );

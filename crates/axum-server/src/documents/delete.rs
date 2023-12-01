@@ -11,7 +11,7 @@ use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct DeleteDoc {
-    pub organisation_id: i32,
+    pub team_id: i32,
     pub document_id: i32,
     pub dataset_id: i32,
 }
@@ -33,10 +33,7 @@ pub async fn delete(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_pages::routes::documents::index_route(
-            delete_doc.organisation_id,
-            delete_doc.dataset_id,
-        ),
+        &ui_pages::routes::documents::index_route(delete_doc.team_id, delete_doc.dataset_id),
         "Document Deleted",
     )
 }

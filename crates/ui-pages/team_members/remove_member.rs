@@ -5,14 +5,14 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn RemoveMemberDrawer(
     cx: Scope,
-    organisation_id: i32,
+    team_id: i32,
     email: String,
     user_id: i32,
     trigger_id: String,
 ) -> Element {
     cx.render(rsx! {
         Drawer {
-            submit_action: crate::routes::team::delete_route(*organisation_id),
+            submit_action: crate::routes::team::delete_route(*team_id),
             label: "Remove this user?",
             trigger_id: &trigger_id,
             DrawerBody {
@@ -27,8 +27,8 @@ pub fn RemoveMemberDrawer(
                     }
                     input {
                         "type": "hidden",
-                        "name": "organisation_id",
-                        "value": "{*organisation_id}"
+                        "name": "team_id",
+                        "value": "{*team_id}"
                     }
                     input {
                         "type": "hidden",

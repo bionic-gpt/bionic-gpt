@@ -24,7 +24,7 @@ pub struct NewDataset {
 
 pub async fn new(
     Extension(pool): Extension<Pool>,
-    Path(organisation_id): Path<i32>,
+    Path(team_id): Path<i32>,
     current_user: Authentication,
     Form(new_dataset): Form<NewDataset>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -45,7 +45,7 @@ pub async fn new(
     let dataset_id = queries::datasets::insert()
         .bind(
             &transaction,
-            &organisation_id,
+            &team_id,
             &new_dataset.name,
             &new_dataset.embeddings_model_id,
             &chunking_strategy,
@@ -60,7 +60,7 @@ pub async fn new(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_pages::routes::documents::index_route(organisation_id, dataset_id),
+        &ui_pages::routes::documents::index_route(team_id, dataset_id),
         "Dataset Created",
     )
 }
