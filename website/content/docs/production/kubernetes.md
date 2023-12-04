@@ -17,16 +17,35 @@ We recommend using [Kind](https://kind.sigs.k8s.io/) which is a version of Kuber
 
 ## Setting up a local cluster with Kind
 
-**Kind** Will create a tiny Kubernetes cluster in our docker environment. 
+**Kind** Will create a tiny Kubernetes cluster in our docker environment. We've pre-installed `kind` in our `devcontainer` so let's create a cluster.
 
 ```sh
 $ kind get clusters
 No kind clusters found.
 ```
 
+Create a temporary file called config.yaml.
+
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  # If we don't do this, then we can't connect on linux
+  apiServerAddress: "0.0.0.0"
+kubeadmConfigPatchesJSON6902:
+- group: kubeadm.k8s.io
+  version: v1beta3
+  kind: ClusterConfiguration
+  patch: |
+    - op: add
+      path: /apiServer/certSANs/-
+      value: host.docker.internal
+```
+
+Normally `kind` is easier to use than this but because we are in a `devcontainer` we have to use some special config.
 
 ```sh
-kind create cluster --name bionic-gpt-cluster
+kind create cluster --name bionic-gpt-cluster --config=config.yaml
 ```
 
 ```sh

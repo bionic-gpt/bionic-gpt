@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - 'llm-docker/**'
       - 'website/**'
+      - 'infra-as-code/**'
       - '*.md'
       - 'Pulumi.yaml'
   pull_request:
@@ -15,6 +16,7 @@ on:
     paths-ignore:
       - 'llm-docker/**'
       - 'website/**'
+      - 'infra-as-code/**'
       - '*.md'
       - 'Pulumi.yaml'
 
