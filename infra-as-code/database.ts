@@ -64,13 +64,13 @@ export function setupDatabase(
                         // Add users here.
                         pulumi.all([applicationPassword.result])
                             .apply(([password]) =>
-                                `CREATE ROLE application LOGIN ENCRYPTED PASSWORD '${password}'`),
+                                `CREATE ROLE ft_application LOGIN ENCRYPTED PASSWORD '${password}'`),
                         pulumi.all([authenticationPassword.result])
                             .apply(([password]) =>
-                                `CREATE ROLE authentication LOGIN ENCRYPTED PASSWORD '${password}'`),
+                                `CREATE ROLE ft_authentication LOGIN ENCRYPTED PASSWORD '${password}'`),
                         pulumi.all([readonlyPassword.result])
                             .apply(([password]) =>
-                                `CREATE ROLE readonly LOGIN ENCRYPTED PASSWORD '${password}'`)
+                                `CREATE ROLE ft_readonly LOGIN ENCRYPTED PASSWORD '${password}'`)
                     ]
                 }
             },
