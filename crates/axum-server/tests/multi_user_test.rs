@@ -159,8 +159,9 @@ async fn add_team_member(
         .click()
         .await?;
 
-    // Stop stale element error
-    sleep(Duration::from_millis(1000)).await;
+    sleep(Duration::from_millis(3000)).await;
+
+    driver.refresh().await?;
 
     driver
         .find(By::XPath("//button[text()='Invite New Team Member']"))
