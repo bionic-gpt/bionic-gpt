@@ -88,15 +88,15 @@ export function setupDatabase(
 
     let authenticationUrl = pulumi.all([authenticationPassword.result, pgCluster.metadata.name])
         .apply(([password, host]) =>
-            `postgres://authentication:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
+            `postgres://ft_authentication:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
 
     let readonlyUrl = pulumi.all([readonlyPassword.result, pgCluster.metadata.name])
         .apply(([password, host]) =>
-            `postgres://readonly:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
+            `postgres://ft_readonly:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
 
     let applicationUrl = pulumi.all([applicationPassword.result, pgCluster.metadata.name])
         .apply(([password, host]) =>
-            `postgres://application:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
+            `postgres://ft_application:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
 
 
     // Create a database url secret so our app will work.
