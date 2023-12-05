@@ -13,7 +13,7 @@ We recommend using a Kubernetes Operator to manage Postgres.
 
 ## Postgres Operator
 
-The [Postgres Operator](https://postgres-operator.readthedocs.io/en/latest/) can manage everything from data storage to scaling.
+The [CloudNativePG](https://cloudnative-pg.io/) can manage everything from data storage to scaling.
 
 N.B. Document how to use PgVector with the Postgres Operator.
 
