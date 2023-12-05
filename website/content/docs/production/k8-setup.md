@@ -1,44 +1,15 @@
 +++
-title = "Infra as Code"
-description = "Infra as Code"
-weight = 50
+title = "Kubernetes Setup"
+weight =15
 sort_by = "weight"
 +++
 
-We use [Pulumi](https://www.pulumi.com/) to manage infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.
+We use [Pulumi](https://www.pulumi.com/) as an exmple of installing Bionic GPT using infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.
 
-We can continue to use Kind as our stand-in for a production server.
+## infra-as-code
 
+All the example code is located [here](https://github.com/bionic-gpt/bionic-gpt/tree/main/infra-as-code)
 
-## Installing Pulumi
-
-Everything you need to use Pulumi is installed into our `devcontainer`.
-
-We'll create a folder called `infra-as-code` at the top level then set the folder up.
-
-```
-mkdir infra-as-code && cd infra-as-code
-```
-
-Then run the setup.
-
-```
-pulumi new kubernetes-typescript
-```
-
-You'll need to create a Pulumi [https://www.pulumi.com/](https://www.pulumi.com/) account which is free so that you can get an API key.
-
-After a while you should get something like the following
-
-```sh
-Finished installing dependencies
-
-Your new project is ready to go! 
-
-To perform an initial deployment, run 'pulumi up'
-```
-
-You should now have a folder structure that looks like the following
 
 
 ```sh
@@ -60,13 +31,11 @@ You should now have a folder structure that looks like the following
 └── Cargo.lock
 ```
 
-## Installing Some Pulumi Dependencies
+## Installing Pulumi
 
-We'll need to include another Pulumi library.
+Everything you need to use Pulumi is installed into our `devcontainer`.
 
-```
-npm install @pulumi/random
-```
+You'll need to create a Pulumi [https://www.pulumi.com/](https://www.pulumi.com/) account which is free so that you can get an API key.
 
 ## Configuring namespaces and adding a Postgres Operator
 

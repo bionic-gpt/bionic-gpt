@@ -1,14 +1,14 @@
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s from "@pulumi/kubernetes"
+//import { setupDatabase } from './database'
+import { setupCluster } from './cluster-setup'
 
-const appLabels = { app: "nginx" };
-const deployment = new k8s.apps.v1.Deployment("nginx", {
-    spec: {
-        selector: { matchLabels: appLabels },
-        replicas: 1,
-        template: {
-            metadata: { labels: appLabels },
-            spec: { containers: [{ name: "nginx", image: "nginx" }] }
-        }
-    }
-});
-export const name = deployment.metadata.name;
+
+// Add a postgres operator and anything else apllications need
+const cloudnativePg = setupCluster()
+
+// Setup a namespace for our application
+const applicationNameSpace = new k8s.core.v1.Namespace('bionic-gpt', {
+    metadata: {
+        name: 'bionic-gpt'
+    },
+})
