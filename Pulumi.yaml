@@ -68,8 +68,6 @@ resources:
                                     secretKeyRef:
                                         name: database-urls
                                         key: authentication-url
-                                - name: AUTH_TYPE
-                                  value: encrypted
                                 - name: SECURE_COOKIE
                                   value: 'true'
 
@@ -87,24 +85,6 @@ resources:
 
                                 - name: ENABLE_EMAIL_OTP
                                   value: 'false'
-
-                                # Send grid for email
-                                - name: SMTP_HOST
-                                  value: smtp
-                                - name: SMTP_PORT
-                                  value: '1025'
-                                - name: SMTP_USERNAME
-                                  value: thisisnotused
-                                - name: SMTP_PASSWORD
-                                  value: thisisnotused
-                                - name: SMTP_TLS_OFF
-                                  value: 'true'
-
-                                # Config for password reset
-                                - name: RESET_DOMAIN
-                                  value: https://yourdomain.com
-                                - name: RESET_FROM_EMAIL_ADDRESS
-                                  value: no-reply@yourdomain.com
 
     app-deployment:
         type: kubernetes:apps/v1:Deployment
