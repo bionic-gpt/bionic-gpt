@@ -414,6 +414,7 @@ kube
  - docs/production/postgres.md
 ReadOnly
 pgvector
+CloudNativePG
  - docs/production/tls-certificates.md
 auth
  - docs/running-locally/gpu-setup.md
@@ -426,3 +427,5 @@ zephyr-7B-beta-AWQ
 8080
 6789
 v1
+ - docs/running-locally/apple-silicon.md
+OSX
