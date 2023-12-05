@@ -11,11 +11,11 @@ variables:
         app: auth
     envoyLabels:
         app: envoy
-    version: 1.4.2
-    hash-bionicgpt: sha256:d78f97222a2541a152c75caeb1b63a85c6e46a384c9b4e03f9cf37d6f206a52e
-    hash-bionicgpt-envoy: sha256:ccd652604645b497e70e90b606c67e4ef48f093b29ba46d89ac05aeca8675a0e
-    hash-bionicgpt-pipeline-job: sha256:74e7a3a7c94749bc0210813cc25a3cf855d9451a748797dc7011d70058f9cbad
-    hash-bionicgpt-db-migrations: sha256:f16819f83c73c4be4ce1d08fac70c43ca833a3a5d18a6c7fe19ac6a36c5a5fe1
+    version: 1.4.3
+    hash-bionicgpt: sha256:7b36367e2f4727fcf0a51c4dca197543a90cf0b7e56ddb77ec65abd2ca9dc1d7
+    hash-bionicgpt-envoy: sha256:a13506446e969e1c2dfa8c1d140c02ca491ae155391c263d4b0fa38f83e7a642
+    hash-bionicgpt-pipeline-job: sha256:d3a6c9fa4b0b246d745382afb76594ce04fc72dc3da12745eade2c24b0484906
+    hash-bionicgpt-db-migrations: sha256:0730c51cc67728e9c1df1de33b81e71378c25bd4b89b4283f36ff5a2f298826e
     db-migrations: ghcr.io/purton-tech/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
     server: ghcr.io/purton-tech/bionicgpt-server:${version}@${hash-bionicgpt}
     envoy: ghcr.io/purton-tech/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
