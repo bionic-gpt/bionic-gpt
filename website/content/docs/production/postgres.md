@@ -19,7 +19,7 @@ N.B. Document how to use PgVector with the Postgres Operator.
 
 ## Bionic GPT Needs Database Secrets
 
-However or wherever you install Postgres all that bionic needs is a Kubernete Secret so it can access the database.
+However or wherever you install Postgres all that bionic needs is a Kubernetes Secret so it can access the database.
 
 The secret should be called `database-urls` and should contain the URLs for 3 postgres users.
 
