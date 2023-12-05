@@ -416,3 +416,13 @@ ReadOnly
 pgvector
  - docs/production/tls-certificates.md
 auth
+ - docs/running-locally/gpu-setup.md
+litellm
+llama2-7B
+TGI
+HuggingFace
+TheBloke
+zephyr-7B-beta-AWQ
+8080
+6789
+v1
