@@ -16,10 +16,10 @@ variables:
     hash-bionicgpt-envoy: sha256:a13506446e969e1c2dfa8c1d140c02ca491ae155391c263d4b0fa38f83e7a642
     hash-bionicgpt-pipeline-job: sha256:d3a6c9fa4b0b246d745382afb76594ce04fc72dc3da12745eade2c24b0484906
     hash-bionicgpt-db-migrations: sha256:0730c51cc67728e9c1df1de33b81e71378c25bd4b89b4283f36ff5a2f298826e
-    db-migrations: ghcr.io/purton-tech/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
-    server: ghcr.io/purton-tech/bionicgpt-server:${version}@${hash-bionicgpt}
-    envoy: ghcr.io/purton-tech/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
-    pipeline-job: ghcr.io/purton-tech/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
+    db-migrations: ghcr.io/bionic-gpt/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
+    server: ghcr.io/bionic-gpt/bionicgpt-server:${version}@${hash-bionicgpt}
+    envoy: ghcr.io/bionic-gpt/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
+    pipeline-job: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
 
 
 resources:
@@ -28,7 +28,7 @@ resources:
         properties:
             metadata:
                 name: envoy
-                namespace: trace
+                namespace: ${namespace}
             spec:
                 selector:
                     matchLabels: ${envoyLabels}
@@ -39,16 +39,16 @@ resources:
                     spec:
                         containers:
                             - name: envoy
-                              image: ${trace-envoy}
+                              image: ${envoy}
                               ports:
-                                - containerPort: 7400
+                                - containerPort: 7700
 
     auth-deployment:
         type: kubernetes:apps/v1:Deployment
         properties:
             metadata:
                 name: auth
-                namespace: trace
+                namespace: ${namespace}
             spec:
                 selector:
                     matchLabels: ${authLabels}
@@ -67,7 +67,7 @@ resources:
                                   valueFrom:
                                     secretKeyRef:
                                         name: database-urls
-                                        key: auth-database-url
+                                        key: authentication-url
                                 - name: AUTH_TYPE
                                   value: encrypted
                                 - name: SECURE_COOKIE
@@ -83,7 +83,7 @@ resources:
                                 - name: REDIRECT_URL
                                   value: /app/post_registration
                                 - name: LOGOUT_URL
-                                  value: https://skytrace.space
+                                  value: /
 
                                 - name: ENABLE_EMAIL_OTP
                                   value: 'false'
@@ -102,16 +102,16 @@ resources:
 
                                 # Config for password reset
                                 - name: RESET_DOMAIN
-                                  value: https://skytrace.space
+                                  value: https://yourdomain.com
                                 - name: RESET_FROM_EMAIL_ADDRESS
-                                  value: no-reply@skytrace.space
+                                  value: no-reply@yourdomain.com
 
     app-deployment:
         type: kubernetes:apps/v1:Deployment
         properties:
             metadata:
                 name: app
-                namespace: trace
+                namespace: ${namespace}
             spec:
                 selector:
                     matchLabels: ${appLabels}
@@ -122,7 +122,7 @@ resources:
                     spec:
                         containers:
                             - name: app
-                              image: ${trace-server}
+                              image: ${server}
                               ports:
                                 - containerPort: 7403
                               env: 
@@ -130,58 +130,28 @@ resources:
                                   valueFrom:
                                     secretKeyRef:
                                         name: database-urls
-                                        key: app-database-url
+                                        key: application-url
                         initContainers:
                             - name: server-init
-                              image: ${trace-db-migrations}
+                              image: ${db-migrations}
                               env: 
                                 - name: DATABASE_URL
                                   valueFrom:
                                     secretKeyRef:
                                         name: database-urls
-                                        key: migrations-database-url
-
-    # Scheduled Jobs
-    space-track-job:
-        properties:
-            metadata:
-                name: space-track-feed-job
-                namespace: trace
-            spec:
-                backoffLimit: 2
-                template:
-                    spec:
-                        containers:
-                              - image: ${trace-space-track-feed}
-                                name: space-track
-                                env: 
-                                  - name: SPACE_TRACK_IDENTITY
-                                    valueFrom:
-                                      secretKeyRef:
-                                          name: trace-space-track
-                                          key: space-track-email
-                                  - name: SPACE_TRACK_PASSWORD
-                                    valueFrom:
-                                      secretKeyRef:
-                                          name: trace-space-track
-                                          key: space-track-password
-                                  - name: BASE_URL
-                                    value: http://app:7403
-
-                        restartPolicy: Never
-        type: kubernetes:batch/v1:Job
+                                        key: migrations-url
     
     # Cloudflare tunnel attaches here.
     envoy-service:
         properties:
             metadata:
                 name: envoy
-                namespace: trace
+                namespace: ${namespace}
             spec:
                 ports:
                     - port: 7100
                       protocol: TCP
-                      targetPort: 7400
+                      targetPort: 7700
                 selector:
                     app: envoy
         type: kubernetes:core/v1:Service
@@ -190,12 +160,12 @@ resources:
         properties:
             metadata:
                 name: app
-                namespace: trace
+                namespace: ${namespace}
             spec:
                 ports:
-                    - port: 7403
+                    - port: 7703
                       protocol: TCP
-                      targetPort: 7403
+                      targetPort: 7703
                 selector:
                     app: app
         type: kubernetes:core/v1:Service
@@ -204,7 +174,7 @@ resources:
         properties:
             metadata:
                 name: auth
-                namespace: trace
+                namespace: ${namespace}
             spec:
                 ports:
                     - port: 9090
