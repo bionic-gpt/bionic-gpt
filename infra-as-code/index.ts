@@ -19,7 +19,7 @@ const applicationNameSpace = new k8s.core.v1.Namespace('bionic-gpt', {
 setupDatabase(applicationNameSpace, cloudnativePg)
 
 const cookieKey = new random.RandomId("cookie-encryption", {
-    byteLength: 8
+    byteLength: 32
 });
 
 // Create a cookie encryption secret
