@@ -45,22 +45,21 @@ kubeadmConfigPatchesJSON6902:
 Normally `kind` is easier to use than this but because we are in a `devcontainer` we have to use some special config.
 
 ```sh
-kind create cluster --name nails-cluster --config=config.yaml
+kind create cluster --name bionic-gpt-cluster --config=config.yaml
 ```
 
-```sh$ 
-kind create cluster --name nails-cluster
-Creating cluster "nails-cluster" ...
- ✓ Ensuring node image (kindest/node:v1.25.3) 🖼
+```sh
+Creating cluster "bionic-gpt-cluster" ...
+ ✓ Ensuring node image (kindest/node:v1.27.3) 🖼
  ✓ Preparing nodes 📦  
  ✓ Writing configuration 📜 
  ✓ Starting control-plane 🕹️ 
  ✓ Installing CNI 🔌 
  ✓ Installing StorageClass 💾 
-Set kubectl context to "kind-nails-cluster"
+Set kubectl context to "kind-bionic-gpt-cluster"
 You can now use your cluster with:
 
-kubectl cluster-info --context kind-nails-cluster
+kubectl cluster-info --context kind-bionic-gpt-cluster
 
 Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
 ```
@@ -70,14 +69,14 @@ Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/
 Kubernetes is administered with a command called `kubectl` let's configure `kubectl` so that it can access our cluster.
 
 ```sh
-$ kind export kubeconfig --name nails-cluster
-Set kubectl context to "kind-nails-cluster"
+$ kind export kubeconfig --name bionic-gpt-cluster
+Set kubectl context to "kind-bionic-gpt-cluster"
 ```
 
-We need to do a little trick so that `kubectl` can see the cluster when running inside our `devcontainer`. Run the following.
+We'll need to edit our kube config when running in the `devcontainer` to point at `host.docker.internal`.
 
 ```sh
-sed -i 's/0.0.0.0/host.docker.internal/g' $HOME/.kube/config
+sed -i 's,https://0.0.0.0,https://host.docker.internal,g' ~/.kube/config
 ```
 
 And now we can use `kubectl` to see what `pods` we have in our cluster.

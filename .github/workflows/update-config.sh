@@ -5,7 +5,7 @@ for i in "${containers[@]}"
 do
     docker pull $i 
     # i.e. turn "purtontech/cloak-server" into "server"
-    CONFIG_NAME=$(echo $i | cut -c 21-) 
+    CONFIG_NAME=$(echo $i | cut -c 20-) 
     HASH=$(docker inspect --format='{{index .RepoDigests 0}}' $i )
     HASH=$(echo $HASH | sed 's/^.*@//' )
     echo "Name $CONFIG_NAME"
@@ -17,7 +17,7 @@ done
 # Update all the version numbers in the docker-compose example
 for i in "${containers[@]}"
 do
-    CONFIG_NAME=$(echo $i | cut -c 21-) 
+    CONFIG_NAME=$(echo $i | cut -c 20-) 
     echo "Name $CONFIG_NAME"
     sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../docker-compose.yml
 done

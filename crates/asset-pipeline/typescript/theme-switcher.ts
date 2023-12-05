@@ -45,7 +45,8 @@ function setTheme() {
                 body.setAttribute('data-theme', theme)
             }
         } else {
-            body.setAttribute('data-theme', 'light')
+            sidenav.setAttribute('data-theme', 'dark')
+            main.setAttribute('data-theme', 'light')
         }
     }
 }

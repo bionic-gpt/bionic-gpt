@@ -1,5 +1,5 @@
 +++
-title = "It's a Pipeline"
+title = "Introduction"
 description = "It's a Pipeline"
 weight = 5
 sort_by = "weight"
@@ -20,6 +20,14 @@ Here's an overview of the pipeline architecture.
 1. Unstructured - Manages text extraction from multiple document types.
 1. Envoy - Glues various services together so they are all available on the same URL.
 1. BionicGTP User Interface - An axum server running the user interface.
+
+## Example Infrastructure as Code
+
+The Bionic-GPT github repository contains an example Pulumi code for setting up a Bionic-GPT cluster.
+
+We recommend you clone the repo and then run the example form the [devcontainer](https://containers.dev/) which has all the tools you need already installed.
+
+After trying the example it should be a lot easier to figure out your own production strategy.
 
 ## Pipeline Diagram
 
