@@ -8,7 +8,7 @@ We use [envoy](https://www.envoyproxy.io/) to proxy requests for auth as well as
 
 ## Certificates
 
-You're going to need certifcates that are valid with your companies browsers. Either by getting them signed by an external entity such as [Let's Encrypt](https://letsencrypt.org/) or some internal process.
+You're going to need certificates that are valid with your companies browsers. Either by getting them signed by an external entity such as [Let's Encrypt](https://letsencrypt.org/) or some internal process.
 
 One possible tool to use is [cert-manager](https://cert-manager.io/)
 

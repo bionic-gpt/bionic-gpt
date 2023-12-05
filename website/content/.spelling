@@ -407,3 +407,12 @@ llama2-7B
 6789
 v1
 zephyr-7B-beta-AWQ
+ - docs/production/k8-setup.md
+GPT
+ - docs/production/kubernetes.md
+kube
+ - docs/production/postgres.md
+ReadOnly
+pgvector
+ - docs/production/tls-certificates.md
+auth

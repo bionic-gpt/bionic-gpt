@@ -1,7 +1,6 @@
 +++
-title = "OS X & Windows Install"
-description = "OS X & Windows"
-weight = 10
+title = "Installation for GPU"
+weight = 30
 sort_by = "weight"
 +++
 
