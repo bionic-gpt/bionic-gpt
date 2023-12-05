@@ -73,6 +73,12 @@ $ kind export kubeconfig --name bionic-gpt-cluster
 Set kubectl context to "kind-bionic-gpt-cluster"
 ```
 
+We'll need to edit our kube config when running in the `devcontainer` to point at `host.docker.internal`.
+
+```sh
+sed -i 's,https://0.0.0.0,https://host.docker.internal,g' ~/.kube/config
+```
+
 And now we can use `kubectl` to see what `pods` we have in our cluster.
 
 ```sh

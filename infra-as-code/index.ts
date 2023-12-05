@@ -1,6 +1,7 @@
 import * as k8s from "@pulumi/kubernetes"
 //import { setupDatabase } from './database'
 import { setupCluster } from './cluster-setup'
+import { setupDatabase } from './database'
 
 
 // Add a postgres operator and anything else apllications need
@@ -12,3 +13,5 @@ const applicationNameSpace = new k8s.core.v1.Namespace('bionic-gpt', {
         name: 'bionic-gpt'
     },
 })
+
+setupDatabase(applicationNameSpace, cloudnativePg)
