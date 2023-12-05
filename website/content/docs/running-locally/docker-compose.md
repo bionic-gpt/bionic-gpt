@@ -10,7 +10,7 @@ sort_by = "weight"
 The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 ```sh
-curl -O https://raw.githubusercontent.com/purton-tech/bionicgpt/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose.yml
 ```
 
 And run
@@ -23,7 +23,7 @@ You can then access the front end from `http://localhost:7800` and you'll be red
 
 ## Registration
 
-The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and you're data is not sent anywhere.
+The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
 ![Alt text](../initial-screen.png "Start Screen")
 
