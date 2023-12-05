@@ -407,3 +407,13 @@ llama2-7B
 6789
 v1
 zephyr-7B-beta-AWQ
+ - docs/running-locally/gpu-setup.md
+litellm
+llama2-7B
+TGI
+HuggingFace
+TheBloke
+zephyr-7B-beta-AWQ
+8080
+6789
+v1
