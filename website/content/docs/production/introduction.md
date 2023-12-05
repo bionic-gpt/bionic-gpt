@@ -23,7 +23,7 @@ Here's an overview of the pipeline architecture.
 
 ## Example Infrastructure as Code
 
-The Bionic-GPT github repository contains an example Pulumi code for setting up a Bionic-GPT cluster.
+The BionicGPT github repository contains an example Pulumi code for setting up a BionicGPT cluster.
 
 We recommend you clone the repo and then run the example form the [devcontainer](https://containers.dev/) which has all the tools you need already installed.
 

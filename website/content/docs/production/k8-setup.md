@@ -4,7 +4,7 @@ weight =15
 sort_by = "weight"
 +++
 
-We use [Pulumi](https://www.pulumi.com/) as an exmple of installing Bionic GPT using infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.
+We use [Pulumi](https://www.pulumi.com/) as an example of installing Bionic GPT using infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.
 
 ## infra-as-code
 
@@ -115,7 +115,7 @@ Let's forward a port to the database
 kubectl port-forward service/bionic-gpt-db-cluster-rw 5455:5432 --namespace=bionic-gpt
 ```
 
-And now we can connect using details from the postgres URL aboce.
+And now we can connect using details from the postgres URL above.
 
 ```sh
 psql postgres://application:gpBrTQNNyQOY1plcW5Yj@localhost:5455/app?sslmode=require
