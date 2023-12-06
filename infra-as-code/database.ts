@@ -61,6 +61,7 @@ export function setupDatabase(
                         name: migrationsSecret.metadata.name
                     },
                     postInitSQL: [
+                        "CREATE EXTENSION IF NOT EXISTS vector",
                         // Add users here.
                         pulumi.all([applicationPassword.result])
                             .apply(([password]) =>
