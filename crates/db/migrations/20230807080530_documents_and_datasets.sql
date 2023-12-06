@@ -1,6 +1,6 @@
 -- migrate:up
 
-CREATE EXTENSION vector;
+CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TYPE chunking_strategy AS ENUM (
     'ByTitle'

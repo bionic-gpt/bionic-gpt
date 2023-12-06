@@ -36,23 +36,34 @@ $$ LANGUAGE plpgsql;
 
 DO $$
 BEGIN
-  CREATE ROLE ft_application LOGIN ENCRYPTED PASSWORD 'testpassword';
-  EXCEPTION WHEN DUPLICATE_OBJECT THEN
-  RAISE NOTICE 'not creating role ft_application -- it already exists';
+   IF NOT EXISTS (
+      SELECT FROM pg_catalog.pg_roles
+      WHERE  rolname = 'ft_application') THEN
+
+      CREATE ROLE ft_application LOGIN PASSWORD 'testpassword';
+   END IF;
 END
 $$;
+
 DO $$
 BEGIN
-  CREATE ROLE ft_authentication LOGIN ENCRYPTED PASSWORD 'testpassword';
-  EXCEPTION WHEN DUPLICATE_OBJECT THEN
-  RAISE NOTICE 'not creating role ft_authentication -- it already exists';
+   IF NOT EXISTS (
+      SELECT FROM pg_catalog.pg_roles
+      WHERE  rolname = 'ft_authentication') THEN
+
+      CREATE ROLE ft_authentication LOGIN PASSWORD 'testpassword';
+   END IF;
 END
 $$;
+
 DO $$
 BEGIN
-  CREATE ROLE ft_readonly LOGIN ENCRYPTED PASSWORD 'testpassword';
-  EXCEPTION WHEN DUPLICATE_OBJECT THEN
-  RAISE NOTICE 'not creating role ft_readonly -- it already exists';
+   IF NOT EXISTS (
+      SELECT FROM pg_catalog.pg_roles
+      WHERE  rolname = 'ft_readonly') THEN
+
+      CREATE ROLE ft_readonly LOGIN PASSWORD 'testpassword';
+   END IF;
 END
 $$;
 
