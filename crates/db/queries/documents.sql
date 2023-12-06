@@ -14,11 +14,12 @@ WHERE
 --! fail_document
 UPDATE documents SET failure_reason = :failure_reason WHERE id = :id;
     
---! documents : Document()
+--! documents : Document(failure_reason?)
 SELECT
     id,
     dataset_id, 
     file_name,
+    failure_reason,
     (SELECT COUNT(id) FROM chunks WHERE document_id = d.id) as batches,
     content_size,
     (SELECT COUNT(id) FROM chunks WHERE document_id = d.id AND chunks IS NULL AND processed IS TRUE) as fail_count,
@@ -37,11 +38,12 @@ AND
     )
 ORDER BY updated_at;
 
---! document : Document()
+--! document : Document(failure_reason?)
 SELECT
     id,
     dataset_id, 
     file_name,
+    failure_reason,
     (SELECT COUNT(id) FROM chunks WHERE document_id = d.id) as batches,
     content_size,
     (SELECT COUNT(id) FROM chunks WHERE document_id = d.id AND chunks IS NULL AND processed IS TRUE) as fail_count,
