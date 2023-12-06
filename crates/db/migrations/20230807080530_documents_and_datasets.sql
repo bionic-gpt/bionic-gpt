@@ -32,6 +32,7 @@ CREATE TABLE documents (
     dataset_id INT NOT NULL, 
     file_name VARCHAR NOT NULL, 
     file_type VARCHAR, 
+    failure_reason VARCHAR, 
     content BYTEA NOT NULL,
     content_size INT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

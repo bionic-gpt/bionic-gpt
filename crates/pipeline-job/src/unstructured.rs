@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use reqwest::{multipart, Client};
 use serde::Deserialize;
 
@@ -36,7 +38,7 @@ pub async fn call_unstructured_api(
     combine_under_n_chars: u32,
     new_after_n_chars: u32,
     multipage_sections: bool,
-) -> Result<Vec<Unstructured>, reqwest::Error> {
+) -> Result<Vec<Unstructured>, Box<dyn Error>> {
     let client = Client::new();
 
     let unstructured_endpoint = if let Ok(domain) = std::env::var("UNSTRUCTURED_ENDPOINT") {
@@ -64,9 +66,13 @@ pub async fn call_unstructured_api(
 
     //send request
     let response = client.post(url).multipart(form).send().await?;
-    let result = response.json::<Vec<Unstructured>>().await?;
+    let text_result = response.text().await?;
+    let result = serde_json::from_str(&text_result);
 
-    Ok(result)
+    match result {
+        Ok(result) => Ok(result),
+        Err(_) => Err(text_result.into()),
+    }
 }
 
 #[cfg(test)]
