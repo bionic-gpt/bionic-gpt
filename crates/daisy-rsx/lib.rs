@@ -15,6 +15,7 @@ pub mod select;
 pub mod tab_container;
 pub mod text_area;
 pub mod time_line;
+pub mod tooltip;
 
 pub use alert::{Alert, AlertColor};
 pub use app_layout::AppLayout;
@@ -33,3 +34,4 @@ pub use select::{Select, SelectSize};
 pub use tab_container::{TabContainer, TabPanel};
 pub use text_area::{TextArea, TextAreaSize};
 pub use time_line::{TimeLine, TimeLineBadge, TimeLineBody};
+pub use tooltip::{ToolTip, ToolTipColor};

@@ -81,10 +81,14 @@ pub fn Page(cx: Scope, team_id: i32, dataset: Dataset, documents: Vec<Document>)
                                                             }
                                                         ))
                                                     } else if doc.failure_reason.is_some() {
+                                                        let text = doc.failure_reason.clone().unwrap().replace(['{', '"', ':', '}'], " ");
                                                         cx.render(rsx!(
-                                                            Label {
-                                                                label_role: LabelRole::Danger,
-                                                                "Failed"
+                                                            ToolTip {
+                                                                text: "{text}",
+                                                                Label {
+                                                                    label_role: LabelRole::Danger,
+                                                                    "Failed"
+                                                                }
                                                             }
                                                         ))
                                                     } else if doc.batches == 0 {
