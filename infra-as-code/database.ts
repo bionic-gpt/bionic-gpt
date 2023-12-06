@@ -61,7 +61,6 @@ export function setupDatabase(
                         name: migrationsSecret.metadata.name
                     },
                     postInitSQL: [
-                        "CREATE EXTENSION IF NOT EXISTS vector",
                         // Add users here.
                         pulumi.all([applicationPassword.result])
                             .apply(([password]) =>
@@ -72,6 +71,9 @@ export function setupDatabase(
                         pulumi.all([readonlyPassword.result])
                             .apply(([password]) =>
                                 `CREATE ROLE ft_readonly LOGIN ENCRYPTED PASSWORD '${password}'`)
+                    ],
+                    postInitApplicationSQL: [
+                        "CREATE EXTENSION IF NOT EXISTS vector"
                     ]
                 }
             },
