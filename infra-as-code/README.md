@@ -32,8 +32,14 @@ kubectl get secret database-urls -o jsonpath='{.data.application-url}' --namespa
 
 From the root folder
 
-```
+```sh
 pulumi up --stack bionic-gpt-app
+```
+
+## Port forward for the App
+
+```sh
+kubectl port-forward service/envoy 7800:7100 --namespace=bionic-gpt
 ```
 
 ## Drop the Kind Cluster
