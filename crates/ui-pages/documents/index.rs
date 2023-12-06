@@ -80,6 +80,17 @@ pub fn Page(cx: Scope, team_id: i32, dataset: Dataset, documents: Vec<Document>)
                                                                 }
                                                             }
                                                         ))
+                                                    } else if doc.failure_reason.is_some() {
+                                                        let text = doc.failure_reason.clone().unwrap().replace(['{', '"', ':', '}'], " ");
+                                                        cx.render(rsx!(
+                                                            ToolTip {
+                                                                text: "{text}",
+                                                                Label {
+                                                                    label_role: LabelRole::Danger,
+                                                                    "Failed"
+                                                                }
+                                                            }
+                                                        ))
                                                     } else if doc.batches == 0 {
                                                         cx.render(rsx!(
                                                             turbo-frame {
@@ -96,6 +107,13 @@ pub fn Page(cx: Scope, team_id: i32, dataset: Dataset, documents: Vec<Document>)
                                                             Label {
                                                                 label_role: LabelRole::Danger,
                                                                 "Processed ({doc.fail_count} failed)"
+                                                            }
+                                                        ))
+                                                    } else if doc.failure_reason.is_some() {
+                                                        cx.render(rsx!(
+                                                            Label {
+                                                                label_role: LabelRole::Danger,
+                                                                "Failed"
                                                             }
                                                         ))
                                                     } else {
