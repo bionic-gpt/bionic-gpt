@@ -1,29 +1,4 @@
 -- migrate:up
-
--- Make sure the postgres user doesn't have to worry about triggers
-DO
-$$
-BEGIN
-  IF EXISTS (
-    SELECT 1
-    FROM pg_roles r
-    JOIN pg_auth_members m ON r.oid = m.roleid
-    JOIN pg_roles grantor ON m.member = grantor.oid
-    WHERE grantor.rolname = current_user
-      AND r.rolname = 'postgres'
-      AND EXISTS (
-        SELECT 1
-        FROM pg_authid
-        WHERE rolname = current_user
-          AND rolsuper = true
-      )
-  ) THEN
-    -- Only run this if we have permission to
-    ALTER ROLE postgres SET session_replication_role = 'replica';
-  END IF;
-END;
-$$;
-
 CREATE FUNCTION audit_by_user_and_org()
    RETURNS TRIGGER 
    LANGUAGE PLPGSQL

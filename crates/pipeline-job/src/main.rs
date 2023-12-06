@@ -32,26 +32,38 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 dataset.new_after_n_chars as u32,
                 dataset.multipage_sections,
             )
-            .await?;
+            .await;
 
-            for text in structured_data {
-                client
-                    .execute(
-                        "
-                        INSERT INTO chunks (
-                            document_id,
-                            page_number,
-                            text
-                        ) 
-                        VALUES 
-                            ($1, $2, $3)",
-                        &[
-                            &document.id,
-                            &text.metadata.page_number.unwrap_or(0),
-                            &text.text,
-                        ],
-                    )
-                    .await?;
+            match structured_data {
+                Ok(structured_data) => {
+                    for text in structured_data {
+                        client
+                            .execute(
+                                "
+                                INSERT INTO chunks (
+                                    document_id,
+                                    page_number,
+                                    text
+                                ) 
+                                VALUES 
+                                    ($1, $2, $3)",
+                                &[
+                                    &document.id,
+                                    &text.metadata.page_number.unwrap_or(0),
+                                    &text.text,
+                                ],
+                            )
+                            .await?;
+                    }
+                }
+                Err(error) => {
+                    let error = format!("Not able to parse document {}", error);
+                    queries::documents::fail_document()
+                        .bind(&client, &error, &document.id)
+                        .await?;
+
+                    tracing::error!(error);
+                }
             }
         }
 
