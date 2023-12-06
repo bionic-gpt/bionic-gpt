@@ -1,0 +1,19 @@
+services:
+
+  tgi:
+    image: ghcr.io/huggingface/text-generation-inference:1.2
+    command: --model-id TheBloke/zephyr-7B-beta-AWQ --max-batch-prefill-tokens 2048 --quantize awq
+    volumes:
+      - ./models:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  llm-api:
+    image: ghcr.io/berriai/litellm:main-v1.10.3
+    command: --model huggingface/TheBloke/zephyr-7B-beta-AWQ --api_base http://tgi/generate_stream --host 0.0.0.0 --port 3000
+    platform: linux/amd64
