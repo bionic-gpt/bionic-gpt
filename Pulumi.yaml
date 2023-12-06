@@ -21,7 +21,6 @@ variables:
     envoy: ghcr.io/bionic-gpt/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
     pipeline-job: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
 
-
 resources:
     envoy-deployment:
         type: kubernetes:apps/v1:Deployment
@@ -121,7 +120,7 @@ resources:
                                         name: database-urls
                                         key: migrations-url
     
-    # Cloudflare tunnel attaches here.
+    # All the required services
     envoy-service:
         properties:
             metadata:
@@ -150,10 +149,10 @@ resources:
                     app: app
         type: kubernetes:core/v1:Service
 
-    auth-service:
+    barricade:
         properties:
             metadata:
-                name: auth
+                name: barricade
                 namespace: ${namespace}
             spec:
                 ports:
