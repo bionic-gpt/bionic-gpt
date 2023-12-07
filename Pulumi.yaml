@@ -24,15 +24,15 @@ variables:
     server: ghcr.io/bionic-gpt/bionicgpt:${version}@${hash-bionicgpt}
     envoy: ghcr.io/bionic-gpt/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
     pipeline-job: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
-    unstructured: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
-    embeddings: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
+    unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
+    embeddings-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
 
 resources:
     unstructured-deployment:
         type: kubernetes:apps/v1:Deployment
         properties:
             metadata:
-                name: unstructured
+                name: unstructured-deployment
                 namespace: ${namespace}
             spec:
                 selector:
@@ -44,7 +44,7 @@ resources:
                     spec:
                         containers:
                             - name: unstructured
-                              image: ${unstructured}
+                              image: ${unstructured-image}
                               ports:
                                 - containerPort: 8000
 
@@ -64,7 +64,7 @@ resources:
                     spec:
                         containers:
                             - name: embeddings
-                              image: ${embeddings}
+                              image: ${embeddings-image}
                               ports:
                                 - containerPort: 80
 
@@ -195,10 +195,10 @@ resources:
                     app: app
         type: kubernetes:core/v1:Service
 
-    auth-service:
+    barricade:
         properties:
             metadata:
-                name: auth-service
+                name: barricade
                 namespace: ${namespace}
             spec:
                 ports:
@@ -209,10 +209,10 @@ resources:
                     app: auth
         type: kubernetes:core/v1:Service
 
-    unstructured-servce:
+    unstructured:
         properties:
             metadata:
-                name: unstructured-servce
+                name: unstructured
                 namespace: ${namespace}
             spec:
                 ports:
@@ -223,10 +223,10 @@ resources:
                     app: unstructured
         type: kubernetes:core/v1:Service
 
-    embeddings-service:
+    embeddings-api:
         properties:
             metadata:
-                name: embeddings-service
+                name: embeddings-api
                 namespace: ${namespace}
             spec:
                 ports:
