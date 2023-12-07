@@ -429,3 +429,8 @@ zephyr-7B-beta-AWQ
 v1
  - docs/running-locally/apple-silicon.md
 OSX
+ - docs/production/add-a-model.md
+Lite
+ - docs/production/k8s-gpu.md
+K8s
+TGI
