@@ -11,6 +11,10 @@ variables:
         app: auth
     envoyLabels:
         app: envoy
+    unstructuredLabels:
+        app: unstructured
+    embeddingsLabels:
+        app: embeddings
     version: 1.4.6
     hash-bionicgpt: sha256:6c14637d1587fdd22f83935c7b8d5c8f1748d55e647af481e86a54922004e0f9
     hash-bionicgpt-envoy: sha256:7b3e696d0baeaab30e55cce0a23bbf7e635a72b0c1e03d34ac91be62539f2471
@@ -20,8 +24,50 @@ variables:
     server: ghcr.io/bionic-gpt/bionicgpt:${version}@${hash-bionicgpt}
     envoy: ghcr.io/bionic-gpt/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
     pipeline-job: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
+    unstructured: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
+    embeddings: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
 
 resources:
+    unstructured-deployment:
+        type: kubernetes:apps/v1:Deployment
+        properties:
+            metadata:
+                name: unstructured
+                namespace: ${namespace}
+            spec:
+                selector:
+                    matchLabels: ${unstructuredLabels}
+                replicas: 1
+                template:
+                    metadata:
+                        labels: ${unstructuredLabels}
+                    spec:
+                        containers:
+                            - name: unstructured
+                              image: ${unstructured}
+                              ports:
+                                - containerPort: 8000
+
+    embeddings-deployment:
+        type: kubernetes:apps/v1:Deployment
+        properties:
+            metadata:
+                name: embeddings
+                namespace: ${namespace}
+            spec:
+                selector:
+                    matchLabels: ${embeddingsLabels}
+                replicas: 1
+                template:
+                    metadata:
+                        labels: ${embeddingsLabels}
+                    spec:
+                        containers:
+                            - name: embeddings
+                              image: ${embeddings}
+                              ports:
+                                - containerPort: 80
+
     envoy-deployment:
         type: kubernetes:apps/v1:Deployment
         properties:
@@ -149,10 +195,10 @@ resources:
                     app: app
         type: kubernetes:core/v1:Service
 
-    barricade:
+    auth-service:
         properties:
             metadata:
-                name: barricade
+                name: auth-service
                 namespace: ${namespace}
             spec:
                 ports:
@@ -161,4 +207,32 @@ resources:
                       targetPort: 9090
                 selector:
                     app: auth
+        type: kubernetes:core/v1:Service
+
+    unstructured-servce:
+        properties:
+            metadata:
+                name: unstructured-servce
+                namespace: ${namespace}
+            spec:
+                ports:
+                    - port: 8000
+                      protocol: TCP
+                      targetPort: 8000
+                selector:
+                    app: unstructured
+        type: kubernetes:core/v1:Service
+
+    embeddings-service:
+        properties:
+            metadata:
+                name: embeddings-service
+                namespace: ${namespace}
+            spec:
+                ports:
+                    - port: 80
+                      protocol: TCP
+                      targetPort: 80
+                selector:
+                    app: embeddings
         type: kubernetes:core/v1:Service
