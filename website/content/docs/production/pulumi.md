@@ -4,7 +4,7 @@ weight = 60
 sort_by = "weight"
 +++
 
-Now we have a namespace in our cluster with hte pre-requisites we can install the application.
+Now we have a namespace in our cluster with the pre-requisites we can install the application.
 
 We provide a [Pulumi.yaml](https://github.com/bionic-gpt/bionic-gpt/blob/main/Pulumi.yaml) file that will install the corresponding components into the `bionic-gpt` namespace.
 
@@ -36,7 +36,7 @@ variables:
 
 Run `pulumi up` and check that all the deployments are running correctly.
 
-If the wind is blowing in ther right direction you'll hopefully get something that looks like below.
+If the wind is blowing in the right direction you'll hopefully get something that looks like below.
 
 ```sh
 $ pulumi up
@@ -85,5 +85,12 @@ Resources:
 Duration: 15s
 ```
 
-## Accessing the Bionic-GPT in your cluster
+## Accessing the Bionic-GPT application in your cluster
 
+```sh
+kubectl port-forward service/envoy 7800:7100 --namespace=bionic-gpt
+```
+
+You should now be able to access the application with `http://localhost:7800`.
+
+You're now ready to add a model.
