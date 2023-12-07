@@ -1,10 +1,18 @@
 +++
-title = "Kubernetes Setup"
+title = "Kubernetes Preparation"
 weight =15
 sort_by = "weight"
 +++
 
-We use [Pulumi](https://www.pulumi.com/) as an example of installing Bionic GPT using infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.
+We use [Pulumi](https://www.pulumi.com/) for infrastructure as code. Here we walk through the process of what it would like like to setup a Kubernetes cluster ready for a BionicGPT deployment.
+
+So I usually have a git repository for managing all the infrastructure I need for multiple projects. 
+
+Then for each application I setup a kubernetes namespace and I give the application what it needs via secrets. 
+
+The application then has a `Pulumi.yaml` in it's own github repository which deploys what it needs and pulls in the secrets.
+
+I have tried to reproduce that structure in the one github repository.
 
 ## infra-as-code
 
