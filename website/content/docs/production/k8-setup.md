@@ -8,7 +8,7 @@ We use [Pulumi](https://www.pulumi.com/) for infrastructure as code. Here we wal
 
 So I usually have a git repository for managing all the infrastructure I need for multiple projects. 
 
-Then for each application I setup a kubernetes namespace and I give the application what it needs via secrets. 
+Then for each application I setup a Kubernetes namespace and I give the application what it needs via secrets. 
 
 The application then has a `Pulumi.yaml` in it's own github repository which deploys what it needs and pulls in the secrets.
 
