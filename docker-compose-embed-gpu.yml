@@ -1,0 +1,12 @@
+services:
+  embeddings-api:
+    image: ghcr.io/huggingface/text-embeddings-inference:0.2.2
+    platform: linux/amd64
+    command: --model-id BAAI/bge-small-en-v1.5
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
