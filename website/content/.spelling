@@ -434,3 +434,5 @@ Lite
  - docs/production/k8s-gpu.md
 K8s
 TGI
+ - docs/rag/prompt.md
+setups
