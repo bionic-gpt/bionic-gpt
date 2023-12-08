@@ -5,7 +5,7 @@ on:
     branches: 
       - main
     paths-ignore:
-      - 'llm-docker/**'
+      - 'docker-compose.*'
       - 'website/**'
       - 'infra-as-code/**'
       - '*.md'
@@ -14,7 +14,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'llm-docker/**'
+      - 'docker-compose.*'
       - 'website/**'
       - 'infra-as-code/**'
       - '*.md'

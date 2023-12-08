@@ -1,13 +1,42 @@
 +++
-title = "Apple Silicon OSX"
+title = "Apple Mac (Arm)"
 weight = 40
 sort_by = "weight"
 +++
 
-BionicGPT doesn't work out of the box on Apple Silicon.
+## Experimental
 
-We haven't found an optimal solution for running on M series Macs so far.
+We actually don't have an M1, M2 or M3 mac to try this. If you do try this please let us know how it went.
 
-There's is a way to get good performance using [LocalAI](https://localai.io/) they have a way to [build an executable](https://localai.io/basics/build/) for Apple Silicon that should give great performance for inference.
+## Prerequisites
 
-If you try  this, or know an easier way please let us know so we can update the documentation.
+The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
+
+```sh
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-arm.yml
+```
+
+And run
+
+```sh
+docker-compose -f docker-compose.yml -f docker-compose-arm.yml up
+```
+
+You can then access the front end from `http://localhost:7800` and you'll be redirected to a registration screen.
+
+## Registration
+
+The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
+
+![Alt text](../initial-screen.png "Start Screen")
+
+## Upgrading to a later version of BionicGPT
+
+When upgrading to the latest version of BionicGPT we recommend running 
+
+```sh
+docker-compose -f docker-compose.yml -f docker-compose-arm.yml down -v
+```
+
+to completely delete the database.
