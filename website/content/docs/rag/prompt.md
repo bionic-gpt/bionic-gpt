@@ -8,7 +8,7 @@ Retrieval augmented generation places a heavy burden on the prompt. For some set
 
 We do keep a track of tokens as we add context and history to the prompt that is sent to the model.
 
-However, the inderence engines may count in a different way, to stop Bionic overflowing the context you can set a trim ratio.
+However, the inference engines may count in a different way, to stop Bionic overflowing the context you can set a trim ratio.
 
 ## Trim Ratio
 
