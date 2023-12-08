@@ -13,6 +13,8 @@ variables:
         app: envoy
     unstructuredLabels:
         app: unstructured
+    pipelineLabels:
+        app: pipeline
     embeddingsLabels:
         app: embeddings
     version: 1.4.9
@@ -23,7 +25,7 @@ variables:
     db-migrations: ghcr.io/bionic-gpt/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
     server: ghcr.io/bionic-gpt/bionicgpt:${version}@${hash-bionicgpt}
     envoy: ghcr.io/bionic-gpt/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
-    pipeline-job: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
+    pipeline-image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
     unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
     embeddings-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
 
@@ -67,6 +69,33 @@ resources:
                               image: ${embeddings-image}
                               ports:
                                 - containerPort: 80
+                              env:
+                                - name: MODEL_ID
+                                  value: 'BAAI/bge-small-en-v1.5'
+
+    pipeline-job-deployment:
+        type: kubernetes:apps/v1:Deployment
+        properties:
+            metadata:
+                name: pipeline
+                namespace: ${namespace}
+            spec:
+                selector:
+                    matchLabels: ${pipelineLabels}
+                replicas: 1
+                template:
+                    metadata:
+                        labels: ${pipelineLabels}
+                    spec:
+                        containers:
+                            - name: pipeline
+                              image: ${pipeline-image}
+                              env: 
+                                - name: APP_DATABASE_URL
+                                  valueFrom:
+                                    secretKeyRef:
+                                        name: database-urls
+                                        key: application-url
 
     envoy-deployment:
         type: kubernetes:apps/v1:Deployment
