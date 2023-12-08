@@ -218,12 +218,33 @@ pub fn Form(
                                 Range {
                                     label: "Trim Ratio",
                                     label_class: "mt-4",
-                                    name: "Trim Ration",
+                                    name: "trim_ratio",
                                     min: 0,
                                     max: 100,
                                     value: *trim_ratio,
                                     help_text: "The way we count tokens may not match the way the the inference engine does. 
-                                    Here you can say how much of the available context to use. i.e. 80% will use 80% of the context_size - max_tokens."
+                                    Here you can say how much of the available context to use. i.e. 80% will use 80% of the context_size - max_tokens.",
+                                    div {
+                                        class: "w-full flex justify-between text-xs px-2",
+                                        span {
+                                            "0"
+                                        }
+                                        span {
+                                            "20"
+                                        }
+                                        span {
+                                            "40"
+                                        }
+                                        span {
+                                            "60"
+                                        }
+                                        span {
+                                            "80"
+                                        }
+                                        span {
+                                            "100"
+                                        }
+                                    }
                                 }
 
                                 Input {
