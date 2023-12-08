@@ -1,7 +1,7 @@
 +++
 title = "How to try out your use cases"
 description = "How to try out your use cases"
-weight = 30
+weight = 10
 sort_by = "weight"
 +++
 
@@ -13,7 +13,7 @@ Having identified documents that you would the LLM to use as part of it's answer
 
 In the background we use a service called unstructured to remove the text from those documents. So the quality of answers you get is going to depend on the quality of the text within those documents.
 
-![Alt text](/resource-augmented-generation.png "Uploading docements")
+![Alt text](../document-upload.png "Uploading documents")
 
 ## Selecting Datasets
 
