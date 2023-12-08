@@ -75,6 +75,7 @@ pub async fn post_registration(
                 &3,
                 &10,
                 &1024,
+                &100,
                 &0.7,
                 &0.1,
             )
