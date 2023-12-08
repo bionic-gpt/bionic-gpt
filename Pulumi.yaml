@@ -265,3 +265,41 @@ resources:
                 selector:
                     app: embeddings
         type: kubernetes:core/v1:Service
+
+    ## Just as a sanity check deploy LLama 7B CPU.
+
+    llama7b-deployment:
+        type: kubernetes:apps/v1:Deployment
+        properties:
+            metadata:
+                name: llama7b
+                namespace: ${namespace}
+            spec:
+                selector:
+                    matchLabels: 
+                        app: llama7b
+                replicas: 1
+                template:
+                    metadata:
+                        labels: 
+                            app: llama7b
+                    spec:
+                        containers:
+                            - name: llama7b
+                              image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.2
+                              ports:
+                                - containerPort: 3000
+
+    llm-api:
+        properties:
+            metadata:
+                name: llm-api
+                namespace: ${namespace}
+            spec:
+                ports:
+                    - port: 3000
+                      protocol: TCP
+                      targetPort: 3000
+                selector:
+                    app: llama7b
+        type: kubernetes:core/v1:Service
