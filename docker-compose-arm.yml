@@ -1,0 +1,6 @@
+services:
+
+  llm-api:
+    image: litellm/ollama
+    ports:
+      - "3000:8000"
