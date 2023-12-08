@@ -30,6 +30,7 @@ SELECT
     p.max_history_items,
     p.max_chunks,
     p.max_tokens,
+    p.trim_ratio,
     p.temperature,
     p.top_p,
     -- Convert times to ISO 8601 string.
@@ -78,6 +79,7 @@ SELECT
     p.max_history_items,
     p.max_chunks,
     p.max_tokens,
+    p.trim_ratio,
     p.temperature,
     p.top_p,
     -- Convert times to ISO 8601 string.
@@ -128,6 +130,7 @@ SELECT
     p.max_history_items,
     p.max_chunks,
     p.max_tokens,
+    p.trim_ratio,
     p.temperature,
     p.top_p,
     -- Convert times to ISO 8601 string.
@@ -197,6 +200,7 @@ INSERT INTO prompts (
     max_history_items,
     max_chunks,
     max_tokens,
+    trim_ratio,
     temperature,
     top_p
 )
@@ -210,6 +214,7 @@ VALUES(
     :max_history_items,
     :max_chunks,
     :max_tokens,
+    :trim_ratio,
     :temperature,
     :top_p
 )
@@ -227,6 +232,7 @@ SET
     max_history_items = :max_history_items,
     max_chunks = :max_chunks,
     max_tokens = :max_tokens,
+    trim_ratio = :trim_ratio,
     temperature = :temperature,
     top_p = :top_p
 WHERE

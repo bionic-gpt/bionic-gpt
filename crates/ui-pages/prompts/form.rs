@@ -21,6 +21,7 @@ pub fn Form(
     max_history_items: i32,
     max_chunks: i32,
     max_tokens: i32,
+    trim_ratio: i32,
     temperature: f32,
     top_p: f32,
 ) -> Element {
@@ -197,7 +198,8 @@ pub fn Form(
                                     name: "max_history_items",
                                     label: "Max number of history items",
                                     label_class: "mt-4",
-                                    help_text: "This decides how much history we add to the prompt",
+                                    help_text: "This decides how much history we add to the prompt. 
+                                    Set it to zero to send no history.",
                                     value: "{max_history_items}",
                                     required: true
                                 }
@@ -207,9 +209,21 @@ pub fn Form(
                                     name: "max_tokens",
                                     label: "Max Tokens",
                                     label_class: "mt-4",
-                                    help_text: "How much of the context to leave for the LLM's reply",
+                                    help_text: "How much of the context to leave for the LLM's reply. 
+                                    Set this to roughly half of the available context for the model you are using.",
                                     value: "{*max_tokens}",
                                     required: true
+                                }
+
+                                Range {
+                                    label: "Trim Ratio",
+                                    label_class: "mt-4",
+                                    name: "Trim Ration",
+                                    min: 0,
+                                    max: 100,
+                                    value: *trim_ratio,
+                                    help_text: "The way we count tokens may not match the way the the inference engine does. 
+                                    Here you can say how much of the available context to use. i.e. 80% will use 80% of the context_size - max_tokens."
                                 }
 
                                 Input {
