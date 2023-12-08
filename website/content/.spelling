@@ -436,3 +436,12 @@ K8s
 TGI
  - docs/rag/prompt.md
 setups
+ - docs/administration/configuring-email.md
+SMTP_HOST
+Hostname
+SMTP_USERNAME
+SMTP_PASSWORD
+SMTP_PORT
+INVITE_DOMAIN
+INVITE_FROM_EMAIL_ADDRESS
+yml
