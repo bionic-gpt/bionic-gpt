@@ -21,6 +21,7 @@ pub struct NewPromptTemplate {
     pub max_history_items: i32,
     pub max_chunks: i32,
     pub max_tokens: i32,
+    pub trim_ratio: i32,
     pub temperature: f32,
     pub top_p: f32,
     pub visibility: String,
@@ -60,6 +61,7 @@ pub async fn upsert(
                     &new_prompt_template.max_history_items,
                     &new_prompt_template.max_chunks,
                     &new_prompt_template.max_tokens,
+                    &new_prompt_template.trim_ratio,
                     &new_prompt_template.temperature,
                     &new_prompt_template.top_p,
                     &id,
@@ -94,6 +96,7 @@ pub async fn upsert(
                     &new_prompt_template.max_history_items,
                     &new_prompt_template.max_chunks,
                     &new_prompt_template.max_tokens,
+                    &new_prompt_template.trim_ratio,
                     &new_prompt_template.temperature,
                     &new_prompt_template.top_p,
                 )

@@ -72,7 +72,7 @@ pub async fn handler(
     let completion = Completion {
         model: model.name,
         stream: Some(true),
-        max_tokens: None,
+        max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
     };

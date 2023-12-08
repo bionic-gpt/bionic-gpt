@@ -55,9 +55,12 @@ pub async fn execute_prompt(
 
     tracing::info!("Retrieved {} history items", chat_history.len());
 
+    let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
+
     let messages = generate_prompt(
         prompt.model_context_size as usize,
         prompt.max_tokens as usize,
+        trim_ratio,
         prompt.system_prompt,
         chat_history,
         chat,
@@ -79,6 +82,7 @@ pub async fn execute_prompt(
 async fn generate_prompt(
     model_context_size: usize,
     max_tokens: usize,
+    trim_ratio: f32,
     system_prompt: Option<String>,
     mut history: Vec<Chat>,
     question: Vec<Message>,
@@ -102,7 +106,10 @@ async fn generate_prompt(
     };
 
     // This is the space we have to fill
-    let size_allowed = model_context_size - max_tokens;
+    let size_allowed = ((model_context_size - max_tokens) as f32 * trim_ratio) as usize;
+
+    tracing::info!("Using context size of {}", size_allowed);
+
     let mut size_so_far = 0;
 
     // Add a system message if we have one
@@ -338,6 +345,7 @@ mod tests {
         let messages = generate_prompt(
             2048,
             1024,
+            1.0,
             Some("You are a helpful asistant".to_string()),
             vec![create_prompt(
                 "What time is it?".to_string(),
@@ -362,6 +370,7 @@ mod tests {
         let messages = generate_prompt(
             2048,
             1024,
+            1.0,
             Some("You are a helpful asistant".to_string()),
             vec![create_prompt(
                 "What time is it?".to_string(),
@@ -386,6 +395,7 @@ mod tests {
         let messages = generate_prompt(
             2048,
             1024,
+            1.0,
             Some("You are a helpful asistant".to_string()),
             vec![create_prompt(
                 "What time is it?".to_string(),
