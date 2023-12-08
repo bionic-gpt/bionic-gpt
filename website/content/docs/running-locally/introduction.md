@@ -5,18 +5,17 @@ weight = 10
 sort_by = "weight"
 +++
 
-BionicGPT collects together all the components needed to deploy a Generative AI solution in your company.
+BionicGPT is designed to be installed in your data center and then serve Generative AI to potentially hundreds of people via their browser.
+
+However, before that can happen you need to be able to trial the software. 
+
+Using `docker compose` we're able to package a version of the software that show cases all it can do. Many people are using BionicGPT in this way as they like the user interface and the easy install. We hope you like it too.
+
+BionicGPT can run on modest hardware (16GB ram) and then scale into more powerful hardware when required. For example 70B running across multiple GPU cards.
+
+We're open source. If you have any suggestions, recommendations are just have any questions you can either [contact us](/contact) or raise an issue on our github.
 
 ![Alt text](/github-readme.png "Start Screen")
-
-BionicGPT was designed from the beginning to run on modest hardware and then scale into more powerful hardware when required.
-
-This gives us the following benefits
-
-1. You can get a feel for how Generative AI might work for your use cases without having access to powerful hardware. We aim to be able to run run on most laptops with around 16GB ram.
-1. You don't need to engage with a sales person for a demonstration. 
-
-BionicGPT is open source. If you have any suggestions, recommendations are just have any questions you can either [contact us](/contact) or raise an issue on our github.
 
 ## LLama 2 7B
 

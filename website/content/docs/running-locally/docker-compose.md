@@ -1,6 +1,5 @@
 +++
-title = "Installing Locally"
-description = "Installing Locally"
+title = "Installation (CPU)"
 weight = 20
 sort_by = "weight"
 +++
