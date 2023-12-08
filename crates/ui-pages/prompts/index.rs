@@ -128,6 +128,7 @@ pub fn Page(
                                 max_history_items: prompt.max_history_items,
                                 max_chunks: prompt.max_chunks,
                                 max_tokens: prompt.max_tokens,
+                                trim_ratio: prompt.trim_ratio,
                                 temperature: prompt.temperature.unwrap_or(0.7),
                                 top_p: prompt.top_p.unwrap_or(0.0),
                             }
@@ -151,6 +152,7 @@ pub fn Page(
                 max_history_items: 3,
                 max_chunks: 10,
                 max_tokens: 1024,
+                trim_ratio: 80,
                 temperature: 0.7,
                 top_p: 0.0,
             }

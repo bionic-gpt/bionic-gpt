@@ -16,6 +16,7 @@ CREATE TABLE prompts (
     max_history_items INT NOT NULL,
     max_chunks INT NOT NULL,
     max_tokens INT NOT NULL,
+    trim_ratio INT NOT NULL CHECK (trim_ratio >= 0 AND trim_ratio <= 100),
     temperature REAL CHECK (temperature >= 0 AND temperature <= 2),
     top_p REAL CHECK (top_p >= 0 AND top_p <= 1),
     system_prompt VARCHAR, 
