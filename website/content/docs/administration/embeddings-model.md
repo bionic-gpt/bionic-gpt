@@ -30,3 +30,9 @@ i.e.
 ```sql
 ALTER TABLE chunks ALTER COLUMN embeddings TYPE vector(500);
 ```
+
+## Running it all
+
+```sh
+docker-compose -f docker-compose.yml -f docker-compose-embeddings.yml up
+```
