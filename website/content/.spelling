@@ -432,6 +432,7 @@ OSX
 M1
 M2
 M3
+Ollama
  - docs/production/add-a-model.md
 Lite
  - docs/production/k8s-gpu.md
