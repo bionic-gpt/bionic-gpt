@@ -16,7 +16,8 @@ pub fn Upload(cx: Scope, upload_action: String) -> Element {
 
                     input {
                         "type": "file",
-                        name: "payload"
+                        name: "payload",
+                        multiple: true
                     }
 
                     Alert {
@@ -55,7 +56,7 @@ pub fn Upload(cx: Scope, upload_action: String) -> Element {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,
                         disabled_text: "Document uploading, this may take some time",
-                        "Upload File"
+                        "Upload File(s)"
                     }
                 }
             }
