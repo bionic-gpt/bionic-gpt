@@ -420,7 +420,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Upload Files']"))
+        .find(By::XPath("//button[text()='Upload File(s)']"))
         .await?
         .click()
         .await?;
