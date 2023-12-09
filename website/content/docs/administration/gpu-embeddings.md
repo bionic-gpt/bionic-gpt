@@ -1,6 +1,6 @@
 +++
 title = "Embeddings on GPU"
-weight = 460
+weight = 50
 sort_by = "weight"
 +++
 
