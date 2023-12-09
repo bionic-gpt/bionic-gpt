@@ -4,9 +4,11 @@ weight = 40
 sort_by = "weight"
 +++
 
-## Experimental
+## Ollama
 
-We actually don't have an M1, M2 or M3 mac to try this. If you do try this please let us know how it went.
+You'll need to install [Ollama](https://ollama.ai/) and get it running with the `llama2` model.
+
+Once you have that running you can use the following to connect it to Bionic.
 
 ## Prerequisites
 
@@ -14,13 +16,13 @@ The easiest way to get running with BionicGPT is with our `docker-compose.yml` f
 
 ```sh
 curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose.yml
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-arm.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-ollama.yml
 ```
 
 And run
 
 ```sh
-docker-compose -f docker-compose.yml -f docker-compose-arm.yml up
+docker-compose -f docker-compose.yml -f docker-compose-ollama.yml up
 ```
 
 You can then access the front end from `http://localhost:7800` and you'll be redirected to a registration screen.
@@ -36,7 +38,7 @@ The first user to register with **BionicGPT** will become the system administrat
 When upgrading to the latest version of BionicGPT we recommend running 
 
 ```sh
-docker-compose -f docker-compose.yml -f docker-compose-arm.yml down -v
+docker-compose -f docker-compose.yml -f docker-compose-ollama.yml down -v
 ```
 
 to completely delete the database.

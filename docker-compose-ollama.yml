@@ -1,0 +1,10 @@
+services:
+
+  llm-api:
+    image: ghcr.io/berriai/litellm:main-v1.10.3
+    command: --model ollama/llama2 --api_base http://host.docker.internal:11434 --host 0.0.0.0 --port 3000
+    platform: linux/amd64
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
