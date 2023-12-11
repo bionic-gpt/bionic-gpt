@@ -427,6 +427,10 @@ zephyr-7B-beta-AWQ
 8080
 6789
 v1
+StarCoder
+GPT-NeoX
+T5
+Grammarly
  - docs/running-locally/apple-silicon.md
 OSX
 M1
@@ -449,3 +453,5 @@ SMTP_PORT
 INVITE_DOMAIN
 INVITE_FROM_EMAIL_ADDRESS
 yml
+ - docs/running-locally/gpu-setup-ollama.md
+29
