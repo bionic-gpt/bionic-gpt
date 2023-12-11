@@ -1,10 +1,14 @@
 +++
-title = "Installation for GPU"
+title = "Installation for GPU (TGI)"
 weight = 30
 sort_by = "weight"
 +++
 
-## Configure to run with Text Generation Interface and litellm
+### Text-Generation-Inference
+
+Text-Generation-Inference is a solution for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation using Tensor Parallelism and dynamic batching for the most popular open-source LLMs, including StarCoder, BLOOM, GPT-NeoX, Llama, and T5. Text Generation Inference is already used by customers such as IBM, Grammarly, and the Open-Assistant initiative implements optimization for all supported model architectures, including:
+
+## Configure to run with Text Generation Inference and litellm
 
 The standard bionicGPT install comes with a CPU based llama2-7B model installed but we can access many more models using a combination of TGI and litellm and this includes using GPU for better inference timings. This setup allows you local access to the hundreds of thousands of models listed on HuggingFace. 
 
