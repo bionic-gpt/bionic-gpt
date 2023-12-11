@@ -6,7 +6,7 @@ sort_by = "weight"
 
 ### Text-Generation-Inference
 
-[Text-Generation-Inference](https://github.com/huggingface/text-generation-inference) is a solution for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation using Tensor Parallelism and dynamic batching for the most popular open-source LLMs, including StarCoder, BLOOM, GPT-NeoX, Llama, and T5. Text Generation Inference is already used by customers such as IBM, Grammarly, and the Open-Assistant initiative implements optimization for all supported model architectures, including:
+[Text-Generation-Inference](https://github.com/huggingface/text-generation-inference) is a solution for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation using Tensor Parallelism and dynamic batching for the most popular open-source LLMs, including StarCoder, BLOOM, GPT-NeoX, Llama, and T5. Text Generation Inference is already used by customers such as IBM, Grammarly. The Open-Assistant initiative implements optimization for all supported model architectures.
 
 ## Configure to run with Text Generation Inference and litellm
 
