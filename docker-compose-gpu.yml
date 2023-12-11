@@ -21,7 +21,7 @@ services:
       - -c
       - |
         pip install async_generator
-        litellm --model ollama/llama2 --api_base http://host.docker.internal:11434 --host 0.0.0.0 --port 3000
+        litellm --model huggingface/TheBloke/zephyr-7B-beta-AWQ --api_base http://tgi/generate_stream --host 0.0.0.0 --port 3000
     entrypoint: []
     
     platform: linux/amd64
