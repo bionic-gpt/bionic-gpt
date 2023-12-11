@@ -442,6 +442,7 @@ Lite
  - docs/production/k8s-gpu.md
 K8s
 TGI
+LiteLLM
  - docs/rag/prompt.md
 setups
  - docs/administration/configuring-email.md
