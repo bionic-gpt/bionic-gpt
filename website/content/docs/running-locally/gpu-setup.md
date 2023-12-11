@@ -24,6 +24,12 @@ curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-comp
 curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-gpu.yml
 ```
 
+And run
+
+```sh
+docker-compose -f docker-compose.yml -f docker-compose-gpu.yml up
+```
+
 You can then access the front end from `http://localhost:7800` and you'll be redirected to a registration screen.
 
 ## Registration
