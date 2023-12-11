@@ -6,7 +6,7 @@ sort_by = "weight"
 
 ### Text-Generation-Inference
 
-Text-Generation-Inference is a solution for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation using Tensor Parallelism and dynamic batching for the most popular open-source LLMs, including StarCoder, BLOOM, GPT-NeoX, Llama, and T5. Text Generation Inference is already used by customers such as IBM, Grammarly, and the Open-Assistant initiative implements optimization for all supported model architectures, including:
+[Text-Generation-Inference](https://github.com/huggingface/text-generation-inference) is a solution for deploying and serving Large Language Models (LLMs). TGI enables high-performance text generation using Tensor Parallelism and dynamic batching for the most popular open-source LLMs, including StarCoder, BLOOM, GPT-NeoX, Llama, and T5. Text Generation Inference is already used by customers such as IBM, Grammarly, and the Open-Assistant initiative implements optimization for all supported model architectures, including:
 
 ## Configure to run with Text Generation Inference and litellm
 
@@ -14,53 +14,61 @@ The standard bionicGPT install comes with a CPU based llama2-7B model installed 
 
 ![Alt text](../arch.png "Architecture")
 
-\
 
-### 1. Install and run TGI Docker Container
 Full details of this container can be found at [HuggingFace TGI](https://github.com/huggingface/text-generation-inference)
 
+## Installation
 
 ```sh
-docker run --gpus all --shm-size 1g -p 8080:80 -v ./models:/data ghcr.io/huggingface/text-generation-inference:1.2 --model-id TheBloke/zephyr-7B-beta-AWQ --max-batch-prefill-tokens 2048 --quantize awq
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-gpu.yml
 ```
-This downloads the TheBloke/zephyr-7B-beta-AWQ model with inference using GPU. If you haven't run Docker containers with GPU install required libraries from  [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) for other GPU setup refer to [TGI](https://github.com/huggingface/text-generation-inference)
 
+You can then access the front end from `http://localhost:7800` and you'll be redirected to a registration screen.
 
+## Registration
 
-To test that this is running go to [localhost:8080/docs](http://localhost:8080/docs)
-![Alt text](../TGI-web.png "TGI Web Interface")
+The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
-\
-\
-### 2. Install and run litellm Docker Container
+![Alt text](../initial-screen.png "Start Screen")
+
+## Upgrading to a later version of BionicGPT
+
+When upgrading to the latest version of BionicGPT we recommend running 
 
 ```sh
-docker run -p 6789:6789 ghcr.io/berriai/litellm:main-v1.10.3  --model huggingface/TheBloke/zephyr-7B-beta-AWQ --api_base http://127.0.0.1:8080/generate_stream --host 0.0.0.0 --port 6789
+docker-compose -f docker-compose.yml -f docker-compose-gpu.yml down -v
 ```
 
-To test that this is running go to [localhost:6789/docs](http://localhost:6789)
-![Alt text](../litellm-web.png "litellm Web Interface")
-
-
-Use the v1/models tab to get the models installed. This should return the model you installed under TGI
-\
-![Alt text](../model.png "model installed under TGI")
+to completely delete the database.
  
 
-\
-\
-### 3. Configure bionicGPT to communicate with litellm
+## Changing The Model
 
-It is important that for the URL to litellm you use your machine's IP address and not localhost as these are running in different Docker spaces. E.g. http://192/168.86.40:6789/v1
+The `docker-compose` override files looks something like below.
 
-Go to the Model Setup screen and click Add Model
+```yml
+services:
 
-![Alt text](../bionic-setup.png "bionicGPT to litellm setup")
+  tgi:
+    image: ghcr.io/huggingface/text-generation-inference:1.2
+    command: --model-id TheBloke/zephyr-7B-beta-AWQ --max-batch-prefill-tokens 2048 --quantize awq
+    volumes:
+      - ./models:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
+  llm-api:
+    image: ghcr.io/berriai/litellm:main-v1.10.3
+    command: --model huggingface/TheBloke/zephyr-7B-beta-AWQ --api_base http://tgi/generate_stream --host 0.0.0.0 --port 3000
+    platform: linux/amd64
+```
 
-### 4. Create a prompt associated with the new model
+To add different models from hugging face you'll need to update the `--model` in the `llm-api` section and also the `--model-id` in the `tgi` section.
 
-\
-\
-\
-### 5. Select the new prompt for inference
+You'll need to check both with [TGI](https://github.com/huggingface/text-generation-inference) and [LiteLLM](https://litellm.ai/) that you have a compatible setup.
