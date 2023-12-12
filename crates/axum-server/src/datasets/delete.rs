@@ -32,7 +32,7 @@ pub async fn delete(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &ui_pages::routes::api_keys::index_route(delete_form.team_id),
+        &ui_pages::routes::datasets::index_route(delete_form.team_id),
         "Document Deleted",
     )
 }
