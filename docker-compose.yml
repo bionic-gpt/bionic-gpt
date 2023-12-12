@@ -1,7 +1,7 @@
 services:
 
   llm-api:
-    image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.2
+    image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.4
     platform: linux/amd64
 
   embeddings-api:
