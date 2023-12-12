@@ -83,9 +83,11 @@ pub fn Page(cx: Scope, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>
                                                     direction: Direction::Left,
                                                     button_text: "...",
                                                     DropDownLink {
+                                                        drawer_trigger: format!("delete-trigger-{}-{}", 
+                                                            key.id, *team_id),
                                                         href: "#",
                                                         target: "_top",
-                                                        "Not Implemented"
+                                                        "Delete"
                                                     }
                                                 }
                                             }
@@ -95,6 +97,17 @@ pub fn Page(cx: Scope, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>
                             }
                         }
                     },
+
+                    api_keys.iter().map(|item| rsx!(
+                        cx.render(rsx!(
+                            super::delete::DeleteDrawer {
+                                team_id: *team_id,
+                                id: item.id,
+                                trigger_id: format!("delete-trigger-{}-{}", item.id, *team_id)
+                            }
+                        ))
+                    ))
+
                     // Drawers have to be fairly high up in the hierarchy or they
                     // get missed off in turbo::load
                     super::form::Form {

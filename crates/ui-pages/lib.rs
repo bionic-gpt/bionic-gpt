@@ -37,6 +37,7 @@ pub mod routes {
     pub mod document_pipelines {
         pub static INDEX: &str = "/app/team/:team_id/pipelines";
         pub static NEW: &str = "/app/team/:team_id/pipelines/new";
+        pub static DELETE: &str = "/app/team/:team_id/pipelines/delete/:id";
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/pipelines", team_id)
@@ -44,6 +45,10 @@ pub mod routes {
 
         pub fn new_route(team_id: i32) -> String {
             format!("/app/team/{}/pipelines/new", team_id)
+        }
+
+        pub fn delete_route(team_id: i32, id: i32) -> String {
+            format!("/app/team/{}/pipelines/delete/{}", team_id, id)
         }
     }
 
@@ -53,6 +58,7 @@ pub mod routes {
         pub static SEND_MESSAGE: &str = "/app/team/:team_id/send_message";
         pub static UPDATE_RESPONSE: &str = "/app/team/:team_id/update_response";
         pub static NEW_CHAT: &str = "/app/team/:team_id/new_chat";
+        pub static DELETE: &str = "/app/team/:team_id/console/delete/:id";
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/console", team_id)
@@ -73,6 +79,10 @@ pub mod routes {
         pub fn new_chat_route(team_id: i32) -> String {
             format!("/app/team/{}/new_chat", team_id)
         }
+
+        pub fn delete_route(team_id: i32, id: i64) -> String {
+            format!("/app/team/{}/console/delete/{}", team_id, id)
+        }
     }
 
     pub mod training {
@@ -87,6 +97,7 @@ pub mod routes {
         pub static INDEX: &str = "/app/team/:team_id/prompts";
         pub static NEW: &str = "/app/team/:team_id/prompts/new";
         pub static EDIT: &str = "/app/team/:team_id/prompts/:prompt_id/edit";
+        pub static DELETE: &str = "/app/team/:team_id/prompts/delete/:id";
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/prompts", team_id)
@@ -99,11 +110,16 @@ pub mod routes {
         pub fn edit_route(team_id: i32, prompt_id: i32) -> String {
             format!("/app/team/{}/prompts/{}/edit", team_id, prompt_id)
         }
+
+        pub fn delete_route(team_id: i32, id: i32) -> String {
+            format!("/app/team/{}/prompts/delete/{}", team_id, id)
+        }
     }
 
     pub mod models {
         pub static INDEX: &str = "/app/team/:team_id/models";
         pub static NEW: &str = "/app/team/:team_id/models/new";
+        pub static DELETE: &str = "/app/team/:team_id/models/delete/:id";
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/models", team_id)
@@ -112,11 +128,16 @@ pub mod routes {
         pub fn new_route(team_id: i32) -> String {
             format!("/app/team/{}/models/new", team_id)
         }
+
+        pub fn delete_route(team_id: i32, id: i32) -> String {
+            format!("/app/team/{}/models/delete/{}", team_id, id)
+        }
     }
 
     pub mod datasets {
         pub static INDEX: &str = "/app/team/:team_id/datasets";
         pub static NEW: &str = "/app/team/:team_id/datasets/new";
+        pub static DELETE: &str = "/app/team/:team_id/datasets/delete/:id";
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/datasets", team_id)
@@ -124,6 +145,10 @@ pub mod routes {
 
         pub fn new_route(team_id: i32) -> String {
             format!("/app/team/{}/datasets/new", team_id)
+        }
+
+        pub fn delete_route(team_id: i32, id: i32) -> String {
+            format!("/app/team/{}/datasets/delete/{}", team_id, id)
         }
     }
 
@@ -154,6 +179,7 @@ pub mod routes {
     pub mod api_keys {
         pub static INDEX: &str = "/app/team/:team_id/api_keys";
         pub static NEW: &str = "/app/team/:team_id/api_keys/new";
+        pub static DELETE: &str = "/app/team/:team_id/api_keys/delete/:id";
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/api_keys", team_id)
@@ -161,6 +187,10 @@ pub mod routes {
 
         pub fn new_route(team_id: i32) -> String {
             format!("/app/team/{}/api_keys/new", team_id)
+        }
+
+        pub fn delete_route(team_id: i32, id: i32) -> String {
+            format!("/app/team/{}/api_keys/delete/{}", team_id, id)
         }
     }
 

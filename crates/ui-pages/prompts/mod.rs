@@ -1,4 +1,5 @@
 pub mod dataset_connection;
+pub mod delete;
 pub mod form;
 pub mod index;
 pub mod visibility;
