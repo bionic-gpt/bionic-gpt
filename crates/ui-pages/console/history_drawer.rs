@@ -18,6 +18,7 @@ pub fn HistoryDrawer(
                 history.iter().map(|history| {
                     cx.render(rsx!(
                         li {
+                            class: "w-full overflow-hidden truncate",
                             a {
                                 href: "{crate::routes::console::conversation_route(*team_id, history.id)}",
                                 history.summary.clone()
