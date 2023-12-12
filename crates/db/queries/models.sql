@@ -103,3 +103,9 @@ SET
     context_size = :context_size
 WHERE
     id = :id;
+
+--! delete
+DELETE FROM
+    models
+WHERE
+    id = :id;

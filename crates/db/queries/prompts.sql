@@ -255,3 +255,12 @@ AND
             WHERE user_id = current_app_user()
         )
     );
+
+--! delete
+DELETE FROM
+    prompts
+WHERE
+    id = :id
+AND
+    team_id
+    IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
