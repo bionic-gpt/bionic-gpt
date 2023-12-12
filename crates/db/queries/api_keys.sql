@@ -36,3 +36,12 @@ FROM
     api_keys a
 WHERE
     a.api_key = :api_key;
+
+--! delete
+DELETE FROM
+    api_keys
+WHERE
+    id = :api_key_id
+AND
+    team_id
+    IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());

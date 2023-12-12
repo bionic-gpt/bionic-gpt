@@ -154,6 +154,7 @@ pub mod routes {
     pub mod api_keys {
         pub static INDEX: &str = "/app/team/:team_id/api_keys";
         pub static NEW: &str = "/app/team/:team_id/api_keys/new";
+        pub static DELETE: &str = "/app/team/:team_id/api_keys/delete/:id";
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/api_keys", team_id)
@@ -161,6 +162,10 @@ pub mod routes {
 
         pub fn new_route(team_id: i32) -> String {
             format!("/app/team/{}/api_keys/new", team_id)
+        }
+
+        pub fn delete_route(team_id: i32, id: i32) -> String {
+            format!("/app/team/{}/api_keys/delete/{}", team_id, id)
         }
     }
 
