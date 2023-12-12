@@ -33,6 +33,6 @@ pub async fn delete(
 
     crate::layout::redirect_and_snackbar(
         &ui_pages::routes::models::index_route(delete_form.team_id),
-        "Document Deleted",
+        "Model Deleted",
     )
 }
