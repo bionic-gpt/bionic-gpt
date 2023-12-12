@@ -4,7 +4,7 @@ use db::Model;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn ModelTable<'a>(cx: Scope, models: &'a Vec<Model>) -> Element {
+pub fn ModelTable<'a>(cx: Scope, models: &'a Vec<Model>, team_id: i32) -> Element {
     cx.render(rsx!(
         Box {
             class: "has-data-table",
@@ -61,11 +61,29 @@ pub fn ModelTable<'a>(cx: Scope, models: &'a Vec<Model>) -> Element {
                                                 drawer_trigger: format!("edit-model-form-{}", model.id),
                                                 "Edit"
                                             }
+                                            DropDownLink {
+                                                drawer_trigger: format!("delete-trigger-{}-{}", 
+                                                    model.id, *team_id),
+                                                href: "#",
+                                                target: "_top",
+                                                "Delete"
+                                            }
                                         }
                                     }
                                 }
                             ))
                         })
+
+                        models.iter().map(|item| rsx!(
+                            cx.render(rsx!(
+                                super::delete::DeleteDrawer {
+                                    team_id: *team_id,
+                                    id: item.id,
+                                    trigger_id: format!("delete-trigger-{}-{}", item.id, *team_id)
+                                }
+                            ))
+                        ))
+
                     }
                 }
             }

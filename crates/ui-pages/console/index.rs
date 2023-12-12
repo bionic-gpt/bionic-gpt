@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use super::super::routes;
 use crate::app_layout::{Layout, SideBar};
+use assets::files::delete_svg;
 use assets::files::{commit_svg, handshake_svg, profile_svg, spinner_svg};
 use daisy_rsx::*;
 use db::queries::{chats::Chat, conversations::History, prompts::Prompt};
@@ -26,6 +27,19 @@ pub fn Page(
                 h3 { "AI Chat Console" }
                 div {
                     class: "flex flex-row",
+                    Button {
+                        class: "btn-circle mr-2 p-1",
+                        drawer_trigger: "delete-conv-{conversation_id}",
+                        button_scheme: ButtonScheme::Default,
+                        img {
+                            src: delete_svg.name
+                        }
+                    }
+                    super::delete::DeleteDrawer{
+                        trigger_id: format!("delete-conv-{}", conversation_id),
+                        team_id: *team_id,
+                        id: *conversation_id
+                    }
                     form {
                         method: "post",
                         action: "{crate::routes::console::new_chat_route(*team_id)}",

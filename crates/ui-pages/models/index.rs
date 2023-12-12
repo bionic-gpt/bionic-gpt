@@ -30,7 +30,8 @@ pub fn Page(
             )),
 
             super::model_table::ModelTable {
-                models: &models
+                models: &models,
+                team_id: *team_id
             }
 
             super::top_users_table::TopUserTable {

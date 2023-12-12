@@ -93,6 +93,13 @@ pub fn Page(cx: Scope, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>)
                                                             target: "_top",
                                                             "View"
                                                         }
+                                                        DropDownLink {
+                                                            drawer_trigger: format!("delete-trigger-{}-{}", 
+                                                                dataset.id, *team_id),
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Delete"
+                                                        }
                                                     }
                                                 }
                                             }
@@ -102,6 +109,16 @@ pub fn Page(cx: Scope, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>)
                             }
                         }
                     }
+
+                    datasets.iter().map(|item| rsx!(
+                        cx.render(rsx!(
+                            super::delete::DeleteDrawer {
+                                team_id: *team_id,
+                                id: item.id,
+                                trigger_id: format!("delete-trigger-{}-{}", item.id, *team_id)
+                            }
+                        ))
+                    ))
 
                     super::new::New {
                         models: models.clone(),

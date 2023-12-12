@@ -1,5 +1,6 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
+use crate::layout::empty_string_is_none;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum::Form;
@@ -16,6 +17,7 @@ pub struct ModelForm {
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub base_url: String,
     pub model_type: String,
+    #[serde(deserialize_with = "empty_string_is_none")]
     pub api_key: Option<String>,
     pub billion_parameters: i32,
     pub context_size: i32,
