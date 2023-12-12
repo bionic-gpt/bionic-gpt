@@ -1,5 +1,5 @@
 +++
-title = "Installation for GPU (Ollama)"
+title = "Installation for CPU/GPU (Ollama)"
 weight = 29
 sort_by = "weight"
 +++
