@@ -93,28 +93,28 @@ pub fn New(
 
                                 Input {
                                     input_type: InputType::Text,
-                                    help_text: "combine_under_n_chars",
+                                    help_text: "Sections will be combined if they do not exceed the specified threshold",
                                     value: "{combine_under_n_chars}",
                                     required: true,
-                                    label: "combine_under_n_chars",
+                                    label: "Combine Under N Chars",
                                     label_class: "mt-4",
                                     name: "combine_under_n_chars"
                                 }
                                 Input {
                                     input_type: InputType::Text,
-                                    help_text: "new_after_n_chars",
+                                    help_text: "Start a new section if the length of a section exceeds this value",
                                     value: "{new_after_n_chars}",
                                     required: true,
-                                    label: "new_after_n_chars",
+                                    label: "New After N Chars",
                                     label_class: "mt-4",
                                     name: "new_after_n_chars"
                                 }
 
                                 Select {
                                     name: "multipage_sections",
-                                    label: "multipage_sections",
+                                    label: "Multipage Sections",
                                     label_class: "mt-4",
-                                    help_text: "multipage_sections",
+                                    help_text: "Allow for sections that span between pages?",
                                     option {
                                         value: "true",
                                         "Yes"

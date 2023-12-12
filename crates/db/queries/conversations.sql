@@ -61,3 +61,11 @@ AND
         FROM team_users 
         WHERE user_id = current_app_user()
     );
+
+--! delete
+DELETE FROM
+    conversations
+WHERE
+    id = :id
+AND
+    user_id = current_app_user();

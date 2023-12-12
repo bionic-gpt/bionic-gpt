@@ -36,3 +36,12 @@ FROM
     document_pipelines a
 WHERE
     a.api_key = :api_key;
+
+--! delete
+DELETE FROM
+    document_pipelines
+WHERE
+    id = :id
+AND
+    team_id
+    IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());

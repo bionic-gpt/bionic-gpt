@@ -89,9 +89,11 @@ pub fn Page(
                                                     direction: Direction::Left,
                                                     button_text: "...",
                                                     DropDownLink {
+                                                        drawer_trigger: format!("delete-trigger-{}-{}", 
+                                                            key.id, *team_id),
                                                         href: "#",
                                                         target: "_top",
-                                                        "Not Implemented"
+                                                        "Delete"
                                                     }
                                                 }
                                             }
@@ -101,6 +103,16 @@ pub fn Page(
                             }
                         }
                     }
+
+                    pipelines.iter().map(|item| rsx!(
+                        cx.render(rsx!(
+                            super::delete::DeleteDrawer {
+                                team_id: *team_id,
+                                id: item.id,
+                                trigger_id: format!("delete-trigger-{}-{}", item.id, *team_id)
+                            }
+                        ))
+                    ))
 
                     super::key_drawer::KeyDrawer {
                         datasets: datasets.clone(),

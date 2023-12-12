@@ -110,7 +110,7 @@ pub fn Form(
                     Button {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,
-                        "Add Model"
+                        "Save"
                     }
                 }
             }
