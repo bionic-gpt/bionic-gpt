@@ -100,6 +100,13 @@ pub fn Page(
                                                             drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
                                                             "Edit"
                                                         }
+                                                        DropDownLink {
+                                                            drawer_trigger: format!("delete-trigger-{}-{}", 
+                                                                prompt.id, *team_id),
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Delete"
+                                                        }
                                                     }
                                                 }
                                             }
@@ -109,6 +116,16 @@ pub fn Page(
                             }
                         }
                     }
+
+                    prompts.iter().map(|item| rsx!(
+                        cx.render(rsx!(
+                            super::delete::DeleteDrawer {
+                                team_id: *team_id,
+                                id: item.id,
+                                trigger_id: format!("delete-trigger-{}-{}", item.id, *team_id)
+                            }
+                        ))
+                    ))
 
                     prompts.iter().map(|prompt| {
                         // The form to edit a prompt
