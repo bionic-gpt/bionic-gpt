@@ -456,3 +456,5 @@ INVITE_FROM_EMAIL_ADDRESS
 yml
  - docs/running-locally/gpu-setup-ollama.md
 29
+ - docs/administration/db-connecting.md
+pgAdmin
