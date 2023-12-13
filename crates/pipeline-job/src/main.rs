@@ -67,36 +67,42 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        let unprocessed = queries::chunks::unprocessed_chunks()
-            .bind(&client)
-            .all()
-            .await?;
+        loop {
+            let unprocessed = queries::chunks::unprocessed_chunks()
+                .bind(&client)
+                .all()
+                .await?;
 
-        for embedding in unprocessed {
-            let embeddings = open_api::get_embeddings(&embedding.text).await;
-            if let Ok(embeddings) = embeddings {
-                let embedding_data = pgvector::Vector::from(embeddings);
-                client
-                    .execute(
-                        "
-                        UPDATE chunks SET (processed, embeddings) = (TRUE, $1)
-                        WHERE id = $2
-                        ",
-                        &[&embedding_data, &embedding.id],
-                    )
-                    .await?;
-                tracing::info!("Processing embedding id {:?}", embedding.id);
-            } else {
-                tracing::info!("Failed to process embedding id {:?}", embedding.id);
-                client
-                    .execute(
-                        "
-                        UPDATE chunks SET processed = TRUE
-                        WHERE id = $1
-                        ",
-                        &[&embedding.id],
-                    )
-                    .await?;
+            if unprocessed.is_empty() {
+                break;
+            }
+
+            if let Some(embedding) = unprocessed.get(0) {
+                let embeddings = open_api::get_embeddings(&embedding.text).await;
+                if let Ok(embeddings) = embeddings {
+                    let embedding_data = pgvector::Vector::from(embeddings);
+                    client
+                        .execute(
+                            "
+                            UPDATE chunks SET (processed, embeddings) = (TRUE, $1)
+                            WHERE id = $2
+                            ",
+                            &[&embedding_data, &embedding.id],
+                        )
+                        .await?;
+                    tracing::info!("Processing embedding id {:?}", embedding.id);
+                } else {
+                    tracing::info!("Failed to process embedding id {:?}", embedding.id);
+                    client
+                        .execute(
+                            "
+                            UPDATE chunks SET processed = TRUE
+                            WHERE id = $1
+                            ",
+                            &[&embedding.id],
+                        )
+                        .await?;
+                }
             }
         }
 
