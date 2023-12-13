@@ -48,7 +48,8 @@ pub async fn handler(
         let api_key = queries::api_keys::find_api_key()
             .bind(&transaction, &api_key)
             .one()
-            .await?;
+            .await
+            .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?;
 
         let model = queries::models::model()
             .bind(&transaction, &prompt.model_id)
