@@ -1,4 +1,4 @@
-use crate::errors::CustomError;
+use crate::{config::Config, errors::CustomError};
 use axum::{
     extract::{DefaultBodyLimit, Extension, Multipart},
     http::header::HeaderMap,
@@ -10,10 +10,10 @@ use db::queries;
 use db::Pool;
 use http::StatusCode;
 
-pub fn routes() -> Router {
+pub fn routes(config: &Config) -> Router {
     Router::new()
         .route("/v1/document_upload", post(upload))
-        .layer(DefaultBodyLimit::max(50000000))
+        .layer(DefaultBodyLimit::max(config.max_upload_size_mb * 1_000_000))
 }
 
 pub async fn upload(
