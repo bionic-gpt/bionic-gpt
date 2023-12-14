@@ -39,38 +39,11 @@ pub async fn post_registration(
     }
     let inserted_org_id = setup_user(&transaction, &current_user).await?;
 
-    // If we have no sys admins then create one.
-    set_system_admin_if_required(&transaction, &current_user).await?;
-
     transaction.commit().await?;
 
     Ok(Redirect::to(&ui_pages::routes::console::index_route(
         inserted_org_id,
     )))
-}
-
-// Creates a sys admin user from this user but only if..
-// There is only 1 user in the system
-async fn set_system_admin_if_required(
-    transaction: &Transaction<'_>,
-    current_user: &Authentication,
-) -> Result<(), CustomError> {
-    let user_count = queries::users::count_users()
-        .bind(transaction)
-        .one()
-        .await?;
-
-    dbg!(user_count);
-
-    if user_count == 1 {
-        tracing::info!("Setting {} as system admin", current_user.user_id);
-
-        queries::users::set_system_admin()
-            .bind(transaction, &current_user.user_id)
-            .await?;
-    }
-
-    Ok(())
 }
 
 // Creates the users default prompt and anything else they need
