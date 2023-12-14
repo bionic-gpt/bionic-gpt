@@ -1,5 +1,6 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
+use crate::rls;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::queries::{chats, conversations, prompts};
@@ -14,7 +15,7 @@ pub async fn conversation(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let history = conversations::history().bind(&transaction).all().await?;
 
@@ -33,6 +34,7 @@ pub async fn conversation(
 
     Ok(Html(console::index(console::index::PageProps {
         team_id,
+        is_sys_admin,
         conversation_id,
         chats,
         prompts,

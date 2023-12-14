@@ -9,6 +9,7 @@ use dioxus::prelude::*;
 pub fn Page(
     cx: Scope,
     team_id: i32,
+    is_sys_admin: bool,
     pipelines: Vec<DocumentPipeline>,
     datasets: Vec<Dataset>,
 ) -> Element {
@@ -19,6 +20,7 @@ pub fn Page(
                     section_class: "normal",
                     selected_item: SideBar::DocumentPipelines,
                     team_id: *team_id,
+                    is_sys_admin: *is_sys_admin,
                     title: "Document Pipelines",
                     header: cx.render(rsx!(
                         h3 { "Document Pipelines" }
@@ -42,6 +44,7 @@ pub fn Page(
                     section_class: "normal",
                     selected_item: SideBar::DocumentPipelines,
                     team_id: *team_id,
+                    is_sys_admin: *is_sys_admin,
                     title: "Document Pipelines",
                     header: cx.render(rsx!(
                         h3 { "Document Pipelines" }

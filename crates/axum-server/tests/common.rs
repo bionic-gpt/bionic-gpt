@@ -63,6 +63,24 @@ impl Config {
         }
         WebDriver::new(&self.webdriver_url, caps).await
     }
+
+    pub async fn set_sys_admin(&self, email: &str) -> WebDriverResult<()> {
+        let client = self
+            .db_pool
+            .get()
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        client
+            .execute(
+                "UPDATE users SET system_admin = TRUE WHERE email = $1",
+                &[&email],
+            )
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        Ok(())
+    }
 }
 
 pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResult<String> {

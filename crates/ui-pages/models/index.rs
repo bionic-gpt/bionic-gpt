@@ -10,6 +10,7 @@ use dioxus::prelude::*;
 pub fn Page(
     cx: Scope<Props>,
     team_id: i32,
+    is_sys_admin: bool,
     models: Vec<Model>,
     top_users: Vec<TopUser>,
 ) -> Element {
@@ -18,6 +19,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Models,
             team_id: *team_id,
+            is_sys_admin: *is_sys_admin,
             title: "Models",
             header: cx.render(rsx!(
                 h3 { "Models" }

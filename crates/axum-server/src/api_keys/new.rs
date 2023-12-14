@@ -1,5 +1,6 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
+use crate::rls;
 use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
@@ -28,7 +29,7 @@ pub async fn new_api_key(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     if new_api_key.validate().is_ok() {
         let api_key: String = thread_rng()

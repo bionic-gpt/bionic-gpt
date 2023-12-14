@@ -33,6 +33,7 @@ pub struct LayoutProps<'a> {
     header: Element<'a>,
     children: Element<'a>,
     team_id: i32,
+    is_sys_admin: bool,
     section_class: &'a str,
 }
 
@@ -71,7 +72,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                     ))
                 }
                 NavGroup {
-                    heading: "Documents",
+                    heading: "Retrieval Augmented Generation",
                     content:  cx.render(rsx!(
                         NavItem {
                             id: SideBar::Datasets.to_string(),
@@ -86,18 +87,6 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             href: super::routes::document_pipelines::index_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
                             title: "Document Pipelines"
-                        }
-                    ))
-                }
-                NavGroup {
-                    heading: "Fine Tuning",
-                    content:  cx.render(rsx!(
-                        NavItem {
-                            id: SideBar::Training.to_string(),
-                            selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::training::index_route(cx.props.team_id),
-                            icon: nav_space_objects_svg.name,
-                            title: "QLoRA Adapters"
                         }
                     ))
                 }
@@ -132,22 +121,26 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                         }
                     ))
                 }
-                NavGroup {
-                    heading: "System Admin",
-                    content:  cx.render(rsx!(
-                        NavItem {
-                            id: SideBar::Models.to_string(),
-                            selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::models::index_route(cx.props.team_id),
-                            icon: nav_phonebook_svg.name,
-                            title: "Model Setup"
-                        }
-                        NavItem {
-                            id: SideBar::AuditTrail.to_string(),
-                            selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::audit_trail::index_route(cx.props.team_id),
-                            icon: nav_audit_svg.name,
-                            title: "Audit Trail"
+                if cx.props.is_sys_admin {
+                    cx.render(rsx!(
+                        NavGroup {
+                            heading: "System Admin",
+                            content:  cx.render(rsx!(
+                                NavItem {
+                                    id: SideBar::Models.to_string(),
+                                    selected_item_id: cx.props.selected_item.to_string(),
+                                    href: super::routes::models::index_route(cx.props.team_id),
+                                    icon: nav_phonebook_svg.name,
+                                    title: "Model Setup"
+                                }
+                                NavItem {
+                                    id: SideBar::AuditTrail.to_string(),
+                                    selected_item_id: cx.props.selected_item.to_string(),
+                                    href: super::routes::audit_trail::index_route(cx.props.team_id),
+                                    icon: nav_audit_svg.name,
+                                    title: "Audit Trail"
+                                }
+                            ))
                         }
                     ))
                 }
@@ -168,7 +161,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
             )),
             &cx.props.children
             snack-bar {}
+            LogoutForm {}
         }
-        LogoutForm {}
     })
 }
