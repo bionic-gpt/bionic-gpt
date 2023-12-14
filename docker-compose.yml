@@ -18,7 +18,7 @@ services:
 
   # Handles routing between the application, barricade and the LLM API
   envoy:
-    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.4.12
+    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.4.13
     platform: linux/amd64
     ports:
       - "7800:7700"
@@ -40,7 +40,7 @@ services:
 
   # Sets up our database tables
   migrations:
-    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.4.12
+    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.4.13
     platform: linux/amd64
     environment:
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
@@ -68,7 +68,7 @@ services:
   
   # Our axum server delivering our user interface
   pipeline-job:
-    image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.4.12
+    image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.4.13
     platform: linux/amd64
     environment:
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
@@ -80,7 +80,7 @@ services:
   
   # Our axum server delivering our user interface
   app:
-    image: ghcr.io/bionic-gpt/bionicgpt:1.4.12
+    image: ghcr.io/bionic-gpt/bionicgpt:1.4.13
     platform: linux/amd64
     environment:
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
