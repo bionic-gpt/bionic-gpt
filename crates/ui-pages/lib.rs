@@ -16,7 +16,6 @@ pub mod profile_popup;
 pub mod prompts;
 pub mod team_members;
 pub mod teams;
-pub mod training;
 
 pub fn render(mut virtual_dom: VirtualDom) -> String {
     let _ = virtual_dom.rebuild();

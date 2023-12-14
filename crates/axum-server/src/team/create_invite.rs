@@ -1,5 +1,6 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
+use crate::rls;
 use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
@@ -65,7 +66,7 @@ pub async fn create_invite(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let team = queries::teams::team()
         .bind(&transaction, &team_id)
@@ -87,7 +88,7 @@ pub async fn create(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    super::super::rls::set_row_level_security_user(&transaction, current_user).await?;
+    let _is_sys_admin = rls::set_row_level_security_user(&transaction, current_user).await?;
 
     let invitation_selector = rand::thread_rng().gen::<[u8; 6]>();
     let invitation_selector_base64 =

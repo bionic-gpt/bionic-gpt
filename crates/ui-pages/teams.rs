@@ -6,12 +6,19 @@ use db::TeamOwner;
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(cx: Scope, team_id: i32, teams: Vec<TeamOwner>, submit_action: String) -> Element {
+pub fn Page(
+    cx: Scope,
+    is_sys_admin: bool,
+    team_id: i32,
+    teams: Vec<TeamOwner>,
+    submit_action: String,
+) -> Element {
     cx.render(rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Switch,
             team_id: *team_id,
+            is_sys_admin: *is_sys_admin,
             title: "Your Teams",
             header: cx.render(rsx!(
                 h3 { "Your Teams" }
@@ -143,13 +150,14 @@ pub fn Page(cx: Scope, team_id: i32, teams: Vec<TeamOwner>, submit_action: Strin
     })
 }
 
-pub fn teams(teams: Vec<TeamOwner>, team_id: i32) -> String {
+pub fn teams(teams: Vec<TeamOwner>, team_id: i32, is_sys_admin: bool) -> String {
     let submit_action = crate::routes::team::new_team_route(team_id);
 
     crate::render(VirtualDom::new_with_props(
         Page,
         PageProps {
             team_id,
+            is_sys_admin,
             teams,
             submit_action,
         },
