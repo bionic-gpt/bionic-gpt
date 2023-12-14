@@ -28,14 +28,6 @@ SELECT
 FROM
     users;
 
---! set_system_admin
-UPDATE
-    users
-SET 
-    system_admin = TRUE
-WHERE
-    id = :current_user_id;
-
 --! is_sys_admin
 SELECT
     system_admin

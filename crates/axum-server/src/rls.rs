@@ -8,13 +8,20 @@ pub async fn set_row_level_security_user(
     transaction: &Transaction<'_>,
     current_user: &Authentication,
 ) -> Result<bool, CustomError> {
-    set_row_level_security_user_id(transaction, current_user.user_id).await
+    set_row_level_security_user_id(transaction, current_user.user_id).await?;
+
+    let is_admin = queries::users::is_sys_admin()
+        .bind(transaction, &current_user.user_id)
+        .one()
+        .await?;
+
+    Ok(is_admin)
 }
 
 pub async fn set_row_level_security_user_id(
     transaction: &Transaction<'_>,
     user_id: i32,
-) -> Result<bool, CustomError> {
+) -> Result<(), CustomError> {
     transaction
         .query(
             &format!("SET LOCAL row_level_security.user_id = {}", user_id),
@@ -22,10 +29,5 @@ pub async fn set_row_level_security_user_id(
         )
         .await?;
 
-    let is_admin = queries::users::is_sys_admin()
-        .bind(transaction, &user_id)
-        .one()
-        .await?;
-
-    Ok(is_admin)
+    Ok(())
 }
