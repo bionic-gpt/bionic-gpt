@@ -32,6 +32,8 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
     let email = common::register_user(driver, config).await?;
     config.set_sys_admin(&email).await?;
 
+    driver.refresh().await?;
+
     audit_filter(driver, &email).await?;
 
     test_documents(driver).await?;
