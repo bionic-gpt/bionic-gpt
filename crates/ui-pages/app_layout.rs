@@ -168,7 +168,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
             )),
             &cx.props.children
             snack-bar {}
+            LogoutForm {}
         }
-        LogoutForm {}
     })
 }
