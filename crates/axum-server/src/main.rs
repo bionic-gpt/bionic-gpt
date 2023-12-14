@@ -20,7 +20,6 @@ mod registration_handler;
 mod rls;
 mod static_files;
 mod team;
-mod training;
 mod ui_completions;
 
 use axum::extract::Extension;
@@ -58,7 +57,6 @@ async fn main() {
         .merge(documents::routes())
         .merge(pipelines::routes())
         .merge(models::routes())
-        .merge(training::routes())
         .merge(prompts::routes())
         .layer(TraceLayer::new_for_http())
         .layer(Extension(config))

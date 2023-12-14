@@ -71,7 +71,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                     ))
                 }
                 NavGroup {
-                    heading: "Documents",
+                    heading: "Retrieval Augmented Generation",
                     content:  cx.render(rsx!(
                         NavItem {
                             id: SideBar::Datasets.to_string(),
@@ -86,18 +86,6 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                             href: super::routes::document_pipelines::index_route(cx.props.team_id),
                             icon: nav_ccsds_data_svg.name,
                             title: "Document Pipelines"
-                        }
-                    ))
-                }
-                NavGroup {
-                    heading: "Fine Tuning",
-                    content:  cx.render(rsx!(
-                        NavItem {
-                            id: SideBar::Training.to_string(),
-                            selected_item_id: cx.props.selected_item.to_string(),
-                            href: super::routes::training::index_route(cx.props.team_id),
-                            icon: nav_space_objects_svg.name,
-                            title: "QLoRA Adapters"
                         }
                     ))
                 }
