@@ -35,3 +35,11 @@ SET
     system_admin = TRUE
 WHERE
     id = :current_user_id;
+
+--! is_sys_admin
+SELECT
+    system_admin
+FROM
+    users
+WHERE
+    id = :current_user_id;

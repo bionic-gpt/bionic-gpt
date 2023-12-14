@@ -1,6 +1,7 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use crate::layout::empty_string_is_none;
+use crate::rls;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum::Form;
@@ -32,7 +33,7 @@ pub async fn upsert(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let model_type = if model_form.model_type == "LLM" {
         ModelType::LLM

@@ -6,7 +6,13 @@ use db::{ApiKey, Prompt};
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(cx: Scope, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>) -> Element {
+pub fn Page(
+    cx: Scope,
+    is_sys_admin: bool,
+    team_id: i32,
+    api_keys: Vec<ApiKey>,
+    prompts: Vec<Prompt>,
+) -> Element {
     cx.render(rsx! {
         if api_keys.is_empty() {
             cx.render(rsx! {
@@ -14,6 +20,7 @@ pub fn Page(cx: Scope, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>
                     section_class: "normal",
                     selected_item: SideBar::ApiKeys,
                     team_id: *team_id,
+                    is_sys_admin: *is_sys_admin,
                     title: "API Keys",
                     header: cx.render(rsx!(
                         h3 { "API Keys" }
@@ -36,6 +43,7 @@ pub fn Page(cx: Scope, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>
                     section_class: "normal",
                     selected_item: SideBar::ApiKeys,
                     team_id: *team_id,
+                    is_sys_admin: *is_sys_admin,
                     title: "API Keys",
                     header: cx.render(rsx!(
                         h3 { "API Keys" }
