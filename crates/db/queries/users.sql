@@ -21,3 +21,17 @@ SET
     first_name = :first_name, last_name = :last_name
 WHERE
     id = :current_user_id;
+
+--! count_users
+SELECT
+    count(id)
+FROM
+    users;
+
+--! is_sys_admin
+SELECT
+    system_admin
+FROM
+    users
+WHERE
+    id = :current_user_id;

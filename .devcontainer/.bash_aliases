@@ -15,6 +15,8 @@ alias gdb='git branch | grep -v "main" | xargs git branch -D'
 alias dbmate='dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations'
 alias dbdown='while dbmate down; do :; done'
 alias db='psql $DATABASE_URL'
+alias dbapp='psql $APP_DATABASE_URL'
+alias dbauth='psql postgresql://ft_authentication:testpassword@db:5432/bionicgpt?sslmode=disable'
 
 alias p='sudo chmod 777 /var/run/docker.sock'
 

@@ -8,6 +8,7 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn Page(
     cx: Scope,
+    is_sys_admin: bool,
     members: Vec<Member>,
     invites: Vec<Invitation>,
     team: Team,
@@ -20,6 +21,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Team,
             team_id: team.id,
+            is_sys_admin: *is_sys_admin,
             title: "Team Members",
             header: cx.render(rsx!(
                 h3 { "Team Members" }

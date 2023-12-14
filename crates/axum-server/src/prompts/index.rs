@@ -1,5 +1,6 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
+use crate::rls;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::Pool;
@@ -13,7 +14,7 @@ pub async fn index(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    super::super::rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let prompts = queries::prompts::prompts()
         .bind(&transaction, &team_id)
@@ -33,6 +34,7 @@ pub async fn index(
     Ok(Html(ui_pages::prompts::index(
         ui_pages::prompts::index::PageProps {
             team_id,
+            is_sys_admin,
             prompts,
             datasets,
             models,

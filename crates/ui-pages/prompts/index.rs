@@ -9,6 +9,7 @@ use dioxus::prelude::*;
 pub fn Page(
     cx: Scope,
     team_id: i32,
+    is_sys_admin: bool,
     prompts: Vec<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
@@ -18,6 +19,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Prompts,
             team_id: *team_id,
+            is_sys_admin: *is_sys_admin,
             title: "Prompts",
             header: cx.render(rsx!(
                 h3 { "Prompts" }

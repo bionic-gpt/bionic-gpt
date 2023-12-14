@@ -11,6 +11,7 @@ use dioxus::prelude::*;
 pub fn Page(
     cx: Scope,
     team_id: i32,
+    is_sys_admin: bool,
     chats: Vec<Chat>,
     prompts: Vec<Prompt>,
     conversation_id: i64,
@@ -22,6 +23,7 @@ pub fn Page(
             section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
             selected_item: SideBar::Console,
             team_id: *team_id,
+            is_sys_admin: *is_sys_admin,
             title: "AI Chat Console",
             header: cx.render(rsx!(
                 h3 { "AI Chat Console" }

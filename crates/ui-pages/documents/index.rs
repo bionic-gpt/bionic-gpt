@@ -6,12 +6,19 @@ use db::queries::{datasets::Dataset, documents::Document};
 use dioxus::prelude::*;
 
 #[inline_props]
-pub fn Page(cx: Scope, team_id: i32, dataset: Dataset, documents: Vec<Document>) -> Element {
+pub fn Page(
+    cx: Scope,
+    is_sys_admin: bool,
+    team_id: i32,
+    dataset: Dataset,
+    documents: Vec<Document>,
+) -> Element {
     cx.render(rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Datasets,
             team_id: *team_id,
+            is_sys_admin: *is_sys_admin,
             title: "{dataset.name} / Documents",
             header: cx.render(rsx!(
                 h3 { "{dataset.name} / Documents" }

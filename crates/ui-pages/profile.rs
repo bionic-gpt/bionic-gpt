@@ -9,6 +9,7 @@ use dioxus::prelude::*;
 fn Page(
     cx: Scope,
     team_id: i32,
+    is_sys_admin: bool,
     first_name: String,
     last_name: String,
     users_name_or_email: String,
@@ -20,6 +21,7 @@ fn Page(
             selected_item: SideBar::None,
             title: "Your Profile",
             team_id: *team_id,
+            is_sys_admin: *is_sys_admin,
             header: cx.render(rsx!(
                 h3 { "Your Profile" }
             )),
@@ -70,7 +72,7 @@ fn Page(
     })
 }
 
-pub fn profile(user: User, team_id: i32) -> String {
+pub fn profile(user: User, team_id: i32, is_sys_admin: bool) -> String {
     let (mut first_name, mut last_name) = ("".to_string(), "".to_string());
     if let (Some(first), Some(last)) = (user.first_name, user.last_name) {
         first_name = first;
@@ -89,6 +91,7 @@ pub fn profile(user: User, team_id: i32) -> String {
         Page,
         PageProps {
             team_id,
+            is_sys_admin,
             first_name,
             last_name,
             users_name_or_email,
