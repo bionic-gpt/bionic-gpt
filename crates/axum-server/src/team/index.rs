@@ -57,7 +57,7 @@ pub async fn index(
     Ok(Html(ui_pages::team_members::members::members(
         ui_pages::team_members::members::PageProps {
             invites,
-            is_sys_admin: rbac.is_sys_admin,
+            rbac,
             members,
             team,
             user,

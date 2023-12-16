@@ -30,7 +30,7 @@ pub async fn index(
             pipelines,
             datasets,
             team_id,
-            is_sys_admin: rbac.is_sys_admin,
+            rbac,
         },
     )))
 }

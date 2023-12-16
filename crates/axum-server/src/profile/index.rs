@@ -28,9 +28,5 @@ pub async fn index(
         .one()
         .await?;
 
-    Ok(Html(ui_pages::profile::profile(
-        user,
-        team.id,
-        rbac.is_sys_admin,
-    )))
+    Ok(Html(ui_pages::profile::profile(user, team.id, rbac)))
 }

@@ -28,7 +28,7 @@ pub async fn index(
 
     Ok(Html(api_keys::index(api_keys::index::PageProps {
         team_id,
-        is_sys_admin: rbac.is_sys_admin,
+        rbac,
         api_keys,
         prompts,
     })))

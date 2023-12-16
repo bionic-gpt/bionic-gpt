@@ -34,7 +34,7 @@ pub async fn conversation(
 
     Ok(Html(console::index(console::index::PageProps {
         team_id,
-        is_sys_admin: rbac.is_sys_admin,
+        rbac,
         conversation_id,
         chats,
         prompts,

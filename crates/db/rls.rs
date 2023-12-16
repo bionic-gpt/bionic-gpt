@@ -35,7 +35,7 @@ pub async fn set_row_level_security_user_id(
     Ok(())
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq)]
 pub struct Rbac {
     pub permissions: Vec<Permission>,
     pub is_sys_admin: bool,

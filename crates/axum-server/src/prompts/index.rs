@@ -34,7 +34,7 @@ pub async fn index(
     Ok(Html(ui_pages::prompts::index(
         ui_pages::prompts::index::PageProps {
             team_id,
-            is_sys_admin: rbac.is_sys_admin,
+            rbac,
             prompts,
             datasets,
             models,

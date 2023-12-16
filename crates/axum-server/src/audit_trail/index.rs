@@ -38,7 +38,7 @@ pub async fn index(
     Ok(Html(ui_pages::audit_trail::index::index(
         ui_pages::audit_trail::index::PageProps {
             team_id,
-            is_sys_admin: rbac.is_sys_admin,
+            rbac,
             team_users,
             audits,
             reset_search: true,

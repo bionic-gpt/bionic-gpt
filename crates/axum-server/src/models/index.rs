@@ -32,7 +32,7 @@ pub async fn index(
     Ok(Html(ui_pages::models::index(
         ui_pages::models::index::PageProps {
             team_id,
-            is_sys_admin: rbac.is_sys_admin,
+            rbac,
             models,
             top_users,
         },

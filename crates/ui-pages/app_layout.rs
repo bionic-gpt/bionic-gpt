@@ -2,6 +2,7 @@
 use super::logout_form::LogoutForm;
 use assets::files::*;
 use daisy_rsx::{AppLayout, NavGroup, NavItem};
+use db::rls::Rbac;
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Eq, Debug)]
@@ -33,7 +34,7 @@ pub struct LayoutProps<'a> {
     header: Element<'a>,
     children: Element<'a>,
     team_id: i32,
-    is_sys_admin: bool,
+    rbac: &'a Rbac,
     section_class: &'a str,
 }
 
@@ -121,7 +122,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                         }
                     ))
                 }
-                if cx.props.is_sys_admin {
+                if cx.props.rbac.is_sys_admin {
                     cx.render(rsx!(
                         NavGroup {
                             heading: "System Admin",

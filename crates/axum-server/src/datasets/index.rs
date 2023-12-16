@@ -26,7 +26,7 @@ pub async fn index(
     Ok(Html(ui_pages::datasets::index(
         ui_pages::datasets::index::PageProps {
             team_id,
-            is_sys_admin: rbac.is_sys_admin,
+            rbac,
             datasets,
             models,
         },

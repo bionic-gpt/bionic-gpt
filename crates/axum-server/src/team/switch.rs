@@ -28,9 +28,5 @@ pub async fn switch(
         .all()
         .await?;
 
-    Ok(Html(ui_pages::teams::teams(
-        teams,
-        team.id,
-        rbac.is_sys_admin,
-    )))
+    Ok(Html(ui_pages::teams::teams(teams, team.id, rbac)))
 }

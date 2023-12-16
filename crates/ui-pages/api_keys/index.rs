@@ -2,13 +2,13 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::{ApiKey, Prompt};
+use db::{rls::Rbac, ApiKey, Prompt};
 use dioxus::prelude::*;
 
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    is_sys_admin: bool,
+    rbac: Rbac,
     team_id: i32,
     api_keys: Vec<ApiKey>,
     prompts: Vec<Prompt>,
@@ -20,7 +20,7 @@ pub fn Page(
                     section_class: "normal",
                     selected_item: SideBar::ApiKeys,
                     team_id: *team_id,
-                    is_sys_admin: *is_sys_admin,
+                    rbac: rbac,
                     title: "API Keys",
                     header: cx.render(rsx!(
                         h3 { "API Keys" }
@@ -43,7 +43,7 @@ pub fn Page(
                     section_class: "normal",
                     selected_item: SideBar::ApiKeys,
                     team_id: *team_id,
-                    is_sys_admin: *is_sys_admin,
+                    rbac: rbac,
                     title: "API Keys",
                     header: cx.render(rsx!(
                         h3 { "API Keys" }
