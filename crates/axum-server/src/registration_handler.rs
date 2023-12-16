@@ -58,6 +58,7 @@ async fn setup_user(
 
     let roles = vec![
         types::public::Role::Administrator,
+        types::public::Role::TeamManager,
         types::public::Role::Collaborator,
     ];
 

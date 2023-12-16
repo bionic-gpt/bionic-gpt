@@ -36,7 +36,7 @@ pub async fn index(
 
     let can_manage_team = permissions
         .iter()
-        .any(|p| p == &types::public::Permission::ManageTeam);
+        .any(|p| p == &types::public::Permission::InvitePeopleToTeam);
 
     let user = queries::users::user()
         .bind(&transaction, &current_user.user_id)
