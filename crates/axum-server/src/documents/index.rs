@@ -14,7 +14,7 @@ pub async fn index(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let rbac = rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let documents = documents::documents()
         .bind(&transaction, &dataset_id)
@@ -29,7 +29,7 @@ pub async fn index(
     Ok(Html(ui_pages::documents::index(
         ui_pages::documents::index::PageProps {
             team_id,
-            is_sys_admin,
+            is_sys_admin: rbac.is_sys_admin,
             dataset,
             documents,
         },

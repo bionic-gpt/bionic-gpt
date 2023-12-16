@@ -59,7 +59,7 @@ pub async fn filter(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let rbac = rls::set_row_level_security_user(&transaction, &current_user).await?;
 
     let team_users = queries::teams::get_users()
         .bind(&transaction, &team_id)
@@ -81,7 +81,7 @@ pub async fn filter(
     Ok(Html(ui_pages::audit_trail::index::index(
         ui_pages::audit_trail::index::PageProps {
             team_id,
-            is_sys_admin,
+            is_sys_admin: rbac.is_sys_admin,
             team_users,
             audits,
             reset_search: false,
