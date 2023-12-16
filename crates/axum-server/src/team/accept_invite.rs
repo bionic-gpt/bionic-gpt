@@ -1,11 +1,11 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::{
     extract::{Extension, Path},
     response::{IntoResponse, Redirect},
 };
 use db::queries;
+use db::rls;
 use db::Pool;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
@@ -47,7 +47,8 @@ pub async fn accept_invitation(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin = rls::set_row_level_security_user(&transaction, current_user).await?;
+    let _is_sys_admin =
+        rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
 
     let invitation = queries::invitations::get_invitation()
         .bind(&transaction, &invitation_selector)

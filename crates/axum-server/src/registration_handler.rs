@@ -25,7 +25,7 @@ pub async fn post_registration(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    super::rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
+    db::rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
 
     let org = queries::teams::get_primary_team()
         .bind(&transaction, &current_user.user_id)

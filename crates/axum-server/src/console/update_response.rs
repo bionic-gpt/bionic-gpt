@@ -1,11 +1,11 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
 use db::queries::chats;
+use db::rls;
 use db::ChatStatus;
 use db::Pool;
 use serde::Deserialize;
@@ -26,7 +26,8 @@ pub async fn update_response(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _is_sys_admin =
+        rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
 
     let chat_status = match message.response.as_str() {
         "Request aborted." => ChatStatus::Cancelled,

@@ -68,7 +68,7 @@ pub async fn handler(
 
         // If we are completions we need to add the prompt to the request
         if path_query.ends_with("/completions") {
-            super::rls::set_row_level_security_user_id(&transaction, api_key.user_id).await?;
+            db::rls::set_row_level_security_user_id(&transaction, api_key.user_id).await?;
 
             let body: String = req
                 .extract()

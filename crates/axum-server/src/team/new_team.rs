@@ -1,10 +1,10 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
+use db::rls;
 use db::types;
 use db::Pool;
 use db::{queries, DatasetConnection, Visibility};
@@ -25,7 +25,8 @@ pub async fn new_team(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _is_sys_admin =
+        rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
 
     let org_id = queries::teams::insert_team()
         .bind(&transaction)
