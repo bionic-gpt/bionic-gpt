@@ -1,9 +1,9 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use db::queries::conversations;
+use db::rls;
 use db::{Conversation, Pool};
 
 pub async fn index(
@@ -14,7 +14,8 @@ pub async fn index(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _permissions =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     // Get the latest conversation
     let conversation: Result<Conversation, db::TokioPostgresError> =

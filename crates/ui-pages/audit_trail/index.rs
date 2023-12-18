@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
-use db::{AuditTrail, Member};
+use db::{rls::Rbac, AuditTrail, Member};
 use dioxus::prelude::*;
 
 use crate::app_layout::{Layout, SideBar};
@@ -19,7 +19,7 @@ pub fn Page(
     team_users: Vec<Member>,
     audits: Vec<AuditTrail>,
     team_id: i32,
-    is_sys_admin: bool,
+    rbac: Rbac,
     reset_search: bool,
 ) -> Element {
     cx.render(rsx! {
@@ -28,7 +28,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::AuditTrail,
             team_id: *team_id,
-            is_sys_admin: *is_sys_admin,
+            rbac: rbac,
             title: "Audit Trail",
             header: cx.render(rsx!(
                 h3 { "Audit Trail" }

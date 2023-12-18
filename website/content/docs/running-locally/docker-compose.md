@@ -24,8 +24,4 @@ You can then access the front end from `http://localhost:7800` and you'll be red
 
 The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
-![Alt text](../initial-screen.png "Start Screen")
-
-## Upgrading to a later version of BionicGPT
-
-When upgrading to the latest version of BionicGPT we recommend running `docker-compose down -v` to completely delete the database.
+![Alt text](../initial-screen.png "Start Screen"

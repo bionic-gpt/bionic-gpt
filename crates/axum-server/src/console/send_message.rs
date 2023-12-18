@@ -1,11 +1,11 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
 use db::queries::chats;
+use db::rls;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -27,7 +27,8 @@ pub async fn send_message(
         let mut client = pool.get().await?;
         let transaction = client.transaction().await?;
 
-        let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+        let _permissions =
+            rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
         // Store the prompt, ready for the front end webcomponent to pickup
         chats::new_chat()

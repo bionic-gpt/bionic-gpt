@@ -3,6 +3,7 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::queries::models::Model;
+use db::rls::Rbac;
 use db::{ModelType, TopUser};
 use dioxus::prelude::*;
 
@@ -10,7 +11,7 @@ use dioxus::prelude::*;
 pub fn Page(
     cx: Scope<Props>,
     team_id: i32,
-    is_sys_admin: bool,
+    rbac: Rbac,
     models: Vec<Model>,
     top_users: Vec<TopUser>,
 ) -> Element {
@@ -19,7 +20,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Models,
             team_id: *team_id,
-            is_sys_admin: *is_sys_admin,
+            rbac: rbac,
             title: "Models",
             header: cx.render(rsx!(
                 h3 { "Models" }
