@@ -17,7 +17,6 @@ mod profile;
 mod prompt;
 mod prompts;
 mod registration_handler;
-mod rls;
 mod static_files;
 mod team;
 mod ui_completions;

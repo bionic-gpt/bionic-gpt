@@ -1,11 +1,11 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
 use db::queries;
+use db::rls;
 use db::types;
 use db::Pool;
 use lettre::Message;
@@ -66,7 +66,8 @@ pub async fn create_invite(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _permissions =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     let team = queries::teams::team()
         .bind(&transaction, &team_id)
@@ -88,7 +89,8 @@ pub async fn create(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin = rls::set_row_level_security_user(&transaction, current_user).await?;
+    let _permissions =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     let invitation_selector = rand::thread_rng().gen::<[u8; 6]>();
     let invitation_selector_base64 =
@@ -102,7 +104,7 @@ pub async fn create(
 
     let roles = if new_invite.admin.is_some() {
         vec![
-            types::public::Role::Administrator,
+            types::public::Role::SystemAdministrator,
             types::public::Role::Collaborator,
         ]
     } else {

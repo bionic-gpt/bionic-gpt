@@ -28,10 +28,21 @@ SELECT
 FROM
     users;
 
---! is_sys_admin
-SELECT
-    system_admin
-FROM
-    users
-WHERE
-    id = :current_user_id;
+--! get_permissions
+SELECT 
+    permission
+FROM 
+    roles_permissions
+WHERE role IN (
+    SELECT UNNEST(tu.roles)
+    FROM team_users tu
+    WHERE tu.team_id = :team_id AND tu.user_id = current_app_user()
+)
+OR (
+    EXISTS (
+        SELECT 1
+        FROM users
+        WHERE system_admin = true AND id = current_app_user()
+    )
+    AND role = 'SystemAdministrator'
+);

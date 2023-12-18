@@ -1,11 +1,11 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::{
     extract::{Extension, Multipart, Path},
     response::IntoResponse,
 };
 use db::queries;
+use db::rls;
 use db::Pool;
 
 pub async fn upload(
@@ -16,7 +16,8 @@ pub async fn upload(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let _permissions =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         // name of the file with extention

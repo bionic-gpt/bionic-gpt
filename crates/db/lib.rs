@@ -1,3 +1,5 @@
+pub mod rls;
+
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::SystemTime;
@@ -21,7 +23,8 @@ pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};
 pub use queries::users::User;
 pub use types::public::{
-    AuditAccessType, AuditAction, ChatStatus, DatasetConnection, ModelType, Role, Visibility,
+    AuditAccessType, AuditAction, ChatStatus, DatasetConnection, ModelType, Permission, Role,
+    Visibility,
 };
 
 pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {

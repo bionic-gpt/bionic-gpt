@@ -3,12 +3,13 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
 use db::queries::{datasets::Dataset, documents::Document};
+use db::rls::Rbac;
 use dioxus::prelude::*;
 
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    is_sys_admin: bool,
+    rbac: Rbac,
     team_id: i32,
     dataset: Dataset,
     documents: Vec<Document>,
@@ -18,7 +19,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Datasets,
             team_id: *team_id,
-            is_sys_admin: *is_sys_admin,
+            rbac: rbac,
             title: "{dataset.name} / Documents",
             header: cx.render(rsx!(
                 h3 { "{dataset.name} / Documents" }

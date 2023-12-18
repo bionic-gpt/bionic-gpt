@@ -2,6 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
+use db::rls::Rbac;
 use db::{Dataset, DocumentPipeline};
 use dioxus::prelude::*;
 
@@ -9,7 +10,7 @@ use dioxus::prelude::*;
 pub fn Page(
     cx: Scope,
     team_id: i32,
-    is_sys_admin: bool,
+    rbac: Rbac,
     pipelines: Vec<DocumentPipeline>,
     datasets: Vec<Dataset>,
 ) -> Element {
@@ -20,7 +21,7 @@ pub fn Page(
                     section_class: "normal",
                     selected_item: SideBar::DocumentPipelines,
                     team_id: *team_id,
-                    is_sys_admin: *is_sys_admin,
+                    rbac: rbac,
                     title: "Document Pipelines",
                     header: cx.render(rsx!(
                         h3 { "Document Pipelines" }
@@ -44,7 +45,7 @@ pub fn Page(
                     section_class: "normal",
                     selected_item: SideBar::DocumentPipelines,
                     team_id: *team_id,
-                    is_sys_admin: *is_sys_admin,
+                    rbac: rbac,
                     title: "Document Pipelines",
                     header: cx.render(rsx!(
                         h3 { "Document Pipelines" }

@@ -2,13 +2,14 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
+use db::rls::Rbac;
 use db::{Invitation, Member, Team, User};
 use dioxus::prelude::*;
 
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    is_sys_admin: bool,
+    rbac: Rbac,
     members: Vec<Member>,
     invites: Vec<Invitation>,
     team: Team,
@@ -21,7 +22,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Team,
             team_id: team.id,
-            is_sys_admin: *is_sys_admin,
+            rbac: rbac,
             title: "Team Members",
             header: cx.render(rsx!(
                 h3 { "Team Members" }

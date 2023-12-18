@@ -3,13 +3,14 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::avatar_svg;
 use daisy_rsx::*;
 use db::queries::users::User;
+use db::rls::Rbac;
 use dioxus::prelude::*;
 
 #[inline_props]
 fn Page(
     cx: Scope,
     team_id: i32,
-    is_sys_admin: bool,
+    rbac: Rbac,
     first_name: String,
     last_name: String,
     users_name_or_email: String,
@@ -21,7 +22,7 @@ fn Page(
             selected_item: SideBar::None,
             title: "Your Profile",
             team_id: *team_id,
-            is_sys_admin: *is_sys_admin,
+            rbac: rbac,
             header: cx.render(rsx!(
                 h3 { "Your Profile" }
             )),
@@ -72,7 +73,7 @@ fn Page(
     })
 }
 
-pub fn profile(user: User, team_id: i32, is_sys_admin: bool) -> String {
+pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {
     let (mut first_name, mut last_name) = ("".to_string(), "".to_string());
     if let (Some(first), Some(last)) = (user.first_name, user.last_name) {
         first_name = first;
@@ -91,7 +92,7 @@ pub fn profile(user: User, team_id: i32, is_sys_admin: bool) -> String {
         Page,
         PageProps {
             team_id,
-            is_sys_admin,
+            rbac,
             first_name,
             last_name,
             users_name_or_email,
