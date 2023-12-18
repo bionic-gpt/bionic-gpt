@@ -2,13 +2,14 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
+use db::rls::Rbac;
 use db::TeamOwner;
 use dioxus::prelude::*;
 
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    is_sys_admin: bool,
+    rbac: Rbac,
     team_id: i32,
     teams: Vec<TeamOwner>,
     submit_action: String,
@@ -18,7 +19,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Switch,
             team_id: *team_id,
-            is_sys_admin: *is_sys_admin,
+            rbac: rbac,
             title: "Your Teams",
             header: cx.render(rsx!(
                 h3 { "Your Teams" }
@@ -150,14 +151,14 @@ pub fn Page(
     })
 }
 
-pub fn teams(teams: Vec<TeamOwner>, team_id: i32, is_sys_admin: bool) -> String {
+pub fn teams(teams: Vec<TeamOwner>, team_id: i32, rbac: Rbac) -> String {
     let submit_action = crate::routes::team::new_team_route(team_id);
 
     crate::render(VirtualDom::new_with_props(
         Page,
         PageProps {
             team_id,
-            is_sys_admin,
+            rbac,
             teams,
             submit_action,
         },

@@ -1,11 +1,11 @@
 use crate::authentication::Authentication;
 use crate::errors::CustomError;
-use crate::rls;
 use axum::{
     extract::{Extension, Path},
     response::Html,
 };
 use db::queries;
+use db::rls;
 use db::types;
 use db::Pool;
 
@@ -17,7 +17,8 @@ pub async fn index(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let is_sys_admin = rls::set_row_level_security_user(&transaction, &current_user).await?;
+    let rbac =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     let team = queries::teams::team()
         .bind(&transaction, &team_id)
@@ -36,7 +37,7 @@ pub async fn index(
 
     let can_manage_team = permissions
         .iter()
-        .any(|p| p == &types::public::Permission::ManageTeam);
+        .any(|p| p == &types::public::Permission::InvitePeopleToTeam);
 
     let user = queries::users::user()
         .bind(&transaction, &current_user.user_id)
@@ -57,7 +58,7 @@ pub async fn index(
     Ok(Html(ui_pages::team_members::members::members(
         ui_pages::team_members::members::PageProps {
             invites,
-            is_sys_admin,
+            rbac,
             members,
             team,
             user,

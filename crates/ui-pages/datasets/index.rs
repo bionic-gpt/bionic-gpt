@@ -4,12 +4,13 @@ use assets::files::button_plus_svg;
 use assets::files::*;
 use daisy_rsx::*;
 use db::queries::{datasets::Dataset, models::Model};
+use db::rls::Rbac;
 use dioxus::prelude::*;
 
 #[inline_props]
 pub fn Page(
     cx: Scope,
-    is_sys_admin: bool,
+    rbac: Rbac,
     team_id: i32,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
@@ -19,7 +20,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Datasets,
             team_id: *team_id,
-            is_sys_admin: *is_sys_admin,
+            rbac: rbac,
             title: "Datasets",
             header: cx.render(rsx!(
                 h3 { "Datasets" }
