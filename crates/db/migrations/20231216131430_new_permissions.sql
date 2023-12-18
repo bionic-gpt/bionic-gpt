@@ -1,6 +1,4 @@
 -- migrate:up
-ALTER TABLE users DROP COLUMN system_admin;
-
 ALTER TYPE permission ADD VALUE IF NOT EXISTS 'ViewCurrentTeam';
 ALTER TYPE permission ADD VALUE IF NOT EXISTS 'ViewPrompts';
 ALTER TYPE permission ADD VALUE IF NOT EXISTS 'ManagePipelines';
@@ -12,10 +10,11 @@ ALTER TYPE permission ADD VALUE IF NOT EXISTS 'SetupModels';
 ALTER TYPE permission RENAME VALUE 'ManageTeam' TO 'InvitePeopleToTeam';
 
 -- Team manager can see invite users
-ALTER TYPE role ADD VALUE IF NOT EXISTS 'TeamManager';
-ALTER TYPE role RENAME VALUE 'Administrator' TO 'SystemAdministrator';
+ALTER TYPE role RENAME VALUE 'Administrator' TO 'TeamManager';
+
+ALTER TYPE role ADD VALUE IF NOT EXISTS 'SystemAdministrator';
+
 
 -- migrate:down
 ALTER TYPE permission RENAME VALUE 'InvitePeopleToTeam' TO 'ManageTeam';
-ALTER TYPE role RENAME VALUE 'SystemAdministrator' TO 'Administrator';
-ALTER TABLE users ADD COLUMN system_admin BOOLEAN NOT NULL DEFAULT false;
+ALTER TYPE role RENAME VALUE 'TeamManager' TO 'Administrator';

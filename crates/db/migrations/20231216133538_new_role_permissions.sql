@@ -8,7 +8,6 @@ INSERT INTO roles_permissions VALUES('Collaborator', 'ViewPrompts');
 INSERT INTO roles_permissions VALUES('Collaborator', 'ManageDatasets');
 INSERT INTO roles_permissions VALUES('Collaborator', 'ViewDatasets');
 INSERT INTO roles_permissions VALUES('Collaborator', 'CreateApiKeys');
-INSERT INTO roles_permissions VALUES('TeamManager', 'InvitePeopleToTeam');
 DELETE FROM roles_permissions WHERE role = 'SystemAdministrator' AND permission = 'InvitePeopleToTeam';
 
 -- migrate:down
@@ -21,6 +20,5 @@ DELETE FROM roles_permissions WHERE role = 'Collaborator' AND permission = 'View
 DELETE FROM roles_permissions WHERE role = 'Collaborator' AND permission = 'ManageDatasets';
 DELETE FROM roles_permissions WHERE role = 'Collaborator' AND permission = 'ViewDatasets';
 DELETE FROM roles_permissions WHERE role = 'Collaborator' AND permission = 'CreateApiKeys';
-
 DELETE FROM roles_permissions WHERE role = 'TeamManager' AND permission = 'InvitePeopleToTeam';
 

@@ -44,26 +44,26 @@ pub struct Rbac {
 
 impl Rbac {
     pub fn can_use_api_keys(&self) -> bool {
-        true
+        self.permissions.contains(&Permission::CreateApiKeys)
     }
 
     pub fn can_view_teams(&self) -> bool {
-        true
+        self.permissions.contains(&Permission::ViewCurrentTeam)
     }
 
-    pub fn can_manage_teams(&self) -> bool {
-        true
+    pub fn can_make_invitations(&self) -> bool {
+        self.permissions.contains(&Permission::InvitePeopleToTeam)
     }
 
     pub fn can_view_datasets(&self) -> bool {
-        true
+        self.permissions.contains(&Permission::ViewDatasets)
     }
 
     pub fn can_manage_datasets(&self) -> bool {
-        true
+        self.permissions.contains(&Permission::ManageDatasets)
     }
 
     pub fn can_view_prompts(&self) -> bool {
-        true
+        self.permissions.contains(&Permission::ViewPrompts)
     }
 }
