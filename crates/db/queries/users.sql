@@ -34,9 +34,18 @@ SELECT
 FROM
     roles_permissions
 WHERE
+    -- The roles attached to the team
     role IN (
         SELECT 
             role 
         FROM 
             team_users tu
-        WHERE tu.team_id = :team_id AND tu.user_id = current_app_user());
+        WHERE 
+            tu.team_id = :team_id AND tu.user_id = current_app_user()
+    -- The role of system_admin
+    UNION
+        SELECT 'SystemAdministrator' AS role
+        FROM 
+            users
+        WHERE 
+            system_admin = true AND id = current_app_user());

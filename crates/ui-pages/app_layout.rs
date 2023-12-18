@@ -138,7 +138,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                         }
                     ))
                 }
-                if cx.props.rbac.is_sys_admin {
+                if cx.props.rbac.can_view_audit_trail() || cx.props.rbac.can_setup_models() {
                     cx.render(rsx!(
                         NavGroup {
                             heading: "System Admin",

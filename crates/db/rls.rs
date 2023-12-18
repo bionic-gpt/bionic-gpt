@@ -14,10 +14,7 @@ pub async fn set_row_level_security_user(
         .all()
         .await?;
 
-    let rbac = Rbac {
-        permissions,
-        is_sys_admin: true,
-    };
+    let rbac = Rbac { permissions };
 
     Ok(rbac)
 }
@@ -39,7 +36,6 @@ pub async fn set_row_level_security_user_id(
 #[derive(Default, PartialEq)]
 pub struct Rbac {
     pub permissions: Vec<Permission>,
-    pub is_sys_admin: bool,
 }
 
 impl Rbac {
@@ -65,5 +61,13 @@ impl Rbac {
 
     pub fn can_view_prompts(&self) -> bool {
         self.permissions.contains(&Permission::ViewPrompts)
+    }
+
+    pub fn can_view_audit_trail(&self) -> bool {
+        self.permissions.contains(&Permission::ViewAuditTrail)
+    }
+
+    pub fn can_setup_models(&self) -> bool {
+        self.permissions.contains(&Permission::SetupModels)
     }
 }
