@@ -49,12 +49,12 @@ pub fn InvitationForm(cx: Scope, submit_action: String) -> Element {
                                 }
                                 strong {
                                     class: "ml-2",
-                                    "Invite as Team Administrator"
+                                    "Invite as Team Manager"
                                 }
                             }
                             p {
                                 class: "note",
-                                "Team Administrators can invite new team members"
+                                "Team Managers can invite new team members"
                             }
                         }
                     }
