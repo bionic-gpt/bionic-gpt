@@ -25,8 +25,9 @@ pub async fn delete(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin =
-        rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
+    let _permissions =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, delete_doc.team_id)
+            .await?;
 
     queries::documents::delete()
         .bind(&transaction, &delete_doc.document_id)

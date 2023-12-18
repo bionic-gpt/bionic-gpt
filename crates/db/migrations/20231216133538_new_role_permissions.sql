@@ -1,20 +1,20 @@
 -- migrate:up
 
-INSERT INTO roles_permissions VALUES('Administrator', 'ViewAuditTrail');
-INSERT INTO roles_permissions VALUES('Administrator', 'SetupModels');
+INSERT INTO roles_permissions VALUES('SystemAdministrator', 'ViewAuditTrail');
+INSERT INTO roles_permissions VALUES('SystemAdministrator', 'SetupModels');
 
 INSERT INTO roles_permissions VALUES('Collaborator', 'ViewCurrentTeam');
 INSERT INTO roles_permissions VALUES('Collaborator', 'ViewPrompts');
-INSERT INTO roles_permissions VALUES('Collaborator', 'ManageDataset');
-INSERT INTO roles_permissions VALUES('Collaborator', 'ViewDataset');
+INSERT INTO roles_permissions VALUES('Collaborator', 'ManageDatasets');
+INSERT INTO roles_permissions VALUES('Collaborator', 'ViewDatasets');
 INSERT INTO roles_permissions VALUES('Collaborator', 'CreateApiKeys');
 INSERT INTO roles_permissions VALUES('TeamManager', 'InvitePeopleToTeam');
-DELETE FROM roles_permissions WHERE role = 'Administrator' AND permission = 'InvitePeopleToTeam';
+DELETE FROM roles_permissions WHERE role = 'SystemAdministrator' AND permission = 'InvitePeopleToTeam';
 
 -- migrate:down
 
-DELETE FROM roles_permissions WHERE role = 'Administrator' AND permission = 'ViewAuditTrail';
-DELETE FROM roles_permissions WHERE role = 'Administrator' AND permission = 'SetupModels';
+DELETE FROM roles_permissions WHERE role = 'SystemAdministrator' AND permission = 'ViewAuditTrail';
+DELETE FROM roles_permissions WHERE role = 'SystemAdministrator' AND permission = 'SetupModels';
 
 DELETE FROM roles_permissions WHERE role = 'Collaborator' AND permission = 'ViewCurrentTeam';
 DELETE FROM roles_permissions WHERE role = 'Collaborator' AND permission = 'ViewPrompts';

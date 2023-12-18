@@ -47,8 +47,7 @@ pub async fn accept_invitation(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin =
-        rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
+    rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
 
     let invitation = queries::invitations::get_invitation()
         .bind(&transaction, &invitation_selector)

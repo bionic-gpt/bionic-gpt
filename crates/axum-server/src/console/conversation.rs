@@ -15,7 +15,8 @@ pub async fn conversation(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
+    let rbac =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     let history = conversations::history().bind(&transaction).all().await?;
 

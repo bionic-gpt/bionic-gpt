@@ -28,10 +28,15 @@ SELECT
 FROM
     users;
 
---! is_sys_admin
+--! get_permissions
 SELECT
-    system_admin
+    permission
 FROM
-    users
+    roles_permissions
 WHERE
-    id = :current_user_id;
+    role IN (
+        SELECT 
+            role 
+        FROM 
+            team_users tu
+        WHERE tu.team_id = :team_id AND tu.user_id = current_app_user());

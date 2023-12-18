@@ -32,8 +32,8 @@ pub async fn new(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _is_sys_admin =
-        rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
+    let _permissions =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     // There's only 1 currently so just select it.
     let chunking_strategy = ChunkingStrategy::ByTitle;

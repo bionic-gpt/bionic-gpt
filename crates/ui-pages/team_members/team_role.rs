@@ -6,11 +6,11 @@ use dioxus::prelude::*;
 #[inline_props]
 pub fn Role(cx: Scope, role: Role) -> Element {
     match role {
-        Role::Administrator => cx.render(rsx!(
+        Role::SystemAdministrator => cx.render(rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Highlight,
-                "Administrator"
+                "SystemAdministrator"
             }
         )),
         Role::TeamManager => cx.render(rsx!(

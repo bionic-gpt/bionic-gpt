@@ -5,17 +5,18 @@ use crate::{Permission, Transaction};
 pub async fn set_row_level_security_user(
     transaction: &Transaction<'_>,
     current_user_id: i32,
+    current_team_id: i32,
 ) -> Result<Rbac, crate::TokioPostgresError> {
     set_row_level_security_user_id(transaction, current_user_id).await?;
 
-    let is_sys_admin = queries::users::is_sys_admin()
-        .bind(transaction, &current_user_id)
-        .one()
+    let permissions = queries::users::get_permissions()
+        .bind(transaction, &current_team_id)
+        .all()
         .await?;
 
     let rbac = Rbac {
-        permissions: Default::default(),
-        is_sys_admin,
+        permissions,
+        is_sys_admin: true,
     };
 
     Ok(rbac)
@@ -43,26 +44,26 @@ pub struct Rbac {
 
 impl Rbac {
     pub fn can_use_api_keys(&self) -> bool {
-        self.is_sys_admin
+        true
     }
 
     pub fn can_view_teams(&self) -> bool {
-        self.is_sys_admin
+        true
     }
 
     pub fn can_manage_teams(&self) -> bool {
-        self.is_sys_admin
+        true
     }
 
     pub fn can_view_datasets(&self) -> bool {
-        self.is_sys_admin
+        true
     }
 
     pub fn can_manage_datasets(&self) -> bool {
-        self.is_sys_admin
+        true
     }
 
     pub fn can_view_prompts(&self) -> bool {
-        self.is_sys_admin
+        true
     }
 }

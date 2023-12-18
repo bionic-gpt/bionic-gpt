@@ -14,7 +14,8 @@ pub async fn index(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = rls::set_row_level_security_user(&transaction, current_user.user_id).await?;
+    let rbac =
+        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
 
     let documents = documents::documents()
         .bind(&transaction, &dataset_id)
