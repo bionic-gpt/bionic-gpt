@@ -45,4 +45,24 @@ impl Rbac {
     pub fn can_use_api_keys(&self) -> bool {
         self.is_sys_admin
     }
+
+    pub fn can_view_teams(&self) -> bool {
+        self.is_sys_admin
+    }
+
+    pub fn can_manage_teams(&self) -> bool {
+        self.is_sys_admin
+    }
+
+    pub fn can_view_datasets(&self) -> bool {
+        self.is_sys_admin
+    }
+
+    pub fn can_manage_datasets(&self) -> bool {
+        self.is_sys_admin
+    }
+
+    pub fn can_view_prompts(&self) -> bool {
+        self.is_sys_admin
+    }
 }
