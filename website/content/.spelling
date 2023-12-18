@@ -230,6 +230,7 @@ oauth2-proxy
 Oauth2
  - docs/running-locally/docker-compose.md
 yml
+png
  - docs/running-locally/use-cases.md
 dropdown
  - blog/_index.md
