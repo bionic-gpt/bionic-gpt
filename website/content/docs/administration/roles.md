@@ -25,7 +25,7 @@ A team manager role is automatically given to the creator of a team. They have t
 
 ![Alt text](/landing-page/teams.png "Start Screen")
 
-## Restricting the Team Colloborator
+## Restricting the Team Collaborator
 
 Currently we don't have a user interface for RBAC however you can manage it yourself using by [Connecting to the database](http://bionic-gpt.com/docs/administration/db-connecting/).
 
@@ -70,7 +70,7 @@ bionicgpt=# select * from roles_permissions;
 (8 rows)
 ```
 
-So finally, any permissions you don't want **Team Colloborators** to have, you could transfer to the **System Administrator**.
+So finally, any permissions you don't want **Team Collaborators** to have, you could transfer to the **System Administrator**.
 
 ### Example - Only a System Administrator can manage teams and API Keys
 
@@ -80,6 +80,6 @@ UPDATE roles_permissions SET role = 'SystemAdministrator' where permission = 'Vi
 UPDATE roles_permissions SET role = 'SystemAdministrator' where permission = 'InvitePeopleToTeam';
 ```
 
-This would leave the user interface looking like the one below for any user that is not **System Administrator".
+This would leave the user interface looking like the one below for any user that is not **System Administrator**.
 
 ![Alt text](../rbac.png "Start Screen")
