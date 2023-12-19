@@ -16,11 +16,70 @@ There's no need for an administrator to add users or manage teams. Our teams bas
 
 On any team a collaborator can access the console and create prompts, datasets and generally do most things. The only thing they can't do is invite new members to the team.
 
-## Team Administrator
+## Team Manager
 
-A team administrator role is automatically given to the creator of a team. They have the following permissions.
+A team manager role is automatically given to the creator of a team. They have the following permissions.
 
 - Invite new users to the team
 - Assign the *Team Administrator* role to a team member.
 
 ![Alt text](/landing-page/teams.png "Start Screen")
+
+## Restricting the Team Colloborator
+
+Currently we don't have a user interface for RBAC however you can manage it yourself using by [Connecting to the database](http://bionic-gpt.com/docs/administration/db-connecting/).
+
+All the available permissions are stored in the [Enum](https://www.postgresql.org/docs/current/datatype-enum.html) called `permission`.
+
+### To view the permissions.
+
+```sql
+SELECT enum_range(NULL::permission);
+
+{InvitePeopleToTeam,ViewCurrentTeam,ViewPrompts,ManagePipelines,
+ViewDatasets,ManageDatasets,CreateApiKeys,ViewAuditTrail,SetupMod
+els}
+```
+
+### View all the roles
+
+```sql
+bionicgpt=# SELECT enum_range(NULL::role);
+                   enum_range                   
+------------------------------------------------
+ {TeamManager,Collaborator,SystemAdministrator}
+(1 row)
+
+bionicgpt=# 
+```
+
+### View how permissions are assigned to roles
+
+```sql
+bionicgpt=# select * from roles_permissions;
+        role         |     permission     
+---------------------+--------------------
+ TeamManager         | InvitePeopleToTeam
+ SystemAdministrator | ViewAuditTrail
+ SystemAdministrator | SetupModels
+ Collaborator        | ViewCurrentTeam
+ Collaborator        | ViewPrompts
+ Collaborator        | ManageDatasets
+ Collaborator        | ViewDatasets
+ Collaborator        | CreateApiKeys
+(8 rows)
+```
+
+So finally, any permissions you don't want **Team Colloborators** to have, you could transfer to the **System Administrator**.
+
+### Example - Only a System Administrator can manage teams and API Keys
+
+```sql
+UPDATE roles_permissions SET role = 'SystemAdministrator' where permission = 'CreateApiKeys';
+UPDATE roles_permissions SET role = 'SystemAdministrator' where permission = 'ViewCurrentTeam';
+UPDATE roles_permissions SET role = 'SystemAdministrator' where permission = 'InvitePeopleToTeam';
+```
+
+This would leave the user interface looking like the one below for any user that is not **System Administrator".
+
+![Alt text](../rbac.png "Start Screen")
