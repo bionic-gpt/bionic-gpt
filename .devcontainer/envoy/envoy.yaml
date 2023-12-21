@@ -21,16 +21,6 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-              # Sign in and registration
-              - match: { prefix: "/auth" }
-                route: { cluster: ext-authn }
-                typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    disabled: true
 
               # API requests to the LLM (they all start with /v1)
               - match: 
@@ -94,23 +84,39 @@ static_resources:
                     disabled: true
      
           http_filters:
-          # Use Authn Proxy to authenticate routes.  
-          - name: envoy.filters.http.ext_authz
+
+          - name: envoy.filters.http.oauth2
             typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
-              http_service:
-                server_uri:
-                  uri: auth:9090
-                  cluster: ext-authn
-                  timeout: 0.25s
-                authorization_request:
-                  allowed_headers:
-                    patterns: 
-                      - exact: "cookie"
-                authorization_response:
-                  allowed_upstream_headers_to_append:
-                    patterns: 
-                      - exact: "x-user-id"
+              "@type": type.googleapis.com/envoy.extensions.filters.http.oauth2.v3.OAuth2
+              config:
+                token_endpoint:
+                  cluster: keycloak
+                  uri: keycloak:8080/realms/bionic-gpt/protocol/openid-connect/token
+                  timeout: 3s
+                authorization_endpoint: http://localhost:8080/realms/bionic-gpt/protocol/openid-connect/auth
+                redirect_uri: "%REQ(x-forwarded-proto)%://%REQ(:authority)%/callback"
+                redirect_path_matcher:
+                  path:
+                    exact: /callback
+                signout_path:
+                  path:
+                    exact: /signout
+                forward_bearer_token: true    
+                credentials:
+                  client_id: bionic-gpt
+                  token_secret:
+                    name: token
+                    sds_config:
+                      path: "/etc/envoy/token-secret.yaml"
+                  hmac_secret:
+                    name: hmac
+                    sds_config:
+                      path: "/etc/envoy/hmac-secret.yaml"
+                # (Optional): defaults to 'user' scope if not provided
+                auth_scopes:
+                - openid
+                - email
+                - roles
 
           # Add all the security headers, if an item is already set, it will be left alone.
           - name: envoy.filters.http.lua
@@ -150,22 +156,23 @@ static_resources:
                 end
 
           - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
-  # The Barricade authentication service
-  - name: ext-authn
-    connect_timeout: 1.25s
-    type: strict_dns
-    lb_policy: round_robin
+  - name: keycloak
+    connect_timeout: 1s
+    type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
     load_assignment:
-      cluster_name: ext-authn
+      cluster_name: keycloak
       endpoints:
       - lb_endpoints:
         - endpoint:
             address:
               socket_address:
-                address: barricade
-                port_value: 9090
+                address: keycloak
+                port_value: 8080
 
   # The web application
   - name: app

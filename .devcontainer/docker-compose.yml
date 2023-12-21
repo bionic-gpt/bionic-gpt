@@ -13,23 +13,10 @@ services:
   # Handles routing between our containers
   envoy:
     build: 
-      context: .
-      dockerfile: Dockerfile.envoy
+      context: ./envoy
     ports:
       - "7700:7700"
       - "7701:7701"
-
-  # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
-  barricade:
-    image: purtontech/barricade
-    environment:
-        # This secret key is used to encrypt cookies.
-        SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-        DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt
-        REDIRECT_URL: /app/post_registration
-    depends_on:
-      db:
-        condition: service_healthy
 
   db:
     image: ankane/pgvector
@@ -42,6 +29,25 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  keycloak:
+    build:
+      context: ./keycloak
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: db
+      DB_DATABASE: keycloak
+      DB_USER: postgres
+      DB_PASSWORD: testpassword
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
+    command:
+      - "start-dev"
+      - "--import-realm"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
 
   development:
     build: 
