@@ -1,6 +1,7 @@
 {
     "realm": "bionic-gpt",
     "registrationAllowed": true,
+    "registrationEmailAsUsername": true,
     "enabled": "true",
     "sslRequired": "none",
     "clients": [
@@ -13,5 +14,17 @@
             ],
             "protocol": "openid-connect"
         }
-    ]
+    ],
+    "roles": {
+      "realm": [
+        {
+          "name": "Collaborator",
+          "description": "A general user"
+        },
+        {
+          "name": "SystemAdministrator",
+          "description": "Can manage models and the audit trail"
+        }
+      ]
+    }
 }

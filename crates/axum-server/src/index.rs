@@ -1,10 +1,10 @@
 use axum::response::IntoResponse;
-use http::header::{AUTHORIZATION, REFERER};
+use http::header::AUTHORIZATION;
 use http::{HeaderMap, Request};
 use hyper::{client, Body};
 use hyper_rustls::ConfigBuilderExt;
 
-pub async fn index(headers: HeaderMap) -> String {
+pub async fn index(headers: HeaderMap) -> impl IntoResponse {
     let tls = rustls::ClientConfig::builder()
         .with_safe_defaults()
         .with_webpki_roots()
@@ -24,20 +24,14 @@ pub async fn index(headers: HeaderMap) -> String {
         let req =
             Request::get("http://keycloak:7710/realms/bionic-gpt/protocol/openid-connect/userinfo")
                 .header(AUTHORIZATION, auth)
-                .header(
-                    REFERER,
-                    "http://localhost:7710/realms/bionic-gpt/protocol/openid-connect/userinfo",
-                )
                 .body(Body::empty())
                 .unwrap();
-
-        dbg!(&req);
 
         let client: client::Client<_, hyper::Body> = client::Client::builder().build(https);
         let resp = client.request(req).await.unwrap().into_response();
 
-        dbg!(&resp);
+        return resp.into_body().into_response();
     }
 
-    "Hello".to_string()
+    "Hello".to_string().into_response()
 }

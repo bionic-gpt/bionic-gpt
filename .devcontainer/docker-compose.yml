@@ -45,6 +45,7 @@ services:
       - "start-dev"
       - "--import-realm"
       - "--http-port=7710"
+      - "--hostname=localhost"
     ports:
       - "7710:7710"
     depends_on:
