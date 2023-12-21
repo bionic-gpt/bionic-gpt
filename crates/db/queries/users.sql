@@ -6,6 +6,12 @@ FROM
 WHERE
     id = :id;
     
+--! insert
+INSERT INTO 
+    users (openid_sub, email, first_name, last_name)
+VALUES(:openid_sub, :email, :first_name, :last_name) 
+RETURNING id;
+
 --! user_by_openid_sub : (first_name?, last_name?)
 SELECT 
     id, email, first_name, last_name

@@ -1,10 +1,6 @@
 -- migrate:up
 
 -- Lock down the database
-ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE team_users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- Helper functions for tenancy isolation 
 CREATE FUNCTION current_app_user() RETURNS INTEGER AS 
@@ -96,10 +92,6 @@ COMMENT ON FUNCTION get_users_for_app_user IS
 
 
 -- migrate:down
-ALTER TABLE invitations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE team_users DISABLE ROW LEVEL SECURITY;
-ALTER TABLE teams DISABLE ROW LEVEL SECURITY;
-ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 
 DROP FUNCTION current_app_user;
 DROP FUNCTION get_teams_for_app_user;

@@ -7,7 +7,7 @@ pub async fn set_row_level_security_user(
     current_user_id: String,
     current_team_id: i32,
 ) -> Result<Rbac, crate::TokioPostgresError> {
-    set_row_level_security_user_id(transaction, current_user_id).await?;
+    let user_id = set_row_level_security_user_id(transaction, current_user_id).await?;
 
     let permissions = queries::users::get_permissions()
         .bind(transaction, &current_team_id)
@@ -16,7 +16,7 @@ pub async fn set_row_level_security_user(
 
     let rbac = Rbac {
         permissions,
-        user_id: 1,
+        user_id,
     };
 
     Ok(rbac)
@@ -38,7 +38,7 @@ pub async fn set_row_level_security_user_id(
         )
         .await?;
 
-    Ok(1)
+    Ok(user.id)
 }
 
 #[derive(Default, PartialEq)]

@@ -12,6 +12,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
     pub sub: String,
+    pub email: String,
+    pub given_name: String,
+    pub family_name: String,
 }
 
 // From a request extract our authentication token.

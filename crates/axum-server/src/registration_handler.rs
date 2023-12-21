@@ -10,7 +10,7 @@ use db::types::public::{DatasetConnection, Visibility};
 use db::Pool;
 use db::{queries, Transaction};
 
-pub static INDEX: &str = "/app/post_registration";
+pub static INDEX: &str = "/start-session";
 
 pub fn routes() -> Router {
     Router::new().route(INDEX, get(post_registration))
@@ -25,7 +25,33 @@ pub async fn post_registration(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let user_id = db::rls::set_row_level_security_user_id(&transaction, current_user.sub).await?;
+
+    let user = queries::users::user_by_openid_sub()
+        .bind(&transaction, &current_user.sub)
+        .one()
+        .await;
+
+    let user_id = if let Ok(user) = user {
+        user.id
+    } else {
+        queries::users::insert()
+            .bind(
+                &transaction,
+                &current_user.sub,
+                &current_user.email,
+                &current_user.given_name,
+                &current_user.family_name,
+            )
+            .one()
+            .await?
+    };
+
+    transaction
+        .query(
+            &format!("SET LOCAL row_level_security.user_id = {}", user_id),
+            &[],
+        )
+        .await?;
 
     let org = queries::teams::get_primary_team()
         .bind(&transaction, &user_id)
