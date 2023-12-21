@@ -34,7 +34,7 @@ pub async fn upsert(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+        rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
     let model_type = if model_form.model_type == "LLM" {
         ModelType::LLM

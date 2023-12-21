@@ -17,7 +17,7 @@ pub async fn upload(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+        rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         // name of the file with extention

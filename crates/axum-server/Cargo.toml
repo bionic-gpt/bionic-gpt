@@ -30,6 +30,8 @@ tracing = "0"
 tracing-subscriber = { version="0", features = ["env-filter"] }
 tower-http = { version = "0", default-features = false, features = ["fs", "trace"] }
 
+reqwest = { version = "0", default-features = false, features = ["multipart", "rustls-tls", "json"] }
+
 # Used for our request parser user_id
 futures = "0.3"
 

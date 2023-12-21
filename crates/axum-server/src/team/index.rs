@@ -17,8 +17,7 @@ pub async fn index(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let rbac = rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
     let team = queries::teams::team()
         .bind(&transaction, &team_id)
@@ -31,7 +30,7 @@ pub async fn index(
         .await?;
 
     let permissions: Vec<types::public::Permission> = queries::rbac::permissions()
-        .bind(&transaction, &current_user.user_id, &team_id)
+        .bind(&transaction, &rbac.user_id, &team_id)
         .all()
         .await?;
 
@@ -40,7 +39,7 @@ pub async fn index(
         .any(|p| p == &types::public::Permission::InvitePeopleToTeam);
 
     let user = queries::users::user()
-        .bind(&transaction, &current_user.user_id)
+        .bind(&transaction, &rbac.user_id)
         .one()
         .await?;
 

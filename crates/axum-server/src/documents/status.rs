@@ -14,7 +14,7 @@ pub async fn status(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
+    rls::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let document = documents::document()
         .bind(&transaction, &document_id)

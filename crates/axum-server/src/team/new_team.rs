@@ -25,7 +25,7 @@ pub async fn new_team(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
+    let user_id = rls::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let org_id = queries::teams::insert_team()
         .bind(&transaction)
@@ -38,7 +38,7 @@ pub async fn new_team(
     ];
 
     queries::teams::add_user_to_team()
-        .bind(&transaction, &current_user.user_id, &org_id, &roles)
+        .bind(&transaction, &user_id, &org_id, &roles)
         .await?;
 
     queries::teams::set_name()

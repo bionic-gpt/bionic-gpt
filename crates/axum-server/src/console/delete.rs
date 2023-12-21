@@ -25,7 +25,7 @@ pub async fn delete(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, delete_form.team_id)
+        rls::set_row_level_security_user(&transaction, current_user.sub, delete_form.team_id)
             .await?;
 
     queries::conversations::delete()

@@ -28,7 +28,7 @@ pub async fn send_message(
         let transaction = client.transaction().await?;
 
         let _permissions =
-            rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+            rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
         // Store the prompt, ready for the front end webcomponent to pickup
         chats::new_chat()

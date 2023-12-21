@@ -25,7 +25,7 @@ pub async fn handler(
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
 
-    db::rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
+    db::rls::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let model = queries::models::model_host_by_chat_id()
         .bind(&transaction, &chat_id)

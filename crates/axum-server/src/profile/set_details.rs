@@ -27,15 +27,14 @@ pub async fn set_details(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let rbac = rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
     queries::users::set_name()
         .bind(
             &transaction,
             &set_name.first_name,
             &set_name.last_name,
-            &current_user.user_id,
+            &rbac.user_id,
         )
         .await?;
 

@@ -15,7 +15,7 @@ pub async fn index(
     let transaction = client.transaction().await?;
 
     let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+        rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
     // Get the latest conversation
     let conversation: Result<Conversation, db::TokioPostgresError> =

@@ -25,10 +25,10 @@ pub async fn post_registration(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    db::rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
+    let user_id = db::rls::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let org = queries::teams::get_primary_team()
-        .bind(&transaction, &current_user.user_id)
+        .bind(&transaction, &user_id)
         .one()
         .await;
 
@@ -37,7 +37,7 @@ pub async fn post_registration(
             org.id,
         )));
     }
-    let inserted_org_id = setup_user(&transaction, &current_user).await?;
+    let inserted_org_id = setup_user(&transaction, user_id).await?;
 
     transaction.commit().await?;
 
@@ -47,10 +47,7 @@ pub async fn post_registration(
 }
 
 // Creates the users default prompt and anything else they need
-async fn setup_user(
-    transaction: &Transaction<'_>,
-    current_user: &Authentication,
-) -> Result<i32, CustomError> {
+async fn setup_user(transaction: &Transaction<'_>, current_user: i32) -> Result<i32, CustomError> {
     let inserted_org_id = queries::teams::insert_team()
         .bind(transaction)
         .one()
@@ -62,7 +59,7 @@ async fn setup_user(
     ];
 
     queries::teams::add_user_to_team()
-        .bind(transaction, &current_user.user_id, &inserted_org_id, &roles)
+        .bind(transaction, &current_user, &inserted_org_id, &roles)
         .await?;
 
     let model = queries::models::get_system_model()

@@ -29,8 +29,7 @@ pub async fn new_api_key(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let rbac = rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
     if new_api_key.validate().is_ok() {
         let api_key: String = thread_rng()
@@ -43,7 +42,7 @@ pub async fn new_api_key(
             .bind(
                 &transaction,
                 &new_api_key.prompt_id,
-                &current_user.user_id,
+                &rbac.user_id,
                 &team_id,
                 &new_api_key.name,
                 &api_key,

@@ -59,8 +59,7 @@ pub async fn filter(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let rbac = rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
 
     let team_users = queries::teams::get_users()
         .bind(&transaction, &team_id)
