@@ -91,9 +91,9 @@ static_resources:
               config:
                 token_endpoint:
                   cluster: keycloak
-                  uri: keycloak:8080/realms/bionic-gpt/protocol/openid-connect/token
+                  uri: keycloak:7710/realms/bionic-gpt/protocol/openid-connect/token
                   timeout: 3s
-                authorization_endpoint: http://localhost:8080/realms/bionic-gpt/protocol/openid-connect/auth
+                authorization_endpoint: http://localhost:7710/realms/bionic-gpt/protocol/openid-connect/auth
                 redirect_uri: "%REQ(x-forwarded-proto)%://%REQ(:authority)%/callback"
                 redirect_path_matcher:
                   path:
@@ -172,7 +172,7 @@ static_resources:
             address:
               socket_address:
                 address: keycloak
-                port_value: 8080
+                port_value: 7710
 
   # The web application
   - name: app

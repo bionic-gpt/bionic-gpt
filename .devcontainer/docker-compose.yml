@@ -44,8 +44,9 @@ services:
     command:
       - "start-dev"
       - "--import-realm"
+      - "--http-port=7710"
     ports:
-      - "8080:8080"
+      - "7710:7710"
     depends_on:
       - db
 
