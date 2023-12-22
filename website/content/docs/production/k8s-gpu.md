@@ -12,6 +12,6 @@ We recommend you run [Hugging Face TGI](https://github.com/huggingface/text-gene
 
 ## LiteLLM
 
-Lite LLM is a proxy that sits between Bionic and TGI and converts the TGI rest API into an Open AI compatible API as well as handling prompt templating.
+Lite LLM is a proxy that sits between Bionic and TGI and converts the TGI rest API into an Open AI compatible `chat/completions` API which is responsible for handling prompt templating.
 
 ![Alt text](../../running-locally/arch.png "Architecture")
