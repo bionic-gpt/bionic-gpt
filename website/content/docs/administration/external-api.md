@@ -5,7 +5,7 @@ weight = 50
 sort_by = "weight"
 +++
 
-If you're already running an LLM that supports the Open AI API in your organisation or on your local machine you may want to connect to it instead of the one we provide.
+If you're already running an LLM that supports the Open AI `chat/completions` [API](https://platform.openai.com/docs/api-reference/chat) in your organisation or on your local machine you may want to connect to it instead of the one we provide.
 
 
 ## Add a new model
