@@ -122,7 +122,7 @@ That's with 192GB of memory so you're looking at a system cost of $5,599.
 
 ## API Requirements
 
-Most application that use LLM's rely on an API and the standard API at the moment is the Open AI Rest API.
+Most application that use LLM's rely on an API and the standard API at the moment is the Open AI `chat/completions` [API](https://platform.openai.com/docs/api-reference/chat).
 
 Any API will need to ideally follow that standard and support the following
 
