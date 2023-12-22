@@ -31,9 +31,10 @@ static_resources:
                   # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
                   timeout: 0s 
                 typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
+                  # Switch off authentication
+                  #envoy.filters.http.oauth2:
+                  #  "@type": type.googleapis.com/envoy.extensions.filters.http.oauth2.v3.OAuth2
+                  #  disabled: true
                   envoy.filters.http.lua:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
                     disabled: true
@@ -47,41 +48,22 @@ static_resources:
                   # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
                   timeout: 0s 
 
-              # Web request to our app
-              - match: { prefix: "/app" }
-                route: 
-                  cluster: app
-                  timeout: 60s
-                # We have a function to add security headers as the web app needed to open up
-                # some permissions
-                typed_per_filter_config:
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    name: security_headers.lua
-
-              # Paths that don't need authentication
-
-              # Images JS, and CSS.
+              # Images JS, and CSS don't need auth.
               - match: { prefix: "/static" }
                 route: { cluster: app }
                 typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
+                  #envoy.filters.http.oauth2:
+                  #  "@type": type.googleapis.com/envoy.extensions.filters.http.oauth2.v3.OAuth2
+                  #  config: {}
                   envoy.filters.http.lua:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
                     disabled: true
                     
-              # Everything else passes in to here. The marketing pages
+              # The setup_application root, ideally new users land here
               - match: { prefix: "/" }
-                route: { cluster: app }
-                typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    disabled: true
+                route: 
+                  cluster: app
+                  timeout: 60s
      
           http_filters:
 
@@ -100,7 +82,7 @@ static_resources:
                     exact: /callback
                 signout_path:
                   path:
-                    exact: /signout
+                    exact: /auth/sign_out
                 forward_bearer_token: true    
                 credentials:
                   client_id: bionic-gpt
@@ -118,42 +100,37 @@ static_resources:
                 - email
                 - roles
 
-          # Add all the security headers, if an item is already set, it will be left alone.
+          # Detect Sign In and Sign Out
+          # Add our authentication_handler as the place to redirect to
           - name: envoy.filters.http.lua
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              default_source_code:
+                inline_string:
+                  function envoy_on_response(response_handle)
 
-              source_codes:
-                # Lock everything down
-                security_headers.lua:
-                  inline_string: |
-                    function envoy_on_response(response_handle)
+                    local headers = response_handle:headers()
+                    if headers:get(":status") == "302" then
+                      local location = headers:get("location")
+                      if string.find(location, "http://localhost:7710") then
+                        response_handle:logInfo("REDIRECT TO KEYCLOAK DETECTED")
+                      else
+                        local cookie = headers:get("set-cookie")
 
-                      response_handle:headers():add("Cache-Control", "none");
-
-                      csp = "default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
-                      response_handle:headers():add("Content-Security-Policy", csp);
-                      response_handle:headers():add("X-Frame-Options", "deny");
-                      response_handle:headers():add("X-XSS-Protection", "1; mode=block");
-                      response_handle:headers():add("X-Content-Type-Options", "nosniff");
-                      response_handle:headers():add("Referrer-Policy", "no-referrer");
-                      response_handle:headers():add("X-Download-Options", "noopen");
-                      response_handle:headers():add("X-DNS-Prefetch-Control", "off");
-                      response_handle:headers():add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-                      response_handle:headers():add("Permissions-Policy",
-                                                    "accelerometer=(), "..
-                                                    "camera=(), "..
-                                                    "geolocation=(), "..
-                                                    "gyroscope=(), "..
-                                                    "magnetometer=(), "..
-                                                    "microphone=(), "..
-                                                    "payment=(), "..
-                                                    "usb=()");
-                      response_handle:headers():remove("X-Powered-By");
+                        if cookie ~= nil then
+                          if string.find(cookie, "OauthHMAC=") then
+                            if string.find(cookie, "OauthHMAC=deleted") then
+                              response_handle:logInfo("LOGOUT detected")
+                            else
+                              response_handle:logInfo("SIGNIN / SIGNUP detected")
+                              headers:remove("location")
+                              headers:add("location", "http://localhost:7700/authentication_handler")
+                            end
+                          end
+                        end
+                      end
                     end
-              inline_code: |
-                function envoy_on_response(response_handle)
-                end
+                  end
 
           - name: envoy.filters.http.router
             typed_config:

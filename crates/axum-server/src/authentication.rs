@@ -43,6 +43,10 @@ where
                 return Ok(result);
             }
         }
-        Err((StatusCode::UNAUTHORIZED, "Problem varything the user").into_response())
+        Err((
+            StatusCode::UNAUTHORIZED,
+            "Didn't find an authentication header",
+        )
+            .into_response())
     }
 }

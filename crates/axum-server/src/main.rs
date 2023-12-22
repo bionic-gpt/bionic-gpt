@@ -3,19 +3,20 @@ mod api_pipeline;
 mod api_reverse_proxy;
 mod audit_trail;
 mod authentication;
+mod authentication_handler;
 mod config;
 mod console;
 mod datasets;
 mod documents;
 mod email;
 mod errors;
+mod index;
 mod layout;
 mod models;
 mod pipelines;
 mod profile;
 mod prompt;
 mod prompts;
-mod registration_handler;
 mod static_files;
 mod team;
 mod ui_completions;
@@ -44,10 +45,10 @@ async fn main() {
         .route("/v1/*path", get(api_reverse_proxy::handler))
         .route("/v1/*path", post(api_reverse_proxy::handler))
         .route("/completions/:chat_id", post(ui_completions::handler))
+        .route("/", get(index::index))
         .merge(team::routes())
         .merge(audit_trail::routes())
         .merge(profile::routes())
-        .merge(registration_handler::routes())
         .merge(console::routes())
         .merge(api_keys::routes())
         .merge(datasets::routes())
@@ -55,6 +56,10 @@ async fn main() {
         .merge(pipelines::routes())
         .merge(models::routes())
         .merge(prompts::routes())
+        .route(
+            "/authentication_handler",
+            get(authentication_handler::authentication_handler),
+        )
         .layer(TraceLayer::new_for_http())
         .layer(Extension(config))
         .layer(Extension(pool.clone()))

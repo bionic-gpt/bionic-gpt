@@ -2,29 +2,23 @@ use crate::{authentication::Authentication, errors::CustomError};
 use axum::{
     extract::Extension,
     response::{IntoResponse, Redirect},
-    routing::get,
-    Router,
 };
 use db::types;
 use db::types::public::{DatasetConnection, Visibility};
 use db::Pool;
 use db::{queries, Transaction};
 
-pub static INDEX: &str = "/start-session";
-
-pub fn routes() -> Router {
-    Router::new().route(INDEX, get(post_registration))
-}
-
 // After a user has logged in or registered, check they have an entry in
 // the team table. If not, then create one.
-pub async fn post_registration(
+pub async fn authentication_handler(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
+
+    dbg!("User setup");
 
     let user = queries::users::user_by_openid_sub()
         .bind(&transaction, &current_user.sub)
