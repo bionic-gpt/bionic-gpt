@@ -11,7 +11,7 @@ ARG --global DB_FOLDER=crates/db
 ARG --global PIPELINE_FOLDER=crates/asset-pipeline
 
 # Base images
-ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.17-latest
+ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.28.0
 
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
@@ -67,9 +67,13 @@ prepare-cache:
 
 envoy-container:
     FROM $ENVOY_PROXY
-    COPY .devcontainer/envoy.yaml /etc/envoy/envoy.yaml
+    RUN mkdir -p /etc/envoy
+    COPY .devcontainer/envoy/envoy.yaml /etc/envoy/envoy.yaml
+    COPY .devcontainer/envoy/token-secret.yaml /etc/envoy/token-secret.yaml
+    COPY .devcontainer/envoy/hmac-secret.yaml /etc/envoy/hmac-secret.yaml
     # The second development entry in our cluster list is the app
     RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
+    CMD ["/usr/local/bin/envoy","-c","/etc/envoy/envoy.yaml","--service-cluster","envoy","--service-node","envoy","--log-level","info"]
     SAVE IMAGE --push $ENVOY_IMAGE_NAME
      
 
