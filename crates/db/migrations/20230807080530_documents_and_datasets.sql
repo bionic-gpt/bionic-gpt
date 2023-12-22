@@ -47,7 +47,7 @@ CREATE TABLE chunks (
     document_id INT NOT NULL, 
     text VARCHAR NOT NULL, 
     page_number INT NOT NULL, 
-    embeddings vector(384), 
+    embeddings vector, 
     processed BOOL NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
