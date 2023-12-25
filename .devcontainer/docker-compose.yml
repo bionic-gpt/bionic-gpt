@@ -15,24 +15,51 @@ services:
     build: 
       context: ./envoy
     ports:
-      - "7700:7700"
       - "7701:7701"
+      - "7702:7702"
 
   db:
     image: ankane/pgvector
     environment:
       POSTGRES_PASSWORD: testpassword
       POSTGRES_USER: postgres
-      POSTGRES_DB: bionicgpt
+      POSTGRES_DB: keycloak
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vscode"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # We don't want to implement Open ID Connect. Let these people do it.
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
+    environment:
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:7700
+      OAUTH2_PROXY_COOKIE_SECRET: OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w=
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
+      OAUTH2_PROXY_UPSTREAMS: http://envoy:7701
+      OAUTH2_PROXY_CLIENT_SECRET: 69b26b08-12fe-48a2-85f0-6ab223f45777
+      OAUTH2_PROXY_CLIENT_ID: bionic-gpt
+      OAUTH2_PROXY_REDIRECT_URL: http://localhost:7700/oauth2/callback
+      OAUTH2_PROXY_OIDC_ISSUER_URL: http://keycloak:7710/realms/bionic-gpt
+      OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION: "true"
+      OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL: "true"
+      OAUTH2_PROXY_PROVIDER: oidc
+      OAUTH2_PROXY_PROVIDER_DISPLAY_NAME: Keycloak
+      OAUTH2_PROXY_SKIP_AUTH_ROUTES: "^/realm,^/js,^/resources"
+      OAUTH2_PROXY_AUTH_LOGGING: "true"
+    restart: unless-stopped
+    ports:
+      - 7700:7700/tcp
+    depends_on:
+      - keycloak
+
+  # Use keycloak as our Open ID Connect backend.
   keycloak:
-    build:
-      context: ./keycloak
+    image: quay.io/keycloak/keycloak:23.0
+    volumes:
+     - ./keycloak:/opt/keycloak/data/import
     environment:
       DB_VENDOR: postgres
       DB_ADDR: db
@@ -45,9 +72,8 @@ services:
       - "start-dev"
       - "--import-realm"
       - "--http-port=7710"
-      - "--hostname=localhost"
-    ports:
-      - "7710:7710"
+      - "--proxy=edge"
+      - "--hostname=localhost:7700"
     depends_on:
       - db
 
@@ -73,7 +99,7 @@ services:
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt?sslmode=disable
       APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/bionicgpt?sslmode=disable
 
-      INVITE_DOMAIN: http://envoy:7700
+      INVITE_DOMAIN: http://oauth2-proxy:7700
       INVITE_FROM_EMAIL_ADDRESS: support@application.com
       SMTP_HOST: smtp
       SMTP_PORT: 1025

@@ -87,9 +87,7 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    driver
-        .goto(format!("{}/auth/sign_up", &config.host))
-        .await?;
+    driver.goto(format!("{}/", &config.host)).await?;
 
     let email = register_random_user(driver).await?;
 
