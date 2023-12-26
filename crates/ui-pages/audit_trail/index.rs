@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
-use db::{rls::Rbac, AuditTrail, Member};
+use db::{authz::Rbac, AuditTrail, Member};
 use dioxus::prelude::*;
 
 use crate::app_layout::{Layout, SideBar};

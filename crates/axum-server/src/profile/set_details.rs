@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
+use db::authz;
 use db::queries;
-use db::rls;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -27,7 +27,7 @@ pub async fn set_details(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
+    let rbac = authz::authorize(&transaction, current_user.sub, team_id).await?;
 
     queries::users::set_name()
         .bind(

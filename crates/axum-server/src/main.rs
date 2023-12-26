@@ -3,7 +3,6 @@ mod api_pipeline;
 mod api_reverse_proxy;
 mod audit_trail;
 mod authentication;
-mod authentication_handler;
 mod config;
 mod console;
 mod datasets;
@@ -56,10 +55,6 @@ async fn main() {
         .merge(pipelines::routes())
         .merge(models::routes())
         .merge(prompts::routes())
-        .route(
-            "/authentication_handler",
-            get(authentication_handler::authentication_handler),
-        )
         .layer(TraceLayer::new_for_http())
         .layer(Extension(config))
         .layer(Extension(pool.clone()))

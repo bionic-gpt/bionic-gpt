@@ -4,18 +4,19 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use http::header::AUTHORIZATION;
 use http::request::Parts;
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
     pub sub: String,
     pub email: String,
-    pub given_name: String,
-    pub family_name: String,
+    pub given_name: Option<String>,
+    pub family_name: Option<String>,
 }
+
+const X_FORWARDED_USER: &str = "X-Forwarded-User";
+const X_FORWARDED_EMAIL: &str = "X-Forwarded-Email";
 
 // From a request extract our authentication token.
 #[async_trait]
@@ -26,21 +27,22 @@ where
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        if let Some(auth_header) = parts.headers.get(AUTHORIZATION) {
-            if let Ok(auth_header) = auth_header.to_str() {
-                let client = Client::new();
-                let response = client
-                    .get("http://keycloak:7710/realms/bionic-gpt/protocol/openid-connect/userinfo")
-                    .header(AUTHORIZATION, auth_header)
-                    .send()
-                    .await
-                    .map_err(|_| (StatusCode::UNAUTHORIZED, "Issue calling OP").into_response())?;
+        let forwarded_user = parts.headers.get(X_FORWARDED_USER);
+        let forwarded_email = parts.headers.get(X_FORWARDED_EMAIL);
 
-                let result = response.json::<Authentication>().await.map_err(|_| {
-                    (StatusCode::UNAUTHORIZED, "Problem parsing results").into_response()
-                })?;
+        if let (Some(user), Some(email)) = (forwarded_user, forwarded_email) {
+            let user = user.to_str();
+            let email = email.to_str();
 
-                return Ok(result);
+            if let (Ok(sub), Ok(email)) = (user, email) {
+                let authentication = Authentication {
+                    sub: sub.to_string(),
+                    email: email.to_string(),
+                    given_name: None,
+                    family_name: None,
+                };
+
+                return Ok(authentication);
             }
         }
         Err((

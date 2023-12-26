@@ -2,7 +2,7 @@
 use super::logout_form::LogoutForm;
 use assets::files::*;
 use daisy_rsx::{AppLayout, NavGroup, NavItem};
-use db::rls::Rbac;
+use db::authz::Rbac;
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Eq, Debug)]

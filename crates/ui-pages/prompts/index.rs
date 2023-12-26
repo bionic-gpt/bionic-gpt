@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::rls::Rbac;
+use db::authz::Rbac;
 use db::{queries::prompts::Prompt, Dataset, DatasetConnection, Model, Visibility};
 use dioxus::prelude::*;
 

@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
+use db::authz;
 use db::queries;
-use db::rls;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -25,8 +25,7 @@ pub async fn delete(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.sub, delete_member.team_id)
-            .await?;
+        authz::authorize(&transaction, current_user.sub, delete_member.team_id).await?;
 
     queries::teams::remove_user()
         .bind(&transaction, &delete_member.user_id, &delete_member.team_id)

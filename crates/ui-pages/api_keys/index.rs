@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::{rls::Rbac, ApiKey, Prompt};
+use db::{authz::Rbac, ApiKey, Prompt};
 use dioxus::prelude::*;
 
 #[inline_props]

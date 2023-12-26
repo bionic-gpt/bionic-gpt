@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Path},
     response::{IntoResponse, Redirect},
 };
+use db::authz;
 use db::queries;
-use db::rls;
 use db::Pool;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
@@ -47,7 +47,7 @@ pub async fn accept_invitation(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let user_id = rls::set_row_level_security_user_id(&transaction, current_user.sub).await?;
+    let user_id = authz::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let invitation = queries::invitations::get_invitation()
         .bind(&transaction, &invitation_selector)

@@ -4,7 +4,7 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
-use db::rls;
+use db::authz;
 use db::types;
 use db::Pool;
 use db::{queries, DatasetConnection, Visibility};
@@ -25,7 +25,7 @@ pub async fn new_team(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let user_id = rls::set_row_level_security_user_id(&transaction, current_user.sub).await?;
+    let user_id = authz::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let org_id = queries::teams::insert_team()
         .bind(&transaction)

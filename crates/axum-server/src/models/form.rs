@@ -4,7 +4,7 @@ use crate::layout::empty_string_is_none;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum::Form;
-use db::rls;
+use db::authz;
 use db::Pool;
 use db::{queries, ModelType};
 use serde::Deserialize;
@@ -33,8 +33,7 @@ pub async fn upsert(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
+    let _permissions = authz::authorize(&transaction, current_user.sub, team_id).await?;
 
     let model_type = if model_form.model_type == "LLM" {
         ModelType::LLM

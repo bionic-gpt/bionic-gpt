@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Path},
     response::IntoResponse,
 };
+use db::authz;
 use db::queries::conversations;
-use db::rls;
 use db::Pool;
 
 pub async fn new_chat(
@@ -16,8 +16,7 @@ pub async fn new_chat(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.sub, team_id).await?;
+    let _permissions = authz::authorize(&transaction, current_user.sub, team_id).await?;
 
     let conversation_id = conversations::create_conversation()
         .bind(&transaction, &team_id)
