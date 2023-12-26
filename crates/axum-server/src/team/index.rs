@@ -17,7 +17,7 @@ pub async fn index(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::authorize(&transaction, current_user.sub, team_id).await?;
+    let rbac = authz::get_permissions(&transaction, current_user.sub, team_id).await?;
 
     let team = queries::teams::team()
         .bind(&transaction, &team_id)

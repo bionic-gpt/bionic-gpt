@@ -14,7 +14,7 @@ pub async fn index(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::authorize(&transaction, current_user.sub, team_id).await?;
+    let rbac = authz::get_permissions(&transaction, current_user.sub, team_id).await?;
 
     let api_keys = queries::api_keys::api_keys()
         .bind(&transaction, &team_id)

@@ -2,7 +2,7 @@ use crate::queries;
 use crate::{types, DatasetConnection, Permission, Transaction, Visibility};
 
 // A helper function for setting the RLS user which is used by all the policies.
-pub async fn authorize(
+pub async fn get_permissions(
     transaction: &Transaction<'_>,
     current_user_id: String,
     current_team_id: i32,

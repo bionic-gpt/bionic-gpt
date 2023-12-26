@@ -27,7 +27,7 @@ pub async fn send_message(
         let mut client = pool.get().await?;
         let transaction = client.transaction().await?;
 
-        let _permissions = authz::authorize(&transaction, current_user.sub, team_id).await?;
+        let _permissions = authz::get_permissions(&transaction, current_user.sub, team_id).await?;
 
         // Store the prompt, ready for the front end webcomponent to pickup
         chats::new_chat()
