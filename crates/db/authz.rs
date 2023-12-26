@@ -14,7 +14,7 @@ pub struct Authentication {
 // A helper function for setting the RLS user which is used by all the policies.
 pub async fn get_permissions(
     transaction: &Transaction<'_>,
-    authentication: Authentication,
+    authentication: &Authentication,
     current_team_id: i32,
 ) -> Result<Rbac, crate::TokioPostgresError> {
     let user = queries::users::user_by_openid_sub()
@@ -22,19 +22,11 @@ pub async fn get_permissions(
         .one()
         .await;
 
+    // Do we have a user with this sub?
     let user_id = if let Ok(user) = user {
         user.id
     } else {
-        queries::users::insert()
-            .bind(
-                transaction,
-                &authentication.sub,
-                &authentication.email,
-                &authentication.given_name,
-                &authentication.family_name,
-            )
-            .one()
-            .await?
+        setup_user_if_not_already_registered(transaction, authentication).await?
     };
 
     transaction
@@ -77,10 +69,28 @@ pub async fn set_row_level_security_user_id(
 }
 
 // Creates the users default prompt and anything else they need
-async fn _setup_user(
+pub async fn setup_user_if_not_already_registered(
     transaction: &Transaction<'_>,
-    current_user: i32,
+    authentication: &Authentication,
 ) -> Result<i32, crate::TokioPostgresError> {
+    let user_id = queries::users::insert()
+        .bind(
+            transaction,
+            &authentication.sub,
+            &authentication.email,
+            &authentication.given_name,
+            &authentication.family_name,
+        )
+        .one()
+        .await?;
+
+    transaction
+        .query(
+            &format!("SET LOCAL row_level_security.user_id = {}", user_id),
+            &[],
+        )
+        .await?;
+
     let inserted_org_id = queries::teams::insert_team()
         .bind(transaction)
         .one()
@@ -92,7 +102,7 @@ async fn _setup_user(
     ];
 
     queries::teams::add_user_to_team()
-        .bind(transaction, &current_user, &inserted_org_id, &roles)
+        .bind(transaction, &user_id, &inserted_org_id, &roles)
         .await?;
 
     let model = queries::models::get_system_model()
@@ -121,7 +131,7 @@ async fn _setup_user(
         .one()
         .await?;
 
-    Ok(inserted_org_id)
+    Ok(user_id)
 }
 
 #[derive(Default, PartialEq)]

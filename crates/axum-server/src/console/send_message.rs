@@ -28,7 +28,7 @@ pub async fn send_message(
         let transaction = client.transaction().await?;
 
         let _permissions =
-            authz::get_permissions(&transaction, current_user.into(), team_id).await?;
+            authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
         // Store the prompt, ready for the front end webcomponent to pickup
         chats::new_chat()

@@ -16,7 +16,7 @@ pub async fn upload(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, current_user.into(), team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         // name of the file with extention

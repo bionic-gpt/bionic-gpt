@@ -29,7 +29,7 @@ pub async fn new(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     if new_pipeline.validate().is_ok() {
         let api_key: String = thread_rng()

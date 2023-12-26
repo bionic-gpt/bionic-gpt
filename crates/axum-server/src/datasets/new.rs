@@ -32,7 +32,7 @@ pub async fn new(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, current_user.into(), team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // There's only 1 currently so just select it.
     let chunking_strategy = ChunkingStrategy::ByTitle;

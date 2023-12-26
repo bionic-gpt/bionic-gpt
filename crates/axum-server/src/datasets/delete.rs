@@ -25,7 +25,7 @@ pub async fn delete(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _permissions =
-        authz::get_permissions(&transaction, current_user.into(), delete_form.team_id).await?;
+        authz::get_permissions(&transaction, &current_user.into(), delete_form.team_id).await?;
 
     queries::datasets::delete()
         .bind(&transaction, &delete_form.id)

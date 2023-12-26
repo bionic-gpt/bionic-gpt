@@ -25,7 +25,7 @@ pub async fn set_name(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, current_user.into(), team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     queries::teams::set_name()
         .bind(&transaction, &set_name.name, &team_id)
