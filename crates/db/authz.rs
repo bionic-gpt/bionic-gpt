@@ -1,14 +1,24 @@
+use serde::{Deserialize, Serialize};
+
 use crate::queries;
 use crate::{types, DatasetConnection, Permission, Transaction, Visibility};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Authentication {
+    pub sub: String,
+    pub email: String,
+    pub given_name: String,
+    pub family_name: String,
+}
 
 // A helper function for setting the RLS user which is used by all the policies.
 pub async fn get_permissions(
     transaction: &Transaction<'_>,
-    current_user_id: String,
+    authentication: Authentication,
     current_team_id: i32,
 ) -> Result<Rbac, crate::TokioPostgresError> {
-    /***let user = queries::users::user_by_openid_sub()
-        .bind(transaction, &current_user.sub)
+    let user = queries::users::user_by_openid_sub()
+        .bind(transaction, &authentication.sub)
         .one()
         .await;
 
@@ -17,17 +27,22 @@ pub async fn get_permissions(
     } else {
         queries::users::insert()
             .bind(
-                &transaction,
-                &current_user.sub,
-                &current_user.email,
-                &current_user.given_name,
-                &current_user.family_name,
+                transaction,
+                &authentication.sub,
+                &authentication.email,
+                &authentication.given_name,
+                &authentication.family_name,
             )
             .one()
             .await?
-    };**/
+    };
 
-    let user_id = set_row_level_security_user_id(transaction, current_user_id).await?;
+    transaction
+        .query(
+            &format!("SET LOCAL row_level_security.user_id = {}", user_id),
+            &[],
+        )
+        .await?;
 
     let permissions = queries::users::get_permissions()
         .bind(transaction, &current_team_id)

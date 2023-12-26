@@ -4,6 +4,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use db::authz;
 use http::request::Parts;
 use serde::{Deserialize, Serialize};
 
@@ -13,6 +14,17 @@ pub struct Authentication {
     pub email: String,
     pub given_name: Option<String>,
     pub family_name: Option<String>,
+}
+
+impl From<Authentication> for authz::Authentication {
+    fn from(val: Authentication) -> Self {
+        authz::Authentication {
+            sub: val.sub,
+            email: val.email,
+            given_name: "".to_string(),
+            family_name: "".to_string(),
+        }
+    }
 }
 
 const X_FORWARDED_USER: &str = "X-Forwarded-User";

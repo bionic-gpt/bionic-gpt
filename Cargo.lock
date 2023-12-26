@@ -513,6 +513,7 @@ dependencies = [
  "pgvector",
  "postgres-types",
  "rustls 0.21.6",
+ "serde",
  "serde_json",
  "time 0.3.25",
  "tokio-postgres",

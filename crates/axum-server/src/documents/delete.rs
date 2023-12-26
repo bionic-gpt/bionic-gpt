@@ -26,7 +26,7 @@ pub async fn delete(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _permissions =
-        authz::get_permissions(&transaction, current_user.sub, delete_doc.team_id).await?;
+        authz::get_permissions(&transaction, current_user.into(), delete_doc.team_id).await?;
 
     queries::documents::delete()
         .bind(&transaction, &delete_doc.document_id)

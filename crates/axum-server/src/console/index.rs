@@ -14,7 +14,7 @@ pub async fn index(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions = authz::get_permissions(&transaction, current_user.sub, team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, current_user.into(), team_id).await?;
 
     // Get the latest conversation
     let conversation: Result<Conversation, db::TokioPostgresError> =
