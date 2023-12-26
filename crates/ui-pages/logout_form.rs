@@ -7,7 +7,7 @@ pub fn LogoutForm(cx: Scope) -> Element {
         form {
             method: "post",
             "data-turbo": "false",
-            action: "/auth/sign_out",
+            action: "/oauth2/sign_out",
             Drawer {
                 label: "Logout ?",
                 trigger_id: "logout-drawer",

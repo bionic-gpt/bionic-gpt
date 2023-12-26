@@ -37,6 +37,9 @@ pub async fn index(
     let console_url = ui_pages::routes::console::index_route(team.id);
 
     let _rbac = authz::get_permissions(&transaction, &authentication, team.id).await?;
+
+    transaction.commit().await?;
+
     let builder = Response::builder()
         .status(StatusCode::SEE_OTHER)
         .header("location", console_url)
