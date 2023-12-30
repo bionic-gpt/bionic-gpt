@@ -18,6 +18,9 @@ services:
     command: ["/bin/sh", "-c", "pip install async_generator && litellm --model ollama/starling-lm:7b-alpha-fp16 --api_base http://ollama:11434 --host 0.0.0.0 --port 3000"]
     entrypoint: []
     platform: linux/amd64
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     ports:
       - "3000:3000"
     extra_hosts:
