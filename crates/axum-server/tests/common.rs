@@ -28,7 +28,7 @@ impl Config {
         let host = if env::var("WEB_DRIVER_DESTINATION_HOST").is_ok() {
             env::var("WEB_DRIVER_DESTINATION_HOST").unwrap()
         } else {
-            "http://envoy:7700".into()
+            "http://oauth2-proxy-selenium:7711".into()
         };
 
         let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
@@ -98,23 +98,39 @@ pub async fn register_random_user(driver: &WebDriver) -> WebDriverResult<String>
     let email = random_email();
 
     // Register someone
+
+    driver.find(By::LinkText("Register")).await?.click().await?;
+
+    driver
+        .find(By::Id("firstName"))
+        .await?
+        .send_keys("Test")
+        .await?;
+
+    driver
+        .find(By::Id("lastName"))
+        .await?
+        .send_keys("User")
+        .await?;
+
     driver
         .find(By::Id("email"))
         .await?
         .send_keys(&email)
         .await?;
+
     driver
         .find(By::Id("password"))
         .await?
         .send_keys(&email)
         .await?;
     driver
-        .find(By::Id("confirm_password"))
+        .find(By::Id("password-confirm"))
         .await?
         .send_keys(&email)
         .await?;
     driver
-        .find(By::Css("button[type='submit']"))
+        .find(By::Css("input[type='submit']"))
         .await?
         .click()
         .await?;

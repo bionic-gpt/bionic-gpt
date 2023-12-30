@@ -48,6 +48,7 @@ services:
       OAUTH2_PROXY_PROVIDER: oidc
       OAUTH2_PROXY_PROVIDER_DISPLAY_NAME: Keycloak
       OAUTH2_PROXY_AUTH_LOGGING: "true"
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
     restart: unless-stopped
     ports:
       - 7700:7700
@@ -71,6 +72,7 @@ services:
       OAUTH2_PROXY_PROVIDER: oidc
       OAUTH2_PROXY_PROVIDER_DISPLAY_NAME: Keycloak
       OAUTH2_PROXY_AUTH_LOGGING: "true"
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
     restart: unless-stopped
     ports:
       - 7711:7711
