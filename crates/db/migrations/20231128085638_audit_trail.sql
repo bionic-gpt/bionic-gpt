@@ -61,11 +61,11 @@ COMMENT ON COLUMN audit_trail.action IS 'The action committed. i.e. deleting a s
 COMMENT ON TABLE audit_trail_text_generation IS 'For text generation we capture extra information';
 
 -- Grant access
-GRANT SELECT, INSERT ON audit_trail, audit_trail_text_generation TO ft_application;
-GRANT USAGE, SELECT ON audit_trail_id_seq, audit_trail_text_generation_id_seq TO ft_application;
+GRANT SELECT, INSERT ON audit_trail, audit_trail_text_generation TO bionic_application;
+GRANT USAGE, SELECT ON audit_trail_id_seq, audit_trail_text_generation_id_seq TO bionic_application;
 
-GRANT SELECT ON audit_trail, audit_trail_text_generation TO ft_readonly;
-GRANT SELECT ON audit_trail_id_seq, audit_trail_text_generation_id_seq TO ft_readonly;
+GRANT SELECT ON audit_trail, audit_trail_text_generation TO bionic_readonly;
+GRANT SELECT ON audit_trail_id_seq, audit_trail_text_generation_id_seq TO bionic_readonly;
 
 -- migrate:down
 DROP TABLE audit_trail_text_generation;

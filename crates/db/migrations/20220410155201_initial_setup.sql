@@ -38,9 +38,9 @@ DO $$
 BEGIN
    IF NOT EXISTS (
       SELECT FROM pg_catalog.pg_roles
-      WHERE  rolname = 'ft_application') THEN
+      WHERE  rolname = 'bionic_application') THEN
 
-      CREATE ROLE ft_application LOGIN PASSWORD 'testpassword';
+      CREATE ROLE bionic_application LOGIN PASSWORD 'testpassword';
    END IF;
 END
 $$;
@@ -49,20 +49,20 @@ DO $$
 BEGIN
    IF NOT EXISTS (
       SELECT FROM pg_catalog.pg_roles
-      WHERE  rolname = 'ft_readonly') THEN
+      WHERE  rolname = 'bionic_readonly') THEN
 
-      CREATE ROLE ft_readonly LOGIN PASSWORD 'testpassword';
+      CREATE ROLE bionic_readonly LOGIN PASSWORD 'testpassword';
    END IF;
 END
 $$;
 
 -- Needed so we can do backups.
-GRANT SELECT ON schema_migrations TO ft_readonly;
+GRANT SELECT ON schema_migrations TO bionic_readonly;
 
 -- migrate:down
-DROP OWNED BY ft_application;
-DROP OWNED BY ft_readonly;
+DROP OWNED BY bionic_application;
+DROP OWNED BY bionic_readonly;
 
-DROP USER ft_application;
-DROP USER ft_readonly;
+DROP USER bionic_application;
+DROP USER bionic_readonly;
 

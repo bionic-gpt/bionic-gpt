@@ -143,7 +143,7 @@ integration-test:
     # For some reason the volumes don't work in earthly.
     COPY --dir .devcontainer/datasets ./datasets 
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/bionicgpt?sslmode=disable
-    ARG APP_DATABASE_URL=postgresql://ft_application:testpassword@db:5432/bionicgpt
+    ARG APP_DATABASE_URL=postgresql://bionic_application:testpassword@db:5432/bionicgpt
     # We expose selenium to localhost
     ARG WEB_DRIVER_URL='http://localhost:4444' 
     # The selenium container will connect to the envoy container
