@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 pub fn LogoutForm(cx: Scope) -> Element {
     cx.render(rsx! {
         form {
-            method: "post",
+            method: "get",
             "data-turbo": "false",
             action: "/oauth2/sign_out",
             Drawer {

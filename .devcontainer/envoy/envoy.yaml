@@ -27,16 +27,12 @@ static_resources:
               routes:
 
               - match:
-                  safe_regex:
-                    google_re2: {}
-                    regex: "^/(realm.*|js/.*|resources/.*)"
-                route:
-                  cluster: keycloak
-
-              - match:
                   prefix: "/"
                 route:
                   cluster: upstream
+                  # Disable timeout for SSE
+                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
+                  timeout: 0s 
 
           http_filters:
 
@@ -45,19 +41,6 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
-  - name: keycloak
-    connect_timeout: 1s
-    type: STRICT_DNS
-    lb_policy: ROUND_ROBIN
-    load_assignment:
-      cluster_name: keycloak
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: keycloak
-                port_value: 7710
 
   - name: upstream
     connect_timeout: 1s
