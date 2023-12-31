@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use super::logout_form::LogoutForm;
+use crate::profile_popup::ProfilePopup;
 use assets::files::*;
 use daisy_rsx::{AppLayout, NavGroup, NavItem};
 use db::authz::Rbac;
@@ -170,10 +171,11 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                 }
             )),
             sidebar_footer: cx.render(rsx!(
-                turbo-frame {
-                    id: "profile-popup",
-                    class: "min-w-full",
-                    src: "{super::routes::profile::profile_popup_route(cx.props.team_id)}"
+                ProfilePopup {
+                    email: cx.props.rbac.email.clone(),
+                    first_name: cx.props.rbac.first_name.clone().unwrap_or("".to_string()),
+                    last_name: cx.props.rbac.last_name.clone().unwrap_or("".to_string()),
+                    team_id: cx.props.team_id
                 }
             )),
             &cx.props.children
