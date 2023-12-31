@@ -21,8 +21,8 @@ pub async fn get_permissions(
         .await;
 
     // Do we have a user with this sub?
-    let user_id = if let Ok(user) = user {
-        user.id
+    let (user_id, email, first_name, last_name) = if let Ok(user) = user {
+        (user.id, user.email, user.first_name, user.last_name)
     } else {
         setup_user_if_not_already_registered(transaction, authentication).await?
     };
@@ -42,6 +42,9 @@ pub async fn get_permissions(
     let rbac = Rbac {
         permissions,
         user_id,
+        email,
+        first_name,
+        last_name,
     };
 
     Ok(rbac)
@@ -70,7 +73,7 @@ pub async fn set_row_level_security_user_id(
 pub async fn setup_user_if_not_already_registered(
     transaction: &Transaction<'_>,
     authentication: &Authentication,
-) -> Result<i32, crate::TokioPostgresError> {
+) -> Result<(i32, String, Option<String>, Option<String>), crate::TokioPostgresError> {
     let user_id = queries::users::insert()
         .bind(transaction, &authentication.sub, &authentication.email)
         .one()
@@ -123,13 +126,21 @@ pub async fn setup_user_if_not_already_registered(
         .one()
         .await?;
 
-    Ok(user_id)
+    let user = queries::users::user()
+        .bind(transaction, &user_id)
+        .one()
+        .await?;
+
+    Ok((user.id, user.email, user.first_name, user.last_name))
 }
 
 #[derive(Default, PartialEq)]
 pub struct Rbac {
     pub permissions: Vec<Permission>,
     pub user_id: i32,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
 }
 
 impl Rbac {

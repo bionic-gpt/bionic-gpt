@@ -23,8 +23,8 @@ pub async fn index(
     let authentication: authz::Authentication = authentication.into();
 
     // Do we have a user with this sub?
-    let user_id = if let Ok(user) = user {
-        user.id
+    let (user_id, _, _, _) = if let Ok(user) = user {
+        (user.id, user.email, user.first_name, user.last_name)
     } else {
         authz::setup_user_if_not_already_registered(&transaction, &authentication).await?
     };
