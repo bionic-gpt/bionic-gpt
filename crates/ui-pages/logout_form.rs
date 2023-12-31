@@ -8,6 +8,11 @@ pub fn LogoutForm(cx: Scope) -> Element {
             method: "get",
             "data-turbo": "false",
             action: "/oauth2/sign_out",
+            input {
+                "type": "hidden",
+                name: "rd",
+                value: "http://localhost:7710/realms/bionic-gpt/protocol/openid-connect/logout"
+            }
             Drawer {
                 label: "Logout ?",
                 trigger_id: "logout-drawer",
