@@ -237,7 +237,7 @@ async fn get_invite_url_from_email(config: &common::Config) -> WebDriverResult<S
         .unwrap();
 
     let url: Vec<&str> = body.split("Click ").collect();
-    let url: Vec<&str> = url[1].split(" to accept the invite").collect();
+    let url: Vec<&str> = url[1].split(' ').collect();
 
     // Emails are generally tructed to 78 columns. sigh.
     let url = quoted_printable::decode(url[0], quoted_printable::ParseMode::Robust).unwrap();

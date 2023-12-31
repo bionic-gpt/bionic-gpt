@@ -152,7 +152,7 @@ services:
       DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionicgpt?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionicgpt?sslmode=disable
 
-      INVITE_DOMAIN: http://oauth2-proxy:7700
+      INVITE_DOMAIN: http://oauth2-proxy-selenium:7711
       INVITE_FROM_EMAIL_ADDRESS: support@application.com
       SMTP_HOST: smtp
       SMTP_PORT: 1025
