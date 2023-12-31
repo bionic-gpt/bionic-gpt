@@ -20,7 +20,7 @@ pub fn ProfilePopup(
     cx.render(rsx! {
         DropDown {
             direction: Direction::Top,
-            button_text: &user_name_or_email,
+            button_text: "{user_name_or_email}",
             prefix_image_src: profile_svg.name,
             suffix_image_src: button_select_svg.name,
             class: "w-full",
