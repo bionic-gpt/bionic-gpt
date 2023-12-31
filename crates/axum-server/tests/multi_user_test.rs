@@ -39,6 +39,8 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
     println!("Testing : sign_in_user");
 
+    common::logout(driver).await?;
+
     sign_in_user(driver, &account_owner, config).await?;
 
     Ok(())
@@ -50,22 +52,24 @@ async fn sign_in_user(
     config: &common::Config,
 ) -> WebDriverResult<()> {
     // Go to sign in page
-    driver
-        .goto(format!("{}/auth/sign_in", &config.host))
-        .await?;
+    driver.goto(format!("{}/", &config.host)).await?;
 
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
     // Sign in someone
-    driver.find(By::Id("email")).await?.send_keys(email).await?;
+    driver
+        .find(By::Id("username"))
+        .await?
+        .send_keys(email)
+        .await?;
     driver
         .find(By::Id("password"))
         .await?
         .send_keys(email)
         .await?;
     driver
-        .find(By::Css("button[type='submit']"))
+        .find(By::Css("input[type='submit']"))
         .await?
         .click()
         .await?;
@@ -209,6 +213,8 @@ async fn add_team_member(
 
     // Get the invite from mailhog
     let invitation_url = get_invite_url_from_email(config).await?;
+
+    common::logout(driver).await?;
 
     sign_in_user(driver, team_member, config).await?;
 
