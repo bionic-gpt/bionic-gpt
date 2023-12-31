@@ -112,7 +112,7 @@ services:
     environment:
       DB_VENDOR: postgres
       DB_ADDR: postgres
-      DB_DATABASE: keycloak
+      DB_DATABASE: keycloak-selenium
       DB_USER: postgres
       DB_PASSWORD: testpassword
       KEYCLOAK_ADMIN: admin
