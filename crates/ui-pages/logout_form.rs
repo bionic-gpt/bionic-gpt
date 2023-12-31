@@ -11,7 +11,7 @@ pub fn LogoutForm(cx: Scope) -> Element {
             input {
                 "type": "hidden",
                 name: "rd",
-                value: "http://localhost:7710/realms/bionic-gpt/protocol/openid-connect/logout"
+                value: "http://keycloak-selenium:7712/realms/bionic-gpt/protocol/openid-connect/logout"
             }
             Drawer {
                 label: "Logout ?",

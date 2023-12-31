@@ -94,6 +94,57 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
     Ok(email)
 }
 
+pub async fn logout(driver: &WebDriver) -> WebDriverResult<()> {
+    // Stop stale element error
+    sleep(Duration::from_millis(1000)).await;
+
+    driver
+        .find(By::Css("div.dropdown.dropdown-top"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::LinkText("Log Out"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver.find(By::LinkText("Log Out")).await?.click().await?;
+
+    driver
+        .find(By::XPath("//button[text()='Logout']"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Logout']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::Id("kc-logout"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver.find(By::Id("kc-logout")).await?.click().await?;
+
+    driver
+        .find(By::Id("kc-header-wrapper"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    Ok(())
+}
+
 pub async fn register_random_user(driver: &WebDriver) -> WebDriverResult<String> {
     let email = random_email();
 

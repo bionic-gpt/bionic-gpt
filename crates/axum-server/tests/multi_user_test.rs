@@ -25,6 +25,8 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
     let team_member = common::register_user(driver, config).await?;
 
+    common::logout(driver).await?;
+
     let account_owner = common::register_user(driver, config).await?;
 
     println!("Testing : set_profile_details");
