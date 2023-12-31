@@ -12,8 +12,6 @@ use serde::{Deserialize, Serialize};
 pub struct Authentication {
     pub sub: String,
     pub email: String,
-    pub given_name: Option<String>,
-    pub family_name: Option<String>,
 }
 
 impl From<Authentication> for authz::Authentication {
@@ -21,8 +19,6 @@ impl From<Authentication> for authz::Authentication {
         authz::Authentication {
             sub: val.sub,
             email: val.email,
-            given_name: "".to_string(),
-            family_name: "".to_string(),
         }
     }
 }
@@ -50,8 +46,6 @@ where
                 let authentication = Authentication {
                     sub: sub.to_string(),
                     email: email.to_string(),
-                    given_name: None,
-                    family_name: None,
                 };
 
                 return Ok(authentication);

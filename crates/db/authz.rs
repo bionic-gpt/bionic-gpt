@@ -7,8 +7,6 @@ use crate::{types, DatasetConnection, Permission, Transaction, Visibility};
 pub struct Authentication {
     pub sub: String,
     pub email: String,
-    pub given_name: String,
-    pub family_name: String,
 }
 
 // A helper function for setting the RLS user which is used by all the policies.
@@ -74,13 +72,7 @@ pub async fn setup_user_if_not_already_registered(
     authentication: &Authentication,
 ) -> Result<i32, crate::TokioPostgresError> {
     let user_id = queries::users::insert()
-        .bind(
-            transaction,
-            &authentication.sub,
-            &authentication.email,
-            &authentication.given_name,
-            &authentication.family_name,
-        )
+        .bind(transaction, &authentication.sub, &authentication.email)
         .one()
         .await?;
 

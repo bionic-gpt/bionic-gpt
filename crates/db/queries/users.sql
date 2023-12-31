@@ -8,8 +8,8 @@ WHERE
     
 --! insert
 INSERT INTO 
-    users (openid_sub, email, first_name, last_name)
-VALUES(:openid_sub, :email, :first_name, :last_name) 
+    users (openid_sub, email)
+VALUES(:openid_sub, :email) 
 RETURNING id;
 
 --! user_by_openid_sub : (first_name?, last_name?)
