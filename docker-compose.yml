@@ -55,6 +55,10 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt-keycloak:1.5.1
     platform: linux/amd64
     environment:
+      KC_DB: postgres
+      KC_DB_PASSWORD: testpassword
+      KC_DB_USERNAME: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/keycloak
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
     command:
@@ -65,6 +69,8 @@ services:
       - "--hostname=localhost:7810"
     ports:
       - 7810:7810
+    depends_on:
+      - postgres
 
   # Postgres pre-loaded with pgVector
   # To connect outside docker `docker compose exec postgres psql -U postgres`
@@ -74,7 +80,7 @@ services:
     environment:
       POSTGRES_PASSWORD: testpassword
       POSTGRES_USER: postgres
-      POSTGRES_DB: bionic-gpt
+      POSTGRES_DB: keycloak
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
