@@ -34,12 +34,14 @@ pull-request:
     BUILD +migration-container
     BUILD +app-container
     BUILD +envoy-container
+    BUILD +keycloak-container
     BUILD +pipeline-job-container
     #BUILD +integration-test
 
 all:
     BUILD +migration-container
     BUILD +envoy-container
+    BUILD +keycloak-container
     BUILD +app-container
     BUILD +pipeline-job-container
     #BUILD +integration-test
