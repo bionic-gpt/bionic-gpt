@@ -163,6 +163,7 @@ integration-test:
     WITH DOCKER \
         --compose docker-compose.yml \
         --compose docker-compose.earthly.yml \
+        --service envoy \
         --service postgres \
         --service keycloak-selenium \
         --service oauth2-proxy-selenium \
