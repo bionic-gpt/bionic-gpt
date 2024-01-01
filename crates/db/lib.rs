@@ -1,4 +1,4 @@
-pub mod rls;
+pub mod authz;
 
 use std::str::FromStr;
 use std::sync::Arc;

@@ -2,8 +2,8 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
+use db::authz::Rbac;
 use db::queries::{datasets::Dataset, documents::Document};
-use db::rls::Rbac;
 use dioxus::prelude::*;
 
 #[inline_props]

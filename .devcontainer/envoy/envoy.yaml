@@ -1,0 +1,57 @@
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address: { address: 0.0.0.0, port_value: 7702 }
+    
+static_resources:
+  listeners:
+  - name: listener_proxy
+
+    address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 7701
+
+    filter_chains:
+    - filters:
+
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          route_config:
+            name: default
+            virtual_hosts:
+            - name: default
+              domains: ["*"]
+              routes:
+
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: upstream
+                  # Disable timeout for SSE
+                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
+                  timeout: 0s 
+
+          http_filters:
+
+          - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
+  clusters:
+
+  - name: upstream
+    connect_timeout: 1s
+    type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: upstream
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: development
+                port_value: 7703

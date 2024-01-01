@@ -42,12 +42,12 @@ COMMENT ON TABLE chats IS 'Questions from the user and the response from the LLM
 
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON chats, conversations TO ft_application;
-GRANT USAGE, SELECT ON chats_id_seq, conversations_id_seq TO ft_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON chats, conversations TO bionic_application;
+GRANT USAGE, SELECT ON chats_id_seq, conversations_id_seq TO bionic_application;
 
 -- Give access to the readonly user
-GRANT SELECT ON chats, conversations TO ft_readonly;
-GRANT SELECT ON chats_id_seq, conversations_id_seq TO ft_readonly;
+GRANT SELECT ON chats, conversations TO bionic_readonly;
+GRANT SELECT ON chats_id_seq, conversations_id_seq TO bionic_readonly;
 
 
 -- Manage the updated_at column

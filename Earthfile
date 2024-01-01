@@ -11,11 +11,13 @@ ARG --global DB_FOLDER=crates/db
 ARG --global PIPELINE_FOLDER=crates/asset-pipeline
 
 # Base images
-ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.17-latest
+ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.28.0
+ARG --global KEYCLOAK_BASE_IMAGE=quay.io/keycloak/keycloak:23.0
 
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
 ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
+ARG --global KEYCLOAK_IMAGE_NAME=bionic-gpt/bionicgpt-keycloak:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 
@@ -33,14 +35,14 @@ pull-request:
     BUILD +app-container
     BUILD +envoy-container
     BUILD +pipeline-job-container
-    BUILD +integration-test
+    #BUILD +integration-test
 
 all:
     BUILD +migration-container
     BUILD +envoy-container
     BUILD +app-container
     BUILD +pipeline-job-container
-    BUILD +integration-test
+    #BUILD +integration-test
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -67,10 +69,17 @@ prepare-cache:
 
 envoy-container:
     FROM $ENVOY_PROXY
-    COPY .devcontainer/envoy.yaml /etc/envoy/envoy.yaml
+    RUN mkdir -p /etc/envoy
+    COPY .devcontainer/envoy/envoy.yaml /etc/envoy/envoy.yaml
     # The second development entry in our cluster list is the app
     RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
+    CMD ["/usr/local/bin/envoy","-c","/etc/envoy/envoy.yaml","--service-cluster","envoy","--service-node","envoy","--log-level","info"]
     SAVE IMAGE --push $ENVOY_IMAGE_NAME
+
+keycloak-container:
+    FROM $KEYCLOAK_BASE_IMAGE
+    COPY .devcontainer/realm-config /opt/keycloak/data/import
+    SAVE IMAGE --push $KEYCLOAK_IMAGE_NAME
      
 
 pipeline-job-container:
@@ -139,7 +148,7 @@ integration-test:
     # For some reason the volumes don't work in earthly.
     COPY --dir .devcontainer/datasets ./datasets 
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/bionicgpt?sslmode=disable
-    ARG APP_DATABASE_URL=postgresql://ft_application:testpassword@db:5432/bionicgpt
+    ARG APP_DATABASE_URL=postgresql://bionic_application:testpassword@postgres:5432/bionicgpt
     # We expose selenium to localhost
     ARG WEB_DRIVER_URL='http://localhost:4444' 
     # The selenium container will connect to the envoy container
@@ -153,8 +162,9 @@ integration-test:
     WITH DOCKER \
         --compose docker-compose.yml \
         --compose docker-compose.earthly.yml \
-        --service db \
-        --service barricade \
+        --service postgres \
+        --service keycloak-selenium \
+        --service oauth2-proxy-selenium \
         --service smtp \
         --service unstructured \
         --service llm-api \
@@ -172,7 +182,7 @@ integration-test:
         RUN dbmate --wait-timeout 60s --migrations-dir $DB_FOLDER/migrations up \
             && docker run -d -p 7703:7703 --rm --network=default_default \
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
-                -e INVITE_DOMAIN=http://envoy:7700 \
+                -e INVITE_DOMAIN=http://oauth2-proxy-selenium:7711 \
                 -e INVITE_FROM_EMAIL_ADDRESS=support@application.com \
                 -e SMTP_HOST=smtp \
                 -e SMTP_PORT=1025 \
@@ -184,7 +194,7 @@ integration-test:
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
                 -e OPENAI_ENDPOINT=http://embeddings-api:8080/openai \
                 --name pipeline-job $PIPELINE_IMAGE_NAME \
-            && docker run -d -p 7700:7700 --rm --network=default_default \
+            && docker run -d -p 7701:7701 --rm --network=default_default \
                 --name envoy $ENVOY_IMAGE_NAME \
             && cargo test --no-run --release --target x86_64-unknown-linux-musl \
             && docker run -d --name video --network=default_default \

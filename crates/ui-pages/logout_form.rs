@@ -5,9 +5,14 @@ use dioxus::prelude::*;
 pub fn LogoutForm(cx: Scope) -> Element {
     cx.render(rsx! {
         form {
-            method: "post",
+            method: "get",
             "data-turbo": "false",
-            action: "/auth/sign_out",
+            action: "/oauth2/sign_out",
+            input {
+                "type": "hidden",
+                name: "rd",
+                value: "http://keycloak-selenium:7712/realms/bionic-gpt/protocol/openid-connect/logout"
+            }
             Drawer {
                 label: "Logout ?",
                 trigger_id: "logout-drawer",

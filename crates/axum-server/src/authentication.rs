@@ -4,12 +4,27 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use db::authz;
 use http::request::Parts;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
-    pub user_id: i32,
+    pub sub: String,
+    pub email: String,
 }
+
+impl From<Authentication> for authz::Authentication {
+    fn from(val: Authentication) -> Self {
+        authz::Authentication {
+            sub: val.sub,
+            email: val.email,
+        }
+    }
+}
+
+const X_FORWARDED_USER: &str = "X-Forwarded-User";
+const X_FORWARDED_EMAIL: &str = "X-Forwarded-Email";
 
 // From a request extract our authentication token.
 #[async_trait]
@@ -20,16 +35,25 @@ where
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        if let Some(user_id) = parts.headers.get("x-user-id") {
-            if let Ok(user_id) = user_id.to_str() {
-                if let Ok(user_id) = user_id.parse::<i32>() {
-                    return Ok(Authentication { user_id });
-                }
+        let forwarded_user = parts.headers.get(X_FORWARDED_USER);
+        let forwarded_email = parts.headers.get(X_FORWARDED_EMAIL);
+
+        if let (Some(user), Some(email)) = (forwarded_user, forwarded_email) {
+            let user = user.to_str();
+            let email = email.to_str();
+
+            if let (Ok(sub), Ok(email)) = (user, email) {
+                let authentication = Authentication {
+                    sub: sub.to_string(),
+                    email: email.to_string(),
+                };
+
+                return Ok(authentication);
             }
         }
         Err((
             StatusCode::UNAUTHORIZED,
-            "x-user-id not found or unparseable as i32",
+            "Didn't find an authentication header",
         )
             .into_response())
     }

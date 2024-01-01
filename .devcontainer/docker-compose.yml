@@ -13,35 +13,122 @@ services:
   # Handles routing between our containers
   envoy:
     build: 
-      context: .
-      dockerfile: Dockerfile.envoy
+      context: ./envoy
     ports:
-      - "7700:7700"
       - "7701:7701"
+      - "7702:7702"
 
-  # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
-  barricade:
-    image: purtontech/barricade
-    environment:
-        # This secret key is used to encrypt cookies.
-        SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-        DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt
-        REDIRECT_URL: /app/post_registration
-    depends_on:
-      db:
-        condition: service_healthy
-
-  db:
+  postgres:
     image: ankane/pgvector
     environment:
-      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: keycloak
       POSTGRES_USER: postgres
-      POSTGRES_DB: bionicgpt
+      POSTGRES_PASSWORD: testpassword
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vscode"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # We use Oauth2 Proxy as the interface to our OIDC provider
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
+    environment:
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:7700
+      OAUTH2_PROXY_COOKIE_SECRET: OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w=
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
+      OAUTH2_PROXY_UPSTREAMS: http://envoy:7701
+      OAUTH2_PROXY_UPSTREAMS_TIMEOUT: 600s
+      OAUTH2_PROXY_CLIENT_SECRET: 69b26b08-12fe-48a2-85f0-6ab223f45777
+      OAUTH2_PROXY_CLIENT_ID: bionic-gpt
+      OAUTH2_PROXY_REDIRECT_URL: http://localhost:7700/oauth2/callback
+      OAUTH2_PROXY_OIDC_ISSUER_URL: http://keycloak:7710/realms/bionic-gpt
+      OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION: "true"
+      OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL: "true"
+      OAUTH2_PROXY_PROVIDER: oidc
+      OAUTH2_PROXY_PROVIDER_DISPLAY_NAME: Keycloak
+      OAUTH2_PROXY_AUTH_LOGGING: "true"
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      OAUTH2_PROXY_WHITELIST_DOMAINS: "localhost:7710"
+    restart: unless-stopped
+    ports:
+      - 7700:7700
+    depends_on:
+      - keycloak
+
+  oauth2-proxy-selenium:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
+    environment:
+      OAUTH2_PROXY_HTTP_ADDRESS: 0.0.0.0:7711
+      OAUTH2_PROXY_COOKIE_SECRET: OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w=
+      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+      OAUTH2_PROXY_COOKIE_SECURE: "false"
+      OAUTH2_PROXY_UPSTREAMS: http://envoy:7701
+      OAUTH2_PROXY_CLIENT_SECRET: 69b26b08-12fe-48a2-85f0-6ab223f45777
+      OAUTH2_PROXY_CLIENT_ID: bionic-gpt
+      OAUTH2_PROXY_REDIRECT_URL: http://oauth2-proxy-selenium:7711/oauth2/callback
+      OAUTH2_PROXY_OIDC_ISSUER_URL: http://keycloak-selenium:7712/realms/bionic-gpt
+      OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION: "true"
+      OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL: "true"
+      OAUTH2_PROXY_PROVIDER: oidc
+      OAUTH2_PROXY_PROVIDER_DISPLAY_NAME: Keycloak
+      OAUTH2_PROXY_AUTH_LOGGING: "true"
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      OAUTH2_PROXY_WHITELIST_DOMAINS: "keycloak-selenium:7712"
+    restart: unless-stopped
+    ports:
+      - 7711:7711
+    depends_on:
+      - keycloak
+
+  # You can use any OIDC provider with Oauth2 but Keycloak is easy to configure.
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    volumes:
+     - ./keycloak:/opt/keycloak/data/import
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: postgres
+      DB_PASSWORD: testpassword
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--http-port=7710"
+      - "--proxy=edge"
+      - "--hostname=localhost:7710"
+    depends_on:
+      - postgres
+    ports:
+      - 7710:7710
+
+  # You can use any OIDC provider with Oauth2 but Keycloak is easy to configure.
+  keycloak-selenium:
+    image: quay.io/keycloak/keycloak:23.0
+    volumes:
+     - ./keycloak:/opt/keycloak/data/import
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak-selenium
+      DB_USER: postgres
+      DB_PASSWORD: testpassword
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--http-port=7712"
+      - "--proxy=edge"
+      - "--hostname=keycloak-selenium:7712"
+    depends_on:
+      - postgres
+    ports:
+      - 7712:7712
 
   development:
     build: 
@@ -62,10 +149,10 @@ services:
       #- node_modules:/vscode/node_modules 
 
     environment:
-      DATABASE_URL: postgresql://postgres:testpassword@db:5432/bionicgpt?sslmode=disable
-      APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/bionicgpt?sslmode=disable
+      DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionicgpt?sslmode=disable
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionicgpt?sslmode=disable
 
-      INVITE_DOMAIN: http://envoy:7700
+      INVITE_DOMAIN: http://oauth2-proxy-selenium:7711
       INVITE_FROM_EMAIL_ADDRESS: support@application.com
       SMTP_HOST: smtp
       SMTP_PORT: 1025
@@ -79,7 +166,7 @@ services:
     working_dir: /workspace
     
     depends_on:
-      - db
+      - postgres
 
   # Integration testing using a headless chrome browser
   selenium:

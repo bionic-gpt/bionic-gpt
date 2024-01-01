@@ -20,12 +20,12 @@ CREATE TABLE api_keys (
 );
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON api_keys TO ft_application;
-GRANT USAGE, SELECT ON api_keys_id_seq TO ft_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON api_keys TO bionic_application;
+GRANT USAGE, SELECT ON api_keys_id_seq TO bionic_application;
 
 -- Give access to the readonly user
-GRANT SELECT ON api_keys TO ft_readonly;
-GRANT SELECT ON api_keys_id_seq TO ft_readonly;
+GRANT SELECT ON api_keys TO bionic_readonly;
+GRANT SELECT ON api_keys_id_seq TO bionic_readonly;
 
 
 -- migrate:down

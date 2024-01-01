@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
+use db::authz;
 use db::queries;
-use db::rls;
 use db::types;
 use db::Pool;
 use lettre::Message;
@@ -33,7 +33,7 @@ pub async fn create_invite(
     Extension(config): Extension<crate::config::Config>,
     Form(new_invite): Form<NewInvite>,
 ) -> Result<impl IntoResponse, CustomError> {
-    let invite_hash = create(&pool, &authentication, &new_invite, team_id).await?;
+    let invite_hash = create(&pool, authentication, &new_invite, team_id).await?;
 
     let invitation_verifier_base64 = invite_hash.0;
     let invitation_selector_base64 = invite_hash.1;
@@ -66,8 +66,7 @@ pub async fn create_invite(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let team = queries::teams::team()
         .bind(&transaction, &team_id)
@@ -82,15 +81,14 @@ pub async fn create_invite(
 
 pub async fn create(
     pool: &Pool,
-    current_user: &Authentication,
+    current_user: Authentication,
     new_invite: &NewInvite,
     team_id: i32,
 ) -> Result<(String, String), CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let invitation_selector = rand::thread_rng().gen::<[u8; 6]>();
     let invitation_selector_base64 =

@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Path},
     response::Html,
 };
+use db::authz;
 use db::queries;
-use db::rls;
 use db::Pool;
 
 pub async fn index(
@@ -16,8 +16,7 @@ pub async fn index(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let team_users = queries::teams::get_users()
         .bind(&transaction, &team_id)

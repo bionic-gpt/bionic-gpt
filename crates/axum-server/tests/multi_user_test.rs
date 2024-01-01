@@ -25,6 +25,8 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
     let team_member = common::register_user(driver, config).await?;
 
+    common::logout(driver).await?;
+
     let account_owner = common::register_user(driver, config).await?;
 
     println!("Testing : set_profile_details");
@@ -37,6 +39,8 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
     println!("Testing : sign_in_user");
 
+    common::logout(driver).await?;
+
     sign_in_user(driver, &account_owner, config).await?;
 
     Ok(())
@@ -48,22 +52,24 @@ async fn sign_in_user(
     config: &common::Config,
 ) -> WebDriverResult<()> {
     // Go to sign in page
-    driver
-        .goto(format!("{}/auth/sign_in", &config.host))
-        .await?;
+    driver.goto(format!("{}/", &config.host)).await?;
 
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
     // Sign in someone
-    driver.find(By::Id("email")).await?.send_keys(email).await?;
+    driver
+        .find(By::Id("username"))
+        .await?
+        .send_keys(email)
+        .await?;
     driver
         .find(By::Id("password"))
         .await?
         .send_keys(email)
         .await?;
     driver
-        .find(By::Css("button[type='submit']"))
+        .find(By::Css("input[type='submit']"))
         .await?
         .click()
         .await?;
@@ -208,6 +214,8 @@ async fn add_team_member(
     // Get the invite from mailhog
     let invitation_url = get_invite_url_from_email(config).await?;
 
+    common::logout(driver).await?;
+
     sign_in_user(driver, team_member, config).await?;
 
     // Accept the invitation
@@ -229,7 +237,7 @@ async fn get_invite_url_from_email(config: &common::Config) -> WebDriverResult<S
         .unwrap();
 
     let url: Vec<&str> = body.split("Click ").collect();
-    let url: Vec<&str> = url[1].split(" to accept the invite").collect();
+    let url: Vec<&str> = url[1].split(' ').collect();
 
     // Emails are generally tructed to 78 columns. sigh.
     let url = quoted_printable::decode(url[0], quoted_printable::ParseMode::Robust).unwrap();
