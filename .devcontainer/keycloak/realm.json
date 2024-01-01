@@ -1,0 +1,18 @@
+{
+  "realm": "bionic-gpt",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "enabled": "true",
+  "sslRequired": "none",
+  "clients": [
+      {
+          "clientId": "bionic-gpt",
+          "clientAuthenticatorType": "client-secret",
+          "secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
+          "redirectUris": [
+              "http://*"
+          ],
+          "protocol": "openid-connect"
+      }
+  ]
+}

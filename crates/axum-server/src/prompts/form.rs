@@ -3,7 +3,7 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::IntoResponse;
 use axum_extra::extract::Form;
-use db::rls;
+use db::authz;
 use db::Pool;
 use db::{queries, Transaction};
 use serde::Deserialize;
@@ -37,8 +37,7 @@ pub async fn upsert(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let visibility = string_to_visibility(&new_prompt_template.visibility);
 

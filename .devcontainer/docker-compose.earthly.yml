@@ -1,7 +1,7 @@
 services:
 
   # For the earthly integration testing we need to make some ports public.
-  db:
+  postgres:
     ports:
       - "5432:5432"
     

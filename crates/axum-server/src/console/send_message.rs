@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
 };
+use db::authz;
 use db::queries::chats;
-use db::rls;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -28,7 +28,7 @@ pub async fn send_message(
         let transaction = client.transaction().await?;
 
         let _permissions =
-            rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+            authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
         // Store the prompt, ready for the front end webcomponent to pickup
         chats::new_chat()

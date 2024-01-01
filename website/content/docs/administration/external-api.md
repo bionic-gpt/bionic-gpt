@@ -67,5 +67,5 @@ services:
       image: ghcr.io/purton-tech/bionicgpt-embeddings-job:1.0.3
       environment:
         OPENAI_ENDPOINT: http://llm-api:5001
-        APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
+        APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
 ```

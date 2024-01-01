@@ -2,8 +2,8 @@ use crate::authentication::Authentication;
 use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
+use db::authz;
 use db::queries::documents;
-use db::rls;
 use db::Pool;
 
 pub async fn status(
@@ -14,7 +14,7 @@ pub async fn status(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
+    authz::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let document = documents::document()
         .bind(&transaction, &document_id)

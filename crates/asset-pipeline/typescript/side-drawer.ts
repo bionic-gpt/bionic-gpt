@@ -22,7 +22,6 @@ export const drawers = () => {
             });
 
             document.addEventListener('keydown', (event : Event) => {
-                console.log(event)
                 if(event instanceof KeyboardEvent) {
                     if (event.key === 'Escape') {
                         close(drawer)
