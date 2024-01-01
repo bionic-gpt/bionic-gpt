@@ -80,7 +80,7 @@ envoy-container:
 
 keycloak-container:
     FROM $KEYCLOAK_BASE_IMAGE
-    COPY .devcontainer/realm-config /opt/keycloak/data/import
+    COPY .devcontainer/keycloak /opt/keycloak/data/import
     SAVE IMAGE --push $KEYCLOAK_IMAGE_NAME
      
 
