@@ -110,8 +110,7 @@ build:
     WITH DOCKER \
         --pull ankane/pgvector
         RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
-            && while ! pg_isready --host=localhost --port=5432 --username=postgres; do sleep 1; done ;\
-                dbmate --migrations-dir $DB_FOLDER/migrations up \
+            && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
             && cargo build --release --target x86_64-unknown-linux-musl
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
@@ -149,8 +148,8 @@ integration-test:
     # Below we use a docker cp to copy these files into selenium
     # For some reason the volumes don't work in earthly.
     COPY --dir .devcontainer/datasets ./datasets 
-    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/bionicgpt?sslmode=disable
-    ARG APP_DATABASE_URL=postgresql://bionic_application:testpassword@postgres:5432/bionicgpt
+    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/bionic-gpt?sslmode=disable
+    ARG APP_DATABASE_URL=postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt
     # We expose selenium to localhost
     ARG WEB_DRIVER_URL='http://localhost:4444' 
     # The selenium container will connect to the envoy container
@@ -181,7 +180,7 @@ integration-test:
 
         # Force to command to always be succesful so the artifact is saved. 
         # https://github.com/earthly/earthly/issues/988
-        RUN dbmate --wait-timeout 60s --migrations-dir $DB_FOLDER/migrations up \
+        RUN dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
             && docker run -d -p 7703:7703 --rm --network=default_default \
                 -e APP_DATABASE_URL=$APP_DATABASE_URL \
                 -e INVITE_DOMAIN=http://oauth2-proxy-selenium:7711 \
