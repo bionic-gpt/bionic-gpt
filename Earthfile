@@ -36,7 +36,7 @@ pull-request:
     BUILD +envoy-container
     BUILD +keycloak-container
     BUILD +pipeline-job-container
-    #BUILD +integration-test
+    BUILD +integration-test
 
 all:
     BUILD +migration-container
@@ -44,7 +44,7 @@ all:
     BUILD +keycloak-container
     BUILD +app-container
     BUILD +pipeline-job-container
-    #BUILD +integration-test
+    BUILD +integration-test
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
