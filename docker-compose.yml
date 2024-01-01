@@ -1,5 +1,7 @@
 # Do not expose this configuration to the internet. This is an
-# example configuration so that you can try out Bionic GPT
+# example configuration so that you can try out Bionic GPT.
+#
+# This is NOT a production configuration.
 services:
 
   llm-api:
@@ -11,9 +13,10 @@ services:
     platform: linux/amd64
     command: --model-id BAAI/bge-small-en-v1.5
 
-  # Handles parsing of multiple documents types.
+  # Document parsing, OCR and chunking.
+  # Image tagged with the short commit hash (e.g. fbc7a69) for each pust to main
   unstructured:
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
     platform: linux/amd64
 
   # Handles routing between the application, barricade and the LLM API

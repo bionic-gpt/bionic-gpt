@@ -153,7 +153,7 @@ integration-test:
     # We expose selenium to localhost
     ARG WEB_DRIVER_URL='http://localhost:4444' 
     # The selenium container will connect to the envoy container
-    ARG WEB_DRIVER_DESTINATION_HOST='http://envoy:7700' 
+    ARG WEB_DRIVER_DESTINATION_HOST='http://oauth2-proxy-selenium:7711' 
     # How do we connect to mailhog
     ARG MAILHOG_URL=http://localhost:8025/api/v2/messages?limit=1
     # Unit tests need to be able to connect to unstructured
