@@ -19,12 +19,12 @@ CREATE TABLE models (
 );
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON models TO ft_application;
-GRANT USAGE, SELECT ON models_id_seq TO ft_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON models TO bionic_application;
+GRANT USAGE, SELECT ON models_id_seq TO bionic_application;
 
 -- Give access to the readonly user
-GRANT SELECT ON models TO ft_readonly;
-GRANT SELECT ON models_id_seq TO ft_readonly;
+GRANT SELECT ON models TO bionic_readonly;
+GRANT SELECT ON models_id_seq TO bionic_readonly;
 
 -- migrate:down
 DROP TABLE models;

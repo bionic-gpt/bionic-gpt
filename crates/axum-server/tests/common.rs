@@ -28,7 +28,7 @@ impl Config {
         let host = if env::var("WEB_DRIVER_DESTINATION_HOST").is_ok() {
             env::var("WEB_DRIVER_DESTINATION_HOST").unwrap()
         } else {
-            "http://envoy:7700".into()
+            "http://oauth2-proxy-selenium:7711".into()
         };
 
         let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
@@ -87,36 +87,101 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    driver
-        .goto(format!("{}/auth/sign_up", &config.host))
-        .await?;
+    driver.goto(format!("{}/", &config.host)).await?;
 
     let email = register_random_user(driver).await?;
 
     Ok(email)
 }
 
+pub async fn logout(driver: &WebDriver) -> WebDriverResult<()> {
+    // Stop stale element error
+    sleep(Duration::from_millis(1000)).await;
+
+    driver
+        .find(By::Css("div.dropdown.dropdown-top"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::LinkText("Log Out"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver.find(By::LinkText("Log Out")).await?.click().await?;
+
+    driver
+        .find(By::XPath("//button[text()='Logout']"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='Logout']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::Id("kc-logout"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver.find(By::Id("kc-logout")).await?.click().await?;
+
+    driver
+        .find(By::Id("kc-header-wrapper"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    Ok(())
+}
+
 pub async fn register_random_user(driver: &WebDriver) -> WebDriverResult<String> {
     let email = random_email();
 
     // Register someone
+
+    driver.find(By::LinkText("Register")).await?.click().await?;
+
+    driver
+        .find(By::Id("firstName"))
+        .await?
+        .send_keys("Test")
+        .await?;
+
+    driver
+        .find(By::Id("lastName"))
+        .await?
+        .send_keys("User")
+        .await?;
+
     driver
         .find(By::Id("email"))
         .await?
         .send_keys(&email)
         .await?;
+
     driver
         .find(By::Id("password"))
         .await?
         .send_keys(&email)
         .await?;
     driver
-        .find(By::Id("confirm_password"))
+        .find(By::Id("password-confirm"))
         .await?
         .send_keys(&email)
         .await?;
     driver
-        .find(By::Css("button[type='submit']"))
+        .find(By::Css("input[type='submit']"))
         .await?
         .click()
         .await?;

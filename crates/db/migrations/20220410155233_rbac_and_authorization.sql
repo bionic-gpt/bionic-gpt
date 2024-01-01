@@ -35,10 +35,10 @@ INSERT INTO roles_permissions VALUES('Administrator', 'ManageTeam');
 
 
 -- Give access to the application user.
-GRANT SELECT ON roles_permissions TO ft_application;
+GRANT SELECT ON roles_permissions TO bionic_application;
 
 -- Give access to the readonly user
-GRANT SELECT ON roles_permissions TO ft_readonly;
+GRANT SELECT ON roles_permissions TO bionic_readonly;
 
 -- migrate:down
 DROP TABLE roles_permissions;

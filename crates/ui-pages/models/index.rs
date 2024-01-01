@@ -2,8 +2,8 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
+use db::authz::Rbac;
 use db::queries::models::Model;
-use db::rls::Rbac;
 use db::{ModelType, TopUser};
 use dioxus::prelude::*;
 

@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Multipart, Path},
     response::IntoResponse,
 };
+use db::authz;
 use db::queries;
-use db::rls;
 use db::Pool;
 
 pub async fn upload(
@@ -16,8 +16,7 @@ pub async fn upload(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        rls::set_row_level_security_user(&transaction, current_user.user_id, team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         // name of the file with extention

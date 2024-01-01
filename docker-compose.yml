@@ -71,7 +71,7 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.4.14
     platform: linux/amd64
     environment:
-      APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
       db:
         condition: service_healthy
@@ -83,7 +83,7 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt:1.4.14
     platform: linux/amd64
     environment:
-      APP_DATABASE_URL: postgresql://ft_application:testpassword@db:5432/postgres?sslmode=disable
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
     depends_on:
       db:
         condition: service_healthy
