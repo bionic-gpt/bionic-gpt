@@ -1,4 +1,22 @@
 services:
+
+  # Integration testing using a headless chrome browser
+  selenium:
+    image: selenium/standalone-chrome:4
+    shm_size: 2gb
+    environment:
+      VNC_NO_PASSWORD: 1
+    ports:
+      # VNC
+      - 7705:5900
+    volumes:
+      # So that we can load examples with the browser testing.
+      # However it doesn't seem to work with earthly, you have to docker cp the files
+      - ./datasets:/workspace
+
+  # MailHog is an email testing tool for developers.
+  smtp:
+    image: mailhog/mailhog
   
   # Mock out the slow big stuff
   unstructured:
