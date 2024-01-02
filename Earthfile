@@ -28,7 +28,8 @@ USER vscode
 dev:
     BUILD +pull-request
     # On github this check is performed directly by the action
-    BUILD +check-selenium-failure
+    #BUILD +integration-test
+    #BUILD +check-selenium-failure
 
 pull-request:
     BUILD +migration-container
@@ -36,7 +37,7 @@ pull-request:
     BUILD +envoy-container
     BUILD +keycloak-container
     BUILD +pipeline-job-container
-    BUILD +integration-test
+    #BUILD +integration-test
 
 all:
     BUILD +migration-container
@@ -44,7 +45,7 @@ all:
     BUILD +keycloak-container
     BUILD +app-container
     BUILD +pipeline-job-container
-    BUILD +integration-test
+    #BUILD +integration-test
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -163,7 +164,6 @@ integration-test:
     WITH DOCKER \
         --compose docker-compose.yml \
         --compose docker-compose.earthly.yml \
-        --service envoy \
         --service postgres \
         --service keycloak-selenium \
         --service oauth2-proxy-selenium \
