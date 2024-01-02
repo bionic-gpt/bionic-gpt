@@ -107,7 +107,7 @@ services:
       postgres:
         condition: service_healthy
   
-  # Our axum server delivering our user interface
+  # Parses documents into chunks and creates embeddings.
   pipeline-job:
     image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.5.3
     platform: linux/amd64
