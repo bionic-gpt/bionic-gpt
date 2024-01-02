@@ -20,6 +20,7 @@ ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
 ARG --global KEYCLOAK_IMAGE_NAME=bionic-gpt/bionicgpt-keycloak:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
+ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
 
 WORKDIR /build
 
@@ -102,8 +103,8 @@ build:
     # Copy in all our crates
     COPY --dir crates crates
     COPY --dir Cargo.lock Cargo.toml .
-    COPY +build-cache/cargo_home $CARGO_HOME
-    COPY +build-cache/target target
+    #COPY +build-cache/cargo_home $CARGO_HOME
+    #COPY +build-cache/target target
     COPY --dir +npm-build/dist $PIPELINE_FOLDER/
     # We need to run inside docker as we need postgres running for cornucopia
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
@@ -112,10 +113,16 @@ build:
         --pull ankane/pgvector
         RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
             && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
-            && cargo build --release --target x86_64-unknown-linux-musl
+            && cargo build --release --target x86_64-unknown-linux-musl \
+            && cargo test --no-run --release --target x86_64-unknown-linux-musl \
+            && rm target/x86_64-unknown-linux-musl/release/deps/*.d \
+            && mv target/x86_64-unknown-linux-musl/release/deps/single_user_test* single_user_test \
+            && mv target/x86_64-unknown-linux-musl/release/deps/multi_user_test* multi_user_test
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
+    SAVE ARTIFACT multi_user_test
+    SAVE ARTIFACT single_user_test
 
 migration-container:
     FROM alpine
