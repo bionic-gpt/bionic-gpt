@@ -1,5 +1,15 @@
 services:
 
+  #integration-tests:
+  #  image: ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
+  #  depends_on:
+  #    keycloak:
+  #      condition: service_healthy
+
+  postgres:
+    ports:
+      - "5432:5432"
+      
   # Integration testing using a headless chrome browser
   selenium:
     image: selenium/standalone-chrome:4
@@ -8,11 +18,19 @@ services:
       VNC_NO_PASSWORD: 1
     ports:
       # VNC
-      - 7705:5900
+      - 7725:5900
     volumes:
       # So that we can load examples with the browser testing.
       # However it doesn't seem to work with earthly, you have to docker cp the files
       - ./datasets:/workspace
+
+  video:
+    image: selenium/video:ffmpeg-6.0-20231102
+    environment:
+      DISPLAY_CONTAINER_NAME: default-selenium-1
+      FILE_NAME: chrome-video.mp4
+    volumes:
+      - ./datasets:/videos
 
   # MailHog is an email testing tool for developers.
   smtp:
