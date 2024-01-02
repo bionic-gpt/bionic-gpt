@@ -17,11 +17,11 @@ variables:
         app: pipeline
     embeddingsLabels:
         app: embeddings
-    version: 1.5.3
-    hash-bionicgpt: sha256:635397df4fe23d5f98336b42f7164727a85cf16dc7fcb6e23d75e61e7e8815ac
-    hash-bionicgpt-envoy: sha256:e32129431080ac22a9dd162aedc48711a07219488c1ff0c38967b3fad011ce37
-    hash-bionicgpt-pipeline-job: sha256:b33f095d53a7e3bff35aaabd6902ee676cb253530dca8b923623fa7106039820
-    hash-bionicgpt-db-migrations: sha256:96220013c34c001aa25b06031117288d8ebcd5d3ea60f2fd593f1583a35a6374
+    version: 1.5.4
+    hash-bionicgpt: sha256:f402d2e46dd9a346c5345754dadca7d7c24b66d9448113465e432948147cbd39
+    hash-bionicgpt-envoy: sha256:fc84fc7b5a774bfa424f1dc330124e3fb19999a9e020e158fbb0e5dc2260c58a
+    hash-bionicgpt-pipeline-job: sha256:222a301fe863f42e22cbf4aa075750fa1e0cca110a004d694d5f5f9b936d5486
+    hash-bionicgpt-db-migrations: sha256:2648a385a83b21ef1b5c68b41cade3cfd73fd45a7eba69997a52fe150c72ef9a
     db-migrations: ghcr.io/bionic-gpt/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
     server: ghcr.io/bionic-gpt/bionicgpt:${version}@${hash-bionicgpt}
     envoy: ghcr.io/bionic-gpt/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
