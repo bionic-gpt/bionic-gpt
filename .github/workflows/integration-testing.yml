@@ -19,9 +19,7 @@ jobs:
 
       - name: Run Integration Tests
         run: |
-          # Run your integration tests here using appropriate commands
-          # For example:
-          # docker-compose exec <service-name> <test-command>
+          cargo test
 
       - name: Stop Docker Compose
         run: |
