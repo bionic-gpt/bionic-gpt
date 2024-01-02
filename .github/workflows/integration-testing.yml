@@ -1,4 +1,4 @@
-name: Manual Integration Tests
+name: Integration Tests
 
 on:
   workflow_dispatch: # Triggers the workflow manually
@@ -13,7 +13,7 @@ jobs:
 
       - name: Start Docker Compose
         run: |
-          docker-compose -f docker-compose.yml -f .devcontainer/docker-compose.earthly.yml up -d 
+          docker-compose -f docker-compose.yml -f .github/workflows/docker-compose.integration.yml up -d 
 
       # Add any other necessary steps like waiting for services to start if required
 
@@ -25,4 +25,4 @@ jobs:
 
       - name: Stop Docker Compose
         run: |
-          docker-compose -f docker-compose.yml -f .devcontainer/docker-compose.earthly.yml down
+          docker-compose -f docker-compose.yml -f .github/workflows/docker-compose.integration.yml down
