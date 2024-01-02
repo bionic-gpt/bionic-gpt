@@ -35,6 +35,7 @@ dev:
 pull-request:
     BUILD +migration-container
     BUILD +app-container
+    BUILD +testing-container
     BUILD +envoy-container
     BUILD +keycloak-container
     BUILD +pipeline-job-container
@@ -45,6 +46,7 @@ all:
     BUILD +envoy-container
     BUILD +keycloak-container
     BUILD +app-container
+    BUILD +testing-container
     BUILD +pipeline-job-container
     #BUILD +integration-test
 
@@ -92,12 +94,12 @@ pipeline-job-container:
     ENTRYPOINT ["./pipeline-job"]
     SAVE IMAGE --push $PIPELINE_IMAGE_NAME
 
-build-cache:
-    COPY +prepare-cache/recipe.json ./
-    RUN cargo chef cook --release --target x86_64-unknown-linux-musl
-    SAVE ARTIFACT target
-    SAVE ARTIFACT $CARGO_HOME cargo_home
-    SAVE IMAGE --cache-hint
+#build-cache:
+#    COPY +prepare-cache/recipe.json ./
+#    RUN cargo chef cook --release --target x86_64-unknown-linux-musl
+#    SAVE ARTIFACT target
+#    SAVE ARTIFACT $CARGO_HOME cargo_home
+#    SAVE IMAGE --cache-hint
 
 build:
     # Copy in all our crates
@@ -147,6 +149,13 @@ app-container:
     COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
     ENTRYPOINT ["./axum-server"]
     SAVE IMAGE --push $APP_IMAGE_NAME
+
+testing-container:
+    FROM scratch
+    COPY +build/multi_user_test multi_user_test
+    COPY +build/single_user_test single_user_test
+    ENTRYPOINT ["./multi_user_test", "&&", "single_user_test"]
+    SAVE IMAGE --push $TESTING_IMAGE_NAME
 
 integration-test:
     FROM +build
