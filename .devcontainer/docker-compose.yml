@@ -55,7 +55,8 @@ services:
     ports:
       - 7700:7700
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
 
   oauth2-proxy-selenium:
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
@@ -80,7 +81,8 @@ services:
     ports:
       - 7711:7711
     depends_on:
-      - keycloak
+      keycloak-selenium:
+        condition: service_healthy
 
   # You can use any OIDC provider with Oauth2 but Keycloak is easy to configure.
   keycloak:
@@ -88,21 +90,19 @@ services:
     volumes:
      - ./keycloak:/opt/keycloak/data/import
     environment:
-      DB_VENDOR: postgres
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: postgres
-      DB_PASSWORD: testpassword
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
+      KC_HEALTH_ENABLED: "true"
     command:
       - "start-dev"
       - "--import-realm"
       - "--http-port=7710"
       - "--proxy=edge"
       - "--hostname=localhost:7710"
-    depends_on:
-      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/7710;echo -e \"GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"]
+      interval: 10s
+      timeout: 5s
     ports:
       - 7710:7710
 
@@ -112,21 +112,19 @@ services:
     volumes:
      - ./keycloak:/opt/keycloak/data/import
     environment:
-      DB_VENDOR: postgres
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak-selenium
-      DB_USER: postgres
-      DB_PASSWORD: testpassword
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
+      KC_HEALTH_ENABLED: "true"
     command:
       - "start-dev"
       - "--import-realm"
       - "--http-port=7712"
       - "--proxy=edge"
       - "--hostname=keycloak-selenium:7712"
-    depends_on:
-      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/7712;echo -e \"GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"]
+      interval: 10s
+      timeout: 5s
     ports:
       - 7712:7712
 
@@ -162,11 +160,10 @@ services:
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-
     working_dir: /workspace
-    
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   # Integration testing using a headless chrome browser
   selenium:
