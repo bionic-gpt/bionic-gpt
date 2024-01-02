@@ -1,5 +1,7 @@
 # Do not expose this configuration to the internet. This is an
-# example configuration so that you can try out Bionic GPT
+# example configuration so that you can try out Bionic GPT.
+#
+# This is NOT a production configuration.
 services:
 
   llm-api:
@@ -11,9 +13,10 @@ services:
     platform: linux/amd64
     command: --model-id BAAI/bge-small-en-v1.5
 
-  # Handles parsing of multiple documents types.
+  # Document parsing, OCR and chunking.
+  # Image tagged with the short commit hash (e.g. fbc7a69) for each pust to main
   unstructured:
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
     platform: linux/amd64
 
   # Handles routing between the application, barricade and the LLM API
@@ -47,7 +50,8 @@ services:
     ports:
       - 7800:7800
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
 
   # We support Open ID Connect. In this case we're using Keycloak
   # But you can use your own identityt provider.
@@ -55,8 +59,13 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt-keycloak:1.5.1
     platform: linux/amd64
     environment:
+      KC_DB: postgres
+      KC_DB_PASSWORD: testpassword
+      KC_DB_USERNAME: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/keycloak
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
+      KC_HEALTH_ENABLED: "true"
     command:
       - "start-dev"
       - "--import-realm"
@@ -65,6 +74,13 @@ services:
       - "--hostname=localhost:7810"
     ports:
       - 7810:7810
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/7810;echo -e \"GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"]
+      interval: 10s
+      timeout: 5s
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # Postgres pre-loaded with pgVector
   # To connect outside docker `docker compose exec postgres psql -U postgres`
@@ -74,7 +90,7 @@ services:
     environment:
       POSTGRES_PASSWORD: testpassword
       POSTGRES_USER: postgres
-      POSTGRES_DB: bionic-gpt
+      POSTGRES_DB: keycloak
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
