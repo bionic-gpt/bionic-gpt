@@ -13,7 +13,7 @@ jobs:
 
       - name: Start Docker Compose
         run: |
-          docker-compose up -f docker-compose.yml -f .devcontainer/docker-compose.earthly.yml -d
+          docker-compose -f docker-compose.yml -f .devcontainer/docker-compose.earthly.yml up -d 
 
       # Add any other necessary steps like waiting for services to start if required
 
@@ -25,4 +25,4 @@ jobs:
 
       - name: Stop Docker Compose
         run: |
-          docker-compose down -f docker-compose.yml -f .devcontainer/docker-compose.earthly.yml
+          docker-compose -f docker-compose.yml -f .devcontainer/docker-compose.earthly.yml down
