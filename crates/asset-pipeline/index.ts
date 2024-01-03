@@ -33,6 +33,10 @@ function loadEverything() {
 }
 
 document.addEventListener('turbo:load', () => {
-    console.log('turbo:load')
     loadEverything()
+})
+
+document.addEventListener('turbo:fetch-request-error', (e) => {
+    console.log('turbo:fetch-request-error')
+    location.reload()
 })

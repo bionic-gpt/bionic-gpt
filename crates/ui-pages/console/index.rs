@@ -4,8 +4,8 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::delete_svg;
 use assets::files::{commit_svg, handshake_svg, profile_svg, spinner_svg};
 use daisy_rsx::*;
+use db::authz::Rbac;
 use db::queries::{chats::Chat, conversations::History, prompts::Prompt};
-use db::rls::Rbac;
 use dioxus::prelude::*;
 
 #[inline_props]

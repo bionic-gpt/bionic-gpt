@@ -43,14 +43,14 @@ COMMENT ON COLUMN invitations.email IS 'After we lookup the invite we check that
 
 -- Give access to the application user, the application user has no access to 
 -- The sessions table and therefore cannot fake a login.
-GRANT SELECT, INSERT ON team_users TO ft_application;
-GRANT SELECT, INSERT, UPDATE ON teams TO ft_application;
-GRANT SELECT, INSERT, DELETE ON invitations TO ft_application;
-GRANT USAGE, SELECT ON invitations_id_seq, teams_id_seq TO ft_application;
+GRANT SELECT, INSERT ON team_users TO bionic_application;
+GRANT SELECT, INSERT, UPDATE ON teams TO bionic_application;
+GRANT SELECT, INSERT, DELETE ON invitations TO bionic_application;
+GRANT USAGE, SELECT ON invitations_id_seq, teams_id_seq TO bionic_application;
 
 -- Give access to the readonly user
-GRANT SELECT ON invitations, teams, team_users TO ft_readonly;
-GRANT SELECT ON invitations_id_seq, teams_id_seq TO ft_readonly;
+GRANT SELECT ON invitations, teams, team_users TO bionic_readonly;
+GRANT SELECT ON invitations_id_seq, teams_id_seq TO bionic_readonly;
 
 -- migrate:down
 DROP TABLE team_users;

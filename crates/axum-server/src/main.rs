@@ -16,7 +16,6 @@ mod pipelines;
 mod profile;
 mod prompt;
 mod prompts;
-mod registration_handler;
 mod static_files;
 mod team;
 mod ui_completions;
@@ -49,7 +48,6 @@ async fn main() {
         .merge(team::routes())
         .merge(audit_trail::routes())
         .merge(profile::routes())
-        .merge(registration_handler::routes())
         .merge(console::routes())
         .merge(api_keys::routes())
         .merge(datasets::routes())

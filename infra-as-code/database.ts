@@ -64,13 +64,13 @@ export function setupDatabase(
                         // Add users here.
                         pulumi.all([applicationPassword.result])
                             .apply(([password]) =>
-                                `CREATE ROLE ft_application LOGIN ENCRYPTED PASSWORD '${password}'`),
+                                `CREATE ROLE bionic_application LOGIN ENCRYPTED PASSWORD '${password}'`),
                         pulumi.all([authenticationPassword.result])
                             .apply(([password]) =>
                                 `CREATE ROLE ft_authentication LOGIN ENCRYPTED PASSWORD '${password}'`),
                         pulumi.all([readonlyPassword.result])
                             .apply(([password]) =>
-                                `CREATE ROLE ft_readonly LOGIN ENCRYPTED PASSWORD '${password}'`)
+                                `CREATE ROLE bionic_readonly LOGIN ENCRYPTED PASSWORD '${password}'`)
                     ],
                     postInitApplicationSQL: [
                         "CREATE EXTENSION IF NOT EXISTS vector"
@@ -95,11 +95,11 @@ export function setupDatabase(
 
     let readonlyUrl = pulumi.all([readonlyPassword.result, pgCluster.metadata.name])
         .apply(([password, host]) =>
-            `postgres://ft_readonly:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
+            `postgres://bionic_readonly:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
 
     let applicationUrl = pulumi.all([applicationPassword.result, pgCluster.metadata.name])
         .apply(([password, host]) =>
-            `postgres://ft_application:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
+            `postgres://bionic_application:${password}@${host}-rw:5432/${DATABASE_NAME}?sslmode=require`)
 
 
     // Create a database url secret so our app will work.

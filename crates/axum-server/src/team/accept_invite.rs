@@ -4,8 +4,8 @@ use axum::{
     extract::{Extension, Path},
     response::{IntoResponse, Redirect},
 };
+use db::authz;
 use db::queries;
-use db::rls;
 use db::Pool;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
@@ -23,7 +23,7 @@ pub async fn invite(
 ) -> Result<impl IntoResponse, CustomError> {
     let team_id = accept_invitation(
         &pool,
-        &current_user,
+        current_user,
         &invite.invite_selector,
         &invite.invite_validator,
     )
@@ -34,7 +34,7 @@ pub async fn invite(
 
 pub async fn accept_invitation(
     pool: &Pool,
-    current_user: &Authentication,
+    current_user: Authentication,
     invitation_selector: &str,
     invitation_verifier: &str,
 ) -> Result<i32, CustomError> {
@@ -47,7 +47,7 @@ pub async fn accept_invitation(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    rls::set_row_level_security_user_id(&transaction, current_user.user_id).await?;
+    let user_id = authz::set_row_level_security_user_id(&transaction, current_user.sub).await?;
 
     let invitation = queries::invitations::get_invitation()
         .bind(&transaction, &invitation_selector)
@@ -56,7 +56,7 @@ pub async fn accept_invitation(
 
     if invitation.invitation_verifier_hash == invitation_verifier_hash_base64 {
         let user = queries::users::user()
-            .bind(&transaction, &current_user.user_id)
+            .bind(&transaction, &user_id)
             .one()
             .await?;
 
@@ -83,7 +83,7 @@ pub async fn accept_invitation(
                         &transaction,
                         &invitation.first_name,
                         &invitation.last_name,
-                        &current_user.user_id,
+                        &user_id,
                     )
                     .await?;
             }

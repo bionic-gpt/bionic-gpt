@@ -44,14 +44,14 @@ CREATE TABLE prompt_dataset (
 );
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON prompts TO ft_application;
-GRANT USAGE, SELECT ON prompts_id_seq TO ft_application;
-GRANT SELECT, INSERT, UPDATE, DELETE ON prompt_dataset TO ft_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON prompts TO bionic_application;
+GRANT USAGE, SELECT ON prompts_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON prompt_dataset TO bionic_application;
 
 -- Give access to the readonly user
-GRANT SELECT ON prompts TO ft_readonly;
-GRANT SELECT ON prompts_id_seq TO ft_readonly;
-GRANT SELECT ON prompt_dataset TO ft_readonly;
+GRANT SELECT ON prompts TO bionic_readonly;
+GRANT SELECT ON prompts_id_seq TO bionic_readonly;
+GRANT SELECT ON prompt_dataset TO bionic_readonly;
 
 -- Manage the updated_at column
 SELECT updated_at('prompts');

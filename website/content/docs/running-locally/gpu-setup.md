@@ -38,6 +38,28 @@ The first user to register with **BionicGPT** will become the system administrat
 
 ![Alt text](../initial-screen.png "Start Screen")
 
+## Extra configuration needed
+
+The user interface is already loaded with the model. You can change the name of you wish as the GPU config loads `TheBloke/zephyr-7B-beta-AWQ` and in the user interface we call it `llama-2-7b` which is what it's called in our CPU setup.
+
+If you want to do a sanity check on the various components that make up Bionic GPT please take a look at our [Jupyter Notebook Setup](/docs/administration/jupyter-notebook/)
+
+## Setting the trim ratio
+
+If you start to get `Error occurred while generating` issues then you may need to set a lower trim level.
+
+You may see an entry in the log such as
+
+```
+tgi-1 | 2024-01-02T13:55:01.456401Z ERROR generate_stream{parameters=GenerateParameters { best_of: None, temperature: Some(0.7), repetition_penalty: None, top_k: None, top_p: None, typical_p: None, do_sample: false, max_new_tokens: Some(1024), return_full_text: Some(false), stop: [], truncate: None, watermark: false, details: true, decoder_input_details: false, seed: None, top_n_tokens: None }}:async_stream:generate_stream: text_generation_router::infer: router/src/infer.rs:110: inputs tokens + max_new_tokens must be <= 2048. Given: 1088 inputs tokens and 1024 max_new_tokens
+```
+
+TGI raises an error if we send more tokens than needed, however it's not always easy to calculate the exact token usage as the measurements change between models.
+
+The trim level allows for the case where the count is not exact. Lower the ratio to make the errors go away.
+
+![Alt text](../trim-level.png "Trim Level")
+
 ## Upgrading to a later version of BionicGPT
 
 When upgrading to the latest version of BionicGPT we recommend running 

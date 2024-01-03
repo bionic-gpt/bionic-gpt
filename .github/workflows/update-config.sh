@@ -1,5 +1,5 @@
 #!/bin/bash 
-containers=("ghcr.io/bionic-gpt/bionicgpt" "ghcr.io/bionic-gpt/bionicgpt-pipeline-job" "ghcr.io/bionic-gpt/bionicgpt-envoy" "ghcr.io/bionic-gpt/bionicgpt-db-migrations")
+containers=("ghcr.io/bionic-gpt/bionicgpt" "ghcr.io/bionic-gpt/bionicgpt-pipeline-job" "ghcr.io/bionic-gpt/bionicgpt-keycloak" "ghcr.io/bionic-gpt/bionicgpt-envoy" "ghcr.io/bionic-gpt/bionicgpt-db-migrations")
 
 for i in "${containers[@]}"
 do
