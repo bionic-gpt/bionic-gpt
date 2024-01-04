@@ -39,6 +39,11 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml -f .github/docker-compose-integration.yml down
 
+
+      - name: Where's the video?
+        run: |
+          ls -la datasets
+
       - name: Upload the video of our selenium session
         uses: actions/upload-artifact@v2
         with:
