@@ -18,7 +18,9 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml -f .github/docker-compose-integration.yml up -d 
 
-      # Add any other necessary steps like waiting for services to start if required
+      - name: What network do we have
+        run: |
+          docker network ls
 
       - name: Run Integration Tests
         run: |
@@ -32,3 +34,9 @@ jobs:
       - name: Stop Docker Compose
         run: |
           docker-compose -f docker-compose.yml -f .github/docker-compose-integration.yml down
+
+      - name: Upload the video of our selenium session
+        uses: actions/upload-artifact@v2
+        with:
+          name: integration-testing-screen-recording
+          path: datasets/chrome-video.mp4
