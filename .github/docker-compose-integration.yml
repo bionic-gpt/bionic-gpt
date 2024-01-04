@@ -24,13 +24,13 @@ services:
       # However it doesn't seem to work with earthly, you have to docker cp the files
       - ./datasets:/workspace
 
-  video:
-    image: selenium/video:ffmpeg-6.0-20231102
-    environment:
-      DISPLAY_CONTAINER_NAME: default-selenium-1
-      FILE_NAME: chrome-video.mp4
-    volumes:
-      - ./datasets:/videos
+  #video:
+  #  image: selenium/video:ffmpeg-6.0-20231102
+  #  environment:
+  #    DISPLAY_CONTAINER_NAME: default-selenium-1
+  #    FILE_NAME: chrome-video.mp4
+  #  volumes:
+  #    - ./datasets:/videos
 
   # MailHog is an email testing tool for developers.
   smtp:
