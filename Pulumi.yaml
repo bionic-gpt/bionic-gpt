@@ -7,8 +7,10 @@ variables:
     namespace: bionic-gpt
     appLabels:
         app: app
-    authLabels:
-        app: auth
+    keycloakLabels:
+        app: keycloak
+    oauth2proxyLabels:
+        app: oauth2proxy
     envoyLabels:
         app: envoy
     unstructuredLabels:
@@ -22,12 +24,15 @@ variables:
     hash-bionicgpt-envoy: sha256:2bb30b38d6d1e5ebd70cc9d32285dc1ab10c02123282c69c112d6d049435ad2d
     hash-bionicgpt-pipeline-job: sha256:2fab1dacf594f7f80fda39c0c56459e471e2b9ad6779f34ba7c42674f5026cde
     hash-bionicgpt-db-migrations: sha256:dd4d93b3d31b80e4ba6a653f680d46d8c735046d40a6a59351a938d86cc17ec8
+    hash-bionicgpt-keycloak: sha256:dd4d93b3d31b80e4ba6a653f680d46d8c735046d40a6a59351a938d86cc17ec8
     db-migrations: ghcr.io/bionic-gpt/bionicgpt-db-migrations:${version}@${hash-bionicgpt-db-migrations}
     server: ghcr.io/bionic-gpt/bionicgpt:${version}@${hash-bionicgpt}
     envoy: ghcr.io/bionic-gpt/bionicgpt-envoy:${version}@${hash-bionicgpt-envoy}
     pipeline-image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:${version}@${hash-bionicgpt-pipeline-job}
-    unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
+    keycloak-image: ghcr.io/bionic-gpt/bionicgpt-keycloak:${version}@${hash-bionicgpt-keycloak}
+    unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
     embeddings-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
+    oauth2-proxy-image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
 
 resources:
     unstructured-deployment:
@@ -117,48 +122,53 @@ resources:
                               ports:
                                 - containerPort: 7700
 
-    auth-deployment:
+    keycloak-deployment:
         type: kubernetes:apps/v1:Deployment
         properties:
             metadata:
-                name: auth
+                name: keycloak
                 namespace: ${namespace}
             spec:
                 selector:
-                    matchLabels: ${authLabels}
+                    matchLabels: ${keycloakLabels}
                 replicas: 1
                 template:
                     metadata:
-                        labels: ${authLabels}
+                        labels: ${keycloakLabels}
                     spec:
                         containers:
-                            - name: auth
-                              image: purtontech/barricade:1.2.5
-                              ports:
-                                - containerPort: 9090
+                            - name: keycloak
+                              image: ${keycloak-image}
                               env: 
-                                - name: DATABASE_URL
+                                - name: APP_DATABASE_URL
                                   valueFrom:
                                     secretKeyRef:
                                         name: database-urls
-                                        key: authentication-url
-                                - name: SECURE_COOKIE
-                                  value: 'true'
+                                        key: application-url
 
-                                # Cookie encryption key
-                                - name: SECRET_KEY
+    oauth2-proxy-deployment:
+        type: kubernetes:apps/v1:Deployment
+        properties:
+            metadata:
+                name: oauth2-proxy
+                namespace: ${namespace}
+            spec:
+                selector:
+                    matchLabels: ${oauth2proxyLabels}
+                replicas: 1
+                template:
+                    metadata:
+                        labels: ${oauth2proxyLabels}
+                    spec:
+                        containers:
+                            - name: oauth2-proxy
+                              image: ${oauth2-proxy-image}
+                              env: 
+                                - name: APP_DATABASE_URL
                                   valueFrom:
                                     secretKeyRef:
-                                        name: cookie-encryption
-                                        key: cookie-encryption-key
-
-                                - name: REDIRECT_URL
-                                  value: /app/post_registration
-                                - name: LOGOUT_URL
-                                  value: /
-
-                                - name: ENABLE_EMAIL_OTP
-                                  value: 'false'
+                                        name: database-urls
+                                        key: application-url
 
     app-deployment:
         type: kubernetes:apps/v1:Deployment
