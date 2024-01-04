@@ -14,10 +14,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Start Docker Compose
-        run: |
-          docker-compose -f docker-compose.yml -f docker-compose-integration.yml up -d 
-
       - name: Copy files from the dataset folder on the testing image
         run: |
           mkdir -p ./.devcontainer/datasets
@@ -30,8 +26,12 @@ jobs:
           sudo docker cp dummy:/mocks/unstructured.mock.yaml ./.devcontainer/mocks
           sudo chmod 777 ./.devcontainer/datasets/*
           sudo chmod 777 ./.devcontainer/mocks/*
-          ls -la datasets
-          ls -la mocks
+          ls -la ./.devcontainer/datasets
+          ls -la ./.devcontainer/mocks
+
+      - name: Start Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml -f docker-compose-integration.yml up -d 
 
       - name: Run Integration Tests
         run: |
@@ -50,7 +50,7 @@ jobs:
       - name: Stop Docker Compose
         if: always()
         run: |
-          docker-compose -f docker-compose.yml -f .github/docker-compose-integration.yml down
+          docker-compose -f docker-compose.yml -f docker-compose-integration.yml down
 
 
       - name: Where's the video?
