@@ -22,7 +22,7 @@ pub async fn index(
         .await?;
 
     let datasets = queries::datasets::datasets()
-        .bind(&transaction)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
