@@ -39,7 +39,7 @@ services:
   video:
     image: selenium/video:ffmpeg-6.0-20231102
     environment:
-      DISPLAY_CONTAINER_NAME: default-selenium-1
+      DISPLAY_CONTAINER_NAME: selenium
       FILE_NAME: chrome-video.mp4
     volumes:
       - ./datasets:/videos
