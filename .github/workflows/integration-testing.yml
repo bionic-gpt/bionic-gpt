@@ -16,7 +16,7 @@ jobs:
 
       - name: Start Docker Compose
         run: |
-          docker-compose -f docker-compose.yml -f .github/docker-compose-integration.yml up -d 
+          docker-compose -f docker-compose.yml -f docker-compose-integration.yml up -d 
 
       - name: Copy files from the dataset folder on the testing image
         run: |
