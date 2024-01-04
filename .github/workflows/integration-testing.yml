@@ -20,10 +20,11 @@ jobs:
 
       - name: Copy files from the dataset folder on the testing image
         run: |
-          mkdir -p datasets
+          mkdir -p ./datasets
           docker pull ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
           docker create --name dummy ghcr.io/bionic-gpt/bionicgpt-integration-tests
-          docker cp dummy:/datasets/parliamentary-dialog.txt ./datasets
+          sudo docker cp dummy:/datasets/parliamentary-dialog.txt ./datasets
+          sudo chmod 777 ./datasets/*
           ls -la datasets
 
       - name: Run Integration Tests
