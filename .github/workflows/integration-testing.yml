@@ -20,16 +20,16 @@ jobs:
 
       - name: Copy files from the dataset folder on the testing image
         run: |
-          mkdir -p ./datasets
-          mkdir -p ./mocks
+          mkdir -p ./.devcontainer/datasets
+          mkdir -p ./.devcontainer/mocks
           docker pull ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
           docker create --name dummy ghcr.io/bionic-gpt/bionicgpt-integration-tests
-          sudo docker cp dummy:/datasets/parliamentary-dialog.txt ./datasets
-          sudo docker cp dummy:/mocks/embeddings.mock.yaml ./mocks
-          sudo docker cp dummy:/mocks/openai.mock.yaml ./mocks
-          sudo docker cp dummy:/mocks/unstructured.mock.yaml ./mocks
-          sudo chmod 777 ./datasets/*
-          sudo chmod 777 ./mocks/*
+          sudo docker cp dummy:/datasets/parliamentary-dialog.txt ./.devcontainer/datasets
+          sudo docker cp dummy:/mocks/embeddings.mock.yaml ./.devcontainer/mocks
+          sudo docker cp dummy:/mocks/openai.mock.yaml ./.devcontainer/mocks
+          sudo docker cp dummy:/mocks/unstructured.mock.yaml ./.devcontainer/mocks
+          sudo chmod 777 ./.devcontainer/datasets/*
+          sudo chmod 777 ./.devcontainer/mocks/*
           ls -la datasets
           ls -la mocks
 
@@ -56,11 +56,11 @@ jobs:
       - name: Where's the video?
         if: always()
         run: |
-          ls -la datasets
+          ls -la ./.devcontainer/datasets
 
       - name: Upload the video of our selenium session
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: integration-testing-screen-recording
-          path: datasets/chrome-video.mp4
+          path: ./.devcontainer/datasets/chrome-video.mp4
