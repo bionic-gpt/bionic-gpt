@@ -7,6 +7,7 @@ services:
   oauth2-proxy:
     environment:
       OAUTH2_PROXY_REDIRECT_URL: http://oauth2-proxy:7800/oauth2/callback
+      OAUTH2_PROXY_WHITELIST_DOMAINS: "keycloak:7810"
       
   keycloak:
     command:
