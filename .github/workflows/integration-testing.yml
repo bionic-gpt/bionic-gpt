@@ -35,6 +35,12 @@ jobs:
 
       - name: Run Integration Tests
         run: |
+          docker run --rm --entrypoint "./multi_user_test" \
+            --network=bionic-gpt_default \
+            -e WEB_DRIVER_DESTINATION_HOST=http://oauth2-proxy:7800 \
+            -e DATABASE_URL=postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt \
+            ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
+
           docker run --rm --entrypoint "./single_user_test" \
             --network=bionic-gpt_default \
             -e WEB_DRIVER_DESTINATION_HOST=http://oauth2-proxy:7800 \
