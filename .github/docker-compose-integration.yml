@@ -1,5 +1,17 @@
 services:
 
+  oauth2-proxy:
+    environment:
+      OAUTH2_PROXY_REDIRECT_URL: http://oauth2-proxy:7800/oauth2/callback
+      
+  keycloak:
+    command:
+      - "start-dev"
+      - "--import-realm"
+      - "--http-port=7810"
+      - "--proxy=edge"
+      - "--hostname=keycloak:7810"
+
   #integration-tests:
   #  image: ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
   #  depends_on:
