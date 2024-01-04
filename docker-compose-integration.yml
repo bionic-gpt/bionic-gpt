@@ -3,6 +3,13 @@ services:
   app:
     environment:
       LOGOUT_URL: http://keycloak:7810/realms/bionic-gpt/protocol/openid-connect/logout
+      INVITE_DOMAIN: http://oauth2-proxy:7800
+      INVITE_FROM_EMAIL_ADDRESS: support@application.com
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+      SMTP_USERNAME: thisisnotused
+      SMTP_PASSWORD: thisisnotused
+      SMTP_TLS_OFF: 'true'
 
   oauth2-proxy:
     environment:
