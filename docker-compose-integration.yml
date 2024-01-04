@@ -1,5 +1,9 @@
 services:
 
+  app:
+    environment:
+      LOGOUT_URL: http://keycloak:7810/realms/bionic-gpt/protocol/openid-connect/logout
+
   oauth2-proxy:
     environment:
       OAUTH2_PROXY_REDIRECT_URL: http://oauth2-proxy:7800/oauth2/callback
@@ -11,12 +15,6 @@ services:
       - "--http-port=7810"
       - "--proxy=edge"
       - "--hostname=keycloak:7810"
-
-  #integration-tests:
-  #  image: ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
-  #  depends_on:
-  #    keycloak:
-  #      condition: service_healthy
 
   postgres:
     ports:
@@ -34,7 +32,7 @@ services:
     volumes:
       # So that we can load examples with the browser testing.
       # However it doesn't seem to work with earthly, you have to docker cp the files
-      - ./datasets:/workspace
+      - ./.devcontainer/datasets:/workspace
 
   video:
     image: selenium/video:ffmpeg-6.0-20231102
@@ -42,7 +40,11 @@ services:
       DISPLAY_CONTAINER_NAME: selenium
       FILE_NAME: chrome-video.mp4
     volumes:
-      - ./datasets:/videos
+      - ./tmp:/videos
+    ## Wait until everything is up before we start recording
+    depends_on:
+      keycloak:
+        condition: service_healthy
 
   # MailHog is an email testing tool for developers.
   smtp:
@@ -52,7 +54,7 @@ services:
   unstructured:
     image: alexliesenfeld/httpmock:latest
     volumes:
-      - ./mocks:/mocks
+      - ./.devcontainer/mocks:/mocks
     entrypoint: httpmock
     command: --expose -m /mocks -p 8000
     ports:
@@ -61,7 +63,7 @@ services:
   llm-api:
     image: alexliesenfeld/httpmock:latest
     volumes:
-      - ./mocks:/mocks
+      - ./.devcontainer/mocks:/mocks
     entrypoint: httpmock
     command: --expose -m /mocks -p 3000
     ports:
@@ -70,7 +72,7 @@ services:
   embeddings-api:
     image: alexliesenfeld/httpmock:latest
     volumes:
-      - ./mocks:/mocks
+      - ./.devcontainer/mocks:/mocks
     entrypoint: httpmock
     command: --expose -m /mocks -p 8080
     ports:
