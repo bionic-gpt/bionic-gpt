@@ -36,6 +36,7 @@ jobs:
             ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
 
       - name: Stop Docker Compose
+        if: always()
         run: |
           docker-compose -f docker-compose.yml -f .github/docker-compose-integration.yml down
 
