@@ -21,11 +21,17 @@ jobs:
       - name: Copy files from the dataset folder on the testing image
         run: |
           mkdir -p ./datasets
+          mkdir -p ./mocks
           docker pull ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
           docker create --name dummy ghcr.io/bionic-gpt/bionicgpt-integration-tests
           sudo docker cp dummy:/datasets/parliamentary-dialog.txt ./datasets
+          sudo docker cp dummy:/mocks/embeddings.mock.yaml ./mocks
+          sudo docker cp dummy:/mocks/openai.mock.yaml ./mocks
+          sudo docker cp dummy:/mocks/unstructured.mock.yaml ./mocks
           sudo chmod 777 ./datasets/*
+          sudo chmod 777 ./mocks/*
           ls -la datasets
+          ls -la mocks
 
       - name: Run Integration Tests
         run: |
