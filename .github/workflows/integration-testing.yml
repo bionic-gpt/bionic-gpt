@@ -41,10 +41,12 @@ jobs:
 
 
       - name: Where's the video?
+        if: always()
         run: |
           ls -la datasets
 
       - name: Upload the video of our selenium session
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: integration-testing-screen-recording
