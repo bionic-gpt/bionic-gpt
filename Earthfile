@@ -139,6 +139,8 @@ app-container:
     ENTRYPOINT ["./axum-server"]
     SAVE IMAGE --push $APP_IMAGE_NAME
 
+# Package up the selenium tests into a container that we can
+# run in the CI-CD pipeline
 testing-container:
     FROM gcr.io/distroless/static
     COPY +build/multi_user_test multi_user_test
