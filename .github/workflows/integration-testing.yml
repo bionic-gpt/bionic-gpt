@@ -20,13 +20,15 @@ jobs:
 
       - name: What network do we have
         run: |
-          docker network ls
+          mkdir -p datasets
+          docker cp ghcr.io/bionic-gpt/bionicgpt-integration-tests:/datasets datasets
+          ls -la datasets
 
       - name: Run Integration Tests
         run: |
           docker pull ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
           docker run --rm --entrypoint "./single_user_test" \
-            --network=bionicgpt_default \
+            --network=bionic-gpt_default \
             -e WEB_DRIVER_DESTINATION_HOST=http://oauth2-proxy:7800 \
             -e DATABASE_URL=postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt \
             ghcr.io/bionic-gpt/bionicgpt-integration-tests:latest
