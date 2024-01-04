@@ -35,6 +35,31 @@ static_resources:
                   timeout: 0s 
 
           http_filters:
+          - name: envoy.filters.http.lua
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              inline_code: |
+                function envoy_on_response(response_handle)
+                    csp = "default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
+                    response_handle:headers():add("Content-Security-Policy", csp);
+                    response_handle:headers():add("X-Frame-Options", "deny");
+                    response_handle:headers():add("X-XSS-Protection", "1; mode=block");
+                    response_handle:headers():add("X-Content-Type-Options", "nosniff");
+                    response_handle:headers():add("Referrer-Policy", "no-referrer");
+                    response_handle:headers():add("X-Download-Options", "noopen");
+                    response_handle:headers():add("X-DNS-Prefetch-Control", "off");
+                    response_handle:headers():add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+                    response_handle:headers():add("Permissions-Policy",
+                                                "accelerometer=(), "..
+                                                "camera=(), "..
+                                                "geolocation=(), "..
+                                                "gyroscope=(), "..
+                                                "magnetometer=(), "..
+                                                "microphone=(), "..
+                                                "payment=(), "..
+                                                "usb=()");
+                    response_handle:headers():remove("X-Powered-By");
+                end
 
           - name: envoy.filters.http.router
             typed_config:
