@@ -125,6 +125,7 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt:1.5.6
     platform: linux/amd64
     environment:
+      LOGOUT_URL: http://localhost:7810/realms/bionic-gpt/protocol/openid-connect/logout
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
     depends_on:
       postgres:

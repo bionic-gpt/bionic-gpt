@@ -147,6 +147,7 @@ services:
       #- node_modules:/vscode/node_modules 
 
     environment:
+      LOGOUT_URL: http://localhost:7710/realms/bionic-gpt/protocol/openid-connect/logout
       DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionicgpt?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionicgpt?sslmode=disable
 
