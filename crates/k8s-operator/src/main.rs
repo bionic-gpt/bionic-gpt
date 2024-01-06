@@ -39,16 +39,16 @@ async fn main() -> Result<()> {
         })
         .map_right(|s| {
             // it's gone.
-            info!("Deleted foos.clux.dev: ({:?})", s);
+            info!("Deleted bionics.bionic-gpt.com: ({:?})", s);
         })
     });
     // Wait for the delete to take place (map-left case or delete from previous run)
     sleep(Duration::from_secs(2)).await;
 
-    // Create the CRD so we can create Foos in kube
+    // Create the CRD so we can create Bionics in kube
     let foocrd = Bionic::crd();
     info!(
-        "Creating Foo CRD: {}",
+        "Creating Bionic CRD: {}",
         serde_json::to_string_pretty(&foocrd)?
     );
     let pp = PostParams::default();
@@ -64,11 +64,11 @@ async fn main() -> Result<()> {
     // Wait for the api to catch up
     sleep(Duration::from_secs(1)).await;
 
-    // Manage the Foo CR
+    // Manage the Bionic CR
     let foos: Api<Bionic> = Api::default_namespaced(client.clone());
 
-    // Create Foo baz
-    info!("Creating Foo instance baz");
+    // Create Bionic baz
+    info!("Creating Bionic instance baz");
     let f1 = Bionic::new(
         "baz",
         BionicSpec {
@@ -82,12 +82,12 @@ async fn main() -> Result<()> {
     info!("Created {}", o.name_any());
 
     // Verify we can get it
-    info!("Get Foo baz");
+    info!("Get Bionic baz");
     let f1cpy = foos.get("baz").await?;
     assert_eq!(f1cpy.spec.info, "old baz");
 
     // Replace its spec
-    info!("Replace Foo baz");
+    info!("Replace Bionic baz");
     let foo_replace: Bionic = serde_json::from_value(json!({
         "apiVersion": "bionic-gpt.com/v1",
         "kind": "Bionic",
@@ -108,8 +108,8 @@ async fn main() -> Result<()> {
         assert_eq!(f1del.spec.info, "old baz");
     });
 
-    // Create Foo qux with status
-    info!("Create Foo instance qux");
+    // Create Bionic qux with status
+    info!("Create Bionic instance qux");
     let f2 = Bionic::new(
         "qux",
         BionicSpec {
@@ -123,7 +123,7 @@ async fn main() -> Result<()> {
     info!("Created {}", o.name_any());
 
     // Update status on qux (cannot be done through replace/create/patch direct)
-    info!("Replace Status on Foo instance qux");
+    info!("Replace Status on Bionic instance qux");
     let fs = json!({
         "apiVersion": "bionic-gpt.com/v1",
         "kind": "Bionic",
@@ -140,7 +140,7 @@ async fn main() -> Result<()> {
     info!("Replaced status {:?} for {}", o.status, o.name_any());
     assert!(o.status.unwrap().is_bad);
 
-    info!("Patch Status on Foo instance qux");
+    info!("Patch Status on Bionic instance qux");
     let fs = json!({
         "status": BionicStatus { is_bad: false, replicas: 1 }
     });
@@ -150,13 +150,13 @@ async fn main() -> Result<()> {
     info!("Patched status {:?} for {}", o.status, o.name_any());
     assert!(!o.status.unwrap().is_bad);
 
-    info!("Get Status on Foo instance qux");
+    info!("Get Status on Bionic instance qux");
     let o = foos.get_status("qux").await?;
     info!("Got status {:?} for {}", o.status, o.name_any());
     assert!(!o.status.unwrap().is_bad);
 
     // Check scale subresource:
-    info!("Get Scale on Foo instance qux");
+    info!("Get Scale on Bionic instance qux");
     let scale = foos.get_scale("qux").await?;
     info!("Got scale {:?} - {:?}", scale.spec, scale.status);
     assert_eq!(scale.status.unwrap().replicas, 1);
@@ -172,8 +172,8 @@ async fn main() -> Result<()> {
     assert_eq!(o.status.unwrap().replicas, 1);
     assert_eq!(o.spec.unwrap().replicas.unwrap(), 2); // we only asked for more
 
-    // Modify a Foo qux with a Patch
-    info!("Patch Foo instance qux");
+    // Modify a Bionic qux with a Patch
+    info!("Patch Bionic instance qux");
     let patch = json!({
         "spec": { "info": "patched qux" }
     });
