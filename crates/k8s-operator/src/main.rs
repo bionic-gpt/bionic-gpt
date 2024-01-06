@@ -1,41 +1,20 @@
+mod crd;
+
 use anyhow::{bail, Result};
 use either::Either::{Left, Right};
 use garde::Validate;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::Duration;
 use tokio::time::sleep;
 use tracing::*;
 
+use crd::{Bionic, BionicSpec, BionicStatus};
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1::CustomResourceDefinition;
 use kube::{
     api::{Api, DeleteParams, ListParams, Patch, PatchParams, PostParams, ResourceExt},
     core::crd::CustomResourceExt,
-    Client, CustomResource,
+    Client,
 };
-
-// Own custom resource
-#[derive(CustomResource, Deserialize, Serialize, Clone, Debug, Validate, JsonSchema)]
-#[kube(group = "clux.dev", version = "v1", kind = "Foo", namespaced)]
-#[kube(status = "FooStatus")]
-#[kube(scale = r#"{"specReplicasPath":".spec.replicas", "statusReplicasPath":".status.replicas"}"#)]
-#[kube(printcolumn = r#"{"name":"Team", "jsonPath": ".spec.metadata.team", "type": "string"}"#)]
-pub struct FooSpec {
-    #[schemars(length(min = 3))]
-    #[garde(length(min = 3))]
-    name: String,
-    #[garde(skip)]
-    info: String,
-    #[garde(skip)]
-    replicas: i32,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug, Default, JsonSchema)]
-pub struct FooStatus {
-    is_bad: bool,
-    replicas: i32,
-}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -50,7 +29,7 @@ async fn main() -> Result<()> {
     // Delete any old versions of it first:
     let dp = DeleteParams::default();
     // but ignore delete err if not exists
-    let _ = crds.delete("foos.clux.dev", &dp).await.map(|res| {
+    let _ = crds.delete("bionics.bionic-gpt.com", &dp).await.map(|res| {
         res.map_left(|o| {
             info!(
                 "Deleting {}: ({:?})",
@@ -67,7 +46,7 @@ async fn main() -> Result<()> {
     sleep(Duration::from_secs(2)).await;
 
     // Create the CRD so we can create Foos in kube
-    let foocrd = Foo::crd();
+    let foocrd = Bionic::crd();
     info!(
         "Creating Foo CRD: {}",
         serde_json::to_string_pretty(&foocrd)?
@@ -86,13 +65,13 @@ async fn main() -> Result<()> {
     sleep(Duration::from_secs(1)).await;
 
     // Manage the Foo CR
-    let foos: Api<Foo> = Api::default_namespaced(client.clone());
+    let foos: Api<Bionic> = Api::default_namespaced(client.clone());
 
     // Create Foo baz
     info!("Creating Foo instance baz");
-    let f1 = Foo::new(
+    let f1 = Bionic::new(
         "baz",
-        FooSpec {
+        BionicSpec {
             name: "baz".into(),
             info: "old baz".into(),
             replicas: 1,
@@ -109,9 +88,9 @@ async fn main() -> Result<()> {
 
     // Replace its spec
     info!("Replace Foo baz");
-    let foo_replace: Foo = serde_json::from_value(json!({
-        "apiVersion": "clux.dev/v1",
-        "kind": "Foo",
+    let foo_replace: Bionic = serde_json::from_value(json!({
+        "apiVersion": "bionic-gpt.com/v1",
+        "kind": "Bionic",
         "metadata": {
             "name": "baz",
             // Updates need to provide our last observed version:
@@ -131,9 +110,9 @@ async fn main() -> Result<()> {
 
     // Create Foo qux with status
     info!("Create Foo instance qux");
-    let f2 = Foo::new(
+    let f2 = Bionic::new(
         "qux",
-        FooSpec {
+        BionicSpec {
             name: "qux".into(),
             replicas: 0,
             info: "unpatched qux".into(),
@@ -146,14 +125,14 @@ async fn main() -> Result<()> {
     // Update status on qux (cannot be done through replace/create/patch direct)
     info!("Replace Status on Foo instance qux");
     let fs = json!({
-        "apiVersion": "clux.dev/v1",
-        "kind": "Foo",
+        "apiVersion": "bionic-gpt.com/v1",
+        "kind": "Bionic",
         "metadata": {
             "name": "qux",
             // Updates need to provide our last observed version:
             "resourceVersion": o.resource_version(),
         },
-        "status": FooStatus { is_bad: true, replicas: 0 }
+        "status": BionicStatus { is_bad: true, replicas: 0 }
     });
     let o = foos
         .replace_status("qux", &pp, serde_json::to_vec(&fs)?)
@@ -163,7 +142,7 @@ async fn main() -> Result<()> {
 
     info!("Patch Status on Foo instance qux");
     let fs = json!({
-        "status": FooStatus { is_bad: false, replicas: 1 }
+        "status": BionicStatus { is_bad: false, replicas: 1 }
     });
     let o = foos
         .patch_status("qux", &patch_params, &Patch::Merge(&fs))
@@ -215,9 +194,9 @@ async fn main() -> Result<()> {
 
     // Check that validation is being obeyed
     info!("Verifying validation rules");
-    let fx = Foo::new(
+    let fx = Bionic::new(
         "x",
-        FooSpec {
+        BionicSpec {
             name: "x".into(),
             info: "failing validation obj".into(),
             replicas: 1,
@@ -250,7 +229,7 @@ async fn main() -> Result<()> {
     }
 
     // Cleanup the CRD definition
-    match crds.delete("foos.clux.dev", &dp).await? {
+    match crds.delete("bionics.bionic-gpt.com", &dp).await? {
         Left(o) => {
             info!(
                 "Deleting {} CRD definition: {:?}",
