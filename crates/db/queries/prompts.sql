@@ -47,6 +47,7 @@ WHERE
         )
         AND team_id = :team_id
     )
+    OR p.visibility='Company'
 ORDER BY updated_at;
 
 --! prompt : Prompt
