@@ -116,10 +116,10 @@ fn determine_action(bionic: &Bionic) -> BionicAction {
 /// five seconds.
 ///
 /// # Arguments
-/// - `echo`: The erroneous resource.
+/// - `bionic`: The erroneous resource.
 /// - `error`: A reference to the `kube::Error` that occurred during reconciliation.
 /// - `_context`: Unused argument. Context Data "injected" automatically by kube-rs.
-pub fn on_error(echo: Arc<Bionic>, error: &Error, _context: Arc<ContextData>) -> Action {
-    eprintln!("Reconciliation error:\n{:?}.\n{:?}", error, echo);
+pub fn on_error(bionic: Arc<Bionic>, error: &Error, _context: Arc<ContextData>) -> Action {
+    eprintln!("Reconciliation error:\n{:?}.\n{:?}", error, bionic);
     Action::requeue(Duration::from_secs(5))
 }
