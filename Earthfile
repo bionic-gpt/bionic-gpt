@@ -2,6 +2,7 @@ VERSION 0.7
 FROM purtontech/rust-on-nails-devcontainer:1.1.17
 
 ARG --global APP_EXE_NAME=axum-server
+ARG --global OPERATOR_EXE_NAME=k8s-operator
 ARG --global PIPELINE_EXE_NAME=pipeline-job
 ARG --global DBMATE_VERSION=2.2.0
 
@@ -21,6 +22,7 @@ ARG --global KEYCLOAK_IMAGE_NAME=bionic-gpt/bionicgpt-keycloak:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
+ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
 
 WORKDIR /build
 
@@ -36,6 +38,7 @@ pull-request:
     BUILD +migration-container
     BUILD +app-container
     BUILD +testing-container
+    BUILD +operator-container
     BUILD +envoy-container
     BUILD +keycloak-container
     BUILD +pipeline-job-container
@@ -46,6 +49,7 @@ all:
     BUILD +keycloak-container
     BUILD +app-container
     BUILD +testing-container
+    BUILD +operator-container
     BUILD +pipeline-job-container
 
 npm-deps:
@@ -112,6 +116,7 @@ build:
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
     SAVE ARTIFACT multi_user_test
     SAVE ARTIFACT single_user_test
 
@@ -138,6 +143,13 @@ app-container:
     COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
     ENTRYPOINT ["./axum-server"]
     SAVE IMAGE --push $APP_IMAGE_NAME
+
+# We've got a Kubernetes operator
+operator-container:
+    FROM scratch
+    COPY +build/$OPERATOR_EXE_NAME k8s-operator
+    ENTRYPOINT ["./k8s-operator"]
+    SAVE IMAGE --push $OPERATOR_IMAGE_NAME
 
 # Package up the selenium tests into a container that we can
 # run in the CI-CD pipeline
