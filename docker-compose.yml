@@ -46,7 +46,7 @@ services:
       OAUTH2_PROXY_AUTH_LOGGING: "true"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
       OAUTH2_PROXY_WHITELIST_DOMAINS: "localhost:7810"
-      OAUTH2_PROXY_SKIP_AUTH_ROUTES:  "/v1*"
+      OAUTH2_PROXY_SKIP_AUTH_ROUTES:  "^/v1*"
     restart: unless-stopped
     ports:
       - 7800:7800
