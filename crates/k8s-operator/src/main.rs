@@ -39,7 +39,9 @@ pub struct FooStatus {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
     let client = Client::try_default().await?;
 
     // Manage CRDs first
