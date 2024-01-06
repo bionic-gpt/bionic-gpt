@@ -116,6 +116,7 @@ build:
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
     SAVE ARTIFACT multi_user_test
     SAVE ARTIFACT single_user_test
 
