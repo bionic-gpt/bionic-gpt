@@ -15,7 +15,7 @@ use std::collections::BTreeMap;
 /// - `namespace` - Namespace to create the Kubernetes Deployment in.
 ///
 /// Note: It is assumed the resource does not already exists for simplicity. Returns an `Error` if it does.
-pub async fn _deploy(
+pub async fn deploy(
     client: Client,
     name: &str,
     replicas: i32,
@@ -76,7 +76,7 @@ pub async fn _deploy(
 /// - `namespace` - Namespace the existing deployment resides in
 ///
 /// Note: It is assumed the deployment exists for simplicity. Otherwise returns an Error.
-pub async fn _delete(client: Client, name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, name: &str, namespace: &str) -> Result<(), Error> {
     let api: Api<Deployment> = Api::namespaced(client, namespace);
     api.delete(name, &DeleteParams::default()).await?;
     Ok(())

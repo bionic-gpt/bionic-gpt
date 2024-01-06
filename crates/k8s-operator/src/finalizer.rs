@@ -12,7 +12,7 @@ use serde_json::{json, Value};
 /// - `namespace` - Namespace where the `Echo` resource with given `name` resides.
 ///
 /// Note: Does not check for resource's existence for simplicity.
-pub async fn _add(client: Client, name: &str, namespace: &str) -> Result<Bionic, Error> {
+pub async fn add(client: Client, name: &str, namespace: &str) -> Result<Bionic, Error> {
     let api: Api<Bionic> = Api::namespaced(client, namespace);
     let finalizer: Value = json!({
         "metadata": {
@@ -33,7 +33,7 @@ pub async fn _add(client: Client, name: &str, namespace: &str) -> Result<Bionic,
 /// - `namespace` - Namespace where the `Echo` resource with given `name` resides.
 ///
 /// Note: Does not check for resource's existence for simplicity.
-pub async fn _delete(client: Client, name: &str, namespace: &str) -> Result<Bionic, Error> {
+pub async fn delete(client: Client, name: &str, namespace: &str) -> Result<Bionic, Error> {
     let api: Api<Bionic> = Api::namespaced(client, namespace);
     let finalizer: Value = json!({
         "metadata": {
