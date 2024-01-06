@@ -1,0 +1,9 @@
+apiVersion: bionic-gpt.com/v1
+kind: Bionic
+metadata:
+  name: bionic-gpt
+  # Namespace must exist and account in KUBECONFIG must have sufficient permissions
+  namespace: default 
+spec:
+  # Number of "Echo" pods created.
+  replicas: 1 

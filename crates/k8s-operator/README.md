@@ -6,6 +6,14 @@
 
 `kubectl get crds`
 
+## Install Bionic
+
+`kubectl apply -f crates/k8s-operator/bionic.yaml`
+
 ## Run the operator
 
 `cargo run --bin k8s-operator`
+
+## Remove Bionic
+
+`kubectl delete -f crates/k8s-operator/bionic.yaml`
