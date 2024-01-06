@@ -12,7 +12,8 @@ kube = { version = "0.87.2", features = ["runtime", "derive"] }
 k8s-openapi = { version = "0.20.0", features = ["latest"] }
 kube-derive = "0" # Support for Custom Resource Definitions
 kube-runtime = "0" # Custom controller support
-futures = "~0.3"
+futures = "0.3"
+futures-util = "0.3"
 # All serde dependencies are used to serialize/deserialize CRDs and other Kubernetes-related structs
 serde = "1"
 serde_json = "1"
@@ -23,5 +24,3 @@ thiserror = "1"
 tracing = "0"
 tracing-subscriber = { version="0", features = ["env-filter"] }
 anyhow = "1.0.44"
-garde = { version = "0", default-features = false, features = ["derive"] }
-either = "1.6.1"
