@@ -44,7 +44,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
     let namespace: String = match bionic.namespace() {
         None => {
             // If there is no namespace to deploy to defined, reconciliation ends with an error immediately.
-            return Err(Error::UserInputError(
+            return Err(Error::UserInput(
                 "Expected Bionic resource to be namespaced. Can't deploy to an unknown namespace."
                     .to_owned(),
             ));
