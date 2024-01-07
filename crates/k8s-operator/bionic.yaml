@@ -1,0 +1,14 @@
+apiVersion: bionic-gpt.com/v1
+kind: Bionic
+metadata:
+  name: bionic-gpt
+  namespace: default 
+spec:
+  replicas: 1 
+  version: 1.5.11
+  # Image hashes to protect against supply chain attacks.
+  hash-bionicgpt: sha256:17f9a0e11fe055f1e9a3f3031827fdf3aa40e3b466f6377957cf627a1fd42c50
+  hash-bionicgpt-envoy: sha256:c34763f0f2be4004d283a319de21dfe348eeffc3f57f0020b0aa2a0bd7bd9380
+  hash-bionicgpt-pipeline-job: sha256:1f0293b9a9ca37fa14283f3637e2af12351dd50e8234443bf35af92524160904
+  hash-bionicgpt-db-migrations: sha256:86bde1c5c3e4cbe15de388937961cc274cf13e018c79c7fe70305ed0ea1c0e4b
+  hash-bionicgpt-keycloak: sha256:f6513eac0b4a7245444eab476943a5ffffe4b466448e617f3e2950510733991e

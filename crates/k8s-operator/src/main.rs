@@ -1,5 +1,6 @@
 mod bionic;
 mod crd;
+mod deployment;
 mod error;
 mod finalizer;
 mod reconcile;

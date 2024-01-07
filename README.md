@@ -41,13 +41,13 @@
     - [ ] Connect to stable diffusion
 - [x] Authentication
     - [x] Email/Password sign in and registration
-    - [ ] SSO
+    - [x] SSO
 - [x] Teams
     - [x] Invite Team Members
     - [x] Manage the teams you belong to
     - [x] Create new teams
     - [x] Switch between teams
-    - [ ] RBAC
+    - [x] RBAC
 - [x] Document Management
     - [x] Document Upload
     - [x] Allow user to create datasets
@@ -84,7 +84,7 @@
 - [x] Deployment
     - [x] Docker compose so people can test quickly.
     - [x] Kubernetes deployment strategy.
-    - [ ] Kubernetes bionicgpt.yaml
+    - [ ] Kubernetes Operator
     - [ ] Hardware recommendations.
 
 See the [open issues](https://github.com/purton-tech/bionicgpt/issues) for a full list of proposed features (and known issues).
