@@ -37,6 +37,7 @@ pub async fn deploy(
                 json!({"name": "POSTGRES_DB", "value": "keycloak"}),
             ],
             init_container: None,
+            command: None,
         },
         namespace,
     )
@@ -64,7 +65,8 @@ pub async fn deploy(
                     "value": 
                     "postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
                 })]
-            })
+            }),
+            command: None
         },
         namespace,
     )

@@ -3,6 +3,7 @@ mod crd;
 mod deployment;
 mod error;
 mod finalizer;
+mod keycloak;
 mod reconcile;
 use anyhow::Result;
 use crd::Bionic;
