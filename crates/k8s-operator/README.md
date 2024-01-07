@@ -22,14 +22,6 @@
 
 `kubectl delete -f crates/k8s-operator/bionics.bionic-gpt.com.yaml`
 
-## Remove the cluster
+## Bounce the Cluster
 
-kind delete cluster --name bionic-gpt-cluster
-
-## Create the cluster
-
-`kind create cluster --name bionic-gpt-cluster --config=crates/k8s-operator/kind-config.yaml`
-
-`kind export kubeconfig --name bionic-gpt-cluster`
-
-`sed -i 's,https://0.0.0.0,https://host.docker.internal,g' ~/.kube/config`
+`crates/k8s-operator/bounce-cluster.sh`

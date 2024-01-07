@@ -34,6 +34,12 @@ spec:
                   type: string
                 hash-bionicgpt-db-migrations:
                   type: string
+                bionicgpt-image:
+                  type: string
+                bionicgpt-pipeline-job-image:
+                  type: string
+                bionicgpt-db-migrations-image:
+                  type: string
                 keycloak-image:
                   type: string
                 envoyproxy-image:
@@ -50,4 +56,17 @@ spec:
                   type: string
                 tgi-image:
                   type: string
-              required: ["replicas"]
+              required:
+              - replicas
+              - version
+              - hash-bionicgpt
+              - hash-bionicgpt-pipeline-job
+              - hash-bionicgpt-db-migrations
+              - bionicgpt-image
+              - bionicgpt-pipeline-job-image
+              - bionicgpt-db-migrations-image
+              - envoyproxy-image
+              - unstructured-image
+              - embeddings-image
+              - oauth2-proxy-image
+              - postgres-pgvector-image

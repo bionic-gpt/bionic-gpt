@@ -5,7 +5,7 @@ use kube::{
     api::{Api, PostParams},
     Client,
 };
-use serde_json::Value;
+use serde_json::{json, Value};
 
 pub struct InitContainer {
     pub image_name: String,
@@ -33,6 +33,19 @@ pub async fn deployment(
         "component": service_deployment.name
     });
 
+    let init_containers: Vec<Value> =
+        if let Some(init_container) = service_deployment.init_container {
+            vec![json!({
+                "name": "init",
+                "image": init_container.image_name,
+                "env": init_container.env
+            })]
+        } else {
+            vec![]
+        };
+
+    dbg!(&init_containers);
+
     // Create the Deployment object
     let deployment = serde_json::from_value(serde_json::json!({
         "apiVersion": "apps/v1",
@@ -52,7 +65,7 @@ pub async fn deployment(
                     "labels": app_labels
                 },
                 "spec": {
-                    //"initContainers": [init_container],
+                    "initContainers": init_containers,
                     "containers": [
                         {
                             "name": service_deployment.name,

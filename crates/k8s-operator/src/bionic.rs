@@ -1,3 +1,4 @@
+use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
@@ -19,7 +20,7 @@ use serde_json::json;
 pub async fn deploy(
     client: Client,
     _name: &str,
-    replicas: i32,
+    spec: BionicSpec,
     namespace: &str,
 ) -> Result<(), Error> {
     // First Postgres with pgVector
@@ -28,7 +29,7 @@ pub async fn deploy(
         deployment::ServiceDeployment {
             name: "postgres".to_string(),
             image_name: "ankane/pgvector".to_string(),
-            replicas,
+            replicas: spec.replicas,
             port: 5432,
             env: vec![
                 json!({"name": "POSTGRES_PASSWORD", "value": "testpassword"}),
@@ -47,7 +48,7 @@ pub async fn deploy(
         deployment::ServiceDeployment {
             name: "bionic-gpt".to_string(),
             image_name: "ghcr.io/bionic-gpt/bionicgpt:1.5.12".to_string(),
-            replicas,
+            replicas: spec.replicas,
             port: 7703,
             env: vec![json!({
                 "name": 
@@ -56,7 +57,7 @@ pub async fn deploy(
                 "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
             })],
             init_container: Some(deployment::InitContainer {
-                image_name: "".to_string(),
+                image_name: spec.bionicgpt_db_migrations_image,
                 env: vec![json!({
                     "name": 
                     "DATABASE_URL", 
