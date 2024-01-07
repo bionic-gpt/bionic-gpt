@@ -17,3 +17,11 @@
 ## Remove Bionic
 
 `kubectl delete -f crates/k8s-operator/bionic.yaml`
+
+## To remove the CRD in Kubernetes
+
+`kubectl delete -f crates/k8s-operator/bionics.bionic-gpt.com.yaml`
+
+## Bounce the Cluster
+
+`crates/k8s-operator/bounce-cluster.sh`
