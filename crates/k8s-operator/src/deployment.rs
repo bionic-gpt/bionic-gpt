@@ -12,39 +12,48 @@ pub async fn _deployment(
     client: Client,
     name: &str,
     replicas: i32,
+    image_name: String,
+    port: u16,
     namespace: &str,
 ) -> Result<Deployment, Error> {
+    /***let init_container = serde_json::json!({
+        "name": "init-container",
+        "image": "busybox:latest",
+        "command": ["sh", "-c", "echo Initializing... && sleep 10"]
+    });**/
+
+    let app_labels = serde_json::json!({
+        "app": name,
+        "component": name
+    });
+
     // Create the Deployment object
     let deployment = serde_json::from_value(serde_json::json!({
         "apiVersion": "apps/v1",
         "kind": "Deployment",
         "metadata": {
             "name": name,
-            "labels": {
-                "app": name
-            }
+            "labels": app_labels,
+            "namespace": namespace
         },
         "spec": {
             "replicas": replicas,
             "selector": {
-                "matchLabels": {
-                    "app": name
-                }
+                "matchLabels": app_labels
             },
             "template": {
                 "metadata": {
-                    "labels": {
-                        "app": name
-                    }
+                    "labels": app_labels
                 },
                 "spec": {
+                    //"initContainers": [init_container],
                     "containers": [
                         {
-                            "name": "example-container",
-                            "image": "nginx:latest",
+                            "name": name,
+                            "image": image_name,
                             "ports": [
                                 {
-                                    "containerPort": 80
+                                    "containerPort": port
                                 }
                             ]
                         }
@@ -64,46 +73,28 @@ pub async fn _deployment(
 pub async fn _service(
     client: Client,
     name: &str,
-    replicas: i32,
+    port_number: u16,
     namespace: &str,
 ) -> Result<Service, Error> {
     // Create the Deployment object
     let service = serde_json::from_value(serde_json::json!({
-        "apiVersion": "apps/v1",
-        "kind": "Deployment",
+        "apiVersion": "v1",
+        "kind": "Service",
         "metadata": {
             "name": name,
-            "labels": {
-                "app": name
-            }
+            "namespace": namespace
         },
         "spec": {
-            "replicas": replicas,
             "selector": {
-                "matchLabels": {
-                    "app": name
-                }
+                "app": name
             },
-            "template": {
-                "metadata": {
-                    "labels": {
-                        "app": name
-                    }
-                },
-                "spec": {
-                    "containers": [
-                        {
-                            "name": "example-container",
-                            "image": "nginx:latest",
-                            "ports": [
-                                {
-                                    "containerPort": 80
-                                }
-                            ]
-                        }
-                    ]
+            "ports": [
+                {
+                    "protocol": "TCP",
+                    "port": port_number,
+                    "targetPort": port_number
                 }
-            }
+            ]
         }
     }))?;
 
