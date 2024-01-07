@@ -22,4 +22,7 @@ pub struct BionicSpec {
     pub bionicgpt_pipeline_job_image: String,
     #[serde(rename = "bionicgpt-db-migrations-image")]
     pub bionicgpt_db_migrations_image: String,
+
+    #[serde(rename = "keycloak-image")]
+    pub keycloak_image: String,
 }
