@@ -8,11 +8,12 @@ use kube::{
 
 /// Create a deployment and a service.
 /// Include sidecars if needed.
-pub async fn _deployment(
+pub async fn deployment(
     client: Client,
+    crd_name: &str,
     name: &str,
     replicas: i32,
-    image_name: String,
+    image_name: &str,
     port: u16,
     namespace: &str,
 ) -> Result<Deployment, Error> {
@@ -21,6 +22,7 @@ pub async fn _deployment(
         "image": "busybox:latest",
         "command": ["sh", "-c", "echo Initializing... && sleep 10"]
     });**/
+    let name = format!("{crd_name}-{name}");
 
     let app_labels = serde_json::json!({
         "app": name,
