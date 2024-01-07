@@ -19,6 +19,7 @@ pub struct ServiceDeployment {
     pub port: u16,
     pub env: Vec<Value>,
     pub init_container: Option<InitContainer>,
+    pub command: Option<Vec<String>>,
 }
 
 /// Create a deployment and a service.

@@ -18,9 +18,9 @@ spec:
   hash-bionicgpt-db-migrations: sha256:8224f46061353ef7b913f29d681a237a500b2ff5882c80ac74bf5e9c70815375
   
   # The provided by Bionic-GPT
-  bionicgpt-image: bionicgpt
-  bionicgpt-pipeline-job-image: bionicgpt-pipeline-job
-  bionicgpt-db-migrations-image: bionicgpt-db-migrations
+  bionicgpt-image: ghcr.io/bionic-gpt/bionicgpt:1.5.13
+  bionicgpt-pipeline-job-image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.5.13
+  bionicgpt-db-migrations-image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.5.13
 
   # Open source dependencies
   keycloak-image: quay.io/keycloak/keycloak:23.0
