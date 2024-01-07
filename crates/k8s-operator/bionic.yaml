@@ -6,9 +6,21 @@ metadata:
 spec:
   replicas: 1 
   version: 1.5.12
+  
+  # Enterprise Options
+  # enterprise-key: EMAIL_US_FOR_A_KEY
+  # enterprise-user: your_email@your_work_address.com
+  # enterprise-expiry: Expiry date of your key (For trial users)
+
   # Image hashes to protect against supply chain attacks.
   hash-bionicgpt: sha256:ad6e7622155236f2fe8fd394d31ad6394e226260c3d6ccd37eec5714506d9054
-  hash-bionicgpt-envoy: sha256:355af2e0ba51ac1b029ca497943c9ddde3a95b2ada0c4835c0584d4cc8b41feb
   hash-bionicgpt-pipeline-job: sha256:362c74849b8d48f78461dd00db615c8db59f5554ed8e49f6d402465e7fd0000e
   hash-bionicgpt-db-migrations: sha256:0c488c90e613899c9c67867bbb3f518f3d2187a4af814cae330f85bf85dfbd95
-  hash-bionicgpt-keycloak: sha256:88d00e6fd464e204e5af92cd82a90ae0af998a5e5a396476dcd30e4eacc7ecef
+
+  # Open source dependencies
+  unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
+  embeddings-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
+  oauth2-proxy-image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
+  keycloak-image: quay.io/keycloak/keycloak:23.0
+  envoyproxy-image: envoyproxy/envoy:v1.28.0
+  postgres-pgvector-image: ankane/pgvector

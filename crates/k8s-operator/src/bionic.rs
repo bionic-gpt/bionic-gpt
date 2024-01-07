@@ -1,6 +1,7 @@
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
+use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
 use serde_json::json;
@@ -34,6 +35,7 @@ pub async fn deploy(
                 json!({"name": "POSTGRES_USER", "value": "postgres"}),
                 json!({"name": "POSTGRES_DB", "value": "keycloak"}),
             ],
+            init_container: None,
         },
         namespace,
     )
@@ -44,10 +46,24 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "bionic-gpt".to_string(),
-            image_name: "ankane/pgvector".to_string(),
+            image_name: "ghcr.io/bionic-gpt/bionicgpt:1.5.12".to_string(),
             replicas,
             port: 7703,
-            env: vec![json!({"name": "APP_DATABASE_URL", "value": "testpassword"})],
+            env: vec![json!({
+                "name": 
+                "APP_DATABASE_URL", 
+                "value": 
+                "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
+            })],
+            init_container: Some(deployment::InitContainer {
+                image_name: "".to_string(),
+                env: vec![json!({
+                    "name": 
+                    "DATABASE_URL", 
+                    "value": 
+                    "postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
+                })]
+            })
         },
         namespace,
     )
@@ -65,7 +81,14 @@ pub async fn deploy(
 ///
 /// Note: It is assumed the deployment exists for simplicity. Otherwise returns an Error.
 pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
-    let api: Api<Deployment> = Api::namespaced(client, namespace);
+    // Remove deployments
+    let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete("postgres", &DeleteParams::default()).await?;
+    api.delete("bionic-gpt", &DeleteParams::default()).await?;
+
+    // Remove services
+    let api: Api<Service> = Api::namespaced(client, namespace);
+    api.delete("postgres", &DeleteParams::default()).await?;
+    api.delete("bionic-gpt", &DeleteParams::default()).await?;
     Ok(())
 }

@@ -26,4 +26,22 @@ spec:
                 replicas:
                   type: integer
                   format: int32
+                version:
+                  type: string
+                hash-bionicgpt:
+                  type: string
+                hash-bionicgpt-pipeline-job:
+                  type: string
+                hash-bionicgpt-db-migrations:
+                  type: string
+                keycloak-image:
+                  type: string
+                envoyproxy-image:
+                  type: string
+                unstructured-image:
+                  type: string
+                embeddings-image:
+                  type: string
+                oauth2-proxy-image:
+                  type: string
               required: ["replicas"]

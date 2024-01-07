@@ -7,12 +7,18 @@ use kube::{
 };
 use serde_json::Value;
 
+pub struct InitContainer {
+    pub image_name: String,
+    pub env: Vec<Value>,
+}
+
 pub struct ServiceDeployment {
     pub name: String,
     pub replicas: i32,
     pub image_name: String,
     pub port: u16,
     pub env: Vec<Value>,
+    pub init_container: Option<InitContainer>,
 }
 
 /// Create a deployment and a service.
@@ -21,13 +27,7 @@ pub async fn deployment(
     client: Client,
     service_deployment: ServiceDeployment,
     namespace: &str,
-) -> Result<Deployment, Error> {
-    /***let init_container = serde_json::json!({
-        "name": "init-container",
-        "image": "busybox:latest",
-        "command": ["sh", "-c", "echo Initializing... && sleep 10"]
-    });**/
-
+) -> Result<(), Error> {
     let app_labels = serde_json::json!({
         "app": service_deployment.name,
         "component": service_deployment.name
@@ -71,13 +71,23 @@ pub async fn deployment(
     }))?;
 
     // Create the deployment defined above
-    let deployment_api: Api<Deployment> = Api::namespaced(client, namespace);
-    Ok(deployment_api
+    let deployment_api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
+    deployment_api
         .create(&PostParams::default(), &deployment)
-        .await?)
+        .await?;
+
+    service(
+        client,
+        &service_deployment.name,
+        service_deployment.port,
+        namespace,
+    )
+    .await?;
+
+    Ok(())
 }
 
-pub async fn _service(
+pub async fn service(
     client: Client,
     name: &str,
     port_number: u16,
