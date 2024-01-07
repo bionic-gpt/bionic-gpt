@@ -38,22 +38,8 @@ enum BionicAction {
 pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result<Action, Error> {
     let client: Client = context.client.clone(); // The `Client` is shared -> a clone from the reference is obtained
 
-    // The resource of `Bionic` kind is required to have a namespace set. However, it is not guaranteed
-    // the resource will have a `namespace` set. Therefore, the `namespace` field on object's metadata
-    // is optional and Rust forces the programmer to check for it's existence first.
-    let namespace: String = match bionic.namespace() {
-        None => {
-            // If there is no namespace to deploy to defined, reconciliation ends with an error immediately.
-            return Err(Error::UserInput(
-                "Expected Bionic resource to be namespaced. Can't deploy to an unknown namespace."
-                    .to_owned(),
-            ));
-        }
-        // If namespace is known, proceed. In a more advanced version of the operator, perhaps
-        // the namespace could be checked for existence first.
-        Some(namespace) => namespace,
-    };
-    let name = bionic.name_any(); // Name of the Bionic resource is used to name the subresources as well.
+    let namespace: String = bionic.namespace().unwrap_or("default".to_string());
+    let name = bionic.name_any();
 
     // Performs action as decided by the `determine_action` function.
     match determine_action(&bionic) {
@@ -67,7 +53,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // of `kube::Error` to the `Error` defined in this crate.
             finalizer::add(client.clone(), &name, &namespace).await?;
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
-            bionic::deploy(client, &name, bionic.spec.replicas, &namespace).await?;
+            bionic::deploy(client, &name, bionic.spec.clone(), &namespace).await?;
             Ok(Action::requeue(Duration::from_secs(10)))
         }
         BionicAction::Delete => {
