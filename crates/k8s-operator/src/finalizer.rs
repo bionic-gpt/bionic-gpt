@@ -16,7 +16,7 @@ pub async fn add(client: Client, name: &str, namespace: &str) -> Result<Bionic, 
     let api: Api<Bionic> = Api::namespaced(client, namespace);
     let finalizer: Value = json!({
         "metadata": {
-            "finalizers": ["echoes.example.com/finalizer"]
+            "finalizers": ["bionics.bionic-gpt.com/finalizer"]
         }
     });
 

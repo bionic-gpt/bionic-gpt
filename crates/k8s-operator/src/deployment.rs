@@ -5,7 +5,12 @@ use kube::{
     api::{Api, PostParams},
     Client,
 };
-use serde_json::Value;
+use serde_json::{json, Value};
+
+pub struct InitContainer {
+    pub image_name: String,
+    pub env: Vec<Value>,
+}
 
 pub struct ServiceDeployment {
     pub name: String,
@@ -13,6 +18,7 @@ pub struct ServiceDeployment {
     pub image_name: String,
     pub port: u16,
     pub env: Vec<Value>,
+    pub init_container: Option<InitContainer>,
 }
 
 /// Create a deployment and a service.
@@ -21,17 +27,24 @@ pub async fn deployment(
     client: Client,
     service_deployment: ServiceDeployment,
     namespace: &str,
-) -> Result<Deployment, Error> {
-    /***let init_container = serde_json::json!({
-        "name": "init-container",
-        "image": "busybox:latest",
-        "command": ["sh", "-c", "echo Initializing... && sleep 10"]
-    });**/
-
+) -> Result<(), Error> {
     let app_labels = serde_json::json!({
         "app": service_deployment.name,
         "component": service_deployment.name
     });
+
+    let init_containers: Vec<Value> =
+        if let Some(init_container) = service_deployment.init_container {
+            vec![json!({
+                "name": "init",
+                "image": init_container.image_name,
+                "env": init_container.env
+            })]
+        } else {
+            vec![]
+        };
+
+    dbg!(&init_containers);
 
     // Create the Deployment object
     let deployment = serde_json::from_value(serde_json::json!({
@@ -52,7 +65,7 @@ pub async fn deployment(
                     "labels": app_labels
                 },
                 "spec": {
-                    //"initContainers": [init_container],
+                    "initContainers": init_containers,
                     "containers": [
                         {
                             "name": service_deployment.name,
@@ -71,13 +84,23 @@ pub async fn deployment(
     }))?;
 
     // Create the deployment defined above
-    let deployment_api: Api<Deployment> = Api::namespaced(client, namespace);
-    Ok(deployment_api
+    let deployment_api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
+    deployment_api
         .create(&PostParams::default(), &deployment)
-        .await?)
+        .await?;
+
+    service(
+        client,
+        &service_deployment.name,
+        service_deployment.port,
+        namespace,
+    )
+    .await?;
+
+    Ok(())
 }
 
-pub async fn _service(
+pub async fn service(
     client: Client,
     name: &str,
     port_number: u16,

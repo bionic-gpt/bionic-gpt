@@ -16,4 +16,10 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct BionicSpec {
     pub replicas: i32,
+    #[serde(rename = "bionicgpt-image")]
+    pub bionicgpt_image: String,
+    #[serde(rename = "bionicgpt-pipeline-job-image")]
+    pub bionicgpt_pipeline_job_image: String,
+    #[serde(rename = "bionicgpt-db-migrations-image")]
+    pub bionicgpt_db_migrations_image: String,
 }

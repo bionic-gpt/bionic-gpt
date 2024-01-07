@@ -8,8 +8,8 @@ pub enum Error {
         source: kube::Error,
     },
     /// Error in user input or Bionic resource definition, typically missing fields.
-    #[error("Invalid Bionic CRD: {0}")]
-    UserInput(String),
+    //#[error("Invalid Bionic CRD: {0}")]
+    //UserInput(String),
     #[error("Invalid Kubernetes Yaml: {source}")]
     Yaml {
         #[from]
