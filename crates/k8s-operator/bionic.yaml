@@ -18,9 +18,11 @@ spec:
   hash-bionicgpt-db-migrations: sha256:0c488c90e613899c9c67867bbb3f518f3d2187a4af814cae330f85bf85dfbd95
 
   # Open source dependencies
+  keycloak-image: quay.io/keycloak/keycloak:23.0
+  envoyproxy-image: envoyproxy/envoy:v1.28.0
   unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
   embeddings-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
   oauth2-proxy-image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
-  keycloak-image: quay.io/keycloak/keycloak:23.0
-  envoyproxy-image: envoyproxy/envoy:v1.28.0
   postgres-pgvector-image: ankane/pgvector
+  lite-llm-image: ghcr.io/berriai/litellm:main-v1.10.3
+  tgi-image: ghcr.io/huggingface/text-generation-inference:1.2

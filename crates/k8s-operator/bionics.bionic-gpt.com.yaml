@@ -44,4 +44,10 @@ spec:
                   type: string
                 oauth2-proxy-image:
                   type: string
+                postgres-pgvector-image:
+                  type: string
+                lite-llm-image:
+                  type: string
+                tgi-image:
+                  type: string
               required: ["replicas"]
