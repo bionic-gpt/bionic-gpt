@@ -31,13 +31,15 @@ pub async fn _deploy(
                 json!({"name": "KC_HEALTH_ENABLED", "value": "true"}),
             ],
             init_container: None,
-            command: Some(vec![
-                "start-dev".to_string(),
-                "--import-realm".to_string(),
-                "--http-port=7910".to_string(),
-                "--proxy=edge".to_string(),
-                "--hostname=localhost:7910".to_string(),
-            ]),
+            command: Some(deployment::Command {
+                command: "start-dev".to_string(),
+                args: vec![
+                    "--import-realm".to_string(),
+                    "--http-port=7910".to_string(),
+                    "--proxy=edge".to_string(),
+                    "--hostname=localhost:7910".to_string(),
+                ],
+            }),
         },
         namespace,
     )

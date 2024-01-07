@@ -7,6 +7,11 @@ use kube::{
 };
 use serde_json::{json, Value};
 
+pub struct Command {
+    pub command: String,
+    pub args: Vec<String>,
+}
+
 pub struct InitContainer {
     pub image_name: String,
     pub env: Vec<Value>,
@@ -19,7 +24,7 @@ pub struct ServiceDeployment {
     pub port: u16,
     pub env: Vec<Value>,
     pub init_container: Option<InitContainer>,
-    pub command: Option<Vec<String>>,
+    pub command: Option<Command>,
 }
 
 /// Create a deployment and a service.
@@ -45,7 +50,27 @@ pub async fn deployment(
             vec![]
         };
 
-    dbg!(&init_containers);
+    let containers = if let Some(command) = service_deployment.command {
+        json!([{
+            "name": service_deployment.name,
+            "image": service_deployment.image_name,
+            "ports": [{
+                "containerPort": service_deployment.port
+            }],
+            "env": service_deployment.env,
+            "command": command.command,
+            "args": command.args
+        }])
+    } else {
+        json!([{
+            "name": service_deployment.name,
+            "image": service_deployment.image_name,
+            "ports": [{
+                "containerPort": service_deployment.port
+            }],
+            "env": service_deployment.env,
+        }])
+    };
 
     // Create the Deployment object
     let deployment = serde_json::from_value(serde_json::json!({
@@ -67,18 +92,7 @@ pub async fn deployment(
                 },
                 "spec": {
                     "initContainers": init_containers,
-                    "containers": [
-                        {
-                            "name": service_deployment.name,
-                            "image": service_deployment.image_name,
-                            "ports": [
-                                {
-                                    "containerPort": service_deployment.port
-                                }
-                            ],
-                            "env": service_deployment.env
-                        }
-                    ]
+                    "containers": containers
                 }
             }
         }
