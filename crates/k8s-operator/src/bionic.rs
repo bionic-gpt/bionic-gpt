@@ -3,6 +3,7 @@ use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
+use serde_json::json;
 
 /// Creates a new deployment of `n` pods with the `inanimate/echo-server:latest` docker image inside,
 /// where `n` is the number of `replicas` given.
@@ -16,17 +17,38 @@ use kube::{Api, Client};
 /// Note: It is assumed the resource does not already exists for simplicity. Returns an `Error` if it does.
 pub async fn deploy(
     client: Client,
-    name: &str,
+    _name: &str,
     replicas: i32,
     namespace: &str,
 ) -> Result<(), Error> {
+    // First Postgres with pgVector
     deployment::deployment(
-        client,
-        name,
-        "nginx",
-        replicas,
-        "nginx:latest",
-        80,
+        client.clone(),
+        deployment::ServiceDeployment {
+            name: "postgres".to_string(),
+            image_name: "ankane/pgvector".to_string(),
+            replicas,
+            port: 5432,
+            env: vec![
+                json!({"name": "POSTGRES_PASSWORD", "value": "testpassword"}),
+                json!({"name": "POSTGRES_USER", "value": "postgres"}),
+                json!({"name": "POSTGRES_DB", "value": "keycloak"}),
+            ],
+        },
+        namespace,
+    )
+    .await?;
+
+    // Bionic with the migrations as a sidecar
+    deployment::deployment(
+        client.clone(),
+        deployment::ServiceDeployment {
+            name: "bionic-gpt".to_string(),
+            image_name: "ankane/pgvector".to_string(),
+            replicas,
+            port: 7703,
+            env: vec![json!({"name": "APP_DATABASE_URL", "value": "testpassword"})],
+        },
         namespace,
     )
     .await?;
@@ -42,9 +64,8 @@ pub async fn deploy(
 /// - `namespace` - Namespace the existing deployment resides in
 ///
 /// Note: It is assumed the deployment exists for simplicity. Otherwise returns an Error.
-pub async fn delete(client: Client, name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
     let api: Api<Deployment> = Api::namespaced(client, namespace);
-    let name = format!("{name}-nginx");
-    api.delete(&name, &DeleteParams::default()).await?;
+    api.delete("postgres", &DeleteParams::default()).await?;
     Ok(())
 }

@@ -5,16 +5,21 @@ use kube::{
     api::{Api, PostParams},
     Client,
 };
+use serde_json::Value;
+
+pub struct ServiceDeployment {
+    pub name: String,
+    pub replicas: i32,
+    pub image_name: String,
+    pub port: u16,
+    pub env: Vec<Value>,
+}
 
 /// Create a deployment and a service.
 /// Include sidecars if needed.
 pub async fn deployment(
     client: Client,
-    crd_name: &str,
-    name: &str,
-    replicas: i32,
-    image_name: &str,
-    port: u16,
+    service_deployment: ServiceDeployment,
     namespace: &str,
 ) -> Result<Deployment, Error> {
     /***let init_container = serde_json::json!({
@@ -22,11 +27,10 @@ pub async fn deployment(
         "image": "busybox:latest",
         "command": ["sh", "-c", "echo Initializing... && sleep 10"]
     });**/
-    let name = format!("{crd_name}-{name}");
 
     let app_labels = serde_json::json!({
-        "app": name,
-        "component": name
+        "app": service_deployment.name,
+        "component": service_deployment.name
     });
 
     // Create the Deployment object
@@ -34,12 +38,12 @@ pub async fn deployment(
         "apiVersion": "apps/v1",
         "kind": "Deployment",
         "metadata": {
-            "name": name,
+            "name": service_deployment.name,
             "labels": app_labels,
             "namespace": namespace
         },
         "spec": {
-            "replicas": replicas,
+            "replicas": service_deployment.replicas,
             "selector": {
                 "matchLabels": app_labels
             },
@@ -51,13 +55,14 @@ pub async fn deployment(
                     //"initContainers": [init_container],
                     "containers": [
                         {
-                            "name": name,
-                            "image": image_name,
+                            "name": service_deployment.name,
+                            "image": service_deployment.image_name,
                             "ports": [
                                 {
-                                    "containerPort": port
+                                    "containerPort": service_deployment.port
                                 }
-                            ]
+                            ],
+                            "env": service_deployment.env
                         }
                     ]
                 }
