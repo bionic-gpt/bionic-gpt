@@ -7,6 +7,11 @@ use kube::{
 };
 use serde_json::{json, Value};
 
+pub struct Command {
+    pub command: Vec<String>,
+    pub args: Vec<String>,
+}
+
 pub struct InitContainer {
     pub image_name: String,
     pub env: Vec<Value>,
@@ -19,7 +24,10 @@ pub struct ServiceDeployment {
     pub port: u16,
     pub env: Vec<Value>,
     pub init_container: Option<InitContainer>,
-    pub command: Option<Vec<String>>,
+    pub command: Option<Command>,
+    pub volume_mounts: Vec<Value>,
+    pub volumes: Vec<Value>,
+    pub expose_service: bool,
 }
 
 /// Create a deployment and a service.
@@ -45,7 +53,29 @@ pub async fn deployment(
             vec![]
         };
 
-    dbg!(&init_containers);
+    let containers = if let Some(command) = service_deployment.command {
+        json!([{
+            "name": service_deployment.name,
+            "image": service_deployment.image_name,
+            "ports": [{
+                "containerPort": service_deployment.port
+            }],
+            "env": service_deployment.env,
+            "volumeMounts": service_deployment.volume_mounts,
+            "command": command.command,
+            "args": command.args
+        }])
+    } else {
+        json!([{
+            "name": service_deployment.name,
+            "image": service_deployment.image_name,
+            "ports": [{
+                "containerPort": service_deployment.port
+            }],
+            "env": service_deployment.env,
+            "volumeMounts": service_deployment.volume_mounts,
+        }])
+    };
 
     // Create the Deployment object
     let deployment = serde_json::from_value(serde_json::json!({
@@ -67,18 +97,8 @@ pub async fn deployment(
                 },
                 "spec": {
                     "initContainers": init_containers,
-                    "containers": [
-                        {
-                            "name": service_deployment.name,
-                            "image": service_deployment.image_name,
-                            "ports": [
-                                {
-                                    "containerPort": service_deployment.port
-                                }
-                            ],
-                            "env": service_deployment.env
-                        }
-                    ]
+                    "containers": containers,
+                    "volumes": service_deployment.volumes,
                 }
             }
         }
@@ -95,6 +115,7 @@ pub async fn deployment(
         &service_deployment.name,
         service_deployment.port,
         namespace,
+        service_deployment.expose_service,
     )
     .await?;
 
@@ -106,8 +127,16 @@ pub async fn service(
     name: &str,
     port_number: u16,
     namespace: &str,
+    expose_service: bool,
 ) -> Result<Service, Error> {
     // Create the Deployment object
+
+    let service_type = if expose_service {
+        "NodePort"
+    } else {
+        "ClusterIP"
+    };
+
     let service = serde_json::from_value(serde_json::json!({
         "apiVersion": "v1",
         "kind": "Service",
@@ -116,6 +145,7 @@ pub async fn service(
             "namespace": namespace
         },
         "spec": {
+            "type": service_type,
             "selector": {
                 "app": name
             },

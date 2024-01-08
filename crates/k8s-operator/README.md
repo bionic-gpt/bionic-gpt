@@ -25,3 +25,7 @@
 ## Bounce the Cluster
 
 `crates/k8s-operator/bounce-cluster.sh`
+
+## Forward Keycloak Port
+
+`kubectl port-forward svc/keycloak 7910:7910`
