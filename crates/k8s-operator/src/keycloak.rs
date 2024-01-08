@@ -2,17 +2,35 @@ use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::Service;
-use kube::api::DeleteParams;
+use k8s_openapi::api::core::v1::{ConfigMap, Service};
+use kube::api::{DeleteParams, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
-pub async fn _deploy(
+const REALM_JSON: &str = include_str!("../keycloak/realm.json");
+
+pub async fn deploy(
     client: Client,
     _name: &str,
     spec: BionicSpec,
     namespace: &str,
 ) -> Result<(), Error> {
+    // Put the real.json into a ConfigMap
+    let config_map = serde_json::from_value(serde_json::json!({
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+            "name": "keycloak",
+            "namespace": namespace
+        },
+        "data": {
+            "realm.json": REALM_JSON,
+        }
+    }))?;
+
+    let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
+    api.create(&PostParams::default(), &config_map).await?;
+
     // Keycloak
     deployment::deployment(
         client.clone(),
@@ -31,13 +49,25 @@ pub async fn _deploy(
                 json!({"name": "KC_HEALTH_ENABLED", "value": "true"}),
             ],
             init_container: None,
-            command: Some(vec![
-                "start-dev".to_string(),
-                "--import-realm".to_string(),
-                "--http-port=7910".to_string(),
-                "--proxy=edge".to_string(),
-                "--hostname=localhost:7910".to_string(),
-            ]),
+            command: Some(deployment::Command {
+                command: vec![],
+                args: vec![
+                    "start-dev".to_string(),
+                    "--import-realm".to_string(),
+                    "--http-port=7910".to_string(),
+                    "--proxy=edge".to_string(),
+                    "--hostname=localhost:7910".to_string(),
+                ],
+            }),
+            expose_service: true,
+            volume_mounts: vec![
+                json!({"name": "keycloak-config", "mountPath": "/opt/keycloak/data/import"}),
+            ],
+            volumes: vec![json!({"name": "keycloak-config",
+                "configMap": {
+                    "name": "keycloak"
+                }
+            })],
         },
         namespace,
     )
@@ -46,21 +76,18 @@ pub async fn _deploy(
     Ok(())
 }
 
-/// Deletes an existing deployment.
-///
-/// # Arguments:
-/// - `client` - A Kubernetes client to delete the Deployment with
-/// - `name` - Name of the deployment to delete
-/// - `namespace` - Namespace the existing deployment resides in
-///
-/// Note: It is assumed the deployment exists for simplicity. Otherwise returns an Error.
-pub async fn _delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete("keycloak", &DeleteParams::default()).await?;
 
     // Remove services
-    let api: Api<Service> = Api::namespaced(client, namespace);
+    let api: Api<Service> = Api::namespaced(client.clone(), namespace);
     api.delete("keycloak", &DeleteParams::default()).await?;
+
+    // Remove configmaps
+    let api: Api<ConfigMap> = Api::namespaced(client, namespace);
+    api.delete("keycloak", &DeleteParams::default()).await?;
+
     Ok(())
 }
