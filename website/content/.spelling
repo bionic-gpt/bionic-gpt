@@ -157,6 +157,8 @@ gpt3.5.
 github
 RBAC
 enum
+CRD
+ConfigMaps
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
