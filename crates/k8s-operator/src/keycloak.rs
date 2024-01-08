@@ -7,7 +7,7 @@ use kube::api::DeleteParams;
 use kube::{Api, Client};
 use serde_json::json;
 
-pub async fn _deploy(
+pub async fn deploy(
     client: Client,
     _name: &str,
     spec: BionicSpec,
@@ -32,14 +32,16 @@ pub async fn _deploy(
             ],
             init_container: None,
             command: Some(deployment::Command {
-                command: "start-dev".to_string(),
+                command: vec![],
                 args: vec![
-                    "--import-realm".to_string(),
+                    "start-dev".to_string(),
+                    //"--import-realm".to_string(),
                     "--http-port=7910".to_string(),
                     "--proxy=edge".to_string(),
                     "--hostname=localhost:7910".to_string(),
                 ],
             }),
+            expose_service: true,
         },
         namespace,
     )
@@ -48,15 +50,7 @@ pub async fn _deploy(
     Ok(())
 }
 
-/// Deletes an existing deployment.
-///
-/// # Arguments:
-/// - `client` - A Kubernetes client to delete the Deployment with
-/// - `name` - Name of the deployment to delete
-/// - `namespace` - Namespace the existing deployment resides in
-///
-/// Note: It is assumed the deployment exists for simplicity. Otherwise returns an Error.
-pub async fn _delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete("keycloak", &DeleteParams::default()).await?;

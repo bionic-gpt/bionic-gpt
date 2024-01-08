@@ -8,7 +8,7 @@ use kube::{
 use serde_json::{json, Value};
 
 pub struct Command {
-    pub command: String,
+    pub command: Vec<String>,
     pub args: Vec<String>,
 }
 
@@ -25,6 +25,7 @@ pub struct ServiceDeployment {
     pub env: Vec<Value>,
     pub init_container: Option<InitContainer>,
     pub command: Option<Command>,
+    pub expose_service: bool,
 }
 
 /// Create a deployment and a service.
@@ -109,6 +110,7 @@ pub async fn deployment(
         &service_deployment.name,
         service_deployment.port,
         namespace,
+        service_deployment.expose_service,
     )
     .await?;
 
@@ -120,8 +122,16 @@ pub async fn service(
     name: &str,
     port_number: u16,
     namespace: &str,
+    expose_service: bool,
 ) -> Result<Service, Error> {
     // Create the Deployment object
+
+    let service_type = if expose_service {
+        "NodePort"
+    } else {
+        "ClusterIP"
+    };
+
     let service = serde_json::from_value(serde_json::json!({
         "apiVersion": "v1",
         "kind": "Service",
@@ -130,6 +140,7 @@ pub async fn service(
             "namespace": namespace
         },
         "spec": {
+            "type": service_type,
             "selector": {
                 "app": name
             },

@@ -2,6 +2,7 @@ use crate::bionic;
 use crate::crd::Bionic;
 use crate::error::Error;
 use crate::finalizer;
+use crate::keycloak;
 use kube::Client;
 use kube::Resource;
 use kube::ResourceExt;
@@ -53,7 +54,8 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // of `kube::Error` to the `Error` defined in this crate.
             finalizer::add(client.clone(), &name, &namespace).await?;
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
-            bionic::deploy(client, &name, bionic.spec.clone(), &namespace).await?;
+            bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            keycloak::deploy(client, &name, bionic.spec.clone(), &namespace).await?;
             Ok(Action::requeue(Duration::from_secs(10)))
         }
         BionicAction::Delete => {
@@ -64,6 +66,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // automatically converted into `Error` defined in this crate and the reconciliation is ended
             // with that error.
             // Note: A more advanced implementation would check for the Deployment's existence.
+            keycloak::delete(client.clone(), &name, &namespace).await?;
             bionic::delete(client.clone(), &name, &namespace).await?;
 
             // Once the deployment is successfully removed, remove the finalizer to make it possible

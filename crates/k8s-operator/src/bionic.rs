@@ -38,6 +38,7 @@ pub async fn deploy(
             ],
             init_container: None,
             command: None,
+            expose_service: false,
         },
         namespace,
     )
@@ -66,7 +67,8 @@ pub async fn deploy(
                     "postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
                 })]
             }),
-            command: None
+            command: None,
+            expose_service: false
         },
         namespace,
     )
