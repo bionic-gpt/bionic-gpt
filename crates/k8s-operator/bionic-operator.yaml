@@ -36,5 +36,5 @@ spec:
       serviceAccountName: bionic-gpt-operator-serviceaccount
       containers:
       - name: bionic-gpt-operator
-        image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:1.5.15
+        image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:1.5.16
         # Other container specifications (command, args, environment variables, etc.)

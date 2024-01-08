@@ -5,7 +5,7 @@ metadata:
   namespace: default 
 spec:
   replicas: 1 
-  version: 1.5.15
+  version: 1.5.16
   
   # Enterprise Options
   # enterprise-key: EMAIL_US_FOR_A_KEY
@@ -13,6 +13,6 @@ spec:
   # enterprise-expiry: Expiry date of your key (For trial users)
 
   # Image hashes to protect against supply chain attacks.
-  hash-bionicgpt: sha256:105e644e175c6685092fd552c86f5d3c2dc17fc26c7934af1e276818b37adbd9
-  hash-bionicgpt-pipeline-job: sha256:a765418123cb8078eb52b3e9595db61bb049d4e227f14e070ea85f7f1cba5e8c
-  hash-bionicgpt-db-migrations: sha256:4a9c0350797424bd777213e9fdc717b6de7897fb4ac1869f26b10f7ded41d20e
+  hash-bionicgpt: sha256:0b11264a9256051644663118141d917d45ac1d41edfd5f45d7be3719c06c84af
+  hash-bionicgpt-pipeline-job: sha256:7d3320d9928e70e7c28aada19d9c64c7afc81fe4827db7bc894d44ad6ad1cd9e
+  hash-bionicgpt-db-migrations: sha256:f118c301fd3224a17fe0ade799ff02794c492b5394035174be9c18041f1eef93
