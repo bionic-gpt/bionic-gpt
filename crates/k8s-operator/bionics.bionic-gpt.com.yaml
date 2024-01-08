@@ -34,39 +34,9 @@ spec:
                   type: string
                 hash-bionicgpt-db-migrations:
                   type: string
-                bionicgpt-image:
-                  type: string
-                bionicgpt-pipeline-job-image:
-                  type: string
-                bionicgpt-db-migrations-image:
-                  type: string
-                keycloak-image:
-                  type: string
-                envoyproxy-image:
-                  type: string
-                unstructured-image:
-                  type: string
-                embeddings-image:
-                  type: string
-                oauth2-proxy-image:
-                  type: string
-                postgres-pgvector-image:
-                  type: string
-                lite-llm-image:
-                  type: string
-                tgi-image:
-                  type: string
               required:
               - replicas
               - version
               - hash-bionicgpt
               - hash-bionicgpt-pipeline-job
               - hash-bionicgpt-db-migrations
-              - bionicgpt-image
-              - bionicgpt-pipeline-job-image
-              - bionicgpt-db-migrations-image
-              - envoyproxy-image
-              - unstructured-image
-              - embeddings-image
-              - oauth2-proxy-image
-              - postgres-pgvector-image

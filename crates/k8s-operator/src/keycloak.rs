@@ -36,7 +36,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "keycloak".to_string(),
-            image_name: spec.keycloak_image,
+            image_name: crate::KEYCLOAK_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 7910,
             env: vec![
