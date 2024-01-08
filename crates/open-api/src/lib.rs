@@ -46,7 +46,7 @@ pub struct Embedding {
 pub async fn get_embeddings(input: &str) -> Result<Vec<f32>, Box<dyn Error>> {
     let client = Client::new();
 
-    let openai_endpoint = if let Ok(domain) = std::env::var("OPENAI_ENDPOINT") {
+    let openai_endpoint = if let Ok(domain) = std::env::var("EMBEDDINGS_API_ENDPOINT") {
         domain
     } else {
         "http://embeddings-api:80/openai".to_string()
