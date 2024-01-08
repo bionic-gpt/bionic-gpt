@@ -17,7 +17,11 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "pipeline-job".to_string(),
-            image_name: spec.bionicgpt_pipeline_job_image,
+            image_name: format!(
+                "{:?}:{:?}",
+                crate::BIONICGPT_PIPELINE_JOB_IMAGE,
+                spec.version
+            ),
             replicas: spec.replicas,
             port: 3000,
             env: vec![],

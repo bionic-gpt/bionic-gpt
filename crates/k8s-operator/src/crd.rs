@@ -16,23 +16,5 @@ use serde::{Deserialize, Serialize};
 )]
 pub struct BionicSpec {
     pub replicas: i32,
-    #[serde(rename = "bionicgpt-image")]
-    pub bionicgpt_image: String,
-    #[serde(rename = "bionicgpt-pipeline-job-image")]
-    pub bionicgpt_pipeline_job_image: String,
-    #[serde(rename = "bionicgpt-db-migrations-image")]
-    pub bionicgpt_db_migrations_image: String,
-
-    #[serde(rename = "keycloak-image")]
-    pub keycloak_image: String,
-    #[serde(rename = "envoyproxy-image")]
-    pub envoy_image: String,
-    #[serde(rename = "oauth2-proxy-image")]
-    pub oauth2_proxy_image: String,
-    #[serde(rename = "chunking-engine-image")]
-    pub chunking_engine_image: String,
-    #[serde(rename = "embeddings-engine-image")]
-    pub embeddings_engine_image: String,
-    #[serde(rename = "llm-api-image")]
-    pub llm_api_image: String,
+    pub version: String,
 }

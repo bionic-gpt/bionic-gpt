@@ -18,7 +18,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "chunking-engine".to_string(),
-            image_name: spec.chunking_engine_image,
+            image_name: crate::CHUNKING_ENGINE_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 8000,
             env: vec![],

@@ -17,7 +17,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "embeddings-api".to_string(),
-            image_name: spec.embeddings_engine_image,
+            image_name: crate::EMBEDDINGS_ENGINE_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 80,
             env: vec![],

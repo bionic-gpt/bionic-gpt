@@ -19,7 +19,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "oauth2-proxy".to_string(),
-            image_name: spec.oauth2_proxy_image,
+            image_name: crate::OAUTH2_PROXY_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 7900,
             env: vec![

@@ -17,7 +17,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "llm-api".to_string(),
-            image_name: spec.llm_api_image,
+            image_name: crate::LLM_API_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 3000,
             env: vec![],

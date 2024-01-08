@@ -19,7 +19,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "postgres".to_string(),
-            image_name: "ankane/pgvector".to_string(),
+            image_name: crate::POSTGRES_PGVECTOR_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 5432,
             env: vec![

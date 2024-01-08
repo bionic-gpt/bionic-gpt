@@ -37,7 +37,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "envoy".to_string(),
-            image_name: spec.envoy_image,
+            image_name: crate::ENVOYPROXY_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 7901,
             env: vec![],
