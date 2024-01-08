@@ -27,6 +27,12 @@ pub async fn deploy(
                 "APP_DATABASE_URL", 
                 "value": 
                 "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
+            }),
+            json!({
+                "name": 
+                "PORT", 
+                "value": 
+                "7903"
             })],
             init_container: Some(deployment::InitContainer {
                 image_name: spec.bionicgpt_db_migrations_image,
@@ -35,12 +41,6 @@ pub async fn deploy(
                     "DATABASE_URL", 
                     "value": 
                     "postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
-                }),
-                json!({
-                    "name": 
-                    "PORT", 
-                    "value": 
-                    "7903"
                 })]
             }),
             command: None,
