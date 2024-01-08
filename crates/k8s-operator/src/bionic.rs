@@ -39,6 +39,8 @@ pub async fn deploy(
             init_container: None,
             command: None,
             expose_service: false,
+            volume_mounts: vec![],
+            volumes: vec![],
         },
         namespace,
     )
@@ -68,7 +70,9 @@ pub async fn deploy(
                 })]
             }),
             command: None,
-            expose_service: false
+            expose_service: false,
+            volume_mounts: vec![],
+            volumes: vec![]
         },
         namespace,
     )

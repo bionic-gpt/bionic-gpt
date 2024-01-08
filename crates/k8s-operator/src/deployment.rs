@@ -25,6 +25,8 @@ pub struct ServiceDeployment {
     pub env: Vec<Value>,
     pub init_container: Option<InitContainer>,
     pub command: Option<Command>,
+    pub volume_mounts: Vec<Value>,
+    pub volumes: Vec<Value>,
     pub expose_service: bool,
 }
 
@@ -59,6 +61,7 @@ pub async fn deployment(
                 "containerPort": service_deployment.port
             }],
             "env": service_deployment.env,
+            "volumeMounts": service_deployment.volume_mounts,
             "command": command.command,
             "args": command.args
         }])
@@ -70,6 +73,7 @@ pub async fn deployment(
                 "containerPort": service_deployment.port
             }],
             "env": service_deployment.env,
+            "volumeMounts": service_deployment.volume_mounts,
         }])
     };
 
@@ -93,7 +97,8 @@ pub async fn deployment(
                 },
                 "spec": {
                     "initContainers": init_containers,
-                    "containers": containers
+                    "containers": containers,
+                    "volumes": service_deployment.volumes,
                 }
             }
         }

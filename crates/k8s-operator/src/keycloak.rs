@@ -53,13 +53,21 @@ pub async fn deploy(
                 command: vec![],
                 args: vec![
                     "start-dev".to_string(),
-                    //"--import-realm".to_string(),
+                    "--import-realm".to_string(),
                     "--http-port=7910".to_string(),
                     "--proxy=edge".to_string(),
                     "--hostname=localhost:7910".to_string(),
                 ],
             }),
             expose_service: true,
+            volume_mounts: vec![
+                json!({"name": "keycloak-config", "mountPath": "/opt/keycloak/data/import"}),
+            ],
+            volumes: vec![json!({"name": "keycloak-config",
+                "configMap": {
+                    "name": "keycloak"
+                }
+            })],
         },
         namespace,
     )
