@@ -8,7 +8,7 @@ services:
     command: --model-id BAAI/bge-small-en-v1.5
 
   unstructured:
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:c30a2b8
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
 
   # Handles routing between our containers
   envoy:
@@ -51,6 +51,7 @@ services:
       OAUTH2_PROXY_AUTH_LOGGING: "true"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
       OAUTH2_PROXY_WHITELIST_DOMAINS: "localhost:7710"
+      OAUTH2_PROXY_SKIP_AUTH_ROUTES:  "^/v1*"
     restart: unless-stopped
     ports:
       - 7700:7700
@@ -77,6 +78,7 @@ services:
       OAUTH2_PROXY_AUTH_LOGGING: "true"
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
       OAUTH2_PROXY_WHITELIST_DOMAINS: "keycloak-selenium:7712"
+      OAUTH2_PROXY_SKIP_AUTH_ROUTES:  "^/v1*"
     restart: unless-stopped
     ports:
       - 7711:7711
@@ -147,6 +149,7 @@ services:
       #- node_modules:/vscode/node_modules 
 
     environment:
+      LOGOUT_URL: http://keycloak-selenium:7712/realms/bionic-gpt/protocol/openid-connect/logout
       DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionicgpt?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionicgpt?sslmode=disable
 

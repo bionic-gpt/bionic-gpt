@@ -1,0 +1,33 @@
+apiVersion: bionic-gpt.com/v1
+kind: Bionic
+metadata:
+  name: bionic-gpt
+  namespace: default 
+spec:
+  replicas: 1 
+  version: 1.5.14
+  
+  # Enterprise Options
+  # enterprise-key: EMAIL_US_FOR_A_KEY
+  # enterprise-user: your_email@your_work_address.com
+  # enterprise-expiry: Expiry date of your key (For trial users)
+
+  # Image hashes to protect against supply chain attacks.
+  hash-bionicgpt: sha256:27d1010ae5c5a5123e481e494616988859e382109ad4771d3817eb0dd67a9b05
+  hash-bionicgpt-pipeline-job: sha256:4949d2e8563f5b49d0c5df2014116eee4fba6b46466a6f8ba57809ed1e19ef70
+  hash-bionicgpt-db-migrations: sha256:85c90c705543be34fdc28bd466d97d92f1640eb89fe65c79d527d7fe94573884
+  
+  # The provided by Bionic-GPT
+  bionicgpt-image: ghcr.io/bionic-gpt/bionicgpt:1.5.13
+  bionicgpt-pipeline-job-image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.5.13
+  bionicgpt-db-migrations-image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.5.13
+
+  # Open source dependencies
+  keycloak-image: quay.io/keycloak/keycloak:23.0
+  envoyproxy-image: envoyproxy/envoy:v1.28.0
+  unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
+  embeddings-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
+  oauth2-proxy-image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
+  postgres-pgvector-image: ankane/pgvector
+  lite-llm-image: ghcr.io/berriai/litellm:main-v1.10.3
+  tgi-image: ghcr.io/huggingface/text-generation-inference:1.2

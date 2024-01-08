@@ -3,6 +3,9 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 pub fn LogoutForm(cx: Scope) -> Element {
+    let logout_url = std::env::var("LOGOUT_URL").unwrap_or(
+        "http://keycloak:7810/realms/bionic-gpt/protocol/openid-connect/logout".to_string(),
+    );
     cx.render(rsx! {
         form {
             method: "get",
@@ -11,7 +14,7 @@ pub fn LogoutForm(cx: Scope) -> Element {
             input {
                 "type": "hidden",
                 name: "rd",
-                value: "http://keycloak-selenium:7712/realms/bionic-gpt/protocol/openid-connect/logout"
+                value: "{logout_url}"
             }
             Drawer {
                 label: "Logout ?",

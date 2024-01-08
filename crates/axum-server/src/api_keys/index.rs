@@ -16,6 +16,10 @@ pub async fn index(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    if !rbac.can_use_api_keys() {
+        return Err(CustomError::Authorization);
+    }
+
     let api_keys = queries::api_keys::api_keys()
         .bind(&transaction, &team_id)
         .all()

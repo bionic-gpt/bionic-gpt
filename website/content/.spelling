@@ -465,3 +465,10 @@ pgAdmin
 110
 GPT
 OTP
+ - pricing/_index.md
+pricing.html
+ - docs/k8s-operator/_index.md
+35
+k8s-operator
+ - docs/k8s-operator/introduction.md
+Yaml
