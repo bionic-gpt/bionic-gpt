@@ -1,5 +1,6 @@
 use crate::bionic;
 use crate::crd::Bionic;
+use crate::envoy;
 use crate::error::Error;
 use crate::finalizer;
 use crate::keycloak;
@@ -55,7 +56,8 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             finalizer::add(client.clone(), &name, &namespace).await?;
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
             bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            keycloak::deploy(client, &name, bionic.spec.clone(), &namespace).await?;
+            keycloak::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             Ok(Action::requeue(Duration::from_secs(10)))
         }
         BionicAction::Delete => {
@@ -67,6 +69,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // with that error.
             // Note: A more advanced implementation would check for the Deployment's existence.
             keycloak::delete(client.clone(), &name, &namespace).await?;
+            envoy::delete(client.clone(), &name, &namespace).await?;
             bionic::delete(client.clone(), &name, &namespace).await?;
 
             // Once the deployment is successfully removed, remove the finalizer to make it possible

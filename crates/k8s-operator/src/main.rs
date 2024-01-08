@@ -1,6 +1,7 @@
 mod bionic;
 mod crd;
 mod deployment;
+mod envoy;
 mod error;
 mod finalizer;
 mod keycloak;

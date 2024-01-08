@@ -25,4 +25,8 @@ pub struct BionicSpec {
 
     #[serde(rename = "keycloak-image")]
     pub keycloak_image: String,
+    #[serde(rename = "envoy-image")]
+    pub envoy_image: String,
+    #[serde(rename = "oauth2-proxy-image")]
+    pub oauth2_proxy_image: String,
 }
