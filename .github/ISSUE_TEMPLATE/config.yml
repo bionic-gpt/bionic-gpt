@@ -1,4 +1,1 @@
-blank_issues_enabled: false
-contact_links:
-  - name: GitHub Community Support
-    url: https://github.com/orgs/community/discussions
+blank_issues_enabled: true
