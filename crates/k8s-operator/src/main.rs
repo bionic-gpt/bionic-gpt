@@ -1,11 +1,15 @@
 mod bionic;
+mod chunking_engine;
 mod crd;
 mod deployment;
+mod embeddings_engine;
 mod envoy;
 mod error;
 mod finalizer;
 mod keycloak;
+mod llm;
 mod oauth2_proxy;
+mod pipeline_job;
 mod postgres;
 mod reconcile;
 use anyhow::Result;

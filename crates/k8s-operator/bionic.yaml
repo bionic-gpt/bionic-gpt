@@ -25,9 +25,10 @@ spec:
   # Open source dependencies
   keycloak-image: quay.io/keycloak/keycloak:23.0
   envoyproxy-image: envoyproxy/envoy:v1.28.0
-  unstructured-image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
-  embeddings-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
   oauth2-proxy-image: quay.io/oauth2-proxy/oauth2-proxy:v7.5.1
   postgres-pgvector-image: ankane/pgvector
   lite-llm-image: ghcr.io/berriai/litellm:main-v1.10.3
   tgi-image: ghcr.io/huggingface/text-generation-inference:1.2
+  chunking-engine-image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
+  embeddings-engine-image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
+  llm-api-image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.4

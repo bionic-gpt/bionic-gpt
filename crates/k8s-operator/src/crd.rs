@@ -29,4 +29,10 @@ pub struct BionicSpec {
     pub envoy_image: String,
     #[serde(rename = "oauth2-proxy-image")]
     pub oauth2_proxy_image: String,
+    #[serde(rename = "chunking-engine-image")]
+    pub chunking_engine_image: String,
+    #[serde(rename = "embeddings-engine-image")]
+    pub embeddings_engine_image: String,
+    #[serde(rename = "llm-api-image")]
+    pub llm_api_image: String,
 }
