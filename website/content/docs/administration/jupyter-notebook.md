@@ -43,3 +43,18 @@ curl embeddings-api:80/embed     -X POST     -d '{"inputs":"What is Deep Learnin
 
 
 ![Alt text](../jupyter-notebook.png "Jupyter Notebook")
+
+
+## Accessing the Database ##
+
+![Alt text](../jupyter-database.png "Connect to Database")
+
+
+## Accessing Embeddings From Python ##
+
+![Alt text](../jupyter-embedding.png "Embedding Calls")
+
+
+## Embedding Based Query on Database ##
+
+![Alt text](../jupyter-embedding-query.png "Database Embedding Calls")
