@@ -1,0 +1,40 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: bionic-gpt-operator-role
+rules:
+- apiGroups: ["bionic-gpt.com"]
+  resources: ["bionics"]
+  verbs: ["get", "list", "watch", "create", "update", "delete"]
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: bionic-gpt-operator-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: bionic-gpt-operator-serviceaccount
+roleRef:
+  kind: Role
+  name: bionic-gpt-operator-role
+  apiGroup: rbac.authorization.k8s.io
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bionic-gpt-operator-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bionic-gpt-operator
+  template:
+    metadata:
+      labels:
+        app: bionic-gpt-operator
+    spec:
+      serviceAccountName: bionic-gpt-operator-serviceaccount
+      containers:
+      - name: bionic-gpt-operator
+        image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:1.5.15
+        # Other container specifications (command, args, environment variables, etc.)
