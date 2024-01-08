@@ -58,7 +58,7 @@ However, if you do this, you'll need to configure the embeddings job.
 
 In the `docker-compose.yml` we'll also need to configure the embeddings job to point to your external LLM API.
 
-Add the following environment variable `OPENAI_ENDPOINT` and point it to the port you are running your API on.
+Add the following environment variable `EMBEDDINGS_API_ENDPOINT` and point it to the port you are running your API on.
 
 ```yml
 services:
@@ -66,6 +66,6 @@ services:
   embeddings-job:
       image: ghcr.io/purton-tech/bionicgpt-embeddings-job:1.0.3
       environment:
-        OPENAI_ENDPOINT: http://llm-api:5001
+        EMBEDDINGS_API_ENDPOINT: http://llm-api:5001
         APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
 ```

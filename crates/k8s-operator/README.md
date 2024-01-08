@@ -29,3 +29,4 @@
 ## Forward Keycloak Port
 
 `kubectl port-forward svc/keycloak 7910:7910`
+`kubectl port-forward svc/oauth2-proxy 7900:7900`
