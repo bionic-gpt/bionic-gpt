@@ -6,6 +6,7 @@ mod error;
 mod finalizer;
 mod keycloak;
 mod oauth2_proxy;
+mod postgres;
 mod reconcile;
 use anyhow::Result;
 use crd::Bionic;
