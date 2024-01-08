@@ -1,0 +1,44 @@
+name: Bug Report
+description: Report a bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the sections below to help identify and fix the issue
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe your issue
+      placeholder: When I click here this happens
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Describe your setup/startup scripts
+      placeholder: I started up system using following files in order docker-compose.yml docker-compose-ollama.yml
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to page X
+        2. Click here
+        3. Click there
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What was the expected result?
+      placeholder: I expected this to happen
+  - type: textarea
+    id: additional
+    attributes:
+      label: Any additional information
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this issue! We will get back to you as soon as possible.
