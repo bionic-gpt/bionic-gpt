@@ -2,11 +2,10 @@ use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::{ConfigMap, Service};
-use kube::api::{DeleteParams, PostParams};
+use k8s_openapi::api::core::v1::Service;
+use kube::api::DeleteParams;
 use kube::{Api, Client};
 use serde_json::json;
-
 
 // Oauth2 Proxy handles are authentication as our Open ID Connect provider
 pub async fn deploy(
@@ -15,7 +14,6 @@ pub async fn deploy(
     spec: BionicSpec,
     namespace: &str,
 ) -> Result<(), Error> {
-
     // Oauth2 Proxy
     deployment::deployment(
         client.clone(),
@@ -24,29 +22,29 @@ pub async fn deploy(
             image_name: spec.oauth2_proxy_image,
             replicas: spec.replicas,
             port: 7900,
-            env: vec![],
+            env: vec![
+                json!({"name": "OAUTH2_PROXY_HTTP_ADDRESS", "value": "0.0.0.0:7800"}),
+                json!({"name": "OAUTH2_PROXY_COOKIE_SECRET", "value": "OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w="}),
+                json!({"name": "OAUTH2_PROXY_EMAIL_DOMAINS", "value": "*"}),
+                json!({"name": "OAUTH2_PROXY_COOKIE_SECURE", "value": "false"}),
+                json!({"name": "OAUTH2_PROXY_UPSTREAMS", "value": "http://envoy:7701"}),
+                json!({"name": "OAUTH2_PROXY_UPSTREAMS_TIMEOUT", "value": "600s"}),
+                json!({"name": "OAUTH2_PROXY_CLIENT_SECRET", "value": "69b26b08-12fe-48a2-85f0-6ab223f45777"}),
+                json!({"name": "OAUTH2_PROXY_CLIENT_ID", "value": "bionic-gpt"}),
+                json!({"name": "OAUTH2_PROXY_REDIRECT_URL", "value": "http://localhost:7800/oauth2/callback"}),
+                json!({"name": "OAUTH2_PROXY_OIDC_ISSUER_URL", "value": "http://keycloak:7810/realms/bionic-gpt"}),
+                json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION", "value": "true"}),
+                json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL", "value": "true"}),
+                json!({"name": "OAUTH2_PROXY_PROVIDER", "value": "oidc"}),
+                json!({"name": "OAUTH2_PROXY_PROVIDER_DISPLAY_NAME", "value": "Keycloak"}),
+                json!({"name": "OAUTH2_PROXY_AUTH_LOGGING", "value": "true"}),
+                json!({"name": "OAUTH2_PROXY_SKIP_PROVIDER_BUTTON", "value": "true"}),
+                json!({"name": "OAUTH2_PROXY_WHITELIST_DOMAINS", "value": "localhost:7810"}),
+                json!({"name": "OAUTH2_PROXY_SKIP_AUTH_ROUTES", "value": "^/v1*"})
+            ],
             init_container: None,
             command: Some(deployment::Command {
-                command: vec![
-                    "OAUTH2_PROXY_HTTP_ADDRESS": "0.0.0.0:7900",
-                    "OAUTH2_PROXY_COOKIE_SECRET": "OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w=",
-                    "OAUTH2_PROXY_EMAIL_DOMAINS": "*",
-                    "OAUTH2_PROXY_COOKIE_SECURE": "false",
-                    "OAUTH2_PROXY_UPSTREAMS": "http://envoy:7901",
-                    "OAUTH2_PROXY_UPSTREAMS_TIMEOUT": "600s",
-                    "OAUTH2_PROXY_CLIENT_SECRET": "69b26b08-12fe-48a2-85f0-6ab223f45777",
-                    "OAUTH2_PROXY_CLIENT_ID": "bionic-gpt",
-                    "OAUTH2_PROXY_REDIRECT_URL": "http://localhost:7900/oauth2/callback",
-                    "OAUTH2_PROXY_OIDC_ISSUER_URL": "http://keycloak:7910/realms/bionic-gpt",
-                    "OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION": "true",
-                    "OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL": "true",
-                    "OAUTH2_PROXY_PROVIDER": "oidc",
-                    "OAUTH2_PROXY_PROVIDER_DISPLAY_NAME": "Keycloak",
-                    "OAUTH2_PROXY_AUTH_LOGGING": "true",
-                    "OAUTH2_PROXY_SKIP_PROVIDER_BUTTON": "true",
-                    "OAUTH2_PROXY_WHITELIST_DOMAINS": "localhost:7910",
-                    "OAUTH2_PROXY_SKIP_AUTH_ROUTES": "^/v1*"
-                ],
+                command: vec![],
                 args: vec![],
             }),
             expose_service: true,

@@ -4,6 +4,7 @@ use crate::envoy;
 use crate::error::Error;
 use crate::finalizer;
 use crate::keycloak;
+use crate::oauth2_proxy;
 use kube::Client;
 use kube::Resource;
 use kube::ResourceExt;
@@ -58,6 +59,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            oauth2_proxy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             Ok(Action::requeue(Duration::from_secs(10)))
         }
         BionicAction::Delete => {
@@ -70,6 +72,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // Note: A more advanced implementation would check for the Deployment's existence.
             keycloak::delete(client.clone(), &name, &namespace).await?;
             envoy::delete(client.clone(), &name, &namespace).await?;
+            oauth2_proxy::delete(client.clone(), &name, &namespace).await?;
             bionic::delete(client.clone(), &name, &namespace).await?;
 
             // Once the deployment is successfully removed, remove the finalizer to make it possible

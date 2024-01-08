@@ -5,6 +5,7 @@ mod envoy;
 mod error;
 mod finalizer;
 mod keycloak;
+mod oauth2_proxy;
 mod reconcile;
 use anyhow::Result;
 use crd::Bionic;
