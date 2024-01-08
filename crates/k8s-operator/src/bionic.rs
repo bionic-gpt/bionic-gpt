@@ -19,7 +19,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: "bionic-gpt".to_string(),
-            image_name: format!("{:?}:{:?}", crate::BIONICGPT_IMAGE, spec.version),
+            image_name: format!("{}:{}", crate::BIONICGPT_IMAGE, spec.version),
             replicas: spec.replicas,
             port: 7903,
             env: vec![json!({
@@ -35,7 +35,7 @@ pub async fn deploy(
                 "7903"
             })],
             init_container: Some(deployment::InitContainer {
-                image_name: format!("{:?}:{:?}", crate::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),
+                image_name: format!("{}:{}", crate::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),
                 env: vec![json!({
                     "name": 
                     "DATABASE_URL", 
