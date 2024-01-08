@@ -23,5 +23,5 @@ bionics.bionic-gpt.com   2024-01-08T08:18:32Z
 ## Installing the Bionic-GPT Operator
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/crates/k8s-operator/bionics.bionic-gpt.com.yaml
+kubectl apply -f https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/crates/k8s-operator/bionic-operator.yaml
 ```
