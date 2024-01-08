@@ -1,3 +1,0 @@
-name: bionic-gpt
-runtime: nodejs
-description: A minimal Kubernetes TypeScript Pulumi program
