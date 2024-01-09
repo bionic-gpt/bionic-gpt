@@ -169,6 +169,8 @@ async fn add_team_member(
 
     driver.refresh().await?;
 
+    sleep(Duration::from_millis(1000)).await;
+
     driver
         .find(By::XPath("//button[text()='Invite New Team Member']"))
         .await?
