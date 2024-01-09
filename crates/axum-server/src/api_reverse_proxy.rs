@@ -134,7 +134,7 @@ pub async fn handler(
         Ok(client.request(req).await?.into_response())
     } else {
         Err(CustomError::Authentication(
-            "You neeed an API key".to_string(),
+            "You need an API key".to_string(),
         ))
     }
 }
