@@ -2,7 +2,7 @@ apiVersion: bionic-gpt.com/v1
 kind: Bionic
 metadata:
   name: bionic-gpt
-  namespace: default 
+  namespace: bionic-gpt 
 spec:
   replicas: 1 
   version: 1.5.16
