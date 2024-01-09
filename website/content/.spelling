@@ -159,6 +159,7 @@ RBAC
 enum
 CRD
 ConfigMaps
+Bionic-GPT
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
