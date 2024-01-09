@@ -42,7 +42,7 @@ The first user to register with **BionicGPT** will become the system administrat
 
 The user interface is already loaded with the model. You can change the name of you wish as the GPU config loads `TheBloke/zephyr-7B-beta-AWQ` and in the user interface we call it `llama-2-7b` which is what it's called in our CPU setup.
 
-If you want to do a sanity check on the various components that make up Bionic GPT please take a look at our [Jupyter Notebook Setup](/docs/administration/jupyter-notebook/)
+If you want to do a sanity check on the various components that make up Bionic Bionic-GPT please take a look at our [Jupyter Notebook Setup](/docs/administration/jupyter-notebook/)
 
 ## Setting the trim ratio
 

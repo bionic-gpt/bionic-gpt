@@ -5,6 +5,7 @@ use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
+use serde_json::json;
 
 // Large Language Model
 pub async fn deploy(
@@ -20,7 +21,12 @@ pub async fn deploy(
             image_name: format!("{}:{}", crate::BIONICGPT_PIPELINE_JOB_IMAGE, spec.version),
             replicas: spec.replicas,
             port: 3000,
-            env: vec![],
+            env: vec![json!({
+                "name": 
+                "APP_DATABASE_URL", 
+                "value": 
+                "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
+            })],
             init_container: None,
             command: Some(deployment::Command {
                 command: vec![],
