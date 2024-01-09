@@ -31,6 +31,22 @@ $ kind get clusters
 No kind clusters found.
 ```
 
+## Create a cluster
+
+```sh
+cat <<EOF | kind create cluster --name bionic-gpt-cluster --config=-
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 7900
+    hostPort: 7900
+  - containerPort: 7910
+    hostPort: 7910
+EOF
+```
+
 ```sh
 kind create cluster --name bionic-gpt-cluster 
 ```
