@@ -18,3 +18,7 @@ You will see the images downloading and the progress as the containers start.
 
 ![Alt text](../bionic-startup-k9s.png "Oauth2 Proxy")
 
+## Accessing Bionic
+
+Bionic-GPT will now be available on `http://localhost:7900`
+
