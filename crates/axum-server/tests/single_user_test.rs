@@ -42,7 +42,7 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
 
     test_prompts(driver).await?;
 
-    test_api_keys(driver).await?;
+    test_api_keys(driver, config).await?;
 
     test_pipelines(driver).await?;
 
@@ -136,7 +136,7 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
     Ok(())
 }
 
-async fn test_api_keys(driver: &WebDriver) -> WebDriverResult<()> {
+async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
     driver
         .find(By::LinkText("LLM API Keys"))
         .await?
@@ -181,6 +181,49 @@ async fn test_api_keys(driver: &WebDriver) -> WebDriverResult<()> {
         .await?
         .click()
         .await?;
+
+    let api_key_input = driver.find(By::XPath("//input[@name='api_key']")).await?;
+
+    let api_key = api_key_input.value().await?.unwrap();
+
+    let client = reqwest::Client::new();
+
+    // Making a GET request and passing the API key in the headers
+    let response = client
+        .get(format!("{}/v1/models", &config.host))
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await;
+
+    assert!(response.is_ok());
+
+    if let Ok(response) = response {
+        assert!(response.status().is_success());
+        let text = response.text().await;
+        assert!(text.is_ok());
+        if let Ok(text) = text {
+            assert!(text.contains("model"));
+        }
+    }
+
+    // Make a request with no auth
+    let response = client
+        .get(format!("{}/v1/models", &config.host))
+        .send()
+        .await;
+
+    dbg!(&response);
+
+    assert!(response.is_ok());
+
+    if let Ok(response) = response {
+        let text = response.text().await;
+        assert!(text.is_ok());
+        if let Ok(text) = text {
+            dbg!(&text);
+            assert!(text.contains("You need an API key"));
+        }
+    }
 
     Ok(())
 }

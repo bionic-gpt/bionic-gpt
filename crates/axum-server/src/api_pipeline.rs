@@ -57,7 +57,7 @@ pub async fn upload(
         Ok(StatusCode::OK)
     } else {
         Err(CustomError::Authentication(
-            "You neeed an API key".to_string(),
+            "You need an API key".to_string(),
         ))
     }
 }
