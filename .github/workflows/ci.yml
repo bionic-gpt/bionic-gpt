@@ -129,9 +129,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Semantic Release
-      run: | 
-        npm i -D @semantic-release/exec
-        npm i -D @semantic-release-plus/docker
-        npm i -D @semantic-release/git
-        npx semantic-release
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        
+      - name: Semantic Release
+        run: | 
+          npm i -D @semantic-release/exec
+          npm i -D @semantic-release-plus/docker
+          npm i -D @semantic-release/git
+          npx semantic-release
