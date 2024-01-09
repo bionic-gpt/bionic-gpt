@@ -20,8 +20,14 @@ NAME                     CREATED AT
 bionics.bionic-gpt.com   2024-01-08T08:18:32Z
 ```
 
+## Creating a namespace
+
+```sh
+kubectl create namespace bionic-gpt
+```
+
 ## Installing the Bionic-GPT Operator
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/crates/k8s-operator/bionic-operator.yaml
+kubectl apply -n bionic-gpt -f https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/crates/k8s-operator/bionic-operator.yaml
 ```
