@@ -66,3 +66,9 @@ And now we can use `kubectl` to see what `pods` we have in our cluster.
 $ kubectl get pods
 No resources found in default namespace.
 ```
+
+## Install K9's (Optional)
+
+```sh
+curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp && sudo mv /tmp/k9s /usr/bin && rm -rf k9s_Linux_x86_64.tar.gz
+```
