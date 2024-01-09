@@ -127,6 +127,9 @@ jobs:
   semantic-release:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
 
     steps:
       - name: Checkout Repository
