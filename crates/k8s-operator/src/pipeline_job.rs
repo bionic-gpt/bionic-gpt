@@ -7,46 +7,34 @@ use kube::api::DeleteParams;
 use kube::{Api, Client};
 use serde_json::json;
 
-// The web user interface
+// Large Language Model
 pub async fn deploy(
     client: Client,
     _name: &str,
     spec: BionicSpec,
     namespace: &str,
 ) -> Result<(), Error> {
-    // Bionic with the migrations as a sidecar
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
-            name: "bionic-gpt".to_string(),
-            image_name: format!("{}:{}", crate::BIONICGPT_IMAGE, spec.version),
+            name: "pipeline-job".to_string(),
+            image_name: format!("{}:{}", crate::BIONICGPT_PIPELINE_JOB_IMAGE, spec.version),
             replicas: spec.replicas,
-            port: 7903,
+            port: 3000,
             env: vec![json!({
                 "name": 
                 "APP_DATABASE_URL", 
                 "value": 
                 "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
-            }),
-            json!({
-                "name": 
-                "PORT", 
-                "value": 
-                "7903"
             })],
-            init_container: Some(deployment::InitContainer {
-                image_name: format!("{}:{}", crate::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),
-                env: vec![json!({
-                    "name": 
-                    "DATABASE_URL", 
-                    "value": 
-                    "postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
-                })]
+            init_container: None,
+            command: Some(deployment::Command {
+                command: vec![],
+                args: vec![],
             }),
-            command: None,
-            expose_service: false,
+            expose_service: true,
             volume_mounts: vec![],
-            volumes: vec![]
+            volumes: vec![],
         },
         namespace,
     )
@@ -58,10 +46,11 @@ pub async fn deploy(
 pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("bionic-gpt", &DeleteParams::default()).await?;
+    api.delete("pipeline-job", &DeleteParams::default()).await?;
 
     // Remove services
-    let api: Api<Service> = Api::namespaced(client, namespace);
-    api.delete("bionic-gpt", &DeleteParams::default()).await?;
+    let api: Api<Service> = Api::namespaced(client.clone(), namespace);
+    api.delete("pipeline-job", &DeleteParams::default()).await?;
+
     Ok(())
 }

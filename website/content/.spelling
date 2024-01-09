@@ -157,6 +157,9 @@ gpt3.5.
 github
 RBAC
 enum
+CRD
+ConfigMaps
+Bionic-GPT
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -472,3 +475,5 @@ pricing.html
 k8s-operator
  - docs/k8s-operator/introduction.md
 Yaml
+ - docs/production/install-linux.md
+K9's

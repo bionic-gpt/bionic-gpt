@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bionic-gpt-operator-service-account
+  namespace: bionic-gpt
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bionic-gpt-operator-cluster-role
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bionic-gpt-operator-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: bionic-gpt-operator-service-account
+  namespace: bionic-gpt
+roleRef:
+  kind: ClusterRole
+  name: bionic-gpt-operator-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bionic-gpt-operator-deployment
+  namespace: bionic-gpt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bionic-gpt-operator
+  template:
+    metadata:
+      labels:
+        app: bionic-gpt-operator
+    spec:
+      serviceAccountName: bionic-gpt-operator-service-account
+      containers:
+      - name: bionic-gpt-operator
+        image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:1.5.16
