@@ -40,16 +40,17 @@ pub async fn handler(
         let mut db_client = pool.get().await.unwrap();
         let transaction = db_client.transaction().await.unwrap();
 
-        let prompt = queries::prompts::prompt_by_api_key()
-            .bind(&transaction, &api_key)
-            .one()
-            .await?;
-
+        // Check this first, if we have a false API key then return auth error
         let api_key = queries::api_keys::find_api_key()
             .bind(&transaction, &api_key)
             .one()
             .await
             .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?;
+
+        let prompt = queries::prompts::prompt_by_api_key()
+            .bind(&transaction, &api_key.api_key)
+            .one()
+            .await?;
 
         let model = queries::models::model()
             .bind(&transaction, &prompt.model_id)
