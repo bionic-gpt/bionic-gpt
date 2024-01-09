@@ -1,28 +1,42 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+apiVersion: v1
+kind: ServiceAccount
 metadata:
-  name: bionic-gpt-operator-role
-rules:
-  - apiGroups: ["bionic-gpt.com"]
-    resources: ["bionics"]
-    verbs: ["get", "list", "watch", "create", "update", "delete"]
+  name: bionic-gpt-operator-service-account
+  namespace: bionic-gpt
+
 ---
+
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRole
 metadata:
-  name: bionic-gpt-operator-rolebinding
+  name: bionic-gpt-operator-cluster-role
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bionic-gpt-operator-cluster-role-binding
 subjects:
 - kind: ServiceAccount
-  name: bionic-gpt-operator-serviceaccount
+  name: bionic-gpt-operator-service-account
+  namespace: bionic-gpt
 roleRef:
-  kind: Role
-  name: bionic-gpt-operator-role
+  kind: ClusterRole
+  name: bionic-gpt-operator-cluster-role
   apiGroup: rbac.authorization.k8s.io
+
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bionic-gpt-operator-deployment
+  namespace: bionic-gpt
 spec:
   replicas: 1
   selector:
@@ -33,8 +47,7 @@ spec:
       labels:
         app: bionic-gpt-operator
     spec:
-      serviceAccountName: bionic-gpt-operator-serviceaccount
+      serviceAccountName: bionic-gpt-operator-service-account
       containers:
       - name: bionic-gpt-operator
         image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:1.5.16
-        # Other container specifications (command, args, environment variables, etc.)
