@@ -474,3 +474,5 @@ pricing.html
 k8s-operator
  - docs/k8s-operator/introduction.md
 Yaml
+ - docs/production/install-linux.md
+K9's
