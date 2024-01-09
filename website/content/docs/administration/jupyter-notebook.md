@@ -46,15 +46,49 @@ curl embeddings-api:80/embed     -X POST     -d '{"inputs":"What is Deep Learnin
 
 
 ## Accessing the Database ##
+```
+!pip install -q sqlalchemy psycopg2-binary pandas  
+engine = sqlalchemy.create_engine('postgresql://postgres:testpassword@postgres:5432/bionic-gpt')
+conn = engine.connect()
+import sqlalchemy
+import pandas as pd
+
+pd.read_sql("SELECT * FROM information_schema.tables",conn)
+```
 
 ![Alt text](../jupyter-database.png "Connect to Database")
 
 
 ## Accessing Embeddings From Python ##
+```
+url = "http://embeddings-api:80/embed"
+
+data = {"inputs": "is US20040098780A1 in the dataset?"}
+headers = {"Content-Type": "application/json"}
+
+response = requests.post(url, json=data, headers=headers)
+
+print(response.text[1:-1])
+
+```
 
 ![Alt text](../jupyter-embedding.png "Embedding Calls")
 
 
 ## Embedding Based Query on Database ##
+
+```
+from sqlalchemy import text
+em = response.text
+
+sql = text(f"""SELECT  document_id, file_name, text, embeddings  FROM  chunks, documents 
+where documents.id = document_id 
+
+ORDER BY embeddings <-> '{em[1:-1]}'""")
+# print(sql)
+df = pd.read_sql(sql,conn)
+
+df
+```
 
 ![Alt text](../jupyter-embedding-query.png "Database Embedding Calls")
