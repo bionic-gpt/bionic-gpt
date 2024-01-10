@@ -6,6 +6,7 @@ use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
 use serde_json::json;
+use url::Url;
 
 // Oauth2 Proxy handles are authentication as our Open ID Connect provider
 pub async fn deploy(
@@ -14,6 +15,17 @@ pub async fn deploy(
     spec: BionicSpec,
     namespace: &str,
 ) -> Result<(), Error> {
+    let whitelist_domain = Url::parse(&spec.hostname_url);
+    let whitelist_domain = if let Ok(host) = &whitelist_domain {
+        if let Some(host) = host.host_str() {
+            host
+        } else {
+            ""
+        }
+    } else {
+        ""
+    };
+
     // Oauth2 Proxy
     deployment::deployment(
         client.clone(),
@@ -31,7 +43,7 @@ pub async fn deploy(
                 json!({"name": "OAUTH2_PROXY_UPSTREAMS_TIMEOUT", "value": "600s"}),
                 json!({"name": "OAUTH2_PROXY_CLIENT_SECRET", "value": "69b26b08-12fe-48a2-85f0-6ab223f45777"}),
                 json!({"name": "OAUTH2_PROXY_CLIENT_ID", "value": "bionic-gpt"}),
-                json!({"name": "OAUTH2_PROXY_REDIRECT_URL", "value": "http://localhost:7900/oauth2/callback"}),
+                json!({"name": "OAUTH2_PROXY_REDIRECT_URL", "value": format!("{}/oauth2/callback", spec.hostname_url)}),
                 json!({"name": "OAUTH2_PROXY_OIDC_ISSUER_URL", "value": "http://keycloak:7910/realms/bionic-gpt"}),
                 json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL", "value": "true"}),
@@ -39,7 +51,7 @@ pub async fn deploy(
                 json!({"name": "OAUTH2_PROXY_PROVIDER_DISPLAY_NAME", "value": "Keycloak"}),
                 json!({"name": "OAUTH2_PROXY_AUTH_LOGGING", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_SKIP_PROVIDER_BUTTON", "value": "true"}),
-                json!({"name": "OAUTH2_PROXY_WHITELIST_DOMAINS", "value": "localhost:7910"}),
+                json!({"name": "OAUTH2_PROXY_WHITELIST_DOMAINS", "value": whitelist_domain}),
                 json!({"name": "OAUTH2_PROXY_SKIP_AUTH_ROUTES", "value": "^/v1*"})
             ],
             init_container: None,

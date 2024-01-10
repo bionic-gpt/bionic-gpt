@@ -56,7 +56,7 @@ pub async fn deploy(
                     "--import-realm".to_string(),
                     "--http-port=7910".to_string(),
                     "--proxy=edge".to_string(),
-                    "--hostname=localhost:7910".to_string(),
+                    format!("--hostname-url={}", spec.hostname_url),
                 ],
             }),
             expose_service: true,

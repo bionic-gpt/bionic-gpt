@@ -12,6 +12,10 @@ spec:
   # enterprise-user: your_email@your_work_address.com
   # enterprise-expiry: Expiry date of your key (For trial users)
 
+  # Use by Oauth2 proxy to know where to redirect and also keycloak (if installed)
+  # to know how to set the openid configuration
+  hostname-url: https://localhost
+
   # Image hashes to protect against supply chain attacks.
   hash-bionicgpt: sha256:75ea6bab51359b78afdde708608ee70569f973b40df9304d81f88ac1be079603
   hash-bionicgpt-pipeline-job: sha256:28eb5035bc5335473026bab5910870e6b524338f11f524c8a83acd9ecf671fe4
