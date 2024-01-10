@@ -39,6 +39,13 @@ spec:
   rules:
   - http:
       paths:
+      - path: /realm
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak
+            port:
+              number: 7910
       - path: /
         pathType: Prefix
         backend:
