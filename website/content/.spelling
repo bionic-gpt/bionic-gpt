@@ -160,6 +160,13 @@ enum
 CRD
 ConfigMaps
 Bionic-GPT
+Lite
+K9's
+K8s
+TGI
+LiteLLM
+oauth2-proxy
+Oauth2
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -477,3 +484,5 @@ k8s-operator
 Yaml
  - docs/production/install-linux.md
 K9's
+ - docs/enterprise-edition/tls-certificates.md
+auth
