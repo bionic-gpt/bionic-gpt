@@ -31,18 +31,21 @@ cat <<EOF | kubectl apply -n bionic-gpt -f-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bionic-gpt
+  name: bionic-gpt-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: localhost
-      http:
-        paths:
-          - pathType: ImplementationSpecific
-            backend:
-              service:
-                name: oauth2-proxy
-                port:
-                  number: 7900
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: oauth2-proxy
+            port:
+              number: 7900
 EOF
 ```
 
