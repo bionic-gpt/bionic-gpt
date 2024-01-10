@@ -1,5 +1,5 @@
 +++
-title = "Deploying to Production"
+title = "Bionic-GPT - Enterprise Edition"
 description = ""
 sort_by = "weight"
 weight = 30

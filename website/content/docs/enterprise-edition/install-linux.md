@@ -39,16 +39,18 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
   extraPortMappings:
-  - containerPort: 7900
-    hostPort: 7900
-  - containerPort: 7910
-    hostPort: 7910
+  - containerPort: 443
+    hostPort: 443
+  - containerPort: 80
+    hostPort: 80
 EOF
-```
-
-```sh
-kind create cluster --name bionic-gpt-cluster 
 ```
 
 ```sh
