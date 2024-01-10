@@ -1,6 +1,6 @@
 +++
 title = "Adding a Remote Model"
-weight = 70
+weight = 5
 sort_by = "weight"
 +++
 

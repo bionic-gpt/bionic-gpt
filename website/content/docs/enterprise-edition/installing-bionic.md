@@ -18,6 +18,34 @@ You will see the images downloading and the progress as the containers start.
 
 ![Alt text](../bionic-startup-k9s.png "Oauth2 Proxy")
 
+## Installing Ingress
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+```
+
+## Apply the Ingress to our deployment
+
+```sh
+cat <<EOF | kubectl apply -n bionic-gpt -f-
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bionic-gpt
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 7900
+EOF
+```
+
 ## Accessing Bionic
 
 Bionic-GPT will now be available on `http://localhost:7900`
