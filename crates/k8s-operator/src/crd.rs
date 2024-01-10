@@ -17,4 +17,6 @@ use serde::{Deserialize, Serialize};
 pub struct BionicSpec {
     pub replicas: i32,
     pub version: String,
+    #[serde(rename = "hostname-url")]
+    pub hostname_url: String,
 }
