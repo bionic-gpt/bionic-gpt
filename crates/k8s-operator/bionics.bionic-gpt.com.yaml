@@ -28,6 +28,8 @@ spec:
                   format: int32
                 version:
                   type: string
+                hostname-url:
+                  type: string
                 hash-bionicgpt:
                   type: string
                 hash-bionicgpt-pipeline-job:
