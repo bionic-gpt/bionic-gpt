@@ -13,7 +13,7 @@ We install a cluster with kind and then we can install Bionic-GPT.
 ## Installing Kind
 
 ```sh
-sudo curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
+sudo curl -Lo /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 && sudo chmod +x /usr/local/bin/kind
 ```
 
 We also need `kubectl` which is 
