@@ -51,5 +51,5 @@ EOF
 
 ## Accessing Bionic
 
-Bionic-GPT will now be available on `http://localhost:7900`
+Bionic-GPT will now be available on `http://localhost`
 
