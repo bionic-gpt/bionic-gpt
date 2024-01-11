@@ -48,8 +48,6 @@ nodes:
   extraPortMappings:
   - containerPort: 443
     hostPort: 443
-  - containerPort: 80
-    hostPort: 80
 EOF
 ```
 
