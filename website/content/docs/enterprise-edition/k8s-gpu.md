@@ -1,6 +1,6 @@
 +++
 title = "K8s and an Inference Engine"
-weight = 80
+weight = 95
 sort_by = "weight"
 +++
 

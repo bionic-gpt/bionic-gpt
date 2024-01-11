@@ -64,5 +64,12 @@ EOF
 
 ## Accessing Bionic
 
-Bionic-GPT will now be available on `https://localhost`
+Bionic-GPT will now be available on `https://localhost` you will see a TLS warning. You can click on advance.
 
+![Alt text](../tls-warning.png "TLS Warning")
+
+## It's Installed
+
+If you see this screen Bionic-GPT is working
+
+![Alt text](../keycloak.png "Keycloak")
