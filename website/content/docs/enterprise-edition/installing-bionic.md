@@ -41,14 +41,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: bionic-gpt-ingress
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
   - http:
       paths:
-      - path: /oauth2
+      - path: /oidc
         pathType: Prefix
         backend:
           service:
@@ -67,5 +64,5 @@ EOF
 
 ## Accessing Bionic
 
-Bionic-GPT will now be available on `http://localhost`
+Bionic-GPT will now be available on `https://localhost`
 
