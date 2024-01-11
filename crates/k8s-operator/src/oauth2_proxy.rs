@@ -44,7 +44,7 @@ pub async fn deploy(
                 json!({"name": "OAUTH2_PROXY_CLIENT_SECRET", "value": "69b26b08-12fe-48a2-85f0-6ab223f45777"}),
                 json!({"name": "OAUTH2_PROXY_CLIENT_ID", "value": "bionic-gpt"}),
                 json!({"name": "OAUTH2_PROXY_REDIRECT_URL", "value": format!("{}/oauth2/callback", spec.hostname_url)}),
-                json!({"name": "OAUTH2_PROXY_OIDC_ISSUER_URL", "value": "http://keycloak:7910/realms/bionic-gpt"}),
+                json!({"name": "OAUTH2_PROXY_OIDC_ISSUER_URL", "value": "http://keycloak:7910/oidc/realms/bionic-gpt"}),
                 json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_PROVIDER", "value": "oidc"}),
