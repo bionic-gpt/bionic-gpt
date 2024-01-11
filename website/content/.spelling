@@ -167,6 +167,12 @@ TGI
 LiteLLM
 oauth2-proxy
 Oauth2
+IAM
+Auth0
+OneLogin
+kubernetes
+OIDC
+Keycloak
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -486,3 +492,7 @@ Yaml
 K9's
  - docs/enterprise-edition/tls-certificates.md
 auth
+ - docs/enterprise-edition/k8s-gpu.md
+95
+ - docs/enterprise-edition/single-signon.md
+base64-encoded
