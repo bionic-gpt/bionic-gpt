@@ -24,6 +24,15 @@ You will see the images downloading and the progress as the containers start.
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 ```
 
+And wait for ingress to come up
+
+```sh
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+```
+
 ## Apply the Ingress to our deployment
 
 ```sh
@@ -34,12 +43,12 @@ metadata:
   name: bionic-gpt-ingress
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
   - http:
       paths:
-      - path: /realm
+      - path: /oauth2
         pathType: Prefix
         backend:
           service:
