@@ -84,7 +84,7 @@
 - [x] Deployment
     - [x] Docker compose so people can test quickly.
     - [x] Kubernetes deployment strategy.
-    - [ ] Kubernetes Operator
+    - [x] Kubernetes Operator
     - [ ] Hardware recommendations.
 
 See the [open issues](https://github.com/purton-tech/bionicgpt/issues) for a full list of proposed features (and known issues).
@@ -107,4 +107,4 @@ This has been tested on an AMD 2700x with 16GB of ram. The included `llama-2-7b-
 BionicGPT is optimized to run on Kubernetes and implements the full pipeline of LLM fine tuning from data acquisition to user interface.
 
 
-![Alt text](website/content/docs/production/architecture.svg "BionicGPT Architetcure")
+![Alt text](website/content/docs/enterprise-edition/architecture.svg "BionicGPT Architetcure")
