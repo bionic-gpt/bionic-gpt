@@ -52,7 +52,8 @@ pub async fn deploy(
                 json!({"name": "OAUTH2_PROXY_AUTH_LOGGING", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_SKIP_PROVIDER_BUTTON", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_WHITELIST_DOMAINS", "value": whitelist_domain}),
-                json!({"name": "OAUTH2_PROXY_SKIP_AUTH_ROUTES", "value": "^/v1*"})
+                json!({"name": "OAUTH2_PROXY_SKIP_AUTH_ROUTES", "value": "^/v1*"}),
+                json!({"name": "OAUTH2_PROXY_SCOPE", "value": "openid email profile"})
             ],
             init_container: None,
             command: Some(deployment::Command {
