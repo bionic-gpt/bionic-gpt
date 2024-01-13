@@ -40,6 +40,9 @@ cat <<EOF | kubectl apply -n bionic-gpt -f-
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  annotations:
+    # We need to set the buffer size or keycloak won't let you register
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
   name: bionic-gpt-ingress
 spec:
   rules:
