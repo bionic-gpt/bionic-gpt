@@ -41,7 +41,7 @@ pub async fn call_unstructured_api(
 ) -> Result<Vec<Unstructured>, Box<dyn Error>> {
     let client = Client::new();
 
-    let unstructured_endpoint = if let Ok(domain) = std::env::var("UNSTRUCTURED_ENDPOINT") {
+    let unstructured_endpoint = if let Ok(domain) = std::env::var("CHUNKING_ENGINE") {
         domain
     } else {
         "http://unstructured:8000".to_string()
