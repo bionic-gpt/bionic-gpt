@@ -5,7 +5,7 @@ metadata:
   namespace: bionic-gpt 
 spec:
   replicas: 1 
-  version: 1.5.21
+  version: 1.5.22
   
   # Enterprise Options
   # enterprise-key: EMAIL_US_FOR_A_KEY
@@ -17,6 +17,6 @@ spec:
   hostname-url: https://localhost
 
   # Image hashes to protect against supply chain attacks.
-  hash-bionicgpt: sha256:5d93122b7e6cb9a1cb4e30d51e624dab95e978049c6e0660847ae0764590924e
-  hash-bionicgpt-pipeline-job: sha256:80f1c3fdacad6f62f0a08899a2a25fab701a0515aa9840a0454d5a545c29d293
-  hash-bionicgpt-db-migrations: sha256:b3ed62ed8cd595ccd28cb227a8ebfabd3855f8f571344a405780d9affe63a591
+  hash-bionicgpt: sha256:ace19a53a1a75e00dc9e96818cc8fcfeb4dce587a5b198f7216f3080b11bf083
+  hash-bionicgpt-pipeline-job: sha256:d8e6a63d675e91a23371f32ea80b25d9370d7df1a38fa56a17e0583748ef716c
+  hash-bionicgpt-db-migrations: sha256:73f830a8ab7ef8e79bdf9468bc478d41d4199f251c52a582eaf4e3cea15d4e71
