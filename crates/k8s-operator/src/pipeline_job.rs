@@ -26,6 +26,11 @@ pub async fn deploy(
                 "APP_DATABASE_URL", 
                 "value": 
                 "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
+            }),json!({
+                "name": 
+                "CHUNKING_ENGINE", 
+                "value": 
+                "http://chunking-engine:8000"
             })],
             init_container: None,
             command: Some(deployment::Command {
