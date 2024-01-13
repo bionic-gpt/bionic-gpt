@@ -23,6 +23,14 @@
     <a href="https://bionic-gpt.com">
       Homepage
     </a>
+    |
+    <a href="https://github.com/bionic-gpt/bionic-gpt/blob/main/CONTRIBUTING.md">
+      Contributing
+    </a>
+    |
+    <a href="https://rust-on-nails.com/">
+      Built with Rust on Nails
+    </a>
   </h4>
 </div>
 
