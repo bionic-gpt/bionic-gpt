@@ -15,6 +15,9 @@ ARG --global PIPELINE_FOLDER=crates/asset-pipeline
 ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.28.0
 ARG --global KEYCLOAK_BASE_IMAGE=quay.io/keycloak/keycloak:23.0
 
+# Images with models
+ARG --global EMBEDDINGS_IMAGE_NAME=bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
+
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
 ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
@@ -23,7 +26,6 @@ ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
-ARG --global EMBEDDINGS_IMAGE_NAME=bionic-gpt/bionicgpt-embeddings-api:latest
 
 WORKDIR /build
 
@@ -158,10 +160,15 @@ embeddings-container-base:
     RUN apk add --no-cache curl
     RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/model.safetensors --output model.safetensors
     RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config.json --output config.json
+    RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer.json --output tokenizer.json
     SAVE ARTIFACT model.safetensors
+    SAVE ARTIFACT config.json
+    SAVE ARTIFACT tokenizer.json
 embeddings-container:
     FROM ghcr.io/huggingface/text-embeddings-inference:cpu-0.6
     COPY +embeddings-container-base/model.safetensors /data/model.safetensors
+    COPY +embeddings-container-base/config.json /data/config.json
+    COPY +embeddings-container-base/tokenizer.json /data/tokenizer.json
     CMD ["--json-output", "--model-id", "BAAI/bge-small-en-v1.5"]
     SAVE IMAGE --push $EMBEDDINGS_IMAGE_NAME
 

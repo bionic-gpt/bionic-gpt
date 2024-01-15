@@ -4,6 +4,10 @@ weight = 10
 sort_by = "weight"
 +++
 
+## Prerequisites
+
+You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
+
 ## Installation using Kind
 
 [Kind](https://kind.sigs.k8s.io/) is a lightweight Kubernetes you can run locally.
