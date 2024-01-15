@@ -7,7 +7,7 @@ on:
   workflow_dispatch: # Triggers the workflow manually
 
 jobs:
-  integration-tests:
+  embeddings-docker:
     runs-on: ubuntu-latest
 
     env:
