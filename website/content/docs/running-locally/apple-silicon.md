@@ -15,8 +15,8 @@ Once you have that running you can use the following to connect it to Bionic.
 The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 ```sh
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose.yml
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-ollama.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose/docker-compose-ollama.yml
 ```
 
 And run
