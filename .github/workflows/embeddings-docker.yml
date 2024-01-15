@@ -1,7 +1,7 @@
 # To run this workflow locally
 # docker compose -f docker-compose.yml -f .github/docker-compose-integration.yml up
 # Then in another terminal cut and past the docker run from below
-name: Integration Tests
+name: Embeddings Container
 
 on:
   workflow_dispatch: # Triggers the workflow manually
