@@ -173,6 +173,9 @@ OneLogin
 kubernetes
 OIDC
 Keycloak
+95
+Mixtral
+8x7B
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
