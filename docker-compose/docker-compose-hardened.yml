@@ -9,7 +9,7 @@ services:
       - 7880:80
     networks:
       - embeddings-api
-    # False DNS so the service can't make DBS lookups.
+    # False DNS so the service can't make DNS lookups.
     dns: 0.0.0.0
 
   pipeline-job:
@@ -51,13 +51,13 @@ services:
   unstructured:
     networks:
       - unstructured
-    # False DNS so the service can't make DBS lookups.
+    # False DNS so the service can't make DNS lookups.
     dns: 0.0.0.0
 
   llm-api:
     networks:
       - llm-api
-    # False DNS so the service can't make DBS lookups.
+    # False DNS so the service can't make DNS lookups.
     dns: 0.0.0.0
 
 networks:
