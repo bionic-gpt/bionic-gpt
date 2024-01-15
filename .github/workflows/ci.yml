@@ -11,7 +11,7 @@ on:
       - '*.md'
       - 'Pulumi.yaml'
       - '.github/workflows/integration-testing.yml'
-      - '.github/workflows/*docker.yml.yml'
+      - '.github/workflows/*docker.yml'
       - 'crates/k8s-operator/*.yaml'
   pull_request:
     branches:
@@ -23,7 +23,7 @@ on:
       - '*.md'
       - 'Pulumi.yaml'
       - '.github/workflows/integration-testing.yml'
-      - '.github/workflows/*docker.yml.yml'
+      - '.github/workflows/*docker.yml'
       - 'crates/k8s-operator/*.yaml'
 
 jobs:
