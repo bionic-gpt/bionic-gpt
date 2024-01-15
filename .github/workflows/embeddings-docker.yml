@@ -1,0 +1,32 @@
+# To run this workflow locally
+# docker compose -f docker-compose.yml -f .github/docker-compose-integration.yml up
+# Then in another terminal cut and past the docker run from below
+name: Integration Tests
+
+on:
+  workflow_dispatch: # Triggers the workflow manually
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+
+    - uses: earthly/actions/setup-earthly@v1
+      with:
+        version: v0.7.23
+        
+    - uses: actions/checkout@v4
+         
+    - name: Log in to the Github Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run build
+      run: earthly --allow-privileged --output --ci --push +embeddings-container

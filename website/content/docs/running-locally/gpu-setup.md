@@ -20,8 +20,8 @@ Full details of this container can be found at [HuggingFace TGI](https://github.
 ## Installation
 
 ```sh
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose.yml
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-gpu.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose/docker-compose-gpu.yml
 ```
 
 And run
