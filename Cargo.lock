@@ -1629,6 +1629,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "model-downloader"
+version = "0.1.0"
+
+[[package]]
 name = "multer"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
