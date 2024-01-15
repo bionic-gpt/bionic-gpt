@@ -23,6 +23,7 @@ ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
+ARG --global EMBEDDINGS_IMAGE_NAME=bionic-gpt/bionicgpt-embeddings-api:latest
 
 WORKDIR /build
 
@@ -150,6 +151,19 @@ operator-container:
     COPY +build/$OPERATOR_EXE_NAME k8s-operator
     ENTRYPOINT ["./k8s-operator"]
     SAVE IMAGE --push $OPERATOR_IMAGE_NAME
+
+# Embeddings container - download the model
+embeddings-container-base:
+    FROM alpine
+    RUN apk add --no-cache curl
+    RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/model.safetensors --output model.safetensors
+    RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config.json --output config.json
+    SAVE ARTIFACT model.safetensors
+embeddings-container:
+    FROM ghcr.io/huggingface/text-embeddings-inference:cpu-0.6
+    COPY +embeddings-container-base/model.safetensors /data/model.safetensors
+    CMD ["--json-output", "--model-id", "BAAI/bge-small-en-v1.5"]
+    SAVE IMAGE --push $EMBEDDINGS_IMAGE_NAME
 
 # Package up the selenium tests into a container that we can
 # run in the CI-CD pipeline
