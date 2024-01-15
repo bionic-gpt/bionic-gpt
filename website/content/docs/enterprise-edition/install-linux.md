@@ -3,6 +3,12 @@ title = "Installing on Linux"
 weight = 10
 sort_by = "weight"
 +++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_yMg_6M-e70?si=AVWI7SpUBpYAjZXY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+
+## Prerequisites
+
+You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 ## Installation using Kind
 

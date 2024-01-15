@@ -7,7 +7,7 @@ sort_by = "weight"
 We can override the `embeddings-api` entry in `docker-compose.yml`
 
 ```sh
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose-embed-gpu.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/docker-compose/docker-compose-embed-gpu.yml
 ```
 
 And run
