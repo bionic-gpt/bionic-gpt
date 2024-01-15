@@ -9,6 +9,8 @@ services:
       - 7880:80
     networks:
       - embeddings-api
+    #volumes:
+    #  - ./:/data
     # False DNS so the service can't make DNS lookups.
     dns: 0.0.0.0
 
