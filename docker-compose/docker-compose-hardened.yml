@@ -1,0 +1,69 @@
+# Lockdown all service so they can't call the internet
+# docker-compose -f docker-compose.yml -f docker-compose-hardened.yml up
+services:
+
+  embeddings-api:
+    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
+    platform: linux/amd64
+    ports:
+      - 7880:80
+    networks:
+      - embeddings-api
+    # False DNS so the service can't make DBS lookups.
+    dns: 0.0.0.0
+
+  pipeline-job:
+    environment:
+      EMBEDDINGS_API_ENDPOINT: http://embeddings-api:80/embeddings
+    networks:
+      - embeddings-api
+      - unstructured
+      - postgres
+
+  app:
+    environment:
+      EMBEDDINGS_API_ENDPOINT: http://embeddings-api:80/embeddings
+    networks:
+      - app
+      - unstructured
+      - embeddings-api
+      - postgres
+      - llm-api
+
+  migrations:
+    networks:
+      - postgres
+
+  postgres:
+    networks:
+      - postgres
+
+  keycloak:
+    networks:
+      - postgres
+      - keycloak
+
+  oauth2-proxy:
+    networks:
+      - keycloak
+      - app
+
+  unstructured:
+    networks:
+      - unstructured
+    # False DNS so the service can't make DBS lookups.
+    dns: 0.0.0.0
+
+  llm-api:
+    networks:
+      - llm-api
+    # False DNS so the service can't make DBS lookups.
+    dns: 0.0.0.0
+
+networks:
+  unstructured:
+  keycloak:
+  embeddings-api:
+  llm-api:
+  app:
+  postgres:
