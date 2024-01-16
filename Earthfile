@@ -154,21 +154,19 @@ operator-container:
     ENTRYPOINT ["./k8s-operator"]
     SAVE IMAGE --push $OPERATOR_IMAGE_NAME
 
-# Embeddings container - download the model
+# Embeddings container - download models from huggungface
 embeddings-container-base:
-    FROM alpine
-    RUN apk add --no-cache curl
-    RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/model.safetensors --output model.safetensors
-    RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config.json --output config.json
-    RUN curl https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer.json --output tokenizer.json
-    SAVE ARTIFACT model.safetensors
-    SAVE ARTIFACT config.json
-    SAVE ARTIFACT tokenizer.json
+    FROM purtontech/rust-on-nails-devcontainer:1.1.17
+    RUN sudo apt install -y python3-venv python3-pip
+    RUN sudo pip install -U "huggingface_hub[cli]" --break-system-packages
+    RUN sudo huggingface-cli download --cache-dir ./data BAAI/bge-small-en-v1.5 1_Pooling/config.json
+    RUN sudo huggingface-cli download --cache-dir ./data BAAI/bge-small-en-v1.5 model.safetensors
+    RUN sudo huggingface-cli download --cache-dir ./data BAAI/bge-small-en-v1.5 config.json
+    RUN sudo huggingface-cli download --cache-dir ./data BAAI/bge-small-en-v1.5 tokenizer.json
+    SAVE ARTIFACT ./data
 embeddings-container:
     FROM ghcr.io/huggingface/text-embeddings-inference:cpu-0.6
-    COPY +embeddings-container-base/model.safetensors /data/model.safetensors
-    COPY +embeddings-container-base/config.json /data/config.json
-    COPY +embeddings-container-base/tokenizer.json /data/tokenizer.json
+    COPY +embeddings-container-base/data /data
     CMD ["--json-output", "--model-id", "BAAI/bge-small-en-v1.5"]
     SAVE IMAGE --push $EMBEDDINGS_IMAGE_NAME
 
