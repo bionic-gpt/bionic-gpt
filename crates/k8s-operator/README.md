@@ -1,6 +1,6 @@
 ## To create the CRD in Kubernetes
 
-`kubectl apply -f crates/k8s-operator/bionics.bionic-gpt.com.yaml`
+`kubectl apply -f crates/k8s-operator/config/bionics.bionic-gpt.com.yaml`
 
 ## To Verify
 
@@ -8,7 +8,7 @@
 
 ## Install Bionic
 
-`kubectl apply -f crates/k8s-operator/bionic.yaml`
+`kubectl apply -f crates/k8s-operator/config/bionic.yaml`
 
 ## Run the operator
 
@@ -16,11 +16,11 @@
 
 ## Remove Bionic
 
-`kubectl delete -f crates/k8s-operator/bionic.yaml`
+`kubectl delete -f crates/k8s-operator/config/bionic.yaml`
 
 ## To remove the CRD in Kubernetes
 
-`kubectl delete -f crates/k8s-operator/bionics.bionic-gpt.com.yaml`
+`kubectl delete -f crates/k8s-operator/config/bionics.bionic-gpt.com.yaml`
 
 ## Bounce the Cluster
 
