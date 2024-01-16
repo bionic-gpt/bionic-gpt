@@ -40,7 +40,7 @@ services:
     volumes:
       # So that we can load examples with the browser testing.
       # However it doesn't seem to work with earthly, you have to docker cp the files
-      - ./.devcontainer/datasets:/workspace
+      - ../.devcontainer/datasets:/workspace
 
   video:
     image: selenium/video:ffmpeg-6.0-20231102
