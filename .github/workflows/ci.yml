@@ -12,7 +12,7 @@ on:
       - 'Pulumi.yaml'
       - '.github/workflows/integration-testing.yml'
       - '.github/workflows/embeddings-docker.yml'
-      - 'crates/k8s-operator/*.yaml'
+      - 'crates/k8s-operator/config/*'
   pull_request:
     branches:
       - main
@@ -24,7 +24,7 @@ on:
       - 'Pulumi.yaml'
       - '.github/workflows/integration-testing.yml'
       - '.github/workflows/embeddings-docker.yml'
-      - 'crates/k8s-operator/*.yaml'
+      - 'crates/k8s-operator/config/*'
 
 jobs:
 
