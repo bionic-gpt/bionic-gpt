@@ -9,9 +9,8 @@ services:
     platform: linux/amd64
 
   embeddings-api:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
+    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
     platform: linux/amd64
-    command: --model-id BAAI/bge-small-en-v1.5
 
   # Document parsing, OCR and chunking.
   # Image tagged with the short commit hash (e.g. fbc7a69) for each pust to main
@@ -109,6 +108,7 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.5.22
     platform: linux/amd64
     environment:
+      EMBEDDINGS_API_ENDPOINT: http://embeddings-api:80/embeddings
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
     depends_on:
       postgres:
@@ -121,6 +121,7 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt:1.5.22
     platform: linux/amd64
     environment:
+      EMBEDDINGS_API_ENDPOINT: http://embeddings-api:80/embeddings
       LOGOUT_URL: http://localhost:7810/realms/bionic-gpt/protocol/openid-connect/logout?post_logout_redirect_uri=http://localhost:7800&client_id=bionic-gpt
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
     depends_on:

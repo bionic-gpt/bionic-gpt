@@ -4,8 +4,7 @@ services:
     image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.2
 
   embeddings-api:
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2
-    command: --model-id BAAI/bge-small-en-v1.5
+    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
 
   unstructured:
     image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc

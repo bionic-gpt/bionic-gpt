@@ -22,13 +22,7 @@ pub async fn deploy(
             port: 80,
             env: vec![],
             init_container: None,
-            command: Some(deployment::Command {
-                command: vec![],
-                args: vec![
-                    "--model-id".to_string(),
-                    "BAAI/bge-small-en-v1.5".to_string(),
-                ],
-            }),
+            command: None,
             expose_service: true,
             volume_mounts: vec![],
             volumes: vec![],
