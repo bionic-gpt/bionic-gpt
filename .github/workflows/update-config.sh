@@ -20,5 +20,5 @@ for i in "${containers[@]}"
 do
     CONFIG_NAME=$(echo $i | cut -c 20-) 
     echo "Name $CONFIG_NAME"
-    sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../docker-compose.yml
+    sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../docker-compose/docker-compose.yml
 done
