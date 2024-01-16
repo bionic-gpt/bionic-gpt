@@ -98,17 +98,9 @@
 See the [open issues](https://github.com/purton-tech/bionicgpt/issues) for a full list of proposed features (and known issues).
 
 <!-- Try it out -->
-## Try it out
+## Try it out with `docker compose`
 
-Download our `docker-compose.yml` file and run `docker-compose up` access the user interface on http://localhost:7800/auth/sign_up
-
-```sh
-curl -O https://raw.githubusercontent.com/purton-tech/bionicgpt/main/docker-compose.yml
-```
-
-This has been tested on an AMD 2700x with 16GB of ram. The included `llama-2-7b-chat` model runs on CPU only.
-
-**Warning** - The images in this `docker-compose` are large due to having the model weights pre-loaded for convenience.
+follow [our guide](https://bionic-gpt.com/docs/running-locally/introduction/) to running Bionic-GPT on your local machine.
 
 ## Kubernetes Ready
 
