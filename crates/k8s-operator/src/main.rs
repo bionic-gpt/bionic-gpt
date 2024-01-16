@@ -32,7 +32,7 @@ const _LITE_LLM_IMAGE: &str = "ghcr.io/berriai/litellm:main-v1.10.3";
 const _TGI_IMAGE: &str = "ghcr.io/huggingface/text-generation-inference:1.2";
 const CHUNKING_ENGINE_IMAGE: &str =
     "downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc";
-const EMBEDDINGS_ENGINE_IMAGE: &str = "ghcr.io/huggingface/text-embeddings-inference:cpu-0.2.2";
+const EMBEDDINGS_ENGINE_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6";
 const LLM_API_IMAGE: &str = "ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.4";
 
 #[tokio::main]

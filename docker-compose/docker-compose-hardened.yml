@@ -3,28 +3,17 @@
 services:
 
   embeddings-api:
-    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
-    platform: linux/amd64
-    ports:
-      - 7880:80
     networks:
       - embeddings-api
-    #volumes:
-    #  - ./:/data
-    # False DNS so the service can't make DNS lookups.
     dns: 0.0.0.0
 
   pipeline-job:
-    environment:
-      EMBEDDINGS_API_ENDPOINT: http://embeddings-api:80/embeddings
     networks:
       - embeddings-api
       - unstructured
       - postgres
 
   app:
-    environment:
-      EMBEDDINGS_API_ENDPOINT: http://embeddings-api:80/embeddings
     networks:
       - app
       - unstructured
