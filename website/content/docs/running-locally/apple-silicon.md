@@ -10,6 +10,15 @@ You'll need to install [Ollama](https://ollama.ai/) and get it running with the 
 
 Once you have that running you can use the following to connect it to Bionic.
 
+## Check Ollama is running
+
+```sh
+curl -X POST http://localhost:11434/api/generate -d '{
+  "model": "llama2",
+  "prompt":"Why is the sky blue?"
+ }'
+```
+
 ## Prerequisites
 
 The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
