@@ -1,5 +1,5 @@
 +++
-title = "Installing the Operator"
+title = "Installing the Bionic Operator"
 weight = 15
 sort_by = "weight"
 +++
