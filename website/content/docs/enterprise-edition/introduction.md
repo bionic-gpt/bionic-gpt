@@ -1,34 +1,21 @@
 +++
-title = "Introduction"
-description = "It's a Pipeline"
+title = "Bionic-GPT Enterprise"
 weight = 5
 sort_by = "weight"
 +++
 
-BionicGPT is implemented as what's called an LLM Pipeline. Basically we integrate open source components (deployed as docker containers) with a custom user interface.
+The enterprise version of Bionic-GPT includes the following
 
-## BionicGPT responsibilities
+* High availability and fault tolerance.
+* A kubernetes Operator to manage all the components.
+* Secure component supply chain and the possibility of an SBOM.
+* Integrates with all known SSO providers.
+* Secured installation including component isolation.
+* Support for potentially 1000's of users.
+* Persistence and support for Backups.
+* Automated generation of required secrets.
+* Ability to swap in and out custom component solutions. 
 
-When creating an LLM pipeline you have to decide which technologies you need, which providers to use and then how to integrate those services together.
-
-We've made those decisions and integrated them into a tried and tested pipeline.
-
-Here's an overview of the pipeline architecture.
-
-1. Postgres and PgVector - For storing application data such as users, roles, chat history and so on. We use the PgVector add on to store embeddings.
-1. Barricade - If you're not using single sign on we use barricade for authentication.
-1. Unstructured - Manages text extraction from multiple document types.
-1. Envoy - Glues various services together so they are all available on the same URL.
-1. BionicGTP User Interface - An axum server running the user interface.
-
-## Example Infrastructure as Code
-
-The BionicGPT github repository contains an example Pulumi code for setting up a BionicGPT cluster.
-
-We recommend you clone the repo and then run the example form the [devcontainer](https://containers.dev/) which has all the tools you need already installed.
-
-After trying the example it should be a lot easier to figure out your own production strategy.
-
-## Pipeline Diagram
+## Architecture Diagram
 
 ![Alt text](../architecture.svg "BionicGPT Architetcure")
