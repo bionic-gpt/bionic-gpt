@@ -176,6 +176,7 @@ Keycloak
 95
 Mixtral
 8x7B
+SBOM
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
