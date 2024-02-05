@@ -1,16 +1,21 @@
 +++
-title = "Installing on Linux"
+title = "Practice Installation using Kind"
 weight = 10
 sort_by = "weight"
 +++
 <iframe width="560" height="315" src="https://www.youtube.com/embed/_yMg_6M-e70?si=AVWI7SpUBpYAjZXY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 
-## Prerequisites
+## Kind is not for production
 
-You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
+kind is a tool for running local Kubernetes clusters using Docker container “nodes”.
+kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI.
+
+We use kind as part of this tutorial so that you can practice an installation before finally installing the system on a production Kubernetes.
 
 ## Installation using Kind
+
+You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 [Kind](https://kind.sigs.k8s.io/) is a lightweight Kubernetes you can run locally.
 
