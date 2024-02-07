@@ -12,7 +12,7 @@ There are several ways to install Postgres on Kubernetes or get access to a Post
 
 There are several Postgres Operators, the one we have chosen is [CloudNativePG](https://cloudnative-pg.io/).
 
-Refere to the CloudNativePG documentation to get the latest version to install or go with version 1.22 like below.
+Refer to the CloudNativePG documentation to get the latest version to install or go with version 1.22 like below.
 
 ```sh
 kubectl apply -f \
@@ -120,5 +120,3 @@ kubectl apply -n bionic-gpt -f db-secrets.yml
 Assuming all goes well you should be able to see a postgres database running in your cluster.
 
 ![Alt text](../postgres-operator.png "Postgres Operator")
-
-## Testing the connection

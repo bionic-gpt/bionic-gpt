@@ -177,6 +177,7 @@ Keycloak
 Mixtral
 8x7B
 SBOM
+CloudNativePG
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -500,3 +501,5 @@ auth
 95
  - docs/enterprise-edition/single-signon.md
 base64-encoded
+ - docs/enterprise-edition/install-postgres-operator.md
+1.22
