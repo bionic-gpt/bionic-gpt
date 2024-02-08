@@ -42,6 +42,7 @@ We'll need to create a database to hold KeyCloak data.
 
 ```sh
 export DATABASE_PASSWORD=$(openssl rand -hex 10)
+export ADMIN_PASSWORD=$(openssl rand -hex 10)
 ```
 
 ```sh
@@ -64,8 +65,6 @@ kubectl apply -n bionic-gpt -f keycloak-db-secret.yml
 ```
 
 ## Creating a Keycloak Database
-
-Create the configuration for a Bionic-GPT database. Feel free to alter the storage size and the number of instances.
 
 ```sh
 echo "apiVersion: postgresql.cnpg.io/v1
@@ -92,23 +91,135 @@ And apply it
 kubectl apply -n bionic-gpt -f keycloak-database.yml
 ```
 
-Create the secrets so Keycloak can access the database.
+Create the secrets.
 
 ```sh
 echo "apiVersion: v1
 kind: Secret
 metadata:
   namespace: bionic-gpt
-  name: keycloak-database-url
-stringData:
-  migrations-url: postgres://keycloak-db-owner:${DATABASE_PASSWORD}@keycloak-db-cluster-rw:5432/bionic-gpt?sslmode=require
-" > keycloak-db-secrets.yml
+  name: keycloak-secrets
+data:
+  password: ${DATABASE_PASSWORD}
+  admin-password: ${ADMIN_PASSWORD}
+" > keycloak-secrets.yml
 ```
 
 And apply it
 
 ```sh
-kubectl apply -n bionic-gpt -f keycloak-db-secrets.yml
+kubectl apply -n bionic-gpt -f keycloak-secrets.yml
 ```
 
 ## Create a KeyCloak Deployment
+
+```sh
+echo "apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:23.0
+        ports:
+        - containerPort: 7910
+        env:
+        - name: KC_DB
+          value: postgres
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-db-secret
+              key: password
+        - name: KC_DB_USERNAME
+          value: keycloak-db-owner
+        - name: KC_DB_URL
+          value: jdbc:postgresql://keycloak-db-cluster/keycloak
+        - name: KEYCLOAK_ADMIN
+          value: admin
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-db-secret
+              key: admin-password
+        - name: KC_HEALTH_ENABLED
+          value: 'true'
+      volumeMounts:
+      - name: keycloak-config
+        mountPath: /opt/keycloak/data/import
+      volumes:
+      - name: keycloak-config
+        configMap:
+          name: keycloak
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 7910
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-config
+data:
+  keycloak-realm-config.json: |-
+    {
+      'realm': 'bionic-gpt',
+      'registrationAllowed': true,
+      'registrationEmailAsUsername': true,
+      'enabled': 'true',
+      'sslRequired': 'none',
+      'clients': [
+          {
+              'clientId': 'bionic-gpt',
+              'clientAuthenticatorType': 'client-secret',
+              'secret': '69b26b08-12fe-48a2-85f0-6ab223f45777',
+              'redirectUris': [
+                  'http://*',
+                  'https://*'
+              ],
+              'protocol': 'openid-connect'
+          }
+      ]
+    }
+" > keycloak-deployment.yml
+```
+
+And apply it
+
+```sh
+kubectl apply -n bionic-gpt -f keycloak-deployment.yml
+```
+
+Create the secret so Bionic can see the Open ID Connect provider.
+
+```yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oidc-secret
+type: Opaque
+data:
+  client-id: <base64-encoded-client-id>
+  client-secret: <base64-encoded-client-secret>
+  redirect-uri: <base64-encoded-redirect-uri>
+  issuer-url: <base64-encoded-issuer-url>
+```
