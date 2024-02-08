@@ -83,6 +83,8 @@ spec:
       postInitSQL:
         - CREATE ROLE bionic_application LOGIN ENCRYPTED PASSWORD '${APP_DATABASE_PASSWORD}'
         - CREATE ROLE bionic_readonly LOGIN ENCRYPTED PASSWORD '${READONLY_DATABASE_PASSWORD}'
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS vector
   storage:
     size: '1Gi'
 " > database.yml
