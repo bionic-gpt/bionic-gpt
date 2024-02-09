@@ -6,11 +6,9 @@ mod embeddings_engine;
 mod envoy;
 mod error;
 mod finalizer;
-mod keycloak;
 mod llm;
 mod oauth2_proxy;
 mod pipeline_job;
-mod postgres;
 mod reconcile;
 use anyhow::Result;
 use crd::Bionic;
@@ -24,10 +22,8 @@ const BIONICGPT_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt";
 const BIONICGPT_PIPELINE_JOB_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-pipeline-job";
 const BIONICGPT_DB_MIGRATIONS_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations";
 
-const KEYCLOAK_IMAGE: &str = "quay.io/keycloak/keycloak:23.0";
 const ENVOYPROXY_IMAGE: &str = "envoyproxy/envoy:v1.28.0";
 const OAUTH2_PROXY_IMAGE: &str = "quay.io/oauth2-proxy/oauth2-proxy:v7.5.1";
-const POSTGRES_PGVECTOR_IMAGE: &str = "ankane/pgvector";
 const _LITE_LLM_IMAGE: &str = "ghcr.io/berriai/litellm:main-v1.10.3";
 const _TGI_IMAGE: &str = "ghcr.io/huggingface/text-generation-inference:1.2";
 const CHUNKING_ENGINE_IMAGE: &str =
