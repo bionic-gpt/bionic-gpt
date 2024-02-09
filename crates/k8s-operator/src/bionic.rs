@@ -48,7 +48,7 @@ pub async fn deploy(
                 "valueFrom": {
                     "secretKeyRef": {
                         "name": "database-urls",
-                        "key": "application-url"
+                        "key": "migrations-url"
                     }
                 }})],
             }),
