@@ -100,7 +100,7 @@ metadata:
   namespace: bionic-gpt
   name: keycloak-secrets
 data:
-  password: ${DATABASE_PASSWORD}
+  database-password: ${DATABASE_PASSWORD}
   admin-password: ${ADMIN_PASSWORD}
 " > keycloak-secrets.yml
 ```
@@ -131,36 +131,47 @@ spec:
       containers:
       - name: keycloak
         image: quay.io/keycloak/keycloak:23.0
+        volumeMounts:
+        - name: keycloak-config
+          mountPath: /opt/keycloak/data/import
         ports:
         - containerPort: 7910
+        command:
+        args:
+          - start-dev
+          - --import-realm
+          - --http-port=7910
+          - --proxy=edge
+          - --hostname-strict=false
+          - --hostname-strict-https=false
+          - --hostname-url=https://localhost/oidc
+          - --http-relative-path=/oidc
+
         env:
         - name: KC_DB
           value: postgres
         - name: KC_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: keycloak-db-secret
-              key: password
+              name: keycloak-secrets
+              key: database-password
         - name: KC_DB_USERNAME
           value: keycloak-db-owner
         - name: KC_DB_URL
-          value: jdbc:postgresql://keycloak-db-cluster/keycloak
+          value: jdbc:postgresql://keycloak-db-cluster-rw/keycloak
         - name: KEYCLOAK_ADMIN
           value: admin
         - name: KEYCLOAK_ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: keycloak-db-secret
+              name: keycloak-secrets
               key: admin-password
         - name: KC_HEALTH_ENABLED
           value: 'true'
-      volumeMounts:
-      - name: keycloak-config
-        mountPath: /opt/keycloak/data/import
       volumes:
       - name: keycloak-config
         configMap:
-          name: keycloak
+          name: keycloak-config
 ---
 apiVersion: v1
 kind: Service
