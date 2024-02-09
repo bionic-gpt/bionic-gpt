@@ -22,31 +22,40 @@ pub async fn deploy(
             image_name: format!("{}:{}", crate::BIONICGPT_IMAGE, spec.version),
             replicas: spec.replicas,
             port: 7903,
-            env: vec![json!({
-                "name": 
-                "APP_DATABASE_URL", 
-                "value": 
-                "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
-            }),
-            json!({
-                "name": 
-                "PORT", 
-                "value": 
-                "7903"
-            })],
+            env: vec![
+                json!({
+                    "name":
+                    "APP_DATABASE_URL",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "database-urls",
+                            "key": "application-url"
+                        }
+                    }
+                }),
+                json!({
+                    "name":
+                    "PORT",
+                    "value":
+                    "7903"
+                }),
+            ],
             init_container: Some(deployment::InitContainer {
                 image_name: format!("{}:{}", crate::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),
                 env: vec![json!({
-                    "name": 
-                    "DATABASE_URL", 
-                    "value": 
-                    "postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
-                })]
+                "name":
+                "DATABASE_URL",
+                "valueFrom": {
+                    "secretKeyRef": {
+                        "name": "database-urls",
+                        "key": "migrations-url"
+                    }
+                }})],
             }),
             command: None,
             expose_service: false,
             volume_mounts: vec![],
-            volumes: vec![]
+            volumes: vec![],
         },
         namespace,
     )
