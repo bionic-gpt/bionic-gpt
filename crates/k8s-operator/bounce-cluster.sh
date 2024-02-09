@@ -118,7 +118,7 @@ kubectl apply -n bionic-gpt -f keycloak-secrets.yml && rm keycloak-secrets.yml
 kubectl -n bionic-gpt wait --for=condition=ready pod -l cnpg.io/cluster=bionic-db-cluster
 kubectl -n bionic-gpt wait --timeout=30s --for=condition=ready pod -l cnpg.io/cluster=keycloak-db-cluster
 
-echo "apiVersion: apps/v1
+echo 'apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
@@ -151,17 +151,17 @@ spec:
         ports:
         - containerPort: 7910
         env:
-        - name: KC_DB
-          value: postgres
-        - name: KC_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: keycloak-secrets
-              key: database-password
-        - name: KC_DB_USERNAME
-          value: keycloak-db-owner
-        - name: KC_DB_URL
-          value: jdbc:postgresql://keycloak-db-cluster-rw:5432/keycloak
+        #- name: KC_DB
+        #  value: postgres
+        #- name: KC_DB_PASSWORD
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: keycloak-secrets
+        #      key: database-password
+        #- name: KC_DB_USERNAME
+        #  value: keycloak-db-owner
+        #- name: KC_DB_URL
+        #  value: jdbc:postgresql://keycloak-db-cluster-rw:5432/keycloak
         - name: KEYCLOAK_ADMIN
           value: admin
         - name: KEYCLOAK_ADMIN_PASSWORD
@@ -170,7 +170,7 @@ spec:
               name: keycloak-secrets
               key: admin-password
         - name: KC_HEALTH_ENABLED
-          value: 'true'
+          value: "true"
       volumes:
       - name: keycloak-config
         configMap:
@@ -196,24 +196,25 @@ metadata:
 data:
   realm.json: |
     {
-      'realm': 'bionic-gpt',
-      'registrationAllowed': true,
-      'registrationEmailAsUsername': true,
-      'enabled': 'true',
-      'sslRequired': 'none',
-      'clients': [
-          {
-              'clientId': 'bionic-gpt',
-              'clientAuthenticatorType': 'client-secret',
-              'secret': '69b26b08-12fe-48a2-85f0-6ab223f45777',
-              'redirectUris': [
-                  'http://*',
-                  'https://*'
-              ],
-              'protocol': 'openid-connect'
-          }
+      "realm": "bionic-gpt",
+      "registrationAllowed": "true",
+      "registrationEmailAsUsername": "true",
+      "enabled": "true",
+      "sslRequired": "none",
+      "clients": [
+        {
+          "clientId": "bionic-gpt",
+          "clientAuthenticatorType": "client-secret",
+          "secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
+          "redirectUris": [
+            "http://*",
+            "https://*"
+          ],
+          "protocol": "openid-connect"
+        }
       ]
     }
-" > keycloak-deployment.yml
+
+' > keycloak-deployment.yml
 
 kubectl apply -n bionic-gpt -f keycloak-deployment.yml && rm keycloak-deployment.yml

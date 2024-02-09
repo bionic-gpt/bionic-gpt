@@ -113,8 +113,10 @@ kubectl apply -n bionic-gpt -f keycloak-secrets.yml
 
 ## Create a KeyCloak Deployment
 
+TODO - Get this config with the database. For some reason it won't connect.
+
 ```sh
-echo "apiVersion: apps/v1
+echo 'apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
@@ -131,11 +133,6 @@ spec:
       containers:
       - name: keycloak
         image: quay.io/keycloak/keycloak:23.0
-        volumeMounts:
-        - name: keycloak-config
-          mountPath: /opt/keycloak/data/import
-        ports:
-        - containerPort: 7910
         command:
         args:
           - start-dev
@@ -146,19 +143,23 @@ spec:
           - --hostname-strict-https=false
           - --hostname-url=https://localhost/oidc
           - --http-relative-path=/oidc
-
+        volumeMounts:
+        - name: keycloak-config
+          mountPath: /opt/keycloak/data/import
+        ports:
+        - containerPort: 7910
         env:
-        - name: KC_DB
-          value: postgres
-        - name: KC_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: keycloak-secrets
-              key: database-password
-        - name: KC_DB_USERNAME
-          value: keycloak-db-owner
-        - name: KC_DB_URL
-          value: jdbc:postgresql://keycloak-db-cluster-rw/keycloak
+        #- name: KC_DB
+        #  value: postgres
+        #- name: KC_DB_PASSWORD
+        #  valueFrom:
+        #    secretKeyRef:
+        #      name: keycloak-secrets
+        #      key: database-password
+        #- name: KC_DB_USERNAME
+        #  value: keycloak-db-owner
+        #- name: KC_DB_URL
+        #  value: jdbc:postgresql://keycloak-db-cluster-rw:5432/keycloak
         - name: KEYCLOAK_ADMIN
           value: admin
         - name: KEYCLOAK_ADMIN_PASSWORD
@@ -167,7 +168,7 @@ spec:
               name: keycloak-secrets
               key: admin-password
         - name: KC_HEALTH_ENABLED
-          value: 'true'
+          value: "true"
       volumes:
       - name: keycloak-config
         configMap:
@@ -191,27 +192,28 @@ kind: ConfigMap
 metadata:
   name: keycloak-config
 data:
-  realm.json: |-
+  realm.json: |
     {
-      'realm': 'bionic-gpt',
-      'registrationAllowed': true,
-      'registrationEmailAsUsername': true,
-      'enabled': 'true',
-      'sslRequired': 'none',
-      'clients': [
-          {
-              'clientId': 'bionic-gpt',
-              'clientAuthenticatorType': 'client-secret',
-              'secret': '69b26b08-12fe-48a2-85f0-6ab223f45777',
-              'redirectUris': [
-                  'http://*',
-                  'https://*'
-              ],
-              'protocol': 'openid-connect'
-          }
+      "realm": "bionic-gpt",
+      "registrationAllowed": "true",
+      "registrationEmailAsUsername": "true",
+      "enabled": "true",
+      "sslRequired": "none",
+      "clients": [
+        {
+          "clientId": "bionic-gpt",
+          "clientAuthenticatorType": "client-secret",
+          "secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
+          "redirectUris": [
+            "http://*",
+            "https://*"
+          ],
+          "protocol": "openid-connect"
+        }
       ]
     }
-" > keycloak-deployment.yml
+
+' > keycloak-deployment.yml
 ```
 
 And apply it
