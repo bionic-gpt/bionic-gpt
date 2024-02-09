@@ -21,17 +21,24 @@ pub async fn deploy(
             image_name: format!("{}:{}", crate::BIONICGPT_PIPELINE_JOB_IMAGE, spec.version),
             replicas: spec.replicas,
             port: 3000,
-            env: vec![json!({
-                "name": 
-                "APP_DATABASE_URL", 
-                "value": 
-                "postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable"
-            }),json!({
-                "name": 
-                "CHUNKING_ENGINE", 
-                "value": 
-                "http://chunking-engine:8000"
-            })],
+            env: vec![
+                json!({
+                    "name":
+                    "APP_DATABASE_URL",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "database-urls",
+                            "key": "application-url"
+                        }
+                    }
+                }),
+                json!({
+                    "name":
+                    "CHUNKING_ENGINE",
+                    "value":
+                    "http://chunking-engine:8000"
+                }),
+            ],
             init_container: None,
             command: Some(deployment::Command {
                 command: vec![],
