@@ -1,76 +1,51 @@
-kind delete cluster --name bionic-gpt-cluster
-kind create cluster --name bionic-gpt-cluster --config=/workspace/crates/k8s-operator/config/kind-config.yaml
-kind export kubeconfig --name bionic-gpt-cluster
-sed -i 's,https://0.0.0.0,https://host.docker.internal,g' ~/.kube/config
-kubectl create namespace bionic-gpt
-kubectl apply -n bionic-gpt -f /workspace/crates/k8s-operator/config/bionics.bionic-gpt.com.yaml
-kubectl apply -f /workspace/crates/k8s-operator/config/bionic.yaml
++++
+title = "Installing Identity and Access Management"
+weight = 14
+sort_by = "weight"
++++
 
-## Install Postrgres
-kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.22/releases/cnpg-1.22.1.yaml
+We use Open ID Connect to allow you to connect Bionic-GPT to any an identity access management (IAM) provider. For example Auth0, Azure, OneLogin, Google and more.
 
-export APP_DATABASE_PASSWORD=$(openssl rand -hex 10)
-export DBOWNER_DATABASE_PASSWORD=$(openssl rand -hex 10)
-export READONLY_DATABASE_PASSWORD=$(openssl rand -hex 10)
+If you don't have an IAM solution yet, go to the **Installing KeyCloak** section.
 
-echo "apiVersion: v1
-kind: Secret
-type: "kubernetes.io/basic-auth"
-metadata:
-  namespace: bionic-gpt
-  name: db-owner
-stringData:
-  username: db-owner
-  password: ${DBOWNER_DATABASE_PASSWORD}
-" > db-owner-secret.yml
+You need to create the following secret in kubernetes and reference it from the `bionic.yaml` we referenced earlier.
 
-kubectl apply -n bionic-gpt -f db-owner-secret.yml && rm db-owner-secret.yml
+Example secret
 
-echo "apiVersion: v1
+```yml
+apiVersion: v1
 kind: Secret
 metadata:
-  namespace: bionic-gpt
-  name: database-urls
+  name: oidc-secret
+type: Opaque
 stringData:
-  migrations-url: postgres://db-owner:${DBOWNER_DATABASE_PASSWORD}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=require
-  application-url: postgres://bionic_application:${APP_DATABASE_PASSWORD}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=require
-  readonly-url: postgres://bionic_readonly:${READONLY_DATABASE_PASSWORD}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=require
-" > db-secrets.yml
+  client-id: <client-id>
+  client-secret: <client-secret>
+  redirect-uri: <redirect-uri>
+  issuer-url: <issuer-url>
+```
 
+Replace `<base64-encoded-client-id>`, `<base64-encoded-client-secret>`, `<base64-encoded-redirect-uri>`, and `<base64-encoded-issuer-url>` with the base64-encoded values of your actual OIDC provider information. You can use the `echo -n value | base64 command to generate the base64-encoded values.`
 
-kubectl apply -n bionic-gpt -f db-secrets.yml && rm db-secrets.yml
+```sh
+echo -n 'your-client-id' | base64
+echo -n 'your-client-secret' | base64
+echo -n 'your-redirect-uri' | base64
+echo -n 'your-issuer-url' | base64
+```
 
-sleep 20
+## Installing KeyCloak
 
-kubectl -n cnpg-system wait --timeout=30s --for=condition=ready pod -l app.kubernetes.io/name=cloudnative-pg
+If you don't have access to an IAM solution you can install [KeyCloak](https://www.keycloak.org/) which is an open source identity and access management system.
 
-echo "apiVersion: postgresql.cnpg.io/v1
-kind: 'Cluster'
-metadata:
-  name: 'bionic-db-cluster'
-  namespace: bionic-gpt
-spec:
-  instances: 1
-  bootstrap:
-    initdb:
-      database: bionic-gpt
-      owner: db-owner
-      secret:
-        name: db-owner
-      postInitSQL:
-        - CREATE ROLE bionic_application LOGIN ENCRYPTED PASSWORD '${APP_DATABASE_PASSWORD}'
-        - CREATE ROLE bionic_readonly LOGIN ENCRYPTED PASSWORD '${READONLY_DATABASE_PASSWORD}'
-      postInitApplicationSQL:
-        - CREATE EXTENSION IF NOT EXISTS vector
-  storage:
-    size: '1Gi'
-" > database.yml
+We'll need to create a database to hold KeyCloak data.
 
-kubectl apply -n bionic-gpt -f database.yml && rm database.yml
-
+```sh
 export DATABASE_PASSWORD=$(openssl rand -hex 10)
 export ADMIN_PASSWORD=$(openssl rand -hex 10)
+```
 
+```sh
 echo "apiVersion: v1
 kind: Secret
 type: "kubernetes.io/basic-auth"
@@ -81,9 +56,17 @@ stringData:
   username: keycloak-db-owner
   password: ${DATABASE_PASSWORD}
 " > keycloak-db-secret.yml
+```
 
-kubectl apply -n bionic-gpt -f keycloak-db-secret.yml && rm keycloak-db-secret.yml
+And apply it
 
+```sh
+kubectl apply -n bionic-gpt -f keycloak-db-secret.yml
+```
+
+## Creating a Keycloak Database
+
+```sh
 echo "apiVersion: postgresql.cnpg.io/v1
 kind: 'Cluster'
 metadata:
@@ -100,9 +83,17 @@ spec:
   storage:
     size: '1Gi'
 " > keycloak-database.yml
+```
 
-kubectl apply -n bionic-gpt -f keycloak-database.yml && rm keycloak-database.yml
+And apply it
 
+```sh
+kubectl apply -n bionic-gpt -f keycloak-database.yml
+```
+
+Create the secrets.
+
+```sh
 echo "apiVersion: v1
 kind: Secret
 metadata:
@@ -112,12 +103,19 @@ data:
   database-password: ${DATABASE_PASSWORD}
   admin-password: ${ADMIN_PASSWORD}
 " > keycloak-secrets.yml
+```
 
-kubectl apply -n bionic-gpt -f keycloak-secrets.yml && rm keycloak-secrets.yml
+And apply it
 
-kubectl -n bionic-gpt wait --for=condition=ready pod -l cnpg.io/cluster=bionic-db-cluster
-kubectl -n bionic-gpt wait --timeout=30s --for=condition=ready pod -l cnpg.io/cluster=keycloak-db-cluster
+```sh
+kubectl apply -n bionic-gpt -f keycloak-secrets.yml
+```
 
+## Create a KeyCloak Deployment
+
+TODO - Get this config working with the database. For some reason it won't connect.
+
+```sh
 echo 'apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -216,14 +214,22 @@ data:
     }
 
 ' > keycloak-deployment.yml
+```
 
-kubectl apply -n bionic-gpt -f keycloak-deployment.yml && rm keycloak-deployment.yml
+And apply it
 
+```sh
+kubectl apply -n bionic-gpt -f keycloak-deployment.yml
+```
 
+## Create the secret so Bionic can see the Open ID Connect provider.
+
+```yml
 echo "apiVersion: v1
 kind: Secret
 metadata:
   name: oidc-secret
+type: Opaque
 stringData:
   client-id: bionic-gpt
   client-secret: 69b26b08-12fe-48a2-85f0-6ab223f45777
@@ -231,5 +237,8 @@ stringData:
   issuer-url: http://keycloak/oidc/realms/bionic-gpt
   cookie-secret: OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w=
 " > oidc-secret.yml
+```
 
-kubectl apply -n bionic-gpt -f oidc-secret.yml && rm oidc-secret.yml
+```sh
+kubectl apply -n bionic-gpt -f oidc-secret.yml
+```
