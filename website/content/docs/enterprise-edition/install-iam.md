@@ -18,11 +18,11 @@ kind: Secret
 metadata:
   name: oidc-secret
 type: Opaque
-data:
-  client-id: <base64-encoded-client-id>
-  client-secret: <base64-encoded-client-secret>
-  redirect-uri: <base64-encoded-redirect-uri>
-  issuer-url: <base64-encoded-issuer-url>
+stringData:
+  client-id: <client-id>
+  client-secret: <client-secret>
+  redirect-uri: <redirect-uri>
+  issuer-url: <issuer-url>
 ```
 
 Replace `<base64-encoded-client-id>`, `<base64-encoded-client-secret>`, `<base64-encoded-redirect-uri>`, and `<base64-encoded-issuer-url>` with the base64-encoded values of your actual OIDC provider information. You can use the `echo -n value | base64 command to generate the base64-encoded values.`
@@ -113,7 +113,7 @@ kubectl apply -n bionic-gpt -f keycloak-secrets.yml
 
 ## Create a KeyCloak Deployment
 
-TODO - Get this config with the database. For some reason it won't connect.
+TODO - Get this config working with the database. For some reason it won't connect.
 
 ```sh
 echo 'apiVersion: apps/v1
@@ -222,17 +222,23 @@ And apply it
 kubectl apply -n bionic-gpt -f keycloak-deployment.yml
 ```
 
-Create the secret so Bionic can see the Open ID Connect provider.
+## Create the secret so Bionic can see the Open ID Connect provider.
 
 ```yml
-apiVersion: v1
+echo "apiVersion: v1
 kind: Secret
 metadata:
   name: oidc-secret
 type: Opaque
-data:
-  client-id: <base64-encoded-client-id>
-  client-secret: <base64-encoded-client-secret>
-  redirect-uri: <base64-encoded-redirect-uri>
-  issuer-url: <base64-encoded-issuer-url>
+stringData:
+  client-id: bionic-gpt
+  client-secret: 69b26b08-12fe-48a2-85f0-6ab223f45777
+  redirect-uri: https://localhost/oidc/oauth2/callback
+  issuer-url: http://keycloak/oidc/realms/bionic-gpt
+  cookie-secret: OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w=
+" > oidc-secret.yml
+```
+
+```sh
+kubectl apply -n bionic-gpt -f oidc-secret.yml
 ```

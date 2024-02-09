@@ -218,3 +218,18 @@ data:
 ' > keycloak-deployment.yml
 
 kubectl apply -n bionic-gpt -f keycloak-deployment.yml && rm keycloak-deployment.yml
+
+
+echo "apiVersion: v1
+kind: Secret
+metadata:
+  name: oidc-secret
+stringData:
+  client-id: bionic-gpt
+  client-secret: 69b26b08-12fe-48a2-85f0-6ab223f45777
+  redirect-uri: https://localhost/oidc/oauth2/callback
+  issuer-url: http://keycloak/oidc/realms/bionic-gpt
+  cookie-secret: OQINaROshtE9TcZkNAm-5Zs2Pv3xaWytBmc5W7sPX7w=
+" > oidc-secret.yml
+
+kubectl apply -n bionic-gpt -f oidc-secret.yml && rm oidc-secret.yml
