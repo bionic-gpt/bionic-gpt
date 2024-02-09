@@ -191,7 +191,7 @@ kind: ConfigMap
 metadata:
   name: keycloak-config
 data:
-  keycloak-realm-config.json: |-
+  realm.json: |-
     {
       'realm': 'bionic-gpt',
       'registrationAllowed': true,

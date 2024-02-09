@@ -161,7 +161,7 @@ spec:
         - name: KC_DB_USERNAME
           value: keycloak-db-owner
         - name: KC_DB_URL
-          value: jdbc:postgresql://keycloak-db-cluster-rw/keycloak
+          value: jdbc:postgresql://keycloak-db-cluster-rw:5432/keycloak
         - name: KEYCLOAK_ADMIN
           value: admin
         - name: KEYCLOAK_ADMIN_PASSWORD
@@ -194,7 +194,7 @@ kind: ConfigMap
 metadata:
   name: keycloak-config
 data:
-  keycloak-realm-config.json: |-
+  realm.json: |
     {
       'realm': 'bionic-gpt',
       'registrationAllowed': true,
