@@ -23,7 +23,6 @@ pub async fn deploy(
             env: vec![],
             init_container: None,
             command: None,
-            expose_service: true,
             volume_mounts: vec![],
             volumes: vec![],
         },

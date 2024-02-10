@@ -10,6 +10,16 @@
 
 `kubectl apply -f crates/k8s-operator/config/bionic.yaml`
 
+## Preload images
+
+Do we need this?
+
+`kind --name bionic-gpt-cluster load docker-image downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc`
+
+`kind --name bionic-gpt-cluster load docker-image ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.4`
+
+`kind --name bionic-gpt-cluster load docker-image ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6`
+
 ## Run the operator
 
 `cargo run --bin k8s-operator`

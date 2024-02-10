@@ -53,7 +53,6 @@ pub async fn deploy(
                 }})],
             }),
             command: None,
-            expose_service: false,
             volume_mounts: vec![],
             volumes: vec![],
         },
