@@ -56,7 +56,6 @@ pub async fn deploy(
                     "info".to_string(),
                 ],
             }),
-            expose_service: false,
             volume_mounts: vec![json!({"name": "envoy-config", "mountPath": "/etc/envoy/"})],
             volumes: vec![json!({"name": "envoy-config",
                 "configMap": {

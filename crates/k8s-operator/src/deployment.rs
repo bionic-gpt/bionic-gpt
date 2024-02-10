@@ -27,7 +27,6 @@ pub struct ServiceDeployment {
     pub command: Option<Command>,
     pub volume_mounts: Vec<Value>,
     pub volumes: Vec<Value>,
-    pub expose_service: bool,
 }
 
 /// Create a deployment and a service.
@@ -47,6 +46,7 @@ pub async fn deployment(
             vec![json!({
                 "name": "init",
                 "image": init_container.image_name,
+                "imagePullPolicy": "IfNotPresent",
                 "env": init_container.env
             })]
         } else {
@@ -57,6 +57,7 @@ pub async fn deployment(
         json!([{
             "name": service_deployment.name,
             "image": service_deployment.image_name,
+            "imagePullPolicy": "IfNotPresent",
             "ports": [{
                 "containerPort": service_deployment.port
             }],
@@ -115,7 +116,6 @@ pub async fn deployment(
         &service_deployment.name,
         service_deployment.port,
         namespace,
-        service_deployment.expose_service,
     )
     .await?;
 
@@ -127,15 +127,8 @@ pub async fn service(
     name: &str,
     port_number: u16,
     namespace: &str,
-    expose_service: bool,
 ) -> Result<Service, Error> {
     // Create the Deployment object
-
-    let service_type = if expose_service {
-        "NodePort"
-    } else {
-        "ClusterIP"
-    };
 
     let service = serde_json::from_value(serde_json::json!({
         "apiVersion": "v1",
@@ -145,7 +138,7 @@ pub async fn service(
             "namespace": namespace
         },
         "spec": {
-            "type": service_type,
+            "type": "ClusterIP",
             "selector": {
                 "app": name
             },
