@@ -52,31 +52,31 @@ export class StreamingChat extends HTMLElement {
                 const { value, done } = await reader.read();
                 if (done) break;
                 let dataDone = false;
-                console.log(value)
-                var data = value;
-                if (data.length === 0) {
-                    return; // ignore empty message
-                }
-                if (data.startsWith(':')) {
-                    console.log("Terminating ignore SSE comment message")
-                    return; // ignore sse comment message
-                } 
-                if (data.substring(6) === '[DONE]') {
-                    console.log("[DONE] received")
-                    dataDone = true;
-                } else {
-                    if(data.substring(0,6) == "data: ") {
-                        data = data.substring(6)
+                const arr = value.split(/\r?\n/);
+                arr.forEach((data) => {
+                    console.log(data)
+                    if (data.length === 0) {
+                        return; // ignore empty message
                     }
-                    const json = JSON.parse(data);
-                    if(json.choices[0].delta && json.choices[0].delta.content) {
-                        this.result += json.choices[0].delta.content
-                        this.innerHTML = markdown.markdown(this.result)
-                    } else if (json.choices[0].message && json.choices[0].message.content) {
-                        this.result += json.choices[0].message.content
-                        this.innerHTML = markdown.markdown(this.result)
+                    if (data.startsWith(':')) {
+                        console.log("Ignore SSE comment message")
+                    } else if (data.substring(6) === '[DONE]') {
+                        console.log("[DONE] received")
+                        dataDone = true;
+                    } else {
+                        if(data.substring(0,6) == "data: ") {
+                            data = data.substring(6)
+                        }
+                        const json = JSON.parse(data);
+                        if(json.choices[0].delta && json.choices[0].delta.content) {
+                            this.result += json.choices[0].delta.content
+                            this.innerHTML = markdown.markdown(this.result)
+                        } else if (json.choices[0].message && json.choices[0].message.content) {
+                            this.result += json.choices[0].message.content
+                            this.innerHTML = markdown.markdown(this.result)
+                        }
                     }
-                }
+                });
                 if (dataDone) {
                     console.log("End of stream")
                     break

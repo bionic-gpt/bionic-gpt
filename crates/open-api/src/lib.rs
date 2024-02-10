@@ -49,7 +49,7 @@ pub async fn get_embeddings(input: &str) -> Result<Vec<f32>, Box<dyn Error>> {
     let openai_endpoint = if let Ok(domain) = std::env::var("EMBEDDINGS_API_ENDPOINT") {
         domain
     } else {
-        "http://embeddings-api:80/openai".to_string()
+        "http://embeddings-api:80/embeddings".to_string()
     };
 
     let text = String::from_utf8_lossy(input.as_bytes()).to_string();
