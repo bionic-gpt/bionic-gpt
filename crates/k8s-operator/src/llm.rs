@@ -26,7 +26,6 @@ pub async fn deploy(
                 command: vec![],
                 args: vec![],
             }),
-            expose_service: true,
             volume_mounts: vec![],
             volumes: vec![],
         },
