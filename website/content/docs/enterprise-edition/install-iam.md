@@ -185,7 +185,7 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 7910
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: ConfigMap
