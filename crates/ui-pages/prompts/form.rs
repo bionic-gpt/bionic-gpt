@@ -249,6 +249,7 @@ pub fn Form(
 
                                 Input {
                                     input_type: InputType::Number,
+                                    step: "0.1",
                                     name: "top_p",
                                     label: "Alternative to Temperature",
                                     label_class: "mt-4",
