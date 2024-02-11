@@ -20,7 +20,19 @@ docker-compose up
 
 ## Install a Model
 
+First get the a model
 
+```sh
+docker exec ollama ollama pull llama2
+```
+
+The run it.
+
+```sh
+docker exec ollama ollama pull llama2
+```
+
+Do `/bye` to exit back to the terminal.
 
 ## Run the User Interface
 
