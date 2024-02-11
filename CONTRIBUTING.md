@@ -58,6 +58,31 @@ The website uses a zola theme. This will need to be loaded with
 
 `gsu`
 
+## Load and Serve a Model
+
+1. `ollama pull llama2`
+1. `ollama run llama2` then `/bye`
+
+Test the above with
+
+```sh
+curl http://llm-api:11434/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+        "model": "llama2",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": "Hello!"
+            }
+        ]
+    }'
+```
+
 ## Starting the services
 
 We have created a `.bash_alias` file in the `.devcontainer` folder. Open up 3 consoles in visual studio code and run the following in each one.
