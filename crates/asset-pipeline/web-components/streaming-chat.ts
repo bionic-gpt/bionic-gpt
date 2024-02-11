@@ -4,6 +4,8 @@
  */
 
 import { ResponseFormatter } from "./response-formatter"
+import { Stream } from 'openai/streaming';
+import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
 
 export class StreamingChat extends HTMLElement {
 
@@ -34,75 +36,35 @@ export class StreamingChat extends HTMLElement {
         // Create a new AbortController instance
         this.controller = new AbortController();
         const signal = this.controller.signal;
+        const markdown = new ResponseFormatter()
 
-        try {
-            const response = await fetch(`/completions/${chatId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                signal
-            });
+        fetch(`/completions/${chatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            signal
+        }).then(async (res) => {
+            const stream = Stream.fromSSEResponse(res, this.controller)
+            const runner = ChatCompletionStream.fromReadableStream(stream.toReadableStream())
 
-            const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader()
-            const markdown = new ResponseFormatter()
-            this.result = '';
-            while (true && reader) {
-                // eslint-disable-next-line no-await-in-loop
-                const { value, done } = await reader.read();
-                if (done) break;
-                let dataDone = false;
-                const arr = value.split(/\r?\n/);
-                arr.forEach((data) => {
-                    console.log(data)
-                    if (data.length === 0) {
-                        return; // ignore empty message
-                    }
-                    if (data.startsWith(':')) {
-                        console.log("Ignore SSE comment message")
-                    } else if (data.substring(6) === '[DONE]') {
-                        console.log("[DONE] received")
-                        dataDone = true;
-                    } else {
-                        if(data.substring(0,6) == "data: ") {
-                            data = data.substring(6)
-                        }
-                        const json = JSON.parse(data);
-                        if(json.choices[0].delta && json.choices[0].delta.content) {
-                            this.result += json.choices[0].delta.content
-                            this.innerHTML = markdown.markdown(this.result)
-                        } else if (json.choices[0].message && json.choices[0].message.content) {
-                            this.result += json.choices[0].message.content
-                            this.innerHTML = markdown.markdown(this.result)
-                        }
-                    }
-                });
-                if (dataDone) {
-                    console.log("End of stream")
-                    break
+            runner.on('content', (delta, snapshot) => {
+                this.innerHTML  = markdown.markdown(snapshot)
+                this.result = snapshot
+            })
+
+            runner.on('end', () => {
+
+                console.log("Saving the results")
+                const form = document.getElementById(`chat-form-${chatId}`)
+                const llmResult = document.getElementById(`chat-result-${chatId}`)
+    
+                if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
+                    llmResult.value = this.result
+                    this.result = ''
+                    form.requestSubmit()
                 }
-            }
-        } catch (error) {
-            // Handle fetch request errors
-            if (signal.aborted) {
-                this.innerHTML = "Request aborted."
-                this.result = 'Request aborted.'
-            } else {
-                console.error("Error:", error);
-                this.innerText = "Error occurred while generating."
-                this.result = 'Error occurred while generating.'
-            }
-        } finally {
-            // Save the results
-            console.log("Saving the results")
-            const form = document.getElementById(`chat-form-${chatId}`)
-            const llmResult = document.getElementById(`chat-result-${chatId}`)
-
-            if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
-                llmResult.value = this.result
-                this.result = ''
-                form.requestSubmit()
-            }
-        }
+            })
+        });
     }
 }
