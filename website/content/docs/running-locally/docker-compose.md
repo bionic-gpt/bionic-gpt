@@ -29,7 +29,7 @@ docker exec ollama ollama pull llama2
 The run it.
 
 ```sh
-docker exec ollama ollama pull llama2
+docker exec ollama ollama run llama2
 ```
 
 Do `/bye` to exit back to the terminal.
