@@ -5,7 +5,9 @@
 services:
 
   llm-api:
-    image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.4
+    image: ollama/ollama
+    volumes:
+      - ollama:/root/.ollama
     platform: linux/amd64
 
   embeddings-api:
@@ -129,3 +131,6 @@ services:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
+
+volumes:
+  ollama:

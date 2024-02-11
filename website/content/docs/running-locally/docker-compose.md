@@ -18,6 +18,12 @@ And run
 docker-compose up
 ```
 
+## Install a Model
+
+
+
+## Run the User Interface
+
 You can then access the front end from `http://localhost:7800` and you'll be redirected to a registration screen.
 
 ## Registration
