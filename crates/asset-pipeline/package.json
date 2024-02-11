@@ -13,9 +13,12 @@
         "@hotwired/turbo": "^7.2.4",
         "@parcel/reporter-bundle-buddy": "^2.3.2",
         "@parcel/transformer-sass": "^2.2.1",
-        "daisyui": "^4.4.2",
-        "parcel": "^2.0.0",
         "@tailwindcss/typography": "^0.5.10",
+        "buffer": "^6.0.3",
+        "daisyui": "^4.4.2",
+        "openai": "^4.27.0",
+        "parcel": "^2.0.0",
+        "process": "^0.11.10",
         "tailwindcss": "^3.3.5"
     }
 }
