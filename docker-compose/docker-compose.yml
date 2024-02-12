@@ -5,10 +5,7 @@
 services:
 
   llm-api:
-    image: ollama/ollama
-    volumes:
-      - ollama:/root/.ollama
-    container_name: ollama
+    image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.5
     platform: linux/amd64
 
   embeddings-api:
