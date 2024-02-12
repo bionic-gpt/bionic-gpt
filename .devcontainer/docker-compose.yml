@@ -1,9 +1,7 @@
 services:
 
   llm-api:
-    image: ollama/ollama
-    volumes:
-      - ollama:/root/.ollama
+    image: ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.5
 
   embeddings-api:
     image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
