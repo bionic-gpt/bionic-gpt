@@ -2,6 +2,11 @@ use crate::queries::prompts;
 use crate::TokioPostgresError;
 use crate::{DatasetConnection, Transaction};
 
+pub struct RelatedContext {
+    pub chunk_id: i32,
+    pub chunk_text: String,
+}
+
 // Query the vector database using a similarity search.
 // The prompt decides how we use the datasets
 pub async fn get_related_context(
@@ -11,7 +16,7 @@ pub async fn get_related_context(
     team_id: i32,
     limit: i32,
     embeddings: Vec<f32>,
-) -> Result<Vec<String>, TokioPostgresError> {
+) -> Result<Vec<RelatedContext>, TokioPostgresError> {
     if dataset_connection == DatasetConnection::None {
         return Ok(Default::default());
     }
@@ -35,6 +40,7 @@ pub async fn get_related_context(
                 .query(
                     "
                     SELECT 
+                        id,
                         text 
                     FROM 
                         chunks
@@ -57,9 +63,12 @@ pub async fn get_related_context(
                 .await?;
 
             // Just get the text from the returned rows
-            let related_context: Vec<String> = related_context
+            let related_context: Vec<RelatedContext> = related_context
                 .into_iter()
-                .map(|content| content.get(0))
+                .map(|content| RelatedContext {
+                    chunk_id: content.get(0),
+                    chunk_text: content.get(1),
+                })
                 .collect();
             Ok(related_context)
         }
@@ -69,6 +78,7 @@ pub async fn get_related_context(
                 .query(
                     "
                     SELECT 
+                        id,
                         text 
                     FROM 
                         chunks
@@ -92,9 +102,12 @@ pub async fn get_related_context(
                 .await?;
 
             // Just get the text from the returned rows
-            let related_context: Vec<String> = related_context
+            let related_context: Vec<RelatedContext> = related_context
                 .into_iter()
-                .map(|content| content.get(0))
+                .map(|content| RelatedContext {
+                    chunk_id: content.get(0),
+                    chunk_text: content.get(1),
+                })
                 .collect();
             Ok(related_context)
         }

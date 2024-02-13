@@ -1,7 +1,7 @@
 use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
 use db::queries::{chats, prompts};
-use db::{Chat, Transaction};
+use db::{Chat, RelatedContext, Transaction};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -91,7 +91,7 @@ async fn generate_prompt(
     system_prompt: Option<String>,
     mut history: Vec<Chat>,
     question: Vec<Message>,
-    related_context: Vec<String>,
+    related_context: Vec<RelatedContext>,
 ) -> Vec<ChatCompletionRequestMessage> {
     let mut messages: Vec<ChatCompletionRequestMessage> = Default::default();
 
@@ -140,17 +140,17 @@ async fn generate_prompt(
         );
     }
 
-    let mut related_context: Vec<&String> = related_context.iter().rev().collect();
+    let mut related_context: Vec<&RelatedContext> = related_context.iter().rev().collect();
     let mut context_so_far: String = Default::default();
 
     // Keep adding history and context until meet the requirements of the prompt
     while size_so_far < size_allowed {
         // Add some relevant context
         if let Some(rel_context) = related_context.pop() {
-            let size_rel_context = size_context(rel_context.to_string());
+            let size_rel_context = size_context(rel_context.chunk_text.to_string());
 
             if size_so_far + size_rel_context < size_allowed {
-                context_so_far.push_str(rel_context);
+                context_so_far.push_str(&rel_context.chunk_text);
                 context_so_far += "\n";
                 if let Some(prompt) = &system_prompt {
                     let replaced = prompt.replace("{context_str}", &context_so_far);
@@ -272,7 +272,10 @@ mod tests {
                 role: "user".to_string(),
                 content: "How are you today?".to_string(),
             }],
-            vec!["This might help".to_string()],
+            vec![RelatedContext {
+                chunk_text: "This might help".to_string(),
+                chunk_id: 0,
+            }],
         )
         .await;
 
@@ -298,10 +301,22 @@ mod tests {
                 content: "How are you today?".to_string(),
             }],
             vec![
-                "This might help".to_string(),
-                "word ".repeat(100),
-                "test ".repeat(100),
-                "name ".repeat(1000),
+                RelatedContext {
+                    chunk_text: "This might help".to_string(),
+                    chunk_id: 0,
+                },
+                RelatedContext {
+                    chunk_text: "word ".to_string(),
+                    chunk_id: 0,
+                },
+                RelatedContext {
+                    chunk_text: "test ".to_string(),
+                    chunk_id: 0,
+                },
+                RelatedContext {
+                    chunk_text: "name ".to_string(),
+                    chunk_id: 0,
+                },
             ],
         )
         .await;
