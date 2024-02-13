@@ -1,7 +1,7 @@
 use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
 use db::queries::{chats, prompts};
-use db::{Chat, DatasetConnection, Transaction};
+use db::{Chat, Transaction};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -26,15 +26,20 @@ pub async fn execute_prompt(
         "".to_string()
     };
 
+    // Turn the users message into something the vector database can use
+    let embeddings = open_api::get_embeddings(&question)
+        .await
+        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+
     tracing::info!(prompt.name);
     // Get related context
-    let related_context = get_related_context(
+    let related_context = db::get_related_context(
         transaction,
-        &question,
         prompt.dataset_connection,
         prompt_id,
         team_id,
         prompt.max_chunks,
+        embeddings,
     )
     .await?;
     tracing::info!("Retrieved {} chunks", related_context.len());
@@ -220,119 +225,6 @@ fn add_message(
     }
 
     size_so_far
-}
-
-// Query the vector database using a similarity search.
-// The prompt decides how we use the datasets
-async fn get_related_context(
-    transaction: &Transaction<'_>,
-    message: &str,
-    dataset_connection: DatasetConnection,
-    prompt_id: i32,
-    team_id: i32,
-    limit: i32,
-) -> Result<Vec<String>, CustomError> {
-    if dataset_connection == DatasetConnection::None {
-        return Ok(Default::default());
-    }
-
-    // Turn the users message into something the vector database can use
-    let embeddings = open_api::get_embeddings(message)
-        .await
-        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
-
-    // Which datasets does the prompt use
-    let datasets = prompts::prompt_datasets()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await?;
-    // We just need the id's
-    let datasets: Vec<i32> = datasets.iter().map(|dataset| dataset.dataset_id).collect();
-
-    // Format the embeddings in PGVector format
-    let embedding_data = pgvector::Vector::from(embeddings.clone());
-
-    match dataset_connection {
-        DatasetConnection::None => Ok(Default::default()),
-        DatasetConnection::All => {
-            tracing::info!("About to call");
-            // Find sections of documents that are related to the users question
-            let related_context = transaction
-                .query(
-                    "
-                    SELECT 
-                        text 
-                    FROM 
-                        chunks
-                    WHERE
-                        document_id IN (
-                            SELECT id FROM documents WHERE dataset_id IN (
-                                SELECT id FROM datasets WHERE team_id IN (
-                                    SELECT team_id FROM team_users 
-                                    WHERE user_id = current_app_user()
-                                    AND team_id = $1
-                                )
-                            )
-                        )
-                    ORDER BY 
-                        embeddings <-> $2 
-                    LIMIT $3;
-                    ",
-                    &[&team_id, &embedding_data, &(limit as i64)],
-                )
-                .await
-                .map_err(|e| {
-                    tracing::error!("{}", e.to_string());
-                    e
-                })?;
-
-            // Just get the text from the returned rows
-            let related_context: Vec<String> = related_context
-                .into_iter()
-                .map(|content| content.get(0))
-                .collect();
-            Ok(related_context)
-        }
-        DatasetConnection::Selected => {
-            // Find sections of documents that are related to the users question
-            let related_context = transaction
-                .query(
-                    "
-                    SELECT 
-                        text 
-                    FROM 
-                        chunks
-                    WHERE
-                        document_id IN (
-                            SELECT id FROM documents WHERE dataset_id IN (
-                                SELECT id FROM datasets WHERE team_id IN (
-                                    SELECT team_id FROM team_users 
-                                    WHERE user_id = current_app_user()
-                                    AND team_id = $1
-                                )
-                                AND dataset_id = ANY($2)
-                            )
-                        )
-                    ORDER BY 
-                        embeddings <-> $3 
-                    LIMIT $4;
-                    ",
-                    &[&team_id, &datasets, &embedding_data, &(limit as i64)],
-                )
-                .await
-                .map_err(|e| {
-                    tracing::error!("{}", e.to_string());
-                    e
-                })?;
-
-            // Just get the text from the returned rows
-            let related_context: Vec<String> = related_context
-                .into_iter()
-                .map(|content| content.get(0))
-                .collect();
-            Ok(related_context)
-        }
-    }
 }
 
 #[cfg(test)]
