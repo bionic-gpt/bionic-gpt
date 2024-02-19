@@ -24,7 +24,7 @@ pub fn PromptDrawer(
                 if ! chunks.is_empty() {
                     cx.render(rsx!(
                         h4 {
-                            "Context provided to the prompt"
+                            "Context provided to the prompt from your documents"
                         }
 
                         ol {
