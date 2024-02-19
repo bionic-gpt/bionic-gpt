@@ -1,6 +1,6 @@
 use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
-use db::queries::{chats, prompts};
+use db::queries::{chats, chunks, prompts};
 use db::{Chat, RelatedContext, Transaction};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
@@ -62,7 +62,7 @@ pub async fn execute_prompt(
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
 
-    let messages = generate_prompt(
+    let (messages, chunk_ids) = generate_prompt(
         prompt.model_context_size as usize,
         prompt.max_tokens as usize,
         trim_ratio,
@@ -72,6 +72,16 @@ pub async fn execute_prompt(
         related_context,
     )
     .await;
+
+    // Store the id's of the chunks we used for this particular chat
+    // We assume, given a list that the last item is the one used for lookup
+    if let Some(id) = conversation_id {
+        for chunk_id in chunk_ids {
+            chunks::create_chunks_chats()
+                .bind(transaction, &chunk_id, &id)
+                .await?;
+        }
+    }
 
     let messages = messages
         .into_iter()
@@ -92,8 +102,10 @@ async fn generate_prompt(
     mut history: Vec<Chat>,
     question: Vec<Message>,
     related_context: Vec<RelatedContext>,
-) -> Vec<ChatCompletionRequestMessage> {
+) -> (Vec<ChatCompletionRequestMessage>, Vec<i32>) {
     let mut messages: Vec<ChatCompletionRequestMessage> = Default::default();
+    // We need to remember which chunks are used in the chat.
+    let mut chunk_ids: Vec<i32> = Default::default();
 
     let system_prompt = match (system_prompt, related_context.is_empty()) {
         (Some(prompt), false) => {
@@ -151,6 +163,7 @@ async fn generate_prompt(
 
             if size_so_far + size_rel_context < size_allowed {
                 context_so_far.push_str(&rel_context.chunk_text);
+                chunk_ids.push(rel_context.chunk_id);
                 context_so_far += "\n";
                 if let Some(prompt) = &system_prompt {
                     let replaced = prompt.replace("{context_str}", &context_so_far);
@@ -189,7 +202,7 @@ async fn generate_prompt(
         }
     }
 
-    messages
+    (messages, chunk_ids)
 }
 
 fn size_context(context: String) -> usize {
@@ -234,7 +247,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_generate_prompt() {
-        let messages = generate_prompt(
+        let (messages, _chunk_ids) = generate_prompt(
             2048,
             1024,
             1.0,
@@ -259,7 +272,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_generate_prompt_with_context() {
-        let messages = generate_prompt(
+        let (messages, _chunk_ids) = generate_prompt(
             2048,
             1024,
             1.0,
@@ -287,7 +300,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_with_lots_of_context() {
-        let messages = generate_prompt(
+        let (messages, _chunk_ids) = generate_prompt(
             2048,
             1024,
             1.0,
