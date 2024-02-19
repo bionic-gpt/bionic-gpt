@@ -19,7 +19,7 @@ pub async fn deploy(
             name: "llm-api".to_string(),
             image_name: crate::LLM_API_IMAGE.to_string(),
             replicas: spec.replicas,
-            port: 3000,
+            port: 11434,
             env: vec![],
             init_container: None,
             command: Some(deployment::Command {
