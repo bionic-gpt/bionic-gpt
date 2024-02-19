@@ -9,7 +9,7 @@ edition = "2021"
 db = { path = "../db" }
 assets = { path = "../asset-pipeline" }
 ui-pages = { path = "../ui-pages" }
-open-api = { path = "../open-api" }
+embeddings-api = { path = "../embeddings-api" }
 
 axum = { version = "0.6", default-features = false, features = ["multipart", "form"] }
 ## We need the form from axum-extra as it processes multi select boxes.

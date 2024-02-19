@@ -1,7 +1,7 @@
 use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
-use db::queries::{chats, prompts};
-use db::{Chat, DatasetConnection, Transaction};
+use db::queries::{chats, chats_chunks, prompts};
+use db::{Chat, RelatedContext, Transaction};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -26,15 +26,20 @@ pub async fn execute_prompt(
         "".to_string()
     };
 
+    // Turn the users message into something the vector database can use
+    let embeddings = embeddings_api::get_embeddings(&question)
+        .await
+        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+
     tracing::info!(prompt.name);
     // Get related context
-    let related_context = get_related_context(
+    let related_context = db::get_related_context(
         transaction,
-        &question,
         prompt.dataset_connection,
         prompt_id,
         team_id,
         prompt.max_chunks,
+        embeddings,
     )
     .await?;
     tracing::info!("Retrieved {} chunks", related_context.len());
@@ -57,7 +62,7 @@ pub async fn execute_prompt(
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
 
-    let messages = generate_prompt(
+    let (messages, chunk_ids) = generate_prompt(
         prompt.model_context_size as usize,
         prompt.max_tokens as usize,
         trim_ratio,
@@ -67,6 +72,16 @@ pub async fn execute_prompt(
         related_context,
     )
     .await;
+
+    // Store the id's of the chunks we used for this particular chat
+    // We assume, given a list that the last item is the one used for lookup
+    if let Some(id) = conversation_id {
+        for chunk_id in chunk_ids {
+            chats_chunks::create_chunks_chats()
+                .bind(transaction, &chunk_id, &id)
+                .await?;
+        }
+    }
 
     let messages = messages
         .into_iter()
@@ -86,9 +101,11 @@ async fn generate_prompt(
     system_prompt: Option<String>,
     mut history: Vec<Chat>,
     question: Vec<Message>,
-    related_context: Vec<String>,
-) -> Vec<ChatCompletionRequestMessage> {
+    related_context: Vec<RelatedContext>,
+) -> (Vec<ChatCompletionRequestMessage>, Vec<i32>) {
     let mut messages: Vec<ChatCompletionRequestMessage> = Default::default();
+    // We need to remember which chunks are used in the chat.
+    let mut chunk_ids: Vec<i32> = Default::default();
 
     let system_prompt = match (system_prompt, related_context.is_empty()) {
         (Some(prompt), false) => {
@@ -135,17 +152,18 @@ async fn generate_prompt(
         );
     }
 
-    let mut related_context: Vec<&String> = related_context.iter().rev().collect();
+    let mut related_context: Vec<&RelatedContext> = related_context.iter().rev().collect();
     let mut context_so_far: String = Default::default();
 
     // Keep adding history and context until meet the requirements of the prompt
     while size_so_far < size_allowed {
         // Add some relevant context
         if let Some(rel_context) = related_context.pop() {
-            let size_rel_context = size_context(rel_context.to_string());
+            let size_rel_context = size_context(rel_context.chunk_text.to_string());
 
             if size_so_far + size_rel_context < size_allowed {
-                context_so_far.push_str(rel_context);
+                context_so_far.push_str(&rel_context.chunk_text);
+                chunk_ids.push(rel_context.chunk_id);
                 context_so_far += "\n";
                 if let Some(prompt) = &system_prompt {
                     let replaced = prompt.replace("{context_str}", &context_so_far);
@@ -184,7 +202,7 @@ async fn generate_prompt(
         }
     }
 
-    messages
+    (messages, chunk_ids)
 }
 
 fn size_context(context: String) -> usize {
@@ -222,119 +240,6 @@ fn add_message(
     size_so_far
 }
 
-// Query the vector database using a similarity search.
-// The prompt decides how we use the datasets
-async fn get_related_context(
-    transaction: &Transaction<'_>,
-    message: &str,
-    dataset_connection: DatasetConnection,
-    prompt_id: i32,
-    team_id: i32,
-    limit: i32,
-) -> Result<Vec<String>, CustomError> {
-    if dataset_connection == DatasetConnection::None {
-        return Ok(Default::default());
-    }
-
-    // Turn the users message into something the vector database can use
-    let embeddings = open_api::get_embeddings(message)
-        .await
-        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
-
-    // Which datasets does the prompt use
-    let datasets = prompts::prompt_datasets()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await?;
-    // We just need the id's
-    let datasets: Vec<i32> = datasets.iter().map(|dataset| dataset.dataset_id).collect();
-
-    // Format the embeddings in PGVector format
-    let embedding_data = pgvector::Vector::from(embeddings.clone());
-
-    match dataset_connection {
-        DatasetConnection::None => Ok(Default::default()),
-        DatasetConnection::All => {
-            tracing::info!("About to call");
-            // Find sections of documents that are related to the users question
-            let related_context = transaction
-                .query(
-                    "
-                    SELECT 
-                        text 
-                    FROM 
-                        chunks
-                    WHERE
-                        document_id IN (
-                            SELECT id FROM documents WHERE dataset_id IN (
-                                SELECT id FROM datasets WHERE team_id IN (
-                                    SELECT team_id FROM team_users 
-                                    WHERE user_id = current_app_user()
-                                    AND team_id = $1
-                                )
-                            )
-                        )
-                    ORDER BY 
-                        embeddings <-> $2 
-                    LIMIT $3;
-                    ",
-                    &[&team_id, &embedding_data, &(limit as i64)],
-                )
-                .await
-                .map_err(|e| {
-                    tracing::error!("{}", e.to_string());
-                    e
-                })?;
-
-            // Just get the text from the returned rows
-            let related_context: Vec<String> = related_context
-                .into_iter()
-                .map(|content| content.get(0))
-                .collect();
-            Ok(related_context)
-        }
-        DatasetConnection::Selected => {
-            // Find sections of documents that are related to the users question
-            let related_context = transaction
-                .query(
-                    "
-                    SELECT 
-                        text 
-                    FROM 
-                        chunks
-                    WHERE
-                        document_id IN (
-                            SELECT id FROM documents WHERE dataset_id IN (
-                                SELECT id FROM datasets WHERE team_id IN (
-                                    SELECT team_id FROM team_users 
-                                    WHERE user_id = current_app_user()
-                                    AND team_id = $1
-                                )
-                                AND dataset_id = ANY($2)
-                            )
-                        )
-                    ORDER BY 
-                        embeddings <-> $3 
-                    LIMIT $4;
-                    ",
-                    &[&team_id, &datasets, &embedding_data, &(limit as i64)],
-                )
-                .await
-                .map_err(|e| {
-                    tracing::error!("{}", e.to_string());
-                    e
-                })?;
-
-            // Just get the text from the returned rows
-            let related_context: Vec<String> = related_context
-                .into_iter()
-                .map(|content| content.get(0))
-                .collect();
-            Ok(related_context)
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
 
@@ -342,7 +247,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_generate_prompt() {
-        let messages = generate_prompt(
+        let (messages, _chunk_ids) = generate_prompt(
             2048,
             1024,
             1.0,
@@ -367,7 +272,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_generate_prompt_with_context() {
-        let messages = generate_prompt(
+        let (messages, _chunk_ids) = generate_prompt(
             2048,
             1024,
             1.0,
@@ -380,7 +285,10 @@ mod tests {
                 role: "user".to_string(),
                 content: "How are you today?".to_string(),
             }],
-            vec!["This might help".to_string()],
+            vec![RelatedContext {
+                chunk_text: "This might help".to_string(),
+                chunk_id: 0,
+            }],
         )
         .await;
 
@@ -392,7 +300,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_with_lots_of_context() {
-        let messages = generate_prompt(
+        let (messages, _chunk_ids) = generate_prompt(
             2048,
             1024,
             1.0,
@@ -406,10 +314,22 @@ mod tests {
                 content: "How are you today?".to_string(),
             }],
             vec![
-                "This might help".to_string(),
-                "word ".repeat(100),
-                "test ".repeat(100),
-                "name ".repeat(1000),
+                RelatedContext {
+                    chunk_text: "This might help".to_string(),
+                    chunk_id: 0,
+                },
+                RelatedContext {
+                    chunk_text: "word ".to_string(),
+                    chunk_id: 0,
+                },
+                RelatedContext {
+                    chunk_text: "test ".to_string(),
+                    chunk_id: 0,
+                },
+                RelatedContext {
+                    chunk_text: "name ".to_string(),
+                    chunk_id: 0,
+                },
             ],
         )
         .await;

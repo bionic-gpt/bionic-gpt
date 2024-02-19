@@ -1,5 +1,5 @@
 [package]
-name = "open-api"
+name = "embeddings-api"
 version = "0.1.0"
 edition = "2021"
 
