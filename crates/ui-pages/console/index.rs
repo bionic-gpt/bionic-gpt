@@ -101,9 +101,10 @@ pub fn Page(
                                             }
                                             TimeLineBody {
                                                 class: "prose",
-                                                streaming-chat {
-                                                    prompt: "{chat.prompt}",
-                                                    "chat-id": "{chat.id}",
+                                                div {
+                                                    id: "streaming-chat",
+                                                    "data-prompt": "{chat.prompt}",
+                                                    "data-chatid": "{chat.id}",
                                                     span {
                                                         "Processing prompt"
                                                     }
