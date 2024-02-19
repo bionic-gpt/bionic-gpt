@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 db = { path = "../db" }
-open-api = { path = "../open-api" }
+embeddings-api = { path = "../embeddings-api" }
 tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }
 
 tracing = "0"

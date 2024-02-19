@@ -206,12 +206,12 @@ dependencies = [
  "axum-extra",
  "base64 0.13.1",
  "db",
+ "embeddings-api",
  "futures",
  "http",
  "hyper",
  "hyper-rustls 0.24.1",
  "lettre",
- "open-api",
  "pgvector",
  "pin-project",
  "quoted_printable 0.5.0",
@@ -746,6 +746,16 @@ name = "email_address"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2153bd83ebc09db15bcbdc3e2194d901804952e3dc96967e1cd3b0c5c32d112"
+
+[[package]]
+name = "embeddings-api"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "tokio",
+ "tracing",
+]
 
 [[package]]
 name = "encoding_rs"
@@ -1701,16 +1711,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 
 [[package]]
-name = "open-api"
-version = "0.1.0"
-dependencies = [
- "reqwest",
- "serde",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "openssl-probe"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1886,7 +1886,7 @@ name = "pipeline-job"
 version = "0.1.0"
 dependencies = [
  "db",
- "open-api",
+ "embeddings-api",
  "pgvector",
  "reqwest",
  "serde",

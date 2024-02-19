@@ -27,7 +27,7 @@ pub async fn execute_prompt(
     };
 
     // Turn the users message into something the vector database can use
-    let embeddings = open_api::get_embeddings(&question)
+    let embeddings = embeddings_api::get_embeddings(&question)
         .await
         .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
 
