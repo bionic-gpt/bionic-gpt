@@ -3,9 +3,10 @@ use crate::errors::CustomError;
 use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::authz;
-use db::queries::{chats, conversations, prompts};
+use db::queries::{chats, chats_chunks, conversations, prompts};
 use db::Pool;
 use ui_pages::console;
+use ui_pages::console::ChatWithChunks;
 
 pub async fn conversation(
     Path((team_id, conversation_id)): Path<(i32, i64)>,
@@ -23,20 +24,38 @@ pub async fn conversation(
         .bind(&transaction, &conversation_id)
         .all()
         .await?;
+
+    let mut chats_with_chunks = Vec::new();
+    let mut lock_console = false;
+
+    for chat in chats.into_iter() {
+        // If any chat has not had a response yet, lock the console
+        if chat.response.is_none() {
+            lock_console = true;
+        }
+
+        // Get all chunks for each chat
+        let chunks_chats = chats_chunks::chunks_chats()
+            .bind(&transaction, &chat.id)
+            .all()
+            .await?;
+        let chat_with_chunks = ChatWithChunks {
+            chat,
+            chunks: chunks_chats,
+        };
+        chats_with_chunks.push(chat_with_chunks);
+    }
+
     let prompts = prompts::prompts()
         .bind(&transaction, &team_id)
         .all()
         .await?;
 
-    // If one of the chats is not processed yet then set a lock_console flag
-    // Otherwise the user can issue multiple requests
-    let lock_console = chats.iter().any(|chat| chat.response.is_none());
-
     Ok(Html(console::index(console::index::PageProps {
         team_id,
         rbac,
         conversation_id,
-        chats,
+        chats_with_chunks,
         prompts,
         history,
         lock_console,

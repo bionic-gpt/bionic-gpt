@@ -1,6 +1,6 @@
 use crate::api_reverse_proxy::Message;
 use crate::errors::CustomError;
-use db::queries::{chats, chunks, prompts};
+use db::queries::{chats, chats_chunks, prompts};
 use db::{Chat, RelatedContext, Transaction};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
@@ -77,7 +77,7 @@ pub async fn execute_prompt(
     // We assume, given a list that the last item is the one used for lookup
     if let Some(id) = conversation_id {
         for chunk_id in chunk_ids {
-            chunks::create_chunks_chats()
+            chats_chunks::create_chunks_chats()
                 .bind(transaction, &chunk_id, &id)
                 .await?;
         }
