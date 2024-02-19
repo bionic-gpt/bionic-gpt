@@ -10,7 +10,7 @@ INSERT INTO models (
 VALUES(
     'bge-small-en-v1.5', 
     'Embeddings', 
-    'http://embeddings-api:80/openai', 
+    'http://embeddings-api:80/embeddings', 
     0, 
     0
 );

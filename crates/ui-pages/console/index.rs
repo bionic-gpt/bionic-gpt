@@ -1,11 +1,12 @@
 #![allow(non_snake_case)]
 use super::super::routes;
+use super::ChatWithChunks;
 use crate::app_layout::{Layout, SideBar};
 use assets::files::delete_svg;
 use assets::files::{commit_svg, handshake_svg, profile_svg, spinner_svg};
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::queries::{chats::Chat, conversations::History, prompts::Prompt};
+use db::queries::{conversations::History, prompts::Prompt};
 use dioxus::prelude::*;
 
 #[inline_props]
@@ -13,7 +14,7 @@ pub fn Page(
     cx: Scope,
     team_id: i32,
     rbac: Rbac,
-    chats: Vec<Chat>,
+    chats_with_chunks: Vec<ChatWithChunks>,
     prompts: Vec<Prompt>,
     conversation_id: i64,
     history: Vec<History>,
@@ -73,11 +74,13 @@ pub fn Page(
                     id: "console-stream",
                     div {
                         class: "flex flex-col-reverse min-w-[65ch] max-w-prose m-auto h-full",
-                        chats.iter().rev().map(|chat| {
+                        chats_with_chunks.iter().rev().map(|chat_with_chunks| {
+                            let chat = &chat_with_chunks.chat;
                             cx.render(rsx!(
                                 super::prompt_drawer::PromptDrawer {
                                     trigger_id: format!("show-prompt-{}", chat.id),
-                                    prompt: chat.prompt.clone()
+                                    prompt: chat.prompt.clone(),
+                                    chunks: chat_with_chunks.chunks.clone()
                                 }
                                 TimeLine {
                                     if let Some(response) = &chat.response {
@@ -101,9 +104,10 @@ pub fn Page(
                                             }
                                             TimeLineBody {
                                                 class: "prose",
-                                                streaming-chat {
-                                                    prompt: "{chat.prompt}",
-                                                    "chat-id": "{chat.id}",
+                                                div {
+                                                    id: "streaming-chat",
+                                                    "data-prompt": "{chat.prompt}",
+                                                    "data-chatid": "{chat.id}",
                                                     span {
                                                         "Processing prompt"
                                                     }

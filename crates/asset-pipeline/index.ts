@@ -2,12 +2,12 @@ import './scss/index.scss'
 
 // Web components
 import { SnackBar } from './web-components/snack-bar'
-import { StreamingChat } from './web-components/streaming-chat'
 import { ResponseFormatter } from './web-components/response-formatter'
 import '@github/relative-time-element';
 
 // Misc.
 import { triggers } from './typescript/side-drawer-trigger'
+import { streamingChat } from './typescript/streaming-chat'
 import { drawers } from './typescript/side-drawer'
 import { formatter } from './typescript/format-json'
 import './typescript/remember-form'
@@ -24,12 +24,12 @@ import '@hotwired/turbo'
 function loadEverything() {
     if(customElements.get('response-formatter') === undefined) {
         customElements.define('response-formatter', ResponseFormatter)
-        customElements.define('streaming-chat', StreamingChat);
         customElements.define('snack-bar', SnackBar);
     }
     triggers()
     drawers()
     formatter()
+    streamingChat()
 }
 
 document.addEventListener('turbo:load', () => {

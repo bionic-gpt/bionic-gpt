@@ -78,7 +78,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             if let Some(embedding) = unprocessed.get(0) {
-                let embeddings = open_api::get_embeddings(&embedding.text).await;
+                let embeddings = embeddings_api::get_embeddings(&embedding.text).await;
                 if let Ok(embeddings) = embeddings {
                     let embedding_data = pgvector::Vector::from(embeddings);
                     client
