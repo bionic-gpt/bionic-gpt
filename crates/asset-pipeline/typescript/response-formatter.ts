@@ -1,24 +1,10 @@
-/**
- * Takes an attribute called prompt and sends it to the LLM API
- * Waits for the results to stream in and prints them in real time.
- */
+export const responsesFormatter = () => {
+    document.querySelectorAll('div.response-formatter').forEach(async (response) => {
+        response.innerHTML = new Markdown().markdown(response.innerHTML)
+    })
+}
 
-export class ResponseFormatter extends HTMLElement {
-
-    constructor() {
-        super()
-        const response = this.attributes.getNamedItem('response')
-
-        if (response && response.value) {
-
-            let md = this.markdown(response.value)
-            md = md.replace(/<p>(\s)*<\/p>/g, '')
-            //md = md.replace(/<pre>/g, '<pre class="color-bg-accent p-1">')
-
-
-            this.innerHTML = `${md}`
-        }
-    }
+export class Markdown  {
 
     markdown(src: string) {
 
