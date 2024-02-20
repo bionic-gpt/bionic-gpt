@@ -1,4 +1,4 @@
-import { ResponseFormatter } from "../web-components/response-formatter"
+import { Markdown } from "./response-formatter"
 import { Stream } from 'openai/streaming';
 import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
 
@@ -21,7 +21,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
     // Create a new AbortController instance
     const abortController = new AbortController();
     const signal = abortController.signal;
-    const markdown = new ResponseFormatter()
+    const markdown = new Markdown()
     var result = ''
 
 
