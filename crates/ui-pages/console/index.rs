@@ -91,8 +91,9 @@ pub fn Page(
                                             }
                                             TimeLineBody {
                                                 class: "prose",
-                                                response-formatter {
-                                                    response: "{convert_quotes(response)}"
+                                                div  {
+                                                    class: "response-formatter",
+                                                    "{response}"
                                                 }
                                             }
                                         ))
@@ -237,8 +238,4 @@ pub fn Page(
 
 pub fn index(props: PageProps) -> String {
     crate::render(VirtualDom::new_with_props(Page, props))
-}
-
-fn convert_quotes(str: &str) -> String {
-    str.replace('"', "&quot;")
 }
