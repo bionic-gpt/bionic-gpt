@@ -2,13 +2,13 @@ services:
 
   llm-api:
     image: ghcr.io/berriai/litellm:main-v1.10.3
-    command: ["/bin/sh", "-c", "pip install async_generator && litellm --model ollama/llama2 --api_base http://host.docker.internal:11434 --host 0.0.0.0 --port 3000"]
+    command: ["/bin/sh", "-c", "pip install async_generator && litellm --model ollama/llama2 --api_base http://host.docker.internal:11434 --host 0.0.0.0 --port 11434"]
     entrypoint: []
     platform: linux/amd64
     dns:
       - 8.8.8.8
       - 8.8.4.4
     ports:
-      - "3000:3000"
+      - "11434:11434"
     extra_hosts:
       - "host.docker.internal:host-gateway"
