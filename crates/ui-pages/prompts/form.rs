@@ -146,13 +146,17 @@ pub fn Form(
                                                         if selected_dataset_ids.contains(&dataset.id) {
                                                             cx.render(rsx!(
                                                                 CheckBox {
-                                                                    checked: true
+                                                                    checked: true,
+                                                                    name: "datasets",
+                                                                    value: "{dataset.id}"
                                                                 }
                                                             ))
                                                         } else {
                                                             cx.render(rsx!(
                                                                 CheckBox {
-                                                                    checked: false
+                                                                    checked: false,
+                                                                    name: "datasets",
+                                                                    value: "{dataset.id}"
                                                                 }
                                                             ))
                                                         }

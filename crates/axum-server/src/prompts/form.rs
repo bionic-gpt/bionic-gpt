@@ -16,9 +16,9 @@ pub struct NewPromptTemplate {
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
     pub system_prompt: String,
-    pub dataset_connection: String,
     pub model_id: i32,
-    pub datasets: Option<String>,
+    #[serde(default)]
+    pub datasets: Vec<i32>,
     pub max_history_items: i32,
     pub max_chunks: i32,
     pub max_tokens: i32,
@@ -121,23 +121,13 @@ pub async fn upsert(
 async fn insert_datasets(
     transaction: &Transaction<'_>,
     prompt_id: i32,
-    datasets: Option<String>,
+    datasets: Vec<i32>,
 ) -> Result<(), CustomError> {
     // Create the connections to any datasets
-    if let Some(datasets) = datasets {
-        // The environments we have selected for the ser come in as a comma
-        // separated list of ids.
-        let datasets: Vec<i32> = datasets
-            .split(',')
-            .map(|e| e.parse::<i32>().unwrap_or(-1))
-            .filter(|e| *e != -1)
-            .collect();
-
-        for dataset in datasets {
-            queries::prompts::insert_prompt_dataset()
-                .bind(transaction, &prompt_id, &dataset)
-                .await?;
-        }
+    for dataset in datasets {
+        queries::prompts::insert_prompt_dataset()
+            .bind(transaction, &prompt_id, &dataset)
+            .await?;
     }
 
     Ok(())

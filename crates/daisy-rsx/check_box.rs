@@ -49,6 +49,8 @@ pub struct CheckBoxProps<'a> {
     id: Option<&'a str>,
     checked: Option<bool>,
     class: Option<&'a str>,
+    name: &'a str,
+    value: &'a str,
     checkbox_size: Option<CheckBoxSize>,
     checkbox_scheme: Option<CheckBoxScheme>,
 }
@@ -94,6 +96,8 @@ pub fn CheckBox<'a>(cx: Scope<'a, CheckBoxProps<'a>>) -> Element {
             "type": "checkbox",
             class: "{class}",
             id: cx.props.id,
+            name: cx.props.name,
+            value: cx.props.value,
             checked: checked,
             &cx.props.children,
         }
