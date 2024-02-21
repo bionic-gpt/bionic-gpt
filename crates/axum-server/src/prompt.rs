@@ -27,9 +27,13 @@ pub async fn execute_prompt(
     };
 
     // Turn the users message into something the vector database can use
-    let embeddings = embeddings_api::get_embeddings(&question)
-        .await
-        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+    let embeddings = embeddings_api::get_embeddings(
+        &question,
+        &prompt.embeddings_base_url,
+        &prompt.embeddings_model,
+    )
+    .await
+    .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
 
     tracing::info!(prompt.name);
     // Get related context

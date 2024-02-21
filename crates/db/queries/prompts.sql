@@ -1,4 +1,5 @@
 --: Prompt(temperature?, top_p?, system_prompt?)
+--: SinglePrompt(temperature?, top_p?, system_prompt?)
 
 --! prompts : Prompt
 SELECT
@@ -50,13 +51,19 @@ WHERE
     OR p.visibility='Company'
 ORDER BY updated_at;
 
---! prompt : Prompt
+--! prompt : SinglePrompt
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
-    (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
+    (SELECT team_id FROM models WHERE id = p.model_id) as team_id,  
+    (SELECT base_url FROM models WHERE id IN 
+        (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
+        (SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_base_url, 
+    (SELECT name FROM models WHERE id IN 
+        (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
+        (SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_model,
     p.model_id,
     p.name,
     p.visibility,
