@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
-use super::dataset_connection_to_string;
 use daisy_rsx::{select::SelectOption, *};
-use db::{Dataset, DatasetConnection, Model, Visibility};
+use db::{Dataset, Model, Visibility};
 use dioxus::prelude::*;
 
 #[inline_props]
@@ -13,7 +12,6 @@ pub fn Form(
     system_prompt: String,
     datasets: Vec<Dataset>,
     selected_dataset_ids: Vec<i32>,
-    dataset_connection: DatasetConnection,
     models: Vec<Model>,
     model_id: i32,
     visibility: Visibility,
@@ -116,54 +114,54 @@ pub fn Form(
                             tab_name: "Datasets",
                             div {
                                 class: "flex flex-col mt-3",
-                                Select {
-                                    name: "dataset_connection",
-                                    label: "How shall we handle datasets with this prompt?",
-                                    help_text: "The prompt will be passed to the model",
-                                    value: "{dataset_connection_to_string(*dataset_connection)}",
-                                    required: true,
-                                    SelectOption {
-                                        value: "{dataset_connection_to_string(DatasetConnection::All)}",
-                                        selected_value: "{dataset_connection_to_string(*dataset_connection)}",
-                                        dataset_connection_to_string(DatasetConnection::All)
-                                    }
-                                    SelectOption {
-                                        value: "{dataset_connection_to_string(DatasetConnection::None)}",
-                                        selected_value: "{dataset_connection_to_string(*dataset_connection)}",
-                                        dataset_connection_to_string(DatasetConnection::None)
-                                    }
-                                    SelectOption {
-                                        value: "{dataset_connection_to_string(DatasetConnection::Selected)}",
-                                        selected_value: "{dataset_connection_to_string(*dataset_connection)}",
-                                        dataset_connection_to_string(DatasetConnection::Selected)
-                                    }
+                                Alert {
+                                    class: "mb-4",
+                                    "Select which datasets you wish to attach to this prompt"
                                 }
-
-                                Select {
-                                    name: "datasets",
-                                    label: "Select datasets to connect to this prompt",
-                                    label_class: "mt-4",
-                                    help_text: "These datasets will only be used when the above is set to 'Use Selected Datasets'",
-                                    value: &name,
-                                    multiple: true,
-                                    datasets.iter().map(|dataset| {
-                                        if selected_dataset_ids.contains(&dataset.id) {
-                                            cx.render(rsx!(
-                                                option {
-                                                    value: "{dataset.id}",
-                                                    selected: true,
-                                                    "{dataset.name}"
-                                                }
-                                            ))
-                                        } else {
-                                            cx.render(rsx!(
-                                                option {
-                                                    value: "{dataset.id}",
-                                                    "{dataset.name}"
-                                                }
-                                            ))
+                                table {
+                                    class: "table table-sm",
+                                    thead {
+                                        tr {
+                                            th {
+                                                "Dataset"
+                                            }
+                                            th {
+                                                "Model"
+                                            }
+                                            th {
+                                                "Add?"
+                                            }
                                         }
-                                    })
+                                    }
+                                    tbody {
+                                        datasets.iter().map(|dataset| {
+                                            rsx!(
+                                                tr {
+                                                    td {
+                                                        "{dataset.name}"
+                                                    }
+                                                    td {
+                                                        "{dataset.embeddings_model_name}"
+                                                    }
+                                                    td {
+                                                        if selected_dataset_ids.contains(&dataset.id) {
+                                                            cx.render(rsx!(
+                                                                CheckBox {
+                                                                    checked: true
+                                                                }
+                                                            ))
+                                                        } else {
+                                                            cx.render(rsx!(
+                                                                CheckBox {
+                                                                    checked: false
+                                                                }
+                                                            ))
+                                                        }
+                                                    }
+                                                }
+                                            )
+                                        })
+                                    }
                                 }
                             }
                         }
