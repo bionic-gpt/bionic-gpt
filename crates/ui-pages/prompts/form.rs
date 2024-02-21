@@ -165,16 +165,6 @@ pub fn Form(
                                         }
                                     })
                                 }
-
-                                Input {
-                                    input_type: InputType::Number,
-                                    name: "max_chunks",
-                                    label: "Maximum number of Chunks",
-                                    label_class: "mt-4",
-                                    help_text: "We don't add more chunks to the prompt than this.",
-                                    value: "{*max_chunks}",
-                                    required: true
-                                }
                             }
                         }
                         TabPanel {
@@ -245,6 +235,16 @@ pub fn Form(
                                             "100"
                                         }
                                     }
+                                }
+
+                                Input {
+                                    input_type: InputType::Number,
+                                    name: "max_chunks",
+                                    label: "Maximum number of Chunks",
+                                    label_class: "mt-4",
+                                    help_text: "We don't add more chunks to the prompt than this.",
+                                    value: "{*max_chunks}",
+                                    required: true
                                 }
 
                                 Input {
