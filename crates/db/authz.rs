@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::queries;
-use crate::{types, DatasetConnection, Permission, Transaction, Visibility};
+use crate::{types, Permission, Transaction, Visibility};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
@@ -114,14 +114,12 @@ pub async fn setup_user_if_not_already_registered(
             &model.id,
             &"Default (Exclude All Datasets)",
             &Visibility::Private,
-            &DatasetConnection::None,
             &system_prompt,
             &3,
             &10,
             &1024,
             &100,
             &0.7,
-            &0.1,
         )
         .one()
         .await?;

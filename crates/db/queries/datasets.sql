@@ -9,6 +9,7 @@ SELECT
     new_after_n_chars,
     multipage_sections,
     (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
@@ -30,6 +31,7 @@ SELECT
     new_after_n_chars,
     multipage_sections,
     (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
@@ -50,6 +52,7 @@ SELECT
     new_after_n_chars,
     multipage_sections,
     (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
@@ -74,6 +77,7 @@ SELECT
     new_after_n_chars,
     multipage_sections,
     (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
