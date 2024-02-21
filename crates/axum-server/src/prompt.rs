@@ -27,22 +27,27 @@ pub async fn execute_prompt(
     };
 
     // Turn the users message into something the vector database can use
-    let embeddings = embeddings_api::get_embeddings(&question)
-        .await
-        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+    let mut related_context = Default::default();
+    if let (Some(embeddings_base_url), Some(embeddings_model)) =
+        (prompt.embeddings_base_url, prompt.embeddings_model)
+    {
+        let embeddings =
+            embeddings_api::get_embeddings(&question, &embeddings_base_url, &embeddings_model)
+                .await
+                .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
 
-    tracing::info!(prompt.name);
-    // Get related context
-    let related_context = db::get_related_context(
-        transaction,
-        prompt.dataset_connection,
-        prompt_id,
-        team_id,
-        prompt.max_chunks,
-        embeddings,
-    )
-    .await?;
-    tracing::info!("Retrieved {} chunks", related_context.len());
+        tracing::info!(prompt.name);
+        // Get related context
+        related_context = db::get_related_context(
+            transaction,
+            prompt_id,
+            team_id,
+            prompt.max_chunks,
+            embeddings,
+        )
+        .await?;
+        tracing::info!("Retrieved {} chunks", related_context.len());
+    }
 
     // Get the maximum required amount of chat history
     let chat_history = if let Some(conversation_id) = conversation_id {

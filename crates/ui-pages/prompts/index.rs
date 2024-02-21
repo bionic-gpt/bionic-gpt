@@ -3,7 +3,7 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::{queries::prompts::Prompt, Dataset, DatasetConnection, Model, Visibility};
+use db::{queries::prompts::Prompt, Dataset, Model, Visibility};
 use dioxus::prelude::*;
 
 #[inline_props]
@@ -57,7 +57,6 @@ pub fn Page(
                                 class: "table table-sm",
                                 thead {
                                     th { "Name" }
-                                    th { "Dataset(s)" }
                                     th { "Visibility" }
                                     th { "Model" }
                                     th { "Updated" }
@@ -73,11 +72,6 @@ pub fn Page(
                                             tr {
                                                 td {
                                                     "{prompt.name}"
-                                                }
-                                                td {
-                                                    super::dataset_connection::DatasetConnection {
-                                                        connection: prompt.dataset_connection
-                                                    }
                                                 }
                                                 td {
                                                     super::visibility::VisLabel {
@@ -141,7 +135,6 @@ pub fn Page(
                                 system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
                                 datasets: datasets.clone(),
                                 selected_dataset_ids: split_datasets(&prompt.selected_datasets),
-                                dataset_connection: prompt.dataset_connection,
                                 visibility: prompt.visibility,
                                 models: models.clone(),
                                 model_id: prompt.model_id,
@@ -150,7 +143,6 @@ pub fn Page(
                                 max_tokens: prompt.max_tokens,
                                 trim_ratio: prompt.trim_ratio,
                                 temperature: prompt.temperature.unwrap_or(0.7),
-                                top_p: prompt.top_p.unwrap_or(0.0),
                             }
                         ))
                     })
@@ -164,7 +156,6 @@ pub fn Page(
                 name: "".to_string(),
                 system_prompt: "".to_string(),
                 datasets: datasets.clone(),
-                dataset_connection: DatasetConnection::None,
                 selected_dataset_ids: Default::default(),
                 models: models.clone(),
                 visibility: Visibility::Private,
@@ -173,8 +164,7 @@ pub fn Page(
                 max_chunks: 10,
                 max_tokens: 1024,
                 trim_ratio: 80,
-                temperature: 0.7,
-                top_p: 0.0,
+                temperature: 0.7
             }
         }
     })

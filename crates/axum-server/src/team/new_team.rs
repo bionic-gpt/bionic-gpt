@@ -7,7 +7,7 @@ use axum::{
 use db::authz;
 use db::types;
 use db::Pool;
-use db::{queries, DatasetConnection, Visibility};
+use db::{queries, Visibility};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -59,14 +59,12 @@ pub async fn new_team(
             &model.id,
             &"Default (Exclude All Datasets)",
             &Visibility::Private,
-            &DatasetConnection::None,
             &system_prompt,
             &3,
             &10,
             &1024,
             &80,
             &0.7,
-            &0.1,
         )
         .one()
         .await?;

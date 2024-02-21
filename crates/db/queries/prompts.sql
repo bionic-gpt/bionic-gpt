@@ -1,4 +1,5 @@
---: Prompt(temperature?, top_p?, system_prompt?)
+--: Prompt(temperature?, system_prompt?)
+--: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?)
 
 --! prompts : Prompt
 SELECT
@@ -10,7 +11,6 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
-    p.dataset_connection,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -32,7 +32,6 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
-    p.top_p,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at
@@ -50,17 +49,22 @@ WHERE
     OR p.visibility='Company'
 ORDER BY updated_at;
 
---! prompt : Prompt
+--! prompt : SinglePrompt
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
-    (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
+    (SELECT team_id FROM models WHERE id = p.model_id) as team_id,  
+    (SELECT base_url FROM models WHERE id IN 
+        (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
+        (SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_base_url, 
+    (SELECT name FROM models WHERE id IN 
+        (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
+        (SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_model,
     p.model_id,
     p.name,
     p.visibility,
-    p.dataset_connection,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -82,7 +86,6 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
-    p.top_p,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at
@@ -112,7 +115,6 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
-    p.dataset_connection,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -134,7 +136,6 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
-    p.top_p,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at
@@ -197,28 +198,24 @@ INSERT INTO prompts (
     model_id, 
     name,
     visibility,
-    dataset_connection,
     system_prompt,
     max_history_items,
     max_chunks,
     max_tokens,
     trim_ratio,
-    temperature,
-    top_p
+    temperature
 )
 VALUES(
     :team_id, 
     :model_id,
     :name,
     :visibility,
-    :dataset_connection,
     :system_prompt,
     :max_history_items,
     :max_chunks,
     :max_tokens,
     :trim_ratio,
-    :temperature,
-    :top_p
+    :temperature
 )
 RETURNING id;
 
@@ -229,14 +226,12 @@ SET
     model_id = :model_id, 
     name = :name, 
     visibility = :visibility,
-    dataset_connection = :dataset_connection,
     system_prompt = :system_prompt,
     max_history_items = :max_history_items,
     max_chunks = :max_chunks,
     max_tokens = :max_tokens,
     trim_ratio = :trim_ratio,
-    temperature = :temperature,
-    top_p = :top_p
+    temperature = :temperature
 WHERE
     id = :id
 AND
