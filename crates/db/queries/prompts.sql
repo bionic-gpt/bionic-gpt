@@ -1,5 +1,5 @@
---: Prompt(temperature?, top_p?, system_prompt?)
---: SinglePrompt(temperature?, top_p?, system_prompt?, embeddings_base_url?, embeddings_model?)
+--: Prompt(temperature?, system_prompt?)
+--: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?)
 
 --! prompts : Prompt
 SELECT
@@ -11,7 +11,6 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
-    p.dataset_connection,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -33,7 +32,6 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
-    p.top_p,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at
@@ -67,7 +65,6 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
-    p.dataset_connection,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -89,7 +86,6 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
-    p.top_p,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at
@@ -119,7 +115,6 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
-    p.dataset_connection,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -141,7 +136,6 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
-    p.top_p,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at
@@ -204,28 +198,24 @@ INSERT INTO prompts (
     model_id, 
     name,
     visibility,
-    dataset_connection,
     system_prompt,
     max_history_items,
     max_chunks,
     max_tokens,
     trim_ratio,
-    temperature,
-    top_p
+    temperature
 )
 VALUES(
     :team_id, 
     :model_id,
     :name,
     :visibility,
-    :dataset_connection,
     :system_prompt,
     :max_history_items,
     :max_chunks,
     :max_tokens,
     :trim_ratio,
-    :temperature,
-    :top_p
+    :temperature
 )
 RETURNING id;
 
@@ -236,14 +226,12 @@ SET
     model_id = :model_id, 
     name = :name, 
     visibility = :visibility,
-    dataset_connection = :dataset_connection,
     system_prompt = :system_prompt,
     max_history_items = :max_history_items,
     max_chunks = :max_chunks,
     max_tokens = :max_tokens,
     trim_ratio = :trim_ratio,
-    temperature = :temperature,
-    top_p = :top_p
+    temperature = :temperature
 WHERE
     id = :id
 AND

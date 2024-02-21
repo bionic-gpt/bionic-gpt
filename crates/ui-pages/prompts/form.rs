@@ -21,7 +21,6 @@ pub fn Form(
     max_tokens: i32,
     trim_ratio: i32,
     temperature: f32,
-    top_p: f32,
 ) -> Element {
     cx.render(rsx!(
         form {
@@ -242,17 +241,6 @@ pub fn Form(
                                     label_class: "mt-4",
                                     help_text: "We don't add more chunks to the prompt than this.",
                                     value: "{*max_chunks}",
-                                    required: true
-                                }
-
-                                Input {
-                                    input_type: InputType::Number,
-                                    step: "0.1",
-                                    name: "top_p",
-                                    label: "Alternative to Temperature",
-                                    label_class: "mt-4",
-                                    help_text: "Value between 0 and 2.",
-                                    value: "{*top_p}",
                                     required: true
                                 }
                             }

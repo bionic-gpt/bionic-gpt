@@ -57,7 +57,6 @@ pub fn Page(
                                 class: "table table-sm",
                                 thead {
                                     th { "Name" }
-                                    th { "Dataset(s)" }
                                     th { "Visibility" }
                                     th { "Model" }
                                     th { "Updated" }
@@ -73,11 +72,6 @@ pub fn Page(
                                             tr {
                                                 td {
                                                     "{prompt.name}"
-                                                }
-                                                td {
-                                                    super::dataset_connection::DatasetConnection {
-                                                        connection: prompt.dataset_connection
-                                                    }
                                                 }
                                                 td {
                                                     super::visibility::VisLabel {
@@ -149,7 +143,6 @@ pub fn Page(
                                 max_tokens: prompt.max_tokens,
                                 trim_ratio: prompt.trim_ratio,
                                 temperature: prompt.temperature.unwrap_or(0.7),
-                                top_p: prompt.top_p.unwrap_or(0.0),
                             }
                         ))
                     })
@@ -171,8 +164,7 @@ pub fn Page(
                 max_chunks: 10,
                 max_tokens: 1024,
                 trim_ratio: 80,
-                temperature: 0.7,
-                top_p: 0.0,
+                temperature: 0.7
             }
         }
     })

@@ -40,7 +40,6 @@ pub async fn execute_prompt(
         // Get related context
         related_context = db::get_related_context(
             transaction,
-            prompt.dataset_connection,
             prompt_id,
             team_id,
             prompt.max_chunks,
