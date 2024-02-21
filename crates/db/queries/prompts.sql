@@ -1,5 +1,5 @@
 --: Prompt(temperature?, top_p?, system_prompt?)
---: SinglePrompt(temperature?, top_p?, system_prompt?)
+--: SinglePrompt(temperature?, top_p?, system_prompt?, embeddings_base_url?, embeddings_model?)
 
 --! prompts : Prompt
 SELECT
