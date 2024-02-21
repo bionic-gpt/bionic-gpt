@@ -5,7 +5,7 @@ metadata:
   namespace: bionic-gpt 
 spec:
   replicas: 1 
-  version: 1.6.1
+  version: 1.6.2
   
   # Enterprise Options
   # enterprise-key: EMAIL_US_FOR_A_KEY
