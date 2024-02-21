@@ -154,7 +154,6 @@ pub fn Form(
                                                         } else {
                                                             cx.render(rsx!(
                                                                 CheckBox {
-                                                                    checked: false,
                                                                     name: "datasets",
                                                                     value: "{dataset.id}"
                                                                 }

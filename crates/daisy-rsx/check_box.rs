@@ -76,7 +76,7 @@ pub fn CheckBox<'a>(cx: Scope<'a, CheckBoxProps<'a>>) -> Element {
 
     let checked = if let Some(checked) = cx.props.checked {
         if checked {
-            Some(true)
+            Some("checked")
         } else {
             None
         }
