@@ -41,7 +41,7 @@ a {
 }
 
 /** In the chat the first p has margin, we need to remove it **/
-response-formatter > p:first-child, streaming-chat > p:first-child {
+.response-formatter > p:first-child, streaming-chat > p:first-child {
     margin-top: 0;
 }
 

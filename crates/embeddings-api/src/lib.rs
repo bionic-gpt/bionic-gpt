@@ -43,25 +43,23 @@ pub struct Embedding {
     pub text: String,
 }
 
-pub async fn get_embeddings(input: &str) -> Result<Vec<f32>, Box<dyn Error>> {
+pub async fn get_embeddings(
+    input: &str,
+    api_end_point: &str,
+    model: &str,
+) -> Result<Vec<f32>, Box<dyn Error>> {
     let client = Client::new();
-
-    let openai_endpoint = if let Ok(domain) = std::env::var("EMBEDDINGS_API_ENDPOINT") {
-        domain
-    } else {
-        "http://embeddings-api:80/embeddings".to_string()
-    };
 
     let text = String::from_utf8_lossy(input.as_bytes()).to_string();
     let calling_json = EmbeddingRequest {
         input: text.clone(),
-        model: "text-embedding-ada-002".to_string(),
+        model: model.to_string(),
         user: None,
     };
 
     //send request
     let response = client
-        .post(openai_endpoint)
+        .post(api_end_point)
         .json(&calling_json)
         .send()
         .await?;
@@ -83,7 +81,13 @@ mod tests {
     #[tokio::test]
     async fn test_get_embeddings() {
         let input = "The food was delicious and the waiter...".to_string();
-        let embeddings = get_embeddings(&input).await.unwrap();
+        let embeddings = get_embeddings(
+            &input,
+            "http://embeddings-api:80/embeddings",
+            "text-embedding-ada-002",
+        )
+        .await
+        .unwrap();
 
         println!("{:#?}", embeddings);
     }

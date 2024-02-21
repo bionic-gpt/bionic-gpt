@@ -7,7 +7,7 @@ use db::authz;
 use db::Pool;
 use db::{queries, Transaction};
 use serde::Deserialize;
-use ui_pages::{prompts::string_to_dataset_connection, string_to_visibility};
+use ui_pages::string_to_visibility;
 use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -16,15 +16,14 @@ pub struct NewPromptTemplate {
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
     pub system_prompt: String,
-    pub dataset_connection: String,
     pub model_id: i32,
-    pub datasets: Option<String>,
+    #[serde(default)]
+    pub datasets: Vec<i32>,
     pub max_history_items: i32,
     pub max_chunks: i32,
     pub max_tokens: i32,
     pub trim_ratio: i32,
     pub temperature: f32,
-    pub top_p: f32,
     pub visibility: String,
 }
 
@@ -57,14 +56,12 @@ pub async fn upsert(
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
                     &visibility,
-                    &string_to_dataset_connection(&new_prompt_template.dataset_connection),
                     &system_prompt,
                     &new_prompt_template.max_history_items,
                     &new_prompt_template.max_chunks,
                     &new_prompt_template.max_tokens,
                     &new_prompt_template.trim_ratio,
                     &new_prompt_template.temperature,
-                    &new_prompt_template.top_p,
                     &id,
                 )
                 .await?;
@@ -92,14 +89,12 @@ pub async fn upsert(
                     &new_prompt_template.model_id,
                     &new_prompt_template.name,
                     &visibility,
-                    &string_to_dataset_connection(&new_prompt_template.dataset_connection),
                     &system_prompt,
                     &new_prompt_template.max_history_items,
                     &new_prompt_template.max_chunks,
                     &new_prompt_template.max_tokens,
                     &new_prompt_template.trim_ratio,
                     &new_prompt_template.temperature,
-                    &new_prompt_template.top_p,
                 )
                 .one()
                 .await?;
@@ -126,23 +121,13 @@ pub async fn upsert(
 async fn insert_datasets(
     transaction: &Transaction<'_>,
     prompt_id: i32,
-    datasets: Option<String>,
+    datasets: Vec<i32>,
 ) -> Result<(), CustomError> {
     // Create the connections to any datasets
-    if let Some(datasets) = datasets {
-        // The environments we have selected for the ser come in as a comma
-        // separated list of ids.
-        let datasets: Vec<i32> = datasets
-            .split(',')
-            .map(|e| e.parse::<i32>().unwrap_or(-1))
-            .filter(|e| *e != -1)
-            .collect();
-
-        for dataset in datasets {
-            queries::prompts::insert_prompt_dataset()
-                .bind(transaction, &prompt_id, &dataset)
-                .await?;
-        }
+    for dataset in datasets {
+        queries::prompts::insert_prompt_dataset()
+            .bind(transaction, &prompt_id, &dataset)
+            .await?;
     }
 
     Ok(())
