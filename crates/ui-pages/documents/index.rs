@@ -38,7 +38,7 @@ pub fn Page(
                         visual: nav_ccsds_data_svg.name,
                         description: "Here you can upload documents in a range of formats",
                         primary_action_drawer: (
-                            "Add a Document", 
+                            "Add a Document",
                             "upload-form"
                         )
                     }
@@ -57,6 +57,7 @@ pub fn Page(
                         }
                         BoxBody {
                             table {
+                                id: "documents",
                                 class: "table table-sm",
                                 thead {
                                     th { "Name" }
@@ -69,84 +70,11 @@ pub fn Page(
                                     }
                                 }
                                 tbody {
-
                                     documents.iter().map(|doc| {
                                         cx.render(rsx!(
-                                            tr {
-                                                td { "{doc.file_name}" }
-                                                td { "{doc.batches}" }
-                                                td { "{doc.content_size}" }
-                                                td {
-                                                    if doc.waiting > 0 {
-                                                        cx.render(rsx!(
-                                                            turbo-frame {
-                                                                id: "status-{doc.id}",
-                                                                loading: "lazy",
-                                                                src: "{super::super::routes::documents::status_route(doc.id)}",
-                                                                Label {
-                                                                    "Processing ({doc.waiting} remaining)"
-                                                                }
-                                                            }
-                                                        ))
-                                                    } else if doc.failure_reason.is_some() {
-                                                        let text = doc.failure_reason.clone().unwrap().replace(['{', '"', ':', '}'], " ");
-                                                        cx.render(rsx!(
-                                                            ToolTip {
-                                                                text: "{text}",
-                                                                Label {
-                                                                    label_role: LabelRole::Danger,
-                                                                    "Failed"
-                                                                }
-                                                            }
-                                                        ))
-                                                    } else if doc.batches == 0 {
-                                                        cx.render(rsx!(
-                                                            turbo-frame {
-                                                                id: "status-{doc.id}",
-                                                                loading: "lazy",
-                                                                src: "{super::super::routes::documents::status_route(doc.id)}",
-                                                                Label {
-                                                                    "Queued"
-                                                                }
-                                                            }
-                                                        ))
-                                                    } else if doc.fail_count > 0 {
-                                                        cx.render(rsx!(
-                                                            Label {
-                                                                label_role: LabelRole::Danger,
-                                                                "Processed ({doc.fail_count} failed)"
-                                                            }
-                                                        ))
-                                                    } else if doc.failure_reason.is_some() {
-                                                        cx.render(rsx!(
-                                                            Label {
-                                                                label_role: LabelRole::Danger,
-                                                                "Failed"
-                                                            }
-                                                        ))
-                                                    } else {
-                                                        cx.render(rsx!(
-                                                            Label {
-                                                                label_role: LabelRole::Success,
-                                                                "Processed"
-                                                            }
-                                                        ))
-                                                    }
-                                                }
-                                                td {
-                                                    class: "text-right",
-                                                    DropDown {
-                                                        direction: Direction::Left,
-                                                        button_text: "...",
-                                                        DropDownLink {
-                                                            drawer_trigger: format!("delete-doc-trigger-{}-{}", 
-                                                                doc.id, *team_id),
-                                                            href: "#",
-                                                            target: "_top",
-                                                            "Delete Document"
-                                                        }
-                                                    }
-                                                }
+                                            Row {
+                                                doc: doc.clone(),
+                                                team_id: *team_id
                                             }
                                         ))
                                     })
@@ -175,6 +103,84 @@ pub fn Page(
             }
         }
     })
+}
+
+#[inline_props]
+pub fn Row(cx: Scope, doc: Document, team_id: i32) -> Element {
+    let class = if doc.waiting > 0 || doc.batches == 0 {
+        "processing"
+    } else {
+        "processing-finished"
+    };
+    cx.render(rsx!(
+    tr {
+        class: class,
+        td { "{doc.file_name}" }
+        td { "{doc.batches}" }
+        td { "{doc.content_size}" }
+        td {
+            if doc.waiting > 0 || doc.batches == 0 {
+                cx.render(rsx!(
+                    Label {
+                        "Processing ({doc.waiting} remaining)"
+                    }
+                ))
+            } else if doc.failure_reason.is_some() {
+                let text = doc.failure_reason.clone().unwrap().replace(['{', '"', ':', '}'], " ");
+                cx.render(rsx!(
+                    ToolTip {
+                        text: "{text}",
+                        Label {
+                            label_role: LabelRole::Danger,
+                            "Failed"
+                        }
+                    }
+                ))
+            } else if doc.batches == 0 {
+                cx.render(rsx!(
+                    Label {
+                        "Queued"
+                    }
+                ))
+            } else if doc.fail_count > 0 {
+                cx.render(rsx!(
+                    Label {
+                        label_role: LabelRole::Danger,
+                        "Processed ({doc.fail_count} failed)"
+                    }
+                ))
+            } else if doc.failure_reason.is_some() {
+                cx.render(rsx!(
+                    Label {
+                        label_role: LabelRole::Danger,
+                        "Failed"
+                    }
+                ))
+            } else {
+                cx.render(rsx!(
+                    Label {
+                        label_role: LabelRole::Success,
+                        "Processed"
+                    }
+                ))
+            }
+        }
+        td {
+            class: "text-right",
+            DropDown {
+                direction: Direction::Left,
+                button_text: "...",
+                DropDownLink {
+                    drawer_trigger: format!("delete-doc-trigger-{}-{}", 
+                        doc.id, team_id),
+                    href: "#",
+                    target: "_top",
+                    "Delete Document"
+                }
+            }
+        }
+    }
+))
 }
 
 pub fn index(props: PageProps) -> String {
