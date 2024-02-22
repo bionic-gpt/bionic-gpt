@@ -471,6 +471,11 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .click()
         .await?;
 
+    // Wait for file to upload then refresh the page
+    // Otherwise we don't see the status
+    sleep(Duration::from_millis(10000)).await;
+    driver.refresh().await?;
+
     driver
         .query(By::XPath("//button[contains(@class, 'label-success')]"))
         .first()
