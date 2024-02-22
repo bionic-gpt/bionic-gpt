@@ -1,13 +1,12 @@
 mod delete;
 mod index;
-mod status;
 mod upload_doc;
 use axum::{
     extract::DefaultBodyLimit,
     routing::{get, post},
     Router,
 };
-use ui_pages::routes::documents::{DELETE, INDEX, STATUS, UPLOAD};
+use ui_pages::routes::documents::{DELETE, INDEX, UPLOAD};
 
 pub fn routes() -> Router {
     Router::new()
@@ -15,5 +14,4 @@ pub fn routes() -> Router {
         .route(DELETE, post(delete::delete))
         .layer(DefaultBodyLimit::max(50000000))
         .route(INDEX, get(index::index))
-        .route(STATUS, get(status::status))
 }
