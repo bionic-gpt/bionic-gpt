@@ -8,6 +8,7 @@ mod console;
 mod datasets;
 mod documents;
 mod email;
+mod enterprise;
 mod errors;
 mod index;
 mod layout;
@@ -50,6 +51,7 @@ async fn main() {
         .merge(profile::routes())
         .merge(console::routes())
         .merge(api_keys::routes())
+        .merge(enterprise::routes())
         .merge(datasets::routes())
         .merge(documents::routes())
         .merge(pipelines::routes())
