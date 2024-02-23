@@ -164,7 +164,7 @@ pub fn Layout<'a>(cx: Scope<'a, LayoutProps<'a>>) -> Element {
                                     selected_item_id: cx.props.selected_item.to_string(),
                                     href: super::routes::enterprise::index_route(cx.props.team_id),
                                     icon: nav_audit_svg.name,
-                                    title: "Enable Enterprise"
+                                    title: "Power Up Bionic"
                                 }
                             ))
                         }

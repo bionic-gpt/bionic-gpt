@@ -11,11 +11,11 @@ pub fn Page(cx: Scope, team_id: i32, rbac: Rbac) -> Element {
         Layout {
             section_class: "normal",
             selected_item: SideBar::None,
-            title: "Your Profile",
+            title: "Your Installation",
             team_id: *team_id,
             rbac: rbac,
             header: cx.render(rsx!(
-                h3 { "Your Profile" }
+                h3 { "Your Installation" }
             )),
             BlankSlate {
                 heading: "Your Installation",
@@ -25,16 +25,36 @@ pub fn Page(cx: Scope, team_id: i32, rbac: Rbac) -> Element {
 
             Box {
                 BoxHeader {
-                    title: "Community Edition"
+                    title: "You are using Community Edition"
                 }
                 BoxBody {
                     Alert {
-                        alert_color: AlertColor::Warn,
-                        div {
-                            p {
-                                "The community edition of Bionic-GPT gives you a way to quickly
-                                try out the software. However we do not recommend you deploy
-                                this version to production."
+                        alert_color: AlertColor::Error,
+                        "Do not deploy community edition into production.
+                        It is meant for demonstration purposes only."
+                    }
+                    div {
+                        class: "prose",
+                        p {
+                            "Follow our guide to ",
+                            a {
+                                href: "https://bionic-gpt.com/docs/enterprise-edition",
+                                "install enterprise edition."
+                            }
+                            " You will then unlock the following features."
+                        }
+                        ul {
+                            li {
+                                "High availability and robustness."
+                            }
+                            li {
+                                "A secure solution with all security best practices."
+                            }
+                            li {
+                                "Document Pipelines"
+                            }
+                            li {
+                                "Image generation"
                             }
                         }
                     }
@@ -43,17 +63,81 @@ pub fn Page(cx: Scope, team_id: i32, rbac: Rbac) -> Element {
 
             Box {
                 BoxHeader {
-                    title: "Enterprise Edition"
+                    title: "You are using Enterprise Edition"
                 }
                 BoxBody {
-                }
-            }
-
-            Box {
-                BoxHeader {
-                    title: "Enterprise Edition (Fully Licenced)"
-                }
-                BoxBody {
+                    Accordian {
+                        title: "Register your installation and unlock more features",
+                        name: "edition",
+                        checked: true,
+                        div {
+                            class: "prose",
+                            p {
+                                a {
+                                    href: "https://bionic-gpt.com/contact/",
+                                    "Contact us"
+                                }
+                                " to get an unlock code and you will enable the following features"
+                            }
+                            ul {
+                                li {
+                                    "Document pipelines"
+                                }
+                            }
+                        }
+                        form {
+                            Input {
+                                name: "registration_key"
+                            }
+                        }
+                    }
+                    Accordian {
+                        title: "Licence your installation",
+                        name: "edition",
+                        div {
+                            class: "prose",
+                            p {
+                                a {
+                                    href: "https://bionic-gpt.com/contact/",
+                                    "Contact us"
+                                }
+                                " to get a licence key and enable the following"
+                            }
+                            h4 {
+                                "Support"
+                            }
+                            ul {
+                                li {
+                                    "Support and priority bug fixes"
+                                }
+                                li {
+                                    "Help with installation and discovery"
+                                }
+                                li {
+                                    "Twice yearly help upgarding to LTS versions"
+                                }
+                                li {
+                                    "Security hardening and notification of security updates"
+                                }
+                            }
+                            h4 {
+                                "More Features"
+                            }
+                            ul {
+                                li {
+                                    "Image generation using stable diffusion"
+                                }
+                                li {
+                                    "Guardrails"
+                                }
+                            }
+                        }
+                        form {
+                            Input {
+                                name: "registration_key"
+                            }
+                        }
+                    }
                 }
             }
         }
