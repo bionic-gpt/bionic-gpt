@@ -1,8 +1,10 @@
 services:
 
-  tgi:
-    image: ghcr.io/huggingface/text-generation-inference:1.2
-    command: --model-id TheBloke/zephyr-7B-beta-AWQ --max-batch-prefill-tokens 2048 --quantize awq
+  llm-api:
+    image: ghcr.io/huggingface/text-generation-inference:1.4.2
+    ports:
+      - "11434:11434"
+    command: --port 11434 --model-id TheBloke/zephyr-7B-beta-AWQ --max-batch-prefill-tokens 2048 --quantize awq
     volumes:
       - ./models:/data
     deploy:
@@ -12,16 +14,3 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-
-  llm-api:
-    image: ghcr.io/berriai/litellm:main-v1.10.3
-    
-    command:
-      - /bin/sh
-      - -c
-      - |
-        pip install async_generator
-        litellm --model huggingface/TheBloke/zephyr-7B-beta-AWQ --api_base http://tgi/generate_stream --host 0.0.0.0 --port 11434
-    entrypoint: []
-    
-    platform: linux/amd64
