@@ -36,7 +36,7 @@ pub fn Page(cx: Scope, team_id: i32, rbac: Rbac) -> Element {
                                 It is meant for demonstration purposes only."
                             }
                             div {
-                                class: "prose",
+                                class: "prose max-w-none",
                                 p {
                                     "Follow our guide to ",
                                     a {
@@ -75,23 +75,24 @@ pub fn Page(cx: Scope, team_id: i32, rbac: Rbac) -> Element {
                                 name: "edition",
                                 checked: true,
                                 div {
-                                    class: "prose",
+                                    class: "prose max-w-none",
                                     p {
                                         a {
                                             href: "https://bionic-gpt.com/contact/",
                                             "Contact us"
                                         }
-                                        " to get an unlock code and you will enable the following features"
-                                    }
-                                    ul {
-                                        li {
-                                            "Document pipelines"
-                                        }
+                                        " to get an unlock code and you will enable the Document pipelines feature"
                                     }
                                 }
                                 form {
-                                    Input {
-                                        name: "registration_key"
+                                    class: "mt-5",
+                                    div {
+                                        class: "flex flex-col",
+                                        Input {
+                                            label: "Registration Key",
+                                            help_text: "Add the registration key you received by email",
+                                            name: "registration_key"
+                                        }
                                     }
                                 }
                             }
@@ -99,7 +100,7 @@ pub fn Page(cx: Scope, team_id: i32, rbac: Rbac) -> Element {
                                 title: "Licence your installation",
                                 name: "edition",
                                 div {
-                                    class: "prose",
+                                    class: "prose max-w-none",
                                     p {
                                         a {
                                             href: "https://bionic-gpt.com/contact/",
@@ -137,8 +138,14 @@ pub fn Page(cx: Scope, team_id: i32, rbac: Rbac) -> Element {
                                     }
                                 }
                                 form {
-                                    Input {
-                                        name: "registration_key"
+                                    class: "mt-5",
+                                    div {
+                                        class: "flex flex-col",
+                                        Input {
+                                            label: "Registration Key",
+                                            help_text: "Add the registration key you received by email",
+                                            name: "registration_key"
+                                        }
                                     }
                                 }
                             }
