@@ -1,3 +1,4 @@
+pub mod accordian;
 pub mod alert;
 pub mod app_layout;
 pub mod avatar;
@@ -19,6 +20,7 @@ pub mod text_area;
 pub mod time_line;
 pub mod tooltip;
 
+pub use accordian::Accordian;
 pub use alert::{Alert, AlertColor};
 pub use app_layout::AppLayout;
 pub use avatar::{Avatar, AvatarSize, AvatarType};

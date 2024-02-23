@@ -7,6 +7,7 @@ pub mod audit_trail;
 pub mod console;
 pub mod datasets;
 pub mod documents;
+pub mod enterprise;
 pub mod logout_form;
 pub mod model_form;
 pub mod models;
@@ -30,6 +31,14 @@ pub mod routes {
 
         pub fn index_route(team_id: i32) -> String {
             format!("/app/team/{}/audit_trail", team_id)
+        }
+    }
+
+    pub mod enterprise {
+        pub static INDEX: &str = "/app/team/:team_id/enterprise";
+
+        pub fn index_route(team_id: i32) -> String {
+            format!("/app/team/{}/enterprise", team_id)
         }
     }
 
