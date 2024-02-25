@@ -1,0 +1,13 @@
+diff --git a/node_modules/openai/src/lib/ChatCompletionStream.ts b/node_modules/openai/src/lib/ChatCompletionStream.ts
+index 72f6ab2..7c759b3 100644
+--- a/node_modules/openai/src/lib/ChatCompletionStream.ts
++++ b/node_modules/openai/src/lib/ChatCompletionStream.ts
+@@ -259,7 +259,7 @@ function finalizeChatCompletion(snapshot: ChatCompletionSnapshot): ChatCompletio
+     id,
+     choices: choices.map(
+       ({ message, finish_reason, index, logprobs, ...choiceRest }): ChatCompletion.Choice => {
+-        if (!finish_reason) throw new OpenAIError(`missing finish_reason for choice ${index}`);
++        if(!finish_reason) finish_reason = null;
+         const { content = null, function_call, tool_calls, ...messageRest } = message;
+         const role = message.role as 'assistant'; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
+         if (!role) throw new OpenAIError(`missing role for choice ${index}`);
