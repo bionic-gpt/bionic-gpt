@@ -1,0 +1,26 @@
+diff --git a/node_modules/@hotwired/turbo/dist/turbo.es2017-esm.js b/node_modules/@hotwired/turbo/dist/turbo.es2017-esm.js
+index cfe4084..511fc19 100644
+--- a/node_modules/@hotwired/turbo/dist/turbo.es2017-esm.js
++++ b/node_modules/@hotwired/turbo/dist/turbo.es2017-esm.js
+@@ -1459,7 +1459,7 @@ class ProgressBar {
+         };
+         this.stylesheetElement = this.createStylesheetElement();
+         this.progressElement = this.createProgressElement();
+-        this.installStylesheetElement();
++        /**this.installStylesheetElement();**/
+         this.setValue(0);
+     }
+     show() {
+diff --git a/node_modules/@hotwired/turbo/dist/turbo.es2017-umd.js b/node_modules/@hotwired/turbo/dist/turbo.es2017-umd.js
+index 303ecf2..2854fd5 100644
+--- a/node_modules/@hotwired/turbo/dist/turbo.es2017-umd.js
++++ b/node_modules/@hotwired/turbo/dist/turbo.es2017-umd.js
+@@ -1465,7 +1465,7 @@ Copyright © 2023 37signals LLC
+             };
+             this.stylesheetElement = this.createStylesheetElement();
+             this.progressElement = this.createProgressElement();
+-            this.installStylesheetElement();
++            /**this.installStylesheetElement();**/
+             this.setValue(0);
+         }
+         show() {
