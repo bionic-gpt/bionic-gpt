@@ -6,7 +6,8 @@
         "start": "./patch-turbo.sh && parcel watch ./index.ts --no-hmr --public-url /auth/static",
         "release": "./patch-turbo.sh && npm run tailwind && parcel build ./index.ts --public-url /auth/static",
         "report": "parcel build ./index.ts --reporter @parcel/reporter-bundle-buddy",
-        "tailwind": "npx tailwindcss -i ./input.css -o ./dist/output.css"
+        "tailwind": "npx tailwindcss -i ./input.css -o ./dist/output.css",
+        "postinstall": "patch-package"
     },
     "devDependencies": {
         "@github/relative-time-element": "^4.1.5",
@@ -18,6 +19,7 @@
         "daisyui": "^4.4.2",
         "openai": "^4.27.0",
         "parcel": "^2.0.0",
+        "patch-package": "^8.0.0",
         "process": "^0.11.10",
         "tailwindcss": "^3.3.5"
     }
