@@ -58,6 +58,7 @@ all:
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
     COPY $PIPELINE_FOLDER/package-lock.json $PIPELINE_FOLDER/package-lock.json
+    COPY --dir $PIPELINE_FOLDER/patches $PIPELINE_FOLDER/patches
     RUN cd $PIPELINE_FOLDER && npm install
     SAVE ARTIFACT $PIPELINE_FOLDER/node_modules
 
