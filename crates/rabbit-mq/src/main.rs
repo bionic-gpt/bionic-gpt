@@ -7,6 +7,7 @@ pub struct Config {
     pub rabbitmq_url: String,
     pub username: String,
     pub password: String,
+    pub upload_url: String,
 }
 
 impl Config {
@@ -17,6 +18,9 @@ impl Config {
             }),
             username: env::var("USERNAME").unwrap_or_else(|_| String::from("admin")),
             password: env::var("PASSWORD").unwrap_or_else(|_| String::from("admin")),
+            upload_url: env::var("UPLAOD_URL").unwrap_or_else(|_| {
+                String::from("http://bionic-gpt.bionic-gpt.svc.cluster.local:7903/v1/document_upload")
+            }),
         }
     }
 }
@@ -38,6 +42,7 @@ struct RabbitMQRequest {
 struct RabbitMQResponse {
     exchange: String,
     message_count: i32,
+    routing_key: String,
     payload: String,
 }
 
@@ -48,9 +53,40 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let messages = get_rabbitmq_messages(&config).await?;
 
     for message in messages {
-        println!("Exchnage: {:?}", message.exchange);
+        println!("Exchange: {:?}", message.exchange);
         println!("Count: {:?}", message.message_count);
         println!("Payload: {:?}", message.payload);
+
+        // Create a reqwest client
+        let client = reqwest::Client::new();
+
+        let parts: Vec<&str> = message.routing_key.split('.').collect();
+
+        // Extract the part before the first '.'
+        if let Some(api_key) = parts.first() {
+            let file_part = reqwest::multipart::Part::text(message.payload)
+                .file_name("from-rabbit.txt")
+                .mime_str("text/plain")
+                .unwrap();
+            let form = reqwest::multipart::Form::new().part("files", file_part);
+
+            // Send the POST request
+            let response = client
+                .post(&config.upload_url)
+                .header("Authorization", format!("Bearer {}", api_key))
+                .multipart(form)
+                .send()
+                .await?;
+
+            // Handle the response
+            if response.status().is_success() {
+                println!("Upload successful for key {}", api_key);
+            } else {
+                println!("Upload failed with status: {}", response.status());
+            }
+        } else {
+            println!("No api_key found before the first '.'");
+        }
     }
 
     Ok(())
