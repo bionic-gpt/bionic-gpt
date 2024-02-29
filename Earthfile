@@ -105,7 +105,7 @@ pipeline-job-container:
     SAVE IMAGE --push $PIPELINE_IMAGE_NAME
      
 
-rabbit-mq-container:
+rabbitmq-container:
     FROM scratch
     COPY +build/$RABBITMQ_EXE_NAME rabbit-mq
     ENTRYPOINT ["./rabbit-mq"]
