@@ -3,6 +3,7 @@ FROM purtontech/rust-on-nails-devcontainer:1.1.17
 
 ARG --global APP_EXE_NAME=axum-server
 ARG --global OPERATOR_EXE_NAME=k8s-operator
+ARG --global RABBITMQ_EXE_NAME=rabbit-mq
 ARG --global PIPELINE_EXE_NAME=pipeline-job
 ARG --global DBMATE_VERSION=2.2.0
 
@@ -26,6 +27,7 @@ ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
+ARG --global RABBITMQ_IMAGE_NAME=bionic-gpt/bionicgpt-rabbitmq:latest
 
 WORKDIR /build
 
@@ -45,6 +47,7 @@ pull-request:
     BUILD +envoy-container
     BUILD +keycloak-container
     BUILD +pipeline-job-container
+    BUILD +rabbitmq-container
 
 all:
     BUILD +migration-container
@@ -54,6 +57,7 @@ all:
     BUILD +testing-container
     BUILD +operator-container
     BUILD +pipeline-job-container
+    BUILD +rabbitmq-container
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -99,6 +103,13 @@ pipeline-job-container:
     COPY +build/$PIPELINE_EXE_NAME pipeline-job
     ENTRYPOINT ["./pipeline-job"]
     SAVE IMAGE --push $PIPELINE_IMAGE_NAME
+     
+
+rabbitmq-container:
+    FROM scratch
+    COPY +build/$RABBITMQ_EXE_NAME rabbit-mq
+    ENTRYPOINT ["./rabbit-mq"]
+    SAVE IMAGE --push $RABBITMQ_IMAGE_NAME
 
 build:
     # Copy in all our crates
@@ -120,6 +131,7 @@ build:
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RABBITMQ_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
     SAVE ARTIFACT multi_user_test
     SAVE ARTIFACT single_user_test

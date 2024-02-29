@@ -38,6 +38,10 @@
           "name": "ghcr.io/bionic-gpt/bionicgpt-pipeline-job:latest",
           "skipLogin": true
       }],
+      ["@semantic-release-plus/docker", {
+          "name": "ghcr.io/bionic-gpt/bionicgpt-rabbitmq:latest",
+          "skipLogin": true
+      }],
       ["@semantic-release/exec", {
         "publishCmd": "./update-config.sh ${nextRelease.version}",
         "execCwd": "./.github/workflows"
