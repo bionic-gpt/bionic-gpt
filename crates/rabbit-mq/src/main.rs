@@ -1,39 +1,82 @@
+use std::env;
 use std::error::Error;
 
-const RABBITMQ_URL: &str = "http://host.docker.internal:25672/api/queues/bionic-gpt/get";
-const USERNAME: &str = "admin";
-const PASSWORD: &str = "admin";
+use serde::{Deserialize, Serialize};
+
+pub struct Config {
+    pub rabbitmq_url: String,
+    pub username: String,
+    pub password: String,
+}
+
+impl Config {
+    pub fn new() -> Config {
+        Config {
+            rabbitmq_url: env::var("RABBITMQ_URL").unwrap_or_else(|_| {
+                String::from("http://rabbitmq-service.rabbitmq-namespace.svc.cluster.local:15672/api/queues/%2f/bionic-github/get")
+            }),
+            username: env::var("USERNAME").unwrap_or_else(|_| String::from("admin")),
+            password: env::var("PASSWORD").unwrap_or_else(|_| String::from("admin")),
+        }
+    }
+}
+impl Default for Config {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[derive(Serialize)]
+struct RabbitMQRequest {
+    count: u32,
+    ackmode: String,
+    encoding: String,
+    truncate: Option<u32>,
+}
+
+#[derive(Debug, Deserialize)]
+struct RabbitMQResponse {
+    exchange: String,
+    message_count: i32,
+    payload: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let config = Config::new();
     // RabbitMQ HTTP GET request
-    let response = get_rabbitmq_messages().await?;
+    let messages = get_rabbitmq_messages(&config).await?;
 
-    // Check if the request was successful (status code 200)
-    if response.status().is_success() {
-        // Parse the JSON response
-        let json_response: serde_json::Value = response.json().await?;
-
-        // Print or process the received messages
-        println!("Received messages: {:?}", json_response);
-    } else {
-        // Print the error status if the request was not successful
-        println!("Error: {}", response.status());
+    for message in messages {
+        println!("Exchnage: {:?}", message.exchange);
+        println!("Count: {:?}", message.message_count);
+        println!("Payload: {:?}", message.payload);
     }
 
     Ok(())
 }
 
-async fn get_rabbitmq_messages() -> Result<reqwest::Response, reqwest::Error> {
+async fn get_rabbitmq_messages(config: &Config) -> Result<Vec<RabbitMQResponse>, reqwest::Error> {
     // Create a reqwest client with basic authentication
     let client = reqwest::Client::builder().build()?;
 
+    // Prepare the message body with the required parameters using a struct
+    let message_body = RabbitMQRequest {
+        count: 1,
+        ackmode: "ack_requeue_false".to_string(),
+        encoding: "auto".to_string(),
+        truncate: Some(50000),
+    };
+
     // RabbitMQ HTTP GET request
     let response = client
-        .get(RABBITMQ_URL)
-        .basic_auth(USERNAME, Some(PASSWORD))
+        .post(&config.rabbitmq_url)
+        .basic_auth(&config.username, Some(&config.password))
+        .json(&message_body)
         .send()
         .await?;
 
-    Ok(response)
+    let json: Vec<RabbitMQResponse> = response.json().await?;
+
+    Ok(json)
 }
