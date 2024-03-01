@@ -2,6 +2,7 @@ use std::env;
 use std::error::Error;
 
 use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Config {
     pub rabbitmq_url: String,
@@ -38,7 +39,8 @@ struct RabbitMQRequest {
     truncate: Option<u32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
+#[derive(Deserialize)]
 struct RabbitMQResponse {
     exchange: String,
     message_count: i32,
@@ -53,9 +55,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let messages = get_rabbitmq_messages(&config).await?;
 
     for message in messages {
-        println!("Exchange: {:?}", message.exchange);
         println!("Count: {:?}", message.message_count);
-        println!("Payload: {:?}", message.payload);
+
+        let current_time = SystemTime::now();
+
+        // Calculate the Unix timestamp (number of seconds since the Unix epoch)
+        let unix_timestamp = current_time
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_micros();
 
         // Create a reqwest client
         let client = reqwest::Client::new();
@@ -65,7 +73,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // Extract the part before the first '.'
         if let Some(api_key) = parts.first() {
             let file_part = reqwest::multipart::Part::text(message.payload)
-                .file_name("from-rabbit.txt")
+                .file_name(format!("{}.txt", unix_timestamp))
                 .mime_str("text/plain")
                 .unwrap();
             let form = reqwest::multipart::Form::new().part("files", file_part);
@@ -80,7 +88,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             // Handle the response
             if response.status().is_success() {
-                println!("Upload successful for key {}", api_key);
+                println!("Upload successful");
             } else {
                 println!("Upload failed with status: {}", response.status());
             }
@@ -98,7 +106,7 @@ async fn get_rabbitmq_messages(config: &Config) -> Result<Vec<RabbitMQResponse>,
 
     // Prepare the message body with the required parameters using a struct
     let message_body = RabbitMQRequest {
-        count: 1,
+        count: 50,
         ackmode: "ack_requeue_false".to_string(),
         encoding: "auto".to_string(),
         truncate: Some(50000),
@@ -111,6 +119,10 @@ async fn get_rabbitmq_messages(config: &Config) -> Result<Vec<RabbitMQResponse>,
         .json(&message_body)
         .send()
         .await?;
+
+    let emitted_at = response.headers().get("emitted_at");
+
+    dbg!(emitted_at);
 
     let json: Vec<RabbitMQResponse> = response.json().await?;
 
