@@ -19,7 +19,7 @@ impl Config {
             }),
             username: env::var("USERNAME").unwrap_or_else(|_| String::from("admin")),
             password: env::var("PASSWORD").unwrap_or_else(|_| String::from("admin")),
-            upload_url: env::var("UPLAOD_URL").unwrap_or_else(|_| {
+            upload_url: env::var("UPLOAD_URL").unwrap_or_else(|_| {
                 String::from("http://bionic-gpt.bionic-gpt.svc.cluster.local:7903/v1/document_upload")
             }),
         }

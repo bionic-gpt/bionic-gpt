@@ -179,6 +179,10 @@ Mixtral
 SBOM
 CloudNativePG
 KeyCloak
+Airbyte
+localhost
+RabbitMQ
+MQ
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -506,3 +510,5 @@ base64-encoded
 1.22
  - docs/enterprise-edition/install-iam.md
 base64-encoded
+ - docs/document-pipeline/airbyte.md
+15672
