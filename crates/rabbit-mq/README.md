@@ -8,7 +8,7 @@ metadata:
   name: rabbitmq-cronjob
   namespace: bionic-gpt
 spec:
-  schedule: "0 0 * * *"
+  schedule: "*/1 * * * *"
   jobTemplate:
     spec:
       template:
