@@ -3,6 +3,9 @@ title = "Connecting to Airbyte"
 weight = 20
 sort_by = "weight"
 +++
+<iframe width="560" height="315" src="https://www.youtube.com/embed/fBC-5MYemao?si=ZoL6It4xYK1pXs0D" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+## Tutorial
 
 Firstly if you've followed the enterprise setup into Kubernetes you can install Airbyte using helm.
 
