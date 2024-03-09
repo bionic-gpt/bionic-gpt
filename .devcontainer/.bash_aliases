@@ -13,6 +13,7 @@ alias gdb='git branch | grep -v "main" | xargs git branch -D'
 
 # Database
 alias dburl='export DATABASE_URL=$(kubectl get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode | sed "s/bionic-db-cluster-rw:5432/localhost:5432/")'
+# dbport doesn't stay open for postgres https://github.com/kubernetes/kubernetes/issues/111825
 alias dbport='kubectl port-forward -n bionic-gpt bionic-db-cluster-1 5432:5432'
 alias dbmate='dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations'
 alias dbdown='while dbmate down; do :; done'
