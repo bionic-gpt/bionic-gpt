@@ -34,7 +34,8 @@ alias watch-tailwind='cd /workspace/crates/asset-pipeline && npx tailwindcss -i 
 alias wt=watch-tailwind
 
 # mirrord
-alias ma='mirrord exec -n bionic-gpt -t deployment/bionic-gpt cargo watch -- --workdir /workspace/ -w crates/daisy-rsx -w crates/ui-pages -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"' 
+alias kc='kind export kubeconfig --name bionic-gpt-cluster && sed -i "s,https://0.0.0.0,https://host.docker.internal,g" ~/.kube/config'
+alias ma='mirrord exec -n bionic-gpt --steal -t deployment/bionic-gpt cargo watch -- --workdir /workspace/ -w crates/daisy-rsx -w crates/ui-pages -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"' 
 
 # Spell check
 alias spell='docker run --rm -ti -v $HOST_PROJECT_PATH/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
