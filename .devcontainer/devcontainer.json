@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.224.3/containers/rust-postgres
 {
-	"name": "Rust LLM Guide",
+	"name": "Bionic-GPT",
 	"dockerComposeFile": [
 		"docker-compose.yml"
 	],
