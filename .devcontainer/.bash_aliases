@@ -34,8 +34,11 @@ alias we=watch-embeddings
 alias watch-tailwind='cd /workspace/crates/asset-pipeline && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
 alias wt=watch-tailwind
 
-# mirrord
+# Kind cluster
 alias kc='kind export kubeconfig --name bionic-gpt-cluster && sed -i "s,https://0.0.0.0,https://host.docker.internal,g" ~/.kube/config'
+alias kdburl='export DATABASE_URL=$(kubectl get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode | sed "s/bionic-db-cluster-rw:5432/host.docker.internal:5432/")'
+
+# mirrord
 alias ma='mirrord exec -n bionic-gpt --steal -t deployment/bionic-gpt cargo watch -- --workdir /workspace/ -w crates/daisy-rsx -w crates/ui-pages -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"' 
 
 # Spell check
