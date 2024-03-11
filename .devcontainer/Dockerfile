@@ -28,3 +28,5 @@ RUN sudo curl -OL https://dl.min.io/client/mc/release/linux-amd64/mc \
 
 # We need this for candle-llama
 RUN sudo apt-get install -y pkg-config
+
+RUN curl -fsSL https://raw.githubusercontent.com/metalbear-co/mirrord/main/scripts/install.sh | bash
