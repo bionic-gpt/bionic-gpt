@@ -12,15 +12,17 @@ alias gsu='git submodule update --recursive --remote'
 alias gdb='git branch | grep -v "main" | xargs git branch -D'
 
 # Database
+alias dburl='export DATABASE_URL=$(kubectl get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode | sed "s/bionic-db-cluster-rw:5432/localhost:5432/")'
+# dbport doesn't stay open for postgres https://github.com/kubernetes/kubernetes/issues/111825
+alias dbport='kubectl port-forward -n bionic-gpt bionic-db-cluster-1 5432:5432'
 alias dbmate='dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations'
 alias dbdown='while dbmate down; do :; done'
 alias db='psql $DATABASE_URL'
 alias dbapp='psql $APP_DATABASE_URL'
-alias dbauth='psql postgresql://ft_authentication:testpassword@db:5432/bionicgpt?sslmode=disable'
 
 alias p='sudo chmod 777 /var/run/docker.sock'
 
-# Watch Zola
+# Watch
 alias watch-zola='cd /workspace/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
 alias wz=watch-zola
 alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/ui-pages -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"'
@@ -31,6 +33,13 @@ alias watch-embeddings='mold -run cargo watch --workdir /workspace/ -w crates/em
 alias we=watch-embeddings
 alias watch-tailwind='cd /workspace/crates/asset-pipeline && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
 alias wt=watch-tailwind
+
+# Kind cluster
+alias kc='kind export kubeconfig --name bionic-gpt-cluster && sed -i "s,https://0.0.0.0,https://host.docker.internal,g" ~/.kube/config'
+alias kdburl='export DATABASE_URL=$(kubectl get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode | sed "s/bionic-db-cluster-rw:5432/host.docker.internal:5432/")'
+
+# mirrord
+alias ma='mirrord exec -n bionic-gpt --steal -t deployment/bionic-gpt cargo watch -- --workdir /workspace/ -w crates/daisy-rsx -w crates/ui-pages -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"' 
 
 # Spell check
 alias spell='docker run --rm -ti -v $HOST_PROJECT_PATH/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
