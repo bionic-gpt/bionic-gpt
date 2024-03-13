@@ -32,10 +32,7 @@ pub async fn new_team(
         .one()
         .await?;
 
-    let roles = vec![
-        types::public::Role::SystemAdministrator,
-        types::public::Role::Collaborator,
-    ];
+    let roles = vec![types::public::Role::Collaborator];
 
     queries::teams::add_user_to_team()
         .bind(&transaction, &user_id, &org_id, &roles)
