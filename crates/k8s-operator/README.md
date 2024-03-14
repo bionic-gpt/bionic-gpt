@@ -34,7 +34,7 @@ Do we need this?
 
 ## Bounce the Cluster
 
-`crates/k8s-operator/bounce-cluster.sh`
+`install.sh --docker-in-docker`
 
 ## Forward Keycloak Port
 
