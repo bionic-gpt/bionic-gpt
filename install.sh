@@ -340,6 +340,7 @@ deploy_bionic() {
 
     # Point to the ip address
     sed -i "s/localhost/$1/g" ./bionic.yaml
+    sed -i "s/# pgadmin/pgadmin/g" ./bionic.yaml
 
     kubectl apply -f ./bionic.yaml
     rm ./bionic.yaml
