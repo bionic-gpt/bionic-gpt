@@ -6,8 +6,11 @@ use crate::envoy;
 use crate::error::Error;
 use crate::finalizer;
 use crate::llm;
+use crate::llm_lite;
 use crate::oauth2_proxy;
+use crate::pgadmin;
 use crate::pipeline_job;
+use crate::tgi;
 use kube::Client;
 use kube::Resource;
 use kube::ResourceExt;
@@ -47,6 +50,18 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
     let namespace: String = bionic.namespace().unwrap_or("default".to_string());
     let name = bionic.name_any();
 
+    let gpu = if let Some(gpu) = bionic.spec.gpu {
+        gpu
+    } else {
+        false
+    };
+
+    let pgadmin = if let Some(pgadmin) = bionic.spec.pgadmin {
+        pgadmin
+    } else {
+        false
+    };
+
     // Performs action as decided by the `determine_action` function.
     match determine_action(&bionic) {
         BionicAction::Create => {
@@ -62,28 +77,38 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            llm::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            if gpu {
+                tgi::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+                llm_lite::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            } else {
+                llm::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            }
             chunking_engine::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             embeddings_engine::deploy(client.clone(), &name, bionic.spec.clone(), &namespace)
                 .await?;
             pipeline_job::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            if pgadmin {
+                pgadmin::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            }
             Ok(Action::requeue(Duration::from_secs(10)))
         }
         BionicAction::Delete => {
-            // Deletes any subresources related to this `Bionic` resources. If and only if all subresources
-            // are deleted, the finalizer is removed and Kubernetes is free to remove the `Bionic` resource.
+            if gpu {
+                tgi::delete(client.clone(), &name, &namespace).await?;
+                llm_lite::delete(client.clone(), &name, &namespace).await?;
+            } else {
+                llm::delete(client.clone(), &name, &namespace).await?;
+            }
 
-            //First, delete the deployment. If there is any error deleting the deployment, it is
-            // automatically converted into `Error` defined in this crate and the reconciliation is ended
-            // with that error.
-            // Note: A more advanced implementation would check for the Deployment's existence.
             envoy::delete(client.clone(), &name, &namespace).await?;
             oauth2_proxy::delete(client.clone(), &name, &namespace).await?;
             bionic::delete(client.clone(), &name, &namespace).await?;
-            llm::delete(client.clone(), &name, &namespace).await?;
             chunking_engine::delete(client.clone(), &name, &namespace).await?;
             embeddings_engine::delete(client.clone(), &name, &namespace).await?;
             pipeline_job::delete(client.clone(), &name, &namespace).await?;
+            if pgadmin {
+                pgadmin::delete(client.clone(), &name, &namespace).await?;
+            }
 
             // Once the deployment is successfully removed, remove the finalizer to make it possible
             // for Kubernetes to delete the `Bionic` resource.
