@@ -210,113 +210,6 @@ EOF
     kubectl apply -n bionic-gpt -f keycloak-secrets.yml && rm keycloak-secrets.yml
 }
 
-# Function to deploy keycloak
-deploy_keycloak() {
-echo 'apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: keycloak
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: keycloak
-  template:
-    metadata:
-      labels:
-        app: keycloak
-    spec:
-      containers:
-      - name: keycloak
-        image: quay.io/keycloak/keycloak:23.0
-        command:
-        args:
-          - start-dev
-          - --import-realm
-          - --http-port=7910
-          - --proxy=edge
-          - --hostname-strict=false
-          - --hostname-strict-https=false
-          - --hostname-url=https://localhost/oidc
-          - --http-relative-path=/oidc
-        volumeMounts:
-        - name: keycloak-config
-          mountPath: /opt/keycloak/data/import
-        ports:
-        - containerPort: 7910
-        env:
-        #- name: KC_DB
-        #  value: postgres
-        #- name: KC_DB_PASSWORD
-        #  valueFrom:
-        #    secretKeyRef:
-        #      name: keycloak-secrets
-        #      key: database-password
-        #- name: KC_DB_USERNAME
-        #  value: keycloak-db-owner
-        #- name: KC_DB_URL
-        #  value: jdbc:postgresql://keycloak-db-cluster-rw:5432/keycloak
-        - name: KEYCLOAK_ADMIN
-          value: admin
-        - name: KEYCLOAK_ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: keycloak-secrets
-              key: admin-password
-        - name: KC_HEALTH_ENABLED
-          value: "true"
-      volumes:
-      - name: keycloak-config
-        configMap:
-          name: keycloak-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: keycloak
-spec:
-  selector:
-    app: keycloak
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 7910
-  type: ClusterIP
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keycloak-config
-data:
-  realm.json: |
-    {
-      "realm": "bionic-gpt",
-      "registrationAllowed": "true",
-      "registrationEmailAsUsername": "true",
-      "enabled": "true",
-      "sslRequired": "none",
-      "clients": [
-        {
-          "clientId": "bionic-gpt",
-          "clientAuthenticatorType": "client-secret",
-          "secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
-          "redirectUris": [
-            "http://*",
-            "https://*"
-          ],
-          "protocol": "openid-connect"
-        }
-      ]
-    }
-' > keycloak-deployment.yml
-
-
-    # Point to the ip address
-    sed -i "s/localhost/$1/g" ./keycloak-deployment.yml
-
-    kubectl apply -n bionic-gpt -f keycloak-deployment.yml && rm keycloak-deployment.yml
-}
-
 # Function to check if Docker-in-Docker parameter is supplied and update kubeconfig
 check_docker_in_docker() {
     if [[ "$@" =~ "--docker-in-docker" ]]; then
@@ -341,6 +234,7 @@ deploy_bionic() {
     # Point to the ip address
     sed -i "s/localhost/$1/g" ./bionic.yaml
     sed -i "s/# pgadmin/pgadmin/g" ./bionic.yaml
+    sed -i "s/# gpu: true/gpu: $2/g" ./bionic.yaml
 
     kubectl apply -f ./bionic.yaml
     rm ./bionic.yaml
@@ -358,7 +252,7 @@ stringData:
   client-id: bionic-gpt
   client-secret: 69b26b08-12fe-48a2-85f0-6ab223f45777
   redirect-uri: https://localhost/oauth2/callback
-  issuer-url: http://keycloak/oidc/realms/bionic-gpt
+  issuer-url: http://keycloak:7910/oidc/realms/bionic-gpt
   cookie-secret: ${COOKIE_SECRET}
 " > oidc-secret.yml
 
@@ -405,6 +299,22 @@ EOF
 
 }
 
+apply_pgadmin_secrets() {
+
+    export PASSWORD=$(dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_' ; echo)
+
+    echo "apiVersion: v1
+kind: Secret
+metadata:
+  name: pgadmin-secret
+stringData:
+  email: test@test.com
+  password: ${PASSWORD}
+" > pgadmin-secret.yml
+
+    kubectl apply -n bionic-gpt -f pgadmin-secret.yml && rm pgadmin-secret.yml
+}
+
 # Main function
 main() {
 
@@ -412,6 +322,12 @@ main() {
         address="localhost"
     else
         address=$(hostname -I | awk '{print $1}')
+    fi
+
+    if [[ "$@" =~ "--gpu" ]]; then
+        gpu="true"
+    else
+        gpu="false"
     fi
 
     # Install tools if not installed
@@ -427,12 +343,17 @@ main() {
     apply_database_secrets
     deploy_postgres_cluster
     apply_keycloak_secrets
-    deploy_keycloak "$address"
     install_ingress
     preload_images
-    deploy_bionic_operator
+
+    if [[ "$@" =~ "--development" ]]; then
+        echo "Not deploying operator use cargo run --bin k8s-operator"
+    else
+        deploy_bionic_operator
+    fi
     apply_oauth2_proxy_secrets "$address"
-    deploy_bionic "$address"
+    apply_pgadmin_secrets
+    deploy_bionic "$address" "$gpu"
     connect_ingress
 
     echo "Bionic-GPT available on https://$address"

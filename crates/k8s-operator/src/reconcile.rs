@@ -5,6 +5,7 @@ use crate::embeddings_engine;
 use crate::envoy;
 use crate::error::Error;
 use crate::finalizer;
+use crate::keycloak;
 use crate::llm;
 use crate::llm_lite;
 use crate::oauth2_proxy;
@@ -76,6 +77,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
             bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            keycloak::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             if gpu {
                 tgi::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
@@ -101,6 +103,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             }
 
             envoy::delete(client.clone(), &name, &namespace).await?;
+            keycloak::delete(client.clone(), &name, &namespace).await?;
             oauth2_proxy::delete(client.clone(), &name, &namespace).await?;
             bionic::delete(client.clone(), &name, &namespace).await?;
             chunking_engine::delete(client.clone(), &name, &namespace).await?;

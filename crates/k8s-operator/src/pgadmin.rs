@@ -5,6 +5,7 @@ use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
+use serde_json::json;
 
 const PGADMIN: &str = "pgadmin";
 
@@ -22,7 +23,28 @@ pub async fn deploy(
             image_name: crate::PGADMIN_IMAGE.to_string(),
             replicas: 1,
             port: 80,
-            env: vec![],
+            env: vec![
+                json!({
+                    "name":
+                    "PGADMIN_DEFAULT_EMAIL",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "pgadmin-secret",
+                            "key": "email"
+                        }
+                    }
+                }),
+                json!({
+                    "name":
+                    "PGADMIN_DEFAULT_PASSWORD",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "pgadmin-secret",
+                            "key": "password"
+                        }
+                    }
+                }),
+            ],
             init_container: None,
             command: Some(deployment::Command {
                 command: vec![],
