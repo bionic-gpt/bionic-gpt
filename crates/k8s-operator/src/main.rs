@@ -7,9 +7,12 @@ mod envoy;
 mod error;
 mod finalizer;
 mod llm;
+mod llm_lite;
 mod oauth2_proxy;
+mod pgadmin;
 mod pipeline_job;
 mod reconcile;
+mod tgi;
 use anyhow::Result;
 use crd::Bionic;
 use futures_util::stream::StreamExt;
@@ -24,8 +27,9 @@ const BIONICGPT_DB_MIGRATIONS_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-db-mig
 
 const ENVOYPROXY_IMAGE: &str = "envoyproxy/envoy:v1.28.0";
 const OAUTH2_PROXY_IMAGE: &str = "quay.io/oauth2-proxy/oauth2-proxy:v7.5.1";
-const _LITE_LLM_IMAGE: &str = "ghcr.io/berriai/litellm:main-v1.10.3";
-const _TGI_IMAGE: &str = "ghcr.io/huggingface/text-generation-inference:1.2";
+const LITE_LLM_IMAGE: &str = "ghcr.io/berriai/litellm:main-v1.10.3";
+const TGI_IMAGE: &str = "ghcr.io/huggingface/text-generation-inference:1.2";
+const PGADMIN_IMAGE: &str = "dpage/pgadmin4:5.4";
 const CHUNKING_ENGINE_IMAGE: &str =
     "downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc";
 const EMBEDDINGS_ENGINE_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6";
