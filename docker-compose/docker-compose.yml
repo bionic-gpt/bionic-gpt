@@ -49,7 +49,7 @@ services:
         condition: service_healthy
 
   # We support Open ID Connect. In this case we're using Keycloak
-  # But you can use your own identityt provider.
+  # But you can use your own identity provider.
   keycloak:
     image: ghcr.io/bionic-gpt/bionicgpt-keycloak:1.6.13
     platform: linux/amd64
