@@ -6,7 +6,7 @@ use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
 
-pub const TGI_NAME: &str = "tgi-zephyr-7B";
+pub const TGI_NAME: &str = "tgi-zephyr-7b";
 
 // Large Language Model
 pub async fn deploy(
