@@ -22,7 +22,7 @@ pub async fn deploy(
             name: LITE_LLM.to_string(),
             image_name: crate::LITE_LLM_IMAGE.to_string(),
             replicas: 1,
-            port: 8000,
+            port: 11434,
             env: vec![],
             init_container: None,
             command: Some(deployment::Command {
@@ -35,7 +35,7 @@ pub async fn deploy(
                     "--host".into(),
                     "0.0.0.0".into(),
                     "--port".into(),
-                    "3000".into(),
+                    "11434".into(),
                 ],
             }),
             volume_mounts: vec![],
