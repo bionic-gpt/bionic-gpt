@@ -32,6 +32,10 @@ Do we need this?
 
 `kubectl delete -f crates/k8s-operator/config/bionics.bionic-gpt.com.yaml`
 
+## Remove the operator
+
+`kubectl delete -f crates/k8s-operator/config/bionic-operator.yaml`
+
 ## Bounce the Cluster
 
 `install.sh --docker-in-docker`
