@@ -252,7 +252,7 @@ stringData:
   client-id: bionic-gpt
   client-secret: 69b26b08-12fe-48a2-85f0-6ab223f45777
   redirect-uri: https://localhost/oauth2/callback
-  issuer-url: http://keycloak/oidc/realms/bionic-gpt
+  issuer-url: http://keycloak:7910/oidc/realms/bionic-gpt
   cookie-secret: ${COOKIE_SECRET}
 " > oidc-secret.yml
 

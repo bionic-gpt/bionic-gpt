@@ -29,7 +29,7 @@ pub async fn deploy(
                     "PGADMIN_DEFAULT_EMAIL",
                     "valueFrom": {
                         "secretKeyRef": {
-                            "name": "pgadmin-secrets",
+                            "name": "pgadmin-secret",
                             "key": "email"
                         }
                     }
@@ -39,7 +39,7 @@ pub async fn deploy(
                     "PGADMIN_DEFAULT_PASSWORD",
                     "valueFrom": {
                         "secretKeyRef": {
-                            "name": "pgadmin-secrets",
+                            "name": "pgadmin-secret",
                             "key": "password"
                         }
                     }
