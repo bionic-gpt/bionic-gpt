@@ -36,6 +36,10 @@ spec:
                   type: string
                 hash-bionicgpt-db-migrations:
                   type: string
+                gpu:  # Do we want to setup a GPU model? Default is false
+                  type: boolean
+                pgadmin:  # Install PgAdmin
+                  type: boolean
               required:
               - replicas
               - version
