@@ -1,9 +1,11 @@
+use std::collections::BTreeMap;
+
 use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::{ConfigMap, Service};
-use kube::api::{DeleteParams, PostParams};
+use k8s_openapi::api::core::v1::{ConfigMap, Secret, Service};
+use kube::api::{DeleteParams, ObjectMeta, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
@@ -120,6 +122,24 @@ pub async fn deploy(
     )
     .await?;
 
+    let mut secret_data = BTreeMap::new();
+    secret_data.insert("admin-password".to_string(), crate::database::rand_hex());
+
+    let keycloak_secret = Secret {
+        metadata: ObjectMeta {
+            name: Some("keycloak-secrets".to_string()),
+            namespace: Some(namespace.to_string()),
+            ..ObjectMeta::default()
+        },
+        string_data: Some(secret_data),
+        ..Default::default()
+    };
+
+    let secret_api: Api<Secret> = Api::namespaced(client, namespace);
+    secret_api
+        .create(&PostParams::default(), &keycloak_secret)
+        .await?;
+
     Ok(())
 }
 
@@ -133,8 +153,13 @@ pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), 
     api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
 
     // Remove configmaps
-    let api: Api<ConfigMap> = Api::namespaced(client, namespace);
+    let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
     api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
+
+    // Remove secrets
+    let api: Api<Secret> = Api::namespaced(client, namespace);
+    api.delete("keycloak-secrets", &DeleteParams::default())
+        .await?;
 
     Ok(())
 }
