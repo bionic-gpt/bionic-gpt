@@ -5,6 +5,8 @@ use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Secret, Service};
 use kube::api::{DeleteParams, PostParams};
 use kube::{Api, Client};
+use rand::rngs::OsRng;
+use rand::RngCore;
 use serde_json::json;
 use url::Url;
 
@@ -124,7 +126,7 @@ pub async fn deploy(
             "client-secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
             "redirect-uri": format!("https://{}/oauth2/callback", spec.hostname_url),
             "issuer-url": "http://keycloak:7910/oidc/realms/bionic-gpt",
-            "cookie-secret": crate::pgadmin::rand_base64()
+            "cookie-secret": rand_base64()
         }
     }))?;
 
@@ -132,6 +134,16 @@ pub async fn deploy(
     secret_api.create(&PostParams::default(), &secret).await?;
 
     Ok(())
+}
+
+pub fn rand_base64() -> String {
+    // Generate random bytes
+    let mut rng = OsRng;
+    let mut random_bytes = [0u8; 32];
+    rng.fill_bytes(&mut random_bytes);
+
+    // Encode random bytes to Base64
+    base64::encode_config(random_bytes, base64::URL_SAFE_NO_PAD)
 }
 
 pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
