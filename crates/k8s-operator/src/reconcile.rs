@@ -1,10 +1,12 @@
 use crate::bionic;
 use crate::chunking_engine;
 use crate::crd::Bionic;
+use crate::database;
 use crate::embeddings_engine;
 use crate::envoy;
 use crate::error::Error;
 use crate::finalizer;
+use crate::ingress;
 use crate::keycloak;
 use crate::llm;
 use crate::llm_lite;
@@ -75,10 +77,12 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // of `kube::Error` to the `Error` defined in this crate.
             finalizer::add(client.clone(), &name, &namespace).await?;
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
+            database::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            ingress::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             if gpu {
                 tgi::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
                 llm_lite::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
@@ -105,7 +109,9 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             envoy::delete(client.clone(), &name, &namespace).await?;
             keycloak::delete(client.clone(), &name, &namespace).await?;
             oauth2_proxy::delete(client.clone(), &name, &namespace).await?;
+            ingress::delete(client.clone(), &name, &namespace).await?;
             bionic::delete(client.clone(), &name, &namespace).await?;
+            database::delete(client.clone(), &name, &namespace).await?;
             chunking_engine::delete(client.clone(), &name, &namespace).await?;
             embeddings_engine::delete(client.clone(), &name, &namespace).await?;
             pipeline_job::delete(client.clone(), &name, &namespace).await?;

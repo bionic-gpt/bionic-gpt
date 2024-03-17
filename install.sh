@@ -86,128 +86,8 @@ apply_bionic_crd() {
 }
 
 # Function to install Postrgres
-install_postgres() {
+install_postgres_operator() {
     kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.22/releases/cnpg-1.22.1.yaml
-}
-
-# Function to generate and apply database secrets
-apply_database_secrets() {
-    export APP_DATABASE_PASSWORD=$(openssl rand -hex 10)
-    export DBOWNER_DATABASE_PASSWORD=$(openssl rand -hex 10)
-    export READONLY_DATABASE_PASSWORD=$(openssl rand -hex 10)
-
-    cat <<EOF >db-owner-secret.yml
-apiVersion: v1
-kind: Secret
-type: "kubernetes.io/basic-auth"
-metadata:
-  namespace: bionic-gpt
-  name: db-owner
-stringData:
-  username: db-owner
-  password: ${DBOWNER_DATABASE_PASSWORD}
-EOF
-
-    kubectl apply -n bionic-gpt -f db-owner-secret.yml && rm db-owner-secret.yml
-
-    cat <<EOF >db-secrets.yml
-apiVersion: v1
-kind: Secret
-metadata:
-  namespace: bionic-gpt
-  name: database-urls
-stringData:
-  migrations-url: postgres://db-owner:${DBOWNER_DATABASE_PASSWORD}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=require
-  application-url: postgres://bionic_application:${APP_DATABASE_PASSWORD}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=require
-  readonly-url: postgres://bionic_readonly:${READONLY_DATABASE_PASSWORD}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=require
-EOF
-
-    kubectl apply -n bionic-gpt -f db-secrets.yml && rm db-secrets.yml
-
-    echo "Waiting for the Postgres Operator to start"
-    sleep 20
-    kubectl -n cnpg-system wait --timeout=30s --for=condition=ready pod -l app.kubernetes.io/name=cloudnative-pg
-}
-
-# Function to deploy PostgreSQL cluster
-deploy_postgres_cluster() {
-    cat <<EOF >database.yml
-apiVersion: postgresql.cnpg.io/v1
-kind: 'Cluster'
-metadata:
-  name: 'bionic-db-cluster'
-  namespace: bionic-gpt
-spec:
-  instances: 1
-  bootstrap:
-    initdb:
-      database: bionic-gpt
-      owner: db-owner
-      secret:
-        name: db-owner
-      postInitSQL:
-        - CREATE ROLE bionic_application LOGIN ENCRYPTED PASSWORD '${APP_DATABASE_PASSWORD}'
-        - CREATE ROLE bionic_readonly LOGIN ENCRYPTED PASSWORD '${READONLY_DATABASE_PASSWORD}'
-      postInitApplicationSQL:
-        - CREATE EXTENSION IF NOT EXISTS vector
-  storage:
-    size: '1Gi'
-EOF
-
-    kubectl apply -n bionic-gpt -f database.yml && rm database.yml
-}
-
-# Function to generate and apply keycloak secrets
-apply_keycloak_secrets() {
-    export DATABASE_PASSWORD=$(openssl rand -hex 10)
-    export ADMIN_PASSWORD=$(openssl rand -hex 10)
-
-    cat <<EOF >keycloak-db-secret.yml
-apiVersion: v1
-kind: Secret
-type: "kubernetes.io/basic-auth"
-metadata:
-  namespace: bionic-gpt
-  name: keycloak-db-owner
-stringData:
-  username: keycloak-db-owner
-  password: ${DATABASE_PASSWORD}
-EOF
-
-    kubectl apply -n bionic-gpt -f keycloak-db-secret.yml && rm keycloak-db-secret.yml
-
-    cat <<EOF >keycloak-database.yml
-apiVersion: postgresql.cnpg.io/v1
-kind: 'Cluster'
-metadata:
-  name: 'keycloak-db-cluster'
-  namespace: bionic-gpt
-spec:
-  instances: 1
-  bootstrap:
-    initdb:
-      database: keycloak
-      owner: keycloak-db-owner
-      secret:
-        name: keycloak-db-owner
-  storage:
-    size: '1Gi'
-EOF
-
-    kubectl apply -n bionic-gpt -f keycloak-database.yml && rm keycloak-database.yml
-
-    cat <<EOF >keycloak-secrets.yml
-apiVersion: v1
-kind: Secret
-metadata:
-  namespace: bionic-gpt
-  name: keycloak-secrets
-data:
-  database-password: ${DATABASE_PASSWORD}
-  admin-password: ${ADMIN_PASSWORD}
-EOF
-
-    kubectl apply -n bionic-gpt -f keycloak-secrets.yml && rm keycloak-secrets.yml
 }
 
 # Function to check if Docker-in-Docker parameter is supplied and update kubeconfig
@@ -240,79 +120,8 @@ deploy_bionic() {
     rm ./bionic.yaml
 }
 
-apply_oauth2_proxy_secrets() {
-
-    export COOKIE_SECRET=$(dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_' ; echo)
-
-    echo "apiVersion: v1
-kind: Secret
-metadata:
-  name: oidc-secret
-stringData:
-  client-id: bionic-gpt
-  client-secret: 69b26b08-12fe-48a2-85f0-6ab223f45777
-  redirect-uri: https://localhost/oauth2/callback
-  issuer-url: http://keycloak:7910/oidc/realms/bionic-gpt
-  cookie-secret: ${COOKIE_SECRET}
-" > oidc-secret.yml
-
-    sed -i "s/localhost/$1/g" ./oidc-secret.yml
-
-    kubectl apply -n bionic-gpt -f oidc-secret.yml && rm oidc-secret.yml
-}
-
-install_ingress() {
+install_ingress_operator() {
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-}
-
-connect_ingress() {
-
-    cat <<EOF | kubectl apply -n bionic-gpt -f-
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    # We need to set the buffer size or keycloak won't let you register
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
-    # We need toi set this as the max size for document upload
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
-  name: bionic-gpt-ingress
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /oidc
-        pathType: Prefix
-        backend:
-          service:
-            name: keycloak
-            port:
-              number: 7910
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: oauth2-proxy
-            port:
-              number: 7900
-EOF
-
-}
-
-apply_pgadmin_secrets() {
-
-    export PASSWORD=$(dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_' ; echo)
-
-    echo "apiVersion: v1
-kind: Secret
-metadata:
-  name: pgadmin-secret
-stringData:
-  email: test@test.com
-  password: ${PASSWORD}
-" > pgadmin-secret.yml
-
-    kubectl apply -n bionic-gpt -f pgadmin-secret.yml && rm pgadmin-secret.yml
 }
 
 # Main function
@@ -338,23 +147,17 @@ main() {
     # Execute each step
     create_kind_cluster
     check_docker_in_docker "$@"
+    install_postgres_operator
+    install_ingress_operator
     apply_bionic_crd
-    install_postgres
-    apply_database_secrets
-    deploy_postgres_cluster
-    apply_keycloak_secrets
-    install_ingress
-    preload_images
+    #preload_images
 
     if [[ "$@" =~ "--development" ]]; then
         echo "Not deploying operator use cargo run --bin k8s-operator"
     else
         deploy_bionic_operator
     fi
-    apply_oauth2_proxy_secrets "$address"
-    apply_pgadmin_secrets
     deploy_bionic "$address" "$gpu"
-    connect_ingress
 
     echo "Bionic-GPT available on https://$address"
 }

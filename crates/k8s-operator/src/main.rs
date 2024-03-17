@@ -1,11 +1,13 @@
 mod bionic;
 mod chunking_engine;
 mod crd;
+mod database;
 mod deployment;
 mod embeddings_engine;
 mod envoy;
 mod error;
 mod finalizer;
+mod ingress;
 mod keycloak;
 mod llm;
 mod llm_lite;

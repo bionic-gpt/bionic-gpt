@@ -2,8 +2,8 @@ use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::Service;
-use kube::api::DeleteParams;
+use k8s_openapi::api::core::v1::{Secret, Service};
+use kube::api::{DeleteParams, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 use url::Url;
@@ -112,6 +112,25 @@ pub async fn deploy(
     )
     .await?;
 
+    let secret = serde_json::from_value(serde_json::json!({
+        "apiVersion": "v1",
+        "kind": "Secret",
+        "metadata": {
+            "name": "oidc-secret",
+            "namespace": namespace
+        },
+        "stringData": {
+            "client-id": "bionic-gpt",
+            "client-secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
+            "redirect-uri": format!("https://{}/oauth2/callback", spec.hostname_url),
+            "issuer-url": "http://keycloak:7910/oidc/realms/bionic-gpt",
+            "cookie-secret": crate::pgadmin::rand_base64()
+        }
+    }))?;
+
+    let secret_api: Api<Secret> = Api::namespaced(client, namespace);
+    secret_api.create(&PostParams::default(), &secret).await?;
+
     Ok(())
 }
 
@@ -123,6 +142,9 @@ pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
     api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+
+    let api: Api<Secret> = Api::namespaced(client.clone(), namespace);
+    api.delete("oidc-secret", &DeleteParams::default()).await?;
 
     Ok(())
 }
