@@ -150,7 +150,7 @@ main() {
     install_postgres_operator
     install_ingress_operator
     apply_bionic_crd
-    #preload_images
+    preload_images
 
     if [[ "$@" =~ "--development" ]]; then
         echo "Not deploying operator use cargo run --bin k8s-operator"
