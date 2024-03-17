@@ -1361,12 +1361,14 @@ name = "k8s-operator"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "base64 0.13.1",
  "futures",
  "futures-util",
  "k8s-openapi",
  "kube",
  "kube-derive",
  "kube-runtime",
+ "rand",
  "schemars",
  "serde",
  "serde_json",

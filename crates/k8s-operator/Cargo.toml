@@ -25,3 +25,6 @@ tracing = "0"
 tracing-subscriber = { version="0", features = ["env-filter"] }
 anyhow = "1.0.44"
 url = "2"
+
+rand = "0.8.4"
+base64 = "0.13.0"
