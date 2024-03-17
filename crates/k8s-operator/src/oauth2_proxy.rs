@@ -124,7 +124,7 @@ pub async fn deploy(
         "stringData": {
             "client-id": "bionic-gpt",
             "client-secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
-            "redirect-uri": format!("https://{}/oauth2/callback", spec.hostname_url),
+            "redirect-uri": format!("{}/oauth2/callback", spec.hostname_url),
             "issuer-url": "http://keycloak:7910/oidc/realms/bionic-gpt",
             "cookie-secret": rand_base64()
         }
