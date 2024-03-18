@@ -5,9 +5,7 @@ install_tools() {
     local tool=$1
     if ! command -v "$tool" &>/dev/null; then
         echo "Installing $tool..."
-        if [[ $tool == "kind" ]]; then
-            install_kind
-        elif [[ $tool == "kubectl" ]]; then
+        if [[ $tool == "kubectl" ]]; then
             install_kubectl
         elif [[ $tool == "k9s" ]]; then
             install_k9s
@@ -15,13 +13,6 @@ install_tools() {
     else
         echo "$tool Already Installed"
     fi
-}
-
-# Function to install Kind
-install_kind() {
-    curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
-    chmod +x ./kind
-    sudo mv ./kind /usr/local/bin/kind
 }
 
 # Function to install kubectl
@@ -37,46 +28,12 @@ install_k9s() {
     sudo mv ./k9s /usr/local/bin/k9s
 }
 
-# Function to clean up previous cluster and create a new one
-create_kind_cluster() {
-    kind delete cluster --name bionic-gpt-cluster
-
-    cat <<EOF >kind-config.yaml
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-nodes:
-- role: control-plane
-  kubeadmConfigPatches:
-  - |
-    kind: InitConfiguration
-    nodeRegistration:
-      kubeletExtraArgs:
-        node-labels: "ingress-ready=true"
-  extraPortMappings:
-  - containerPort: 443
-    hostPort: 443
-networking:
-  # If we don't do this, then we can't connect on linux
-  apiServerAddress: "0.0.0.0"
-kubeadmConfigPatchesJSON6902:
-- group: kubeadm.k8s.io
-  version: v1beta3
-  kind: ClusterConfiguration
-  patch: |
-    - op: add
-      path: /apiServer/certSANs/-
-      value: host.docker.internal
-EOF
-
-
-    kind create cluster --name bionic-gpt-cluster --config=./kind-config.yaml
-    rm ./kind-config.yaml
-    kind export kubeconfig --name bionic-gpt-cluster
-}
-
-# Function to update kubeconfig for Docker Desktop
-update_kubeconfig() {
-    sed -i 's,https://0.0.0.0,https://host.docker.internal,g' ~/.kube/config
+reset_k3s() {
+    sudo /usr/local/bin/k3s-uninstall.sh
+    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik" sh -
+    sudo chmod 444 /etc/rancher/k3s/k3s.yaml
+    cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    sed -i "s,127.0.0.1,$1,g" ~/.kube/config
 }
 
 # Function to apply Kubernetes configurations
@@ -121,7 +78,8 @@ deploy_bionic() {
 }
 
 install_ingress_operator() {
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.2/deploy/static/provider/cloud/deploy.yaml
+    #kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 }
 
 # Main function
@@ -139,18 +97,15 @@ main() {
         gpu="false"
     fi
 
-    # Install tools if not installed
-    install_tools "kind"
-    install_tools "kubectl"
-    install_tools "k9s"
-
-    # Execute each step
-    create_kind_cluster
-    check_docker_in_docker "$@"
+    reset_k3s "$address"
     install_postgres_operator
     install_ingress_operator
+    echo "Waiting for Postgres Operator to be ready"
+    kubectl wait --for=condition=available deployment/cnpg-controller-manager -n cnpg-system
+    echo "Waiting for Nginx Ingress Operator to be ready"
+    kubectl wait --for=condition=available deployment/ingress-nginx-controller -n ingress-nginx
+    
     apply_bionic_crd
-    preload_images
 
     if [[ "$@" =~ "--development" ]]; then
         echo "Not deploying operator use cargo run --bin k8s-operator"

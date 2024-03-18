@@ -22,6 +22,7 @@ pub async fn deploy(
         "kind": "Ingress",
         "metadata": {
             "name": INGRESS,
+            "namespace": namespace,
             "annotations": {
                 // We need to set the buffer size or keycloak won't let you register
                 "nginx.ingress.kubernetes.io/proxy-buffer-size": "128k",
