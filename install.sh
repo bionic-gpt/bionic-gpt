@@ -30,7 +30,7 @@ install_k9s() {
 
 reset_k3s() {
     sudo /usr/local/bin/k3s-uninstall.sh
-    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik" sh -
+    curl -sfL https://get.k3s.io | sh -
     sudo chmod 444 /etc/rancher/k3s/k3s.yaml
     cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
     sed -i "s,127.0.0.1,$1,g" ~/.kube/config
@@ -45,19 +45,6 @@ apply_bionic_crd() {
 # Function to install Postrgres
 install_postgres_operator() {
     kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.22/releases/cnpg-1.22.1.yaml
-}
-
-# Function to check if Docker-in-Docker parameter is supplied and update kubeconfig
-check_docker_in_docker() {
-    if [[ "$@" =~ "--docker-in-docker" ]]; then
-        update_kubeconfig
-    fi
-}
-
-preload_images() {
-    echo "Preloading unstructured and embeddings for a faster startup (This takes a long time)"
-    kind --name bionic-gpt-cluster load docker-image downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
-    kind --name bionic-gpt-cluster load docker-image ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
 }
 
 deploy_bionic_operator() {
@@ -77,11 +64,6 @@ deploy_bionic() {
     rm ./bionic.yaml
 }
 
-install_ingress_operator() {
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.2/deploy/static/provider/cloud/deploy.yaml
-    #kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-}
-
 # Main function
 main() {
 
@@ -99,11 +81,8 @@ main() {
 
     reset_k3s "$address"
     install_postgres_operator
-    install_ingress_operator
     echo "Waiting for Postgres Operator to be ready"
     kubectl wait --for=condition=available deployment/cnpg-controller-manager -n cnpg-system
-    echo "Waiting for Nginx Ingress Operator to be ready"
-    kubectl wait --for=condition=available deployment/ingress-nginx-controller -n ingress-nginx
     
     apply_bionic_crd
 
@@ -114,7 +93,8 @@ main() {
     fi
     deploy_bionic "$address" "$gpu"
 
-    echo "Bionic-GPT available on https://$address"
+    echo "When it's ready Bionic-GPT available on https://$address"
+    echo "Use k9s to check the status"
 }
 
 # Run the script with parameters
