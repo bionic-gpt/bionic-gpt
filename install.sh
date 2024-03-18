@@ -56,7 +56,7 @@ deploy_bionic() {
     curl -LO https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/crates/k8s-operator/config/bionic.yaml
 
     # Point to the ip address
-    sed -i "s/localhost/$1/g" ./bionic.yaml
+    sed -i "s,https://localhost,http://$1,g" ./bionic.yaml
     sed -i "s/# pgadmin/pgadmin/g" ./bionic.yaml
     sed -i "s/# gpu: true/gpu: $2/g" ./bionic.yaml
 
@@ -82,7 +82,7 @@ main() {
     reset_k3s "$address"
     install_postgres_operator
     echo "Waiting for Postgres Operator to be ready"
-    kubectl wait --for=condition=available deployment/cnpg-controller-manager -n cnpg-system
+    kubectl wait --timeout=120s --for=condition=available deployment/cnpg-controller-manager -n cnpg-system
     
     apply_bionic_crd
 
@@ -93,7 +93,7 @@ main() {
     fi
     deploy_bionic "$address" "$gpu"
 
-    echo "When it's ready Bionic-GPT available on https://$address"
+    echo "When it's ready Bionic-GPT available on http://$address"
     echo "Use k9s to check the status"
 }
 
