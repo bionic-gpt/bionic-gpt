@@ -29,47 +29,31 @@ kubectl apply -f phi-2.yaml
 ## Example Model YAML
 
 ```yml
-apiVersion: v1
-kind: Service
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
 metadata:
-  name: phi-2-gptq
-  namespace: bionic-gpt
-spec:
-  selector:
-    app: phi-2-gptq
-  ports:
-    - protocol: TCP
-      port: 8000
-      targetPort: 80
-
+  name: nvidia
+handler: nvidia
 ---
-
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
   name: phi-2-gptq
   namespace: bionic-gpt
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: phi-2-gptq
-  template:
-    metadata:
-      labels:
-        app: phi-2-gptq
-    spec:
-      containers:
-      - name: tgi
-        image: ghcr.io/huggingface/text-generation-inference:1.4
-        args: 
-          - --model-id 
-          - TheBloke/phi-2-GPTQ
-          - --quantize 
-          - gptq
-        resources:
-          limits:
-            nvidia.com/gpu: 1
+  restartPolicy: OnFailure
+  runtimeClassName: nvidia
+  containers:
+  - name: tgi
+    image: ghcr.io/huggingface/text-generation-inference:1.4
+    args: 
+      - --model-id 
+      - TheBloke/phi-2-GPTQ
+      - --quantize 
+      - gptq
+    resources:
+      limits:
+        nvidia.com/gpu: 1
 ```
 
 The model and inference engine must run in the same container.
