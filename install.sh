@@ -32,6 +32,7 @@ reset_k3s() {
     sudo /usr/local/bin/k3s-uninstall.sh
     curl -sfL https://get.k3s.io | sh -
     sudo chmod 444 /etc/rancher/k3s/k3s.yaml
+    mkdir -p ~/.kube
     cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
     sed -i "s,127.0.0.1,$1,g" ~/.kube/config
 }
