@@ -10,14 +10,14 @@ pub fn Role(cx: Scope, role: Role) -> Element {
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Highlight,
-                "SystemAdministrator"
+                "System Administrator"
             }
         )),
         Role::TeamManager => cx.render(rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Neutral,
-                "Team Manger"
+                "Team Manager"
             }
         )),
         Role::Collaborator => cx.render(rsx!(
