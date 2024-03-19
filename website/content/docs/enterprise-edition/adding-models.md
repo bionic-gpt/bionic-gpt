@@ -1,54 +1,42 @@
 +++
-title = "Adding LLM Models"
+title = "Connecting to Ollama"
 weight = 95
 sort_by = "weight"
 +++
 
-To add a model to your cluster you can create a [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and a [Service](https://kubernetes.io/docs/concepts/services-networking/service/).
+We need to get Ollama to listen on `0.0.0.0`.
 
-## Example Adding Mixtral 8x7B (Work in progress)
+Edit the systemd service by calling `sudo vi /etc/systemd/system/ollama.service`. This will open an editor.
 
-This section is a work in progress but deploying a new model will look something like this.
+For each environment variable, add a line Environment under section [Service]:
 
-```yml
-apiVersion: v1
-kind: Service
-metadata:
-  name: mixtral-8x7b
-  namespace: bionic-gpt
-spec:
-  selector:
-    app: mixtral-8x7b
-  ports:
-    - protocol: TCP
-      port: 8000
-      targetPort: 8000
-
----
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mixtral-8x7b-deployment
-  namespace: bionic-gpt
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mixtral-8x7b
-  template:
-    metadata:
-      labels:
-        app: mixtral-8x7b
-    spec:
-      containers:
-      - name: bionic-gpt-operator
-        image: ghcr.io/huggingface/text-generation-inference:sha-0eabc83
-        args: 
-          - --model-id 
-          - mistralai/Mixtral-8x7B-Instruct-v0.1
-          - --quantize 
-          - gptq
+```
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0"
 ```
 
-The model and inference engine must run in the same container.
+Save and exit.
+
+Reload systemd and restart Ollama:
+
+```sh
+systemctl daemon-reload
+systemctl restart ollama
+```
+
+You can run the following to view the logs
+
+```
+journalctl -u ollama
+```
+
+## Test Ollama
+
+Get you host with `hostname` then curl using that host.
+
+```sh
+curl http://pop-os:11434/api/generate -d '{
+  "model": "phi",
+  "prompt":"Why is the sky blue?"
+}'
+```
