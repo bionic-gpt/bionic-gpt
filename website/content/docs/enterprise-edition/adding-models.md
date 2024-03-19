@@ -32,7 +32,7 @@ journalctl -u ollama
 
 ## Test Ollama
 
-Get you host with `uname` then curl using that host.
+Get you host with `hostname` then curl using that host.
 
 ```sh
 curl http://pop-os:11434/api/generate -d '{

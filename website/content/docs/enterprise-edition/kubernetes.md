@@ -1,5 +1,5 @@
 +++
-title = "Bare Metal Installation"
+title = "Kubernetes Installation"
 weight = 10
 sort_by = "weight"
 +++
