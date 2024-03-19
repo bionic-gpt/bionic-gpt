@@ -93,8 +93,30 @@
 
 See the [open issues](https://github.com/purton-tech/bionicgpt/issues) for a full list of proposed features (and known issues).
 
+# Enterprise
+For companies that need better security, user management and professional support
+
+[Talk to the founders](https://calendly.com/bionicgpt)
+
+This covers: 
+- ✅ **Help with integrations**
+- ✅ **Feature Prioritization**
+- ✅ **Custom Integrations**
+- ✅ **LTS (Long Term Support) Versions**
+- ✅ **Professional Support**
+- ✅ **Custom SLAs**
+- ✅ **Secure access with Single Sign-On**
+- ✅ **Continuous Batching**
+- ✅ **Data Pipelines**
+
+# Support / talk with founders
+
+- [Schedule a Chat 👋](https://calendly.com/bionicgpt)
+- [Connect on Linked in 💭](https://www.linkedin.com/in/kulbinderdio/)
+- Our emails ✉️ ian@bionic-gpt.com / dio@bionic-gpt.com
+
 <!-- Try it out -->
-## Try it out with `docker compose`
+## Try it out
 
 follow [our guide](https://bionic-gpt.com/docs/running-locally/introduction/) to running Bionic-GPT on your local machine.
 

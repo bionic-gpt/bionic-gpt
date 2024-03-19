@@ -1,5 +1,5 @@
 +++
-title = "Bionic-GPT - Community Edition"
+title = "Bionic-GPT - Running Locally"
 sort_by = "weight"
 weight = 10
 draft = false

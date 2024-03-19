@@ -183,6 +183,10 @@ Airbyte
 localhost
 RabbitMQ
 MQ
+Ollama
+systemd
+K3s
+IoT
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
