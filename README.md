@@ -96,7 +96,7 @@ See the [open issues](https://github.com/purton-tech/bionicgpt/issues) for a ful
 # Enterprise
 For companies that need better security, user management and professional support
 
-[Talk to founders](https://calendly.com/d/4mp-gd3-k5k/litellm-1-1-onboarding-chat)
+[Talk to the founders](https://calendly.com/bionicgpt)
 
 This covers: 
 - ✅ **Help with integrations**
@@ -110,7 +110,8 @@ This covers:
 - ✅ **Data Pipelines**
 
 # Support / talk with founders
-- [Schedule Demo 👋](https://calendly.com/d/4mp-gd3-k5k/berriai-1-1-onboarding-litellm-hosted-version)
+
+- [Schedule a Chat 👋](https://calendly.com/bionicgpt)
 - [Connect on Linked in 💭](https://www.linkedin.com/in/kulbinderdio/)
 - Our emails ✉️ ian@bionic-gpt.com / dio@bionic-gpt.com
 
