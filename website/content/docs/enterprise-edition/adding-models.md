@@ -4,7 +4,7 @@ weight = 95
 sort_by = "weight"
 +++
 
-
+We need to get Ollama to listen on `0.0.0.0`.
 
 Edit the systemd service by calling `sudo vi /etc/systemd/system/ollama.service`. This will open an editor.
 
@@ -28,4 +28,15 @@ You can run the following to view the logs
 
 ```
 journalctl -u ollama
+```
+
+## Test Ollama
+
+Get you host with `uname` then curl using that host.
+
+```sh
+curl http://pop-os:11434/api/generate -d '{
+  "model": "phi",
+  "prompt":"Why is the sky blue?"
+}'
 ```
