@@ -18,7 +18,7 @@ curl -LO https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/install.sh
 
 ## The Finished Result
 
-After a while of container creation you should see all th epods running and then be able to access Bionic.
+After a while of container creation you should see all the pods running and then be able to access Bionic.
 
 
 ![Alt text](../bionic-startup-k9s.png "Bionic K9s")
