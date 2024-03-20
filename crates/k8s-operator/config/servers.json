@@ -7,10 +7,7 @@
             "Username": "bionic_readonly",
             "Host": "bionic-db-cluster-rw",
             "SSLMode": "require",
-            "Passfile": "",
-            "SSLCompression": 0,
-            "Service": "",
-            "PassfileEnc": ""
+            "MaintenanceDB": "bionic-gpt"
         }
     }
 }
