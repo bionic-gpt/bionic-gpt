@@ -19,6 +19,7 @@ metadata:
   name: mixtral-8x7b
   namespace: bionic-gpt
 spec:
+  runtimeClassName: nvidia
   replicas: 1
   selector:
     matchLabels:
