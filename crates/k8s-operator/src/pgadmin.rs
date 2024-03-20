@@ -18,10 +18,7 @@ pub async fn deploy(
     password: &str,
     namespace: &str,
 ) -> Result<(), Error> {
-    let passfile = format!(
-        "bionic-db-cluster-rw:5432:bionic-gpt:bionic_readonly:{}",
-        password
-    );
+    let passfile = format!("bionic-db-cluster-rw:5432:*:bionic_readonly:{}", password);
     // Put the envoy.yaml into a ConfigMap
     let config_map = serde_json::from_value(serde_json::json!({
         "apiVersion": "v1",
@@ -73,10 +70,19 @@ pub async fn deploy(
                 command: vec![],
                 args: vec![],
             }),
-            volume_mounts: vec![json!({
-                "name": PGADMIN, 
-                "mountPath": "/pgadmin4/servers.json", 
-                "subPath": "servers.json"})],
+            volume_mounts: vec![
+                json!(
+                {
+                    "name": PGADMIN,
+                    "mountPath": "/pgadmin4/servers.json",
+                    "subPath": "servers.json"
+                }),
+                json!({
+                    "name": PGADMIN,
+                    "mountPath": "/pgadmin4/passfile",
+                    "subPath": "passfile"
+                }),
+            ],
             volumes: vec![json!({"name": PGADMIN,
                 "configMap": {
                     "name": PGADMIN

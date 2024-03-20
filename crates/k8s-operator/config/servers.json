@@ -3,11 +3,15 @@
         "1": {
             "Name": "Bionic Server",
             "Group": "Servers",
-            "Port": "5432",
-            "Username": "bionic_readonly",
             "Host": "bionic-db-cluster-rw",
-            "SSLMode": "require",
-            "MaintenanceDB": "bionic-gpt"
+            "Port": 5432,
+            "MaintenanceDB": "bionic-gpt",
+            "Username": "bionic_readonly",
+            "PassFile": "/pgadmin4/passfile",
+            "SavePassword": true,
+            "ConnectionParameters": {
+                "sslmode": "prefer"
+            }
         }
     }
 }
