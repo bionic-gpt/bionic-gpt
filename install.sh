@@ -60,6 +60,7 @@ deploy_bionic() {
     sed -i "s,https://localhost,http://$1,g" ./bionic.yaml
     sed -i "s/# pgadmin/pgadmin/g" ./bionic.yaml
     sed -i "s/# gpu: true/gpu: $2/g" ./bionic.yaml
+    sed -i "s/# testing: true/testing: $3/g" ./bionic.yaml
 
     kubectl apply -f ./bionic.yaml
     rm ./bionic.yaml
@@ -80,6 +81,12 @@ main() {
         gpu="false"
     fi
 
+    if [[ "$@" =~ "--testing" ]]; then
+        testing="true"
+    else
+        testing="false"
+    fi
+
     reset_k3s "$address"
     install_postgres_operator
     echo "Waiting for Postgres Operator to be ready"
@@ -87,15 +94,18 @@ main() {
     
     apply_bionic_crd
 
-    if [[ "$@" =~ "--development" ]]; then
+    if [[ "$@" =~ "--testing" ]]; then
+        echo "Running in testing mode"
+    # Your code for testing mode goes here
+    elif [[ "$@" =~ "--development" ]]; then
         echo "Not deploying operator use cargo run --bin k8s-operator"
-    else
-        deploy_bionic_operator
     fi
-    deploy_bionic "$address" "$gpu"
+    deploy_bionic "$address" "$gpu" "$testing"
 
     echo "When it's ready Bionic-GPT available on http://$address"
     echo "Use k9s to check the status"
+
+
 }
 
 # Run the script with parameters

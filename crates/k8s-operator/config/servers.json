@@ -1,0 +1,16 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "Bionic Server",
+            "Group": "Servers",
+            "Port": "5432",
+            "Username": "bionic_readonly",
+            "Host": "bionic-db-cluster-rw",
+            "SSLMode": "require",
+            "Passfile": "",
+            "SSLCompression": 0,
+            "Service": "",
+            "PassfileEnc": ""
+        }
+    }
+}
