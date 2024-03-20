@@ -19,6 +19,7 @@ pub struct BionicSpec {
     pub version: String,
     pub gpu: Option<bool>,
     pub pgadmin: Option<bool>,
+    pub testing: Option<bool>,
     #[serde(rename = "hostname-url")]
     pub hostname_url: String,
 }

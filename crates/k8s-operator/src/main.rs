@@ -33,7 +33,7 @@ const KEYCLOAK_IMAGE: &str = "quay.io/keycloak/keycloak:23.0";
 const OAUTH2_PROXY_IMAGE: &str = "quay.io/oauth2-proxy/oauth2-proxy:v7.5.1";
 const LITE_LLM_IMAGE: &str = "ghcr.io/berriai/litellm:main-v1.10.3";
 const TGI_IMAGE: &str = "ghcr.io/huggingface/text-generation-inference:1.2";
-const PGADMIN_IMAGE: &str = "dpage/pgadmin4:5.4";
+const PGADMIN_IMAGE: &str = "dpage/pgadmin4:8";
 const CHUNKING_ENGINE_IMAGE: &str =
     "downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc";
 const EMBEDDINGS_ENGINE_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6";
