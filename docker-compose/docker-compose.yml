@@ -51,7 +51,7 @@ services:
   # We support Open ID Connect. In this case we're using Keycloak
   # But you can use your own identity provider.
   keycloak:
-    image: ghcr.io/bionic-gpt/bionicgpt-keycloak:1.6.17
+    image: ghcr.io/bionic-gpt/bionicgpt-keycloak:1.6.18
     platform: linux/amd64
     environment:
       KC_DB: postgres
@@ -95,7 +95,7 @@ services:
 
   # Sets up our database tables
   migrations:
-    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.6.17
+    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.6.18
     platform: linux/amd64
     environment:
       DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
@@ -105,7 +105,7 @@ services:
   
   # Parses documents into chunks and creates embeddings.
   pipeline-job:
-    image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.6.17
+    image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.6.18
     platform: linux/amd64
     environment:
       EMBEDDINGS_API_ENDPOINT: http://embeddings-api:80/embeddings
@@ -118,7 +118,7 @@ services:
   
   # Our axum server delivering our user interface
   app:
-    image: ghcr.io/bionic-gpt/bionicgpt:1.6.17
+    image: ghcr.io/bionic-gpt/bionicgpt:1.6.18
     platform: linux/amd64
     environment:
       COMMUNITY_EDITION: "true"
