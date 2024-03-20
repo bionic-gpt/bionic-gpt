@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mixtral-8x7b
-  namespace: bionic-gpt
 spec:
   selector:
     app: mixtral-8x7b
@@ -13,30 +12,28 @@ spec:
 
 ---
 
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: nvidia
+handler: nvidia
+
+---
+
+apiVersion: v1
+kind: Pod
 metadata:
   name: mixtral-8x7b
-  namespace: bionic-gpt
 spec:
   runtimeClassName: nvidia
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mixtral-8x7b
-  template:
-    metadata:
-      labels:
-        app: mixtral-8x7b
-    spec:
-      containers:
-      - name: bionic-gpt-operator
-        image: ghcr.io/huggingface/text-generation-inference:0.4
-        args: 
-          - --model-id 
-          - mistralai/Mixtral-8x7B-Instruct-v0.1
-          - --quantize 
-          - gptq
-        resources:
-          limits:
-            nvidia.com/gpu: 1
+  containers:
+  - name: bionic-gpt-operator
+    image: ghcr.io/huggingface/text-generation-inference:0.4
+    args: 
+      - --model-id 
+      - mistralai/Mixtral-8x7B-Instruct-v0.1
+      - --quantize 
+      - gptq
+    resources:
+      limits:
+        nvidia.com/gpu: 1
