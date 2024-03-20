@@ -77,7 +77,8 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // of `kube::Error` to the `Error` defined in this crate.
             finalizer::add(client.clone(), &name, &namespace).await?;
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
-            database::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            let readonly_database_password =
+                database::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
@@ -94,7 +95,14 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
                 .await?;
             pipeline_job::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             if pgadmin {
-                pgadmin::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+                pgadmin::deploy(
+                    client.clone(),
+                    &name,
+                    bionic.spec.clone(),
+                    &readonly_database_password,
+                    &namespace,
+                )
+                .await?;
             }
             Ok(Action::requeue(Duration::from_secs(10)))
         }

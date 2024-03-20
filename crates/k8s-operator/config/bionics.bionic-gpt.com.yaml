@@ -40,6 +40,8 @@ spec:
                   type: boolean
                 pgadmin:  # Install PgAdmin
                   type: boolean
+                testing:  # Testing Mode
+                  type: boolean
               required:
               - replicas
               - version

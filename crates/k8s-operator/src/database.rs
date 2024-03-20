@@ -60,7 +60,7 @@ pub async fn deploy(
     _name: &str,
     _spec: BionicSpec,
     namespace: &str,
-) -> Result<(), Error> {
+) -> Result<String, Error> {
     let app_database_password: String = rand_hex();
     let readonly_database_password: String = rand_hex();
     let dbowner_password: String = rand_hex();
@@ -159,7 +159,7 @@ pub async fn deploy(
         .create(&PostParams::default(), &db_urls_secret)
         .await?;
 
-    Ok(())
+    Ok(readonly_database_password)
 }
 
 pub fn rand_hex() -> String {

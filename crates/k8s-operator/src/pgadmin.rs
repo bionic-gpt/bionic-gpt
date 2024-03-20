@@ -2,20 +2,40 @@ use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::{Secret, Service};
+use k8s_openapi::api::core::v1::{ConfigMap, Secret, Service};
 use kube::api::{DeleteParams, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
 const PGADMIN: &str = "pgadmin";
+const CONFIG_JSON: &str = include_str!("../config/servers.json");
 
 // Large Language Model
 pub async fn deploy(
     client: Client,
     _name: &str,
     _spec: BionicSpec,
+    password: &str,
     namespace: &str,
 ) -> Result<(), Error> {
+    let passfile = format!("bionic-db-cluster-rw:5432:*:bionic_readonly:{}", password);
+    // Put the envoy.yaml into a ConfigMap
+    let config_map = serde_json::from_value(serde_json::json!({
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+            "name": PGADMIN,
+            "namespace": namespace
+        },
+        "data": {
+            "servers.json": CONFIG_JSON,
+            "passfile": &passfile
+        }
+    }))?;
+
+    let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
+    api.create(&PostParams::default(), &config_map).await?;
+
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
@@ -50,8 +70,24 @@ pub async fn deploy(
                 command: vec![],
                 args: vec![],
             }),
-            volume_mounts: vec![],
-            volumes: vec![],
+            volume_mounts: vec![
+                json!(
+                {
+                    "name": PGADMIN,
+                    "mountPath": "/pgadmin4/servers.json",
+                    "subPath": "servers.json"
+                }),
+                json!({
+                    "name": PGADMIN,
+                    "mountPath": "/pgadmin4/passfile",
+                    "subPath": "passfile"
+                }),
+            ],
+            volumes: vec![json!({"name": PGADMIN,
+                "configMap": {
+                    "name": PGADMIN
+                }
+            })],
         },
         namespace,
     )
