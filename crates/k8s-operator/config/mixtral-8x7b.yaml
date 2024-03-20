@@ -16,7 +16,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mixtral-8x7b-deployment
+  name: mixtral-8x7b
   namespace: bionic-gpt
 spec:
   replicas: 1
@@ -30,9 +30,12 @@ spec:
     spec:
       containers:
       - name: bionic-gpt-operator
-        image: ghcr.io/huggingface/text-generation-inference:sha-0eabc83
+        image: ghcr.io/huggingface/text-generation-inference:0.4
         args: 
           - --model-id 
           - mistralai/Mixtral-8x7B-Instruct-v0.1
           - --quantize 
           - gptq
+        resources:
+          limits:
+            nvidia.com/gpu: 1
