@@ -11,6 +11,8 @@ spec:
   # pgadmin: true
   # TGI GPU inference engine
   # gpu: true
+  # Testing mode
+  # testing: true
 
   # Use by Oauth2 proxy to know where to redirect and also keycloak (if installed)
   # to know how to set the openid configuration
