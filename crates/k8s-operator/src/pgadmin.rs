@@ -57,6 +57,12 @@ pub async fn deploy(client: Client, password: &str, namespace: &str) -> Result<(
                         }
                     }
                 }),
+                json!({
+                    "name":
+                    "SCRIPT_NAME",
+                    "value":
+                    "/pgadmin"
+                }),
             ],
             init_container: None,
             command: Some(deployment::Command {
