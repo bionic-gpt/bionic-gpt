@@ -27,7 +27,7 @@ localhost = "http://localhost:7700"
 
 copyright = "Copyright 2021 - "
 
-first_doc_page = "/docs/running-locally/introduction/"
+first_doc_page = "/docs/community-edition/introduction/"
 
 # Every page CTA. At the bottom of every blog post we have a cta
 every_page_cta = { cta_url = "/docs", title = "You're seconds away from trying us out", cta_button = "Get Started" }

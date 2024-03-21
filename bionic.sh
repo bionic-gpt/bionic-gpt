@@ -66,8 +66,22 @@ deploy_bionic() {
     rm ./bionic.yaml
 }
 
+expose_pgadmin() {
+    echo "Email and Password and Database URL"
+    kubectl get secret -n bionic-gpt pgadmin -o jsonpath='{.data.email}' | base64 --decode
+    echo
+    kubectl get secret -n bionic-gpt pgadmin -o jsonpath='{.data.password}' | base64 --decode
+    echo
+    kubectl get secret -n bionic-gpt database-urls -o jsonpath='{.data.readonly-url}' | base64 --decode
+    echo
+    echo "Exposing pgAdmin on port 8080"
+    kubectl port-forward -n bionic-gpt service/pgadmin 8080:80
+}
+
 # Main function
-main() {
+install() {
+
+    install_tools
 
     if [[ "$@" =~ "--localhost" ]]; then
         address="localhost"
@@ -87,7 +101,10 @@ main() {
         testing="false"
     fi
 
-    reset_k3s "$address"
+    if [[ "$@" =~ "--k3s" ]]; then
+        reset_k3s "$address"
+    fi
+
     install_postgres_operator
     echo "Waiting for Postgres Operator to be ready"
     kubectl wait --timeout=120s --for=condition=available deployment/cnpg-controller-manager -n cnpg-system
@@ -96,16 +113,48 @@ main() {
 
     if [[ "$@" =~ "--testing" ]]; then
         echo "Running in testing mode"
-    # Your code for testing mode goes here
+
+    # For testing the operator use --development
     elif [[ "$@" =~ "--development" ]]; then
         echo "Not deploying operator use cargo run --bin k8s-operator"
+    else
+        deploy_bionic_operator
     fi
+
     deploy_bionic "$address" "$gpu" "$testing"
 
     echo "When it's ready Bionic-GPT available on http://$address"
     echo "Use k9s to check the status"
 
 
+}
+
+# Main script starts here
+main() {
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: $0 {install|reqs|pgadmin}"
+        exit 1
+    fi
+
+    case "$1" in
+        install)
+            shift
+            install "$@"
+            ;;
+        reqs)
+            requirements
+            ;;
+        pgadmin)
+            expose_pgadmin
+            ;;
+        *)
+            echo "Unknown command: $1"
+            echo "Usage: $0 {install|reqs|pgadmin}"
+            exit 1
+            ;;
+    esac
+
+    exit 0
 }
 
 # Run the script with parameters
