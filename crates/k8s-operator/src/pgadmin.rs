@@ -117,6 +117,9 @@ pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), 
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete(PGADMIN, &DeleteParams::default()).await?;
 
+    let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
+    api.delete(PGADMIN, &DeleteParams::default()).await?;
+
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
     api.delete(PGADMIN, &DeleteParams::default()).await?;

@@ -1,7 +1,7 @@
 use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
-use crate::tgi::TGI_NAME;
+use crate::tgi::{MODEL_NAME, MODEL_REPOSITORY};
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
@@ -29,9 +29,9 @@ pub async fn deploy(
                 command: vec![],
                 args: vec![
                     "--model".into(),
-                    "huggingface/TheBloke/zephyr-7B-beta-AWQ".into(),
+                    format!("huggingface/{}", MODEL_REPOSITORY),
                     "--api_base".into(),
-                    format!("http://{}/generate_stream", TGI_NAME),
+                    format!("http://{}/generate_stream", MODEL_NAME),
                     "--host".into(),
                     "0.0.0.0".into(),
                     "--port".into(),
