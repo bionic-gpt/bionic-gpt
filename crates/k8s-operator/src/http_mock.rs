@@ -40,7 +40,7 @@ pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> R
             env: vec![],
             init_container: None,
             command: Some(deployment::Command {
-                command: vec![],
+                command: vec!["httpmock".into()],
                 args: vec![
                     "--expose".to_string(),
                     "-m".to_string(),
