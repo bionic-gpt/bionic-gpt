@@ -129,6 +129,16 @@ install() {
 
 }
 
+check_commands_installed() {
+    for cmd in "$@"; do
+        if ! command -v "$cmd" &> /dev/null; then
+            echo "$cmd is not installed"
+        else
+            echo "$cmd is installed"
+        fi
+    done
+}
+
 # Main script starts here
 main() {
     if [[ $# -eq 0 ]]; then
@@ -142,7 +152,7 @@ main() {
             install "$@"
             ;;
         reqs)
-            requirements
+            check_commands_installed k9s kubectl k3s
             ;;
         pgadmin)
             expose_pgadmin
