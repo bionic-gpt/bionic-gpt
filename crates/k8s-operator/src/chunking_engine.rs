@@ -6,21 +6,19 @@ use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
 
+pub const NAME: &str = "chunking-engine";
+pub const PORT: u16 = 8000;
+
 // Chunking engine - Turn documents into text chunks
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     // Chunking engine - Turn documents into text chunks
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
-            name: "chunking-engine".to_string(),
+            name: NAME.to_string(),
             image_name: crate::CHUNKING_ENGINE_IMAGE.to_string(),
             replicas: spec.replicas,
-            port: 8000,
+            port: PORT,
             env: vec![],
             init_container: None,
             command: Some(deployment::Command {
@@ -37,16 +35,14 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("chunking-engine", &DeleteParams::default())
-        .await?;
+    api.delete(NAME, &DeleteParams::default()).await?;
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("chunking-engine", &DeleteParams::default())
-        .await?;
+    api.delete(NAME, &DeleteParams::default()).await?;
 
     Ok(())
 }

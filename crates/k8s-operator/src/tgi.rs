@@ -1,58 +1,84 @@
-use crate::crd::BionicSpec;
+use std::collections::BTreeMap;
+
 use crate::deployment;
 use crate::error::Error;
-use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::Service;
-use kube::api::DeleteParams;
+use k8s_openapi::api::core::v1::{Container, PodSpec, ResourceRequirements};
+use k8s_openapi::api::core::v1::{Pod, Service};
+use k8s_openapi::api::node::v1::RuntimeClass;
+use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
+use kube::api::{DeleteParams, ObjectMeta, PostParams};
 use kube::{Api, Client};
 
-pub const TGI_NAME: &str = "tgi-zephyr-7b";
+pub const MODEL_NAME: &str = "phi-2-gptq";
+pub const MODEL_REPOSITORY: &str = "TheBloke/phi-2-GPTQ";
 
 // Large Language Model
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    _spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
-    deployment::deployment(
-        client.clone(),
-        deployment::ServiceDeployment {
-            name: TGI_NAME.to_string(),
-            image_name: crate::TGI_IMAGE.to_string(),
-            replicas: 1,
-            port: 8000,
-            env: vec![],
-            init_container: None,
-            command: Some(deployment::Command {
-                command: vec![],
-                args: vec![
-                    "--model-id".into(),
-                    "TheBloke/zephyr-7B-beta-AWQ".into(),
-                    "--max-batch-prefill-tokens".into(),
-                    "2048".into(),
-                    "--quantize".into(),
-                    "gptq".into(),
-                ],
-            }),
-            volume_mounts: vec![],
-            volumes: vec![],
+pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
+    let runtime_class = RuntimeClass {
+        metadata: ObjectMeta {
+            name: Some("nvidia".to_string()),
+            ..ObjectMeta::default()
         },
-        namespace,
-    )
-    .await?;
+        ..Default::default()
+    };
+
+    let runtimeclass_api: Api<RuntimeClass> = Api::all(client.clone());
+    runtimeclass_api
+        .create(&PostParams::default(), &runtime_class)
+        .await?;
+
+    let metadata = ObjectMeta {
+        name: Some(MODEL_NAME.to_string()),
+        ..Default::default()
+    };
+
+    let mut limits = BTreeMap::new();
+    limits.insert("nvidia.com/gpu".to_string(), Quantity("1".to_string()));
+
+    // Define the container
+    let container = Container {
+        name: MODEL_NAME.to_string(),
+        image: Some(crate::TGI_IMAGE.to_string()),
+        args: Some(vec![
+            "--model-id".to_string(),
+            MODEL_REPOSITORY.to_string(),
+            "--quantize".to_string(),
+            "gptq".to_string(),
+        ]),
+        resources: Some(ResourceRequirements {
+            limits: Some(limits),
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    // Define the Pod
+    let pod = Pod {
+        metadata,
+        spec: Some(PodSpec {
+            runtime_class_name: Some("nvidia".to_string()),
+            containers: vec![container],
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
+    api.create(&PostParams::default(), &pod).await?;
+
+    deployment::service(client, MODEL_NAME, 80, namespace).await?;
 
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
-    let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete(TGI_NAME, &DeleteParams::default()).await?;
+    let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
+    api.delete(MODEL_NAME, &DeleteParams::default()).await?;
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete(TGI_NAME, &DeleteParams::default()).await?;
+    api.delete(MODEL_NAME, &DeleteParams::default()).await?;
 
     Ok(())
 }

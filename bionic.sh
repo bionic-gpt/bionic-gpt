@@ -74,8 +74,6 @@ expose_pgadmin() {
     echo
     kubectl get secret -n bionic-gpt database-urls -o jsonpath='{.data.readonly-url}' | base64 --decode
     echo
-    echo "Exposing pgAdmin on port 8080"
-    kubectl port-forward -n bionic-gpt service/pgadmin 8080:80
 }
 
 # Main function

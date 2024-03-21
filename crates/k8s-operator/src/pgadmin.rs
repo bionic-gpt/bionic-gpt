@@ -1,4 +1,3 @@
-use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
@@ -11,13 +10,7 @@ const PGADMIN: &str = "pgadmin";
 const CONFIG_JSON: &str = include_str!("../config/servers.json");
 
 // Large Language Model
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    _spec: BionicSpec,
-    password: &str,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, password: &str, namespace: &str) -> Result<(), Error> {
     let passfile = format!("bionic-db-cluster-rw:5432:*:bionic_readonly:{}", password);
     // Put the envoy.yaml into a ConfigMap
     let config_map = serde_json::from_value(serde_json::json!({
@@ -63,6 +56,12 @@ pub async fn deploy(
                             "key": "password"
                         }
                     }
+                }),
+                json!({
+                    "name":
+                    "SCRIPT_NAME",
+                    "value":
+                    "/pgadmin"
                 }),
             ],
             init_container: None,
@@ -112,9 +111,12 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
+    api.delete(PGADMIN, &DeleteParams::default()).await?;
+
+    let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
     api.delete(PGADMIN, &DeleteParams::default()).await?;
 
     // Remove services
