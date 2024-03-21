@@ -34,14 +34,6 @@ pub mod routes {
         }
     }
 
-    pub mod enterprise {
-        pub static INDEX: &str = "/app/team/:team_id/enterprise";
-
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/enterprise", team_id)
-        }
-    }
-
     pub mod document_pipelines {
         pub static INDEX: &str = "/app/team/:team_id/pipelines";
         pub static NEW: &str = "/app/team/:team_id/pipelines/new";
