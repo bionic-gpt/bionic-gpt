@@ -5,13 +5,13 @@ weight = 10
 sort_by = "weight"
 +++
 
-BionicGPT is designed to be installed in your data center and then serve Generative AI to potentially hundreds of people via their browser.
+Bionic-GPT is designed to be installed in your data center and then serve Generative AI to potentially hundreds of people via their browser.
 
 However, before that can happen you need to be able to trial the software. 
 
-Using `docker compose` we're able to package a version of the software that show cases all it can do. Many people are using BionicGPT in this way as they like the user interface and the easy install. We hope you like it too.
+Using Kubernetes on Docker dsesktop or K3s we're able to package a version of the software that show cases all it can do. Many people are using Bionic-GPT in this way as they like the user interface and the easy install. We hope you like it too.
 
-BionicGPT can run on modest hardware (16GB ram) and then scale into more powerful hardware when required. For example 70B running across multiple GPU cards.
+Bionic-GPT can run on modest hardware (16GB ram) and then scale into more powerful hardware when required. For example 70B running across multiple GPU cards.
 
 We're open source. If you have any suggestions, recommendations are just have any questions you can either [contact us](/contact) or raise an issue on our github.
 
