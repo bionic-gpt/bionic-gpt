@@ -83,7 +83,14 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            ingress::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            ingress::deploy(
+                client.clone(),
+                &name,
+                bionic.spec.clone(),
+                &namespace,
+                pgadmin,
+            )
+            .await?;
             if gpu {
                 tgi::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
                 llm_lite::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
