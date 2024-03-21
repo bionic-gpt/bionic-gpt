@@ -7,7 +7,6 @@ pub mod audit_trail;
 pub mod console;
 pub mod datasets;
 pub mod documents;
-pub mod enterprise;
 pub mod logout_form;
 pub mod model_form;
 pub mod models;
