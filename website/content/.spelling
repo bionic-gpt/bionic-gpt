@@ -187,6 +187,12 @@ Ollama
 systemd
 K3s
 IoT
+OSX
+16GB
+29
+120
+pgAdmin
+130
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -303,6 +309,7 @@ datas
 2002
 58
 47
+8
  - pages/terms.md
 Shopify
 11
