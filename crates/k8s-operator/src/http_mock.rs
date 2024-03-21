@@ -42,21 +42,17 @@ pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> R
             command: Some(deployment::Command {
                 command: vec![],
                 args: vec![
-                    "/usr/local/bin/envoy".to_string(),
-                    "-c".to_string(),
-                    "/etc/envoy/envoy.yaml".to_string(),
-                    "--service-cluster".to_string(),
-                    "envoy".to_string(),
-                    "--service-node".to_string(),
-                    "envoy".to_string(),
-                    "--log-level".to_string(),
-                    "info".to_string(),
+                    "--expose".to_string(),
+                    "-m".to_string(),
+                    "/mocks".to_string(),
+                    "-p".to_string(),
+                    format!("{}", port),
                 ],
             }),
-            volume_mounts: vec![json!({"name": "envoy-config", "mountPath": "/etc/envoy/"})],
-            volumes: vec![json!({"name": "envoy-config",
+            volume_mounts: vec![json!({"name": format!("{}-config", name), "mountPath": "/mocks"})],
+            volumes: vec![json!({"name": format!("{}-config", name),
                 "configMap": {
-                    "name": "envoy"
+                    "name": name
                 }
             })],
         },
