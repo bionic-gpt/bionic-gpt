@@ -1,5 +1,5 @@
 +++
-title = "Kubernetes Installation"
+title = "Installation Preparation"
 weight = 10
 sort_by = "weight"
 +++
