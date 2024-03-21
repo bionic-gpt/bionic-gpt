@@ -1,5 +1,5 @@
 +++
-title = "The Bionic Installer (Linux/OSX)"
+title = "Quick Installation (Linux/OSX)"
 weight = 20
 sort_by = "weight"
 +++
