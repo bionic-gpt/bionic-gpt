@@ -7,6 +7,7 @@ mod embeddings_engine;
 mod envoy;
 mod error;
 mod finalizer;
+mod http_mock;
 mod ingress;
 mod keycloak;
 mod llm;
@@ -38,6 +39,9 @@ const CHUNKING_ENGINE_IMAGE: &str =
     "downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc";
 const EMBEDDINGS_ENGINE_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6";
 const LLM_API_IMAGE: &str = "ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.5";
+
+// Images used for testing
+const HTTP_MOCK: &str = "alexliesenfeld/httpmock:latest";
 
 #[tokio::main]
 async fn main() -> Result<()> {

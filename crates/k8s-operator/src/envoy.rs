@@ -10,12 +10,7 @@ use serde_json::json;
 const ENVOY_YAML: &str = include_str!("../envoy/envoy.yaml");
 
 // We are using envoy to add security headers to all responses from the main application.
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     // Put the envoy.yaml into a ConfigMap
     let config_map = serde_json::from_value(serde_json::json!({
         "apiVersion": "v1",
@@ -70,7 +65,7 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete("envoy", &DeleteParams::default()).await?;
