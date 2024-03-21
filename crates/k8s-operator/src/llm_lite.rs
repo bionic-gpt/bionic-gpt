@@ -1,4 +1,3 @@
-use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use crate::tgi::{MODEL_NAME, MODEL_REPOSITORY};
@@ -10,12 +9,7 @@ use kube::{Api, Client};
 const LITE_LLM: &str = "llm-lite";
 
 // Large Language Model
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    _spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
@@ -48,7 +42,7 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete(LITE_LLM, &DeleteParams::default()).await?;

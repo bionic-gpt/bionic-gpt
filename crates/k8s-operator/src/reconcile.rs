@@ -6,6 +6,7 @@ use crate::embeddings_engine;
 use crate::envoy;
 use crate::error::Error;
 use crate::finalizer;
+use crate::http_mock;
 use crate::ingress;
 use crate::keycloak;
 use crate::llm;
@@ -65,6 +66,12 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
         false
     };
 
+    let testing = if let Some(testing) = bionic.spec.testing {
+        testing
+    } else {
+        false
+    };
+
     // Performs action as decided by the `determine_action` function.
     match determine_action(&bionic) {
         BionicAction::Create => {
@@ -77,61 +84,64 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // of `kube::Error` to the `Error` defined in this crate.
             finalizer::add(client.clone(), &name, &namespace).await?;
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
-            let readonly_database_password =
-                database::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            bionic::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            envoy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            keycloak::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            oauth2_proxy::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            ingress::deploy(
-                client.clone(),
-                &name,
-                bionic.spec.clone(),
-                &namespace,
-                pgadmin,
-            )
-            .await?;
+            let readonly_database_password = database::deploy(client.clone(), &namespace).await?;
+            bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+            envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+            keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+            oauth2_proxy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+            ingress::deploy(client.clone(), &namespace, pgadmin).await?;
             if gpu {
-                tgi::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-                llm_lite::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+                tgi::deploy(client.clone(), &namespace).await?;
+                llm_lite::deploy(client.clone(), &namespace).await?;
+            } else if testing {
+                http_mock::deploy(client.clone(), llm::NAME, 11434, &namespace).await?;
             } else {
-                llm::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+                llm::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
-            chunking_engine::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
-            embeddings_engine::deploy(client.clone(), &name, bionic.spec.clone(), &namespace)
-                .await?;
-            pipeline_job::deploy(client.clone(), &name, bionic.spec.clone(), &namespace).await?;
+            pipeline_job::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             if pgadmin {
-                pgadmin::deploy(
+                pgadmin::deploy(client.clone(), &readonly_database_password, &namespace).await?;
+            }
+            if testing {
+                http_mock::deploy(
                     client.clone(),
-                    &name,
-                    bionic.spec.clone(),
-                    &readonly_database_password,
+                    chunking_engine::NAME,
+                    chunking_engine::PORT,
                     &namespace,
                 )
                 .await?;
+                http_mock::deploy(
+                    client.clone(),
+                    embeddings_engine::NAME,
+                    embeddings_engine::PORT,
+                    &namespace,
+                )
+                .await?;
+            } else {
+                chunking_engine::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+                embeddings_engine::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
             Ok(Action::requeue(Duration::from_secs(10)))
         }
         BionicAction::Delete => {
             if gpu {
-                tgi::delete(client.clone(), &name, &namespace).await?;
-                llm_lite::delete(client.clone(), &name, &namespace).await?;
+                tgi::delete(client.clone(), &namespace).await?;
+                llm_lite::delete(client.clone(), &namespace).await?;
             } else {
-                llm::delete(client.clone(), &name, &namespace).await?;
+                llm::delete(client.clone(), &namespace).await?;
             }
 
-            envoy::delete(client.clone(), &name, &namespace).await?;
-            keycloak::delete(client.clone(), &name, &namespace).await?;
-            oauth2_proxy::delete(client.clone(), &name, &namespace).await?;
-            ingress::delete(client.clone(), &name, &namespace).await?;
-            bionic::delete(client.clone(), &name, &namespace).await?;
-            database::delete(client.clone(), &name, &namespace).await?;
-            chunking_engine::delete(client.clone(), &name, &namespace).await?;
-            embeddings_engine::delete(client.clone(), &name, &namespace).await?;
-            pipeline_job::delete(client.clone(), &name, &namespace).await?;
+            envoy::delete(client.clone(), &namespace).await?;
+            keycloak::delete(client.clone(), &namespace).await?;
+            oauth2_proxy::delete(client.clone(), &namespace).await?;
+            ingress::delete(client.clone(), &namespace).await?;
+            bionic::delete(client.clone(), &namespace).await?;
+            database::delete(client.clone(), &namespace).await?;
+            chunking_engine::delete(client.clone(), &namespace).await?;
+            embeddings_engine::delete(client.clone(), &namespace).await?;
+            pipeline_job::delete(client.clone(), &namespace).await?;
             if pgadmin {
-                pgadmin::delete(client.clone(), &name, &namespace).await?;
+                pgadmin::delete(client.clone(), &namespace).await?;
             }
 
             // Once the deployment is successfully removed, remove the finalizer to make it possible

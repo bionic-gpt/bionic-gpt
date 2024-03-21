@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
 use k8s_openapi::api::core::v1::{Container, PodSpec, ResourceRequirements};
@@ -14,12 +13,7 @@ pub const MODEL_NAME: &str = "phi-2-gptq";
 pub const MODEL_REPOSITORY: &str = "TheBloke/phi-2-GPTQ";
 
 // Large Language Model
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    _spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
     let runtime_class = RuntimeClass {
         metadata: ObjectMeta {
             name: Some("nvidia".to_string()),
@@ -77,7 +71,7 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
     api.delete(MODEL_NAME, &DeleteParams::default()).await?;

@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use crate::crd::BionicSpec;
 use crate::error::Error;
 use k8s_openapi::api::core::v1::Secret;
 use kube::api::{DeleteParams, ObjectMeta};
@@ -55,12 +54,7 @@ pub struct ClusterSpec {
     pub storage: StorageSpec,
 }
 
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    _spec: BionicSpec,
-    namespace: &str,
-) -> Result<String, Error> {
+pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
     let app_database_password: String = rand_hex();
     let readonly_database_password: String = rand_hex();
     let dbowner_password: String = rand_hex();
@@ -167,7 +161,7 @@ pub fn rand_hex() -> String {
     (0..5).map(|_| rng.gen::<u8>().to_string()).collect()
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     api.delete("bionic-db-cluster", &DeleteParams::default())

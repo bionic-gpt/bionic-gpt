@@ -1,26 +1,28 @@
-use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
-use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::{ConfigMap, Service};
-use kube::api::{DeleteParams, PostParams};
+use k8s_openapi::api::core::v1::ConfigMap;
+use kube::api::PostParams;
 use kube::{Api, Client};
 use serde_json::json;
 
-const ENVOY_YAML: &str = include_str!("../envoy/envoy.yaml");
+const EMBEDDINGS_YAML: &str = include_str!("../config/mocks/embeddings.mock.yaml");
+const OPENAI_YAML: &str = include_str!("../config/mocks/openai.mock.yaml");
+const UNSTRUCTURED_YAML: &str = include_str!("../config/mocks/unstructured.mock.yaml");
 
 // We are using envoy to add security headers to all responses from the main application.
-pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
+pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> Result<(), Error> {
     // Put the envoy.yaml into a ConfigMap
     let config_map = serde_json::from_value(serde_json::json!({
         "apiVersion": "v1",
         "kind": "ConfigMap",
         "metadata": {
-            "name": "envoy",
+            "name": name,
             "namespace": namespace
         },
         "data": {
-            "envoy.yaml": ENVOY_YAML,
+            "embeddings.mock.yaml": EMBEDDINGS_YAML,
+            "openai.mock.yaml": OPENAI_YAML,
+            "unstructured.mock.yaml": UNSTRUCTURED_YAML,
         }
     }))?;
 
@@ -31,10 +33,10 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
-            name: "envoy".to_string(),
-            image_name: crate::ENVOYPROXY_IMAGE.to_string(),
-            replicas: spec.replicas,
-            port: 7901,
+            name: name.to_string(),
+            replicas: 1,
+            image_name: crate::HTTP_MOCK.to_string(),
+            port,
             env: vec![],
             init_container: None,
             command: Some(deployment::Command {
@@ -61,22 +63,6 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         namespace,
     )
     .await?;
-
-    Ok(())
-}
-
-pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
-    // Remove deployments
-    let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
-
-    // Remove services
-    let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
-
-    // Remove configmaps
-    let api: Api<ConfigMap> = Api::namespaced(client, namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
 
     Ok(())
 }

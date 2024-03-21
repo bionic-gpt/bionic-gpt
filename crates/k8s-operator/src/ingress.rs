@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 
-use crate::crd::BionicSpec;
 use crate::error::Error;
 use k8s_openapi::api::networking::v1::{
     HTTPIngressPath, HTTPIngressRuleValue, Ingress, IngressBackend, IngressRule,
@@ -16,13 +15,7 @@ const INGRESS: &str = "bionic-gpt-ingress";
 
 /// Create a deployment and a service.
 /// Include sidecars if needed.
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    _spec: BionicSpec,
-    namespace: &str,
-    pgadmin: bool,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, namespace: &str, pgadmin: bool) -> Result<(), Error> {
     let mut annotations = BTreeMap::new();
     annotations.insert(
         "nginx.ingress.kubernetes.io/proxy-buffer-size".to_string(),
@@ -116,7 +109,7 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Ingress> = Api::namespaced(client.clone(), namespace);
     api.delete(INGRESS, &DeleteParams::default()).await?;

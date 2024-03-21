@@ -11,12 +11,7 @@ use serde_json::json;
 use url::Url;
 
 // Oauth2 Proxy handles are authentication as our Open ID Connect provider
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     let whitelist_domain = Url::parse(&spec.hostname_url);
     let whitelist_domain = if let Ok(host) = &whitelist_domain {
         if let Some(host) = host.host_str() {
@@ -146,7 +141,7 @@ pub fn rand_base64() -> String {
     base64::encode_config(random_bytes, base64::URL_SAFE_NO_PAD)
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete("oauth2-proxy", &DeleteParams::default()).await?;
