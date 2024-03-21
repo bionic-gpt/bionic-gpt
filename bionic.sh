@@ -67,7 +67,9 @@ deploy_bionic() {
 }
 
 # Main function
-main() {
+install() {
+
+    install_tools
 
     if [[ "$@" =~ "--localhost" ]]; then
         address="localhost"
@@ -87,7 +89,10 @@ main() {
         testing="false"
     fi
 
-    reset_k3s "$address"
+    if [[ "$@" =~ "--k3s" ]]; then
+        reset_k3s "$address"
+    fi
+
     install_postgres_operator
     echo "Waiting for Postgres Operator to be ready"
     kubectl wait --timeout=120s --for=condition=available deployment/cnpg-controller-manager -n cnpg-system
@@ -106,6 +111,34 @@ main() {
     echo "Use k9s to check the status"
 
 
+}
+
+# Main script starts here
+main() {
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: $0 {install|reqs|pgadmin}"
+        exit 1
+    fi
+
+    case "$1" in
+        install)
+            shift
+            install "$@"
+            ;;
+        reqs)
+            requirements
+            ;;
+        pgadmin)
+            expose_pgadmin
+            ;;
+        *)
+            echo "Unknown command: $1"
+            echo "Usage: $0 {install|reqs|pgadmin}"
+            exit 1
+            ;;
+    esac
+
+    exit 0
 }
 
 # Run the script with parameters
