@@ -66,6 +66,18 @@ deploy_bionic() {
     rm ./bionic.yaml
 }
 
+expose_pgadmin() {
+    echo "Email and Password and Database URL"
+    kubectl get secret -n bionic-gpt pgadmin -o jsonpath='{.data.email}' | base64 --decode
+    echo
+    kubectl get secret -n bionic-gpt pgadmin -o jsonpath='{.data.password}' | base64 --decode
+    echo
+    kubectl get secret -n bionic-gpt database-urls -o jsonpath='{.data.readonly-url}' | base64 --decode
+    echo
+    echo "Exposing pgAdmin on port 8080"
+    kubectl port-forward -n bionic-gpt service/pgadmin 8080:80
+}
+
 # Main function
 install() {
 
@@ -101,10 +113,14 @@ install() {
 
     if [[ "$@" =~ "--testing" ]]; then
         echo "Running in testing mode"
-    # Your code for testing mode goes here
+
+    # For testing the operator use --development
     elif [[ "$@" =~ "--development" ]]; then
         echo "Not deploying operator use cargo run --bin k8s-operator"
+    else
+        deploy_bionic_operator
     fi
+
     deploy_bionic "$address" "$gpu" "$testing"
 
     echo "When it's ready Bionic-GPT available on http://$address"
