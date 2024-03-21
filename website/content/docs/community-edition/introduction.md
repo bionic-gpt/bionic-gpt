@@ -9,7 +9,7 @@ Bionic-GPT is designed to be installed in your data center and then serve Genera
 
 However, before that can happen you need to be able to trial the software. 
 
-Using Kubernetes on Docker dsesktop or K3s we're able to package a version of the software that show cases all it can do. Many people are using Bionic-GPT in this way as they like the user interface and the easy install. We hope you like it too.
+Using Kubernetes on Docker desktop or K3s we're able to package a version of the software that show cases all it can do. Many people are using Bionic-GPT in this way as they like the user interface and the easy install. We hope you like it too.
 
 Bionic-GPT can run on modest hardware (16GB ram) and then scale into more powerful hardware when required. For example 70B running across multiple GPU cards.
 

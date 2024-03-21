@@ -9,7 +9,7 @@ sort_by = "weight"
 The bionic installer is a bash script that simplifies a lot of the setup. To install it run the following.
 
 ```sh
-curl -LO https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/bionic.sh && chmod +x ./bionic.sh && sudo mv bionic.sh /usr/bin
+curl -LO https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/bionic.sh && chmod +x ./bionic.sh && sudo mv bionic.sh /usr/bin/bionic
 ```
 
 And run
