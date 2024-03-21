@@ -1,7 +1,6 @@
-use crate::crd::BionicSpec;
 use crate::deployment;
 use crate::error::Error;
-use crate::tgi::TGI_NAME;
+use crate::tgi::{MODEL_NAME, MODEL_REPOSITORY};
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
@@ -10,12 +9,7 @@ use kube::{Api, Client};
 const LITE_LLM: &str = "llm-lite";
 
 // Large Language Model
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    _spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
@@ -29,9 +23,9 @@ pub async fn deploy(
                 command: vec![],
                 args: vec![
                     "--model".into(),
-                    "huggingface/TheBloke/zephyr-7B-beta-AWQ".into(),
+                    format!("huggingface/{}", MODEL_REPOSITORY),
                     "--api_base".into(),
-                    format!("http://{}/generate_stream", TGI_NAME),
+                    format!("http://{}/generate_stream", MODEL_NAME),
                     "--host".into(),
                     "0.0.0.0".into(),
                     "--port".into(),
@@ -48,7 +42,7 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete(LITE_LLM, &DeleteParams::default()).await?;

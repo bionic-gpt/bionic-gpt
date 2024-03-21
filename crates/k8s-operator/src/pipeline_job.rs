@@ -8,12 +8,7 @@ use kube::{Api, Client};
 use serde_json::json;
 
 // Large Language Model
-pub async fn deploy(
-    client: Client,
-    _name: &str,
-    spec: BionicSpec,
-    namespace: &str,
-) -> Result<(), Error> {
+pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
@@ -54,7 +49,7 @@ pub async fn deploy(
     Ok(())
 }
 
-pub async fn delete(client: Client, _name: &str, namespace: &str) -> Result<(), Error> {
+pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     api.delete("pipeline-job", &DeleteParams::default()).await?;
