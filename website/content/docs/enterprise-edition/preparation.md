@@ -73,6 +73,18 @@ Install the Nvidia K8s Device Plugin.
 kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
 ```
 
+```sh
+printf '[plugins."io.containerd.grpc.v1.cri".containerd]\ndefault_runtime_name = "nvidia"' > config.toml.tmpl
+```
+
+```sh
+sudo mv config.toml.tmpl /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+```
+
+```sh
+sudo systemctl restart k3s
+```
+
 NVIDIA device plugin should have labelled the node as having an NVIDIA GPU:
 
 ```sh
