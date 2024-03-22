@@ -39,7 +39,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
             replicas: spec.replicas,
             port: 7910,
             env: vec![
-                /***json!({
+                json!({
                     "name":
                     "KC_DB",
                     "value":
@@ -50,8 +50,8 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                     "KC_DB_PASSWORD",
                     "valueFrom": {
                         "secretKeyRef": {
-                            "name": "keycloak-secrets",
-                            "key": "database-password"
+                            "name": "keycloak-db-owner",
+                            "key": "password"
                         }
                     }
                 }),
@@ -66,7 +66,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                     "KC_DB_URL",
                     "value":
                     "jdbc:postgresql://keycloak-db-cluster-rw:5432/keycloak"
-                }),**/
+                }),
                 json!({
                     "name":
                     "KEYCLOAK_ADMIN",

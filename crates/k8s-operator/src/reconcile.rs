@@ -9,6 +9,7 @@ use crate::finalizer;
 use crate::http_mock;
 use crate::ingress;
 use crate::keycloak;
+use crate::keycloak_db;
 use crate::llm;
 use crate::llm_lite;
 use crate::oauth2_proxy;
@@ -88,6 +89,8 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+            let keycloak_database_password =
+                keycloak_db::deploy(client.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             ingress::deploy(client.clone(), &namespace, pgadmin).await?;
             if gpu {
@@ -100,7 +103,13 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             }
             pipeline_job::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             if pgadmin {
-                pgadmin::deploy(client.clone(), &readonly_database_password, &namespace).await?;
+                pgadmin::deploy(
+                    client.clone(),
+                    &readonly_database_password,
+                    &keycloak_database_password,
+                    &namespace,
+                )
+                .await?;
             }
             if testing {
                 http_mock::deploy(
@@ -133,6 +142,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
 
             envoy::delete(client.clone(), &namespace).await?;
             keycloak::delete(client.clone(), &namespace).await?;
+            keycloak_db::delete(client.clone(), &namespace).await?;
             oauth2_proxy::delete(client.clone(), &namespace).await?;
             ingress::delete(client.clone(), &namespace).await?;
             bionic::delete(client.clone(), &namespace).await?;

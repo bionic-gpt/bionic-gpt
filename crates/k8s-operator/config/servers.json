@@ -1,13 +1,26 @@
 {
     "Servers": {
         "1": {
-            "Name": "Bionic Server",
+            "Name": "Bionic Database",
             "Group": "Servers",
             "Host": "bionic-db-cluster-rw",
             "Port": 5432,
             "MaintenanceDB": "bionic-gpt",
             "Username": "bionic_readonly",
             "PassFile": "/pgadmin4/passfile",
+            "SavePassword": true,
+            "ConnectionParameters": {
+                "sslmode": "prefer"
+            }
+        },
+        "2": {
+            "Name": "Keycloak Database",
+            "Group": "Servers",
+            "Host": "keycloak-db-cluster-rw",
+            "Port": 5432,
+            "MaintenanceDB": "keycloak",
+            "Username": "keycloak-db-owner",
+            "PassFile": "/pgadmin4/passfile_keycloak",
             "SavePassword": true,
             "ConnectionParameters": {
                 "sslmode": "prefer"
