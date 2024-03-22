@@ -16,7 +16,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
 
     let cluster = Cluster {
         metadata: ObjectMeta {
-            name: Some("keycloak-cluster".to_string()),
+            name: Some("keycloak-db-cluster".to_string()),
             namespace: Some(namespace.to_string()),
             ..Default::default()
         },

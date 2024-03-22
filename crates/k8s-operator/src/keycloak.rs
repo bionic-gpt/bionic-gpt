@@ -50,8 +50,8 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                     "KC_DB_PASSWORD",
                     "valueFrom": {
                         "secretKeyRef": {
-                            "name": "keycloak-secrets",
-                            "key": "database-password"
+                            "name": "keycloak-db-owner",
+                            "key": "password"
                         }
                     }
                 }),
