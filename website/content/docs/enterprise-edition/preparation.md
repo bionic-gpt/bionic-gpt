@@ -15,7 +15,7 @@ GPU nodes will need the following installed.
 To see if the container toolkit is correctly installed you can run the following and you should see the connected GPU devices.
 
 ```sh
-docker run --rm --runtime=nvidia --gpus all ubuntu nvidia-smi
+docker run --rm --gpus all ubuntu nvidia-smi
 #+-----------------------------------------------------------------------------------------+
 #| NVIDIA-SMI 550.54.14              Driver Version: 550.54.14      CUDA Version: 12.4     |
 #|-----------------------------------------+------------------------+----------------------+
@@ -65,27 +65,12 @@ kubectl get runtimeclass
 #wws                   wws                   13h
 ```
 
-## Install the Device Plugin
+## Enabling GPU Support in Kubernetes
 
-Install helm if you don't have it already.
-
-```sh
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-```
-
-Add the helm repo
+Install the Nvidia K8s Device Plugin.
 
 ```sh
-helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
-helm repo update
-```
-
-```sh
-helm upgrade -i nvdp nvdp/nvidia-device-plugin \
-  --namespace nvidia-device-plugin \
-  --create-namespace \
-  --version 0.14.2 \
-  --set runtimeClassName=nvidia
+$ kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
 ```
 
 NVIDIA device plugin should have labelled the node as having an NVIDIA GPU:
@@ -95,29 +80,6 @@ kubectl describe node | grep nvidia.com/gpu
 ```
 
 You should see some results.
-
-## GPU Discovery (Optional?)
-
-Nvidia [GPU Discovery](https://github.com/NVIDIA/gpu-feature-discovery) gives us a way to see more capabilities on the node.
-
-```sh
-helm repo add nvgfd https://nvidia.github.io/gpu-feature-discovery
-helm repo update
-```
-
-```sh
-helm upgrade -i nvgfd nvgfd/gpu-feature-discovery \
-  --version 0.8.2 \
-  --namespace gpu-feature-discovery \
-  --create-namespace \
-  --set runtimeClassName=nvidia
-```
-
-Now when you run the below you should see more labels on the node.
-
-```sh
-kubectl describe node | grep nvidia.com/gpu
-```
 
 ## Deploy a Test Workload
 
