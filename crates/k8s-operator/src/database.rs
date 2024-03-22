@@ -14,28 +14,28 @@ use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 pub struct BootstrapSpec {
-    initdb: InitDBSpec,
+    pub initdb: InitDBSpec,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 pub struct InitDBSpec {
-    database: String,
-    owner: String,
-    secret: SecretSpec,
+    pub database: String,
+    pub owner: String,
+    pub secret: SecretSpec,
     #[serde(rename = "postInitSQL")]
-    post_init_sql: Vec<String>,
+    pub post_init_sql: Option<Vec<String>>,
     #[serde(rename = "postInitApplicationSQL")]
-    post_init_application_sql: Vec<String>,
+    pub post_init_application_sql: Option<Vec<String>>,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 pub struct SecretSpec {
-    name: String,
+    pub name: String,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 pub struct StorageSpec {
-    size: String,
+    pub size: String,
 }
 
 /// Corresponds to the Cluster resource
@@ -74,7 +74,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
                     secret: SecretSpec {
                         name: "db-owner".to_string(),
                     },
-                    post_init_sql: vec![
+                    post_init_sql: Some(vec![
                         format!(
                             "CREATE ROLE bionic_application LOGIN ENCRYPTED PASSWORD '{}'",
                             app_database_password
@@ -83,10 +83,10 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
                             "CREATE ROLE bionic_readonly LOGIN ENCRYPTED PASSWORD '{}'",
                             readonly_database_password
                         ),
-                    ],
-                    post_init_application_sql: vec![
+                    ]),
+                    post_init_application_sql: Some(vec![
                         "CREATE EXTENSION IF NOT EXISTS vector".to_string()
-                    ],
+                    ]),
                 },
             },
             storage: StorageSpec {

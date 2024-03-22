@@ -10,8 +10,17 @@ const PGADMIN: &str = "pgadmin";
 const CONFIG_JSON: &str = include_str!("../config/servers.json");
 
 // Large Language Model
-pub async fn deploy(client: Client, password: &str, namespace: &str) -> Result<(), Error> {
+pub async fn deploy(
+    client: Client,
+    password: &str,
+    keycloak_password: &str,
+    namespace: &str,
+) -> Result<(), Error> {
     let passfile = format!("bionic-db-cluster-rw:5432:*:bionic_readonly:{}", password);
+    let keycloak_passfile = format!(
+        "keycloak-db-cluster-rw:5432:*:keycloak-db-owner:{}",
+        keycloak_password
+    );
     // Put the envoy.yaml into a ConfigMap
     let config_map = serde_json::from_value(serde_json::json!({
         "apiVersion": "v1",
@@ -22,7 +31,8 @@ pub async fn deploy(client: Client, password: &str, namespace: &str) -> Result<(
         },
         "data": {
             "servers.json": CONFIG_JSON,
-            "passfile": &passfile
+            "passfile": &passfile,
+            "passfile_keycloak": &keycloak_passfile,
         }
     }))?;
 
