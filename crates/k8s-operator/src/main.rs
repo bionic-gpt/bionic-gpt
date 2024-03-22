@@ -10,6 +10,7 @@ mod finalizer;
 mod http_mock;
 mod ingress;
 mod keycloak;
+mod keycloak_db;
 mod llm;
 mod llm_lite;
 mod oauth2_proxy;
