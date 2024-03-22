@@ -70,7 +70,7 @@ kubectl get runtimeclass
 Install the Nvidia K8s Device Plugin.
 
 ```sh
-$ kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
+kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
 ```
 
 NVIDIA device plugin should have labelled the node as having an NVIDIA GPU:
