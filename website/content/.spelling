@@ -193,6 +193,9 @@ OSX
 120
 pgAdmin
 130
+Cuda
+YAML
+plugin
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
