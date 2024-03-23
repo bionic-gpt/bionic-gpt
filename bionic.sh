@@ -23,9 +23,9 @@ install_kubectl() {
 
 # Function to install k9s
 install_k9s() {
-    curl -Lo ./k9s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz
-    tar -xvf k9s_Linux_x86_64.tar.gz
-    sudo mv ./k9s /usr/local/bin/k9s
+    curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp
+    mv /tmp/k9s /usr/bin
+    rm -rf k9s_Linux_x86_64.tar.gz
 }
 
 reset_k3s() {
@@ -79,7 +79,8 @@ expose_pgadmin() {
 # Main function
 install() {
 
-    install_tools
+    install_tools k9s
+    install_tools kubectl
 
     if [[ "$@" =~ "--localhost" ]]; then
         address="localhost"
