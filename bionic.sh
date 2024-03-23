@@ -15,12 +15,6 @@ install_tools() {
     fi
 }
 
-# Function to install kubectl
-install_kubectl() {
-    sudo apt-get update
-    sudo apt-get install -y kubectl
-}
-
 # Function to install k9s
 install_k9s() {
     curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp
@@ -30,10 +24,11 @@ install_k9s() {
 
 reset_k3s() {
     sudo /usr/local/bin/k3s-uninstall.sh
-    curl -sfL https://get.k3s.io | sh -
-    sudo chmod 444 /etc/rancher/k3s/k3s.yaml
+    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
     mkdir -p ~/.kube
+    # Copy over kubeconfig for K9s
     sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    sudo chown $USER ~/.kube/config
     sed -i "s,127.0.0.1,$1,g" ~/.kube/config
 }
 
@@ -79,9 +74,6 @@ expose_pgadmin() {
 # Main function
 install() {
 
-    install_tools k9s
-    install_tools kubectl
-
     if [[ "$@" =~ "--localhost" ]]; then
         address="localhost"
     else
@@ -102,6 +94,10 @@ install() {
 
     if [[ "$@" =~ "--k3s" ]]; then
         reset_k3s "$address"
+    fi
+
+    if [[ "$@" =~ "--k9s" ]]; then
+        install_tools k9s
     fi
 
     install_postgres_operator
