@@ -45,7 +45,7 @@ After a while of container creation you should see all the pods running and then
 
 ## Run the User Interface
 
-You can then access the front end from `http://localhost:7800` and you'll be redirected to a registration screen.
+You can then access the front end from `http://localhost` and you'll be redirected to a registration screen.
 
 ## Registration
 
