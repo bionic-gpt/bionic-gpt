@@ -22,10 +22,10 @@ This will show you which required dependencies need to be installed.
 
 ## Run the Install (Linux)
 
-The following will install `k3s` as our kubernetes engine and then install bionic into the cluster.
+The following will install `k3s` as our kubernetes engine and then install bionic into the cluster. It will also install `k9s` which is a terminal UI for Kubernetes.
 
 ```sh
-bionic install --k3s
+bionic install --k3s --k9s
 ```
 
 ## Run the Install (OSX)
