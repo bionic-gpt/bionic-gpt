@@ -24,8 +24,8 @@ install_kubectl() {
 # Function to install k9s
 install_k9s() {
     curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp
-    mv /tmp/k9s /usr/bin
-    sudo rm -rf k9s_Linux_x86_64.tar.gz
+    sudo mv /tmp/k9s /usr/bin
+    rm -rf k9s_Linux_x86_64.tar.gz
 }
 
 reset_k3s() {
