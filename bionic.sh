@@ -33,7 +33,7 @@ reset_k3s() {
     curl -sfL https://get.k3s.io | sh -
     sudo chmod 444 /etc/rancher/k3s/k3s.yaml
     mkdir -p ~/.kube
-    cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
     sed -i "s,127.0.0.1,$1,g" ~/.kube/config
 }
 
