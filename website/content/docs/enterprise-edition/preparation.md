@@ -70,19 +70,42 @@ kubectl get runtimeclass
 Install the Nvidia K8s Device Plugin.
 
 ```sh
-kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
+echo '[plugins.cri.containerd.runtimes.runc.options]
+  BinaryName = "/usr/bin/nvidia-container-runtime"
+
+[plugins.cri.containerd.runtimes.runc]
+  runtime_type = "io.containerd.runc.v2"
+[plugins.linux]
+  runtime = "nvidia-container-runtime"' > config.toml.tmpl
 ```
 
 ```sh
-printf '[plugins."io.containerd.grpc.v1.cri".containerd]\ndefault_runtime_name = "nvidia"' > config.toml.tmpl
+echo '[plugins."io.containerd.grpc.v1.cri".containerd.runtimes."nvidia"]
+  runtime_type = "io.containerd.runc.v2"
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes."nvidia".options]
+  BinaryName = "/usr/bin/nvidia-container-runtime"
+  SystemdCgroup = true' > config.toml.tmpl
 ```
 
 ```sh
 sudo mv config.toml.tmpl /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
+sudo chmod 777 /var/lib/rancher/k3s/agent/etc/containerd/config.toml.tmpl
 ```
 
 ```sh
 sudo systemctl restart k3s
+```
+
+## Test containerd - How?
+
+```sh
+
+```
+
+## Device Plugin?
+
+```sh
+kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
 ```
 
 NVIDIA device plugin should have labelled the node as having an NVIDIA GPU:
