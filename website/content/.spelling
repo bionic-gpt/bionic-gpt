@@ -526,3 +526,5 @@ base64-encoded
 base64-encoded
  - docs/document-pipeline/airbyte.md
 15672
+ - docs/enterprise-edition/preparation.md
+containerd
