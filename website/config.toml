@@ -20,6 +20,7 @@ highlight_themes_css = [
 
 [extra]
 
+logo = "bionic-logo.svg"
 goat_counter = "https://bionicgpt.goatcounter.com/count"
 
 # Need this as part of gout_counter config
