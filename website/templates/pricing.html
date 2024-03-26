@@ -4,138 +4,144 @@
 {% extends "base.html" %}
 
 {% block seo %}
-  {{ super() }}
+{{ super() }}
 
-  {% set title = 'The pricing page' %}
-  {% set description = 'Show how much we charge' %}
-  
-  {{ macros_head::seo(
-    title=title, 
-    description=description
-  ) }}
+{% set title = 'The pricing page' %}
+{% set description = 'Show how much we charge' %}
+
+{{ macros_head::seo(
+title=title,
+description=description
+) }}
 {% endblock seo %}
 
 {% block content %}
 
-<section class="bg-white dark:bg-gray-900">
-    <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
-        <div class="mx-auto max-w-screen-md text-center mb-8 lg:mb-12">
-            <h2 class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">The Best Full Stack LLM solution</h2>
-            <p class="mb-5 font-light text-gray-500 sm:text-xl dark:text-gray-400">Bring Generative AI to your enterprise</p>
-        </div>
-        <div class="space-y-8 lg:grid lg:grid-cols-3 sm:gap-6 xl:gap-10 lg:space-y-0">
-            <!-- Pricing Card -->
-            <div class="flex flex-col p-6 mx-auto max-w-lg text-center text-gray-900 bg-white rounded-lg border border-gray-100 shadow dark:border-gray-600 xl:p-8 dark:bg-gray-800 dark:text-white">
-                <h3 class="mb-4 text-2xl font-semibold">Community Edition</h3>
-                <p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">Best option for personal use & for your next project.</p>
-                <p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">Fully open source</p>
-                <!-- List -->
-                <ul role="list" class="mt-8 mb-8 space-y-4 text-left">
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Text and Code Generation</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>API Key Management (for integrations)</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>No Code Retrieval Augmented Generation</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Audit Trail</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Single Sign On</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Parse word, excel, PDF and many more documents.</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Document Pipeline to automate document uploads</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Support for GPU's</span>
-                    </li>
-                </ul>
-                <a href="#" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-primary-900">Get started</a>
-            </div>
-            <!-- Pricing Card -->
-            <div class="flex flex-col p-6 mx-auto max-w-lg text-center text-gray-900 bg-white rounded-lg border border-gray-100 shadow dark:border-gray-600 xl:p-8 dark:bg-gray-800 dark:text-white">
-                <h3 class="mb-4 text-2xl font-semibold">Enterprise Edition</h3>
-                <p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">Everything from the Community Edition plus</p>
-                <!-- List -->
-                <ul role="list" class="mt-8 mb-8 space-y-4 text-left">
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Corporate Branding</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Batch Inference</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>OCR Support</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Measure token usage by team or user.</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Ability to impose limits on token usage.</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>GuardRails</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Image generation (coming soon)</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Optimized Document Processing Engine</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Optimized Inference Engine</span>
-                    </li>
-                    <li class="flex items-center space-x-3">
-                        <!-- Icon -->
-                        <svg class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                        <span>Dedicated Support</span>
-                    </li>
-                </ul>
-                <a href="#" class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white  dark:focus:ring-primary-900">Get started</a>
-            </div>
-        </div>
+
+<div>
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl sm:text-center">
+      <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Pricing</h2>
+      <p class="mt-6 text-lg leading-8">Title</p>
     </div>
-  </section>
+  </div>
+</div>
+
+<div class="mx-auto lg:flex lg:flex-row justify-center gap-4 lg:max-w-5xl w-full p-5">
+  <div class="card card-bordered lg:w-1/3">
+    <div class="card-body flex flex-col justify-between list-tick">
+      <div class="flex flex-col gap-3">
+        <h3 class="card-title">Community Edition</h3>
+        <span class="badge badge-primary badge-outline">Open Source</span>
+        <p>Ideal for evaluating Bionic and testing RAG use cases.</p>
+        <h4 class="font-extrabold">Generative AI</h4>
+        <ul>
+          <li>Code and Text Generation</li>
+          <li>Role based access control</li>
+          <li>Chat History</li>
+        </ul>
+        <h4 class="font-extrabold">No Code RAG Pipelines</h4>
+        <ul>
+          <li>All major document formats processed.</li>
+          <li>Automated chunking and vector generation.</li>
+          <li>5 GB of storage.</li>
+        </ul>
+        <h4 class="font-extrabold">Open AI Compatible API</h4>
+        <ul>
+          <li>Track and monitor API usage.</li>
+          <li>Share models between projects.</li>
+          <li>Key creation and revocation.</li>
+        </ul>
+        <h4 class="font-extrabold">Teams</h4>
+        <ul>
+          <li>Share RAG pipelines with collegues.</li>
+        </ul>
+      </div>
+      <div class="mt-5 flex flex-col gap-2">
+        <hr />
+        <h3 class="font-extrabold">Free</h3>
+
+        <a href="/docs" class="btn btn-secondary btn-outline">
+          Get Started
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card card-bordered lg:w-1/3">
+    <div class="card-body flex flex-col justify-between list-tick">
+      <div class="flex flex-col gap-3">
+        <h3 class="card-title">Edge Edition</h3>
+        <span class="badge badge-primary badge-outline">Best for small teams</span>
+        <p>Ideal for bringing AI close to the data for small teams</p>
+        <h4 class="font-extrabold">Everything from Community Edition and...</h4>
+        <ul>
+          <li>Support for running on bare metal.</li>
+          <li>Continuous batching.</li>
+          <li>100 GB of storage.</li>
+        </ul>
+        <h4 class="font-extrabold">Document Pipelines</h4>
+        <ul>
+          <li>Batch or stream document processing.</li>
+          <li>100s of sources.</li>
+        </ul>
+        <h4 class="font-extrabold">Hardware Setup</h4>
+        <ul>
+          <li>Hardware recommendations.</li>
+          <li>Possibility of custom builds.</li>
+        </ul>
+      </div>
+      <div class="mt-5 flex flex-col gap-2">
+        <hr />
+        <h3 class="font-extrabold">$1249 / month</h3>
+
+        <a href="/docs" class="btn btn-secondary btn-outline">
+          Book a Call
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card card-bordered lg:w-1/3">
+    <div class="card-body flex flex-col justify-between list-tick">
+      <div class="flex flex-col gap-3">
+        <h3 class="card-title">Enterprise Edition</h3>
+        <span class="badge badge-primary badge-outline">Enterprise Edition</span>
+        <p>Deploy across the whole enterprise</p>
+        <h4 class="font-extrabold">Everything from Edge Edition and...</h4>
+        <ul>
+          <li>Dedicated customer success and engineering resources.</li>
+          <li>Custom Integrations.</li>
+          <li>Custom SLAs and support.</li>
+        </ul>
+        <h4 class="font-extrabold">Data Governance</h4>
+        <ul>
+          <li>National and regional deployments.</li>
+          <li>Data Guardrails.</li>
+          <li>Full team data seperation.</li>
+          <li>Compliant with data export controls.</li>
+        </ul>
+        <h4 class="font-extrabold">Security</h4>
+        <ul>
+          <li>Single Sign On.</li>
+        </ul>
+        <h4 class="font-extrabold">Resources</h4>
+        <ul>
+          <li>Unlimited storage.</li>
+          <li>Unlimited users.</li>
+          <li>Unlimited teams.</li>
+        </ul>
+      </div>
+
+      <div class="mt-5 flex flex-col gap-2">
+        <hr />
+        <h3 class="font-extrabold">Custom Pricing</h3>
+
+        <a href="/docs" class="btn btn-secondary btn-outline">
+          Book a Call
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 {% include "extra_footer.html" %}
