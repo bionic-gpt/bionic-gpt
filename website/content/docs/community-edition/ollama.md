@@ -20,7 +20,7 @@ Edit the systemd service by calling `sudo vi /etc/systemd/system/ollama.service`
 
 For each environment variable, add a line Environment under section [Service]:
 
-```
+```service
 [Service]
 Environment="OLLAMA_HOST=0.0.0.0"
 ```
@@ -36,7 +36,7 @@ systemctl restart ollama
 
 You can run the following to view the logs
 
-```
+```sh
 journalctl -u ollama
 ```
 
