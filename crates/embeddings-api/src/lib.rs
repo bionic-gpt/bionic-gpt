@@ -65,7 +65,7 @@ pub async fn get_embeddings(
         .await?;
     let result = response.json::<EmbeddingResponse>().await?;
 
-    if let Some(result) = result.data.get(0) {
+    if let Some(result) = result.data.first() {
         tracing::info!("Processing {} bytes", result.embedding.len());
         Ok(result.embedding.clone())
     } else {
