@@ -1,3 +1,6 @@
+mod install;
+
+use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -22,15 +25,19 @@ enum Commands {
     Upgrade {},
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
         Commands::Install { k9s, k3s } => {
-            println!("{} {}", k3s, k9s);
+            dbg!(k9s, k3s);
+            install::install("bionic-gpt").await?;
         }
         Commands::Upgrade {} => {
             println!("Not Implemented");
         }
     }
+
+    Ok(())
 }
