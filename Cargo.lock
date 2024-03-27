@@ -503,6 +503,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "constcat"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd7e35aee659887cbfb97aaf227ac12cad1a9d7c71e55ff3376839ed4e282d08"
+
+[[package]]
 name = "cookie"
 version = "0.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -706,8 +712,9 @@ dependencies = [
 
 [[package]]
 name = "dioxus"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d9e3b0725e520250bf23213f996d241cca29cea4360a9bf08a44e0033f8e569"
 dependencies = [
  "dioxus-core",
  "dioxus-core-macro",
@@ -719,26 +726,31 @@ dependencies = [
 
 [[package]]
 name = "dioxus-core"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f33186615b2e90bceab24a195b3cfad4e0b4d91a33ec44a94845876bfb25c13"
 dependencies = [
  "bumpalo",
  "futures-channel",
  "futures-util",
- "log",
  "longest-increasing-subsequence",
  "rustc-hash",
  "serde",
  "slab",
  "smallbox",
+ "tracing",
 ]
 
 [[package]]
 name = "dioxus-core-macro"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21afaccb28587aed0ba98856335912f5ce7052c0aafa74b213829a3b8bfd2345"
 dependencies = [
+ "constcat",
+ "dioxus-core",
  "dioxus-rsx",
+ "prettyplease",
  "proc-macro2",
  "quote",
  "syn 2.0.48",
@@ -752,21 +764,23 @@ checksum = "2ea539174bb236e0e7dc9c12b19b88eae3cb574dedbd0252a2d43ea7e6de13e2"
 
 [[package]]
 name = "dioxus-hooks"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5bb23ce82df4fb13e9ddaa01d1469f1f32d683dd4636204bd0a0eaf434b65946"
 dependencies = [
  "dioxus-core",
  "dioxus-debug-cell",
  "futures-channel",
- "log",
  "slab",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]
 name = "dioxus-hot-reload"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7d8c9e89e866a6b84b8ad696f0ff2f6f6563d2235eb99acc6952f19e516cc09"
 dependencies = [
  "dioxus-core",
  "dioxus-html",
@@ -778,8 +792,9 @@ dependencies = [
 
 [[package]]
 name = "dioxus-html"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "828a42a2d70688a2412a8538c8b5a5eceadf68f682f899dc4455a0169db39dfd"
 dependencies = [
  "async-channel",
  "async-trait",
@@ -796,8 +811,9 @@ dependencies = [
 
 [[package]]
 name = "dioxus-rsx"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c974133c7c95497a486d587e40449927711430b308134b9cd374b8d35eceafb3"
 dependencies = [
  "dioxus-core",
  "proc-macro2",
@@ -807,17 +823,18 @@ dependencies = [
 
 [[package]]
 name = "dioxus-ssr"
-version = "0.4.1"
-source = "git+https://github.com/DioxusLabs/dioxus.git?rev=d8704a0#d8704a0447ae1376cee18cf6cd556dc0e157eb4a"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d32c006feb2cd0d9aafc6263167d52f81fd8004fd6545c90582504314766f775"
 dependencies = [
  "askama_escape",
  "dioxus-core",
  "http",
- "log",
  "lru",
  "rustc-hash",
  "thiserror",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -2068,6 +2085,16 @@ name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
+
+[[package]]
+name = "prettyplease"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d3928fb5db768cb86f891ff014f0144589297e3c6a1aba6ed7cecfdace270c7"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.48",
+]
 
 [[package]]
 name = "proc-macro-error"

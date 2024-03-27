@@ -6,7 +6,7 @@ use db::authz::Rbac;
 use db::TeamOwner;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Page(
     cx: Scope,
     rbac: Rbac,

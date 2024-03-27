@@ -2,7 +2,7 @@
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn DeleteDrawer(cx: Scope<DrawerProps>, team_id: i32, id: i32, trigger_id: String) -> Element {
     cx.render(rsx! {
         Drawer {

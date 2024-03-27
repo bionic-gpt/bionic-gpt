@@ -3,7 +3,7 @@ use assets::files::{button_select_svg, profile_svg};
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn ProfilePopup(
     cx: Scope,
     email: String,

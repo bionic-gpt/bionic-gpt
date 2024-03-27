@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::TopUser;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn TopUserTable<'a>(cx: Scope, top_users: &'a Vec<TopUser>) -> Element {
     cx.render(rsx!(
         Box {

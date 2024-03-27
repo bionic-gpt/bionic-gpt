@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 
 pub static DRAW_TRIGGER: &str = "filter-audit-drawer";
 
-#[inline_props]
+#[component]
 pub fn FilterDrawer(
     cx: Scope,
     team_users: Vec<Member>,

@@ -3,7 +3,7 @@ use daisy_rsx::{select::SelectOption, *};
 use db::{Dataset, Model, Visibility};
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Form(
     cx: Scope,
     trigger_id: String,
@@ -84,7 +84,7 @@ pub fn Form(
                                     label: "Select the model this prompt will use for inference",
                                     label_class: "mt-4",
                                     help_text: "The prompt will be passed to the model",
-                                    value: &model_id.to_string(),
+                                    value: "{model_id}",
                                     required: true,
                                     models.iter().map(|model| {
                                         cx.render(rsx!(

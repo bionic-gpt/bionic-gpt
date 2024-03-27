@@ -2,7 +2,7 @@
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn RemoveMemberWarningDrawer(cx: Scope, trigger_id: String) -> Element {
     cx.render(rsx! {
         Drawer {

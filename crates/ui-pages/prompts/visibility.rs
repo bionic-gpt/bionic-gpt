@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::Visibility;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn VisLabel(cx: Scope, visibility: Visibility) -> Element {
     match visibility {
         Visibility::Company => cx.render(rsx!(
