@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM purtontech/rust-on-nails-devcontainer:1.1.17
+FROM purtontech/rust-on-nails-devcontainer:1.1.18
 
 ARG --global APP_EXE_NAME=axum-server
 ARG --global OPERATOR_EXE_NAME=k8s-operator
