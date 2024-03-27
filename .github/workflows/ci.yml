@@ -99,3 +99,19 @@ jobs:
     - name: Run build
       #if: github.ref == 'refs/heads/main'
       run: earthly --allow-privileged --output --ci +build-cli-osx
+
+  build-windows-cli:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download latest earthly
+      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+    - name: Run build
+      #if: github.ref == 'refs/heads/main'
+      run: earthly --allow-privileged --output --ci +build-cli-windows
