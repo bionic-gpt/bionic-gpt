@@ -77,7 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 break;
             }
 
-            if let Some(embedding) = unprocessed.get(0) {
+            if let Some(embedding) = unprocessed.first() {
                 let embeddings = embeddings_api::get_embeddings(
                     &embedding.text,
                     &embedding.base_url,

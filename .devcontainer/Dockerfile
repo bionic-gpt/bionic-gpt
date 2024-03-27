@@ -1,4 +1,4 @@
-FROM purtontech/rust-on-nails-devcontainer:1.1.17 AS development
+FROM purtontech/rust-on-nails-devcontainer:1.1.18 AS development
 
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,graphics
 

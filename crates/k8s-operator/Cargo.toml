@@ -8,8 +8,8 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] } 
 # Library for talking to Kubernetes API
-kube = { version = "0.87.2", features = ["runtime", "derive"] }
-k8s-openapi = { version = "0.20.0", features = ["latest"] }
+kube = { version = "0", features = ["runtime", "derive"] }
+k8s-openapi = { version = "0", features = ["latest"] }
 kube-derive = "0" # Support for Custom Resource Definitions
 kube-runtime = "0" # Custom controller support
 futures = "0.3"

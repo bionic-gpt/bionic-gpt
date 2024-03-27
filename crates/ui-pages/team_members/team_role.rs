@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::Role;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Role(cx: Scope, role: Role) -> Element {
     match role {
         Role::SystemAdministrator => cx.render(rsx!(

@@ -2,7 +2,7 @@
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Upload(cx: Scope, upload_action: String) -> Element {
     cx.render(rsx!(
         form {

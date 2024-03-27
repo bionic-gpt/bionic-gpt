@@ -35,7 +35,7 @@ alias watch-tailwind='cd /workspace/crates/asset-pipeline && npx tailwindcss -i 
 alias wt=watch-tailwind
 
 # Kind cluster
-alias kc='mkdir -p ~/.kube && mv config ~/.kube/config'
+alias kc='mkdir -p ~/.kube && mv k3s.yaml ~/.kube/config'
 alias kdburl='export DATABASE_URL=$(kubectl get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode | sed "s/bionic-db-cluster-rw:5432/host.docker.internal:5432/")'
 
 # mirrord
