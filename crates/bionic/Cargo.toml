@@ -1,6 +1,6 @@
 [package]
 name = "bionic"
-version = "0.0.1" 
+version = "1.6.22"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
