@@ -7,7 +7,7 @@ use db::queries::models::Model;
 use db::{ModelType, TopUser};
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Page(
     cx: Scope<Props>,
     team_id: i32,

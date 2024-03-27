@@ -12,6 +12,5 @@ path = "lib.rs"
 db = { path = "../db" }
 assets = { path = "../asset-pipeline" }
 daisy_rsx = { path = "../daisy-rsx" }
-# Load dioxus from git while we wait for this issue https://github.com/DioxusLabs/dioxus/issues/1318
-dioxus = { git = "https://github.com/DioxusLabs/dioxus.git", rev = "d8704a0" }
-dioxus-ssr = { git = "https://github.com/DioxusLabs/dioxus.git", rev = "d8704a0" }
+dioxus = "0.4"
+dioxus-ssr = "0.4"

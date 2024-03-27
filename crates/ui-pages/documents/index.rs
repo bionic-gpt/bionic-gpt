@@ -6,7 +6,7 @@ use db::authz::Rbac;
 use db::queries::{datasets::Dataset, documents::Document};
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Page(
     cx: Scope,
     rbac: Rbac,
@@ -105,7 +105,7 @@ pub fn Page(
     })
 }
 
-#[inline_props]
+#[component]
 pub fn Row(cx: Scope, doc: Document, team_id: i32) -> Element {
     let class = if doc.waiting > 0 || doc.batches == 0 {
         "processing"

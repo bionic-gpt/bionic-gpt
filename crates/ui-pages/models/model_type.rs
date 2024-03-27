@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::ModelType;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Model(cx: Scope, model_type: ModelType) -> Element {
     match model_type {
         ModelType::LLM => cx.render(rsx!(

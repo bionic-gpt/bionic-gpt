@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::queries::models;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn New(
     cx: Scope,
     models: Vec<models::Model>,

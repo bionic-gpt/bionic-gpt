@@ -6,7 +6,7 @@ use db::authz::Rbac;
 use db::queries::users::User;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 fn Page(
     cx: Scope,
     team_id: i32,

@@ -2,7 +2,7 @@
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn InvitationForm(cx: Scope, submit_action: String) -> Element {
     cx.render(rsx! {
         // The form to create an invitation

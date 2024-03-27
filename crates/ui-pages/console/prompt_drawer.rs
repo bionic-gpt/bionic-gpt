@@ -3,7 +3,7 @@ use super::ChatChunks;
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn PromptDrawer(
     cx: Scope,
     prompt: String,

@@ -9,7 +9,7 @@ use db::authz::Rbac;
 use db::queries::{conversations::History, prompts::Prompt};
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Page(
     cx: Scope,
     team_id: i32,

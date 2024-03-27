@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::queries::conversations::History;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn HistoryDrawer(
     cx: Scope,
     trigger_id: String,

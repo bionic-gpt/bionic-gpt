@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM purtontech/rust-on-nails-devcontainer:1.1.17
+FROM purtontech/rust-on-nails-devcontainer:1.1.18
 
 ARG --global APP_EXE_NAME=axum-server
 ARG --global OPERATOR_EXE_NAME=k8s-operator
@@ -193,3 +193,24 @@ testing-container:
     COPY --dir .devcontainer/datasets ./datasets 
     CMD ./multi_user_test && ./single_user_test
     SAVE IMAGE --push $TESTING_IMAGE_NAME
+
+build-cli-osx:
+    FROM joseluisq/rust-linux-darwin-builder:1.76.0
+    COPY --dir crates/bionic .
+    RUN cd bionic \ 
+        && CC=o64-clang \
+        CXX=o64-clang++ \
+        cargo build --release --target x86_64-apple-darwin
+    SAVE ARTIFACT target/x86_64-apple-darwin/release/bionic
+
+build-cli-windows:
+    RUN sudo apt update && sudo apt upgrade -y 
+    RUN sudo apt install -y g++-mingw-w64-x86-64 
+    
+    RUN rustup target add x86_64-pc-windows-gnu 
+    RUN rustup toolchain install stable-x86_64-pc-windows-gnu 
+
+    COPY --dir crates/bionic .
+    RUN cd bionic \ 
+        && cargo build --release --target x86_64-pc-windows-gnu
+    SAVE ARTIFACT target/x86_64-pc-windows-gnu/release/bionic

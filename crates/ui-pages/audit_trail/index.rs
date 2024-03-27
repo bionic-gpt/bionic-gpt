@@ -13,7 +13,7 @@ pub struct AuditProps {
     reset_search: bool,
 }
 
-#[inline_props]
+#[component]
 pub fn Page(
     cx: Scope,
     team_users: Vec<Member>,
