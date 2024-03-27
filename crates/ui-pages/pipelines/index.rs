@@ -6,7 +6,7 @@ use db::authz::Rbac;
 use db::{Dataset, DocumentPipeline};
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Page(
     cx: Scope,
     team_id: i32,

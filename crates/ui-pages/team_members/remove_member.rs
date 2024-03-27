@@ -2,7 +2,7 @@
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn RemoveMemberDrawer(
     cx: Scope,
     team_id: i32,

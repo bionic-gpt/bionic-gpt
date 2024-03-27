@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::AuditTrail;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn AuditTable<'a>(cx: Scope, audits: &'a Vec<AuditTrail>) -> Element {
     cx.render(rsx!(
         Box {

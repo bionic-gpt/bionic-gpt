@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use db::Model;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn ModelTable<'a>(cx: Scope, models: &'a Vec<Model>, team_id: i32) -> Element {
     cx.render(rsx!(
         Box {

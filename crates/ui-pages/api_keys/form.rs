@@ -3,7 +3,7 @@ use daisy_rsx::{select::SelectOption, *};
 use db::Prompt;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Form(cx: Scope, team_id: i32, prompts: Vec<Prompt>) -> Element {
     cx.render(rsx!(
         form {

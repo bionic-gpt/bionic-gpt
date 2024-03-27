@@ -2,7 +2,7 @@
 use daisy_rsx::{select::SelectOption, *};
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Form(
     cx: Scope,
     team_id: i32,

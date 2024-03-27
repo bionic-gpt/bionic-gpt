@@ -7,7 +7,7 @@ use db::authz::Rbac;
 use db::queries::{datasets::Dataset, models::Model};
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Page(
     cx: Scope,
     rbac: Rbac,

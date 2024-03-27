@@ -4,7 +4,7 @@ use daisy_rsx::*;
 use db::queries::teams::Team;
 use dioxus::prelude::*;
 
-#[inline_props]
+#[component]
 pub fn Page(cx: Scope, teams: Vec<(String, String)>, team: Team) -> Element {
     if let Some(name) = &team.name.clone() {
         cx.render(rsx! {
