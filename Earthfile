@@ -193,3 +193,13 @@ testing-container:
     COPY --dir .devcontainer/datasets ./datasets 
     CMD ./multi_user_test && ./single_user_test
     SAVE IMAGE --push $TESTING_IMAGE_NAME
+
+
+build-cli-osx:
+    FROM joseluisq/rust-linux-darwin-builder:1.76.0
+    COPY --dir crates/bionic .
+    RUN cd bionic \ 
+        && CC=o64-clang \
+        CXX=o64-clang++ \
+        cargo build --release --target x86_64-apple-darwin
+    SAVE ARTIFACT target/x86_64-apple-darwin/release/bionic
