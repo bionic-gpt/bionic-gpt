@@ -15,4 +15,6 @@ pub enum Error {
         #[from]
         source: serde_json::Error,
     },
+    #[error("{0}")]
+    Cli(String),
 }

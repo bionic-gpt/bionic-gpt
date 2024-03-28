@@ -321,18 +321,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ba43ea6f343b788c8764558649e08df62f86c6ef251fdaeb1ffd010a9ae50a2"
 
 [[package]]
-name = "bionic"
-version = "1.6.22"
-dependencies = [
- "anyhow",
- "clap",
- "k8s-openapi",
- "kube",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "bit-set"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1491,6 +1479,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "base64 0.13.1",
+ "clap",
  "futures",
  "futures-util",
  "k8s-openapi",

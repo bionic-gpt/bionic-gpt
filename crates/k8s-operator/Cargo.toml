@@ -28,3 +28,6 @@ url = "2"
 
 rand = "0.8.4"
 base64 = "0.13.0"
+
+# For the CLI
+clap = { version = "4.5", features = ["derive"] }

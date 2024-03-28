@@ -1,79 +1,26 @@
-mod bionic;
-mod chunking_engine;
-mod crd;
-mod database;
-mod deployment;
-mod embeddings_engine;
-mod envoy;
+mod cli;
 mod error;
-mod finalizer;
-mod http_mock;
-mod ingress;
-mod keycloak;
-mod keycloak_db;
-mod llm;
-mod llm_lite;
-mod oauth2_proxy;
-mod pgadmin;
-mod pipeline_job;
-mod reconcile;
-mod tgi;
+mod operator;
+mod services;
 use anyhow::Result;
-use crd::Bionic;
-use futures_util::stream::StreamExt;
-use kube::{api::Api, Client};
-use kube_runtime::{watcher::Config, Controller};
-use reconcile::ContextData;
-use std::sync::Arc;
-
-const BIONICGPT_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt";
-const BIONICGPT_PIPELINE_JOB_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-pipeline-job";
-const BIONICGPT_DB_MIGRATIONS_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations";
-
-const ENVOYPROXY_IMAGE: &str = "envoyproxy/envoy:v1.28.0";
-const KEYCLOAK_IMAGE: &str = "quay.io/keycloak/keycloak:23.0";
-const OAUTH2_PROXY_IMAGE: &str = "quay.io/oauth2-proxy/oauth2-proxy:v7.5.1";
-const LITE_LLM_IMAGE: &str = "ghcr.io/berriai/litellm:main-v1.10.3";
-const TGI_IMAGE: &str = "ghcr.io/huggingface/text-generation-inference:1.2";
-const PGADMIN_IMAGE: &str = "dpage/pgadmin4:8";
-const CHUNKING_ENGINE_IMAGE: &str =
-    "downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc";
-const EMBEDDINGS_ENGINE_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6";
-const LLM_API_IMAGE: &str = "ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.5";
-
-// Images used for testing
-const HTTP_MOCK: &str = "alexliesenfeld/httpmock:latest";
+use clap::Parser;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .init();
-    let kubernetes_client = Client::try_default().await?;
+    let cli = cli::Cli::parse();
 
-    // Preparation of resources used by the `kube_runtime::Controller`
-    let crd_api: Api<Bionic> = Api::all(kubernetes_client.clone());
-    let context: Arc<ContextData> = Arc::new(ContextData::new(kubernetes_client.clone()));
-
-    // The controller comes from the `kube_runtime` crate and manages the reconciliation process.
-    // It requires the following information:
-    // - `kube::Api<T>` this controller "owns". In this case, `T = Bionic`, as this controller owns the `Bionic` resource,
-    // - `kube::runtime::watcher::Config` can be adjusted for precise filtering of `Bionic` resources before the actual reconciliation, e.g. by label,
-    // - `reconcile` function with reconciliation logic to be called each time a resource of `Bionic` kind is created/updated/deleted,
-    // - `on_error` function to call whenever reconciliation fails.
-    Controller::new(crd_api.clone(), Config::default())
-        .run(reconcile::reconcile, reconcile::on_error, context)
-        .for_each(|reconciliation_result| async move {
-            match reconciliation_result {
-                Ok(echo_resource) => {
-                    println!("Reconciliation successful. Resource: {:?}", echo_resource);
-                }
-                Err(reconciliation_err) => {
-                    eprintln!("Reconciliation error: {:?}", reconciliation_err)
-                }
-            }
-        })
-        .await;
+    match &cli.command {
+        cli::Commands::Install { k9s, k3s } => {
+            dbg!(k9s, k3s);
+            cli::install::install("bionic-gpt").await?;
+        }
+        cli::Commands::Upgrade {} => {
+            println!("Not Implemented");
+        }
+        cli::Commands::Operator {} => {
+            operator::operator().await?;
+        }
+    }
 
     Ok(())
 }
