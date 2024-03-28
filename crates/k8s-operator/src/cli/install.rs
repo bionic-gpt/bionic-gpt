@@ -3,7 +3,14 @@ use crate::operator::crd::Bionic;
 use crate::operator::crd::BionicSpec;
 use crate::services::deployment;
 use k8s_openapi::api::core::v1::Namespace;
+use k8s_openapi::api::core::v1::ServiceAccount;
+use k8s_openapi::api::rbac::v1::ClusterRole;
+use k8s_openapi::api::rbac::v1::ClusterRoleBinding;
+use k8s_openapi::api::rbac::v1::PolicyRule;
+use k8s_openapi::api::rbac::v1::RoleRef;
+use k8s_openapi::api::rbac::v1::Subject;
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1::CustomResourceDefinition;
+use kube::api::ObjectMeta;
 use kube::Api;
 use kube::Client;
 use kube::CustomResourceExt;
@@ -38,6 +45,55 @@ async fn create_bionic_operator(
     installer: &super::Installer,
     namespace: &str,
 ) -> Result<(), Error> {
+    let sa_api: Api<ServiceAccount> = Api::namespaced(client.clone(), &installer.namespace);
+    let service_account = ServiceAccount {
+        metadata: ObjectMeta {
+            name: Some("bionic-gpt-operator-service-account".to_string()),
+            namespace: Some(installer.namespace.clone()),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    sa_api.create(&Default::default(), &service_account).await?;
+
+    let role_api: Api<ClusterRole> = Api::all(client.clone());
+    let role = ClusterRole {
+        metadata: ObjectMeta {
+            name: Some("bionic-gpt-operator-cluster-role".to_string()),
+            ..Default::default()
+        },
+        rules: Some(vec![PolicyRule {
+            api_groups: Some(vec!["*".to_string()]),
+            resources: Some(vec!["*".to_string()]),
+            verbs: vec!["*".to_string()],
+            ..Default::default()
+        }]),
+        ..Default::default()
+    };
+    role_api.create(&Default::default(), &role).await?;
+
+    let role_binding_api: Api<ClusterRoleBinding> = Api::all(client.clone());
+    let role_binding = ClusterRoleBinding {
+        metadata: ObjectMeta {
+            name: Some("bionic-gpt-operator-cluster-role-binding".to_string()),
+            ..Default::default()
+        },
+        role_ref: RoleRef {
+            api_group: "rbac.authorization.k8s.io".to_string(),
+            kind: "ClusterRole".to_string(),
+            name: "bionic-gpt-operator-cluster-role".to_string(),
+        },
+        subjects: Some(vec![Subject {
+            kind: "ServiceAccount".to_string(),
+            name: "bionic-gpt-operator-service-account".to_string(),
+            namespace: Some(installer.namespace.clone()),
+            ..Default::default()
+        }]),
+    };
+    role_binding_api
+        .create(&Default::default(), &role_binding)
+        .await?;
+
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
@@ -87,7 +143,7 @@ async fn create_crd(client: &Client) -> Result<(), Error> {
 
 async fn create_namespace(namespace: &str, namespaces: Api<Namespace>) -> Result<(), Error> {
     let new_namespace = Namespace {
-        metadata: k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta {
+        metadata: ObjectMeta {
             name: Some(namespace.to_string()),
             ..Default::default()
         },
