@@ -147,6 +147,9 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             pgadmin: Some(installer.pgadmin),
             testing: Some(installer.testing),
             hostname_url: format!("{:?}", my_local_ip),
+            hash_bionicgpt: "".to_string(),
+            hash_bionicgpt_pipeline_job: "".to_string(),
+            hash_bionicgpt_db_migrations: "".to_string(),
         },
     );
     bionic_api.create(&Default::default(), &bionic).await?;
