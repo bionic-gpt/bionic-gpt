@@ -1,17 +1,16 @@
 use crate::error::Error;
 use crate::operator::crd::Bionic;
 use crate::operator::crd::BionicSpec;
+use crate::services::deployment;
 use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1::CustomResourceDefinition;
-use kube::api::ObjectMeta;
-use kube::api::Patch;
-use kube::api::PatchParams;
-use kube::api::PostParams;
 use kube::Api;
 use kube::Client;
 use kube::CustomResourceExt;
 use local_ip_address::local_ip;
-use tracing::info;
+
+const BIONIC_OPERATOR_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator";
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub async fn install(installer: &crate::cli::Installer) -> Result<(), Error> {
     let client = Client::try_default().await?;
@@ -26,40 +25,63 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<(), Error> {
     } else {
         create_namespace(&installer.namespace, namespaces).await?;
         create_crd(&client).await?;
-
-        let my_local_ip = local_ip().unwrap();
-        let bionic_api: Api<Bionic> = Api::all(client);
-        let bionic = Bionic {
-            metadata: {
-                ObjectMeta {
-                    namespace: Some(installer.namespace.clone()),
-                    ..ObjectMeta::default()
-                }
-            },
-            spec: BionicSpec {
-                replicas: 1,
-                version: "v1".into(),
-                gpu: Some(installer.gpu),
-                pgadmin: Some(installer.pgadmin),
-                testing: Some(installer.testing),
-                hostname_url: format!("{:?}", my_local_ip),
-            },
-        };
-        bionic_api.create(&PostParams::default(), &bionic).await?;
+        create_bionic(&client, installer).await?;
+        if !installer.development {
+            create_bionic_operator(&client, installer, &installer.namespace).await?;
+        }
     }
     Ok(())
 }
 
-async fn create_crd(client: &Client) -> Result<(), Error> {
-    let ssapply = PatchParams::apply("bionic-gpt").force();
-    let crds: Api<CustomResourceDefinition> = Api::all(client.clone());
-    info!("Creating crd: {:?}", &Bionic::crd());
-    crds.patch(
-        "bionics.bionic-gpt.com",
-        &ssapply,
-        &Patch::Apply(Bionic::crd()),
+async fn create_bionic_operator(
+    client: &Client,
+    installer: &super::Installer,
+    namespace: &str,
+) -> Result<(), Error> {
+    deployment::deployment(
+        client.clone(),
+        deployment::ServiceDeployment {
+            name: "bionic-operator".to_string(),
+            image_name: format!("{}:{}", BIONIC_OPERATOR_IMAGE, VERSION),
+            replicas: installer.replicas,
+            port: 11434,
+            env: vec![],
+            init_container: None,
+            command: Some(deployment::Command {
+                command: vec![],
+                args: vec![],
+            }),
+            volume_mounts: vec![],
+            volumes: vec![],
+        },
+        namespace,
     )
     .await?;
+
+    Ok(())
+}
+
+async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<(), Error> {
+    let my_local_ip = local_ip().unwrap();
+    let bionic_api: Api<Bionic> = Api::namespaced(client.clone(), &installer.namespace);
+    let bionic = Bionic::new(
+        "bionic",
+        BionicSpec {
+            replicas: 1,
+            version: VERSION.into(),
+            gpu: Some(installer.gpu),
+            pgadmin: Some(installer.pgadmin),
+            testing: Some(installer.testing),
+            hostname_url: format!("{:?}", my_local_ip),
+        },
+    );
+    bionic_api.create(&Default::default(), &bionic).await?;
+    Ok(())
+}
+
+async fn create_crd(client: &Client) -> Result<(), Error> {
+    let crds: Api<CustomResourceDefinition> = Api::all(client.clone());
+    crds.create(&Default::default(), &Bionic::crd()).await?;
     Ok(())
 }
 
