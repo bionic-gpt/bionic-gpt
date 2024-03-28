@@ -1,7 +1,7 @@
 use crate::error::Error;
 use crate::operator::crd::Bionic;
 use crate::operator::crd::BionicSpec;
-use crate::services::deployment;
+use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::api::core::v1::ServiceAccount;
 use k8s_openapi::api::rbac::v1::ClusterRole;
@@ -17,6 +17,7 @@ use kube::CustomResourceExt;
 use kube_runtime::conditions;
 use kube_runtime::wait::await_condition;
 use local_ip_address::local_ip;
+use serde_json::json;
 
 const BIONIC_OPERATOR_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -96,25 +97,42 @@ async fn create_bionic_operator(
         .create(&Default::default(), &role_binding)
         .await?;
 
-    deployment::deployment(
-        client.clone(),
-        deployment::ServiceDeployment {
-            name: "bionic-operator".to_string(),
-            image_name: format!("{}:{}", BIONIC_OPERATOR_IMAGE, VERSION),
-            replicas: installer.replicas,
-            port: 11434,
-            env: vec![],
-            init_container: None,
-            command: Some(deployment::Command {
-                command: vec![],
-                args: vec![],
-            }),
-            volume_mounts: vec![],
-            volumes: vec![],
+    let app_labels = serde_json::json!({
+        "app": "bionic-gpt-operator",
+    });
+
+    let deployment = serde_json::from_value(serde_json::json!({
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "metadata": {
+            "name": "bionic-gpt-operator-deployment",
+            "namespace": namespace
         },
-        namespace,
-    )
-    .await?;
+        "spec": {
+            "replicas": 1,
+            "selector": {
+                "matchLabels": app_labels
+            },
+            "template": {
+                "metadata": {
+                    "labels": app_labels
+                },
+                "spec": {
+                    "serviceAccountName": "bionic-gpt-operator-service-account",
+                    "containers": json!([{
+                        "name": "bionic-gpt-operator",
+                        "image": format!("{}:{}", BIONIC_OPERATOR_IMAGE, VERSION)
+                    }]),
+                }
+            }
+        }
+    }))?;
+
+    // Create the deployment defined above
+    let deployment_api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
+    deployment_api
+        .create(&Default::default(), &deployment)
+        .await?;
 
     Ok(())
 }
