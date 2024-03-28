@@ -13,12 +13,15 @@ pub struct Cli {
 pub enum Commands {
     /// Install Bionic into Kubernetes
     Install {
-        /// Install K9s
-        #[arg(long)]
-        k9s: bool,
-        /// Install a K3s Kubernetes Node
-        #[arg(long)]
-        k3s: bool,
+        /// Run a cut down version of Bionic with some services as HttpMock
+        #[arg(long, default_value_t = false)]
+        testing: bool,
+        /// Don't install the operator
+        #[arg(long, default_value_t = false)]
+        development: bool,
+        /// In which namespace shall we install Bionic
+        #[arg(long, default_value = "bionic-gpt")]
+        namespace: String,
     },
     /// Run the Bionic Kubernetes Operator
     Operator {},

@@ -10,9 +10,12 @@ async fn main() -> Result<()> {
     let cli = cli::Cli::parse();
 
     match &cli.command {
-        cli::Commands::Install { k9s, k3s } => {
-            dbg!(k9s, k3s);
-            cli::install::install("bionic-gpt").await?;
+        cli::Commands::Install {
+            development,
+            testing,
+            namespace,
+        } => {
+            cli::install::install(development, testing, namespace).await?;
         }
         cli::Commands::Upgrade {} => {
             println!("Not Implemented");

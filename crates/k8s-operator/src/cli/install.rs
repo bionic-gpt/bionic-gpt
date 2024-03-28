@@ -12,7 +12,7 @@ use tracing::info;
 const _BIONIC_OPERATOR: &str = include_str!("../../config/bionic-operator.yaml");
 const _BIONIC_CONFIG: &str = include_str!("../../config/bionic.yaml");
 
-pub async fn install(namespace: &str) -> Result<(), Error> {
+pub async fn install(_development: &bool, _testing: &bool, namespace: &str) -> Result<(), Error> {
     let client = Client::try_default().await?;
 
     // Define the API object for Namespace
