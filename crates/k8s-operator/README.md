@@ -46,3 +46,10 @@ Then in the devcontainer run
 ```sh
 kc
 ```
+
+## Run K9s in host
+
+```sh
+k9s --kubeconfig /etc/rancher/k3s/k3s.yaml
+```
+
