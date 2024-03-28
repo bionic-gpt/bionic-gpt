@@ -10,12 +10,8 @@ async fn main() -> Result<()> {
     let cli = cli::Cli::parse();
 
     match &cli.command {
-        cli::Commands::Install {
-            development,
-            testing,
-            namespace,
-        } => {
-            cli::install::install(development, testing, namespace).await?;
+        cli::Commands::Install(installer) => {
+            cli::install::install(installer).await?;
         }
         cli::Commands::Upgrade {} => {
             println!("Not Implemented");

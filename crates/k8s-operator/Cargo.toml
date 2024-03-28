@@ -31,3 +31,4 @@ base64 = "0.13.0"
 
 # For the CLI
 clap = { version = "4.5", features = ["derive"] }
+local-ip-address = "0.6.1"
