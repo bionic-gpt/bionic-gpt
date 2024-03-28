@@ -1,15 +1,15 @@
 use std::collections::BTreeMap;
 
-use crate::crd::BionicSpec;
-use crate::deployment;
+use super::deployment;
 use crate::error::Error;
+use crate::operator::crd::BionicSpec;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{ConfigMap, Secret, Service};
 use kube::api::{DeleteParams, ObjectMeta, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
-const CONFIG_JSON: &str = include_str!("../keycloak/realm.json");
+const CONFIG_JSON: &str = include_str!("../../keycloak/realm.json");
 pub const KEYCLOAK_NAME: &str = "keycloak";
 
 // We are using envoy to add security headers to all responses from the main application.
@@ -35,7 +35,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         client.clone(),
         deployment::ServiceDeployment {
             name: KEYCLOAK_NAME.to_string(),
-            image_name: crate::KEYCLOAK_IMAGE.to_string(),
+            image_name: super::KEYCLOAK_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 7910,
             env: vec![
@@ -118,7 +118,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
     .await?;
 
     let mut secret_data = BTreeMap::new();
-    secret_data.insert("admin-password".to_string(), crate::database::rand_hex());
+    secret_data.insert("admin-password".to_string(), super::database::rand_hex());
 
     let keycloak_secret = Secret {
         metadata: ObjectMeta {

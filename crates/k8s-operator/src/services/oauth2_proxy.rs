@@ -1,6 +1,6 @@
-use crate::crd::BionicSpec;
-use crate::deployment;
+use super::deployment;
 use crate::error::Error;
+use crate::operator::crd::BionicSpec;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Secret, Service};
 use kube::api::{DeleteParams, PostParams};
@@ -28,7 +28,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         client.clone(),
         deployment::ServiceDeployment {
             name: "oauth2-proxy".to_string(),
-            image_name: crate::OAUTH2_PROXY_IMAGE.to_string(),
+            image_name: super::OAUTH2_PROXY_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 7900,
             env: vec![

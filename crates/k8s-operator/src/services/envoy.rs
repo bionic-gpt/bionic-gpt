@@ -1,13 +1,13 @@
-use crate::crd::BionicSpec;
-use crate::deployment;
+use super::deployment;
 use crate::error::Error;
+use crate::operator::crd::BionicSpec;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{ConfigMap, Service};
 use kube::api::{DeleteParams, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
-const ENVOY_YAML: &str = include_str!("../envoy/envoy.yaml");
+const ENVOY_YAML: &str = include_str!("../../envoy/envoy.yaml");
 
 // We are using envoy to add security headers to all responses from the main application.
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
@@ -32,7 +32,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         client.clone(),
         deployment::ServiceDeployment {
             name: "envoy".to_string(),
-            image_name: crate::ENVOYPROXY_IMAGE.to_string(),
+            image_name: super::ENVOYPROXY_IMAGE.to_string(),
             replicas: spec.replicas,
             port: 7901,
             env: vec![],

@@ -1,13 +1,13 @@
-use crate::deployment;
+use super::deployment;
 use crate::error::Error;
 use k8s_openapi::api::core::v1::ConfigMap;
 use kube::api::PostParams;
 use kube::{Api, Client};
 use serde_json::json;
 
-const EMBEDDINGS_YAML: &str = include_str!("../config/mocks/embeddings.mock.yaml");
-const OPENAI_YAML: &str = include_str!("../config/mocks/openai.mock.yaml");
-const UNSTRUCTURED_YAML: &str = include_str!("../config/mocks/unstructured.mock.yaml");
+const EMBEDDINGS_YAML: &str = include_str!("../../config/mocks/embeddings.mock.yaml");
+const OPENAI_YAML: &str = include_str!("../../config/mocks/openai.mock.yaml");
+const UNSTRUCTURED_YAML: &str = include_str!("../../config/mocks/unstructured.mock.yaml");
 
 // We are using envoy to add security headers to all responses from the main application.
 pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> Result<(), Error> {
@@ -35,7 +35,7 @@ pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> R
         deployment::ServiceDeployment {
             name: name.to_string(),
             replicas: 1,
-            image_name: crate::HTTP_MOCK.to_string(),
+            image_name: super::HTTP_MOCK.to_string(),
             port,
             env: vec![],
             init_container: None,

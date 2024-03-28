@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::database::{
+use super::database::{
     rand_hex, BootstrapSpec, Cluster, ClusterSpec, InitDBSpec, SecretSpec, StorageSpec,
 };
 use crate::error::Error;

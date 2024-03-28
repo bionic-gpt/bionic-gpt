@@ -1,4 +1,4 @@
-use crate::deployment;
+use super::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{ConfigMap, Secret, Service};
@@ -7,7 +7,7 @@ use kube::{Api, Client};
 use serde_json::json;
 
 const PGADMIN: &str = "pgadmin";
-const CONFIG_JSON: &str = include_str!("../config/servers.json");
+const CONFIG_JSON: &str = include_str!("../../config/servers.json");
 
 // Large Language Model
 pub async fn deploy(
@@ -43,7 +43,7 @@ pub async fn deploy(
         client.clone(),
         deployment::ServiceDeployment {
             name: PGADMIN.to_string(),
-            image_name: crate::PGADMIN_IMAGE.to_string(),
+            image_name: super::PGADMIN_IMAGE.to_string(),
             replicas: 1,
             port: 80,
             env: vec![
@@ -111,7 +111,7 @@ pub async fn deploy(
         },
         "stringData": {
             "email": "pgadmin@pgadmin.com",
-            "password": crate::database::rand_hex()
+            "password": super::database::rand_hex()
         }
     }))?;
 

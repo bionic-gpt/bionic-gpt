@@ -1,21 +1,22 @@
-use crate::crd::BionicSpec;
-use crate::deployment;
 use crate::error::Error;
+use crate::operator::crd::BionicSpec;
+use crate::services::deployment;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
 use kube::{Api, Client};
 use serde_json::json;
 
-// Large Language Model
+// The web user interface
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
+    // Bionic with the migrations as a sidecar
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
-            name: "pipeline-job".to_string(),
-            image_name: format!("{}:{}", crate::BIONICGPT_PIPELINE_JOB_IMAGE, spec.version),
+            name: "bionic-gpt".to_string(),
+            image_name: format!("{}:{}", super::BIONICGPT_IMAGE, spec.version),
             replicas: spec.replicas,
-            port: 3000,
+            port: 7903,
             env: vec![
                 json!({
                     "name":
@@ -29,16 +30,24 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                 }),
                 json!({
                     "name":
-                    "CHUNKING_ENGINE",
+                    "PORT",
                     "value":
-                    "http://chunking-engine:8000"
+                    "7903"
                 }),
             ],
-            init_container: None,
-            command: Some(deployment::Command {
-                command: vec![],
-                args: vec![],
+            init_container: Some(deployment::InitContainer {
+                image_name: format!("{}:{}", super::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),
+                env: vec![json!({
+                "name":
+                "DATABASE_URL",
+                "valueFrom": {
+                    "secretKeyRef": {
+                        "name": "database-urls",
+                        "key": "migrations-url"
+                    }
+                }})],
             }),
+            command: None,
             volume_mounts: vec![],
             volumes: vec![],
         },
@@ -52,11 +61,10 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("pipeline-job", &DeleteParams::default()).await?;
+    api.delete("bionic-gpt", &DeleteParams::default()).await?;
 
     // Remove services
-    let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("pipeline-job", &DeleteParams::default()).await?;
-
+    let api: Api<Service> = Api::namespaced(client, namespace);
+    api.delete("bionic-gpt", &DeleteParams::default()).await?;
     Ok(())
 }

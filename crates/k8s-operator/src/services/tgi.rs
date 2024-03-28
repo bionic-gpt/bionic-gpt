@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::deployment;
+use super::deployment;
 use crate::error::Error;
 use k8s_openapi::api::core::v1::{Container, PodSpec, ResourceRequirements};
 use k8s_openapi::api::core::v1::{Pod, Service};
@@ -38,7 +38,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
     // Define the container
     let container = Container {
         name: MODEL_NAME.to_string(),
-        image: Some(crate::TGI_IMAGE.to_string()),
+        image: Some(super::TGI_IMAGE.to_string()),
         args: Some(vec![
             "--model-id".to_string(),
             MODEL_REPOSITORY.to_string(),
