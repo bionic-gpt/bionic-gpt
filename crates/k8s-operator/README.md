@@ -1,49 +1,48 @@
 ## The Bionic Cli and Kubernetes Operator
 
+Run and see the CLI help
 
-## To create the CRD in Kubernetes
+```sh
+cargo run --bin k8s-operator -- -h
+```
 
-`kubectl apply -f crates/k8s-operator/config/bionics.bionic-gpt.com.yaml`
+## Run as an Operator
 
-## To Verify
+```sh
+cargo run --bin k8s-operator -- operator
+```
 
-`kubectl get crds`
+## (Re-)install K3's
 
-## Install Bionic
+```sh
+# Uninstall
+sudo /usr/local/bin/k3s-uninstall.sh
+```
 
-`kubectl apply -f crates/k8s-operator/config/bionic.yaml`
+```sh
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
+```
 
-## Preload images
+## Install Bionic into a cluster
 
-Do we need this?
+You need the kubeconfig installed. The kubeconfig will need to point to the ip address of where the cluster is installed so we break out of the devconatiner.
 
-`kind --name bionic-gpt-cluster load docker-image downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc`
+Then run
 
-`kind --name bionic-gpt-cluster load docker-image ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.4`
+```sh
+cargo run --bin k8s-operator -- install
+```
 
-`kind --name bionic-gpt-cluster load docker-image ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6`
+i.e. Have some aliases to copy the config and set ip address
 
-## Run the operator
+```sh
+alias kc='kccopy && kcupdate'
+alias kccopy='cp /etc/rancher/k3s/k3s.yaml LOCATION_OF_PROJECT/bionic-gpt/k3s.yaml'
+alias kcupdate='address=127.0.1.1 sed -i s/127.0.0.1/192.168.178.57/g LOCATION_OF_PROJECT/bionic-gpt/k3s.yaml'
+```
 
-`cargo run --bin k8s-operator`
+Then in the devcontainer run
 
-## Remove Bionic
-
-`kubectl delete -f crates/k8s-operator/config/bionic.yaml`
-
-## To remove the CRD in Kubernetes
-
-`kubectl delete -f crates/k8s-operator/config/bionics.bionic-gpt.com.yaml`
-
-## Remove the operator
-
-`kubectl delete -f crates/k8s-operator/config/bionic-operator.yaml`
-
-## Bounce the Cluster
-
-`install.sh --docker-in-docker`
-
-## Forward Keycloak Port
-
-`kubectl port-forward svc/keycloak 7910:7910`
-`kubectl port-forward svc/oauth2-proxy 7900:7900`
+```sh
+kc
+```

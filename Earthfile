@@ -164,7 +164,7 @@ app-container:
 operator-container:
     FROM scratch
     COPY +build/$OPERATOR_EXE_NAME k8s-operator
-    ENTRYPOINT ["./k8s-operator"]
+    ENTRYPOINT ["./k8s-operator", "operator"]
     SAVE IMAGE --push $OPERATOR_IMAGE_NAME
 
 # Embeddings container - download models from huggungface

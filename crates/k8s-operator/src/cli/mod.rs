@@ -11,7 +11,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Install Bionic
+    /// Install Bionic into Kubernetes
     Install {
         /// Install K9s
         #[arg(long)]
