@@ -14,6 +14,8 @@ use kube::api::ObjectMeta;
 use kube::Api;
 use kube::Client;
 use kube::CustomResourceExt;
+use kube_runtime::conditions;
+use kube_runtime::wait::await_condition;
 use local_ip_address::local_ip;
 
 const BIONIC_OPERATOR_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator";
@@ -136,8 +138,19 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
 }
 
 async fn create_crd(client: &Client) -> Result<(), Error> {
+    let crd = Bionic::crd();
     let crds: Api<CustomResourceDefinition> = Api::all(client.clone());
-    crds.create(&Default::default(), &Bionic::crd()).await?;
+    crds.create(&Default::default(), &crd).await?;
+
+    println!("Waiting for the api-server to accept the CRD");
+    let establish = await_condition(
+        crds,
+        "bionics.bionic-gpt.com",
+        conditions::is_crd_established(),
+    );
+    let _ = tokio::time::timeout(std::time::Duration::from_secs(10), establish)
+        .await
+        .unwrap();
     Ok(())
 }
 
