@@ -36,67 +36,15 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<(), Error> {
         create_namespace(&installer.namespace, namespaces).await?;
         create_crd(&client).await?;
         create_bionic(&client, installer).await?;
+        create_roles(&client, installer).await?;
         if !installer.development {
-            create_bionic_operator(&client, installer, &installer.namespace).await?;
+            create_bionic_operator(&client, &installer.namespace).await?;
         }
     }
     Ok(())
 }
 
-async fn create_bionic_operator(
-    client: &Client,
-    installer: &super::Installer,
-    namespace: &str,
-) -> Result<(), Error> {
-    let sa_api: Api<ServiceAccount> = Api::namespaced(client.clone(), &installer.namespace);
-    let service_account = ServiceAccount {
-        metadata: ObjectMeta {
-            name: Some("bionic-gpt-operator-service-account".to_string()),
-            namespace: Some(installer.namespace.clone()),
-            ..Default::default()
-        },
-        ..Default::default()
-    };
-    sa_api.create(&Default::default(), &service_account).await?;
-
-    let role_api: Api<ClusterRole> = Api::all(client.clone());
-    let role = ClusterRole {
-        metadata: ObjectMeta {
-            name: Some("bionic-gpt-operator-cluster-role".to_string()),
-            ..Default::default()
-        },
-        rules: Some(vec![PolicyRule {
-            api_groups: Some(vec!["*".to_string()]),
-            resources: Some(vec!["*".to_string()]),
-            verbs: vec!["*".to_string()],
-            ..Default::default()
-        }]),
-        ..Default::default()
-    };
-    role_api.create(&Default::default(), &role).await?;
-
-    let role_binding_api: Api<ClusterRoleBinding> = Api::all(client.clone());
-    let role_binding = ClusterRoleBinding {
-        metadata: ObjectMeta {
-            name: Some("bionic-gpt-operator-cluster-role-binding".to_string()),
-            ..Default::default()
-        },
-        role_ref: RoleRef {
-            api_group: "rbac.authorization.k8s.io".to_string(),
-            kind: "ClusterRole".to_string(),
-            name: "bionic-gpt-operator-cluster-role".to_string(),
-        },
-        subjects: Some(vec![Subject {
-            kind: "ServiceAccount".to_string(),
-            name: "bionic-gpt-operator-service-account".to_string(),
-            namespace: Some(installer.namespace.clone()),
-            ..Default::default()
-        }]),
-    };
-    role_binding_api
-        .create(&Default::default(), &role_binding)
-        .await?;
-
+async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<(), Error> {
     let app_labels = serde_json::json!({
         "app": "bionic-gpt-operator",
     });
@@ -137,11 +85,61 @@ async fn create_bionic_operator(
     Ok(())
 }
 
+async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(), Error> {
+    let sa_api: Api<ServiceAccount> = Api::namespaced(client.clone(), &installer.namespace);
+    let service_account = ServiceAccount {
+        metadata: ObjectMeta {
+            name: Some("bionic-gpt-operator-service-account".to_string()),
+            namespace: Some(installer.namespace.clone()),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    sa_api.create(&Default::default(), &service_account).await?;
+    let role_api: Api<ClusterRole> = Api::all(client.clone());
+    let role = ClusterRole {
+        metadata: ObjectMeta {
+            name: Some("bionic-gpt-operator-cluster-role".to_string()),
+            ..Default::default()
+        },
+        rules: Some(vec![PolicyRule {
+            api_groups: Some(vec!["*".to_string()]),
+            resources: Some(vec!["*".to_string()]),
+            verbs: vec!["*".to_string()],
+            ..Default::default()
+        }]),
+        ..Default::default()
+    };
+    role_api.create(&Default::default(), &role).await?;
+    let role_binding_api: Api<ClusterRoleBinding> = Api::all(client.clone());
+    let role_binding = ClusterRoleBinding {
+        metadata: ObjectMeta {
+            name: Some("bionic-gpt-operator-cluster-role-binding".to_string()),
+            ..Default::default()
+        },
+        role_ref: RoleRef {
+            api_group: "rbac.authorization.k8s.io".to_string(),
+            kind: "ClusterRole".to_string(),
+            name: "bionic-gpt-operator-cluster-role".to_string(),
+        },
+        subjects: Some(vec![Subject {
+            kind: "ServiceAccount".to_string(),
+            name: "bionic-gpt-operator-service-account".to_string(),
+            namespace: Some(installer.namespace.clone()),
+            ..Default::default()
+        }]),
+    };
+    role_binding_api
+        .create(&Default::default(), &role_binding)
+        .await?;
+    Ok(())
+}
+
 async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<(), Error> {
     let my_local_ip = local_ip().unwrap();
     let bionic_api: Api<Bionic> = Api::namespaced(client.clone(), &installer.namespace);
     let bionic = Bionic::new(
-        "bionic",
+        "bionic-gpt",
         BionicSpec {
             replicas: 1,
             version: VERSION.into(),
