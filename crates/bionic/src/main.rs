@@ -1,3 +1,4 @@
+mod error;
 mod install;
 
 use anyhow::Result;

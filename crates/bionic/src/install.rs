@@ -1,8 +1,9 @@
+use crate::error::Error;
 use k8s_openapi::api::core::v1::Namespace;
 use kube::Api;
 use kube::Client;
 
-pub async fn install(namespace: &str) -> Result<(), kube::Error> {
+pub async fn install(namespace: &str) -> Result<(), Error> {
     let client = Client::try_default().await?;
 
     // Define the API object for Namespace
@@ -11,7 +12,7 @@ pub async fn install(namespace: &str) -> Result<(), kube::Error> {
     let ns = namespaces.get(namespace).await;
 
     if ns.is_ok() {
-        dbg!("Namespace already exists");
+        return Err(Error::General("Namespace already exists".to_string()));
     } else {
         // Create the namespace
         let new_namespace = Namespace {

@@ -11,3 +11,4 @@ clap = { version = "4.5", features = ["derive"] }
 kube = { version = "0", features = ["runtime", "derive"] }
 k8s-openapi = { version = "0", features = ["latest"] }
 anyhow = "1.0.44"
+thiserror = "1" 
