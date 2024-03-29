@@ -17,6 +17,7 @@ use kube::Client;
 use kube::CustomResourceExt;
 use kube_runtime::conditions;
 use kube_runtime::wait::await_condition;
+use kube_runtime::wait::Condition;
 use local_ip_address::local_ip;
 use serde_json::json;
 
@@ -35,8 +36,8 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     if ns.is_ok() {
         bail!("Namespace already exists");
     } else {
-        create_namespace(&installer.namespace, namespaces).await?;
         install_postgres_operator(&client).await?;
+        create_namespace(&installer.namespace, namespaces).await?;
         create_crd(&client).await?;
         create_bionic(&client, installer).await?;
         create_roles(&client, installer).await?;
@@ -49,6 +50,31 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
 
 async fn install_postgres_operator(client: &Client) -> Result<()> {
     super::apply::apply(client, CNPG_YAML, None).await?;
+
+    fn is_deployment_available() -> impl Condition<Deployment> {
+        |obj: Option<&Deployment>| {
+            if let Some(deployment) = &obj {
+                if let Some(status) = &deployment.status {
+                    if let Some(phase) = &status.available_replicas {
+                        return phase >= &1;
+                    }
+                }
+            }
+            false
+        }
+    }
+
+    println!("Waiting for Cloud Native Postgres Controller Manager");
+    let deploys: Api<Deployment> = Api::namespaced(client.clone(), "cnpg-system");
+    let establish = await_condition(
+        deploys,
+        "cnpg-controller-manager",
+        is_deployment_available(),
+    );
+    let _ = tokio::time::timeout(std::time::Duration::from_secs(120), establish)
+        .await
+        .unwrap();
+
     Ok(())
 }
 
@@ -169,7 +195,7 @@ async fn create_crd(client: &Client) -> Result<(), Error> {
     let crds: Api<CustomResourceDefinition> = Api::all(client.clone());
     crds.create(&Default::default(), &crd).await?;
 
-    println!("Waiting for the api-server to accept the CRD");
+    println!("Waiting for Bionic CRD");
     let establish = await_condition(
         crds,
         "bionics.bionic-gpt.com",
