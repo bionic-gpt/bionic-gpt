@@ -201,7 +201,7 @@ build-cli-osx:
         && CC=o64-clang \
         CXX=o64-clang++ \
         cargo build --release --target x86_64-apple-darwin
-    SAVE ARTIFACT target/x86_64-apple-darwin/release/k8s-operator AS LOCAL ./bionic-cli-darwin
+    SAVE ARTIFACT k8s-operator/target/x86_64-apple-darwin/release/k8s-operator AS LOCAL ./bionic-cli-darwin
 
 build-cli-windows:
     RUN sudo apt update && sudo apt upgrade -y 
@@ -213,4 +213,4 @@ build-cli-windows:
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator \ 
         && cargo build --release --target x86_64-pc-windows-gnu
-    SAVE ARTIFACT target/x86_64-pc-windows-gnu/release/k8s-operator AS LOCAL ./bionic-cli-windows
+    SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator AS LOCAL ./bionic-cli-windows
