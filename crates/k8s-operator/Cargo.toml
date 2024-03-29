@@ -17,6 +17,7 @@ futures-util = "0.3"
 # All serde dependencies are used to serialize/deserialize CRDs and other Kubernetes-related structs
 serde = "1"
 serde_json = "1"
+serde_yaml = "0"
 schemars = "0"
 # Custom Error definitions and convenient error mappings
 thiserror = "1" 

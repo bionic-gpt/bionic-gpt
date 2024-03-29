@@ -1,3 +1,4 @@
+pub mod apply;
 pub mod install;
 
 use clap::{Parser, Subcommand};

@@ -1,6 +1,7 @@
 use crate::error::Error;
 use crate::operator::crd::Bionic;
 use crate::operator::crd::BionicSpec;
+use anyhow::{bail, Result};
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::api::core::v1::ServiceAccount;
@@ -21,8 +22,9 @@ use serde_json::json;
 
 const BIONIC_OPERATOR_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
+const CNPG_YAML: &str = include_str!("../../config/cnpg-1.22.1.yaml");
 
-pub async fn install(installer: &crate::cli::Installer) -> Result<(), Error> {
+pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     let client = Client::try_default().await?;
 
     // Define the API object for Namespace
@@ -31,9 +33,10 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<(), Error> {
     let ns = namespaces.get(&installer.namespace).await;
 
     if ns.is_ok() {
-        return Err(Error::Cli("Namespace already exists".to_string()));
+        bail!("Namespace already exists");
     } else {
         create_namespace(&installer.namespace, namespaces).await?;
+        install_postgres_operator(&client).await?;
         create_crd(&client).await?;
         create_bionic(&client, installer).await?;
         create_roles(&client, installer).await?;
@@ -44,7 +47,12 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<(), Error> {
     Ok(())
 }
 
-async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<(), Error> {
+async fn install_postgres_operator(client: &Client) -> Result<()> {
+    super::apply::apply(client, CNPG_YAML, None).await?;
+    Ok(())
+}
+
+async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<()> {
     let app_labels = serde_json::json!({
         "app": "bionic-gpt-operator",
     });
@@ -85,7 +93,7 @@ async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<(), 
     Ok(())
 }
 
-async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(), Error> {
+async fn create_roles(client: &Client, installer: &super::Installer) -> Result<()> {
     let sa_api: Api<ServiceAccount> = Api::namespaced(client.clone(), &installer.namespace);
     let service_account = ServiceAccount {
         metadata: ObjectMeta {
@@ -135,7 +143,7 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
     Ok(())
 }
 
-async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<(), Error> {
+async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<()> {
     let my_local_ip = local_ip().unwrap();
     let bionic_api: Api<Bionic> = Api::namespaced(client.clone(), &installer.namespace);
     let bionic = Bionic::new(
@@ -173,7 +181,7 @@ async fn create_crd(client: &Client) -> Result<(), Error> {
     Ok(())
 }
 
-async fn create_namespace(namespace: &str, namespaces: Api<Namespace>) -> Result<(), Error> {
+async fn create_namespace(namespace: &str, namespaces: Api<Namespace>) -> Result<()> {
     let new_namespace = Namespace {
         metadata: ObjectMeta {
             name: Some(namespace.to_string()),
