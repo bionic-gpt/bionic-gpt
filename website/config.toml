@@ -43,7 +43,7 @@ footer_cta = { title = "BionicGPT", prompt = "Full Stack LLM", cta_button = "Che
 #authentication_development = { sign_up = "/auth/sign_up", sign_in = "/auth/sign_in" }
 
 # Information required by terms and privacy pages.
-support_email = "support@tech-startup.com"
+support_email = "support@bionic-gpt.com"
 company_address = "71-75 Shelton Street, London, LND, WC2H 9JQ, United Kingdom"
 
 # Social icons (shown on the footer)
@@ -52,7 +52,7 @@ github_repo = "https://github.com/bionic-gpt/bionic-gpt"
 # Resources on the footer (LHS)
 resources_1 = [
     {name = "Blog", url = "/blog"},
-    {name = "Documentation", url = "/docs"},
+    {name = "Documentation", url = "/docs/community-edition/introduction/"},
     {name = "FAQ", url = "/blog"},
 ]
 
