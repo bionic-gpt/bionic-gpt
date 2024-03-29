@@ -194,6 +194,11 @@ testing-container:
     CMD ./multi_user_test && ./single_user_test
     SAVE IMAGE --push $TESTING_IMAGE_NAME
 
+build-cli-linux:
+    COPY --dir crates/k8s-operator .
+    RUN cd k8s-operator && cargo build --release
+    SAVE ARTIFACT k8s-operator/target/release/k8s-operator AS LOCAL ./bionic-cli-linux
+
 build-cli-osx:
     FROM joseluisq/rust-linux-darwin-builder:1.76.0
     COPY --dir crates/k8s-operator .
