@@ -1,6 +1,6 @@
-use crate::deployment;
+use super::deployment;
+use super::tgi::{MODEL_NAME, MODEL_REPOSITORY};
 use crate::error::Error;
-use crate::tgi::{MODEL_NAME, MODEL_REPOSITORY};
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Service;
 use kube::api::DeleteParams;
@@ -14,7 +14,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
         client.clone(),
         deployment::ServiceDeployment {
             name: LITE_LLM.to_string(),
-            image_name: crate::LITE_LLM_IMAGE.to_string(),
+            image_name: super::LITE_LLM_IMAGE.to_string(),
             replicas: 1,
             port: 11434,
             env: vec![],

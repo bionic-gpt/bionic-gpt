@@ -164,7 +164,7 @@ app-container:
 operator-container:
     FROM scratch
     COPY +build/$OPERATOR_EXE_NAME k8s-operator
-    ENTRYPOINT ["./k8s-operator"]
+    ENTRYPOINT ["./k8s-operator", "operator"]
     SAVE IMAGE --push $OPERATOR_IMAGE_NAME
 
 # Embeddings container - download models from huggungface
@@ -196,12 +196,12 @@ testing-container:
 
 build-cli-osx:
     FROM joseluisq/rust-linux-darwin-builder:1.76.0
-    COPY --dir crates/bionic .
-    RUN cd bionic \ 
+    COPY --dir crates/k8s-operator .
+    RUN cd k8s-operator \ 
         && CC=o64-clang \
         CXX=o64-clang++ \
         cargo build --release --target x86_64-apple-darwin
-    SAVE ARTIFACT target/x86_64-apple-darwin/release/bionic
+    SAVE ARTIFACT target/x86_64-apple-darwin/release/k8s-operator
 
 build-cli-windows:
     RUN sudo apt update && sudo apt upgrade -y 
@@ -210,7 +210,7 @@ build-cli-windows:
     RUN rustup target add x86_64-pc-windows-gnu 
     RUN rustup toolchain install stable-x86_64-pc-windows-gnu 
 
-    COPY --dir crates/bionic .
-    RUN cd bionic \ 
+    COPY --dir crates/k8s-operator .
+    RUN cd k8s-operator \ 
         && cargo build --release --target x86_64-pc-windows-gnu
-    SAVE ARTIFACT target/x86_64-pc-windows-gnu/release/bionic
+    SAVE ARTIFACT target/x86_64-pc-windows-gnu/release/k8s-operator

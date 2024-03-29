@@ -1,6 +1,6 @@
 [package]
 name = "k8s-operator"
-version = "0.1.0"
+version = "1.6.22"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -17,6 +17,7 @@ futures-util = "0.3"
 # All serde dependencies are used to serialize/deserialize CRDs and other Kubernetes-related structs
 serde = "1"
 serde_json = "1"
+serde_yaml = "0"
 schemars = "0"
 # Custom Error definitions and convenient error mappings
 thiserror = "1" 
@@ -28,3 +29,7 @@ url = "2"
 
 rand = "0.8.4"
 base64 = "0.13.0"
+
+# For the CLI
+clap = { version = "4.5", features = ["derive"] }
+local-ip-address = "0.6.1"
