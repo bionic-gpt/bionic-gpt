@@ -1,46 +1,55 @@
-## To create the CRD in Kubernetes
+## The Bionic Cli and Kubernetes Operator
 
-`kubectl apply -f crates/k8s-operator/config/bionics.bionic-gpt.com.yaml`
+Run and see the CLI help
 
-## To Verify
+```sh
+cargo run --bin k8s-operator -- -h
+```
 
-`kubectl get crds`
+## Run as an Operator
 
-## Install Bionic
+```sh
+cargo run --bin k8s-operator -- operator
+```
 
-`kubectl apply -f crates/k8s-operator/config/bionic.yaml`
+## (Re-)install K3's
 
-## Preload images
+```sh
+# Uninstall
+sudo /usr/local/bin/k3s-uninstall.sh
+```
 
-Do we need this?
+```sh
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
+```
 
-`kind --name bionic-gpt-cluster load docker-image downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc`
+## Install Bionic into a cluster
 
-`kind --name bionic-gpt-cluster load docker-image ghcr.io/bionic-gpt/llama-2-7b-chat:1.0.4`
+You need the kubeconfig installed. The kubeconfig will need to point to the ip address of where the cluster is installed so we break out of the devconatiner.
 
-`kind --name bionic-gpt-cluster load docker-image ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6`
+Then run
 
-## Run the operator
+```sh
+cargo run --bin k8s-operator -- install
+```
 
-`cargo run --bin k8s-operator`
+i.e. Have some aliases to copy the config and set ip address
 
-## Remove Bionic
+```sh
+alias kc='kccopy && kcupdate'
+alias kccopy='cp /etc/rancher/k3s/k3s.yaml LOCATION_OF_PROJECT/bionic-gpt/k3s.yaml'
+alias kcupdate='address=127.0.1.1 sed -i s/127.0.0.1/192.168.178.57/g LOCATION_OF_PROJECT/bionic-gpt/k3s.yaml'
+```
 
-`kubectl delete -f crates/k8s-operator/config/bionic.yaml`
+Then in the devcontainer run
 
-## To remove the CRD in Kubernetes
+```sh
+kc
+```
 
-`kubectl delete -f crates/k8s-operator/config/bionics.bionic-gpt.com.yaml`
+## Run K9s in host
 
-## Remove the operator
+```sh
+k9s --kubeconfig /etc/rancher/k3s/k3s.yaml
+```
 
-`kubectl delete -f crates/k8s-operator/config/bionic-operator.yaml`
-
-## Bounce the Cluster
-
-`install.sh --docker-in-docker`
-
-## Forward Keycloak Port
-
-`kubectl port-forward svc/keycloak 7910:7910`
-`kubectl port-forward svc/oauth2-proxy 7900:7900`
