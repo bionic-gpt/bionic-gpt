@@ -97,8 +97,18 @@ jobs:
       run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
     - name: Run build
-      #if: github.ref == 'refs/heads/main'
       run: earthly --allow-privileged --output --ci +build-cli-osx
+
+    - name: Get latest release info
+      id: get_latest_release
+      run: |
+        latest_release=$(gh release list --limit=1 --json tag_name | jq -r '.[0].tag_name')
+        echo "::set-output name=latest_release::$latest_release"
+
+    - name: Upload executable to release
+      if: github.ref == 'refs/heads/main'
+      run: |
+        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-darwin --clobber
 
   build-windows-cli:
     needs: build
@@ -113,5 +123,15 @@ jobs:
       run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
     - name: Run build
-      #if: github.ref == 'refs/heads/main'
       run: earthly --allow-privileged --output --ci +build-cli-windows
+
+    - name: Get latest release info
+      id: get_latest_release
+      run: |
+        latest_release=$(gh release list --limit=1 --json tag_name | jq -r '.[0].tag_name')
+        echo "::set-output name=latest_release::$latest_release"
+
+    - name: Upload executable to release
+      if: github.ref == 'refs/heads/main'
+      run: |
+        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-windows --clobber
