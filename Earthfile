@@ -213,4 +213,4 @@ build-cli-windows:
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator \ 
         && cargo build --release --target x86_64-pc-windows-gnu
-    SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator AS LOCAL ./bionic-cli-windows
+    SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
