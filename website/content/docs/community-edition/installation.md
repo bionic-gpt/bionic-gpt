@@ -1,5 +1,5 @@
 +++
-title = "Quick Installation (Linux/OSX)"
+title = "Quick Installation (Linux)"
 weight = 20
 sort_by = "weight"
 +++
@@ -20,20 +20,12 @@ bionic reqs
 
 This will show you which required dependencies need to be installed.
 
-## Run the Install (Linux)
+## Run the Install
 
 The following will install `k3s` as our kubernetes engine and then install bionic into the cluster. It will also install `k9s` which is a terminal UI for Kubernetes.
 
 ```sh
 bionic install --k3s --k9s
-```
-
-## Run the Install (OSX)
-
-For OSX you'll need to install docker desktop and enable a Kubernetes cluster.
-
-```sh
-bionic install
 ```
 
 ## The Finished Result
