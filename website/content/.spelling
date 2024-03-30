@@ -528,3 +528,11 @@ base64-encoded
 15672
  - docs/enterprise-edition/preparation.md
 containerd
+ - docs/enterprise-edition/bare-metal.md
+openrc
+ - docs/enterprise-edition/gpu-preparation.md
+containerd
+ - docs/enterprise-edition/installation.md
+0
+kubectl
+k3d
