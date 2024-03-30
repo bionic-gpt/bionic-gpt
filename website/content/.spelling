@@ -535,4 +535,5 @@ containerd
  - docs/enterprise-edition/installation.md
 0
 kubectl
+kubeconfig
 k3d
