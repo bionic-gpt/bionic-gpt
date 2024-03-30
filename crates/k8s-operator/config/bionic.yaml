@@ -5,7 +5,7 @@ metadata:
   namespace: bionic-gpt 
 spec:
   replicas: 1 
-  version: 1.6.29
+  version: 1.6.30
   
   # PgAdmin - Uncomment to install PgAdmin
   # pgadmin: true
