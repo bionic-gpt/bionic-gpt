@@ -7,6 +7,13 @@
         "successComment": false,
         "failTitle": false,
         "assets": [
+          {"path": "./bionic-linux-amd64", "label": "bionic-linux-amd64"}
+        ]
+      }],
+      ["@semantic-release/github", {
+        "successComment": false,
+        "failTitle": false,
+        "assets": [
           {"path": "tmp/earthly/chrome-video.mp4", "label": "chrome-video.mp4"}
         ]
       }],
