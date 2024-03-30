@@ -18,13 +18,19 @@ The bionic installer is a bash script that simplifies a lot of the setup. To ins
 ## Step 1: Install the CLI
 
 ```sh
-curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-linux-amd64 && mkdir -p $HOME/.bionic && mv ./bionic-linux-amd64 $HOME/.bionic/bionic && chmod +x $HOME/.bionic/bionic
+curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux && mkdir -p $HOME/.bionic && mv ./bionic-cli-linux $HOME/.bionic/bionic && chmod +x $HOME/.bionic/bionic
 ```
 
 Be sure to follow the instructions to add it to your path:
 
 ```sh
 export PATH=$HOME/.bionic:$PATH
+```
+
+and export the path to the kubeconfig file.
+
+```sh
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 ```
 
 Check the installation
@@ -39,14 +45,12 @@ bionic -V
 The following will install `k3s` as our kubernetes engine and then install bionic into the cluster. It will also install `k9s` which is a terminal UI for Kubernetes.
 
 ```sh
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 bionic install
 ```
 
 ## Step 3: The Finished Result
 
 ```sh
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 k9s
 ```
 
