@@ -56,6 +56,7 @@ all:
     BUILD +app-container
     BUILD +testing-container
     BUILD +operator-container
+    BUILD +export-linux-cli
     BUILD +pipeline-job-container
     BUILD +rabbitmq-container
 
@@ -133,7 +134,6 @@ build:
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RABBITMQ_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
-    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME AS LOCAL ./bionic-linux-amd64
     SAVE ARTIFACT multi_user_test
     SAVE ARTIFACT single_user_test
 
@@ -166,7 +166,13 @@ operator-container:
     FROM scratch
     COPY +build/$OPERATOR_EXE_NAME k8s-operator
     ENTRYPOINT ["./k8s-operator", "operator"]
-    SAVE IMAGE --push $OPERATOR_IMAGE_NAME    
+    SAVE IMAGE --push $OPERATOR_IMAGE_NAME   
+
+# We've got a Kubernetes operator
+export-linux-cli:
+    COPY +build/$OPERATOR_EXE_NAME bionic-linux-amd64
+    SAVE ARTIFACT ./bionic-linux-amd64 AS LOCAL ./bionic-linux-amd64
+
 
 # Embeddings container - download models from huggungface
 embeddings-container-base:
