@@ -18,7 +18,7 @@ The bionic installer is a bash script that simplifies a lot of the setup. To ins
 ## Step 1: Install the CLI
 
 ```sh
-curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux && mkdir -p $HOME/.bionic && mv ./bionic-cli-linux $HOME/.bionic/bionic && chmod +x $HOME/.bionic/bionic
+curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-linux-amd64 && mkdir -p $HOME/.bionic && mv ./bionic-linux-amd64 $HOME/.bionic/bionic && chmod +x $HOME/.bionic/bionic
 ```
 
 Be sure to follow the instructions to add it to your path:
@@ -27,7 +27,7 @@ Be sure to follow the instructions to add it to your path:
 export PATH=$HOME/.bionic:$PATH
 ```
 
-Check the installion
+Check the installation
 
 ```sh
 bionic -V
@@ -39,21 +39,27 @@ bionic -V
 The following will install `k3s` as our kubernetes engine and then install bionic into the cluster. It will also install `k9s` which is a terminal UI for Kubernetes.
 
 ```sh
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 bionic install
 ```
 
-## The Finished Result
+## Step 3: The Finished Result
+
+```sh
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+k9s
+```
 
 After a while of container creation you should see all the pods running and then be able to access Bionic.
 
 
 ![Alt text](../bionic-startup-k9s.png "Bionic K9s")
 
-## Run the User Interface
+## Step 4: Run the User Interface
 
 You can then access the front end from `http://localhost` and you'll be redirected to a registration screen.
 
-## Registration
+## Step 5: Registration
 
 The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
