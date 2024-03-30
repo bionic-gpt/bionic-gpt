@@ -1,6 +1,6 @@
 +++
 title = "GPU Node Preparation (Nvidia)"
-weight = 10
+weight = 40
 sort_by = "weight"
 +++
 

@@ -83,33 +83,7 @@ jobs:
         npm i -D @semantic-release-plus/docker
         npm i -D @semantic-release/git
         npx semantic-release
-
-  build-osx-linux:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      FORCE_COLOR: 1
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Download latest earthly
-      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-
-    - name: Run build
-      run: earthly --allow-privileged --output --ci +build-cli-linux
-
-    - name: Get latest release info
-      id: get_latest_release
-      run: |
-        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
-        echo "::set-output name=latest_release::$latest_release"
-
-    - name: Upload executable to release
-      if: github.ref == 'refs/heads/main'
-      run: |
-        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-linux --clobber
-
+        
   build-osx-cli:
     needs: build
     runs-on: ubuntu-latest

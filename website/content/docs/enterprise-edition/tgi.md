@@ -1,6 +1,6 @@
 +++
 title = "TGI Inference Engine"
-weight = 30
+weight = 60
 sort_by = "weight"
 +++
 
