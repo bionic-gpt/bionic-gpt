@@ -50,6 +50,14 @@ bionic install
 
 ## Step 3: The Finished Result
 
+You can install [k9s](https://k9scli.io/) which is a great way to get insight into your cluster.
+
+```sh
+curl -L -s https://github.com/derailed/k9s/releases/download/v0.32.4/k9s_Linux_amd64.tar.gz | tar xvz -C /tmp && sudo mv /tmp/k9s /usr/local/bin && rm -rf k9s_Linux_amd64.tar.gz
+```
+
+and then.
+
 ```sh
 k9s
 ```
@@ -61,7 +69,13 @@ After a while of container creation you should see all the pods running and then
 
 ## Step 4: Run the User Interface
 
-You can then access the front end from `http://localhost` and you'll be redirected to a registration screen.
+You can then access the front end from `http://{YOUR_IP_ADDRESS}` and you'll be redirected to a registration screen.
+
+To get your ip address
+
+```sh
+hostname -I | awk '{print $1}'
+```
 
 ## Step 5: Registration
 
