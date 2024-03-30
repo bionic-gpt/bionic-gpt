@@ -44,6 +44,8 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
         if !installer.development {
             create_bionic_operator(&client, &installer.namespace).await?;
         }
+        let my_local_ip = local_ip().unwrap();
+        println!("When ready you can access bionic on http://{}", my_local_ip);
     }
     Ok(())
 }
