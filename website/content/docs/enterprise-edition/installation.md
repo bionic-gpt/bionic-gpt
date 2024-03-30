@@ -13,7 +13,7 @@ Validate your Kubernetes setup by running:
 ```sh
 kubectl version
 ```
-The bionic installer is a bash script that simplifies a lot of the setup. To install it run the following.
+The bionic installer simplifies a lot of the setup. To install it run the following.
 
 ## Step 1: Install the CLI
 
