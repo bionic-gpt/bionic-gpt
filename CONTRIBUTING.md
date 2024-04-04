@@ -38,12 +38,23 @@ Use the following command to inject the k3s.yaml into the containers kube config
 
 ```sh
 POD_NAME=$(kubectl -n devpod get pods --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' | grep 'bionic-gpt' | head -n 1)
+kubectl -n devpod exec $POD_NAME -- mkdir -p /home/vscode/.kube
 kubectl -n devpod cp /etc/rancher/k3s/k3s.yaml $POD_NAME:/home/vscode/.kube/config
 HOST_IP=$(hostname -I | awk '{print $1}')
 kubectl -n devpod exec $POD_NAME -- sed -i "s/127.0.0.1/${HOST_IP}/g" /home/vscode/.kube/config
 ```
 
 ## Initialise all the services
+
+```sh
+cargo run --bin k8s-operator -- install --development --no-operator
+```
+
+Then also run the operator
+
+```sh
+cargo run --bin k8s-operator -- operator
+```
 
 ## Running Database Migrations
 

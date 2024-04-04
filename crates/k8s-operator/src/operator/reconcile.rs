@@ -154,11 +154,14 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             keycloak_db::delete(client.clone(), &namespace).await?;
             oauth2_proxy::delete(client.clone(), &namespace).await?;
             ingress::delete(client.clone(), &namespace).await?;
-            bionic::delete(client.clone(), &namespace).await?;
+
+            if ! development {
+                pipeline_job::delete(client.clone(), &namespace).await?;
+                bionic::delete(client.clone(), &namespace).await?;
+            }
             database::delete(client.clone(), &namespace).await?;
             chunking_engine::delete(client.clone(), &namespace).await?;
             embeddings_engine::delete(client.clone(), &namespace).await?;
-            pipeline_job::delete(client.clone(), &namespace).await?;
             if pgadmin {
                 pgadmin::delete(client.clone(), &namespace).await?;
             }
