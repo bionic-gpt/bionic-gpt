@@ -41,7 +41,7 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
         create_crd(&client).await?;
         create_bionic(&client, installer).await?;
         create_roles(&client, installer).await?;
-        if !installer.development {
+        if !installer.no_operator {
             create_bionic_operator(&client, &installer.namespace).await?;
         }
         let my_local_ip = local_ip().unwrap();

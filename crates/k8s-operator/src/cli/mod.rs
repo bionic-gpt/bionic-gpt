@@ -12,10 +12,13 @@ pub struct Cli {
 
 #[derive(Parser)]
 pub struct Installer {
-    /// Run a cut down version of Bionic with some services as HttpMock
+    /// Run a cut down version of Bionic for integration testing
     #[arg(long, default_value_t = false)]
     testing: bool,
     /// Don't install the operator
+    #[arg(long, default_value_t = false)]
+    no_operator: bool,
+    /// The setup needed for development. See CONTRIBUTING.md in the main project.
     #[arg(long, default_value_t = false)]
     development: bool,
     /// In which namespace shall we install Bionic
