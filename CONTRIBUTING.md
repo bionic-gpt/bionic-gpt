@@ -4,15 +4,23 @@ This project is based on the [Rust on Nails](https://rust-on-nails.com/) archite
 
 ## Setup for Development
 
-This project uses the [Visual Studio Code Remote - Containers](https://code.visualstudio.com/docs/remote/containers) extension so we can define the runtime and development stack with code. The configuration is in the `.devcontainer` folder and uses a `docker-compose` configuration to setup the tools and database ready for development.
+This project uses [Devpod](https://devpod.sh/). DevPod is a tool used to create reproducible developer environments. We use K3s to host our development environment as this is also where we do most development.
 
-Make sure you have Docker Desktop installed and Visual Studio Code Remote. Make sure you have the Remote Containers extension installed. 
+## Install K3s
 
-After you have run `git clone` on this repository open the folder for the project in Visual Studio Code.
+```sh
+sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
+```
 
-Then click on the green square in the bottom left hand corner of VSCode. (It's the gree square with < and > in the screenshot above). A menu pops down, choose `Remote-Containers: Reopen in Container`
+## Install DevPod
 
-It will take a while for the containers to download.
+Go to https://devpod.sh/docs/getting-started/install and install the CLI.
+
+Then run
+
+```sh
+devpod go https://github.com/bionic-gpt/bionic-gpt
+```
 
 ## Sanity check your dev environment.
 
@@ -23,6 +31,19 @@ You can type the following commands in the Linux command prompt.
 * rustc --version
 * npm -v 
 * psql -V
+
+## Connecting to the cluster
+
+Use the following command to inject the k3s.yaml into the containers kube config.
+
+```sh
+POD_NAME=$(kubectl -n devpod get pods --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' | grep 'bionic-gpt' | head -n 1)
+kubectl -n devpod cp /etc/rancher/k3s/k3s.yaml $POD_NAME:/home/vscode/.kube/config
+HOST_IP=$(hostname -I | awk '{print $1}')
+kubectl -n devpod exec $POD_NAME -- sed -i "s/127.0.0.1/${HOST_IP}/g" /home/vscode/.kube/config
+```
+
+## Initialise all the services
 
 ## Running Database Migrations
 

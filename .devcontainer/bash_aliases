@@ -33,8 +33,5 @@ alias we=watch-embeddings
 alias watch-tailwind='cd /workspaces/bionic-gpt/crates/asset-pipeline && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
 alias wt=watch-tailwind
 
-# Kube config
-alias kc='mkdir -p ~/.kube && mv k3s.yaml ~/.kube/config'
-
 # Spell check
 alias spell='docker run --rm -ti -v $HOST_PROJECT_PATH/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
