@@ -73,6 +73,12 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
         false
     };
 
+    let development = if let Some(development) = bionic.spec.development {
+        development
+    } else {
+        false
+    };
+
     // Performs action as decided by the `determine_action` function.
     match determine_action(&bionic) {
         BionicAction::Create => {
@@ -86,7 +92,11 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             finalizer::add(client.clone(), &name, &namespace).await?;
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
             let readonly_database_password = database::deploy(client.clone(), &namespace).await?;
-            bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+
+            if ! development {
+                bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+                pipeline_job::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+            }
             envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             let keycloak_database_password =
@@ -101,7 +111,6 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             } else {
                 llm::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
-            pipeline_job::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             if pgadmin {
                 pgadmin::deploy(
                     client.clone(),

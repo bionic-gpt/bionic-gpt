@@ -182,6 +182,7 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             gpu: Some(installer.gpu),
             pgadmin: Some(installer.pgadmin),
             testing: Some(installer.testing),
+            development: Some(installer.development),
             hostname_url: format!("http://{:?}", my_local_ip),
             hash_bionicgpt: "".to_string(),
             hash_bionicgpt_pipeline_job: "".to_string(),
