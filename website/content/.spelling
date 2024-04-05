@@ -530,10 +530,12 @@ base64-encoded
 containerd
  - docs/enterprise-edition/bare-metal.md
 openrc
+kubeconfig
  - docs/enterprise-edition/gpu-preparation.md
 containerd
  - docs/enterprise-edition/installation.md
 0
 kubectl
 kubeconfig
+ip
 k3d

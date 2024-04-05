@@ -6,7 +6,7 @@ sort_by = "weight"
 
 If you have already installed [Docker Desktop](https://www.docker.com/products/docker-desktop/) then you have easy access to a Kubernetes installation. This should work on Windows, Linux and MacOs including Apple Silicon.
 
-However it's difficult for us to test on all these system hence why we have it down as experimental. If you hve any issues please raise it in the [discussions](https://github.com/bionic-gpt/bionic-gpt/discussions).
+However it's difficult for us to test on all these system hence why we have it down as experimental. If you have any issues please raise it in the [discussions](https://github.com/bionic-gpt/bionic-gpt/discussions).
 
 Go to settings and enable Kubernetes
 
@@ -27,7 +27,7 @@ bionic -h
 
 ## 1. Install the Bionic CLI (Windows)
 
-Windows executables are availale here https://github.com/bionic-gpt/bionic-gpt/releases
+Windows executables are available here https://github.com/bionic-gpt/bionic-gpt/releases
 
 Try it out
 
