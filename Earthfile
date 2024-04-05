@@ -163,8 +163,8 @@ testing-container:
     FROM gcr.io/distroless/static
     COPY +build/multi_user_test multi_user_test
     COPY +build/single_user_test single_user_test
-    COPY --dir .devcontainer/mocks ./mocks 
-    COPY --dir .devcontainer/datasets ./datasets 
+    COPY --dir crates/k8s-operator/config/mocks ./mocks 
+    COPY --dir crates/k8s-operator/config/datasets ./datasets 
     CMD ./multi_user_test && ./single_user_test
     SAVE IMAGE --push $TESTING_IMAGE_NAME
 
