@@ -12,17 +12,11 @@ ARG --global AXUM_FOLDER=crates/axum-server
 ARG --global DB_FOLDER=crates/db
 ARG --global PIPELINE_FOLDER=crates/asset-pipeline
 
-# Base images
-ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.28.0
-ARG --global KEYCLOAK_BASE_IMAGE=quay.io/keycloak/keycloak:23.0
-
 # Images with models
 ARG --global EMBEDDINGS_IMAGE_NAME=ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
 
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
-ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
-ARG --global KEYCLOAK_IMAGE_NAME=bionic-gpt/bionicgpt-keycloak:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
@@ -44,15 +38,11 @@ pull-request:
     BUILD +app-container
     BUILD +testing-container
     BUILD +operator-container
-    BUILD +envoy-container
-    BUILD +keycloak-container
     BUILD +pipeline-job-container
     BUILD +rabbitmq-container
 
 all:
     BUILD +migration-container
-    BUILD +envoy-container
-    BUILD +keycloak-container
     BUILD +app-container
     BUILD +testing-container
     BUILD +operator-container
@@ -81,22 +71,6 @@ prepare-cache:
     COPY Cargo.lock Cargo.toml .
     RUN cargo chef prepare --recipe-path recipe.json --bin $AXUM_FOLDER
     SAVE ARTIFACT recipe.json
-     
-
-envoy-container:
-    FROM $ENVOY_PROXY
-    RUN mkdir -p /etc/envoy
-    COPY .devcontainer/envoy/envoy.yaml /etc/envoy/envoy.yaml
-    # The second development entry in our cluster list is the app
-    RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
-    CMD ["/usr/local/bin/envoy","-c","/etc/envoy/envoy.yaml","--service-cluster","envoy","--service-node","envoy","--log-level","info"]
-    SAVE IMAGE --push $ENVOY_IMAGE_NAME
-
-keycloak-container:
-    FROM $KEYCLOAK_BASE_IMAGE
-    COPY .devcontainer/keycloak /opt/keycloak/data/import
-    SAVE IMAGE --push $KEYCLOAK_IMAGE_NAME
-     
 
 pipeline-job-container:
     FROM scratch
@@ -189,8 +163,8 @@ testing-container:
     FROM gcr.io/distroless/static
     COPY +build/multi_user_test multi_user_test
     COPY +build/single_user_test single_user_test
-    COPY --dir .devcontainer/mocks ./mocks 
-    COPY --dir .devcontainer/datasets ./datasets 
+    COPY --dir crates/k8s-operator/config/mocks ./mocks 
+    COPY --dir crates/k8s-operator/config/datasets ./datasets 
     CMD ./multi_user_test && ./single_user_test
     SAVE IMAGE --push $TESTING_IMAGE_NAME
 
