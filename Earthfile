@@ -44,13 +44,11 @@ pull-request:
     BUILD +app-container
     BUILD +testing-container
     BUILD +operator-container
-    BUILD +envoy-container
     BUILD +pipeline-job-container
     BUILD +rabbitmq-container
 
 all:
     BUILD +migration-container
-    BUILD +envoy-container
     BUILD +app-container
     BUILD +testing-container
     BUILD +operator-container
@@ -79,16 +77,6 @@ prepare-cache:
     COPY Cargo.lock Cargo.toml .
     RUN cargo chef prepare --recipe-path recipe.json --bin $AXUM_FOLDER
     SAVE ARTIFACT recipe.json
-     
-
-envoy-container:
-    FROM $ENVOY_PROXY
-    RUN mkdir -p /etc/envoy
-    COPY .devcontainer/envoy/envoy.yaml /etc/envoy/envoy.yaml
-    # The second development entry in our cluster list is the app
-    RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
-    CMD ["/usr/local/bin/envoy","-c","/etc/envoy/envoy.yaml","--service-cluster","envoy","--service-node","envoy","--log-level","info"]
-    SAVE IMAGE --push $ENVOY_IMAGE_NAME
 
 pipeline-job-container:
     FROM scratch
