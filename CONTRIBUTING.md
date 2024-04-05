@@ -12,6 +12,12 @@ This project uses [Devpod](https://devpod.sh/). DevPod is a tool used to create 
 sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
 ```
 
+Extract the kubeconfig for use by other K8's tools.
+
+```sh
+mkdir -p ~/.kube && cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+```
+
 ## Install DevPod
 
 Go to https://devpod.sh/docs/getting-started/install and install the CLI.

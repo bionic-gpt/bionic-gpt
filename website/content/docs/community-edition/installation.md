@@ -4,28 +4,56 @@ weight = 20
 sort_by = "weight"
 +++
 
-## The Bionic Installer
+## Single Node Installation
+--------------
 
-The bionic installer is a bash script that simplifies a lot of the setup. To install it run the following.
+To run Bionic we'll install a single node ver lightweight Kubernetes node using https://k3s.io/
+
+### 1. Install K3s
 
 ```sh
-curl -LO https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/main/bionic.sh && chmod +x ./bionic.sh && sudo mv bionic.sh /usr/bin/bionic
+sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
 ```
 
-And run
+### 2. Install K9s (Optional)
+
+This will copy over the K3s cube config and also set the correct IP address. This is useful if you want to use K9s for example.
 
 ```sh
-bionic reqs
+cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
 ```
 
-This will show you which required dependencies need to be installed.
-
-## Run the Install
-
-The following will install `k3s` as our kubernetes engine and then install bionic into the cluster. It will also install `k9s` which is a terminal UI for Kubernetes.
+Then install K9's
 
 ```sh
-bionic install --k3s --k9s
+curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp
+sudo mv /tmp/k9s /usr/bin
+rm -rf k9s_Linux_x86_64.tar.gz
+```
+
+### 3. Check your K3s install
+
+```sh
+kubectl get pods
+# No resources found in default namespace.
+```
+
+## 4. Install the Bionic CLI
+
+```sh
+curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
+```
+
+Try it out
+
+```sh
+bionic -h
+```
+
+## 5. Install the application into K3s
+
+```sh
+bionic install
 ```
 
 ## The Finished Result
