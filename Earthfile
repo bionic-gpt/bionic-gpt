@@ -45,14 +45,12 @@ pull-request:
     BUILD +testing-container
     BUILD +operator-container
     BUILD +envoy-container
-    BUILD +keycloak-container
     BUILD +pipeline-job-container
     BUILD +rabbitmq-container
 
 all:
     BUILD +migration-container
     BUILD +envoy-container
-    BUILD +keycloak-container
     BUILD +app-container
     BUILD +testing-container
     BUILD +operator-container
@@ -91,12 +89,6 @@ envoy-container:
     RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
     CMD ["/usr/local/bin/envoy","-c","/etc/envoy/envoy.yaml","--service-cluster","envoy","--service-node","envoy","--log-level","info"]
     SAVE IMAGE --push $ENVOY_IMAGE_NAME
-
-keycloak-container:
-    FROM $KEYCLOAK_BASE_IMAGE
-    COPY .devcontainer/keycloak /opt/keycloak/data/import
-    SAVE IMAGE --push $KEYCLOAK_IMAGE_NAME
-     
 
 pipeline-job-container:
     FROM scratch
