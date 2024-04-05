@@ -172,7 +172,12 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
 }
 
 async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<()> {
-    let my_local_ip = local_ip().unwrap();
+    let hostname_url = if let Some(hostname_url) = &installer.hostname_url {
+        hostname_url.into()
+    } else {
+        let my_local_ip = local_ip().unwrap();
+        format!("http://{:?}", my_local_ip)
+    };
     let bionic_api: Api<Bionic> = Api::namespaced(client.clone(), &installer.namespace);
     let bionic = Bionic::new(
         "bionic-gpt",
@@ -183,7 +188,7 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             pgadmin: Some(installer.pgadmin),
             testing: Some(installer.testing),
             development: Some(installer.development),
-            hostname_url: format!("http://{:?}", my_local_ip),
+            hostname_url,
             hash_bionicgpt: "".to_string(),
             hash_bionicgpt_pipeline_job: "".to_string(),
             hash_bionicgpt_db_migrations: "".to_string(),
