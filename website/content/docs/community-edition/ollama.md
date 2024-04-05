@@ -1,6 +1,6 @@
 +++
 title = "Integrating with Ollama"
-weight = 29
+weight = 40
 sort_by = "weight"
 +++
 
