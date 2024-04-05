@@ -4,10 +4,9 @@ weight = 20
 sort_by = "weight"
 +++
 
-## Single Node Installation
---------------
+## K3s Installation
 
-To run Bionic we'll install a single node ver lightweight Kubernetes node using https://k3s.io/
+To run Bionic we'll install a very lightweight Kubernetes onto our system using [K3s](https://k3s.io/)
 
 ### 1. Install K3s
 
