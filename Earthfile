@@ -12,17 +12,11 @@ ARG --global AXUM_FOLDER=crates/axum-server
 ARG --global DB_FOLDER=crates/db
 ARG --global PIPELINE_FOLDER=crates/asset-pipeline
 
-# Base images
-ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.28.0
-ARG --global KEYCLOAK_BASE_IMAGE=quay.io/keycloak/keycloak:23.0
-
 # Images with models
 ARG --global EMBEDDINGS_IMAGE_NAME=ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
 
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
-ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
-ARG --global KEYCLOAK_IMAGE_NAME=bionic-gpt/bionicgpt-keycloak:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
