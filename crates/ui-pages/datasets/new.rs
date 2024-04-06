@@ -1,20 +1,19 @@
 #![allow(non_snake_case)]
-use daisy_rsx::*;
 use db::queries::models;
 use dioxus::prelude::*;
+use daisy_rsx::*; 
 
 #[component]
 pub fn New(
-    cx: Scope,
     models: Vec<models::Model>,
     team_id: i32,
     combine_under_n_chars: i32,
     new_after_n_chars: i32,
     _multipage_sections: bool,
 ) -> Element {
-    cx.render(rsx!(
+    rsx!(
         form {
-            action: "{crate::routes::datasets::new_route(*team_id)}",
+            action: "{crate::routes::datasets::new_route(team_id)}",
             method: "post",
             Drawer {
                 label: "Create a new Dataset",
@@ -70,12 +69,10 @@ pub fn New(
                                     label_class: "mt-4",
                                     help_text: "Embeddings are vector stored in the database",
                                     for model in &models {
-                                        cx.render(rsx!(
-                                            option {
-                                                value: "{model.id}",
-                                                "{model.name}"
-                                            }
-                                        ))
+                                        option {
+                                            value: "{model.id}",
+                                            "{model.name}"
+                                        }
                                     }
                                 }
 
@@ -138,5 +135,5 @@ pub fn New(
                 }
             }
         }
-    ))
+    )
 }

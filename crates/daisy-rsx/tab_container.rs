@@ -3,49 +3,49 @@
 
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct TabContainerProps<'a> {
-    class: Option<&'a str>,
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct TabContainerProps {
+    class: Option<String>,
+    children: Element,
 }
 
-pub fn TabContainer<'a>(cx: Scope<'a, TabContainerProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn TabContainer(props: TabContainerProps) -> Element {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
-    cx.render(rsx!(
+    rsx!(
         div {
             role: "tablist",
             class: "tabs tabs-bordered {class}",
-            {&cx.props.children}
+            {{props.children}}
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct TabPanelProps<'a> {
-    name: &'a str,
+#[derive(Props, Clone, PartialEq)]
+pub struct TabPanelProps {
+    name: String,
     checked: Option<bool>,
-    tab_name: &'a str,
-    children: Element<'a>,
+    tab_name: String,
+    children: Element,
 }
 
-pub fn TabPanel<'a>(cx: Scope<'a, TabPanelProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn TabPanel(props: TabPanelProps) -> Element {
+    rsx!(
         input {
-            checked: cx.props.checked,
+            checked: props.checked,
             "type": "radio",
             class: "tab",
-            "aria-label": cx.props.tab_name,
-            name: cx.props.name
+            "aria-label": props.tab_name,
+            name: props.name
         }
         div {
             role: "tabpanel",
             class: "tab-content",
-            {&cx.props.children}
+            {{props.children}}
         }
-    ))
+    )
 }

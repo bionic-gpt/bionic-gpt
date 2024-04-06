@@ -23,117 +23,107 @@ impl Direction {
     }
 }
 
-#[derive(Props)]
-pub struct DropDownProps<'a> {
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct DropDownProps {
+    children: Element,
     carat: Option<bool>,
-    button_text: &'a str,
-    class: Option<&'a str>,
+    button_text: String,
+    class: Option<String>,
     direction: Option<Direction>,
-    prefix_image_src: Option<&'a str>,
-    suffix_image_src: Option<&'a str>,
+    prefix_image_src: Option<String>,
+    suffix_image_src: Option<String>,
 }
 
-pub fn DropDown<'a>(cx: Scope<'a, DropDownProps<'a>>) -> Element {
-    let direction = if let Some(direction) = cx.props.direction {
+pub fn DropDown(props: DropDownProps) -> Element {
+    let direction = if let Some(direction) = props.direction {
         direction.to_string()
     } else {
         Direction::default().to_string()
     };
 
-    let class = if let Some(class) = cx.props.class {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "dropdown {class} {direction}",
             label {
-                tabindex: "0", 
+                tabindex: "0",
                 class: "btn btn-default btn-sm m-1 w-full flex flex-nowrap justify-between",
                 "aria-haspopup": "true",
-                if let Some(img_src) = cx.props.prefix_image_src {
-                    cx.render(rsx! {
+                if let Some(img_src) = props.prefix_image_src {
                         img {
                             src: "{img_src}",
                             class: "mr-2",
                             width: "16"
                         }
-                    })
-                } else {
-                    None
                 },
                 span {
                     class: "text-ellipsis overflow-hidden",
-                    "{cx.props.button_text}"
+                    "{props.button_text}"
                 }
-                if let Some(img_src) = cx.props.suffix_image_src {
-                    cx.render(rsx! {
+                if let Some(img_src) = props.suffix_image_src {
                         img {
                             src: "{img_src}",
                             class: "ml-2",
                             width: "12"
                         }
-                    })
-                } else if cx.props.carat.is_some() && cx.props.carat.unwrap() {
-                    cx.render(rsx! {
+                } else if props.carat.is_some() && props.carat.unwrap() {
                         div {
                             class: "dropdown-caret"
                         }
-                    })
-                } else {
-                    None
                 }
             }
             ul {
-                tabindex: "0", 
+                tabindex: "0",
                 class: "dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 {direction}",
-                &cx.props.children,
+                {props.children},
             }
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct DropDownLinkProps<'a> {
-    href: &'a str,
-    target: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct DropDownLinkProps {
+    href: String,
+    target: Option<String>,
     drawer_trigger: Option<String>,
-    class: Option<&'a str>,
-    children: Element<'a>,
+    class: Option<String>,
+    children: Element,
 }
 
-pub fn DropDownLink<'a>(cx: Scope<'a, DropDownLinkProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn DropDownLink(props: DropDownLinkProps) -> Element {
+    let class = if let Some(class) = props.class {
         format!("dropdown-item {} ", class)
     } else {
         "dropdown-item".to_string()
     };
 
-    if let Some(trigger) = &cx.props.drawer_trigger {
-        cx.render(rsx!(
+    if let Some(trigger) = &props.drawer_trigger {
+        rsx!(
             li {
                 a {
                     class: "{class}",
                     "data-drawer-target": "{trigger}",
-                    target: cx.props.target,
-                    href: "{cx.props.href}",
-                    &cx.props.children,
+                    target: props.target,
+                    href: "{props.href}",
+                    {props.children},
                 }
             }
-        ))
+        )
     } else {
-        cx.render(rsx!(
+        rsx!(
             li {
                 a {
                     class: "{class}",
-                    target: cx.props.target,
-                    href: "{cx.props.href}",
-                    &cx.props.children,
+                    target: props.target,
+                    href: "{props.href}",
+                    {props.children},
                 }
             }
-        ))
+        )
     }
 }

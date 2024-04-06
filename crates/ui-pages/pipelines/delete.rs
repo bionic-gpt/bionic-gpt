@@ -3,10 +3,10 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn DeleteDrawer(cx: Scope<DrawerProps>, team_id: i32, id: i32, trigger_id: String) -> Element {
-    cx.render(rsx! {
+pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
+    rsx! {
         Drawer {
-            submit_action: crate::routes::document_pipelines::delete_route(*team_id, *id),
+            submit_action: crate::routes::document_pipelines::delete_route(team_id, id),
             label: "Delete this Document Pipeline?",
             trigger_id: trigger_id,
             DrawerBody {
@@ -22,12 +22,12 @@ pub fn DeleteDrawer(cx: Scope<DrawerProps>, team_id: i32, id: i32, trigger_id: S
                     input {
                         "type": "hidden",
                         "name": "team_id",
-                        "value": "{*team_id}"
+                        "value": "{team_id}"
                     }
                     input {
                         "type": "hidden",
                         "name": "id",
-                        "value": "{*id}"
+                        "value": "{id}"
                     }
                 }
             }
@@ -39,5 +39,5 @@ pub fn DeleteDrawer(cx: Scope<DrawerProps>, team_id: i32, id: i32, trigger_id: S
                 }
             }
         }
-    })
+    }
 }

@@ -3,8 +3,8 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn TeamNameForm(cx: Scope, submit_action: String) -> Element {
-    cx.render(rsx! {
+pub fn TeamNameForm(submit_action: String) -> Element {
+    rsx! {
         form {
             method: "post",
             "data-turbo-frame": "_top",
@@ -34,5 +34,5 @@ pub fn TeamNameForm(cx: Scope, submit_action: String) -> Element {
                 }
             }
         }
-    })
+    }
 }

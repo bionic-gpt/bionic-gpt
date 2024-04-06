@@ -4,8 +4,8 @@ use db::TopUser;
 use dioxus::prelude::*;
 
 #[component]
-pub fn TopUserTable<'a>(cx: Scope, top_users: &'a Vec<TopUser>) -> Element {
-    cx.render(rsx!(
+pub fn TopUserTable(top_users: Vec<TopUser>) -> Element {
+    rsx!(
         Box {
             class: "has-data-table mt-4",
             BoxHeader {
@@ -24,36 +24,34 @@ pub fn TopUserTable<'a>(cx: Scope, top_users: &'a Vec<TopUser>) -> Element {
                     }
                     tbody {
 
-                        top_users.iter().map(|user| {
-                            cx.render(rsx!(
-                                tr {
-                                    td {
-                                        strong {
-                                            "{user.email}"
-                                        }
-                                    }
-                                    td {
-                                        "{user.model_name}"
-                                    }
-                                    td {
-                                        Label {
-                                            class: "mr-2",
-                                            label_role: LabelRole::Neutral,
-                                            "User Interface"
-                                        }
-                                    }
-                                    td {
-                                        class: "text-right",
-                                        code {
-                                            "{user.total_tokens_sent}"
-                                        }
+                        for user in top_users {
+                            tr {
+                                td {
+                                    strong {
+                                        "{user.email}"
                                     }
                                 }
-                            ))
-                        })
+                                td {
+                                    "{user.model_name}"
+                                }
+                                td {
+                                    Label {
+                                        class: "mr-2",
+                                        label_role: LabelRole::Neutral,
+                                        "User Interface"
+                                    }
+                                }
+                                td {
+                                    class: "text-right",
+                                    code {
+                                        "{user.total_tokens_sent}"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-    ))
+    )
 }

@@ -3,26 +3,26 @@
 use dioxus::prelude::*;
 
 // Remember: owned props must implement PartialEq!
-#[derive(Props)]
-pub struct AppLayoutProps<'a> {
-    title: &'a str,
-    fav_icon_src: &'a str,
-    collapse_svg_src: &'a str,
+#[derive(Props, Clone, PartialEq)]
+pub struct AppLayoutProps {
+    title: String,
+    fav_icon_src: String,
+    collapse_svg_src: String,
     stylesheets: Vec<String>,
-    section_class: &'a str,
-    js_href: &'a str,
-    header: Element<'a>,
-    children: Element<'a>,
-    sidebar: Element<'a>,
-    sidebar_footer: Element<'a>,
-    sidebar_header: Element<'a>,
+    section_class: String,
+    js_href: String,
+    header: Element,
+    children: Element,
+    sidebar: Element,
+    sidebar_footer: Element,
+    sidebar_header: Element,
 }
 
-pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn AppLayout(props: AppLayoutProps) -> Element {
+    rsx!(
         head {
             title {
-                "{cx.props.title}"
+                "{props.title}"
             }
             meta {
                 charset: "utf-8"
@@ -35,23 +35,21 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                 name: "viewport",
                 content: "width=device-width, initial-scale=1"
             }
-            for href in &cx.props.stylesheets {
-                cx.render(rsx!(
-                    link {
-                        rel: "stylesheet",
-                        href: "{href}",
-                        "type": "text/css"
-                    }
-                ))
+            for href in &props.stylesheets {
+                link {
+                    rel: "stylesheet",
+                    href: "{href}",
+                    "type": "text/css"
+                }
             }
             script {
                 "type": "module",
-                src: "{cx.props.js_href}"
+                src: "{props.js_href}"
             }
             link {
                 rel: "icon",
                 "type": "image/svg+xml",
-                href: "{cx.props.fav_icon_src}"
+                href: "{props.fav_icon_src}"
             }
         }
         body {
@@ -67,20 +65,20 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                         id: "collapse-button",
                         "for": "nav-toggle",
                         img {
-                            src: cx.props.collapse_svg_src
+                            src: props.collapse_svg_src
                         }
                     }
                     div {
                         class: "l_nav_header flex items-center",
-                        &cx.props.sidebar_header
+                        {props.sidebar_header}
                     }
                     div {
                         class: "l_nav_items",
-                        &cx.props.sidebar
+                        {props.sidebar}
                     }
                     div {
                         class: "l_footer",
-                        &cx.props.sidebar_footer
+                        {props.sidebar_footer}
                     }
                 }
                 turbo-frame {
@@ -102,15 +100,15 @@ pub fn AppLayout<'a>(cx: Scope<'a, AppLayoutProps<'a>>) -> Element {
                             }
                         }
                         div {
-                            &cx.props.header
+                            {props.header}
                         }
                     }
                     section {
-                        class: cx.props.section_class,
-                        &cx.props.children
+                        class: props.section_class,
+                        {props.children}
                     }
                 }
             }
         }
-    ))
+    )
 }

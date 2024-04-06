@@ -3,8 +3,8 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn RemoveMemberWarningDrawer(cx: Scope, trigger_id: String) -> Element {
-    cx.render(rsx! {
+pub fn RemoveMemberWarningDrawer(trigger_id: String) -> Element {
+    rsx! {
         Drawer {
             label: "A vault must have at least one admin user",
             trigger_id: &trigger_id,
@@ -23,5 +23,5 @@ pub fn RemoveMemberWarningDrawer(cx: Scope, trigger_id: String) -> Element {
             DrawerFooter {
             }
         }
-    })
+    }
 }

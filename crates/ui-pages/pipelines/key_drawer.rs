@@ -4,11 +4,11 @@ use db::queries::datasets::Dataset;
 use dioxus::prelude::*;
 
 #[component]
-pub fn KeyDrawer(cx: Scope, datasets: Vec<Dataset>, team_id: i32) -> Element {
-    cx.render(rsx! {
+pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: i32) -> Element {
+    rsx! {
         form {
             method: "post",
-            action: "{crate::routes::document_pipelines::new_route(*team_id)}",
+            action: "{crate::routes::document_pipelines::new_route(team_id)}",
             Drawer {
                 label: "New Document Pipeline",
                 trigger_id: "create-api-key",
@@ -29,12 +29,12 @@ pub fn KeyDrawer(cx: Scope, datasets: Vec<Dataset>, team_id: i32) -> Element {
                             label_class: "mt-4",
                             required: true,
                             help_text: "All access via this API key will use the above dataset",
-                            datasets.iter().map(|dataset| rsx!(
+                            for dataset in datasets {
                                 SelectOption {
                                     value: "{dataset.id}",
                                     "{dataset.name}"
                                 }
-                            ))
+                            }
                         }
                     }
                 }
@@ -47,5 +47,5 @@ pub fn KeyDrawer(cx: Scope, datasets: Vec<Dataset>, team_id: i32) -> Element {
                 }
             }
         }
-    })
+    }
 }

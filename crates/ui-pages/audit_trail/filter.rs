@@ -7,12 +7,11 @@ pub static DRAW_TRIGGER: &str = "filter-audit-drawer";
 
 #[component]
 pub fn FilterDrawer(
-    cx: Scope,
     team_users: Vec<Member>,
     reset_search: bool,
     submit_action: String,
 ) -> Element {
-    cx.render(rsx! {
+    rsx! {
         form {
             class: "remember",
             method: "post",
@@ -36,42 +35,40 @@ pub fn FilterDrawer(
                                 value: "0",
                                 "Any"
                             }
-                            team_users.iter().map(|user| {
-                                cx.render(rsx! {
-                                    option {
-                                        value: "{user.id}",
-                                        "{user.email}"
-                                    }
-                                })
-                            })
+                            for user in team_users {
+                                option {
+                                    value: "{user.id}",
+                                    "{user.email}"
+                                }
+                            }
                         }
 
                         Select {
                             label: "Access Type",
                             help_text: "Split between user interface and CLI usage.",
                             name: "access_type",
-                            super::AUDIT_ACCESS.iter().enumerate().map(|(index, access_type)| {
-                                cx.render(rsx! {
+                            {super::AUDIT_ACCESS.iter().enumerate().map(|(index, access_type)| {
+                                rsx! {
                                     option {
                                         value: "{index + 1}",
-                                        super::access_type_to_string(*access_type)
+                                        {super::access_type_to_string(*access_type)}
                                     }
-                                })
-                            })
+                                }
+                            })}
                         }
 
                         Select {
                             label: "Action",
                             help_text: "What action did the user perform",
                             name: "action",
-                            super::AUDIT_ACTION.iter().enumerate().map(|(index, action_type)| {
-                                cx.render(rsx! {
+                            {super::AUDIT_ACTION.iter().enumerate().map(|(index, action_type)| {
+                                rsx! {
                                     option {
                                         value: "{index + 1}",
-                                        super::audit_action_to_string(*action_type)
+                                        {super::audit_action_to_string(*action_type)}
                                     }
-                                })
-                            })
+                                }
+                            })}
                         }
 
                         input {
@@ -91,5 +88,5 @@ pub fn FilterDrawer(
                 }
             }
         }
-    })
+    }
 }

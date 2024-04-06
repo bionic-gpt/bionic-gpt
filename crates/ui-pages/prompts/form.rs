@@ -1,11 +1,10 @@
 #![allow(non_snake_case)]
-use daisy_rsx::{select::SelectOption, *};
 use db::{Dataset, Model, Visibility};
 use dioxus::prelude::*;
+use daisy_rsx::*;
 
 #[component]
 pub fn Form(
-    cx: Scope,
     trigger_id: String,
     team_id: i32,
     name: String,
@@ -22,9 +21,9 @@ pub fn Form(
     trim_ratio: i32,
     temperature: f32,
 ) -> Element {
-    cx.render(rsx!(
+    rsx!(
         form {
-            action: "{crate::routes::prompts::new_route(*team_id)}",
+            action: "{crate::routes::prompts::new_route(team_id)}",
             method: "post",
             Drawer {
                 label: "Prompt",
@@ -38,13 +37,11 @@ pub fn Form(
                             div {
                                 class: "flex flex-col mt-3",
                                 if let Some(id) = id {
-                                    cx.render(rsx!(
-                                        input {
-                                            "type": "hidden",
-                                            value: "{id}",
-                                            name: "id"
-                                        }
-                                    ))
+                                    input {
+                                        "type": "hidden",
+                                        value: "{id}",
+                                        name: "id"
+                                    }
                                 }
 
                                 Input {
@@ -52,7 +49,7 @@ pub fn Form(
                                     name: "name",
                                     label: "Prompt Name",
                                     help_text: "Make the name memorable and imply it's usage.",
-                                    value: &name,
+                                    value: name,
                                     required: true
                                 }
 
@@ -61,21 +58,21 @@ pub fn Form(
                                     label: "Who should be able to see this prompt?",
                                     label_class: "mt-4",
                                     help_text: "Set to private if you don't want to share this prompt.",
-                                    value: "{crate::visibility_to_string(*visibility)}",
+                                    value: "{crate::visibility_to_string(visibility)}",
                                     SelectOption {
                                         value: "{crate::visibility_to_string(Visibility::Private)}",
-                                        selected_value: "{crate::visibility_to_string(*visibility)}",
-                                        crate::visibility_to_string(Visibility::Private)
+                                        selected_value: "{crate::visibility_to_string(visibility)}",
+                                        {crate::visibility_to_string(Visibility::Private)}
                                     },
                                     SelectOption {
                                         value: "{crate::visibility_to_string(Visibility::Team)}",
-                                        selected_value: "{crate::visibility_to_string(*visibility)}",
-                                        crate::visibility_to_string(Visibility::Team)
+                                        selected_value: "{crate::visibility_to_string(visibility)}",
+                                        {crate::visibility_to_string(Visibility::Team)}
                                     },
                                     SelectOption {
                                         value: "{crate::visibility_to_string(Visibility::Company)}",
-                                        selected_value: "{crate::visibility_to_string(*visibility)}",
-                                        crate::visibility_to_string(Visibility::Company)
+                                        selected_value: "{crate::visibility_to_string(visibility)}",
+                                        {crate::visibility_to_string(Visibility::Company)}
                                     }
                                 }
 
@@ -86,16 +83,13 @@ pub fn Form(
                                     help_text: "The prompt will be passed to the model",
                                     value: "{model_id}",
                                     required: true,
-                                    models.iter().map(|model| {
-                                        cx.render(rsx!(
-                                            SelectOption {
-                                                value: "{model.id}",
-                                                selected_value: "{model_id}",
-                                                "{model.name}"
-                                            }
-                                        ))
-                                    })
-
+                                    for model in models {
+                                        SelectOption {
+                                            value: "{model.id}",
+                                            selected_value: "{model_id}",
+                                            "{model.name}"
+                                        }
+                                    }
                                 }
 
                                 TextArea {
@@ -133,36 +127,30 @@ pub fn Form(
                                         }
                                     }
                                     tbody {
-                                        datasets.iter().map(|dataset| {
-                                            rsx!(
-                                                tr {
-                                                    td {
-                                                        "{dataset.name}"
-                                                    }
-                                                    td {
-                                                        "{dataset.embeddings_model_name}"
-                                                    }
-                                                    td {
-                                                        if selected_dataset_ids.contains(&dataset.id) {
-                                                            cx.render(rsx!(
-                                                                CheckBox {
-                                                                    checked: true,
-                                                                    name: "datasets",
-                                                                    value: "{dataset.id}"
-                                                                }
-                                                            ))
-                                                        } else {
-                                                            cx.render(rsx!(
-                                                                CheckBox {
-                                                                    name: "datasets",
-                                                                    value: "{dataset.id}"
-                                                                }
-                                                            ))
+                                        for dataset in datasets {
+                                            tr {
+                                                td {
+                                                    "{dataset.name}"
+                                                }
+                                                td {
+                                                    "{dataset.embeddings_model_name}"
+                                                }
+                                                td {
+                                                    if selected_dataset_ids.contains(&dataset.id) {
+                                                        CheckBox {
+                                                            checked: true,
+                                                            name: "datasets",
+                                                            value: "{dataset.id}"
+                                                        }
+                                                    } else {
+                                                        CheckBox {
+                                                            name: "datasets",
+                                                            value: "{dataset.id}"
                                                         }
                                                     }
                                                 }
-                                            )
-                                        })
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -179,7 +167,7 @@ pub fn Form(
                                     name: "temperature",
                                     label: "Temperature",
                                     help_text: "Value between 0 and 2.",
-                                    value: "{*temperature}",
+                                    value: "{temperature}",
                                     required: true
                                 }
 
@@ -188,7 +176,7 @@ pub fn Form(
                                     name: "max_history_items",
                                     label: "Max number of history items",
                                     label_class: "mt-4",
-                                    help_text: "This decides how much history we add to the prompt. 
+                                    help_text: "This decides how much history we add to the prompt.
                                     Set it to zero to send no history.",
                                     value: "{max_history_items}",
                                     required: true
@@ -199,9 +187,9 @@ pub fn Form(
                                     name: "max_tokens",
                                     label: "Max Tokens",
                                     label_class: "mt-4",
-                                    help_text: "How much of the context to leave for the LLM's reply. 
+                                    help_text: "How much of the context to leave for the LLM's reply.
                                     Set this to roughly half of the available context for the model you are using.",
-                                    value: "{*max_tokens}",
+                                    value: "{max_tokens}",
                                     required: true
                                 }
 
@@ -211,8 +199,8 @@ pub fn Form(
                                     name: "trim_ratio",
                                     min: 0,
                                     max: 100,
-                                    value: *trim_ratio,
-                                    help_text: "The way we count tokens may not match the way the the inference engine does. 
+                                    value: trim_ratio,
+                                    help_text: "The way we count tokens may not match the way the the inference engine does.
                                     Here you can say how much of the available context to use. i.e. 80% will use 80% of the context_size - max_tokens.",
                                     div {
                                         class: "w-full flex justify-between text-xs px-2",
@@ -243,7 +231,7 @@ pub fn Form(
                                     label: "Maximum number of Chunks",
                                     label_class: "mt-4",
                                     help_text: "We don't add more chunks to the prompt than this.",
-                                    value: "{*max_chunks}",
+                                    value: "{max_chunks}",
                                     required: true
                                 }
                             }
@@ -261,5 +249,5 @@ pub fn Form(
                 }
             }
         }
-    ))
+    )
 }

@@ -23,34 +23,34 @@ impl ToolTipColor {
     }
 }
 
-#[derive(Props)]
-pub struct ToolTipProps<'a> {
-    text: &'a str,
-    children: Element<'a>,
-    class: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct ToolTipProps {
+    text: String,
+    children: Element,
+    class: Option<String>,
     alert_color: Option<ToolTipColor>,
 }
 
-pub fn ToolTip<'a>(cx: Scope<'a, ToolTipProps<'a>>) -> Element {
-    let alert_color = if cx.props.alert_color.is_some() {
-        cx.props.alert_color.unwrap()
+pub fn ToolTip(props: ToolTipProps) -> Element {
+    let alert_color = if props.alert_color.is_some() {
+        props.alert_color.unwrap()
     } else {
         Default::default()
     };
 
-    let class = if let Some(class) = cx.props.class {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("{} {}", alert_color.to_string(), class);
 
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
-            "data-tip": cx.props.text,
-            &cx.props.children,
+            "data-tip": props.text,
+            {props.children}
         }
-    ))
+    )
 }

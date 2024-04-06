@@ -25,24 +25,24 @@ impl RelativeTimeFormat {
     }
 }
 
-#[derive(Props)]
-pub struct RelativeTimeProps<'a> {
+#[derive(Props, Clone, PartialEq)]
+pub struct RelativeTimeProps {
     format: Option<RelativeTimeFormat>,
-    datetime: &'a str,
+    datetime: String,
 }
 
-pub fn RelativeTime<'a>(cx: Scope<'a, RelativeTimeProps<'a>>) -> Element {
-    let format = if cx.props.format.is_some() {
-        cx.props.format.unwrap()
+pub fn RelativeTime(props: RelativeTimeProps) -> Element {
+    let format = if props.format.is_some() {
+        props.format.unwrap()
     } else {
         Default::default()
     };
 
-    cx.render(rsx!(
+    rsx!(
         relative
             - time {
-                datetime: cx.props.datetime,
+                datetime: props.datetime,
                 format: format.to_string()
             }
-    ))
+    )
 }

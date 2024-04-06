@@ -2,8 +2,8 @@
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
-pub fn Form(cx: Scope) -> Element {
-    cx.render(rsx! {
+pub fn Form() -> Element {
+    rsx! {
         // The form to create an invitation
         form {
             method: "post",
@@ -78,5 +78,5 @@ pub fn Form(cx: Scope) -> Element {
                 }
             }
         }
-    })
+    }
 }

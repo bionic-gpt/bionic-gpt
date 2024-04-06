@@ -2,35 +2,35 @@
 use super::button::{Button, ButtonScheme};
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct BlankSlateProps<'a> {
-    heading: &'a str,
-    visual: &'a str,
-    description: &'a str,
-    primary_action: Option<(&'a str, String)>,
-    primary_action_drawer: Option<(&'a str, &'a str)>,
-    secondary_action: Option<(&'a str, &'a str)>,
+#[derive(Props, Clone, PartialEq)]
+pub struct BlankSlateProps {
+    heading: String,
+    visual: String,
+    description: String,
+    primary_action: Option<(String, String)>,
+    primary_action_drawer: Option<(String, String)>,
+    secondary_action: Option<(String, String)>,
 }
 
-pub fn BlankSlate<'a>(cx: Scope<'a, BlankSlateProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn BlankSlate(props: BlankSlateProps) -> Element {
+    rsx!(
         div {
             class: "mt-4 flex flex-col justify-center items-center",
             img {
                 class: "mb-4",
-                src: "{cx.props.visual}",
+                src: "{props.visual}",
                 width: "10%"
             }
             h2 {
                 class: "text-center mb-4  max-w-prose",
-                "{cx.props.heading}"
+                "{props.heading}"
             }
             p {
                 class: "mb-4  max-w-prose text-center",
-                "{cx.props.description}"
+                "{props.description}"
             }
-            match &cx.props.primary_action {
-                Some(pa) => cx.render(rsx!(
+            match &props.primary_action {
+                Some(pa) => rsx!(
                     div {
                         a {
                             href: "{pa.1}",
@@ -40,32 +40,32 @@ pub fn BlankSlate<'a>(cx: Scope<'a, BlankSlateProps<'a>>) -> Element {
                             }
                         }
                     }
-                 )),
+                 ),
                 None => None
             }
-            match cx.props.primary_action_drawer {
-                Some(pa) => cx.render(rsx!(
+            match props.primary_action_drawer {
+                Some(pa) => rsx!(
                     div {
                         Button {
                             button_scheme: ButtonScheme::Primary,
-                            drawer_trigger: "{pa.1}",
+                            drawer_trigger: Some("{pa.1}".to_string()),
                             "{pa.0}"
                         }
                     }
-                 )),
+                 ),
                 None => None
             }
-            match cx.props.secondary_action {
-                Some(pa) => cx.render(rsx!(
+            match props.secondary_action {
+                Some(pa) => rsx!(
                     div {
                         a {
                             href: "{pa.1}",
                             "{pa.0}"
                         }
                     }
-                 )),
+                 ),
                 None => None
             }
         }
-    ))
+    )
 }
