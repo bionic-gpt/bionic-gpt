@@ -18,6 +18,8 @@ pub fn Page(
     history: Vec<History>,
     lock_console: bool,
 ) -> Element {
+    // Rerverse it because that's how we display it.
+    let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
     rsx! {
         Layout {
             section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",

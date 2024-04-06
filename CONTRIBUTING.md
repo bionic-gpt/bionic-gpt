@@ -50,10 +50,39 @@ HOST_IP=$(hostname -I | awk '{print $1}')
 kubectl -n devpod exec $POD_NAME -- sed -i "s/127.0.0.1/${HOST_IP}/g" /home/vscode/.kube/config
 ```
 
+## Create a service pointing to the Devpod
+
+```sh
+echo "
+apiVersion: v1
+kind: Service
+metadata:
+  name: bionic-devpod
+  namespace: devpod
+spec:
+  selector:
+    devpod.sh/created: 'true' 
+  ports:
+    - protocol: TCP
+      port: 7703
+      targetPort: 7703
+" | kubectl apply -f -
+```
+
+## Configure envoy to use the new service.
+
+Edit the configmap and set the host to
+
+`bionic-devpod.devpod.svc.cluster.local`
+
+and the port to
+
+`7703`
+
 ## Initialise all the services
 
 ```sh
-cargo run --bin k8s-operator -- install --development --no-operator
+cargo run --bin k8s-operator -- install --development --no-operator --hostname-url http://pop-os
 ```
 
 Then also run the operator
