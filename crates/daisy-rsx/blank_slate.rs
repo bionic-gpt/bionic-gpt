@@ -48,7 +48,7 @@ pub fn BlankSlate(props: BlankSlateProps) -> Element {
                     div {
                         Button {
                             button_scheme: ButtonScheme::Primary,
-                            drawer_trigger: Some("{pa.1}".to_string()),
+                            drawer_trigger: "{pa.1}",
                             "{pa.0}"
                         }
                     }
