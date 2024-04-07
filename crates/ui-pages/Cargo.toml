@@ -12,5 +12,5 @@ path = "lib.rs"
 db = { path = "../db" }
 assets = { path = "../asset-pipeline" }
 daisy_rsx = { path = "../daisy-rsx" }
-dioxus = "0.4"
-dioxus-ssr = "0.4"
+dioxus = "0.5"
+dioxus-ssr = "0.5"

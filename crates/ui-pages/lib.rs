@@ -18,7 +18,7 @@ pub mod team_members;
 pub mod teams;
 
 pub fn render(mut virtual_dom: VirtualDom) -> String {
-    let _ = virtual_dom.rebuild();
+    virtual_dom.rebuild_in_place();
     let html = dioxus_ssr::render(&virtual_dom);
     format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
 }

@@ -4,15 +4,14 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn DeleteDrawer(
-    cx: Scope<DrawerProps>,
     team_id: i32,
     document_id: i32,
     dataset_id: i32,
     trigger_id: String,
 ) -> Element {
-    cx.render(rsx! {
+    rsx! {
         Drawer {
-            submit_action: crate::routes::documents::delete_route(*team_id, *document_id),
+            submit_action: crate::routes::documents::delete_route(team_id, document_id),
             label: "Delete this document?",
             trigger_id: trigger_id,
             DrawerBody {
@@ -28,17 +27,17 @@ pub fn DeleteDrawer(
                     input {
                         "type": "hidden",
                         "name": "team_id",
-                        "value": "{*team_id}"
+                        "value": "{team_id}"
                     }
                     input {
                         "type": "hidden",
                         "name": "document_id",
-                        "value": "{*document_id}"
+                        "value": "{document_id}"
                     }
                     input {
                         "type": "hidden",
                         "name": "dataset_id",
-                        "value": "{*dataset_id}"
+                        "value": "{dataset_id}"
                     }
                 }
             }
@@ -50,5 +49,5 @@ pub fn DeleteDrawer(
                 }
             }
         }
-    })
+    }
 }

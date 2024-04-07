@@ -23,52 +23,52 @@ impl TextAreaSize {
     }
 }
 
-#[derive(Props)]
-pub struct Props<'a> {
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct Props {
+    children: Element,
     area_size: Option<TextAreaSize>,
-    pub name: &'a str,
-    pub id: Option<&'a str>,
-    pub class: Option<&'a str>,
-    pub rows: Option<&'a str>,
-    pub label_class: Option<&'a str>,
-    pub value: Option<&'a str>,
-    pub label: Option<&'a str>,
-    pub help_text: Option<&'a str>,
-    pub placeholder: Option<&'a str>,
+    pub name: String,
+    pub id: Option<String>,
+    pub class: Option<String>,
+    pub rows: Option<String>,
+    pub label_class: Option<String>,
+    pub value: Option<String>,
+    pub label: Option<String>,
+    pub help_text: Option<String>,
+    pub placeholder: Option<String>,
     pub required: Option<bool>,
     pub disabled: Option<bool>,
     pub readonly: Option<bool>,
 }
 
-pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
-    let input_size = if cx.props.area_size.is_some() {
-        cx.props.area_size.unwrap()
+pub fn TextArea(props: Props) -> Element {
+    let input_size = if props.area_size.is_some() {
+        props.area_size.unwrap()
     } else {
         Default::default()
     };
 
-    let class = if cx.props.class.is_some() {
-        format!("{} {}", cx.props.class.unwrap(), input_size.to_string())
+    let class = if props.class.is_some() {
+        format!("{} {}", props.class.unwrap(), input_size.to_string())
     } else {
         input_size.to_string().to_string()
     };
 
-    let value = cx.props.value.unwrap_or("");
+    let value = props.value.unwrap_or("".to_string());
 
-    let placeholder = if cx.props.placeholder.is_some() {
-        cx.props.placeholder.unwrap()
+    let placeholder = if props.placeholder.is_some() {
+        props.placeholder.unwrap()
     } else {
-        ""
+        "".to_string()
     };
 
-    let label_class = if let Some(label_class) = cx.props.label_class {
+    let label_class = if let Some(label_class) = props.label_class {
         label_class
     } else {
-        ""
+        "".to_string()
     };
 
-    let disabled = if let Some(disabled) = cx.props.disabled {
+    let disabled = if let Some(disabled) = props.disabled {
         if disabled {
             Some(true)
         } else {
@@ -78,38 +78,42 @@ pub fn TextArea<'a>(cx: Scope<'a, Props<'a>>) -> Element {
         None
     };
 
-    let id = if let Some(id) = cx.props.id { id } else { "" };
+    let id = if let Some(id) = props.id {
+        id
+    } else {
+        "".to_string()
+    };
 
-    cx.render(rsx!(
-        match cx.props.label {
-            Some(l) => cx.render(rsx!(
+    rsx!(
+        match props.label {
+            Some(l) => rsx!(
                 label {
                     class: "{label_class}",
                     "{l}"
                 }
-            )),
+            ),
             None => None
         }
         textarea {
             id: "{id}",
             class: "textarea textarea-bordered textarea-sm {class}",
             value: "{value}",
-            name: "{cx.props.name}",
+            name: "{props.name}",
             placeholder: "{placeholder}",
-            required: cx.props.required,
+            required: props.required,
             disabled: disabled,
-            readonly: cx.props.readonly,
-            rows: cx.props.rows,
-            &cx.props.children,
+            readonly: props.readonly,
+            rows: props.rows,
+            {props.children},
         }
-        match cx.props.help_text {
-            Some(l) => cx.render(rsx!(
+        match props.help_text {
+            Some(l) => rsx!(
                 span {
                     class: "note mb-3",
                     "{l}"
                 }
-            )),
+            ),
             None => None
         }
-    ))
+    )
 }

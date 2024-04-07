@@ -1,27 +1,26 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
-use assets::files::button_plus_svg;
-use daisy_rsx::*;
 use db::authz::Rbac;
 use db::TeamOwner;
 use dioxus::prelude::*;
+use crate::app_layout::{Layout, SideBar};
+use daisy_rsx::*;
+use assets::files::button_plus_svg;
 
 #[component]
 pub fn Page(
-    cx: Scope,
     rbac: Rbac,
     team_id: i32,
     teams: Vec<TeamOwner>,
     submit_action: String,
 ) -> Element {
-    cx.render(rsx! {
+    rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Switch,
-            team_id: *team_id,
+            team_id: team_id,
             rbac: rbac,
             title: "Your Teams",
-            header: cx.render(rsx!(
+            header: rsx!(
                 h3 { "Your Teams" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
@@ -29,7 +28,7 @@ pub fn Page(
                     button_scheme: ButtonScheme::Primary,
                     "Create a New Team"
                 }
-            )),
+            ),
             Box {
                 class: "has-data-table",
                 BoxHeader {
@@ -46,72 +45,61 @@ pub fn Page(
                             }
                         }
                         tbody {
-                            teams.iter().map(|team| rsx!(
+                            for team in teams {
+
                                 if let Some(name) = &team.team_name {
-                                    cx.render(rsx! {
-                                        tr {
-                                            td {
-                                                Avatar {
-                                                    name: "{name}",
-                                                    avatar_type: avatar::AvatarType::Team
-                                                }
-                                                span {
-                                                    class: "ml-2 mr-2",
-                                                    "{name}"
-                                                }
-                                                if team.id != *team_id {
-                                                    cx.render(rsx! {
-                                                        a {
-                                                            "data-turbo-frame": "_top",
-                                                            href: "{crate::routes::team::index_route(team.id)}",
-                                                            "(Switch to this Team)"
-                                                        }
-                                                    })
-                                                } else {
-                                                    None
-                                                }
+                                    tr {
+                                        td {
+                                            Avatar {
+                                                name: "{name}",
+                                                avatar_type: avatar::AvatarType::Team
                                             }
-                                            td {
-                                                class: "text-right",
-                                                strong {
-                                                    "{team.team_owner}"
+                                            span {
+                                                class: "ml-2 mr-2",
+                                                "{name}"
+                                            }
+                                            if team.id != team_id {
+                                                a {
+                                                    "data-turbo-frame": "_top",
+                                                    href: "{crate::routes::team::index_route(team.id)}",
+                                                    "(Switch to this Team)"
                                                 }
                                             }
                                         }
-                                    })
+                                        td {
+                                            class: "text-right",
+                                            strong {
+                                                "{team.team_owner}"
+                                            }
+                                        }
+                                    }
                                 } else {
-                                    cx.render(rsx! {
-                                        tr {
-                                            td {
-                                                Avatar {
-                                                    avatar_type: avatar::AvatarType::Team
-                                                }
-                                                span {
-                                                    class: "ml-2 mr-2",
-                                                    "Name Not Set"
-                                                }
-                                                if team.id != *team_id {
-                                                    cx.render(rsx! {
-                                                        a {
-                                                            "data-turbo-frame": "_top",
-                                                            href: "{crate::routes::team::index_route(team.id)}",
-                                                            "(Switch to this Team)"
-                                                        }
-                                                    })
-                                                } else {
-                                                    None
-                                                }
+                                    tr {
+                                        td {
+                                            Avatar {
+                                                avatar_type: avatar::AvatarType::Team
                                             }
-                                            td {
-                                                class: "text-right",
-                                                strong {
-                                                    "{team.team_owner}"
+                                            span {
+                                                class: "ml-2 mr-2",
+                                                "Name Not Set"
+                                            }
+                                            if team.id != team_id {
+                                                a {
+                                                    "data-turbo-frame": "_top",
+                                                    href: "{crate::routes::team::index_route(team.id)}",
+                                                    "(Switch to this Team)"
                                                 }
                                             }
                                         }
-                                    })
+                                        td {
+                                            class: "text-right",
+                                            strong {
+                                                "{team.team_owner}"
+                                            }
+                                        }
+                                    }
                                 }
-                            ))
+                            }
                         }
                     }
                 }
@@ -148,7 +136,7 @@ pub fn Page(
                 }
             }
         }
-    })
+    }
 }
 
 pub fn teams(teams: Vec<TeamOwner>, team_id: i32, rbac: Rbac) -> String {

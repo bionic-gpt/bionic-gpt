@@ -93,7 +93,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
             let readonly_database_password = database::deploy(client.clone(), &namespace).await?;
 
-            if ! development {
+            if !development {
                 bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
                 pipeline_job::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
@@ -155,7 +155,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             oauth2_proxy::delete(client.clone(), &namespace).await?;
             ingress::delete(client.clone(), &namespace).await?;
 
-            if ! development {
+            if !development {
                 pipeline_job::delete(client.clone(), &namespace).await?;
                 bionic::delete(client.clone(), &namespace).await?;
             }

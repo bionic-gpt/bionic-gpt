@@ -1,97 +1,97 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct NavItemProps<'a> {
+#[derive(Props, Clone, PartialEq)]
+pub struct NavItemProps {
     href: String,
-    icon: &'a str,
-    title: &'a str,
+    icon: String,
+    title: String,
     selected_item_id: Option<String>,
     id: Option<String>,
 }
 
-pub fn NavItem<'a>(cx: Scope<'a, NavItemProps<'a>>) -> Element {
+pub fn NavItem(props: NavItemProps) -> Element {
     let mut class = "";
-    if let (Some(id), Some(selected_item_id)) = (&cx.props.id, &cx.props.selected_item_id) {
+    if let (Some(id), Some(selected_item_id)) = (&props.id, &props.selected_item_id) {
         if id == selected_item_id {
             class = "active";
         }
     }
-    cx.render(rsx!(
+    rsx!(
         li {
             role: "listitem",
             a {
                 class: "{class}",
-                href: "{cx.props.href}",
+                href: "{props.href}",
                 "data-turbo-frame": "main-content",
                 img {
                     width: "16",
                     height: "16",
-                    src: "{cx.props.icon}"
+                    src: "{props.icon}"
                 }
-                "{cx.props.title}"
+                "{props.title}"
             }
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct NavSubItemProps<'a> {
+#[derive(Props, Clone, PartialEq)]
+pub struct NavSubItemProps {
     href: String,
-    title: &'a str,
+    title: String,
     selected_item_id: Option<String>,
     id: Option<String>,
 }
 
-pub fn NavSubItem<'a>(cx: Scope<'a, NavSubItemProps<'a>>) -> Element {
+pub fn NavSubItem(props: NavSubItemProps) -> Element {
     let mut class = "";
-    if let (Some(id), Some(selected_item_id)) = (&cx.props.id, &cx.props.selected_item_id) {
+    if let (Some(id), Some(selected_item_id)) = (&props.id, &props.selected_item_id) {
         if id == selected_item_id {
             class = "active";
         }
     }
-    cx.render(rsx!(
+    rsx!(
         li {
             class: class,
             a {
-                href: "{cx.props.href}",
-                "{cx.props.title}"
+                href: "{props.href}",
+                "{props.title}"
             }
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct NavGroupProps<'a> {
-    heading: &'a str,
-    content: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct NavGroupProps {
+    heading: String,
+    content: Element,
 }
 
-pub fn NavGroup<'a>(cx: Scope<'a, NavGroupProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn NavGroup(props: NavGroupProps) -> Element {
+    rsx!(
         ul {
             role: "list",
             class: "menu",
             li {
                 class: "menu-title",
-                "{cx.props.heading}"
+                "{props.heading}"
             }
-            &cx.props.content
+            {props.content}
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct NavSubGroupProps<'a> {
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct NavSubGroupProps {
+    children: Element,
 }
 
-pub fn NavSubGroup<'a>(cx: Scope<'a, NavSubGroupProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn NavSubGroup(props: NavSubGroupProps) -> Element {
+    rsx!(
         ul {
             role: "list",
             class: "ActionList ActionList--subGroup",
-            &cx.props.children
+            {props.children}
         }
-    ))
+    )
 }

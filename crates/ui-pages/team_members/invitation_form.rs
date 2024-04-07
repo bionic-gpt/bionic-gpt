@@ -3,8 +3,8 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn InvitationForm(cx: Scope, submit_action: String) -> Element {
-    cx.render(rsx! {
+pub fn InvitationForm(submit_action: String) -> Element {
+    rsx! {
         // The form to create an invitation
         form {
             method: "post",
@@ -68,5 +68,5 @@ pub fn InvitationForm(cx: Scope, submit_action: String) -> Element {
                 }
             }
         }
-    })
+    }
 }

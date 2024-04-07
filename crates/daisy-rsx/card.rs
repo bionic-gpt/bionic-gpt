@@ -2,67 +2,67 @@
 
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct BoxProps<'a> {
-    class: Option<&'a str>,
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct BoxProps {
+    class: Option<String>,
+    children: Element,
 }
 
-pub fn Box<'a>(cx: Scope<'a, BoxProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn Box(props: BoxProps) -> Element {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("card {}", class);
 
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
-            &cx.props.children
+            {props.children}
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct BoxHeadersProps<'a> {
-    class: Option<&'a str>,
-    title: &'a str,
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct BoxHeadersProps {
+    class: Option<String>,
+    title: String,
+    children: Element,
 }
 
-pub fn BoxHeader<'a>(cx: Scope<'a, BoxHeadersProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn BoxHeader(props: BoxHeadersProps) -> Element {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("card-header flex items-center {}", class);
 
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
             h3 {
                 class: "card-title overflow-hidden",
-                "{cx.props.title}"
+                "{props.title}"
             }
-            &cx.props.children
+            {props.children}
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct BoxBodyProps<'a> {
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct BoxBodyProps {
+    children: Element,
 }
 
-pub fn BoxBody<'a>(cx: Scope<'a, BoxBodyProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn BoxBody(props: BoxBodyProps) -> Element {
+    rsx!(
         div {
             class: "card-body",
-            &cx.props.children
+            {props.children}
         }
-    ))
+    )
 }

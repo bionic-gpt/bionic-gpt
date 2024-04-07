@@ -8,7 +8,6 @@ use dioxus::prelude::*;
 
 #[component]
 fn Page(
-    cx: Scope,
     team_id: i32,
     rbac: Rbac,
     first_name: String,
@@ -16,16 +15,16 @@ fn Page(
     users_name_or_email: String,
     form_action: String,
 ) -> Element {
-    cx.render(rsx! {
+    rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::None,
             title: "Your Profile",
-            team_id: *team_id,
+            team_id: team_id,
             rbac: rbac,
-            header: cx.render(rsx!(
+            header: rsx!(
                 h3 { "Your Profile" }
-            )),
+            ),
             BlankSlate {
                 heading: "Welcome, {users_name_or_email}",
                 visual: avatar_svg.name,
@@ -48,7 +47,7 @@ fn Page(
                                 input_type: InputType::Text,
                                 label: "First Name",
                                 name: "first_name",
-                                value: &first_name
+                                value: first_name
                             }
 
                             Input {
@@ -56,7 +55,7 @@ fn Page(
                                 label_class: "mt-3",
                                 label: "Last Name",
                                 name: "last_name",
-                                value: &last_name
+                                value: last_name
                             }
 
                             Button {
@@ -70,7 +69,7 @@ fn Page(
                 }
             }
         }
-    })
+    }
 }
 
 pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {

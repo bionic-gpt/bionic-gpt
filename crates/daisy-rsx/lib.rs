@@ -36,7 +36,7 @@ pub use nav_item::{NavGroup, NavItem, NavSubGroup, NavSubItem};
 pub use pagination::Pagination;
 pub use range::{Range, RangeColor};
 pub use relative_time::{RelativeTime, RelativeTimeFormat};
-pub use select::{Select, SelectSize};
+pub use select::{Select, SelectSize, SelectOption};
 pub use tab_container::{TabContainer, TabPanel};
 pub use text_area::{TextArea, TextAreaSize};
 pub use time_line::{TimeLine, TimeLineBadge, TimeLineBody};

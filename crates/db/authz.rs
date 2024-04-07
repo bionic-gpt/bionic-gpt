@@ -132,7 +132,7 @@ pub async fn setup_user_if_not_already_registered(
     Ok((user.id, user.email, user.first_name, user.last_name))
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Default, Clone, PartialEq)]
 pub struct Rbac {
     pub permissions: Vec<Permission>,
     pub user_id: i32,
