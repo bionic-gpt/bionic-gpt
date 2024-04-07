@@ -4,21 +4,21 @@ use db::ModelType;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Model(cx: Scope, model_type: ModelType) -> Element {
+pub fn Model(model_type: ModelType) -> Element {
     match model_type {
-        ModelType::LLM => cx.render(rsx!(
+        ModelType::LLM => rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Info,
                 "Large Language Model"
             }
-        )),
-        ModelType::Embeddings => cx.render(rsx!(
+        ),
+        ModelType::Embeddings => rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Highlight,
                 "Embeddings Model"
             }
-        )),
+        ),
     }
 }

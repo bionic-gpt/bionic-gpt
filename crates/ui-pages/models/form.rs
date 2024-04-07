@@ -4,7 +4,6 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn Form(
-    cx: Scope,
     team_id: i32,
     name: String,
     base_url: String,
@@ -15,10 +14,10 @@ pub fn Form(
     context_size_bytes: i32,
     id: Option<i32>,
 ) -> Element {
-    cx.render(rsx!(
+    rsx!(
         form {
             class: "form-control",
-            action: "{crate::routes::models::new_route(*team_id)}",
+            action: "{crate::routes::models::new_route(team_id)}",
             method: "post",
             Drawer {
                 label: "Add a Model",
@@ -27,13 +26,11 @@ pub fn Form(
                     div {
                         class: "flex flex-col",
                         if let Some(id) = id {
-                            cx.render(rsx!(
-                                input {
-                                    "type": "hidden",
-                                    value: "{id}",
-                                    name: "id"
-                                }
-                            ))
+                            input {
+                                "type": "hidden",
+                                value: "{id}",
+                                name: "id"
+                            }
                         }
 
                         Input {
@@ -42,7 +39,7 @@ pub fn Form(
                             name: "name",
                             label: "Model Name",
                             help_text: "Make the name memorable and imply it's usage.",
-                            value: &name,
+                            value: name,
                             required: true
                         }
 
@@ -51,15 +48,15 @@ pub fn Form(
                             label: "Is this model for LLM or Embeddings",
                             label_class: "mt-4",
                             help_text: "Some models can do both, in which case enter it twice.",
-                            value: &model_type,
+                            value: model_type.clone(),
                             SelectOption {
                                 value: "LLM",
-                                selected_value: &model_type,
+                                selected_value: model_type.clone(),
                                 "Large Language Model"
                             }
                             SelectOption {
                                 value: "Embeddings",
-                                selected_value: &model_type,
+                                selected_value: model_type.clone(),
                                 "Embeddings Model"
                             }
                         }
@@ -70,7 +67,7 @@ pub fn Form(
                             name: "base_url",
                             label: "The Base URL of the model",
                             help_text: "The URL location of the OpenAI compatible API",
-                            value: &base_url,
+                            value: base_url,
                             required: true
                         }
 
@@ -81,7 +78,7 @@ pub fn Form(
                             name: "api_key",
                             label: "The API secret from your provider",
                             help_text: "This will be given in the providers console",
-                            value: &api_key
+                            value: api_key
                         }
 
                         Input {
@@ -115,5 +112,5 @@ pub fn Form(
                 }
             }
         }
-    ))
+    )
 }

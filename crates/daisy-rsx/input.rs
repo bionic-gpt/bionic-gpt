@@ -43,32 +43,32 @@ impl InputSize {
     }
 }
 
-#[derive(Props)]
-pub struct InputProps<'a> {
+#[derive(Props, Clone, PartialEq)]
+pub struct InputProps {
     input_type: Option<InputType>,
     input_size: Option<InputSize>,
-    pub name: &'a str,
-    pub id: Option<&'a str>,
-    pub label_class: Option<&'a str>,
-    pub value: Option<&'a str>,
-    pub label: Option<&'a str>,
-    pub help_text: Option<&'a str>,
-    pub placeholder: Option<&'a str>,
-    pub step: Option<&'a str>,
+    pub name: String,
+    pub id: Option<String>,
+    pub label_class: Option<String>,
+    pub value: Option<String>,
+    pub label: Option<String>,
+    pub help_text: Option<String>,
+    pub placeholder: Option<String>,
+    pub step: Option<String>,
     pub required: Option<bool>,
     pub disabled: Option<bool>,
     pub readonly: Option<bool>,
 }
 
-pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
-    let input_type = if cx.props.input_type.is_some() {
-        cx.props.input_type.unwrap()
+pub fn Input(props: InputProps) -> Element {
+    let input_type = if props.input_type.is_some() {
+        props.input_type.unwrap()
     } else {
         Default::default()
     };
 
-    let input_size = if cx.props.input_size.is_some() {
-        cx.props.input_size.unwrap()
+    let input_size = if props.input_size.is_some() {
+        props.input_size.unwrap()
     } else {
         Default::default()
     };
@@ -78,44 +78,41 @@ pub fn Input<'a>(cx: Scope<'a, InputProps<'a>>) -> Element {
 
     let input_class = format!("{} {}", input_type, input_size);
 
-    cx.render(rsx!(
-        match (cx.props.label, cx.props.required) {
-            (Some(l), Some(_)) => cx.render(rsx!(
+    rsx!(
+        match (props.label, props.required) {
+            (Some(l), Some(_)) => rsx!(
                 label {
-                    class: cx.props.label_class,
+                    class: props.label_class,
                     "{l} *"
                 }
-            )),
-            (Some(l), None) => cx.render(rsx!(
+            ),
+            (Some(l), None) => rsx!(
                 label {
-                    class: cx.props.label_class,
+                    class: props.label_class,
                     "{l}"
                 }
-            )),
+            ),
             (None, _) => None
         }
         input {
-            id: cx.props.id,
+            id: props.id,
             class: "input input-bordered {input_class}",
-            value: cx.props.value,
-            required: cx.props.required,
-            disabled: cx.props.disabled,
-            readonly: cx.props.readonly,
-            name: "{cx.props.name}",
-            placeholder: cx.props.placeholder,
-            step: cx.props.step,
+            value: props.value,
+            required: props.required,
+            disabled: props.disabled,
+            readonly: props.readonly,
+            name: "{props.name}",
+            placeholder: props.placeholder,
+            step: props.step,
             "type": "{input_type}"
         }
-        match cx.props.help_text {
-            Some(l) => cx.render(rsx!(
-                label {
-                    span {
-                        class: "label-text-alt",
-                        "{l}"
-                    }
+        if let Some(l) = props.help_text {
+            label {
+                span {
+                    class: "label-text-alt",
+                    "{l}"
                 }
-            )),
-            None => None
+            }
         }
-    ))
+    )
 }

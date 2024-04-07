@@ -43,38 +43,38 @@ impl CheckBoxSize {
     }
 }
 
-#[derive(Props)]
-pub struct CheckBoxProps<'a> {
-    children: Element<'a>,
-    id: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct CheckBoxProps {
+    children: Element,
+    id: Option<String>,
     checked: Option<bool>,
-    class: Option<&'a str>,
-    name: &'a str,
-    value: &'a str,
+    class: Option<String>,
+    name: String,
+    value: String,
     checkbox_size: Option<CheckBoxSize>,
     checkbox_scheme: Option<CheckBoxScheme>,
 }
 
-pub fn CheckBox<'a>(cx: Scope<'a, CheckBoxProps<'a>>) -> Element {
-    let checkbox_scheme = if cx.props.checkbox_scheme.is_some() {
-        cx.props.checkbox_scheme.unwrap()
+pub fn CheckBox(props: CheckBoxProps) -> Element {
+    let checkbox_scheme = if props.checkbox_scheme.is_some() {
+        props.checkbox_scheme.unwrap()
     } else {
         Default::default()
     };
 
-    let checkbox_size = if cx.props.checkbox_size.is_some() {
-        cx.props.checkbox_size.unwrap()
+    let checkbox_size = if props.checkbox_size.is_some() {
+        props.checkbox_size.unwrap()
     } else {
         Default::default()
     };
 
-    let class = if let Some(class) = cx.props.class {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
-    let checked = if let Some(checked) = cx.props.checked {
+    let checked = if let Some(checked) = props.checked {
         if checked {
             Some("checked")
         } else {
@@ -91,15 +91,15 @@ pub fn CheckBox<'a>(cx: Scope<'a, CheckBoxProps<'a>>) -> Element {
         checkbox_size.to_string()
     );
 
-    cx.render(rsx!(
+    rsx!(
         input {
             "type": "checkbox",
             class: "{class}",
-            id: cx.props.id,
-            name: cx.props.name,
-            value: cx.props.value,
+            id: props.id,
+            name: props.name,
+            value: props.value,
             checked: checked,
-            &cx.props.children,
+            {props.children},
         }
-    ))
+    )
 }

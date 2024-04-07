@@ -1,28 +1,28 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
-use daisy_rsx::*;
 use db::authz::Rbac;
-use db::{queries::prompts::Prompt, Dataset, Model, Visibility};
+use db::{queries::prompts::Prompt, Dataset, Model};
 use dioxus::prelude::*;
+use daisy_rsx::*;
+use db::Visibility;
 
 #[component]
 pub fn Page(
-    cx: Scope,
     team_id: i32,
     rbac: Rbac,
     prompts: Vec<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
 ) -> Element {
-    cx.render(rsx! {
+    rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Prompts,
-            team_id: *team_id,
+            team_id: team_id,
             rbac: rbac,
             title: "Prompts",
-            header: cx.render(rsx!(
+            header: rsx!(
                 h3 { "Prompts" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
@@ -30,128 +30,115 @@ pub fn Page(
                     button_scheme: ButtonScheme::Primary,
                     "New Prompt"
                 }
-            ))
+            )
 
             if prompts.is_empty() {
-                cx.render(rsx! {
-                    BlankSlate {
-                        heading: "Looks like you haven't configured any prompts yet",
-                        visual: nav_dashboard_svg.name,
-                        description: "Researchers use prompt engineering to improve the capacity of LLMs on a wide range of common and complex tasks such as question answering and arithmetic reasoning.",
-                        primary_action_drawer: (
-                            "New Prompt",
-                            "new-prompt-form", 
-                        )
-                    }
-                })
+                BlankSlate {
+                    heading: "Looks like you haven't configured any prompts yet",
+                    visual: nav_dashboard_svg.name,
+                    description: "Researchers use prompt engineering to improve the capacity of LLMs on a wide range of common and complex tasks such as question answering and arithmetic reasoning.",
+                    primary_action_drawer: (
+                        "New Prompt".to_string(),
+                        "new-prompt-form".to_string(),
+                    )
+                }
             } else {
-
-                cx.render(rsx! {
-                    Box {
-                        class: "has-data-table",
-                        BoxHeader {
-                            title: "Prompts"
-                        }
-                        BoxBody {
-                            table {
-                                class: "table table-sm",
-                                thead {
-                                    th { "Name" }
-                                    th { "Visibility" }
-                                    th { "Model" }
-                                    th { "Updated" }
-                                    th {
-                                        class: "text-right",
-                                        "Action"
-                                    }
+                Box {
+                    class: "has-data-table",
+                    BoxHeader {
+                        title: "Prompts"
+                    }
+                    BoxBody {
+                        table {
+                            class: "table table-sm",
+                            thead {
+                                th { "Name" }
+                                th { "Visibility" }
+                                th { "Model" }
+                                th { "Updated" }
+                                th {
+                                    class: "text-right",
+                                    "Action"
                                 }
-                                tbody {
-
-                                    prompts.iter().map(|prompt| {
-                                        cx.render(rsx!(
-                                            tr {
-                                                td {
-                                                    "{prompt.name}"
+                            }
+                            tbody {
+                                for prompt in &prompts {
+                                    tr {
+                                        td {
+                                            "{prompt.name}"
+                                        }
+                                        td {
+                                            super::visibility::VisLabel {
+                                                visibility: prompt.visibility
+                                            }
+                                        }
+                                        td {
+                                            "{prompt.model_name}"
+                                        }
+                                        td {
+                                            RelativeTime {
+                                                format: RelativeTimeFormat::Relative,
+                                                datetime: "{prompt.updated_at}"
+                                            }
+                                        }
+                                        td {
+                                            class: "text-right",
+                                            DropDown {
+                                                direction: Direction::Left,
+                                                button_text: "...",
+                                                DropDownLink {
+                                                    href: "#",
+                                                    drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                                    "Edit"
                                                 }
-                                                td {
-                                                    super::visibility::VisLabel {
-                                                        visibility: prompt.visibility
-                                                    }
-                                                }
-                                                td {
-                                                    "{prompt.model_name}"
-                                                }
-                                                td {
-                                                    RelativeTime {
-                                                        format: RelativeTimeFormat::Relative,
-                                                        datetime: "{prompt.updated_at}"
-                                                    }
-                                                }
-                                                td {
-                                                    class: "text-right",
-                                                    DropDown {
-                                                        direction: Direction::Left,
-                                                        button_text: "...",
-                                                        DropDownLink {
-                                                            href: "#",
-                                                            drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                            "Edit"
-                                                        }
-                                                        DropDownLink {
-                                                            drawer_trigger: format!("delete-trigger-{}-{}", 
-                                                                prompt.id, *team_id),
-                                                            href: "#",
-                                                            target: "_top",
-                                                            "Delete"
-                                                        }
-                                                    }
+                                                DropDownLink {
+                                                    drawer_trigger: format!("delete-trigger-{}-{}",
+                                                        prompt.id, team_id),
+                                                    href: "#",
+                                                    target: "_top",
+                                                    "Delete"
                                                 }
                                             }
-                                        ))
-                                    })
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                }
 
-                    prompts.iter().map(|item| rsx!(
-                        cx.render(rsx!(
-                            super::delete::DeleteDrawer {
-                                team_id: *team_id,
-                                id: item.id,
-                                trigger_id: format!("delete-trigger-{}-{}", item.id, *team_id)
-                            }
-                        ))
-                    ))
+                for item in &prompts {
+                    super::delete::DeleteDrawer {
+                        team_id: team_id,
+                        id: item.id,
+                        trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                    }
+                }
 
-                    prompts.iter().map(|prompt| {
-                        // The form to edit a prompt
-                        cx.render(rsx!(
-                            super::form::Form {
-                                id: prompt.id,
-                                team_id: *team_id,
-                                trigger_id: format!("edit-prompt-form-{}", prompt.id),
-                                name: prompt.name.clone(),
-                                system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
-                                datasets: datasets.clone(),
-                                selected_dataset_ids: split_datasets(&prompt.selected_datasets),
-                                visibility: prompt.visibility,
-                                models: models.clone(),
-                                model_id: prompt.model_id,
-                                max_history_items: prompt.max_history_items,
-                                max_chunks: prompt.max_chunks,
-                                max_tokens: prompt.max_tokens,
-                                trim_ratio: prompt.trim_ratio,
-                                temperature: prompt.temperature.unwrap_or(0.7),
-                            }
-                        ))
-                    })
-                })
+                for prompt in prompts {
+                    super::form::Form {
+                        id: prompt.id,
+                        team_id: team_id,
+                        trigger_id: format!("edit-prompt-form-{}", prompt.id),
+                        name: prompt.name.clone(),
+                        system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
+                        datasets: datasets.clone(),
+                        selected_dataset_ids: split_datasets(&prompt.selected_datasets),
+                        visibility: prompt.visibility,
+                        models: models.clone(),
+                        model_id: prompt.model_id,
+                        max_history_items: prompt.max_history_items,
+                        max_chunks: prompt.max_chunks,
+                        max_tokens: prompt.max_tokens,
+                        trim_ratio: prompt.trim_ratio,
+                        temperature: prompt.temperature.unwrap_or(0.7),
+                    }
+                }
             }
 
             // The form to create a model
             super::form::Form {
-                team_id: *team_id,
+                team_id: team_id,
                 trigger_id: "new-prompt-form".to_string(),
                 name: "".to_string(),
                 system_prompt: "".to_string(),
@@ -167,7 +154,7 @@ pub fn Page(
                 temperature: 0.7
             }
         }
-    })
+    }
 }
 
 pub fn index(props: PageProps) -> String {

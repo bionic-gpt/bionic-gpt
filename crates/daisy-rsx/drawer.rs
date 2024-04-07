@@ -2,28 +2,28 @@
 
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct DrawerProps<'a> {
-    trigger_id: &'a str,
-    label: &'a str,
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct DrawerProps {
+    trigger_id: String,
+    label: String,
+    children: Element,
     submit_action: Option<String>,
 }
 
-pub fn Drawer<'a>(cx: Scope<'a, DrawerProps<'a>>) -> Element {
-    let action = if let Some(action) = &cx.props.submit_action {
+pub fn Drawer(props: DrawerProps) -> Element {
+    let action = if let Some(action) = &props.submit_action {
         action.to_string()
     } else {
         "".to_string()
     };
-    cx.render(rsx!(
+    rsx!(
         form {
             action: "{action}",
             method: "post",
             div {
                 div {
                     class: "side-drawer flex flex-col",
-                    id: cx.props.trigger_id,
+                    id: props.trigger_id,
                     div {
                         class: "drawer__overlay",
                         tabindex: "-1"
@@ -34,7 +34,7 @@ pub fn Drawer<'a>(cx: Scope<'a, DrawerProps<'a>>) -> Element {
                             class: "drawer__header",
                             h4 {
                                 class: "drawer__title",
-                                "{cx.props.label}"
+                                "{props.label}"
                             }
                             a {
                                 href: "#",
@@ -42,46 +42,46 @@ pub fn Drawer<'a>(cx: Scope<'a, DrawerProps<'a>>) -> Element {
                                 "X"
                             }
                         }
-                        &cx.props.children
+                        {props.children}
                     }
                 }
             }
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct DrawerFooterProps<'a> {
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct DrawerFooterProps {
+    children: Element,
 }
 
-pub fn DrawerFooter<'a>(cx: Scope<'a, DrawerFooterProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn DrawerFooter(props: DrawerFooterProps) -> Element {
+    rsx!(
         div {
             class: "drawer__footer",
-            &cx.props.children
+            {props.children}
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct DrawerBodyProps<'a> {
-    children: Element<'a>,
-    class: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct DrawerBodyProps {
+    children: Element,
+    class: Option<String>,
 }
 
-pub fn DrawerBody<'a>(cx: Scope<'a, DrawerBodyProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn DrawerBody(props: DrawerBodyProps) -> Element {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("drawer__body {}", class);
-    cx.render(rsx!(cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
-            &cx.props.children
+            {props.children}
         }
-    ))))
+    )
 }

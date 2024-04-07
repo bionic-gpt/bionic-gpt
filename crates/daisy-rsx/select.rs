@@ -23,33 +23,33 @@ impl SelectSize {
     }
 }
 
-#[derive(Props)]
-pub struct SelectProps<'a> {
-    children: Element<'a>,
+#[derive(Props, Clone, PartialEq)]
+pub struct SelectProps {
+    children: Element,
     select_size: Option<SelectSize>,
-    pub name: &'a str,
-    pub id: Option<&'a str>,
-    pub value: Option<&'a str>,
-    pub label: Option<&'a str>,
-    pub label_class: Option<&'a str>,
-    pub help_text: Option<&'a str>,
+    pub name: String,
+    pub id: Option<String>,
+    pub value: Option<String>,
+    pub label: Option<String>,
+    pub label_class: Option<String>,
+    pub help_text: Option<String>,
     pub required: Option<bool>,
     pub disabled: Option<bool>,
     pub multiple: Option<bool>,
 }
 
-pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
-    let select_size = if cx.props.select_size.is_some() {
-        cx.props.select_size.unwrap()
+pub fn Select(props: SelectProps) -> Element {
+    let select_size = if props.select_size.is_some() {
+        props.select_size.unwrap()
     } else {
         Default::default()
     };
 
-    let value = cx.props.value.unwrap_or("");
+    let value = props.value.unwrap_or("".to_string());
 
     let class = select_size.to_string();
 
-    let disabled = if let Some(disabled) = cx.props.disabled {
+    let disabled = if let Some(disabled) = props.disabled {
         if disabled {
             Some(true)
         } else {
@@ -59,63 +59,63 @@ pub fn Select<'a>(cx: Scope<'a, SelectProps<'a>>) -> Element {
         None
     };
 
-    cx.render(rsx!(
-        match cx.props.label {
-            Some(l) => cx.render(rsx!(
+    rsx!(
+        match props.label {
+            Some(l) => rsx!(
                 label {
-                    class: cx.props.label_class,
+                    class: props.label_class,
                     "{l}"
                 }
-            )),
+            ),
             None => None
         }
         select {
-            id: cx.props.id,
-            required: cx.props.required,
+            id: props.id,
+            required: props.required,
             disabled: disabled,
-            multiple: cx.props.multiple,
+            multiple: props.multiple,
             class: "select select-bordered {class}",
             value: "{value}",
-            name: "{cx.props.name}",
-            &cx.props.children
+            name: "{props.name}",
+            {props.children}
         }
-        match cx.props.help_text {
-            Some(l) => cx.render(rsx!(
+        match props.help_text {
+            Some(l) => rsx!(
                 label {
                     class: "label-text-alt",
                     span {
                         "{l}"
                     }
                 }
-            )),
+            ),
             None => None
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct OptionProps<'a> {
-    children: Element<'a>,
-    pub value: &'a str,
-    pub selected_value: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct OptionProps {
+    children: Element,
+    pub value: String,
+    pub selected_value: Option<String>,
 }
 
-pub fn SelectOption<'a>(cx: Scope<'a, OptionProps<'a>>) -> Element {
-    if let Some(selected) = cx.props.selected_value {
-        if selected == cx.props.value {
-            return cx.render(rsx!(
+pub fn SelectOption(props: OptionProps) -> Element {
+    if let Some(selected) = props.selected_value {
+        if selected == props.value {
+            return rsx!(
                 option {
-                    value: cx.props.value,
+                    value: props.value,
                     selected: true,
-                    &cx.props.children
+                    {props.children}
                 }
-            ));
+            );
         }
     }
-    cx.render(rsx!(
+    rsx!(
         option {
-            value: cx.props.value,
-            &cx.props.children
+            value: props.value,
+            {props.children}
         }
-    ))
+    )
 }

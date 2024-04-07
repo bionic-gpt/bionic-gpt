@@ -41,31 +41,31 @@ impl LabelSize {
     }
 }
 
-#[derive(Props)]
-pub struct LabelProps<'a> {
-    children: Element<'a>,
-    class: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct LabelProps {
+    children: Element,
+    class: Option<String>,
     label_role: Option<LabelRole>,
     label_size: Option<LabelSize>,
 }
 
-pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
-    let label_role = if cx.props.label_role.is_some() {
-        cx.props.label_role.unwrap()
+pub fn Label(props: LabelProps) -> Element {
+    let label_role = if props.label_role.is_some() {
+        props.label_role.unwrap()
     } else {
         Default::default()
     };
 
-    let label_size = if cx.props.label_size.is_some() {
-        cx.props.label_size.unwrap()
+    let label_size = if props.label_size.is_some() {
+        props.label_size.unwrap()
     } else {
         Default::default()
     };
 
-    let class = if let Some(class) = cx.props.class {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!(
@@ -75,10 +75,10 @@ pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
         class
     );
 
-    cx.render(rsx!(
+    rsx!(
         button {
             class: "{class}",
-            &cx.props.children,
+            {props.children},
         }
-    ))
+    )
 }

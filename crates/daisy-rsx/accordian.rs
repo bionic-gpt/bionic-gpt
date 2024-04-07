@@ -3,31 +3,31 @@
 
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct AccordianProps<'a> {
-    name: &'a str,
-    title: &'a str,
+#[derive(Props, Clone, PartialEq)]
+pub struct AccordianProps {
+    name: String,
+    title: String,
     checked: Option<bool>,
-    children: Element<'a>,
+    children: Element,
 }
 
-pub fn Accordian<'a>(cx: Scope<'a, AccordianProps<'a>>) -> Element {
-    cx.render(rsx!(
+pub fn Accordian(props: AccordianProps) -> Element {
+    rsx!(
         div {
             class: "collapse collapse-arrow bg-base-200",
             input {
-                checked: cx.props.checked,
+                checked: props.checked,
                 "type": "radio",
-                name: cx.props.name
+                name: props.name
             }
             div {
                 class: "collapse-title text-md font-medium",
-                "{cx.props.title}"
+                "{props.title}"
             }
             div {
                 class: "collapse-content  bg-base-200",
-                {&cx.props.children}
+                {{props.children}}
             }
         }
-    ))
+    )
 }

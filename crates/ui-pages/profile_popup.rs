@@ -5,19 +5,18 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn ProfilePopup(
-    cx: Scope,
     email: String,
     first_name: String,
     last_name: String,
     team_id: i32,
 ) -> Element {
     let user_name_or_email = if !first_name.is_empty() || !last_name.is_empty() {
-        format!("{} {}", cx.props.first_name, cx.props.last_name)
+        format!("{} {}", first_name, last_name)
     } else {
         email.to_string()
     };
 
-    cx.render(rsx! {
+    rsx! {
         DropDown {
             direction: Direction::Top,
             button_text: "{user_name_or_email}",
@@ -46,7 +45,7 @@ pub fn ProfilePopup(
                 "Profile"
             }
             DropDownLink {
-                href: "{crate::routes::profile::index_route(*team_id)}",
+                href: "{crate::routes::profile::index_route(team_id)}",
                 target: "_top",
                 "Profile"
             }
@@ -57,5 +56,5 @@ pub fn ProfilePopup(
                 "Log Out"
             }
         }
-    })
+    }
 }

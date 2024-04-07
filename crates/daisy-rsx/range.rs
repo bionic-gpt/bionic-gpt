@@ -45,64 +45,64 @@ impl RangeSize {
     }
 }
 
-#[derive(Props)]
-pub struct RangeProps<'a> {
-    children: Element<'a>,
-    class: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct RangeProps {
+    children: Element,
+    class: Option<String>,
     min: i32,
     max: i32,
     value: i32,
-    name: &'a str,
-    label: Option<&'a str>,
-    label_class: Option<&'a str>,
-    help_text: Option<&'a str>,
+    name: String,
+    label: Option<String>,
+    label_class: Option<String>,
+    help_text: Option<String>,
     range_color: Option<RangeColor>,
 }
 
-pub fn Range<'a>(cx: Scope<'a, RangeProps<'a>>) -> Element {
-    let range_color = if cx.props.range_color.is_some() {
-        cx.props.range_color.unwrap()
+pub fn Range(props: RangeProps) -> Element {
+    let range_color = if props.range_color.is_some() {
+        props.range_color.unwrap()
     } else {
         Default::default()
     };
 
-    let class = if let Some(class) = cx.props.class {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("{} {}", range_color.to_string(), class);
 
-    cx.render(rsx!(
-        match cx.props.label {
-            Some(l) => cx.render(rsx!(
+    rsx!(
+        match props.label {
+            Some(l) => rsx!(
                 label {
-                    class: cx.props.label_class,
+                    class: props.label_class,
                     "{l}"
                 }
-            )),
+            ),
             None => None
         }
         input {
             "type": "range",
-            min: "{cx.props.min}",
-            max: "{cx.props.max}",
-            value: "{cx.props.value}",
+            min: "{props.min}",
+            max: "{props.max}",
+            value: "{props.value}",
             class: "{class}",
-            name: cx.props.name,
-            &cx.props.children,
+            name: props.name,
+            {props.children},
         }
-        match cx.props.help_text {
-            Some(l) => cx.render(rsx!(
+        match props.help_text {
+            Some(l) => rsx!(
                 label {
                     span {
                         class: "label-text-alt",
                         "{l}"
                     }
                 }
-            )),
+            ),
             None => None
         }
-    ))
+    )
 }

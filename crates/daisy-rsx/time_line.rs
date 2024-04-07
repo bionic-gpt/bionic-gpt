@@ -3,80 +3,80 @@
 
 use dioxus::prelude::*;
 
-#[derive(Props)]
-pub struct TimeLineProps<'a> {
+#[derive(Props, Clone, PartialEq)]
+pub struct TimeLineProps {
     condensed: Option<bool>,
-    class: Option<&'a str>,
-    children: Element<'a>,
+    class: Option<String>,
+    children: Element,
 }
 
-pub fn TimeLine<'a>(cx: Scope<'a, TimeLineProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn TimeLine(props: TimeLineProps) -> Element {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let the_class = format!("timeline-item {}", class);
 
-    let class = if cx.props.condensed.is_some() {
+    let class = if props.condensed.is_some() {
         format!("timeline-condensed {}", the_class)
     } else {
         the_class
     };
 
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
-            {&cx.props.children}
+            {{props.children}}
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct TimeLineBadgeProps<'a> {
-    image_src: &'a str,
-    class: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct TimeLineBadgeProps {
+    image_src: String,
+    class: Option<String>,
 }
 
-pub fn TimeLineBadge<'a>(cx: Scope<'a, TimeLineBadgeProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn TimeLineBadge(props: TimeLineBadgeProps) -> Element {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("timeline-badge {}", class);
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
             img {
-                src: "{cx.props.image_src}",
+                src: "{props.image_src}",
                 width: "16"
             }
         }
-    ))
+    )
 }
 
-#[derive(Props)]
-pub struct TimeLineBodyProps<'a> {
-    children: Element<'a>,
-    class: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct TimeLineBodyProps {
+    children: Element,
+    class: Option<String>,
 }
 
-pub fn TimeLineBody<'a>(cx: Scope<'a, TimeLineBodyProps<'a>>) -> Element {
-    let class = if let Some(class) = cx.props.class {
+pub fn TimeLineBody(props: TimeLineBodyProps) -> Element {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("timeline-body {}", class);
 
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
-            &cx.props.children
+            {props.children}
         }
-    ))
+    )
 }
