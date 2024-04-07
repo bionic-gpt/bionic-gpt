@@ -9,5 +9,5 @@ path = "lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = "0.4"
-dioxus-ssr = "0.4"
+dioxus = "0.5"
+dioxus-ssr = "0.5"

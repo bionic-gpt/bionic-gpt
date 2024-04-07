@@ -4,11 +4,11 @@ use db::Prompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Form(cx: Scope, team_id: i32, prompts: Vec<Prompt>) -> Element {
-    cx.render(rsx!(
+pub fn Form(team_id: i32, prompts: Vec<Prompt>) -> Element {
+    rsx!(
         form {
             method: "post",
-            action: "{crate::routes::api_keys::new_route(*team_id)}",
+            action: "{crate::routes::api_keys::new_route(team_id)}",
             Drawer {
                 label: "New API Key",
                 trigger_id: "create-api-key",
@@ -28,12 +28,12 @@ pub fn Form(cx: Scope, team_id: i32, prompts: Vec<Prompt>) -> Element {
                             label: "Please select a prompt",
                             label_class: "mt-4",
                             help_text: "All access via this API key will use the above prompt",
-                            prompts.iter().map(|prompt| rsx!(
+                            {prompts.iter().map(|prompt| rsx!(
                                 SelectOption {
                                     value: "{prompt.id}",
                                     "{prompt.name}"
                                 }
-                            ))
+                            ))}
                         }
                     }
                 }
@@ -46,5 +46,5 @@ pub fn Form(cx: Scope, team_id: i32, prompts: Vec<Prompt>) -> Element {
                 }
             }
         }
-    ))
+    )
 }

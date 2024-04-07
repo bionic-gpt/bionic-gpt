@@ -61,48 +61,48 @@ impl ButtonSize {
     }
 }
 
-#[derive(Props)]
-pub struct ButtonProps<'a> {
-    children: Element<'a>,
-    id: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct ButtonProps {
+    children: Element,
+    id: Option<String>,
     disabled: Option<bool>,
-    class: Option<&'a str>,
-    prefix_image_src: Option<&'a str>,
-    suffix_image_src: Option<&'a str>,
+    class: Option<String>,
+    prefix_image_src: Option<String>,
+    suffix_image_src: Option<String>,
     button_type: Option<ButtonType>,
     button_size: Option<ButtonSize>,
     button_scheme: Option<ButtonScheme>,
-    drawer_trigger: Option<&'a str>,
-    disabled_text: Option<&'a str>,
+    drawer_trigger: Option<String>,
+    disabled_text: Option<String>,
 }
 
-pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element {
-    let button_scheme = if cx.props.button_scheme.is_some() {
-        cx.props.button_scheme.unwrap()
+pub fn Button(props: ButtonProps) -> Element {
+    let button_scheme = if props.button_scheme.is_some() {
+        props.button_scheme.unwrap()
     } else {
         Default::default()
     };
 
-    let button_type = if cx.props.button_type.is_some() {
-        cx.props.button_type.unwrap()
+    let button_type = if props.button_type.is_some() {
+        props.button_type.unwrap()
     } else {
         Default::default()
     };
     let button_type = button_type.to_string();
 
-    let button_size = if cx.props.button_size.is_some() {
-        cx.props.button_size.unwrap()
+    let button_size = if props.button_size.is_some() {
+        props.button_size.unwrap()
     } else {
         Default::default()
     };
 
-    let class = if let Some(class) = cx.props.class {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
-    let disabled = if let Some(disabled) = cx.props.disabled {
+    let disabled = if let Some(disabled) = props.disabled {
         if disabled {
             Some(true)
         } else {
@@ -119,37 +119,29 @@ pub fn Button<'a>(cx: Scope<'a, ButtonProps<'a>>) -> Element {
         button_size.to_string()
     );
 
-    cx.render(rsx!(
+    rsx!(
         button {
             class: "{class}",
-            id: cx.props.id,
+            id: props.id,
             disabled: disabled,
-            "data-drawer-target": cx.props.drawer_trigger,
+            "data-drawer-target": props.drawer_trigger,
             "type": "{button_type}",
-            "data-disabled-text": cx.props.disabled_text,
-            if let Some(img_src) = cx.props.prefix_image_src {
-                cx.render(rsx! {
+            "data-disabled-text": props.disabled_text,
+            if let Some(img_src) = props.prefix_image_src {
                     img {
                         src: "{img_src}",
                         class: "mr-2",
                         width: "12"
                     }
-                })
-            } else {
-                None
             },
-            &cx.props.children,
-            if let Some(img_src) = cx.props.suffix_image_src {
-                cx.render(rsx! {
+            {props.children},
+            if let Some(img_src) = props.suffix_image_src {
                     img {
                         src: "{img_src}",
                         class: "ml-2",
                         width: "12"
                     }
-                })
-            } else {
-                None
             }
         }
-    ))
+    )
 }

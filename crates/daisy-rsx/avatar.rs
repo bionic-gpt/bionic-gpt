@@ -29,25 +29,25 @@ impl AvatarSize {
     }
 }
 
-#[derive(Props)]
-pub struct AvatarProps<'a> {
+#[derive(Props, Clone, PartialEq)]
+pub struct AvatarProps {
     avatar_size: Option<AvatarSize>,
     avatar_type: Option<AvatarType>,
-    name: Option<&'a str>,
-    _email: Option<&'a str>,
-    _image_src: Option<&'a str>,
+    name: Option<String>,
+    _email: Option<String>,
+    _image_src: Option<String>,
 }
 
-pub fn Avatar<'a>(cx: Scope<'a, AvatarProps<'a>>) -> Element {
-    let avatar_size = if cx.props.avatar_size.is_some() {
-        cx.props.avatar_size.unwrap()
+pub fn Avatar(props: AvatarProps) -> Element {
+    let avatar_size = if props.avatar_size.is_some() {
+        props.avatar_size.unwrap()
     } else {
         Default::default()
     };
     let avatar_size = avatar_size.to_string();
 
     let mut the_name = "?".to_string();
-    if let Some(name) = cx.props.name {
+    if let Some(name) = props.name {
         the_name = if let Some(chr) = name.chars().next() {
             chr.to_string()
         } else {
@@ -55,8 +55,8 @@ pub fn Avatar<'a>(cx: Scope<'a, AvatarProps<'a>>) -> Element {
         };
     }
 
-    match cx.props.avatar_type {
-        Some(AvatarType::User) => cx.render(rsx!(
+    match props.avatar_type {
+        Some(AvatarType::User) => rsx!(
             svg {
                 "aria-hidden": true,
                 xmlns: "http://www.w3.org/2000/svg",
@@ -86,8 +86,8 @@ pub fn Avatar<'a>(cx: Scope<'a, AvatarProps<'a>>) -> Element {
                     }
                 }
             }
-        )),
-        Some(_) => cx.render(rsx!(
+        ),
+        Some(_) => rsx!(
             svg {
                 "aria-hidden": true,
                 xmlns: "http://www.w3.org/2000/svg",
@@ -107,11 +107,11 @@ pub fn Avatar<'a>(cx: Scope<'a, AvatarProps<'a>>) -> Element {
                     y: "55%",
                     "dominant-baseline": "middle",
                     "text-anchor": "middle",
-                    the_name
+                    {the_name}
                 }
             }
-        )),
-        None => cx.render(rsx!(
+        ),
+        None => rsx!(
             svg {
                 "aria-hidden": true,
                 xmlns: "http://www.w3.org/2000/svg",
@@ -131,9 +131,9 @@ pub fn Avatar<'a>(cx: Scope<'a, AvatarProps<'a>>) -> Element {
                     y: "55%",
                     "dominant-baseline": "middle",
                     "text-anchor": "middle",
-                    the_name
+                    {the_name}
                 }
             }
-        )),
+        ),
     }
 }

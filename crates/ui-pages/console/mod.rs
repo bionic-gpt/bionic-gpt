@@ -6,7 +6,7 @@ pub mod prompt_drawer;
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};
 pub use index::index;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct ChatWithChunks {
     pub chat: Chat,
     pub chunks: Vec<ChatChunks>,

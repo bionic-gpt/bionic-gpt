@@ -4,8 +4,8 @@ use db::AuditTrail;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AuditTable<'a>(cx: Scope, audits: &'a Vec<AuditTrail>) -> Element {
-    cx.render(rsx!(
+pub fn AuditTable(audits: Vec<AuditTrail>) -> Element {
+    rsx!(
         Box {
             class: "has-data-table",
             BoxHeader {
@@ -24,7 +24,7 @@ pub fn AuditTable<'a>(cx: Scope, audits: &'a Vec<AuditTrail>) -> Element {
                         }
                     }
                     tbody {
-                        audits.iter().map(|audit| rsx!(
+                        for audit in audits {
                             tr {
                                 td {
                                     RelativeTime {
@@ -39,21 +39,21 @@ pub fn AuditTable<'a>(cx: Scope, audits: &'a Vec<AuditTrail>) -> Element {
                                     Label {
                                         class: "mr-2",
                                         label_role: LabelRole::Neutral,
-                                        super::access_type_to_string(audit.access_type)
+                                        {super::access_type_to_string(audit.access_type)}
                                     }
                                 }
                                 td {
                                     class: "text-right",
                                     Label {
                                         label_role: LabelRole::Neutral,
-                                        super::audit_action_to_string(audit.action)
+                                        {super::audit_action_to_string(audit.action)}
                                     }
                                 }
                             }
-                        ))
+                        }
                     }
                 }
             }
         }
-    ))
+    )
 }

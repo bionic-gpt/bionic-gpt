@@ -23,32 +23,32 @@ impl AlertColor {
     }
 }
 
-#[derive(Props)]
-pub struct AlertProps<'a> {
-    children: Element<'a>,
-    class: Option<&'a str>,
+#[derive(Props, Clone, PartialEq)]
+pub struct AlertProps {
+    children: Element,
+    class: Option<String>,
     alert_color: Option<AlertColor>,
 }
 
-pub fn Alert<'a>(cx: Scope<'a, AlertProps<'a>>) -> Element {
-    let alert_color = if cx.props.alert_color.is_some() {
-        cx.props.alert_color.unwrap()
+pub fn Alert(props: AlertProps) -> Element {
+    let alert_color = if props.alert_color.is_some() {
+        props.alert_color.unwrap()
     } else {
         Default::default()
     };
 
-    let class = if let Some(class) = cx.props.class {
+    let class = if let Some(class) = props.class {
         class
     } else {
-        ""
+        "".to_string()
     };
 
     let class = format!("{} {}", alert_color.to_string(), class);
 
-    cx.render(rsx!(
+    rsx!(
         div {
             class: "{class}",
-            &cx.props.children,
+            {props.children},
         }
-    ))
+    )
 }

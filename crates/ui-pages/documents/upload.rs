@@ -3,8 +3,8 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Upload(cx: Scope, upload_action: String) -> Element {
-    cx.render(rsx!(
+pub fn Upload(upload_action: String) -> Element {
+    rsx!(
         form {
             action: "{upload_action}",
             method: "post",
@@ -61,5 +61,5 @@ pub fn Upload(cx: Scope, upload_action: String) -> Element {
                 }
             }
         }
-    ))
+    )
 }

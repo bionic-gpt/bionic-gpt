@@ -1,13 +1,14 @@
 #![allow(non_snake_case)]
-use assets::files::{button_select_svg, profile_svg};
 use daisy_rsx::*;
 use db::queries::teams::Team;
 use dioxus::prelude::*;
+use assets::files::profile_svg;
+use assets::files::button_select_svg;
 
 #[component]
-pub fn Page(cx: Scope, teams: Vec<(String, String)>, team: Team) -> Element {
+pub fn Page(teams: Vec<(String, String)>, team: Team) -> Element {
     if let Some(name) = &team.name.clone() {
-        cx.render(rsx! {
+        rsx! {
             turbo-frame {
                 id: "teams-popup",
                 class: "min-w-full",
@@ -20,18 +21,18 @@ pub fn Page(cx: Scope, teams: Vec<(String, String)>, team: Team) -> Element {
                     strong {
                         "Switch Teams"
                     },
-                    teams.iter().map(|team| rsx!(
+                    for team in teams {
                         DropDownLink {
                             href: "{team.1}",
                             target: "_top",
                             "{team.0}"
                         }
-                    ))
+                    }
                 }
             }
-        })
+        }
     } else {
-        cx.render(rsx! {
+        rsx! {
             turbo-frame {
                 id: "teams-popup",
                 class: "w-full",
@@ -42,7 +43,7 @@ pub fn Page(cx: Scope, teams: Vec<(String, String)>, team: Team) -> Element {
                     }
                 }
             }
-        })
+        }
     }
 }
 
