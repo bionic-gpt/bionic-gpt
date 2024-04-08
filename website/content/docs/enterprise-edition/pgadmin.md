@@ -4,29 +4,7 @@ weight = 100
 sort_by = "weight"
 +++
 
-## Enable from the Operator
-
-Uncomment the `pgadmin` section and set it to true.
-
-```yaml
-apiVersion: bionic-gpt.com/v1
-kind: Bionic
-metadata:
-  name: bionic-gpt
-  namespace: bionic-gpt 
-spec:
-  replicas: 1 
-  version: 1.6.18
-  
-  # PgAdmin - Uncomment to install PgAdmin
-  pgadmin: true
-```
-
-Apply the configuration
-
-```sh
-kubectl apply -f bionic.yaml
-```
+[pgAdmin](https://www.pgadmin.org/) is installed  by passing the paramater `--pgadmin` to bionic at install time.
 
 ## Getting the pgAdmin Logon Password
 

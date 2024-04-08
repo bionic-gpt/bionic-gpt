@@ -36,13 +36,13 @@ The following will install `k3s` as our kubernetes engine and then install bioni
 bionic install --pgadmin
 ```
 
-You can install [k9s](https://k9scli.io/) which is a great way to get insight into your cluster.
+Note you can skip the `--pgadmin` if you don't want [pgAdmin](https://www.pgadmin.org/) installed.
+
+You can optionally install [k9s](https://k9scli.io/) which is a great way to get insight into your cluster.
 
 ```sh
 curl -L -s https://github.com/derailed/k9s/releases/download/v0.32.4/k9s_Linux_amd64.tar.gz | tar xvz -C /tmp && sudo mv /tmp/k9s /usr/local/bin && rm -rf k9s_Linux_amd64.tar.gz
 ```
-
-Note you can skip the `--pgadmin` if you don't want [pgAdmin](https://www.pgadmin.org/) installed.
 
 ## Step 3: The Finished Result
 
