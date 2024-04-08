@@ -1,5 +1,5 @@
 use leptos::*;
-use leptos_meta::*;
+use crate::islands::Counter;
 
 #[component]
 pub fn IndexPage() -> impl IntoView {
@@ -20,18 +20,5 @@ pub fn IndexPage() -> impl IntoView {
             <h1>"Welcome to Leptos!"</h1>
             <Counter/>
         </div>
-    }
-}
-
-#[island]
-fn Counter() -> impl IntoView {
-    // Creates a reactive value to update the button
-    let (count, set_count) = create_signal(0);
-    let on_click = move |_| set_count.update(|count| *count += 1);
-
-    view! {
-        // sets the document title
-        <Title text="The cllick button page"/>
-        <button class="btn btn-primary" on:click=on_click>"Click Me: " {count}</button>
     }
 }

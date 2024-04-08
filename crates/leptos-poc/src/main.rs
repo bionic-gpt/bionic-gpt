@@ -1,9 +1,7 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
-    use leptos_poc::config;
     use axum::Router;
-    use axum::extract::Extension;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use leptos_poc::app::*;
@@ -19,13 +17,9 @@ async fn main() {
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
 
-    let config = config::Config::new();
-    let pool = db::create_pool(&config.app_database_url);
-
     // build our application with a route
     let app = Router::new()
         .leptos_routes(&leptos_options, routes, App)
-        .layer(Extension(pool.clone()))
         .fallback(file_and_error_handler)
         .with_state(leptos_options);
 

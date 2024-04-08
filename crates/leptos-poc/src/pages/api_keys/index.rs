@@ -1,22 +1,7 @@
 use leptos::*;
-use axum::extract::Extension;
-use db::{queries, Pool};
-use leptos_axum::extract;
 
 #[component]
 pub fn IndexPage() -> impl IntoView {
-
-    let keys = async {
-        let pool: Extension<Pool> = extract().await.unwrap();
-        let mut client = pool.get().await.unwrap();
-        let transaction = client.transaction().await.unwrap();
-
-        let api_keys = queries::api_keys::api_keys()
-            .bind(&transaction, &1)
-            .all()
-            .await.unwrap();
-        api_keys
-    };
 
     view! {
         <div class="navbar bg-base-100">

@@ -1,11 +1,17 @@
-pub mod error_template;
+// SSR Only
 #[cfg(feature = "ssr")]
 pub mod fileserv;
-pub mod config;
-#[cfg(feature = "ssr")]
+#[cfg(feature = "ssr")] 
 pub mod app;
+#[cfg(feature = "ssr")] 
 pub mod pages;
+#[cfg(feature = "ssr")] 
+pub mod error_template;
 
+// Islands - get compiled to the server and the front end
+pub mod islands;
+
+// Front end only
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]
 pub fn hydrate() {

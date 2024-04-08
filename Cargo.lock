@@ -2233,7 +2233,6 @@ version = "0.1.0"
 dependencies = [
  "axum 0.7.5",
  "console_error_panic_hook",
- "db",
  "http 1.1.0",
  "leptos",
  "leptos_axum",
