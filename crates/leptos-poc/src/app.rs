@@ -35,12 +35,9 @@ pub fn App() -> impl IntoView {
                         </Routes>
                     </div> 
                     <div class="drawer-side">
-                        <div class="navbar bg-base-100">
-                            <a class="btn btn-ghost text-xl">daisyUI</a>
-                        </div>
                         <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
                         <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-                            <li><a href="/console">The Console</a></li>
+                            <li><a href="/console"><img src="accounts.svg" width="16" height="16" /> The Console</a></li>
                             <li><a href="/api_keys">The Keys</a></li>
                         </ul>
                     </div>
