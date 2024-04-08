@@ -8,6 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 axum = { version = "0.7", optional = true }
+db = { path = "../db", optional = true }
 console_error_panic_hook = "0.1"
 leptos = { version = "0.6", features = ["experimental-islands"] }
 leptos_axum = { version = "0.6", optional = true, features = [
@@ -27,6 +28,7 @@ http = "1"
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
 ssr = [
     "dep:axum",
+    "dep:db",
     "dep:tokio",
     "dep:tower",
     "dep:tower-http",
