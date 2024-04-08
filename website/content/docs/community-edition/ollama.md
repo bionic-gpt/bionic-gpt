@@ -8,36 +8,19 @@ sort_by = "weight"
 
 Ollama is an inference engine for serving models.
 
-You'll need to install [Ollama](https://ollama.ai/) and get it running with the `llama2` model.
+You'll need to install [Ollama](https://ollama.ai/) and get it running.
 
-Once you have that running you can use the following to connect it to Bionic.
+Once you have it running you can use the following to connect it to Bionic.
 
-## Configuring Ollama
+## Configuring Ollama to listen on `0.0.0.0`.
 
-We need to get Ollama to listen on `0.0.0.0`.
+We need to get Ollama to listen on `0.0.0.0` otherwise services from within `k3s` can't connect to it.
+ Run the following
 
-Edit the systemd service by calling `sudo vi /etc/systemd/system/ollama.service`. This will open an editor.
-
-For each environment variable, add a line Environment under section [Service]:
-
-```service
-[Service]
-Environment="OLLAMA_HOST=0.0.0.0"
-```
-
-Save and exit.
-
-Reload systemd and restart Ollama:
-
-```sh
-systemctl daemon-reload
-systemctl restart ollama
-```
-
-You can run the following to view the logs
-
-```sh
-journalctl -u ollama
+```bash
+sudo sed -i '/^\[Service\]/a Environment="OLLAMA_HOST=0.0.0.0"' /etc/systemd/system/ollama.service
+sudo systemctl daemon-reload
+sudo systemctl restart ollama.service
 ```
 
 ## Test Ollama
@@ -50,12 +33,6 @@ curl http://pop-os:11434/api/generate -d '{
   "prompt":"Why is the sky blue?"
 }'
 ```
-
-## Registration
-
-The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
-
-![Alt text](../initial-screen.png "Start Screen")
 
 ## Update the model
 
