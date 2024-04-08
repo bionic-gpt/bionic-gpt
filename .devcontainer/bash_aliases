@@ -37,3 +37,6 @@ alias wt=watch-tailwind
 
 # Spell check
 alias spell='docker run --rm -ti -v $HOST_PROJECT_PATH/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
+
+# Devpod always deletes my website folder
+alias fu-devpod='git checkout -- website'

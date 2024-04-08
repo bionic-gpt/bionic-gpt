@@ -1,3 +1,15 @@
+## Cargo Leptos
+
+```sh
+cargo install cargo-leptos
+```
+
+## Install wasm target
+
+```sh
+rustup target add wasm32-unknown-unknown
+```
+
 ## Running your project
 
 ```bash
