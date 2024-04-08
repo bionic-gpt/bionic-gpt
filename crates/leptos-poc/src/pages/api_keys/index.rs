@@ -1,7 +1,23 @@
 use leptos::*;
+use axum::extract::Extension;
+use db::{queries, Pool};
+use leptos_axum::extract;
 
 #[component]
 pub fn IndexPage() -> impl IntoView {
+
+    let keys = async {
+        let pool: Extension<Pool> = extract().await.unwrap();
+        let mut client = pool.get().await.unwrap();
+        let transaction = client.transaction().await.unwrap();
+
+        let api_keys = queries::api_keys::api_keys()
+            .bind(&transaction, &1)
+            .all()
+            .await.unwrap();
+        api_keys
+    };
+
     view! {
         <div class="navbar bg-base-100">
             <div class="flex-none">
@@ -43,19 +59,9 @@ pub fn IndexPage() -> impl IntoView {
     }
 }
 
-#[server]
-pub async fn axum_extract() -> Result<String, ServerFnError> {
-
-    use axum::extract::Extension;
-    use db::Pool;
-    use leptos_axum::extract;
-    let pool: Extension<Pool> = extract().await?;
-
-    Ok(format!("{pool:?}"))
-}
-
 #[component]
 fn TableBody() -> impl IntoView {
+
     view! {
         <tbody>
         <tr>
