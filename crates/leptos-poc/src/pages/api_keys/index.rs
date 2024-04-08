@@ -43,6 +43,17 @@ pub fn IndexPage() -> impl IntoView {
     }
 }
 
+#[server]
+pub async fn axum_extract() -> Result<String, ServerFnError> {
+
+    use axum::extract::Extension;
+    use db::Pool;
+    use leptos_axum::extract;
+    let pool: Extension<Pool> = extract().await?;
+
+    Ok(format!("{pool:?}"))
+}
+
 #[component]
 fn TableBody() -> impl IntoView {
     view! {
