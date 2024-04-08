@@ -2,6 +2,7 @@
 title = "Upgrading Bionic"
 weight = 100
 sort_by = "weight"
+draft = true
 +++
 
 ## Update the version and hashes

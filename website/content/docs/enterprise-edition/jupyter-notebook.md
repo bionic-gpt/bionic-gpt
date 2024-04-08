@@ -27,9 +27,7 @@ docker-compose -f docker-compose.yml -f docker-compose-jupyter.yml up
 
 In the logs you should see something like the below
 
-```
-http://127.0.0.1:8888/lab?token=b2eb9f7b5e0fafaef985b734e6fc4ad8f0e58c529c15f73e
-```
+`http://127.0.0.1:8888/lab?token=b2eb9f7b5e0fafaef985b734e6fc4ad8f0e58c529c15f73e`
 
 This is the authentication token. You'll need to use that URL to Login.
 
@@ -37,7 +35,7 @@ This is the authentication token. You'll need to use that URL to Login.
 
 Example accessing the embeddings API.  open up a notebook terminal and run
 
-```
+```sh
 curl embeddings-api:80/embed     -X POST     -d '{"inputs":"What is Deep Learning?"}'     -H 'Content-Type: application/json'
 ```
 
@@ -46,7 +44,8 @@ curl embeddings-api:80/embed     -X POST     -d '{"inputs":"What is Deep Learnin
 
 
 ## Accessing the Database ##
-```
+
+```sh
 !pip install -q sqlalchemy psycopg2-binary pandas  
 engine = sqlalchemy.create_engine('postgresql://postgres:testpassword@postgres:5432/bionic-gpt')
 conn = engine.connect()
@@ -60,7 +59,8 @@ pd.read_sql("SELECT * FROM information_schema.tables",conn)
 
 
 ## Accessing Embeddings From Python ##
-```
+
+```python
 url = "http://embeddings-api:80/embed"
 
 data = {"inputs": "is US20040098780A1 in the dataset?"}
@@ -77,7 +77,7 @@ print(response.text[1:-1])
 
 ## Embedding Based Query on Database ##
 
-```
+```python
 from sqlalchemy import text
 em = response.text
 
