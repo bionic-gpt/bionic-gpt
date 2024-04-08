@@ -142,3 +142,7 @@ spec:
 ```
 
 If everything is working the pod will run and go to state completed.
+
+## References
+
+- [K3s / RKE2 and GPU PCI-passthrough](https://dischord.org/2022/05/16/k3s-rke2-and-gpu-pci-passthrough/)
