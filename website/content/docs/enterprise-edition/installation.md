@@ -18,19 +18,7 @@ The bionic installer simplifies a lot of the setup. To install it run the follow
 ## Step 1: Install the CLI
 
 ```sh
-curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux && mkdir -p $HOME/.bionic && mv ./bionic-cli-linux $HOME/.bionic/bionic && chmod +x $HOME/.bionic/bionic
-```
-
-Be sure to follow the instructions to add it to your path:
-
-```sh
-export PATH=$HOME/.bionic:$PATH
-```
-
-and export the path to the kubeconfig file.
-
-```sh
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
 Check the installation
@@ -45,16 +33,18 @@ bionic -V
 The following will install `k3s` as our kubernetes engine and then install bionic into the cluster. It will also install `k9s` which is a terminal UI for Kubernetes.
 
 ```sh
-bionic install
+bionic install --pgadmin
 ```
-
-## Step 3: The Finished Result
 
 You can install [k9s](https://k9scli.io/) which is a great way to get insight into your cluster.
 
 ```sh
 curl -L -s https://github.com/derailed/k9s/releases/download/v0.32.4/k9s_Linux_amd64.tar.gz | tar xvz -C /tmp && sudo mv /tmp/k9s /usr/local/bin && rm -rf k9s_Linux_amd64.tar.gz
 ```
+
+Note you can skip the `--pgadmin` if you don't want [pgAdmin](https://www.pgadmin.org/) installed.
+
+## Step 3: The Finished Result
 
 and then.
 
