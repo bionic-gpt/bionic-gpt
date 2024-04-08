@@ -5,7 +5,7 @@ sort_by = "weight"
 +++
 
 ```sh
-kubectl create secret generic my-secret-name \
+kubectl create secret generic bionic-enterprise-key \
   --from-literal=enterprise-key='your-enterprise-key' \
   --from-literal=key-signature='your-key-signature'
 ```
