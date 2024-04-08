@@ -1,5 +1,5 @@
 +++
-title = "Kubernetes on Bare Metal"
+title = "Single Node Kubernetes"
 weight = 20
 sort_by = "weight"
 +++
