@@ -1,5 +1,4 @@
 use leptos::*;
-use leptos_meta::*;
 
 #[component]
 pub fn IndexPage() -> impl IntoView {
@@ -20,41 +19,43 @@ pub fn IndexPage() -> impl IntoView {
             </div>
         </div>
         <div class="m-5 mb-0">
-            <h1>"Welcome to Leptos!"</h1>
-            <Counter/>
-        </div>
-        <Drawer/>
-    }
-}
-
-#[component]
-fn Drawer() -> impl IntoView {
-    view! {
-        <div class="drawer drawer-end">
-            <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
-            <div class="drawer-content">
-                <label for="my-drawer-4" class="drawer-button btn btn-primary">Open drawer</label>
-            </div> 
-            <div class="drawer-side">
-                <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
-                <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-                <li><a>Sidebar Item 1</a></li>
-                <li><a>Sidebar Item 2</a></li>
-                </ul>
+            <div class="card border">
+                <div class="card-body">
+                    <h2 class="card-title">Card title!</h2>
+                    <div class="overflow-x-auto">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Job</th>
+                                <th>Favorite Color</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th>1</th>
+                                <td>Cy Ganderton</td>
+                                <td>Quality Control Specialist</td>
+                                <td>Blue</td>
+                            </tr>
+                            <tr>
+                                <th>2</th>
+                                <td>Hart Hagerty</td>
+                                <td>Desktop Support Technician</td>
+                                <td>Purple</td>
+                            </tr>
+                            <tr>
+                                <th>3</th>
+                                <td>Brice Swyre</td>
+                                <td>Tax Accountant</td>
+                                <td>Red</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    }
-}
-
-#[island]
-fn Counter() -> impl IntoView {
-    // Creates a reactive value to update the button
-    let (count, set_count) = create_signal(0);
-    let on_click = move |_| set_count.update(|count| *count += 1);
-
-    view! {
-        // sets the document title
-        <Title text="The cllick button page"/>
-        <button class="btn btn-primary" on:click=on_click>"Click Me: " {count}</button>
     }
 }
