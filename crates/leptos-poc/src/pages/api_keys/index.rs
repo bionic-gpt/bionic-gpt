@@ -1,21 +1,27 @@
 use leptos::*;
 pub use axum::{
-    body::Body as AxumBody,
+    body::Body,
     extract::{Path, State},
     http::Request,
     response::{IntoResponse, Response, Html},
     routing::get,
     Router,
+    Extension
 };
 use super::super::Layout;
 
-pub async fn index() -> Html<String> {
-    let html = leptos::ssr::render_to_string(|| view! {
-        <Layout>
-            <IndexPage />
-        </Layout>
-    });
-    Html(html.to_string())
+pub async fn index(
+    Extension(options): Extension<LeptosOptions>, 
+    req: Request<Body>) 
+    -> Response{
+    let handler = leptos_axum::render_app_to_stream((options).clone(),
+        || view! {
+            <Layout>
+                <IndexPage />
+            </Layout>
+        }
+    );
+    handler(req).await.into_response()
 }
 
 #[component]
