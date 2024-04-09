@@ -4,7 +4,7 @@ async fn main() {
     use axum::routing::get;
     use axum::{Router, Extension};
     use leptos::*;
-    use web_ui::fileserv::file_and_error_handler;
+    use web_ui::fileserv;
     use web_ui::pages;
     use web_ui::ssr;
 
@@ -23,12 +23,14 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         // Routes implemented with Leptos
+        .route("/static/*path", get(ssr::static_files::static_path))
         .route("/leptos_api_keys", get(pages::api_keys::index))
         .route("/leptos_console", get(pages::console::index))
         // Original Dioxus routes
-        .route("/app/team/:team_id/api_keys", get(ssr::api_keys::index::index))
+        .route("/", get(ssr::oidc_endpoint::index))
+        .route("/app/team/:team_id/console", get(ssr::api_keys::index::index))
         //.merge(ssr::api_keys::routes())
-        .fallback(file_and_error_handler)
+        .fallback(fileserv::file_and_error_handler)
         .layer(Extension(leptos_options.clone()))
         .with_state(leptos_options)
         .layer(Extension(config))

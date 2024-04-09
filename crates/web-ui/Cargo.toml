@@ -19,6 +19,7 @@ leptos_axum = { version = "0.6", optional = true, features = [
 leptos_meta = { version = "0.6" }
 leptos_router = { version = "0.6" }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
+tokio-util = { version = "0", optional = true }
 tower = { version = "0.4", optional = true }
 tower-http = { version = "0.5", features = ["fs"], optional = true }
 wasm-bindgen = "=0.2.92"
@@ -40,6 +41,7 @@ ssr = [
     "dep:rand",
     "dep:axum",
     "dep:tokio",
+    "dep:tokio-util",
     "dep:tower",
     "dep:tower-http",
     "dep:leptos_axum",
@@ -77,7 +79,7 @@ style-file = "style/main.scss"
 assets-dir = "public"
 
 # The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
-site-addr = "127.0.0.1:3000"
+site-addr = "0.0.0.0:7703"
 
 # The port to use for automatic reload monitoring
 reload-port = 3001
