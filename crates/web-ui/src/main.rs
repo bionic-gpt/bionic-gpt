@@ -23,9 +23,9 @@ async fn main() {
         // Original Dioxus routes
         .route("/static/*path", get(ssr::static_files::static_path))
         .route("/", get(ssr::oidc_endpoint::index))
-        .route("/app/team/:team_id/console", get(ssr::api_keys::index::index))
         .merge(ssr::api_keys::routes())
         .merge(ssr::audit_trail::routes())
+        .merge(ssr::console::routes())
         .fallback(fileserv::file_and_error_handler)
         .layer(Extension(leptos_options.clone()))
         .layer(Extension(config))
