@@ -4693,18 +4693,24 @@ dependencies = [
 name = "web-ui"
 version = "0.1.0"
 dependencies = [
+ "assets",
  "axum 0.7.5",
  "console_error_panic_hook",
+ "db",
  "http 1.1.0",
  "leptos",
  "leptos_axum",
  "leptos_meta",
  "leptos_router",
+ "rand",
+ "serde",
  "thiserror",
  "tokio",
  "tower",
  "tower-http 0.5.2",
  "tracing",
+ "ui-pages",
+ "validator",
  "wasm-bindgen",
 ]
 

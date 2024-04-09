@@ -6,6 +6,8 @@ pub mod app;
 #[cfg(feature = "ssr")] 
 pub mod pages;
 #[cfg(feature = "ssr")] 
+pub mod ssr;
+#[cfg(feature = "ssr")] 
 pub mod error_template;
 
 // Islands - get compiled to the server and the front end

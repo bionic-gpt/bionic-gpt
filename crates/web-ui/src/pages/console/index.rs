@@ -9,7 +9,6 @@ pub use axum::{
     Router,
     Extension
 };
-use std::sync::Arc;
 use super::super::Layout;
 
 pub async fn index(

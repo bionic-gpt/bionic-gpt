@@ -6,7 +6,6 @@ async fn main() {
     use leptos::*;
     use web_ui::fileserv::file_and_error_handler;
     use web_ui::pages::{api_keys, console};
-    use std::sync::Arc;
 
     // Setting get_configuration(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:
