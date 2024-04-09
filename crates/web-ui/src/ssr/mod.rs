@@ -1,4 +1,5 @@
 pub mod api_keys;
+pub mod audit_trail;
 pub mod errors;
 pub mod auth;
 pub mod layout;
