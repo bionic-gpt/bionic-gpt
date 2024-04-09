@@ -5,7 +5,8 @@ async fn main() {
     use axum::{Router, Extension};
     use leptos::*;
     use web_ui::fileserv::file_and_error_handler;
-    use web_ui::pages::{api_keys, console};
+    use web_ui::pages;
+    use web_ui::ssr;
 
     // Setting get_configuration(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:
@@ -16,14 +17,22 @@ async fn main() {
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
 
+    let config = ssr::config::Config::new();
+    let pool = db::create_pool(&config.app_database_url);
+
     // build our application with a route
     let app = Router::new()
-        // `GET /` goes to `root`
-        .route("/", get(api_keys::index))
-        .route("/console", get(console::index))
+        // Routes implemented with Leptos
+        .route("/leptos_api_keys", get(pages::api_keys::index))
+        .route("/leptos_console", get(pages::console::index))
+        // Original Dioxus routes
+        .route("/app/team/:team_id/api_keys", get(ssr::api_keys::index::index))
+        //.merge(ssr::api_keys::routes())
         .fallback(file_and_error_handler)
         .layer(Extension(leptos_options.clone()))
-        .with_state(leptos_options);
+        .with_state(leptos_options)
+        .layer(Extension(config))
+        .layer(Extension(pool.clone()));
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     logging::log!("listening on http://{}", &addr);
