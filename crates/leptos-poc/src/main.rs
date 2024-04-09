@@ -1,11 +1,13 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
+    use axum::routing::get;
     use axum::Router;
     use leptos::*;
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use leptos_poc::app::*;
     use leptos_poc::fileserv::file_and_error_handler;
+    use leptos_poc::pages::api_keys;
 
     // Setting get_configuration(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:
@@ -19,6 +21,8 @@ async fn main() {
 
     // build our application with a route
     let app = Router::new()
+        // `GET /` goes to `root`
+        .route("/", get(api_keys::index))
         .leptos_routes(&leptos_options, routes, App)
         .fallback(file_and_error_handler)
         .with_state(leptos_options);

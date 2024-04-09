@@ -29,7 +29,6 @@ pub fn App() -> impl IntoView {
                     <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
                     <div class="drawer-content">
                         <Routes>
-                            <Route path="" view=HomePage/>
                             <Route path="api_keys" view=api_keys::IndexPage/>
                             <Route path="console" view=console::IndexPage/>
                         </Routes>
@@ -44,12 +43,5 @@ pub fn App() -> impl IntoView {
                 </div>
             </main>
         </Router>
-    }
-}
-
-#[component]
-fn HomePage() -> impl IntoView {
-    view! {
-        <h1>"Home Page!"</h1>
     }
 }
