@@ -7,7 +7,7 @@ async fn main() {
     use leptos_axum::{generate_route_list, LeptosRoutes};
     use leptos_poc::app::*;
     use leptos_poc::fileserv::file_and_error_handler;
-    use leptos_poc::pages::api_keys;
+    use leptos_poc::pages::{api_keys, console};
 
     // Setting get_configuration(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:
@@ -23,7 +23,7 @@ async fn main() {
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(api_keys::index))
-        .leptos_routes(&leptos_options, routes, App)
+        .route("/console", get(console::index))
         .fallback(file_and_error_handler)
         .with_state(leptos_options);
 

@@ -1,5 +1,23 @@
 use leptos::*;
 use crate::islands::Counter;
+pub use axum::{
+    body::Body as AxumBody,
+    extract::{Path, State},
+    http::Request,
+    response::{IntoResponse, Response, Html},
+    routing::get,
+    Router,
+};
+use super::super::Layout;
+
+pub async fn index() -> Html<String> {
+    let html = leptos::ssr::render_to_string(|| view! {
+        <Layout>
+            <IndexPage />
+        </Layout>
+    });
+    Html(html.to_string())
+}
 
 #[component]
 pub fn IndexPage() -> impl IntoView {

@@ -7,10 +7,13 @@ pub use axum::{
     routing::get,
     Router,
 };
+use super::super::Layout;
 
 pub async fn index() -> Html<String> {
     let html = leptos::ssr::render_to_string(|| view! {
-        <h1>Hello World</h1>
+        <Layout>
+            <IndexPage />
+        </Layout>
     });
     Html(html.to_string())
 }
