@@ -9,7 +9,7 @@ pub fn Layout(children: Children) -> impl IntoView {
     view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
-        <Stylesheet id="leptos" href="/pkg/leptos-poc.css"/>
+        <Stylesheet id="leptos" href="/pkg/web-ui.css"/>
         
         <main>
             <div class="drawer lg:drawer-open">

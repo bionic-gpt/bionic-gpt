@@ -2228,25 +2228,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "leptos-poc"
-version = "0.1.0"
-dependencies = [
- "axum 0.7.5",
- "console_error_panic_hook",
- "http 1.1.0",
- "leptos",
- "leptos_axum",
- "leptos_meta",
- "leptos_router",
- "thiserror",
- "tokio",
- "tower",
- "tower-http 0.5.2",
- "tracing",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "leptos_axum"
 version = "0.6.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4705,6 +4686,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b85cbef8c220a6abc02aefd892dfc0fc23afb1c6a426316ec33253a3877249b"
 dependencies = [
  "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "web-ui"
+version = "0.1.0"
+dependencies = [
+ "axum 0.7.5",
+ "console_error_panic_hook",
+ "http 1.1.0",
+ "leptos",
+ "leptos_axum",
+ "leptos_meta",
+ "leptos_router",
+ "thiserror",
+ "tokio",
+ "tower",
+ "tower-http 0.5.2",
+ "tracing",
  "wasm-bindgen",
 ]
 
