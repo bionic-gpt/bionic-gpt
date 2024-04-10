@@ -1,9 +1,9 @@
 #![allow(non_snake_case)]
+use assets::files::button_select_svg;
+use assets::files::profile_svg;
 use daisy_rsx::*;
 use db::queries::teams::Team;
 use dioxus::prelude::*;
-use assets::files::profile_svg;
-use assets::files::button_select_svg;
 
 #[component]
 pub fn Page(teams: Vec<(String, String)>, team: Team) -> Element {

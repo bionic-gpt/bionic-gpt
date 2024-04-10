@@ -8,3 +8,5 @@ RUN cat bash_aliases >> ~/.bash_aliases && sudo rm bash_aliases
 
 # Enable our git hooks and set the permisisons on docker sock.
 RUN echo 'git config core.hooksPath /workspace/.devcontainer/.githooks' >> ~/.bashrc
+
+RUN cargo install cargo-leptos && rustup target add wasm32-unknown-unknown

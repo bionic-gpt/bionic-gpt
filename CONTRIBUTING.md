@@ -6,7 +6,7 @@ This project is based on the [Rust on Nails](https://rust-on-nails.com/) archite
 
 This project uses [Devpod](https://devpod.sh/). DevPod is a tool used to create reproducible developer environments. We use K3s to host our development environment as this is also where we do most development.
 
-## Install K3s
+## Install K3s on the Host
 
 ```sh
 sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
