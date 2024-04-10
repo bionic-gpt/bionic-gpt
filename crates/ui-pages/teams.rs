@@ -1,18 +1,13 @@
 #![allow(non_snake_case)]
+use crate::app_layout::{Layout, SideBar};
+use assets::files::button_plus_svg;
+use daisy_rsx::*;
 use db::authz::Rbac;
 use db::TeamOwner;
 use dioxus::prelude::*;
-use crate::app_layout::{Layout, SideBar};
-use daisy_rsx::*;
-use assets::files::button_plus_svg;
 
 #[component]
-pub fn Page(
-    rbac: Rbac,
-    team_id: i32,
-    teams: Vec<TeamOwner>,
-    submit_action: String,
-) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, submit_action: String) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -41,7 +36,7 @@ pub fn Page(
                             th { "Team" }
                             th {
                                 class: "text-right",
-                                "Team Creator" 
+                                "Team Creator"
                             }
                         }
                         tbody {

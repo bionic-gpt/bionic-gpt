@@ -6,12 +6,7 @@ use db::{authz::Rbac, ApiKey, Prompt};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(
-    rbac: Rbac,
-    team_id: i32,
-    api_keys: Vec<ApiKey>,
-    prompts: Vec<Prompt>,
-) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>) -> Element {
     rsx! {
         if api_keys.is_empty() {
             Layout {

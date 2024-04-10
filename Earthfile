@@ -1,14 +1,13 @@
 VERSION 0.7
 FROM purtontech/rust-on-nails-devcontainer:1.1.18
 
-ARG --global APP_EXE_NAME=axum-server
+ARG --global APP_EXE_NAME=web-ui
 ARG --global OPERATOR_EXE_NAME=k8s-operator
 ARG --global RABBITMQ_EXE_NAME=rabbit-mq
 ARG --global PIPELINE_EXE_NAME=pipeline-job
 ARG --global DBMATE_VERSION=2.2.0
 
 # Folders
-ARG --global AXUM_FOLDER=crates/axum-server
 ARG --global DB_FOLDER=crates/db
 ARG --global PIPELINE_FOLDER=crates/asset-pipeline
 
@@ -19,7 +18,6 @@ ARG --global EMBEDDINGS_IMAGE_NAME=ghcr.io/bionic-gpt/bionicgpt-embeddings-api:c
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
-ARG --global TESTING_IMAGE_NAME=bionic-gpt/bionicgpt-integration-tests:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
 ARG --global RABBITMQ_IMAGE_NAME=bionic-gpt/bionicgpt-rabbitmq:latest
 
@@ -36,7 +34,6 @@ dev:
 pull-request:
     BUILD +migration-container
     BUILD +app-container
-    BUILD +testing-container
     BUILD +operator-container
     BUILD +pipeline-job-container
     BUILD +rabbitmq-container
@@ -44,7 +41,6 @@ pull-request:
 all:
     BUILD +migration-container
     BUILD +app-container
-    BUILD +testing-container
     BUILD +operator-container
     BUILD +pipeline-job-container
     BUILD +rabbitmq-container
@@ -65,13 +61,6 @@ npm-build:
     RUN cd $PIPELINE_FOLDER && npm run release
     SAVE ARTIFACT $PIPELINE_FOLDER/dist
 
-prepare-cache:
-    # Copy in all our crates
-    COPY --dir crates crates
-    COPY Cargo.lock Cargo.toml .
-    RUN cargo chef prepare --recipe-path recipe.json --bin $AXUM_FOLDER
-    SAVE ARTIFACT recipe.json
-
 pipeline-job-container:
     FROM scratch
     COPY +build/$PIPELINE_EXE_NAME pipeline-job
@@ -85,11 +74,24 @@ rabbitmq-container:
     ENTRYPOINT ["./rabbit-mq"]
     SAVE IMAGE --push $RABBITMQ_IMAGE_NAME
 
-build:
+build-web-ui:
     # Copy in all our crates
     COPY --dir crates crates
+    RUN rm -rf crates/rabbit-mq crates/k8s-operator crates/pipeline-job
     COPY --dir Cargo.lock Cargo.toml .
     COPY --dir +npm-build/dist $PIPELINE_FOLDER/
+
+    # Install cargo-binstall, which makes it easier to install other
+    # cargo extensions like cargo-leptos
+    RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
+    RUN tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
+    RUN cp cargo-binstall /usr/local/cargo/bin
+
+    RUN rustup target add wasm32-unknown-unknown
+
+    # Install cargo-leptos
+    RUN cargo binstall cargo-leptos -y
+
     # We need to run inside docker as we need postgres running for cornucopia
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
     USER root
@@ -97,18 +99,28 @@ build:
         --pull ankane/pgvector
         RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
             && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
-            && cargo build --release --target x86_64-unknown-linux-musl \
-            && cargo test --no-run --release --target x86_64-unknown-linux-musl \
-            && rm target/x86_64-unknown-linux-musl/release/deps/*.d \
-            && mv target/x86_64-unknown-linux-musl/release/deps/single_user_test* single_user_test \
-            && mv target/x86_64-unknown-linux-musl/release/deps/multi_user_test* multi_user_test
+            && cargo leptos build --release -vv
     END
-    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
+    SAVE ARTIFACT target/release/$APP_EXE_NAME
+    SAVE ARTIFACT target/site
+
+build:
+    # Copy in all our crates
+    COPY --dir crates crates
+    RUN rm -rf crates/axum-server crates/web-ui crates/asset-pipeline crates/daisy-rsx crates/ui-pages
+    COPY --dir Cargo.lock Cargo.toml .
+    # We need to run inside docker as we need postgres running for cornucopia
+    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
+    USER root
+    WITH DOCKER \
+        --pull ankane/pgvector
+        RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
+            && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
+            && cargo build --release --target x86_64-unknown-linux-musl
+    END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RABBITMQ_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
-    SAVE ARTIFACT multi_user_test
-    SAVE ARTIFACT single_user_test
 
 migration-container:
     FROM alpine
@@ -124,14 +136,17 @@ migration-container:
     SAVE IMAGE --push $MIGRATIONS_IMAGE_NAME
 
 # To test this locally run
-# docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7403:7403 purtontech/trace-server:latest
+# docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7703:7703 bionic-gpt/bionicgpt:latest
 app-container:
-    FROM scratch
-    COPY +build/$APP_EXE_NAME axum-server
+    FROM debian:bookworm-slim
+    COPY +build-web-ui/$APP_EXE_NAME web-ui
+    COPY +build-web-ui/site site
     # Place assets in a build folder as that's where statics is expecting them.
     COPY --dir +npm-build/dist /build/$PIPELINE_FOLDER/
     COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
-    ENTRYPOINT ["./axum-server"]
+    ENV LEPTOS_SITE_ADDR="0.0.0.0:7703"
+    ENV LEPTOS_SITE_ROOT="site"
+    ENTRYPOINT ["./web-ui"]
     SAVE IMAGE --push $APP_IMAGE_NAME
 
 # We've got a Kubernetes operator
@@ -156,17 +171,6 @@ embeddings-container:
     COPY +embeddings-container-base/data /data
     CMD ["--json-output", "--model-id", "BAAI/bge-small-en-v1.5"]
     SAVE IMAGE --push $EMBEDDINGS_IMAGE_NAME
-
-# Package up the selenium tests into a container that we can
-# run in the CI-CD pipeline
-testing-container:
-    FROM gcr.io/distroless/static
-    COPY +build/multi_user_test multi_user_test
-    COPY +build/single_user_test single_user_test
-    COPY --dir crates/k8s-operator/config/mocks ./mocks 
-    COPY --dir crates/k8s-operator/config/datasets ./datasets 
-    CMD ./multi_user_test && ./single_user_test
-    SAVE IMAGE --push $TESTING_IMAGE_NAME
 
 build-cli-linux:
     COPY --dir crates/k8s-operator .

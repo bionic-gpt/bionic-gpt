@@ -18,14 +18,14 @@ The bionic installer simplifies a lot of the setup. To install it run the follow
 ## Step 1: Install the CLI
 
 ```sh
-curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
+export BIONIC_VERSION=1.6.35
+curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
 Check the installation
 
 ```sh
-bionic -V
-# k8s-operator 1.6.26
+bionic -h
 ```
 
 ## Step 2: Run the Install

@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
-use dioxus::prelude::*;
-use daisy_rsx::*; 
+use daisy_rsx::*;
 use db::Model;
+use dioxus::prelude::*;
 
 #[component]
 pub fn ModelTable(models: Vec<Model>, team_id: i32) -> Element {
