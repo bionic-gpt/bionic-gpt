@@ -4785,6 +4785,7 @@ dependencies = [
  "leptos_axum",
  "leptos_meta",
  "leptos_router",
+ "lettre",
  "pgvector",
  "rand",
  "rustls 0.20.8",

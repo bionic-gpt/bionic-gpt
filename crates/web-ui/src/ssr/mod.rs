@@ -5,6 +5,7 @@ pub mod audit_trail;
 pub mod console;
 pub mod datasets;
 pub mod documents;
+pub mod email;
 pub mod models;
 pub mod pipelines;
 pub mod profile;

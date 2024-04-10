@@ -23,6 +23,9 @@ alias dbapp='psql $APP_DATABASE_URL'
 
 alias p='sudo chmod 777 /var/run/docker.sock'
 
+# Configure the environment for inside k8's
+alias get-env='dburl && app_dburl'
+
 # Watch
 alias watch-zola='cd /workspaces/bionic-gpt/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
 alias wz=watch-zola

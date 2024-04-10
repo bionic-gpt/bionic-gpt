@@ -11,6 +11,7 @@ use rand::Rng;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use validator::Validate;
+use lettre::Message;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewInvite {
@@ -28,12 +29,38 @@ pub async fn create_invite(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     authentication: Authentication,
+    Extension(config): Extension<super::super::config::Config>,
     Form(new_invite): Form<NewInvite>,
 ) -> Result<impl IntoResponse, CustomError> {
     let invite_hash = create(&pool, authentication, &new_invite, team_id).await?;
 
-    let _invitation_verifier_base64 = invite_hash.0;
-    let _invitation_selector_base64 = invite_hash.1;
+    let invitation_verifier_base64 = invite_hash.0;
+    let invitation_selector_base64 = invite_hash.1;
+
+    if let Some(smtp_config) = &config.smtp_config {
+        let url = format!(
+            "{}/app/invite/{}/{}",
+            smtp_config.domain, invitation_selector_base64, invitation_verifier_base64
+        );
+
+        let body = format!(
+            "
+                Click {} to accept the invite
+            ",
+            url
+        )
+        .trim()
+        .to_string();
+
+        let email = Message::builder()
+            .from(smtp_config.from_email.clone())
+            .to(new_invite.email.parse().unwrap())
+            .subject("You are invited to a Team")
+            .body(body)
+            .unwrap();
+
+        super::super::email::send_email(&config, email)
+    }
 
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
