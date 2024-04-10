@@ -1,4 +1,6 @@
 pub mod api_keys;
+pub mod api_pipeline;
+//pub mod api_reverse_proxy;
 pub mod audit_trail;
 pub mod console;
 pub mod datasets;
@@ -14,6 +16,7 @@ pub mod layout;
 pub mod config;
 pub mod oidc_endpoint;
 pub mod static_files;
+//pub mod ui_completions;
 
 pub use errors::CustomError;
 pub use auth::Authentication;
