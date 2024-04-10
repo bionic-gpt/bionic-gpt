@@ -136,14 +136,15 @@ migration-container:
     SAVE IMAGE --push $MIGRATIONS_IMAGE_NAME
 
 # To test this locally run
-# docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7403:7403 bionic-gpt/bionicgpt:latest
+# docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7703:7703 bionic-gpt/bionicgpt:latest
 app-container:
-    FROM scratch
+    FROM debian:bookworm-slim
     COPY +build-web-ui/$APP_EXE_NAME web-ui
     COPY +build-web-ui/site site
     # Place assets in a build folder as that's where statics is expecting them.
     COPY --dir +npm-build/dist /build/$PIPELINE_FOLDER/
     COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
+    ENV LEPTOS_SITE_ADDR="0.0.0.0:7703"
     ENTRYPOINT ["./web-ui"]
     SAVE IMAGE --push $APP_IMAGE_NAME
 
