@@ -74,11 +74,24 @@ rabbitmq-container:
     ENTRYPOINT ["./rabbit-mq"]
     SAVE IMAGE --push $RABBITMQ_IMAGE_NAME
 
-build:
+build-web-ui:
     # Copy in all our crates
     COPY --dir crates crates
+    RUN rm -rf crates/rabbit-mq crates/k8s-operator crates/pipeline-job
     COPY --dir Cargo.lock Cargo.toml .
     COPY --dir +npm-build/dist $PIPELINE_FOLDER/
+
+    # Install cargo-binstall, which makes it easier to install other
+    # cargo extensions like cargo-leptos
+    RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
+    RUN tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
+    RUN cp cargo-binstall /usr/local/cargo/bin
+
+    RUN rustup target add wasm32-unknown-unknown
+
+    # Install cargo-leptos
+    RUN cargo binstall cargo-leptos -y
+
     # We need to run inside docker as we need postgres running for cornucopia
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
     USER root
@@ -86,12 +99,25 @@ build:
         --pull ankane/pgvector
         RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
             && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
-            && cargo build --manifest-path=crates/pipeline-job/Cargo.toml --release --target x86_64-unknown-linux-musl \
-            && cargo build --manifest-path=crates/k8s-operator/Cargo.toml --release --target x86_64-unknown-linux-musl \
-            && cargo build --manifest-path=crates/rabbit-mq/Cargo.toml --release --target x86_64-unknown-linux-musl \
-            && cd cargo/web-ui cargo leptos build --release -vv
+            && cargo leptos build --release -vv
     END
-    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
+    SAVE ARTIFACT target/release/$APP_EXE_NAME
+    SAVE ARTIFACT target/site
+
+build:
+    # Copy in all our crates
+    COPY --dir crates crates
+    RUN rm -rf crates/axum-server crates/web-ui crates/asset-pipeline crates/daisy-rsx
+    COPY --dir Cargo.lock Cargo.toml .
+    # We need to run inside docker as we need postgres running for cornucopia
+    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
+    USER root
+    WITH DOCKER \
+        --pull ankane/pgvector
+        RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
+            && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
+            && cargo build --release --target x86_64-unknown-linux-musl
+    END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RABBITMQ_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
@@ -113,11 +139,12 @@ migration-container:
 # docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7403:7403 purtontech/trace-server:latest
 app-container:
     FROM scratch
-    COPY +build/$APP_EXE_NAME axum-server
+    COPY +build-web-ui/$APP_EXE_NAME web-ui
+    COPY +build-web-ui/site site
     # Place assets in a build folder as that's where statics is expecting them.
     COPY --dir +npm-build/dist /build/$PIPELINE_FOLDER/
     COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
-    ENTRYPOINT ["./axum-server"]
+    ENTRYPOINT ["./web-ui"]
     SAVE IMAGE --push $APP_IMAGE_NAME
 
 # We've got a Kubernetes operator
