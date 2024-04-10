@@ -12,7 +12,7 @@ To get the login credentials
 
 ```sh
 kubectl get secret -n bionic-gpt pgadmin -o jsonpath='{.data.email}' | base64 --decode
-kubectl get secret -n bionic-gpt pgadmin -o jsonpath='{.data.passord}' | base64 --decode
+kubectl get secret -n bionic-gpt pgadmin -o jsonpath='{.data.password}' | base64 --decode
 ```
 
 ## Accessing the Database
