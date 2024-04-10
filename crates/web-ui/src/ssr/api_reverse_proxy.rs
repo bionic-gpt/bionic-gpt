@@ -5,10 +5,9 @@ use axum::{
     Extension, RequestExt,
 };
 use http::{HeaderName, Uri};
-use hyper::client;
+use hyper_util::{client::legacy::Client, rt::TokioExecutor};
 
 use db::{queries, Pool};
-use hyper_rustls::ConfigBuilderExt;
 use serde::{Deserialize, Serialize};
 
 use super::errors::CustomError;
@@ -117,19 +116,14 @@ pub async fn handler(
             );
         }
 
-        let tls = rustls::ClientConfig::builder()
-            .with_safe_defaults()
-            .with_webpki_roots()
-            .with_no_client_auth();
-
         let https = hyper_rustls::HttpsConnectorBuilder::new()
-            .with_tls_config(tls)
+            .with_webpki_roots()
             .https_or_http()
             .enable_http1()
             .build();
 
         // Give the client the option to use TLS if required
-        let client: client::Client<_, hyper::Body> = client::Client::builder().build(https);
+        let client = Client::builder(TokioExecutor::new()).build(https);
 
         Ok(client.request(req).await?.into_response())
     } else {

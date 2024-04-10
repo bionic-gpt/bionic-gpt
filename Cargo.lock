@@ -3403,6 +3403,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c4d6d8ad9f2492485e13453acbb291dd08f64441b6609c491f1c2cd2c6b4fe1"
 dependencies = [
  "once_cell",
+ "ring 0.17.8",
  "rustls-pki-types",
  "rustls-webpki 0.102.2",
  "subtle",
@@ -4778,13 +4779,14 @@ dependencies = [
  "http 1.1.0",
  "hyper 1.2.0",
  "hyper-rustls 0.27.0",
+ "hyper-util",
  "leptos",
  "leptos_axum",
  "leptos_meta",
  "leptos_router",
  "pgvector",
  "rand",
- "rustls 0.21.6",
+ "rustls 0.20.8",
  "serde",
  "serde_json",
  "thiserror",
