@@ -107,7 +107,7 @@ build-web-ui:
 build:
     # Copy in all our crates
     COPY --dir crates crates
-    RUN rm -rf crates/axum-server crates/web-ui crates/asset-pipeline crates/daisy-rsx
+    RUN rm -rf crates/axum-server crates/web-ui crates/asset-pipeline crates/daisy-rsx crates/ui-pages
     COPY --dir Cargo.lock Cargo.toml .
     # We need to run inside docker as we need postgres running for cornucopia
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
@@ -145,6 +145,7 @@ app-container:
     COPY --dir +npm-build/dist /build/$PIPELINE_FOLDER/
     COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
     ENV LEPTOS_SITE_ADDR="0.0.0.0:7703"
+    ENV LEPTOS_SITE_ROOT="site"
     ENTRYPOINT ["./web-ui"]
     SAVE IMAGE --push $APP_IMAGE_NAME
 
