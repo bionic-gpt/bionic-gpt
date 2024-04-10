@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 use super::ChatWithChunks;
 use crate::app_layout::{Layout, SideBar};
+use crate::routes;
+use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{conversations::History, prompts::Prompt};
 use dioxus::prelude::*;
-use assets::files::*;
-use crate::routes;
 
 #[component]
 pub fn Page(

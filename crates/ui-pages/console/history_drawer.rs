@@ -4,11 +4,7 @@ use db::queries::conversations::History;
 use dioxus::prelude::*;
 
 #[component]
-pub fn HistoryDrawer(
-    trigger_id: String,
-    team_id: i32,
-    history: Vec<History>,
-) -> Element {
+pub fn HistoryDrawer(trigger_id: String, team_id: i32, history: Vec<History>) -> Element {
     rsx! {
         Drawer {
             label: "Your History",

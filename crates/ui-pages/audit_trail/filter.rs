@@ -6,11 +6,7 @@ use dioxus::prelude::*;
 pub static DRAW_TRIGGER: &str = "filter-audit-drawer";
 
 #[component]
-pub fn FilterDrawer(
-    team_users: Vec<Member>,
-    reset_search: bool,
-    submit_action: String,
-) -> Element {
+pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: String) -> Element {
     rsx! {
         form {
             class: "remember",
