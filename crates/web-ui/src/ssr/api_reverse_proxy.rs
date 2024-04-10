@@ -82,7 +82,7 @@ pub async fn handler(
                 .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
             let completion: Completion = serde_json::from_str(&body)?;
 
-            let messages = crate::prompt::execute_prompt(
+            let messages = super::prompt::execute_prompt(
                 &transaction,
                 prompt.id,
                 prompt.team_id,

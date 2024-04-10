@@ -1,6 +1,6 @@
 pub mod api_keys;
 pub mod api_pipeline;
-//pub mod api_reverse_proxy;
+pub mod api_reverse_proxy;
 pub mod audit_trail;
 pub mod console;
 pub mod datasets;
@@ -9,6 +9,7 @@ pub mod models;
 pub mod pipelines;
 pub mod profile;
 pub mod prompts;
+pub mod prompt;
 //pub mod team;
 pub mod errors;
 pub mod auth;

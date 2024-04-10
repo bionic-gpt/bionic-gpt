@@ -65,11 +65,11 @@ impl From<http::Error> for CustomError {
     }
 }
 
-/***impl From<serde_json::Error> for CustomError {
+impl From<serde_json::Error> for CustomError {
     fn from(err: serde_json::Error) -> CustomError {
         CustomError::FaultySetup(err.to_string())
     }
-}**/
+}
 
 impl From<db::TokioPostgresError> for CustomError {
     fn from(err: db::TokioPostgresError) -> CustomError {
