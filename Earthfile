@@ -136,7 +136,7 @@ migration-container:
     SAVE IMAGE --push $MIGRATIONS_IMAGE_NAME
 
 # To test this locally run
-# docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7403:7403 purtontech/trace-server:latest
+# docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7403:7403 bionic-gpt/bionicgpt:latest
 app-container:
     FROM scratch
     COPY +build-web-ui/$APP_EXE_NAME web-ui

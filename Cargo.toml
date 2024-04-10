@@ -12,3 +12,8 @@ opt-level = 'z'
 lto = true
 codegen-units = 1
 panic = "abort"
+
+[web-ui.metadata.leptos]
+
+# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
+site-addr = "0.0.0.0:7703"
