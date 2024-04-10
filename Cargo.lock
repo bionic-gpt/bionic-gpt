@@ -4773,6 +4773,7 @@ version = "0.1.0"
 dependencies = [
  "assets",
  "axum 0.7.5",
+ "base64 0.13.1",
  "console_error_panic_hook",
  "db",
  "embeddings-api",
@@ -4789,6 +4790,7 @@ dependencies = [
  "rustls 0.20.8",
  "serde",
  "serde_json",
+ "sha2",
  "thiserror",
  "tiktoken-rs",
  "tokio",

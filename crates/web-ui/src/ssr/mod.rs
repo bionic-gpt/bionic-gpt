@@ -10,7 +10,7 @@ pub mod pipelines;
 pub mod profile;
 pub mod prompt;
 pub mod prompts;
-//pub mod team;
+pub mod team;
 pub mod auth;
 pub mod config;
 pub mod errors;

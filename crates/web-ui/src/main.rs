@@ -29,7 +29,7 @@ async fn main() {
         .route("/v1/*path", get(ssr::api_reverse_proxy::handler))
         .route("/v1/*path", post(ssr::api_reverse_proxy::handler))
         .route("/completions/:chat_id", post(ssr::ui_completions::handler))
-        //.merge(ssr::team::routes())
+        .merge(ssr::team::routes())
         .merge(ssr::audit_trail::routes())
         .merge(ssr::profile::routes())
         .merge(ssr::console::routes())

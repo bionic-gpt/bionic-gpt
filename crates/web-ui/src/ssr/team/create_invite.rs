@@ -7,7 +7,6 @@ use db::authz;
 use db::queries;
 use db::types;
 use db::Pool;
-use lettre::Message;
 use rand::Rng;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
@@ -29,38 +28,12 @@ pub async fn create_invite(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     authentication: Authentication,
-    Extension(config): Extension<crate::config::Config>,
     Form(new_invite): Form<NewInvite>,
 ) -> Result<impl IntoResponse, CustomError> {
     let invite_hash = create(&pool, authentication, &new_invite, team_id).await?;
 
-    let invitation_verifier_base64 = invite_hash.0;
-    let invitation_selector_base64 = invite_hash.1;
-
-    if let Some(smtp_config) = &config.smtp_config {
-        let url = format!(
-            "{}/app/invite/{}/{}",
-            smtp_config.domain, invitation_selector_base64, invitation_verifier_base64
-        );
-
-        let body = format!(
-            "
-                Click {} to accept the invite
-            ",
-            url
-        )
-        .trim()
-        .to_string();
-
-        let email = Message::builder()
-            .from(smtp_config.from_email.clone())
-            .to(new_invite.email.parse().unwrap())
-            .subject("You are invited to a Team")
-            .body(body)
-            .unwrap();
-
-        crate::email::send_email(&config, email)
-    }
+    let _invitation_verifier_base64 = invite_hash.0;
+    let _invitation_selector_base64 = invite_hash.1;
 
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
