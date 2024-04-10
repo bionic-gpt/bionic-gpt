@@ -1,11 +1,11 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use assets::files::*;
+use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::models::Model;
 use db::{ModelType, TopUser};
 use dioxus::prelude::*;
-use daisy_rsx::*;
-use assets::files::*;
 
 #[component]
 pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>, top_users: Vec<TopUser>) -> Element {

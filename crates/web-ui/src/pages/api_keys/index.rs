@@ -1,32 +1,27 @@
-use leptos::*;
+use super::super::Layout;
 pub use axum::{
     body::Body,
     extract::{Path, State},
     http::Request,
-    response::{IntoResponse, Response, Html},
+    response::{Html, IntoResponse, Response},
     routing::get,
-    Router,
-    Extension
+    Extension, Router,
 };
-use super::super::Layout;
+use leptos::*;
 
-pub async fn index(
-    Extension(options): Extension<LeptosOptions>, 
-    req: Request<Body>) 
-    -> Response{
-    let handler = leptos_axum::render_app_to_stream((options).clone(),
-        || view! {
+pub async fn index(Extension(options): Extension<LeptosOptions>, req: Request<Body>) -> Response {
+    let handler = leptos_axum::render_app_to_stream((options).clone(), || {
+        view! {
             <Layout>
                 <IndexPage />
             </Layout>
         }
-    );
+    });
     handler(req).await.into_response()
 }
 
 #[component]
 pub fn IndexPage() -> impl IntoView {
-
     view! {
         <div class="navbar bg-base-100">
             <div class="flex-none">
@@ -59,7 +54,7 @@ pub fn IndexPage() -> impl IntoView {
                             </thead>
 
                             <TableBody/>
-                            
+
                         </table>
                     </div>
                 </div>
@@ -70,7 +65,6 @@ pub fn IndexPage() -> impl IntoView {
 
 #[component]
 fn TableBody() -> impl IntoView {
-
     view! {
         <tbody>
         <tr>

@@ -1,13 +1,10 @@
 use axum::{
     async_trait,
     extract::FromRequestParts,
-    http::{
-        StatusCode,
-        request::Parts,
-    }
+    http::{request::Parts, StatusCode},
 };
-use serde::{Serialize, Deserialize};
 use db::authz;
+use serde::{Deserialize, Serialize};
 
 const X_FORWARDED_USER: &str = "X-Forwarded-User";
 const X_FORWARDED_EMAIL: &str = "X-Forwarded-Email";

@@ -1,14 +1,10 @@
 #![allow(non_snake_case)]
 use super::ChatChunks;
-use dioxus::prelude::*;
 use daisy_rsx::*;
+use dioxus::prelude::*;
 
 #[component]
-pub fn PromptDrawer(
-    prompt: String,
-    trigger_id: String,
-    chunks: Vec<ChatChunks>,
-) -> Element {
+pub fn PromptDrawer(prompt: String, trigger_id: String, chunks: Vec<ChatChunks>) -> Element {
     rsx! {
         Drawer {
             label: "Full Prompt",

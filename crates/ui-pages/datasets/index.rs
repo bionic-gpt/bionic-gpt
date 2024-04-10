@@ -1,19 +1,14 @@
 #![allow(non_snake_case)]
+use crate::app_layout::Layout;
+use crate::app_layout::SideBar;
 use assets::files::*;
+use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{datasets::Dataset, models::Model};
 use dioxus::prelude::*;
-use daisy_rsx::*; 
-use crate::app_layout::Layout;
-use crate::app_layout::SideBar;
 
 #[component]
-pub fn Page(
-    rbac: Rbac,
-    team_id: i32,
-    datasets: Vec<Dataset>,
-    models: Vec<Model>,
-) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -> Element {
     rsx! {
         Layout {
             section_class: "normal",

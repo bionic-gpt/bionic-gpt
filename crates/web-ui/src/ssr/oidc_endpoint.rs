@@ -1,10 +1,10 @@
+use axum::body::Body;
 use axum::{
     response::{IntoResponse, Response},
     Extension,
 };
 use db::{authz, queries, Pool};
 use http::StatusCode;
-use axum::body::Body;
 
 use super::{Authentication, CustomError};
 

@@ -6,14 +6,13 @@ use axum::{
     Extension,
 };
 use http::HeaderName;
-use hyper::client;
+use hyper_util::{client::legacy::Client, rt::TokioExecutor};
 
 use db::{queries, Pool};
-use hyper_rustls::ConfigBuilderExt;
 
 use super::{
     api_reverse_proxy::{Completion, Message},
-    authentication::Authentication,
+    auth::Authentication,
     errors::CustomError,
 };
 
@@ -52,7 +51,7 @@ pub async fn handler(
         content: chat.user_request,
     };
 
-    let messages = crate::prompt::execute_prompt(
+    let messages = super::prompt::execute_prompt(
         &transaction,
         prompt.id,
         conversation.team_id,
@@ -92,19 +91,14 @@ pub async fn handler(
         );
     }
 
-    let tls = rustls::ClientConfig::builder()
-        .with_safe_defaults()
-        .with_webpki_roots()
-        .with_no_client_auth();
-
     let https = hyper_rustls::HttpsConnectorBuilder::new()
-        .with_tls_config(tls)
+        .with_webpki_roots()
         .https_or_http()
         .enable_http1()
         .build();
 
     // Build the hyper client from the HTTPS connector.
-    let client: client::Client<_, hyper::Body> = client::Client::builder().build(https);
+    let client = Client::builder(TokioExecutor::new()).build(https);
 
     Ok(client.request(req).await?.into_response())
 }

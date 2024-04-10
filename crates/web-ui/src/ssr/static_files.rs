@@ -1,9 +1,9 @@
 use assets::files::{index_css_map, index_js_map, StaticFile};
+use axum::body::Body;
 use axum::extract::Path;
 use axum::http::{header, HeaderValue, Response, StatusCode};
 use axum::response::IntoResponse;
 use tokio_util::io::ReaderStream;
-use axum::body::Body;
 
 pub async fn static_path(Path(path): Path<String>) -> impl IntoResponse {
     let path = format!("/static/{}", path);

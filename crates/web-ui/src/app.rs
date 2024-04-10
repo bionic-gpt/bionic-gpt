@@ -1,9 +1,9 @@
 use crate::error_template::{AppError, ErrorTemplate};
+use crate::pages::api_keys;
+use crate::pages::console;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use crate::pages::api_keys;
-use crate::pages::console;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -32,9 +32,9 @@ pub fn App() -> impl IntoView {
                             <Route path="api_keys" view=api_keys::IndexPage/>
                             <Route path="console" view=console::IndexPage/>
                         </Routes>
-                    </div> 
+                    </div>
                     <div class="drawer-side">
-                        <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label> 
+                        <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
                         <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
                             <li><a href="/console"><img src="accounts.svg" width="16" height="16" /> The Console</a></li>
                             <li><a href="/api_keys">The Keys</a></li>

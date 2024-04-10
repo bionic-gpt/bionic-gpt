@@ -4,12 +4,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ProfilePopup(
-    email: String,
-    first_name: String,
-    last_name: String,
-    team_id: i32,
-) -> Element {
+pub fn ProfilePopup(email: String, first_name: String, last_name: String, team_id: i32) -> Element {
     let user_name_or_email = if !first_name.is_empty() || !last_name.is_empty() {
         format!("{} {}", first_name, last_name)
     } else {

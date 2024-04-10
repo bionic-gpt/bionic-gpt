@@ -2,7 +2,7 @@
 #[tokio::main]
 async fn main() {
     use axum::routing::get;
-    use axum::{Router, Extension};
+    use axum::{Extension, Router};
     use leptos::*;
     use web_ui::fileserv;
     use web_ui::pages;

@@ -1,14 +1,14 @@
 // SSR Only
 #[cfg(feature = "ssr")]
-pub mod fileserv;
-#[cfg(feature = "ssr")] 
 pub mod app;
-#[cfg(feature = "ssr")] 
-pub mod pages;
-#[cfg(feature = "ssr")] 
-pub mod ssr;
-#[cfg(feature = "ssr")] 
+#[cfg(feature = "ssr")]
 pub mod error_template;
+#[cfg(feature = "ssr")]
+pub mod fileserv;
+#[cfg(feature = "ssr")]
+pub mod pages;
+#[cfg(feature = "ssr")]
+pub mod ssr;
 
 // Islands - get compiled to the server and the front end
 pub mod islands;

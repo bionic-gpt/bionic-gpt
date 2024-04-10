@@ -39,5 +39,8 @@ pub async fn set_details(
 
     transaction.commit().await?;
 
-    super::super::layout::redirect_and_snackbar(&super::super::profile::index_route(team_id), "Details Updated")
+    super::super::layout::redirect_and_snackbar(
+        &super::super::profile::index_route(team_id),
+        "Details Updated",
+    )
 }
