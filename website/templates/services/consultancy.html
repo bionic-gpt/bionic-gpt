@@ -1,3 +1,4 @@
+{%- import 'macros/heros.html' as macros_hero -%}
 {%- import 'macros/pricing.html' as macros_pricing -%}
 {%- import 'macros/cta.html' as macros_cta -%}
 
@@ -6,8 +7,8 @@
 {% block seo %}
 {{ super() }}
 
-{% set title = 'The pricing page' %}
-{% set description = 'Show how much we charge' %}
+{% set title = 'Consultancy' %}
+{% set description = 'Consultancy Services' %}
 
 {{ macros_head::seo(
 title=title,
@@ -17,22 +18,64 @@ description=description
 
 {% block content %}
 
-
 <div>
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto max-w-2xl sm:text-center">
       <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Consultancy Services</h2>
-      <p class="mt-6 text-lg leading-8">The best Gen AI deployments, every time.</p>
+      <p class="mt-6 text-lg leading-8">We can help with your Generative AI and Retrieval Augmented Generation implementations</p>
     </div>
   </div>
 </div>
 
-
 <article class="mx-auto prose lg:prose-xl p-4">
-{{ page.content | safe }}
+  {{ page.content | safe }}
 </article>
 
+<section class="mx-auto prose mb-12">
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Architecture and Design</summary>
+    <div class="collapse-content">
+      <p>For self-hosted deployments, this is the way to start.
+        The right architecture and hardware specs will save
+        you headaches later on.</p>
+      <p>Our team of solution architects designs the best possible architecture based on the environment in scope, the
+        load expected to be generated, and your particular use cases. This sizing exercise includes the hardware
+        specifications for the central components of the Bionic platform.</p>
 
-{% include "extra_footer.html" %}
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Deployment</summary>
+    <div class="collapse-content">
+      <p>Get the Bionic platform up and running quickly and efficiently. Our solution experts assist with a successful
+        deployment tailored to your unique requirements, and environment needs. The team works closely with you to
+        complete the deployment, within the agreed time frame. They pay special attention to your growth plans and
+        long-term initiatives. Get ongoing guidance and best practices to obtain optimal results.</p>
+      <p>The deployment service includes the installation of the central components, automation of agent deployment,
+        configuration tuning, and integrations.</p>
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Tuning</summary>
+    <div class="collapse-content">
+      <p>Bionic platform consists of a comprehensive set of capabilities that helps to protect your environment. Bionic
+        comes with a default configuration to start monitoring your assets right away. However, every environment is
+        different and, therefore, tuning the platform is key to address your particular needs. Get custom rules, custom
+        dashboards or integrations with third-party tools. Leverage the team expertise to get you through this process
+        successfully.</p>
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Software Development</summary>
+    <div class="collapse-content">
+      <p>Bionic is the most active open source project in cybersecurity. We are continuously working on new versions of
+        the platform that will come with enhanced or new capabilities. Customers can employ our consulting services for
+        the development of added features that positively contribute to the customer's needs.</p>
+    </div>
+  </details>
+</section>
 
 {% endblock content %}

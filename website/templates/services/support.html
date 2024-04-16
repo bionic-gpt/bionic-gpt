@@ -6,8 +6,8 @@
 {% block seo %}
 {{ super() }}
 
-{% set title = 'The pricing page' %}
-{% set description = 'Show how much we charge' %}
+{% set title = 'Professional Support' %}
+{% set description = 'Professional support and maintenance' %}
 
 {{ macros_head::seo(
 title=title,
@@ -22,17 +22,51 @@ description=description
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto max-w-2xl sm:text-center">
       <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Professional Support</h2>
-      <p class="mt-6 text-lg leading-8">The best Gen AI deployments, every time.</p>
+      <p class="mt-6 text-lg leading-8">Professional support and maintenance</p>
     </div>
   </div>
 </div>
 
 
 <article class="mx-auto prose lg:prose-xl p-4">
-{{ page.content | safe }}
+  {{ page.content | safe }}
 </article>
 
+<section class="mx-auto prose mb-12">
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Health Checks and Upgrades</summary>
+    <div class="collapse-content">
+      <p>You may not know it, and there may still be ways to derive more value from your Bionic installation. Rely on our
+        health checks for actionable recommendations to optimize the platform and achieve your cybersecurity goals.</p>
+      <p>Let the team work with you on upgrading your Bionic deployment to the newest version and benefit from the
+        enhanced and extra features while ensuring your custom work stays in place.</p>
 
-{% include "extra_footer.html" %}
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Customer Success</summary>
+    <div class="collapse-content">
+      <p>You are not alone. Bionic has a customer-oriented approach across the company that is centralized on the
+        Customer Success team. A customer success manager (CSM) will be assigned to the project, becoming the customer
+        extension within the Bionic team.
+
+      </p>
+      <p>Your CSM will become your main point of contact during this journey, welcoming you during the Onboarding
+        session and following up in QBR meetings.</p>
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Architecture Design</summary>
+    <div class="collapse-content">
+      <p>For self-hosted deployments, this is the way to start. The right architecture and hardware specs will save you
+        headaches later on.</p>
+      <p>Our team of solution architects designs the best possible architecture based on the environment in scope, the
+        load expected to be generated, and your particular use cases. This exercise includes the hardware specifications
+        for the central components of the Bionic platform.</p>
+    </div>
+  </details>
+</section>
 
 {% endblock content %}
