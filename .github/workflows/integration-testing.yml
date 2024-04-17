@@ -48,3 +48,8 @@ jobs:
         kubectl wait  --timeout=120s --for=condition=ready pod -l app=oauth2-proxy -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready pod -l app=pipeline-job -n bionic-gpt
         kubectl get pods -n bionic-gpt
+
+    - name: Curl the cluster
+      run: |
+        export IP_ADDRESS=$(hostname -i)
+        curl IP_ADDRESS:80
