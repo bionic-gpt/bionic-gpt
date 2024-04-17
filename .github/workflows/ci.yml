@@ -200,7 +200,7 @@ jobs:
     - name: Install Bionic CLI
       run: |
         export BIONIC_VERSION=${{ steps.get_latest_release.outputs.latest_release }}
-        curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-linux
+        curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/${BIONIC_VERSION}/bionic-cli-linux
         chmod +x ./bionic-cli-linux
         sudo mv ./bionic-cli-linux /usr/local/bin/bionic
         bionic -V
@@ -208,5 +208,9 @@ jobs:
     - name: Install Bionic Application into K3s
       run: |
         bionic install
+
+    #- name: Wait for All the Pods
+    #  run: |
+    #    bionic install
 
 
