@@ -229,5 +229,6 @@ jobs:
     - name: Wait for All the Pods
       run: |
         kubectl wait pod --all --for=condition=Ready --namespace=bionic-gpt
+        kubectl get pods -n bionic-gpt
 
 
