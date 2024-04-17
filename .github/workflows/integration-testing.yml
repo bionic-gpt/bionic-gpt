@@ -52,4 +52,4 @@ jobs:
     - name: Curl the cluster
       run: |
         export IP_ADDRESS=$(hostname -i)
-        curl IP_ADDRESS:80
+        curl $IP_ADDRESS:80
