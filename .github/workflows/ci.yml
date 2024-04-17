@@ -93,8 +93,6 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       FORCE_COLOR: 1
     steps:
-    - uses: actions/checkout@v4
-
     - name: Wait...
       run: sleep 60s  
   
@@ -110,17 +108,20 @@ jobs:
     - name: Download latest earthly
       run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
-    - name: Show Cargo.toml
-      run: cat crates/k8s-operator/Cargo.toml
-
-    - name: Run build
-      run: earthly --allow-privileged --output --ci +build-cli-linux
-
     - name: Get latest release info
       id: get_latest_release
       run: |
         latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
         echo "::set-output name=latest_release::$latest_release"
+
+    - name: Set versions
+      run: |
+        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
+        cd ../..
+        cat crates/k8s-operator/Cargo.toml
+
+    - name: Run build
+      run: earthly --allow-privileged --output --ci +build-cli-linux
 
     - name: Upload executable to release
       if: github.ref == 'refs/heads/main'
@@ -139,14 +140,21 @@ jobs:
     - name: Download latest earthly
       run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
-    - name: Run build
-      run: earthly --allow-privileged --output --ci +build-cli-osx
-
     - name: Get latest release info
       id: get_latest_release
       run: |
         latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
         echo "::set-output name=latest_release::$latest_release"
+
+    - name: Set versions
+      run: |
+        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
+        cd ../..
+        cat crates/k8s-operator/Cargo.toml
+
+    - name: Run build
+      run: earthly --allow-privileged --output --ci +build-cli-osx
+
 
     - name: Upload executable to release
       if: github.ref == 'refs/heads/main'
@@ -165,14 +173,20 @@ jobs:
     - name: Download latest earthly
       run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
-    - name: Run build
-      run: earthly --allow-privileged --output --ci +build-cli-windows
-
     - name: Get latest release info
       id: get_latest_release
       run: |
         latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
         echo "::set-output name=latest_release::$latest_release"
+        
+    - name: Set versions
+      run: |
+        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
+        cd ../..
+        cat crates/k8s-operator/Cargo.toml
+
+    - name: Run build
+      run: earthly --allow-privileged --output --ci +build-cli-windows
 
     - name: Upload executable to release
       if: github.ref == 'refs/heads/main'
