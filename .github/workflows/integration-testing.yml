@@ -35,4 +35,8 @@ jobs:
 
     - name: Install Bionic Application into K3s
       run: |
-        bionic install
+        bionic install --testing
+
+    - name: Wait for All the Pods
+      run: |
+        kubectl wait pod --all --for=condition=Ready --namespace=bionic-gpt
