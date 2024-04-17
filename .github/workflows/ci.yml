@@ -110,6 +110,9 @@ jobs:
     - name: Download latest earthly
       run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
+    - name: Show Cargo.toml
+      run: cat crates/k8s-operator/Cargo.toml
+
     - name: Run build
       run: earthly --allow-privileged --output --ci +build-cli-linux
 
@@ -207,10 +210,10 @@ jobs:
 
     - name: Install Bionic Application into K3s
       run: |
-        bionic install
+        bionic install --testing
 
-    #- name: Wait for All the Pods
-    #  run: |
-    #    bionic install
+    - name: Wait for All the Pods
+      run: |
+        kubectl wait pod --all --for=condition=Ready --namespace=bionic-gpt
 
 
