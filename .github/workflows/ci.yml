@@ -84,8 +84,22 @@ jobs:
         npm i -D @semantic-release/git
         npx semantic-release
 
-  build-osx-linux:
+  # We have ro wait for the commit that semantic release makes
+  # Or the next tasks all get the wrong release version.
+  wait-for-release:
     needs: build
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Wait...
+      run: sleep 60s  
+  
+  build-cli-linux:
+    needs: wait-for-release
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +125,7 @@ jobs:
         gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-linux --clobber
 
   build-osx-cli:
-    needs: build
+    needs: wait-for-release
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -137,7 +151,7 @@ jobs:
         gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-darwin --clobber
 
   build-windows-cli:
-    needs: build
+    needs: wait-for-release
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -161,3 +175,40 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: |
         gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-windows.exe --clobber
+
+  integration-testing:
+    needs: [build-windows-cli, build-osx-cli, build-cli-linux]
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get latest release info
+      id: get_latest_release
+      run: |
+        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
+        echo "::set-output name=latest_release::$latest_release"
+
+    - name: Install K3s
+      run: "sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -"
+
+    - name: Install Bionic CLI
+      run: |
+        export BIONIC_VERSION=${{ steps.get_latest_release.outputs.latest_release }}
+        curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-linux
+        chmod +x ./bionic-cli-linux
+        sudo mv ./bionic-cli-linux /usr/local/bin/bionic
+        bionic -V
+
+    - name: Setup Kube Config
+      run: |
+        mkdir -p ~/.kube
+        cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
+
+    - name: Install Bionic Application into K3s
+      run: |
+        bionic install
+
+
