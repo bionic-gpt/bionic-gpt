@@ -6,7 +6,6 @@ on:
 jobs:
 
   integration-testing:
-    needs: [build-windows-cli, build-osx-cli, build-cli-linux]
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
