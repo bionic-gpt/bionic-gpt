@@ -12,17 +12,11 @@ To run Bionic we'll install a very lightweight Kubernetes onto our system using 
 
 ```sh
 sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
-```
-
-### 2. Install K9s (Optional)
-
-This will copy over the K3s cube config and also set the correct IP address. This is useful if you want to use K9s for example.
-
-```sh
+mkdir -p ~/.kube
 cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
 ```
 
-Then install K9's
+### 2. Install K9s (Optional)
 
 ```sh
 curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp
