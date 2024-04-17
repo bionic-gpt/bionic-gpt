@@ -5,7 +5,7 @@ metadata:
   namespace: bionic-gpt 
 spec:
   replicas: 1 
-  version: 1.6.38
+  version: 1.6.39
   
   # PgAdmin - Uncomment to install PgAdmin
   # pgadmin: true
@@ -19,6 +19,6 @@ spec:
   hostname-url: https://localhost
 
   # Image hashes to protect against supply chain attacks.
-  hash-bionicgpt: sha256:2005957179d72a726c487ea74f2b993ddd250d6531c99363cefe48112b4f3975
-  hash-bionicgpt-pipeline-job: sha256:667970095027389808eb65959c4ab37b0abf5c374d65e5d4ae7af256d6dd3888
-  hash-bionicgpt-db-migrations: sha256:52043a4aa73a9410e06bf1d137d9698ad410416514688e156a9377b6c7152746
+  hash-bionicgpt: sha256:6a54e1776be86a5577feaaed6ac6b5d0775af8f9f2761e4f0e01ab718aff7b97
+  hash-bionicgpt-pipeline-job: sha256:ef4fb0b6c3fc3afdbb9abe92a0a6a752b698cbb6de8361bbbc150331f0012ab9
+  hash-bionicgpt-db-migrations: sha256:cc0e63e137f84b8e15a4fb0ae2fd0f894117284c01c9afca835379f00477b5d9
