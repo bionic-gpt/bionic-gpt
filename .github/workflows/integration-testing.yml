@@ -41,5 +41,5 @@ jobs:
       run: |
         sleep 20
         kubectl get pods -n bionic-gpt
-        kubectl wait  --timeout=120s --for=condition=ready pod -l app=bionic-gpt
+        kubectl wait  --timeout=120s --for=condition=ready pod -l app=bionic-gpt -n bionic-gpt
         kubectl get pods -n bionic-gpt
