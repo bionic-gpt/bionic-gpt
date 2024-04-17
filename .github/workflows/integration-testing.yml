@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  integration-testing:
+  integration_testing:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
