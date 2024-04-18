@@ -59,6 +59,41 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
 bionic install
 ```
 
+## 4. Update the Nginx Ingress
+
+```sh
+cat <<EOF | kubectl apply -n bionic-gpt -f-
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    # We need to set the buffer size or keycloak won't let you register
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    # We need toi set this as the max size for document upload
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  name: bionic-gpt-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /oidc
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak
+            port:
+              number: 7910
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: oauth2-proxy
+            port:
+              number: 7900
+EOF
+```
+
 ## The Finished Result
 
 After a while of container creation you should see all the pods running and then be able to access Bionic.
