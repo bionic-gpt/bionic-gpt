@@ -10,10 +10,10 @@ async fn main() {
 
     let conf = get_configuration(None).await.unwrap();
     let leptos_options = conf.leptos_options;
-    let addr = leptos_options.site_addr;
 
     let config = ssr::config::Config::new();
     let pool = db::create_pool(&config.app_database_url);
+    let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
 
     // build our application with a route
     let app = Router::new()
