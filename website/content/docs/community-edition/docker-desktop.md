@@ -47,7 +47,13 @@ Try it out
 bionic -h
 ```
 
-## 2. Install the application into K3s
+## 2. Install the Nginx Ingress Operator
+
+```sh
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml
+```
+
+## 3. Install the application into K3s
 
 ```sh
 bionic install
