@@ -7,6 +7,14 @@ jobs:
 
   integration_testing:
     runs-on: ubuntu-latest
+    services:
+      # docker run -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:latest
+      standalone_chrome:
+        # Docker Hub image
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
+          - 7900:7900
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       FORCE_COLOR: 1
