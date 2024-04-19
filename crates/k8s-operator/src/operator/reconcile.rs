@@ -12,6 +12,7 @@ use crate::services::keycloak;
 use crate::services::keycloak_db;
 use crate::services::llm;
 use crate::services::llm_lite;
+use crate::services::mailhog;
 use crate::services::oauth2_proxy;
 use crate::services::pgadmin;
 use crate::services::pipeline_job;
@@ -103,6 +104,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
                 keycloak_db::deploy(client.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             ingress::deploy(client.clone(), &namespace, pgadmin).await?;
+            mailhog::deploy(client.clone(), &namespace).await?;
             if gpu {
                 tgi::deploy(client.clone(), &namespace).await?;
                 llm_lite::deploy(client.clone(), &namespace).await?;
