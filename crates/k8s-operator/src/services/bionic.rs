@@ -44,7 +44,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                     "name":
                     "INVITE_DOMAIN",
                     "value":
-                    "http://oauth2-proxy-selenium:7711"
+                    spec.hostname_url
                 }),
                 json!({
                     "name":

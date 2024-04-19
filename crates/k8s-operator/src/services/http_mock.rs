@@ -8,6 +8,7 @@ use serde_json::json;
 const EMBEDDINGS_YAML: &str = include_str!("../../config/mocks/embeddings.mock.yaml");
 const OPENAI_YAML: &str = include_str!("../../config/mocks/openai.mock.yaml");
 const UNSTRUCTURED_YAML: &str = include_str!("../../config/mocks/unstructured.mock.yaml");
+const OPENAI_MODEL_YAML: &str = include_str!("../../config/mocks/models.mock.yaml");
 
 // We are using envoy to add security headers to all responses from the main application.
 pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> Result<(), Error> {
@@ -23,6 +24,7 @@ pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> R
             "embeddings.mock.yaml": EMBEDDINGS_YAML,
             "openai.mock.yaml": OPENAI_YAML,
             "unstructured.mock.yaml": UNSTRUCTURED_YAML,
+            "modes.mock.yaml": OPENAI_MODEL_YAML,
         }
     }))?;
 
