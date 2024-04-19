@@ -34,6 +34,54 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                     "value":
                     "7903"
                 }),
+                json!({
+                    "name":
+                    "LOGOUT_URL",
+                    "value":
+                    "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
+                }),
+                json!({
+                    "name":
+                    "INVITE_DOMAIN",
+                    "value":
+                    "http://oauth2-proxy-selenium:7711"
+                }),
+                json!({
+                    "name":
+                    "INVITE_FROM_EMAIL_ADDRESS",
+                    "value":
+                    "support@application.com"
+                }),
+                json!({
+                    "name":
+                    "SMTP_HOST",
+                    "value":
+                    "mailhog"
+                }),
+                json!({
+                    "name":
+                    "SMTP_PORT",
+                    "value":
+                    "1025"
+                }),
+                json!({
+                    "name":
+                    "SMTP_USERNAME",
+                    "value":
+                    "thisisnotused"
+                }),
+                json!({
+                    "name":
+                    "SMTP_PASSWORD",
+                    "value":
+                    "thisisnotused"
+                }),
+                json!({
+                    "name":
+                    "SMTP_TLS_OFF",
+                    "value":
+                    "true"
+                }),
             ],
             init_container: Some(deployment::InitContainer {
                 image_name: format!("{}:{}", super::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),

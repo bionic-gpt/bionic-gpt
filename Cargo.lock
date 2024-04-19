@@ -230,42 +230,12 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "axum"
-version = "0.6.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b829e4e32b91e643de6eafe82b1d90675f5874230191a4ffbc1b336dec4d6bf"
-dependencies = [
- "async-trait",
- "axum-core 0.3.4",
- "bitflags 1.3.2",
- "bytes",
- "futures-util",
- "http 0.2.9",
- "http-body 0.4.5",
- "hyper 0.14.27",
- "itoa",
- "matchit",
- "memchr",
- "mime",
- "multer 2.1.0",
- "percent-encoding",
- "pin-project-lite",
- "rustversion",
- "serde",
- "serde_urlencoded",
- "sync_wrapper 0.1.2",
- "tower",
- "tower-layer",
- "tower-service",
-]
-
-[[package]]
-name = "axum"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a6c9af12842a67734c9a2e355436e5d03b22383ed60cf13cd0c18fbfe3dcbcf"
 dependencies = [
  "async-trait",
- "axum-core 0.4.3",
+ "axum-core",
  "bytes",
  "futures-util",
  "http 1.1.0",
@@ -277,7 +247,7 @@ dependencies = [
  "matchit",
  "memchr",
  "mime",
- "multer 3.0.0",
+ "multer",
  "percent-encoding",
  "pin-project-lite",
  "rustversion",
@@ -291,23 +261,6 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
-]
-
-[[package]]
-name = "axum-core"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "759fa577a247914fd3f7f76d62972792636412fbfd634cd452f6a385a74d2d2c"
-dependencies = [
- "async-trait",
- "bytes",
- "futures-util",
- "http 0.2.9",
- "http-body 0.4.5",
- "mime",
- "rustversion",
- "tower-layer",
- "tower-service",
 ]
 
 [[package]]
@@ -329,65 +282,6 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
-]
-
-[[package]]
-name = "axum-extra"
-version = "0.7.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a93e433be9382c737320af3924f7d5fc6f89c155cf2bf88949d8f5126fab283f"
-dependencies = [
- "axum 0.6.20",
- "axum-core 0.3.4",
- "bytes",
- "futures-util",
- "http 0.2.9",
- "http-body 0.4.5",
- "mime",
- "pin-project-lite",
- "serde",
- "serde_html_form",
- "tokio",
- "tower",
- "tower-layer",
- "tower-service",
-]
-
-[[package]]
-name = "axum-server"
-version = "0.1.0"
-dependencies = [
- "assets",
- "axum 0.6.20",
- "axum-extra",
- "base64 0.13.1",
- "db",
- "embeddings-api",
- "futures",
- "http 0.2.9",
- "hyper 0.14.27",
- "hyper-rustls 0.24.1",
- "lettre",
- "pgvector",
- "pin-project",
- "quoted_printable 0.5.0",
- "rand",
- "reqwest",
- "rustls 0.21.6",
- "serde",
- "serde_json",
- "sha2",
- "thirtyfour",
- "tiktoken-rs",
- "time 0.3.25",
- "tokio",
- "tokio-util",
- "tower",
- "tower-http 0.5.2",
- "tracing",
- "tracing-subscriber",
- "ui-pages",
- "validator",
 ]
 
 [[package]]
@@ -1802,7 +1696,6 @@ dependencies = [
  "rustls-native-certs",
  "tokio",
  "tokio-rustls 0.24.1",
- "webpki-roots 0.23.1",
 ]
 
 [[package]]
@@ -1944,7 +1837,7 @@ name = "integration-testing"
 version = "0.1.0"
 dependencies = [
  "db",
- "quoted_printable 0.4.8",
+ "quoted_printable",
  "rand",
  "reqwest",
  "thirtyfour",
@@ -2266,7 +2159,7 @@ version = "0.6.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0572d6549c7b4d59d6c6c8240c0faa25c1d20af144db7b2e372ffc537fd0aaa3"
 dependencies = [
- "axum 0.7.5",
+ "axum",
  "cfg-if",
  "futures",
  "http-body-util",
@@ -2486,7 +2379,7 @@ dependencies = [
  "mime",
  "nom",
  "once_cell",
- "quoted_printable 0.4.8",
+ "quoted_printable",
  "rustls 0.21.6",
  "rustls-pemfile",
  "socket2 0.4.9",
@@ -2661,24 +2554,6 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "multer"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01acbdc23469fd8fe07ab135923371d5f5a422fbf9c522158677c8eb15bc51c2"
-dependencies = [
- "bytes",
- "encoding_rs",
- "futures-util",
- "http 0.2.9",
- "httparse",
- "log",
- "memchr",
- "mime",
- "spin 0.9.8",
- "version_check",
 ]
 
 [[package]]
@@ -3160,12 +3035,6 @@ name = "quoted_printable"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a3866219251662ec3b26fc217e3e05bf9c4f84325234dfb96bf0bf840889e49"
-
-[[package]]
-name = "quoted_printable"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79ec282e887b434b68c18fe5c121d38e72a5cf35119b59e54ec5b992ea9c8eb0"
 
 [[package]]
 name = "rabbit-mq"
@@ -3661,19 +3530,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_html_form"
-version = "0.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cde65b75f2603066b78d6fa239b2c07b43e06ead09435f60554d3912962b4a3c"
-dependencies = [
- "form_urlencoded",
- "indexmap 2.0.0",
- "itoa",
- "ryu",
- "serde",
-]
-
-[[package]]
 name = "serde_json"
 version = "1.0.104"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3766,7 +3622,7 @@ version = "0.6.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15a46a2ffdecb81430ecfb995989218a18b6e94c1ead50cb806b5927c986a8ce"
 dependencies = [
- "axum 0.7.5",
+ "axum",
  "bytes",
  "ciborium",
  "const_format",
@@ -4785,7 +4641,7 @@ name = "web-ui"
 version = "0.1.0"
 dependencies = [
  "assets",
- "axum 0.7.5",
+ "axum",
  "base64 0.13.1",
  "console_error_panic_hook",
  "db",
