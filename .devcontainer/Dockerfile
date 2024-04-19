@@ -1,4 +1,4 @@
-FROM purtontech/rust-on-nails-devcontainer:1.2.0 AS development
+FROM purtontech/rust-on-nails-devcontainer:1.2.1 AS development
 
 COPY ps1.bash .
 RUN cat ps1.bash >> ~/.bashrc && sudo rm ps1.bash
@@ -8,5 +8,3 @@ RUN cat bash_aliases >> ~/.bash_aliases && sudo rm bash_aliases
 
 # Enable our git hooks and set the permisisons on docker sock.
 RUN echo 'git config core.hooksPath /workspace/.devcontainer/.githooks' >> ~/.bashrc
-
-RUN cargo install cargo-leptos && rustup target add wasm32-unknown-unknown

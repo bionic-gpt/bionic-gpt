@@ -62,10 +62,10 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                             }
                             tbody {
                                 for doc in &documents {
-                                    Row {
-                                        doc: doc.clone(),
-                                        team_id: team_id
-                                    }
+                                        Row {
+                                            doc: doc.clone(),
+                                            team_id: team_id
+                                        }
                                 }
                             }
                         }
@@ -92,11 +92,12 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
 
 #[component]
 pub fn Row(doc: Document, team_id: i32) -> Element {
-    let text = doc
-        .failure_reason
-        .clone()
-        .unwrap()
-        .replace(['{', '"', ':', '}'], " ");
+    let text = if let Some(failure_reason) = doc.failure_reason.clone() {
+        failure_reason.replace(['{', '"', ':', '}'], " ")
+    } else {
+        "None".to_string()
+    };
+
     let class = if doc.waiting > 0 || doc.batches == 0 {
         "processing"
     } else {

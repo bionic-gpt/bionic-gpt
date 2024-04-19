@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailhog
+  namespace: bionic-gpt
+spec:
+  selector:
+    matchLabels:
+      app: mailhog
+  template:
+    metadata:
+      labels:
+        app: mailhog
+    spec:
+      containers:
+        - name: mailhog
+          image: mailhog/mailhog
+          ports:
+            - containerPort: 1025
+            - containerPort: 8025
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailhog
+spec:
+  selector:
+    app: mailhog
+  ports:
+    - protocol: TCP
+      name: mailhog-smtp-port
+      port: 1025
+      targetPort: 1025
+    - protocol: TCP
+      name: mailhog-web-port
+      port: 8025
+      targetPort: 8025
+
