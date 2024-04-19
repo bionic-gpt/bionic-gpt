@@ -34,7 +34,7 @@ impl Config {
         let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
             env::var("MAILHOG_URL").unwrap()
         } else {
-            "http://smtp:8025/api/v2/messages?limit=1".into()
+            "http://192.168.178.57:8025/api/v2/messages?limit=1".into()
         };
 
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
