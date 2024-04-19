@@ -534,9 +534,13 @@ openrc
 kubeconfig
  - docs/enterprise-edition/gpu-preparation.md
 containerd
+RKE2
+PCI-passthrough
  - docs/enterprise-edition/installation.md
 0
 kubectl
 kubeconfig
 ip
 k3d
+ - docs/community-edition/docker-desktop.md
+Nginx

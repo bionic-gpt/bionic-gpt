@@ -16,30 +16,24 @@ pub struct Config {
 
 impl Config {
     pub async fn new() -> Config {
-        let webdriver_url: String = if env::var("WEB_DRIVER_URL").is_ok() {
-            env::var("WEB_DRIVER_URL").unwrap()
+
+        let host = if env::var("HOST_IP_ADDRESS").is_ok() {
+            env::var("HOST_IP_ADDRESS").unwrap()
         } else {
-            // Default to selenium in our dev container
-            "http://pop-os:4444".into()
+            "localhost".into()
         };
+
+        let webdriver_url = format!("http://{}:4444", host);
 
         let headless = env::var("ENABLE_HEADLESS").is_ok();
 
-        let host = if env::var("WEB_DRIVER_DESTINATION_HOST").is_ok() {
-            env::var("WEB_DRIVER_DESTINATION_HOST").unwrap()
-        } else {
-            "http://192.168.178.57".into()
-        };
-
-        let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
-            env::var("MAILHOG_URL").unwrap()
-        } else {
-            "http://192.168.178.57:8025/api/v2/messages?limit=1".into()
-        };
+        let mailhog_url = format!("http://{}:8025/api/v2/messages?limit=1", host);
 
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
 
         let db_pool = db::create_pool(&database_url);
+
+        let host = format!("http://{}", host);
 
         Config {
             webdriver_url,
