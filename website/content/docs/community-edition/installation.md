@@ -34,14 +34,14 @@ kubectl get pods
 ## 4. Install the Bionic CLI
 
 ```sh
-export BIONIC_VERSION=1.6.35
+export BIONIC_VERSION=1.6.47
 curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
 Try it out
 
 ```sh
-bionic -h
+bionic -V
 ```
 
 ## 5. Install the application into K3s
