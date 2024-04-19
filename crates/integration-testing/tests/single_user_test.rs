@@ -293,6 +293,10 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
         .await?
         .click()
         .await?;
+        
+    sleep(Duration::from_millis(3000)).await;
+    
+    driver.refresh().await?;
 
     driver
         .find(By::XPath("//button[text()='Show History']"))

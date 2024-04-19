@@ -10,3 +10,13 @@ then:
       value: application/json
   body: |-
     {"id":"cmpl-37e9df9c-e79b-416f-baff-5684ddc31de4","object":"chat.completion","model":"Llama-2","choices":[{"index":0,"message":{"role":"assistant","content":" I'm just an AI, I don't have feelings or emotions like humans do. However, I'm here to help you with any questions or tasks you may have! Is there something specific you'd like to know or discuss?"},"finish_reason":"Length"}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}}
+when:
+  method: POST
+  path: /v1/models
+then:
+  status: 200
+  header:
+    - name: content-type
+      value: application/json
+  body: |-
+    {"object": "list","data": [{"id": "model-id-0","object": "model","created": 1686935002,"owned_by": "organization-owner"},"object": "list"}
