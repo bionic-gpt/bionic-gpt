@@ -4,5 +4,12 @@
 	},
 	"mounts": [
 		"source=${localEnv:HOME}/.kube/config,target=/home/vscode/.kube/config,type=bind,consistency=cached"
-	]
+	],
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	"remoteEnv": {
+		// Pass in the host directory for Docker mount commands from inside the container
+		"HOST_PROJECT_PATH": "${localWorkspaceFolder}"
+	}
 }
