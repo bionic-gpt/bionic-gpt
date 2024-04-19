@@ -1,9 +1,9 @@
 ## Expose Selenium Ports
 
-Setup the DATABASE_URL
+Setup all the ENV vars 
 
 ```sh
-dburl
+get-env
 ```
 
 Expose the ports in k9s
