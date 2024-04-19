@@ -1,0 +1,10 @@
+when:
+  method: POST
+  path: /v1/models
+then:
+  status: 200
+  header:
+    - name: content-type
+      value: application/json
+  body: |-
+    {"object": "list","data": [{"id": "model-id-0","object": "model","created": 1686935002,"owned_by": "organization-owner"},"object": "list"}
