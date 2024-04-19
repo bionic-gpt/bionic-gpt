@@ -20,7 +20,7 @@ impl Config {
             env::var("WEB_DRIVER_URL").unwrap()
         } else {
             // Default to selenium in our dev container
-            "http://selenium:4444".into()
+            "http://pop-os:4444".into()
         };
 
         let headless = env::var("ENABLE_HEADLESS").is_ok();
@@ -28,7 +28,7 @@ impl Config {
         let host = if env::var("WEB_DRIVER_DESTINATION_HOST").is_ok() {
             env::var("WEB_DRIVER_DESTINATION_HOST").unwrap()
         } else {
-            "http://oauth2-proxy-selenium:7711".into()
+            "http://192.168.178.57".into()
         };
 
         let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
