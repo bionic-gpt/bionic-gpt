@@ -41,7 +41,7 @@ tiktoken-rs = { version = "0.5.4", optional = true }
 # Used by ui_completions and api_reverse_proxy
 hyper = { version = "1", features = ["server", "client"], optional = true }
 hyper-rustls = { version = "0.27", default-features = false, features = ["ring", "webpki-tokio", "http1"], optional = true }
-rustls = { version = "0.20", features = ["tls12"], optional = true }
+rustls = { version = "0.23", features = ["tls12"], optional = true }
 serde_json = { version = "1", optional = true }
 hyper-util = { version = "0.1", default-features = false, features = ["client-legacy", "tokio"], optional = true }
 
