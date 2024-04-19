@@ -23,8 +23,10 @@ alias dbapp='psql $APP_DATABASE_URL'
 
 alias p='sudo chmod 777 /var/run/docker.sock'
 
+alias rh='export HOST_IP_ADDRESS=$(grep -oP "(?<=https://)[^:]+(?=:)" ~/.kube/config)'
+
 # Configure the environment for inside k8's
-alias get-env='dburl && app_dburl'
+alias get-env='dburl && app_dburl && rh'
 
 # Watch
 alias watch-zola='cd /workspaces/bionic-gpt/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
@@ -42,7 +44,7 @@ alias wt=watch-tailwind
 alias ma='mirrord exec --target deployment/bionic-gpt -n bionic-gpt cargo watch --workdir /workspaces/bionic-gpt/ -w crates/daisy-rsx -w crates/ui-pages -w crates/web-ui -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin web-ui"'
 
 # Spell check
-alias spell='docker run --rm -ti -v $HOST_PROJECT_PATH/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
+alias spell='docker run --rm -ti -v /workspaces/bionic-gpt/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
 
 # Devpod always deletes my website folder
 alias fu-devpod='git checkout -- website'
