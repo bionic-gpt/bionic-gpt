@@ -29,7 +29,7 @@ alias get-env='dburl && app_dburl'
 # Watch
 alias watch-zola='cd /workspaces/bionic-gpt/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
 alias wz=watch-zola
-alias watch-app='mold -run cargo watch --workdir /workspaces/bionic-gpt/ -w crates/daisy-rsx -w crates/ui-pages -w crates/axum-server -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin axum-server"'
+alias watch-app='mold -run cargo watch --workdir /workspaces/bionic-gpt/ -w crates/daisy-rsx -w crates/ui-pages -w crates/web-ui -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin web-ui"'
 alias wa=watch-app
 alias watch-pipeline='npm install --prefix /workspaces/bionic-gpt/crates/asset-pipeline && npm run start --prefix /workspace/crates/asset-pipeline'
 alias wp=watch-pipeline
@@ -37,6 +37,9 @@ alias watch-embeddings='mold -run cargo watch --workdir /workspaces/bionic-gpt/ 
 alias we=watch-embeddings
 alias watch-tailwind='cd /workspaces/bionic-gpt/crates/asset-pipeline && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
 alias wt=watch-tailwind
+
+# Mirrord
+alias ma='mirrord exec --target deployment/bionic-gpt -n bionic-gpt cargo watch --workdir /workspaces/bionic-gpt/ -w crates/daisy-rsx -w crates/ui-pages -w crates/web-ui -w crates/db -w crates/asset-pipeline/dist -w crates/asset-pipeline/images --no-gitignore -x "run --bin web-ui"'
 
 # Spell check
 alias spell='docker run --rm -ti -v $HOST_PROJECT_PATH/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
