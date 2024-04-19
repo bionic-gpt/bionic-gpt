@@ -33,23 +33,14 @@ Then run
 cargo run --bin k8s-operator -- install
 ```
 
-i.e. Have some aliases to copy the config and set ip address
+## Testing the Operator
 
 ```sh
-alias kc='kccopy && kcupdate'
-alias kccopy='cp /etc/rancher/k3s/k3s.yaml LOCATION_OF_PROJECT/bionic-gpt/k3s.yaml'
-alias kcupdate='address=127.0.1.1 sed -i s/127.0.0.1/192.168.178.57/g LOCATION_OF_PROJECT/bionic-gpt/k3s.yaml'
+cargo run --bin k8s-operator -- install --no-operator --testing --hostname-url http://192.168.178.57
 ```
 
-Then in the devcontainer run
+Then
 
 ```sh
-kc
+cargo run --bin k8s-operator -- operator
 ```
-
-## Run K9s in host
-
-```sh
-k9s --kubeconfig /etc/rancher/k3s/k3s.yaml
-```
-

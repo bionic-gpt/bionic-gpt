@@ -10,6 +10,7 @@ pub mod keycloak;
 pub mod keycloak_db;
 pub mod llm;
 pub mod llm_lite;
+pub mod mailhog;
 pub mod oauth2_proxy;
 pub mod pgadmin;
 pub mod pipeline_job;
