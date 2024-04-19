@@ -34,6 +34,12 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                     "value":
                     "7903"
                 }),
+                json!({
+                    "name":
+                    "LOGOUT_URL",
+                    "value":
+                    "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
+                }),
             ],
             init_container: Some(deployment::InitContainer {
                 image_name: format!("{}:{}", super::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),
