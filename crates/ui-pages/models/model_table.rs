@@ -70,15 +70,6 @@ pub fn ModelTable(models: Vec<Model>, team_id: i32) -> Element {
                                 }
                             }
                         }
-
-                        for item in models {
-                            super::delete::DeleteDrawer {
-                                team_id: team_id,
-                                id: item.id,
-                                trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
-                            }
-                        }
-
                     }
                 }
             }
