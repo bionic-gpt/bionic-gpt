@@ -16,7 +16,6 @@ pub struct Config {
 
 impl Config {
     pub async fn new() -> Config {
-
         let host = if env::var("HOST_IP_ADDRESS").is_ok() {
             env::var("HOST_IP_ADDRESS").unwrap()
         } else {

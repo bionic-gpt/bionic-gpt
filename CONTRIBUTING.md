@@ -2,11 +2,10 @@
 
 This project is based on the [Rust on Nails](https://rust-on-nails.com/) architecture.
 
-## Setup for Development
+## This project depends on k3s
 
-This project uses [Devpod](https://devpod.sh/). DevPod is a tool used to create reproducible developer environments. We use K3s to host our development environment as this is also where we do most development.
+We use k3s to run the services we depend on i.e. unstructured and various models.
 
-## Install K3s on the Host
 
 ```sh
 sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
@@ -18,15 +17,17 @@ Extract the kubeconfig for use by other K8's tools.
 mkdir -p ~/.kube && cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 ```
 
-## Install DevPod
+## Setup for Development
 
-Go to https://devpod.sh/docs/getting-started/install and install the CLI.
+This project uses the [Visual Studio Code Remote - Containers](https://code.visualstudio.com/docs/remote/containers) extension so we can define the runtime and development stack with code. The configuration is in the `.devcontainer`.
 
-Then run
+Make sure you have Docker Desktop installed and Visual Studio Code Remote. Make sure you have the Remote Containers extension installed. 
 
-```sh
-devpod go https://github.com/bionic-gpt/bionic-gpt
-```
+After you have run `git clone` on this repository open the folder for the project in Visual Studio Code.
+
+Then click on the green square in the bottom left hand corner of VSCode. (It's the gree square with < and > in the screenshot above). A menu pops down, choose `Remote-Containers: Reopen in Container`
+
+It will take a while for the containers to download.
 
 ## Sanity check your dev environment.
 
@@ -37,59 +38,6 @@ You can type the following commands in the Linux command prompt.
 * rustc --version
 * npm -v 
 * psql -V
-
-## Connecting to the cluster
-
-Use the following command to inject the k3s.yaml into the containers kube config.
-
-```sh
-POD_NAME=$(kubectl -n devpod get pods --field-selector=status.phase=Running -o jsonpath='{.items[*].metadata.name}' | grep 'bionic-gpt' | head -n 1)
-kubectl -n devpod exec $POD_NAME -- mkdir -p /home/vscode/.kube
-kubectl -n devpod cp /etc/rancher/k3s/k3s.yaml $POD_NAME:/home/vscode/.kube/config
-HOST_IP=$(hostname -I | awk '{print $1}')
-kubectl -n devpod exec $POD_NAME -- sed -i "s/127.0.0.1/${HOST_IP}/g" /home/vscode/.kube/config
-```
-
-## Create a service pointing to the Devpod
-
-```sh
-echo "
-apiVersion: v1
-kind: Service
-metadata:
-  name: bionic-devpod
-  namespace: devpod
-spec:
-  selector:
-    devpod.sh/created: 'true' 
-  ports:
-    - protocol: TCP
-      port: 7703
-      targetPort: 7703
-" | kubectl apply -f -
-```
-
-## Configure envoy to use the new service.
-
-Edit the configmap and set the host to
-
-`bionic-devpod.devpod.svc.cluster.local`
-
-and the port to
-
-`7703`
-
-## Initialise all the services
-
-```sh
-cargo run --bin k8s-operator -- install --development --no-operator --hostname-url http://pop-os
-```
-
-Then also run the operator
-
-```sh
-cargo run --bin k8s-operator -- operator
-```
 
 ## Running Database Migrations
 
@@ -125,6 +73,25 @@ The website uses a zola theme. This will need to be loaded with
 
 `gsu`
 
+## Expose port on k3s
+
+Run the script in a terminal on the host (i.e. not in the devcontainer). This will open up ports so we can access the services from our devcontainer.
+
+```sh
+cat <<EOF > open-ports.sh
+# Push commands in the background, when the script exits, the commands will exit too
+kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 & \
+kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/mailhog 8025 & \
+kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/llm-api 11435:11434 & \
+
+echo "Press CTRL-C to stop port forwarding and exit the script"
+wait
+EOF
+chmod +x ./open-ports.sh
+./open-ports.sh
+rm ./open-ports.sh
+```
+
 ## Load and Serve a Model
 
 1. `ollama pull llama2`
@@ -133,7 +100,7 @@ The website uses a zola theme. This will need to be loaded with
 Test the above with
 
 ```sh
-curl http://llm-api:11434/v1/chat/completions \
+curl http://localhost:11434/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{
         "model": "llama2",
