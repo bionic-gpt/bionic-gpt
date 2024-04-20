@@ -47,7 +47,7 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>, top_users: Vec<TopUser
                 context_size_bytes: 2048,
             }
 
-            for model in models {
+            for model in &models {
                 super::form::Form {
                     id: model.id,
                     team_id: team_id,
@@ -58,6 +58,14 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>, top_users: Vec<TopUser
                     api_key: model.api_key.clone().unwrap_or("".to_string()),
                     billion_parameters: model.billion_parameters,
                     context_size_bytes: model.context_size,
+                }
+            }
+
+            for item in &models {
+                super::delete::DeleteDrawer {
+                    team_id: team_id,
+                    id: item.id,
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
                 }
             }
         }
