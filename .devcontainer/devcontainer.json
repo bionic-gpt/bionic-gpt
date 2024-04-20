@@ -8,6 +8,9 @@
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
+	"containerEnv": {
+		"BYPASS_AUTH": "test.user@test.com"
+	},
 	"remoteEnv": {
 		// Pass in the host directory for Docker mount commands from inside the container
 		"HOST_PROJECT_PATH": "${localWorkspaceFolder}"

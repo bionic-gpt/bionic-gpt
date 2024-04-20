@@ -1,6 +1,6 @@
+use crate::cli::apply;
 use crate::error::Error;
 use kube::Client;
-use crate::cli::apply;
 
 const MAILHOG_YAML: &str = include_str!("../../config/mailhog.yaml");
 

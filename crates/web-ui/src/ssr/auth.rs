@@ -5,6 +5,7 @@ use axum::{
 };
 use db::authz;
 use serde::{Deserialize, Serialize};
+use std::env;
 
 const X_FORWARDED_USER: &str = "X-Forwarded-User";
 const X_FORWARDED_EMAIL: &str = "X-Forwarded-Email";
@@ -43,6 +44,16 @@ where
                 let authentication = Authentication {
                     sub: sub.to_string(),
                     email: email.to_string(),
+                };
+
+                return Ok(authentication);
+            }
+        } else {
+            let bypass_auth = env::var("BYPASS_AUTH");
+            if let Ok(bypass_auth) = bypass_auth {
+                let authentication = Authentication {
+                    sub: bypass_auth.clone(),
+                    email: bypass_auth,
                 };
 
                 return Ok(authentication);
