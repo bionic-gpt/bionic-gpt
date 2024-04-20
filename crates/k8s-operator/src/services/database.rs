@@ -102,21 +102,21 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
     secret_data.insert(
         "migrations-url".to_string(),
         format!(
-            "postgres://db-owner:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=prefer",
+            "postgres://db-owner:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=disable",
             dbowner_password
         ),
     );
     secret_data.insert(
         "application-url".to_string(),
         format!(
-            "postgres://bionic_application:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=prefer",
+            "postgres://bionic_application:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=disable",
             app_database_password
         ),
     );
     secret_data.insert(
         "readonly-url".to_string(),
         format!(
-            "postgres://bionic_readonly:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=prefer",
+            "postgres://bionic_readonly:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=disable",
             readonly_database_password
         ),
     );
