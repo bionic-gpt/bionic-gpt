@@ -16,7 +16,8 @@ Go to settings and enable Kubernetes
 ## 1. Install the Bionic CLI (MacOS)
 
 ```sh
-curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-darwin && chmod +x ./bionic-cli-darwin && sudo mv ./bionic-cli-darwin /usr/local/bin/bionic
+export BIONIC_VERSION=1.6.50
+curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-darwin && chmod +x ./bionic-cli-darwin && sudo mv ./bionic-cli-darwin /usr/local/bin/bionic
 ```
 
 Try it out
@@ -38,7 +39,8 @@ bionic.exe -h
 ## 1. Install the Bionic CLI (Linux)
 
 ```sh
-curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
+export BIONIC_VERSION=1.6.50
+curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
 Try it out
