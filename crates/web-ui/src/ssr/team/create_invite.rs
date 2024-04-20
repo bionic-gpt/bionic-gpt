@@ -7,11 +7,11 @@ use db::authz;
 use db::queries;
 use db::types;
 use db::Pool;
+use lettre::Message;
 use rand::Rng;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use validator::Validate;
-use lettre::Message;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewInvite {
