@@ -1,5 +1,6 @@
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Form, Path};
+use axum::extract::{Extension, Path};
+use axum_extra::extract::Form;
 use axum::response::IntoResponse;
 use db::authz;
 use db::Pool;
