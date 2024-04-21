@@ -13,6 +13,7 @@ ui-pages = { path = "../ui-pages", optional = true }
 embeddings-api = { path = "../embeddings-api", optional = true }
 
 axum = { version = "0.7", optional = true }
+axum-extra = { version = "0", features = ["form"], optional = true }
 console_error_panic_hook = "0.1"
 leptos = { version = "0.6", features = ["experimental-islands"] }
 leptos_axum = { version = "0.6", optional = true, features = [
@@ -60,6 +61,7 @@ ssr = [
     "dep:validator",
     "dep:rand",
     "dep:axum",
+    "dep:axum-extra",
     "dep:tokio",
     "dep:tokio-util",
     "dep:tower",
