@@ -8,6 +8,7 @@ document.addEventListener('turbo:load', () => {
         const item = itemsCurrentlyProcessing[0]
 
         let clostestParentTurboFrame = item.closest('turbo-frame')
+
         if(clostestParentTurboFrame instanceof FrameElement) {
             const intId = setInterval(() => {
                 if(clostestParentTurboFrame instanceof FrameElement) {
