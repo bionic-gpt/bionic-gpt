@@ -49,6 +49,11 @@ async function streamResult(chatId: string, element: HTMLElement) {
             result = snapshot
         })
 
+        runner.on('error', (err) => {
+            element.innerHTML += `<p>There was an error ${err}`
+            result = result + err
+        })
+
         runner.on('end', () => {
             console.log("Finished, Saving the results")
             const form = document.getElementById(`chat-form-${chatId}`)
