@@ -81,17 +81,6 @@ build-web-ui:
     COPY --dir Cargo.lock Cargo.toml .
     COPY --dir +npm-build/dist $PIPELINE_FOLDER/
 
-    # Install cargo-binstall, which makes it easier to install other
-    # cargo extensions like cargo-leptos
-    RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
-    RUN tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
-    RUN cp cargo-binstall /usr/local/cargo/bin
-
-    RUN rustup target add wasm32-unknown-unknown
-
-    # Install cargo-leptos
-    RUN cargo binstall cargo-leptos -y
-
     # We need to run inside docker as we need postgres running for cornucopia
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
     USER root
@@ -104,11 +93,12 @@ build-web-ui:
     SAVE ARTIFACT target/release/$APP_EXE_NAME
     SAVE ARTIFACT target/site
 
+
 build:
     # Copy in all our crates
     COPY --dir crates crates
-    RUN rm -rf crates/axum-server crates/web-ui crates/asset-pipeline crates/daisy-rsx crates/ui-pages
     COPY --dir Cargo.lock Cargo.toml .
+    COPY --dir +npm-build/dist $PIPELINE_FOLDER/
     # We need to run inside docker as we need postgres running for cornucopia
     ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
     USER root
@@ -118,6 +108,7 @@ build:
             && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
             && cargo build --release --target x86_64-unknown-linux-musl
     END
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RABBITMQ_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
@@ -138,15 +129,12 @@ migration-container:
 # To test this locally run
 # docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7703:7703 bionic-gpt/bionicgpt:latest
 app-container:
-    FROM debian:bookworm-slim
-    COPY +build-web-ui/$APP_EXE_NAME web-ui
-    COPY +build-web-ui/site site
+    FROM scratch
+    COPY +build/$APP_EXE_NAME axum-server
     # Place assets in a build folder as that's where statics is expecting them.
     COPY --dir +npm-build/dist /build/$PIPELINE_FOLDER/
     COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
-    ENV LEPTOS_SITE_ADDR="0.0.0.0:7703"
-    ENV LEPTOS_SITE_ROOT="site"
-    ENTRYPOINT ["./web-ui"]
+    ENTRYPOINT ["./axum-server"]
     SAVE IMAGE --push $APP_IMAGE_NAME
 
 # We've got a Kubernetes operator

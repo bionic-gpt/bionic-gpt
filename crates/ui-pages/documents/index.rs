@@ -63,8 +63,9 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                             tbody {
                                 for doc in &documents {
                                         Row {
-                                            doc: doc.clone(),
-                                            team_id: team_id
+                                            document: doc.clone(),
+                                            team_id: team_id,
+                                            first_time: true
                                         }
                                 }
                             }
@@ -91,56 +92,93 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
 }
 
 #[component]
-pub fn Row(doc: Document, team_id: i32) -> Element {
-    let text = if let Some(failure_reason) = doc.failure_reason.clone() {
+pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
+    let text = if let Some(failure_reason) = document.failure_reason.clone() {
         failure_reason.replace(['{', '"', ':', '}'], " ")
     } else {
         "None".to_string()
     };
 
-    let class = if doc.waiting > 0 || doc.batches == 0 {
+    let class = if document.waiting > 0 || document.batches == 0 {
         "processing"
     } else {
         "processing-finished"
     };
+
+    let id = format!("processing-label-{}", document.id);
+
+    let src = if first_time {
+        Some(crate::routes::documents::processing_route(team_id, document.id))
+    } else {
+        None
+    };
+
     rsx!(
         tr {
-            class: class,
-            td { "{doc.file_name}" }
-            td { "{doc.batches}" }
-            td { "{doc.content_size}" }
+            td { "{document.file_name}" }
+            td { "{document.batches}" }
+            td { "{document.content_size}" }
             td {
-                if doc.waiting > 0 || doc.batches == 0 {
-                    Label {
-                        "Processing ({doc.waiting} remaining)"
+                if document.waiting > 0 || document.batches == 0 {
+                    turbo-frame {
+                        id,
+                        src,
+                        Label {
+                            class: class,
+                            "Processing ({document.waiting} remaining)"
+                        }
                     }
-                } else if doc.failure_reason.is_some() {
-
-                    ToolTip {
-                        text: "{text}",
+                } else if document.failure_reason.is_some() {
+                    turbo-frame {
+                        id,
+                        src,
+                
+                        ToolTip {
+                            text: "{text}",
+                            Label {
+                                label_role: LabelRole::Danger,
+                                "Failed"
+                            }
+                        }
+                    }
+                } else if document.batches == 0 {
+                    turbo-frame {
+                        id,
+                        src,
+                
+                        Label {
+                            "Queued"
+                        }
+                    }
+                } else if document.fail_count > 0 {
+                    turbo-frame {
+                        id,
+                        src,
+                
+                        Label {
+                            label_role: LabelRole::Danger,
+                            "Processed ({document.fail_count} failed)"
+                        }
+                    }
+                } else if document.failure_reason.is_some() {
+                    turbo-frame {
+                        id,
+                        src,
+                
                         Label {
                             label_role: LabelRole::Danger,
                             "Failed"
                         }
                     }
-                } else if doc.batches == 0 {
-                    Label {
-                        "Queued"
-                    }
-                } else if doc.fail_count > 0 {
-                    Label {
-                        label_role: LabelRole::Danger,
-                        "Processed ({doc.fail_count} failed)"
-                    }
-                } else if doc.failure_reason.is_some() {
-                    Label {
-                        label_role: LabelRole::Danger,
-                        "Failed"
-                    }
                 } else {
-                    Label {
-                        label_role: LabelRole::Success,
-                        "Processed"
+                    turbo-frame {
+                        id,
+                        src,
+                
+                        Label {
+                            label_role: LabelRole::Success,
+                            "Processed"
+                        }
                     }
                 }
             }
@@ -151,7 +189,7 @@ pub fn Row(doc: Document, team_id: i32) -> Element {
                     button_text: "...",
                     DropDownLink {
                         drawer_trigger: format!("delete-doc-trigger-{}-{}",
-                            doc.id, team_id),
+                            document.id, team_id),
                         href: "#",
                         target: "_top",
                         "Delete Document"
@@ -164,4 +202,8 @@ pub fn Row(doc: Document, team_id: i32) -> Element {
 
 pub fn index(props: PageProps) -> String {
     crate::render(VirtualDom::new_with_props(Page, props))
+}
+
+pub fn row(props: RowProps) -> String {
+    crate::render(VirtualDom::new_with_props(Row, props))
 }
