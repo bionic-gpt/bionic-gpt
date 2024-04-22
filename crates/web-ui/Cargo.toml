@@ -3,151 +3,40 @@ name = "web-ui"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
-
 [dependencies]
-db = { path = "../db", optional = true }
-assets = { path = "../asset-pipeline", optional = true }
-ui-pages = { path = "../ui-pages", optional = true }
-embeddings-api = { path = "../embeddings-api", optional = true }
+db = { path = "../db" }
+assets = { path = "../asset-pipeline" }
+ui-pages = { path = "../ui-pages" }
+embeddings-api = { path = "../embeddings-api" }
 
-axum = { version = "0.7", optional = true }
-axum-extra = { version = "0", features = ["form"], optional = true }
-console_error_panic_hook = "0.1"
-leptos = { version = "0.6", features = ["experimental-islands"] }
-leptos_axum = { version = "0.6", optional = true, features = [
-  "experimental-islands",
-] }
-leptos_meta = { version = "0.6" }
-leptos_router = { version = "0.6" }
-tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
-tokio-util = { version = "0", optional = true }
-tower = { version = "0.4", optional = true }
-tower-http = { version = "0.5", features = ["fs"], optional = true }
+axum = { version = "0.7", features = ["multipart"] }
+axum-extra = { version = "0", features = ["form"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+tokio-util = { version = "0" }
+tower = { version = "0.4" }
+tower-http = { version = "0.5", features = ["fs"] }
 wasm-bindgen = "=0.2.92"
 thiserror = "1"
-tracing = { version = "0.1", optional = true }
+tracing = { version = "0.1" }
 http = "1"
-validator = { version = "0", features = ["derive"], optional = true }
-serde = { version = "1", features = ["derive"], optional = true }
-rand = { version = "0", optional = true }
+validator = { version = "0", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+rand = { version = "0" }
 
 # So we can store embeddings
-pgvector = { version = "0.3", features = ["postgres"], optional = true }
+pgvector = { version = "0.3", features = ["postgres"] }
 
 # Tiktoken counts our token usage for prompts
-tiktoken-rs = { version = "0.5.4", optional = true }
+tiktoken-rs = { version = "0.5.4" }
 
 # Used by ui_completions and api_reverse_proxy
-hyper = { version = "1", features = ["server", "client"], optional = true }
-hyper-rustls = { version = "0.27", default-features = false, features = ["ring", "webpki-tokio", "http1"], optional = true }
-serde_json = { version = "1", optional = true }
-hyper-util = { version = "0.1", default-features = false, features = ["client-legacy", "tokio"], optional = true }
+hyper = { version = "1", features = ["server", "client"] }
+hyper-rustls = { version = "0.27", default-features = false, features = ["ring", "webpki-tokio", "http1"] }
+serde_json = { version = "1" }
+hyper-util = { version = "0.1", default-features = false, features = ["client-legacy", "tokio"] }
 
 # Generate secure invitations
-sha2 = { version = "0", optional = true }
-base64 = { version = "0.13.1", optional = true }
-lettre = { version = "0.10.0-rc.4", default-features = false,  features = ["rustls-tls", "smtp-transport", "builder"], optional = true  }
+sha2 = { version = "0" }
+base64 = { version = "0.13.1" }
+lettre = { version = "0.10.0-rc.4", default-features = false,  features = ["rustls-tls", "smtp-transport", "builder"]  }
 
-[features]
-hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
-ssr = [
-    "dep:db",
-    "dep:assets",
-    "dep:ui-pages",
-    "dep:embeddings-api",
-    "dep:serde",
-    "dep:validator",
-    "dep:rand",
-    "dep:axum",
-    "dep:axum-extra",
-    "dep:tokio",
-    "dep:tokio-util",
-    "dep:tower",
-    "dep:tower-http",
-    "dep:hyper",
-    "dep:hyper-rustls",
-    "dep:pgvector",
-    "dep:hyper-util",
-    "dep:serde_json",
-    "dep:tiktoken-rs",
-    "dep:sha2",
-    "dep:base64",
-    "dep:lettre",
-    "dep:leptos_axum",
-    "leptos/ssr",
-    "leptos_meta/ssr",
-    "leptos_router/ssr",
-    "dep:tracing",
-]
-
-# Defines a size-optimized profile for the WASM bundle in release mode
-[profile.wasm-release]
-inherits = "release"
-opt-level = 'z'
-lto = true
-codegen-units = 1
-panic = "abort"
-
-[package.metadata.leptos]
-# The name used by wasm-bindgen/cargo-leptos for the JS/WASM bundle. Defaults to the crate name
-output-name = "web-ui"
-
-# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your server setup.
-site-root = "target/site"
-
-# The site-root relative folder where all compiled output (JS, WASM and CSS) is written
-# Defaults to pkg
-site-pkg-dir = "pkg"
-
-# [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
-style-file = "style/main.scss"
-# Assets source dir. All files found here will be copied and synchronized to site-root.
-# The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
-#
-# Optional. Env: LEPTOS_ASSETS_DIR.
-assets-dir = "public"
-
-# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
-site-addr = "0.0.0.0:7703"
-
-# The port to use for automatic reload monitoring
-reload-port = 3001
-
-# [Optional] Command to use when running end2end tests. It will run in the end2end dir.
-#   [Windows] for non-WSL use "npx.cmd playwright test"
-#   This binary name can be checked in Powershell with Get-Command npx
-end2end-cmd = "npx playwright test"
-end2end-dir = "end2end"
-
-#  The browserlist query used for optimizing the CSS.
-browserquery = "defaults"
-
-# The environment Leptos will run in, usually either "DEV" or "PROD"
-env = "DEV"
-
-# The features to use when compiling the bin target
-#
-# Optional. Can be over-ridden with the command line parameter --bin-features
-bin-features = ["ssr"]
-
-# If the --no-default-features flag should be used when compiling the bin target
-#
-# Optional. Defaults to false.
-bin-default-features = false
-
-# The features to use when compiling the lib target
-#
-# Optional. Can be over-ridden with the command line parameter --lib-features
-lib-features = ["hydrate"]
-
-# If the --no-default-features flag should be used when compiling the lib target
-#
-# Optional. Defaults to false.
-lib-default-features = false
-
-# The profile to use for the lib target when compiling for release
-#
-# Optional. Defaults to "release".
-lib-profile-release = "wasm-release"
