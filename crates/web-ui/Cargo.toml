@@ -17,11 +17,13 @@ tower = { version = "0.4" }
 tower-http = { version = "0.5", features = ["fs"] }
 wasm-bindgen = "=0.2.92"
 thiserror = "1"
-tracing = { version = "0.1" }
 http = "1"
 validator = { version = "0", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 rand = { version = "0" }
+
+tracing = { version = "0.1" }
+tracing-subscriber = { version="0", features = ["env-filter"] }
 
 # So we can store embeddings
 pgvector = { version = "0.3", features = ["postgres"] }

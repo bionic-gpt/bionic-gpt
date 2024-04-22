@@ -29,6 +29,9 @@ use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);

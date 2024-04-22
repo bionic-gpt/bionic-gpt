@@ -1,6 +1,7 @@
 import { Markdown } from "./response-formatter"
 import { Stream } from 'openai/streaming';
 import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
+import { OpenAIError } from "openai/error.mjs";
 
 export const streamingChat = () => {
     const chat = document.getElementById('streaming-chat')
@@ -49,8 +50,8 @@ async function streamResult(chatId: string, element: HTMLElement) {
             result = snapshot
         })
 
-        runner.on('error', (err) => {
-            element.innerHTML += `<p>There was an error ${err}`
+        runner.on('error', (err: OpenAIError) => {
+            element.innerHTML += `${err}`
             result = result + err
         })
 
