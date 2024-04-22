@@ -155,6 +155,7 @@ pub mod routes {
         pub static INDEX: &str = "/app/team/:team_id/dataset/:dataset_id/documents";
         pub static BULK: &str = "/app/team/:team_id/bulk_import";
         pub static UPLOAD: &str = "/app/team/:team_id/dataset/:dataset_id/doc_upload";
+        pub static PROCESSING: &str = "/app/team/:team_id/processing/:document_id";
         pub static DELETE: &str = "/app/team/:team_id/delete_doc/:document_id";
 
         pub fn index_route(team_id: i32, dataset_id: i32) -> String {
@@ -163,6 +164,10 @@ pub mod routes {
 
         pub fn upload_route(team_id: i32, dataset_id: i32) -> String {
             format!("/app/team/{}/dataset/{}/doc_upload", team_id, dataset_id)
+        }
+
+        pub fn processing_route(team_id: i32, document_id: i32) -> String {
+            format!("/app/team/{}/processing/{}", team_id, document_id)
         }
 
         pub fn delete_route(team_id: i32, document_id: i32) -> String {
