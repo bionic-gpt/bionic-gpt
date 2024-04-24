@@ -1,16 +1,14 @@
 use super::super::{Authentication, CustomError};
-use axum::{
-    extract::{Extension, Path},
-    response::IntoResponse,
-};
+use axum::{extract::Extension, response::IntoResponse};
 use db::authz;
 use db::queries::conversations;
 use db::Pool;
+use web_pages::routes::console::NewChat;
 
 pub async fn new_chat(
+    NewChat { team_id }: NewChat,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    Path(team_id): Path<i32>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -24,8 +22,11 @@ pub async fn new_chat(
 
     transaction.commit().await?;
 
-    super::super::layout::redirect(&web_pages::routes::console::conversation_route(
-        team_id,
-        conversation_id,
-    ))
+    super::super::layout::redirect(
+        &web_pages::routes::console::Conversation {
+            team_id,
+            conversation_id,
+        }
+        .to_string(),
+    )
 }

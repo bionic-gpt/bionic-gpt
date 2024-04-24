@@ -1,12 +1,13 @@
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Path};
+use axum::extract::Extension;
 use axum::response::IntoResponse;
 use db::authz;
 use db::queries::conversations;
 use db::{Conversation, Pool};
+use web_pages::routes::console::Index;
 
 pub async fn index(
-    Path(team_id): Path<i32>,
+    Index { team_id }: Index,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -22,7 +23,7 @@ pub async fn index(
             .one()
             .await;
 
-    let conv_id = if let Ok(conversation) = conversation {
+    let conversation_id = if let Ok(conversation) = conversation {
         conversation.id
     } else {
         conversations::create_conversation()
@@ -33,7 +34,11 @@ pub async fn index(
 
     transaction.commit().await?;
 
-    super::super::layout::redirect(&web_pages::routes::console::conversation_route(
-        team_id, conv_id,
-    ))
+    super::super::layout::redirect(
+        &web_pages::routes::console::Conversation {
+            team_id,
+            conversation_id,
+        }
+        .to_string(),
+    )
 }

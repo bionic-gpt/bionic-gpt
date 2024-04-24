@@ -7,7 +7,7 @@ use dioxus::prelude::*;
 pub fn Form(team_id: i32, prompts: Vec<Prompt>) -> Element {
     rsx!(
         Drawer {
-            submit_action: "{crate::routes::api_keys::new_route(team_id)}",
+            submit_action: crate::routes::api_keys::New{ team_id }.to_string(),
             label: "New API Key",
             trigger_id: "create-api-key",
             DrawerBody {

@@ -17,6 +17,7 @@ pub mod prompts;
 pub mod team_members;
 pub mod teams;
 
+// Generic function to render a component and its props to a string
 pub fn render_with_props<P: Clone + 'static, M: 'static>(
     root: impl ComponentFunction<P, M>,
     root_props: P,
@@ -27,173 +28,231 @@ pub fn render_with_props<P: Clone + 'static, M: 'static>(
     format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
 }
 
+// All the routes of the application are mapped here and are typesafe
+// https://docs.rs/axum-extra/latest/axum_extra/routing/trait.TypedPath.html
 pub mod routes {
 
-    pub mod audit_trail {
-        pub static INDEX: &str = "/app/team/:team_id/audit_trail";
+    pub mod api_keys {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/audit_trail", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/api_keys")]
+        pub struct Index {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/api_keys/new")]
+        pub struct New {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/api_keys/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
+        }
+    }
+
+    pub mod audit_trail {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/audit_trail")]
+        pub struct Index {
+            pub team_id: i32,
         }
     }
 
     pub mod document_pipelines {
-        pub static INDEX: &str = "/app/team/:team_id/pipelines";
-        pub static NEW: &str = "/app/team/:team_id/pipelines/new";
-        pub static DELETE: &str = "/app/team/:team_id/pipelines/delete/:id";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/pipelines", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/pipelines")]
+        pub struct Index {
+            pub team_id: i32,
         }
 
-        pub fn new_route(team_id: i32) -> String {
-            format!("/app/team/{}/pipelines/new", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/pipelines/new")]
+        pub struct New {
+            pub team_id: i32,
         }
 
-        pub fn delete_route(team_id: i32, id: i32) -> String {
-            format!("/app/team/{}/pipelines/delete/{}", team_id, id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/pipelines/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
         }
     }
 
     pub mod console {
-        pub static INDEX: &str = "/app/team/:team_id/console";
-        pub static CONVERSATION: &str = "/app/team/:team_id/console/:conversation_id";
-        pub static SEND_MESSAGE: &str = "/app/team/:team_id/send_message";
-        pub static UPDATE_RESPONSE: &str = "/app/team/:team_id/update_response";
-        pub static NEW_CHAT: &str = "/app/team/:team_id/new_chat";
-        pub static DELETE: &str = "/app/team/:team_id/console/delete/:id";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/console", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/console")]
+        pub struct Index {
+            pub team_id: i32,
         }
 
-        pub fn conversation_route(team_id: i32, conversation_id: i64) -> String {
-            format!("/app/team/{}/console/{}", team_id, conversation_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/console/:conversation_id")]
+        pub struct Conversation {
+            pub team_id: i32,
+            pub conversation_id: i64,
         }
 
-        pub fn send_message_route(team_id: i32) -> String {
-            format!("/app/team/{}/send_message", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/send_message")]
+        pub struct SendMessage {
+            pub team_id: i32,
         }
 
-        pub fn update_response_route(team_id: i32) -> String {
-            format!("/app/team/{}/update_response", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/update_response")]
+        pub struct UpdateResponse {
+            pub team_id: i32,
         }
 
-        pub fn new_chat_route(team_id: i32) -> String {
-            format!("/app/team/{}/new_chat", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/new_chat")]
+        pub struct NewChat {
+            pub team_id: i32,
         }
 
-        pub fn delete_route(team_id: i32, id: i64) -> String {
-            format!("/app/team/{}/console/delete/{}", team_id, id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/console/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i64,
         }
     }
 
     pub mod training {
-        pub static INDEX: &str = "/app/team/:team_id/training";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/training", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/training")]
+        pub struct Index {
+            pub team_id: i32,
         }
     }
 
     pub mod prompts {
-        pub static INDEX: &str = "/app/team/:team_id/prompts";
-        pub static NEW: &str = "/app/team/:team_id/prompts/new";
-        pub static EDIT: &str = "/app/team/:team_id/prompts/:prompt_id/edit";
-        pub static DELETE: &str = "/app/team/:team_id/prompts/delete/:id";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/prompts", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/prompts")]
+        pub struct Index {
+            pub team_id: i32,
         }
 
-        pub fn new_route(team_id: i32) -> String {
-            format!("/app/team/{}/prompts/new", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/prompts/upsert")]
+        pub struct Upsert {
+            pub team_id: i32,
         }
 
-        pub fn edit_route(team_id: i32, prompt_id: i32) -> String {
-            format!("/app/team/{}/prompts/{}/edit", team_id, prompt_id)
-        }
-
-        pub fn delete_route(team_id: i32, id: i32) -> String {
-            format!("/app/team/{}/prompts/delete/{}", team_id, id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/prompts/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
         }
     }
 
     pub mod models {
-        pub static INDEX: &str = "/app/team/:team_id/models";
-        pub static NEW: &str = "/app/team/:team_id/models/new";
-        pub static DELETE: &str = "/app/team/:team_id/models/delete/:id";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/models", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/models")]
+        pub struct Index {
+            pub team_id: i32,
         }
 
-        pub fn new_route(team_id: i32) -> String {
-            format!("/app/team/{}/models/new", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/models/new")]
+        pub struct New {
+            pub team_id: i32,
         }
 
-        pub fn delete_route(team_id: i32, id: i32) -> String {
-            format!("/app/team/{}/models/delete/{}", team_id, id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/models/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
         }
     }
 
     pub mod datasets {
-        pub static INDEX: &str = "/app/team/:team_id/datasets";
-        pub static NEW: &str = "/app/team/:team_id/datasets/new";
-        pub static DELETE: &str = "/app/team/:team_id/datasets/delete/:id";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/datasets", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/datasets")]
+        pub struct Index {
+            pub team_id: i32,
         }
 
-        pub fn new_route(team_id: i32) -> String {
-            format!("/app/team/{}/datasets/new", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/datasets/new")]
+        pub struct New {
+            pub team_id: i32,
         }
 
-        pub fn delete_route(team_id: i32, id: i32) -> String {
-            format!("/app/team/{}/datasets/delete/{}", team_id, id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/datasets/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
         }
     }
 
     pub mod documents {
-        pub static INDEX: &str = "/app/team/:team_id/dataset/:dataset_id/documents";
-        pub static BULK: &str = "/app/team/:team_id/bulk_import";
-        pub static UPLOAD: &str = "/app/team/:team_id/dataset/:dataset_id/doc_upload";
-        pub static PROCESSING: &str = "/app/team/:team_id/processing/:document_id";
-        pub static DELETE: &str = "/app/team/:team_id/delete_doc/:document_id";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32, dataset_id: i32) -> String {
-            format!("/app/team/{}/dataset/{}/documents", team_id, dataset_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/dataset/:dataset_id/documents")]
+        pub struct Index {
+            pub team_id: i32,
+            pub dataset_id: i32,
         }
 
-        pub fn upload_route(team_id: i32, dataset_id: i32) -> String {
-            format!("/app/team/{}/dataset/{}/doc_upload", team_id, dataset_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/bulk_import")]
+        pub struct Bulk {
+            pub team_id: i32,
         }
 
-        pub fn processing_route(team_id: i32, document_id: i32) -> String {
-            format!("/app/team/{}/processing/{}", team_id, document_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/dataset/:dataset_id/doc_upload")]
+        pub struct Upload {
+            pub team_id: i32,
+            pub dataset_id: i32,
         }
 
-        pub fn delete_route(team_id: i32, document_id: i32) -> String {
-            format!("/app/team/{}/delete_doc/{}", team_id, document_id)
-        }
-    }
-
-    pub mod api_keys {
-        pub static INDEX: &str = "/app/team/:team_id/api_keys";
-        pub static NEW: &str = "/app/team/:team_id/api_keys/new";
-        pub static DELETE: &str = "/app/team/:team_id/api_keys/delete/:id";
-
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/api_keys", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/processing/:document_id")]
+        pub struct Processing {
+            pub team_id: i32,
+            pub document_id: i32,
         }
 
-        pub fn new_route(team_id: i32) -> String {
-            format!("/app/team/{}/api_keys/new", team_id)
-        }
-
-        pub fn delete_route(team_id: i32, id: i32) -> String {
-            format!("/app/team/{}/api_keys/delete/{}", team_id, id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/delete_doc/:document_id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub document_id: i32,
         }
     }
 

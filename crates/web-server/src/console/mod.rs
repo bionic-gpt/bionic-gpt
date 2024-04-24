@@ -4,21 +4,15 @@ mod index;
 mod new_chat;
 mod send_message;
 mod update_response;
-use axum::{
-    routing::{get, post},
-    Router,
-};
-
-use web_pages::routes::console::{
-    CONVERSATION, DELETE, INDEX, NEW_CHAT, SEND_MESSAGE, UPDATE_RESPONSE,
-};
+use axum::Router;
+use axum_extra::routing::RouterExt;
 
 pub fn routes() -> Router {
     Router::new()
-        .route(CONVERSATION, get(conversation::conversation))
-        .route(INDEX, get(index::index))
-        .route(SEND_MESSAGE, post(send_message::send_message))
-        .route(UPDATE_RESPONSE, post(update_response::update_response))
-        .route(NEW_CHAT, post(new_chat::new_chat))
-        .route(DELETE, post(delete::delete))
+        .typed_get(conversation::conversation)
+        .typed_get(index::index)
+        .typed_post(send_message::send_message)
+        .typed_post(update_response::update_response)
+        .typed_post(new_chat::new_chat)
+        .typed_post(delete::delete)
 }
