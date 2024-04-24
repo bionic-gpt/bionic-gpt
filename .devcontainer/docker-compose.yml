@@ -1,0 +1,33 @@
+version: '3.4'
+services:
+
+  db:
+    image: ankane/pgvector:v0.5.1
+    environment:
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vscode"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  development:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - ..:/workspace:cached
+
+    environment:
+      DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    working_dir: /workspace
+    
+    depends_on:
+      - db

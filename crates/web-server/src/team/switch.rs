@@ -31,10 +31,10 @@ pub async fn switch(
     let html = render_with_props(
         teams::Page,
         teams::PageProps {
-            teams, 
-            team_id: team.id, 
-            rbac
-        }
+            teams,
+            team_id: team.id,
+            rbac,
+        },
     );
 
     Ok(Html(html))

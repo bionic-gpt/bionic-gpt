@@ -1,5 +1,5 @@
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Path};
+use axum::extract::Extension;
 use axum::response::IntoResponse;
 use axum_extra::extract::Form;
 use db::authz;
@@ -7,7 +7,7 @@ use db::Pool;
 use db::{queries, Transaction};
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::string_to_visibility;
+use web_pages::{routes::prompts::Upsert, string_to_visibility};
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewPromptTemplate {
@@ -27,7 +27,7 @@ pub struct NewPromptTemplate {
 }
 
 pub async fn upsert(
-    Path(team_id): Path<i32>,
+    Upsert { team_id }: Upsert,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(new_prompt_template): Form<NewPromptTemplate>,
@@ -74,7 +74,7 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(super::super::layout::redirect_and_snackbar(
-                &web_pages::routes::prompts::index_route(team_id),
+                &web_pages::routes::prompts::Index { team_id }.to_string(),
                 "Prompt Template Updated",
             )
             .into_response())
@@ -104,13 +104,13 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(super::super::layout::redirect_and_snackbar(
-                &web_pages::routes::prompts::index_route(team_id),
+                &web_pages::routes::prompts::Index { team_id }.to_string(),
                 "Prompt Template Created",
             )
             .into_response())
         }
         (Err(_), _) => Ok(super::super::layout::redirect_and_snackbar(
-            &web_pages::routes::prompts::index_route(team_id),
+            &web_pages::routes::prompts::Index { team_id }.to_string(),
             "Problem with Prompt Validation",
         )
         .into_response()),

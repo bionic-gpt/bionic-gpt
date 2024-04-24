@@ -24,7 +24,7 @@ pub fn Form(
     rsx!(
         Drawer {
             label: "Prompt",
-            submit_action: "{crate::routes::prompts::new_route(team_id)}",
+            submit_action: crate::routes::prompts::Upsert{team_id}.to_string(),
             trigger_id: "{trigger_id}",
             DrawerBody {
                 TabContainer {

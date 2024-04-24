@@ -51,6 +51,12 @@ pub struct Config {
     pub smtp_config: Option<SmtpConfig>,
 }
 
+impl Default for Config {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Config {
     pub fn new() -> Config {
         let port: u16 = if env::var("PORT").is_ok() {

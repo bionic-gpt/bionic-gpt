@@ -43,7 +43,7 @@ pub fn Page(
             super::filter::FilterDrawer {
                 team_users: team_users.clone(),
                 reset_search: reset_search,
-                submit_action: crate::routes::audit_trail::index_route(team_id)
+                submit_action: crate::routes::audit_trail::Index {team_id}
             }
         }
     }

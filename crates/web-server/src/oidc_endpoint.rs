@@ -34,7 +34,7 @@ pub async fn index(
         .one()
         .await?;
 
-    let console_url = web_pages::routes::console::index_route(team.id);
+    let console_url = web_pages::routes::console::Index { team_id: team.id }.to_string();
 
     let _rbac = authz::get_permissions(&transaction, &authentication, team.id).await?;
 

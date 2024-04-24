@@ -64,7 +64,7 @@ pub async fn index(
             user,
             team_name,
             can_manage_team,
-        }
+        },
     );
 
     Ok(Html(html))

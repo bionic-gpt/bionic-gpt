@@ -37,7 +37,7 @@ pub async fn index(
 
     let html = render_with_props(
         team_members::team_popup::Page,
-        team_members::team_popup::PageProps { teams, team }
+        team_members::team_popup::PageProps { teams, team },
     );
 
     Ok(Html(html))

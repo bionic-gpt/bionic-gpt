@@ -13,7 +13,7 @@ pub fn New(
 ) -> Element {
     rsx!(
         form {
-            action: "{crate::routes::datasets::new_route(team_id)}",
+            action: crate::routes::datasets::New{team_id}.to_string(),
             method: "post",
             Drawer {
                 label: "Create a new Dataset",
