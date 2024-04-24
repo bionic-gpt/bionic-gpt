@@ -1,10 +1,8 @@
 pub mod delete;
 pub mod index;
 pub mod new;
+use axum::Router;
 use axum_extra::routing::RouterExt;
-use axum::{
-    Router,
-};
 
 pub fn routes() -> Router {
     Router::new()

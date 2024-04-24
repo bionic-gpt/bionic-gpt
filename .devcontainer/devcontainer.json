@@ -1,7 +1,9 @@
 {
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
+	"dockerComposeFile": [
+		"docker-compose.yml"
+	],
+	"service": "development",
+	"workspaceFolder": "/workspace",
 	"mounts": [
 		"source=${localEnv:HOME}/.kube/config,target=/home/vscode/.kube/config,type=bind,consistency=cached"
 	],
@@ -10,6 +12,27 @@
 	},
 	"containerEnv": {
 		"BYPASS_AUTH": "test.user@test.com"
+	},
+	// Set *default* container specific settings.json values on container create.
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"lldb.executable": "/usr/bin/lldb",
+				// VS Code don't watch files under ./target
+				"files.watcherExclude": {
+					"**/target/**": true
+				},
+				"rust-analyzer.checkOnSave.command": "clippy"
+			},
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"vadimcn.vscode-lldb",
+				"mutantdino.resourcemonitor",
+				"rust-lang.rust-analyzer",
+				"tamasfe.even-better-toml",
+				"serayuzgur.crates"
+			]
+		}
 	},
 	"remoteEnv": {
 		// Pass in the host directory for Docker mount commands from inside the container

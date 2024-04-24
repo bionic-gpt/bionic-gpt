@@ -8,7 +8,7 @@ use db::queries::api_keys;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::api_keys::{New, Index};
+use web_pages::routes::api_keys::{Index, New};
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
@@ -20,7 +20,7 @@ pub struct NewApiKey {
 }
 
 pub async fn new_api_key(
-    New {team_id }: New,
+    New { team_id }: New,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(new_api_key): Form<NewApiKey>,
@@ -51,5 +51,5 @@ pub async fn new_api_key(
 
     transaction.commit().await?;
 
-    super::super::layout::redirect_and_snackbar(&Index {team_id }.to_string(), "Api Key Created")
+    super::super::layout::redirect_and_snackbar(&Index { team_id }.to_string(), "Api Key Created")
 }

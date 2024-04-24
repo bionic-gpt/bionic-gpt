@@ -9,7 +9,7 @@ use db::Pool;
 use web_pages::routes::api_keys::Delete;
 
 pub async fn delete(
-    Delete { id, team_id } : Delete,
+    Delete { id, team_id }: Delete,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(delete_form): Form<Delete>,
@@ -20,14 +20,12 @@ pub async fn delete(
     let _permissions =
         authz::get_permissions(&transaction, &current_user.into(), delete_form.team_id).await?;
 
-    queries::api_keys::delete()
-        .bind(&transaction, &id)
-        .await?;
+    queries::api_keys::delete().bind(&transaction, &id).await?;
 
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::api_keys::Index { team_id: team_id }.to_string(),
+        &web_pages::routes::api_keys::Index { team_id }.to_string(),
         "Document Deleted",
     )
 }

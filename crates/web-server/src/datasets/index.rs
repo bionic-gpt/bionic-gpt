@@ -25,7 +25,6 @@ pub async fn index(
         .all()
         .await?;
 
-
     let html = web_pages::render_with_props(
         web_pages::datasets::index::Page,
         web_pages::datasets::index::PageProps {

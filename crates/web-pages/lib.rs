@@ -17,7 +17,6 @@ pub mod prompts;
 pub mod team_members;
 pub mod teams;
 
-
 pub fn render_with_props<P: Clone + 'static, M: 'static>(
     root: impl ComponentFunction<P, M>,
     root_props: P,
@@ -31,21 +30,21 @@ pub fn render_with_props<P: Clone + 'static, M: 'static>(
 pub mod routes {
 
     pub mod api_keys {
-        use serde::Deserialize;
         use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/api_keys")]
         pub struct Index {
             pub team_id: i32,
         }
-        
+
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/api_keys/new")]
         pub struct New {
             pub team_id: i32,
         }
-        
+
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/api_keys/delete/:id")]
         pub struct Delete {

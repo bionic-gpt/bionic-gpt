@@ -6,7 +6,7 @@ use db::{queries, Pool};
 use web_pages::{api_keys, render_with_props, routes::api_keys::Index};
 
 pub async fn index(
-    Index { team_id } : Index,
+    Index { team_id }: Index,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {

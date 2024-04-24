@@ -40,3 +40,6 @@ sha2 = { version = "0" }
 base64 = { version = "0.13.1" }
 lettre = { version = "0.10.0-rc.4", default-features = false,  features = ["rustls-tls", "smtp-transport", "builder"]  }
 
+[dev-dependencies]
+time = "0.3.36"
+
