@@ -12,5 +12,4 @@ pub fn routes() -> Router {
         .typed_get(processing::row)
         .layer(DefaultBodyLimit::max(50000000))
         .typed_get(index::index)
-        .typed_get(index::index)
 }

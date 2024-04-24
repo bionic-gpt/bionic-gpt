@@ -4,7 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::Pool;
 use db::{queries, ModelType};
-use web_pages::{prompts, render_with_props, routes::api_keys::Index};
+use web_pages::{prompts, render_with_props, routes::prompts::Index};
 
 pub async fn index(
     Index { team_id }: Index,
