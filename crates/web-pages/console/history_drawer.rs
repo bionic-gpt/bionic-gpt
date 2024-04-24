@@ -14,7 +14,7 @@ pub fn HistoryDrawer(trigger_id: String, team_id: i32, history: Vec<History>) ->
                     li {
                         class: "w-full overflow-hidden truncate",
                         a {
-                            href: "{crate::routes::console::conversation_route(team_id, history.id)}",
+                            href: crate::routes::console::Conversation{team_id, conversation_id: history.id}.to_string(),
                             {history.summary.clone()}
                         }
                     }

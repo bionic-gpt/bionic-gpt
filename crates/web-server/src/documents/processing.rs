@@ -1,13 +1,16 @@
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Path};
+use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::queries::documents;
 use db::Pool;
-use web_pages::render_with_props;
+use web_pages::{render_with_props, routes::documents::Processing};
 
 pub async fn row(
-    Path((team_id, document_id)): Path<(i32, i32)>,
+    Processing {
+        team_id,
+        document_id,
+    }: Processing,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {

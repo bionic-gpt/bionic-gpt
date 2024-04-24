@@ -1,8 +1,5 @@
 use super::super::{Authentication, CustomError};
-use axum::{
-    extract::{Extension, Form},
-    response::IntoResponse,
-};
+use axum::{extract::Extension, response::IntoResponse};
 use db::authz;
 use db::queries;
 use db::Pool;
@@ -12,13 +9,11 @@ pub async fn delete(
     Delete { id, team_id }: Delete,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    Form(delete_form): Form<Delete>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        authz::get_permissions(&transaction, &current_user.into(), delete_form.team_id).await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     queries::api_keys::delete().bind(&transaction, &id).await?;
 

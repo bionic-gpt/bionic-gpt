@@ -60,7 +60,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                         NavItem {
                             id: SideBar::Console.to_string(),
                             selected_item_id: props.selected_item.to_string(),
-                            href: super::routes::console::index_route(props.team_id),
+                            href: super::routes::console::Index { team_id: props.team_id },
                             icon: nav_service_requests_svg.name,
                             title: "Chat Console"
                         }
@@ -68,7 +68,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::Prompts.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::prompts::index_route(props.team_id),
+                                href: super::routes::prompts::Index{team_id: props.team_id},
                                 icon: nav_dashboard_svg.name,
                                 title: "Prompts"
                             }
@@ -82,7 +82,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::Datasets.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::datasets::index_route(props.team_id),
+                                href: super::routes::datasets::Index{team_id: props.team_id},
                                 icon: nav_ccsds_data_svg.name,
                                 title: "Team Datasets"
                             }
@@ -138,7 +138,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::Models.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::models::index_route(props.team_id),
+                                href: super::routes::models::Index{team_id: props.team_id},
                                 icon: nav_phonebook_svg.name,
                                 title: "Model Setup"
                             }

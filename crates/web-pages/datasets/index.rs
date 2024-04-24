@@ -65,7 +65,7 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
                                     tr {
                                         td {
                                             a {
-                                                href: "{crate::routes::documents::index_route(team_id, dataset.id)}",
+                                                href: crate::routes::documents::Index{team_id, dataset_id: dataset.id}.to_string(),
                                                 "{dataset.name}"
                                             }
                                         }
@@ -87,7 +87,7 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
                                                 direction: Direction::Left,
                                                 button_text: "...",
                                                 DropDownLink {
-                                                    href: "{crate::routes::documents::index_route(team_id, dataset.id)}",
+                                                    href: crate::routes::documents::Index{team_id, dataset_id: dataset.id}.to_string(),
                                                     target: "_top",
                                                     "View"
                                                 }

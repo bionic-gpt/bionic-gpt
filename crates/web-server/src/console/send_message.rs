@@ -1,6 +1,6 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
@@ -8,6 +8,7 @@ use db::queries::chats;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::console::SendMessage;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct Message {
@@ -17,9 +18,9 @@ pub struct Message {
 }
 
 pub async fn send_message(
+    SendMessage { team_id }: SendMessage,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    Path(team_id): Path<i32>,
     Form(message): Form<Message>,
 ) -> Result<impl IntoResponse, CustomError> {
     if message.validate().is_ok() {
@@ -42,11 +43,14 @@ pub async fn send_message(
 
         transaction.commit().await?;
 
-        super::super::layout::redirect(&web_pages::routes::console::conversation_route(
-            team_id,
-            message.conversation_id,
-        ))
+        super::super::layout::redirect(
+            &web_pages::routes::console::Conversation {
+                team_id,
+                conversation_id: message.conversation_id,
+            }
+            .to_string(),
+        )
     } else {
-        super::super::layout::redirect(&web_pages::routes::console::index_route(team_id))
+        super::super::layout::redirect(&web_pages::routes::console::Index { team_id }.to_string())
     }
 }

@@ -46,7 +46,7 @@ pub fn Page(
                     }
                     form {
                         method: "post",
-                        action: "{crate::routes::console::new_chat_route(team_id)}",
+                        action: crate::routes::console::NewChat{team_id}.to_string(),
                         Button {
                             class: "mr-2",
                             button_scheme: ButtonScheme::Default,
@@ -111,7 +111,7 @@ pub fn Page(
                                         form {
                                             method: "post",
                                             id: "chat-form-{chat_with_chunks.chat.id}",
-                                            action: "{routes::console::update_response_route(team_id)}",
+                                            action: routes::console::UpdateResponse{team_id}.to_string(),
                                             input {
                                                 name: "response",
                                                 id: "chat-result-{chat_with_chunks.chat.id}",
@@ -179,7 +179,7 @@ pub fn Page(
                         method: "post",
                         "data-remember-name": "console-prompt",
                         "data-remember-reset": "false",
-                        action: "{routes::console::send_message_route(team_id)}",
+                        action: routes::console::SendMessage{team_id}.to_string(),
 
                         TextArea {
                             class: "submit-on-enter flex-1 mr-2",

@@ -1,14 +1,17 @@
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Path};
+use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::queries::{chats, chats_chunks, conversations, prompts};
 use db::Pool;
 use web_pages::console::ChatWithChunks;
-use web_pages::{console, render_with_props};
+use web_pages::{console, render_with_props, routes::console::Conversation};
 
 pub async fn conversation(
-    Path((team_id, conversation_id)): Path<(i32, i64)>,
+    Conversation {
+        team_id,
+        conversation_id,
+    }: Conversation,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
