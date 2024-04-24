@@ -1,7 +1,7 @@
 VERSION 0.7
 FROM purtontech/rust-on-nails-devcontainer:1.1.18
 
-ARG --global APP_EXE_NAME=web-ui
+ARG --global APP_EXE_NAME=web-server
 ARG --global OPERATOR_EXE_NAME=k8s-operator
 ARG --global RABBITMQ_EXE_NAME=rabbit-mq
 ARG --global PIPELINE_EXE_NAME=pipeline-job
@@ -9,7 +9,7 @@ ARG --global DBMATE_VERSION=2.2.0
 
 # Folders
 ARG --global DB_FOLDER=crates/db
-ARG --global PIPELINE_FOLDER=crates/asset-pipeline
+ARG --global PIPELINE_FOLDER=crates/web-assets
 
 # Images with models
 ARG --global EMBEDDINGS_IMAGE_NAME=ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
@@ -56,7 +56,7 @@ npm-build:
     FROM +npm-deps
     COPY $PIPELINE_FOLDER $PIPELINE_FOLDER
     COPY +npm-deps/node_modules $PIPELINE_FOLDER/node_modules
-    COPY --dir crates/ui-pages crates/ui-pages
+    COPY --dir crates/web-pages crates/web-pages
     COPY --dir crates/daisy-rsx crates/daisy-rsx
     RUN cd $PIPELINE_FOLDER && npm run release
     SAVE ARTIFACT $PIPELINE_FOLDER/dist
@@ -74,7 +74,7 @@ rabbitmq-container:
     ENTRYPOINT ["./rabbit-mq"]
     SAVE IMAGE --push $RABBITMQ_IMAGE_NAME
 
-build-web-ui:
+build-web-server:
     # Copy in all our crates
     COPY --dir crates crates
     RUN rm -rf crates/rabbit-mq crates/k8s-operator crates/pipeline-job
