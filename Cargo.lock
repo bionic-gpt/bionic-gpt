@@ -3492,17 +3492,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed646292ffc8188ef8ea4d1e0e0150fb15a5c2e12ad9b8fc191ae7a8a7f3c4b9"
 
 [[package]]
-name = "ui-pages"
-version = "0.1.0"
-dependencies = [
- "assets",
- "daisy_rsx",
- "db",
- "dioxus",
- "dioxus-ssr",
-]
-
-[[package]]
 name = "unicase"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3721,17 +3710,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af190c94f2773fdb3729c55b007a722abb5384da03bc0986df4c289bf5567e96"
 
 [[package]]
-name = "web-sys"
-version = "0.3.64"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b85cbef8c220a6abc02aefd892dfc0fc23afb1c6a426316ec33253a3877249b"
+name = "web-pages"
+version = "0.1.0"
 dependencies = [
- "js-sys",
- "wasm-bindgen",
+ "assets",
+ "daisy_rsx",
+ "db",
+ "dioxus",
+ "dioxus-ssr",
 ]
 
 [[package]]
-name = "web-ui"
+name = "web-server"
 version = "0.1.0"
 dependencies = [
  "assets",
@@ -3758,8 +3748,18 @@ dependencies = [
  "tower-http 0.5.2",
  "tracing",
  "tracing-subscriber",
- "ui-pages",
  "validator",
+ "wasm-bindgen",
+ "web-pages",
+]
+
+[[package]]
+name = "web-sys"
+version = "0.3.64"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b85cbef8c220a6abc02aefd892dfc0fc23afb1c6a426316ec33253a3877249b"
+dependencies = [
+ "js-sys",
  "wasm-bindgen",
 ]
 
