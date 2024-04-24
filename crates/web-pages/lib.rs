@@ -17,6 +17,7 @@ pub mod prompts;
 pub mod team_members;
 pub mod teams;
 
+
 pub fn render_with_props<P: Clone + 'static, M: 'static>(
     root: impl ComponentFunction<P, M>,
     root_props: P,
@@ -28,6 +29,30 @@ pub fn render_with_props<P: Clone + 'static, M: 'static>(
 }
 
 pub mod routes {
+
+    pub mod api_keys {
+        use serde::Deserialize;
+        use axum_extra::routing::TypedPath;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/api_keys")]
+        pub struct Index {
+            pub team_id: i32,
+        }
+        
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/api_keys/new")]
+        pub struct New {
+            pub team_id: i32,
+        }
+        
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/api_keys/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
+        }
+    }
 
     pub mod audit_trail {
         pub static INDEX: &str = "/app/team/:team_id/audit_trail";
@@ -176,24 +201,6 @@ pub mod routes {
 
         pub fn delete_route(team_id: i32, document_id: i32) -> String {
             format!("/app/team/{}/delete_doc/{}", team_id, document_id)
-        }
-    }
-
-    pub mod api_keys {
-        pub static INDEX: &str = "/app/team/:team_id/api_keys";
-        pub static NEW: &str = "/app/team/:team_id/api_keys/new";
-        pub static DELETE: &str = "/app/team/:team_id/api_keys/delete/:id";
-
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/api_keys", team_id)
-        }
-
-        pub fn new_route(team_id: i32) -> String {
-            format!("/app/team/{}/api_keys/new", team_id)
-        }
-
-        pub fn delete_route(team_id: i32, id: i32) -> String {
-            format!("/app/team/{}/api_keys/delete/{}", team_id, id)
         }
     }
 

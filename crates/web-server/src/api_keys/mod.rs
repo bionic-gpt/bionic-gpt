@@ -1,17 +1,14 @@
 pub mod delete;
 pub mod index;
 pub mod new;
-
+use axum_extra::routing::RouterExt;
 use axum::{
-    routing::{get, post},
     Router,
 };
 
-use web_pages::routes::api_keys::{DELETE, INDEX, NEW};
-
 pub fn routes() -> Router {
     Router::new()
-        .route(INDEX, get(index::index))
-        .route(NEW, post(new::new_api_key))
-        .route(DELETE, post(delete::delete))
+        .typed_get(index::index)
+        .typed_post(new::new_api_key)
+        .typed_post(delete::delete)
 }

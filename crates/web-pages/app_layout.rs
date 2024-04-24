@@ -103,7 +103,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::ApiKeys.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::api_keys::index_route(props.team_id),
+                                href: super::routes::api_keys::Index { team_id: props.team_id },
                                 icon: nav_api_keys_svg.name,
                                 title: "LLM API Keys"
                             }
