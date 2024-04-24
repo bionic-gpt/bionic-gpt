@@ -4,6 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::Pool;
 use db::{queries, ModelType};
+use web_pages::{render_with_props, prompts};
 
 pub async fn index(
     Path(team_id): Path<i32>,
@@ -30,13 +31,16 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(web_pages::prompts::index(
-        web_pages::prompts::index::PageProps {
+    let html = render_with_props(
+        prompts::index::Page,
+        prompts::index::PageProps {
             team_id,
             rbac,
             prompts,
             datasets,
             models,
         },
-    )))
+    );
+
+    Ok(Html(html))
 }

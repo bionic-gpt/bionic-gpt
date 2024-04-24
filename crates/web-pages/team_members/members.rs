@@ -214,7 +214,3 @@ pub fn Page(
         }
     }
 }
-
-pub fn members(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}

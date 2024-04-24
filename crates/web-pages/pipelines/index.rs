@@ -120,7 +120,3 @@ pub fn Page(
         }
     }
 }
-
-pub fn index(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}

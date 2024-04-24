@@ -28,12 +28,16 @@ pub async fn index(
 
     let top_users = audit_trail::top_users().bind(&transaction).all().await?;
 
-    Ok(Html(web_pages::models::index(
+
+    let html = web_pages::render_with_props(
+        web_pages::models::index::Page,
         web_pages::models::index::PageProps {
             team_id,
             rbac,
             models,
             top_users,
         },
-    )))
+    );
+
+    Ok(Html(html))
 }

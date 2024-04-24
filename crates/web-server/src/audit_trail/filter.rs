@@ -7,7 +7,7 @@ use db::authz;
 use db::queries;
 use db::Pool;
 use serde::Deserialize;
-use web_pages::audit_trail::{position_to_access_type, position_to_audit_action};
+use web_pages::{render_with_props, audit_trail, audit_trail::{position_to_access_type, position_to_audit_action}};
 
 #[derive(Deserialize, Default, Debug)]
 pub struct Filter {
@@ -77,13 +77,17 @@ pub async fn filter(
         .all()
         .await?;
 
-    Ok(Html(web_pages::audit_trail::index::index(
-        web_pages::audit_trail::index::PageProps {
+
+    let html = render_with_props(
+        audit_trail::index::Page,
+        audit_trail::index::PageProps {
+            team_users,
             team_id,
             rbac,
-            team_users,
             audits,
             reset_search: false,
         },
-    )))
+    );
+
+    Ok(Html(html))
 }

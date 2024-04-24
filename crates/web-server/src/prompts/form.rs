@@ -1,13 +1,13 @@
 use super::super::{Authentication, CustomError};
 use axum::extract::{Extension, Path};
-use axum_extra::extract::Form;
 use axum::response::IntoResponse;
+use axum_extra::extract::Form;
 use db::authz;
 use db::Pool;
 use db::{queries, Transaction};
 use serde::Deserialize;
-use web_pages::string_to_visibility;
 use validator::Validate;
+use web_pages::string_to_visibility;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewPromptTemplate {

@@ -1,13 +1,13 @@
 mod delete;
 mod index;
-mod upload_doc;
 mod processing;
+mod upload_doc;
 use axum::{
     extract::DefaultBodyLimit,
     routing::{get, post},
     Router,
 };
-use web_pages::routes::documents::{DELETE, INDEX, UPLOAD, PROCESSING};
+use web_pages::routes::documents::{DELETE, INDEX, PROCESSING, UPLOAD};
 
 pub fn routes() -> Router {
     Router::new()

@@ -157,10 +157,6 @@ pub fn Page(
     }
 }
 
-pub fn index(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}
-
 // Comma seperated dataset to vec of i32
 fn split_datasets(datasets: &str) -> Vec<i32> {
     let ids: Vec<i32> = datasets

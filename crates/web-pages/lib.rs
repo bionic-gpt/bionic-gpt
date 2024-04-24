@@ -1,5 +1,5 @@
 use db::Visibility;
-use dioxus::prelude::VirtualDom;
+use dioxus::prelude::{ComponentFunction, VirtualDom};
 
 pub mod api_keys;
 pub mod app_layout;
@@ -17,9 +17,13 @@ pub mod prompts;
 pub mod team_members;
 pub mod teams;
 
-pub fn render(mut virtual_dom: VirtualDom) -> String {
-    virtual_dom.rebuild_in_place();
-    let html = dioxus_ssr::render(&virtual_dom);
+pub fn render_with_props<P: Clone + 'static, M: 'static>(
+    root: impl ComponentFunction<P, M>,
+    root_props: P,
+) -> String {
+    let mut vdom = VirtualDom::new_with_props(root, root_props);
+    vdom.rebuild_in_place();
+    let html = dioxus_ssr::render(&vdom);
     format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
 }
 

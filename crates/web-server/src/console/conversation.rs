@@ -4,7 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries::{chats, chats_chunks, conversations, prompts};
 use db::Pool;
-use web_pages::console;
+use web_pages::{render_with_props, console};
 use web_pages::console::ChatWithChunks;
 
 pub async fn conversation(
@@ -50,13 +50,18 @@ pub async fn conversation(
         .all()
         .await?;
 
-    Ok(Html(console::index(console::index::PageProps {
-        team_id,
-        rbac,
-        conversation_id,
-        chats_with_chunks,
-        prompts,
-        history,
-        lock_console,
-    })))
+    let html = render_with_props(
+        console::index::Page,
+        console::index::PageProps {
+            team_id,
+            rbac,
+            conversation_id,
+            chats_with_chunks,
+            prompts,
+            history,
+            lock_console,
+        },
+    );
+
+    Ok(Html(html))
 }

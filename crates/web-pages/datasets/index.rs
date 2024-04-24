@@ -126,7 +126,3 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
         }
     }
 }
-
-pub fn index(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}

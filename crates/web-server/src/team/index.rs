@@ -7,6 +7,7 @@ use db::authz;
 use db::queries;
 use db::types;
 use db::Pool;
+use web_pages::{render_with_props, team_members};
 
 pub async fn index(
     Path(team_id): Path<i32>,
@@ -53,8 +54,9 @@ pub async fn index(
         "Team : No Name ".to_string()
     };
 
-    Ok(Html(web_pages::team_members::members::members(
-        web_pages::team_members::members::PageProps {
+    let html = render_with_props(
+        team_members::members::Page,
+        team_members::members::PageProps {
             invites,
             rbac,
             members,
@@ -62,6 +64,8 @@ pub async fn index(
             user,
             team_name,
             can_manage_team,
-        },
-    )))
+        }
+    );
+
+    Ok(Html(html))
 }

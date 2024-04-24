@@ -4,6 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries;
 use db::Pool;
+use web_pages::{render_with_props, team_members};
 
 pub async fn index(
     current_user: Authentication,
@@ -34,7 +35,10 @@ pub async fn index(
         })
         .collect();
 
-    Ok(Html(web_pages::team_members::team_popup::team_popup(
-        web_pages::team_members::team_popup::PageProps { teams, team },
-    )))
+    let html = render_with_props(
+        team_members::team_popup::Page,
+        team_members::team_popup::PageProps { teams, team }
+    );
+
+    Ok(Html(html))
 }

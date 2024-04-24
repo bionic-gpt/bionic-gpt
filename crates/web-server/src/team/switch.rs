@@ -6,6 +6,7 @@ use axum::{
 use db::authz;
 use db::queries;
 use db::Pool;
+use web_pages::{render_with_props, teams};
 
 pub async fn switch(
     Path(team_id): Path<i32>,
@@ -27,5 +28,14 @@ pub async fn switch(
         .all()
         .await?;
 
-    Ok(Html(web_pages::teams::teams(teams, team.id, rbac)))
+    let html = render_with_props(
+        teams::Page,
+        teams::PageProps {
+            teams, 
+            team_id: team.id, 
+            rbac
+        }
+    );
+
+    Ok(Html(html))
 }

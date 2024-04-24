@@ -79,7 +79,3 @@ fn model_type(model_type: ModelType) -> String {
         "Embeddings".to_string()
     }
 }
-
-pub fn index(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}

@@ -108,7 +108,10 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
     let id = format!("processing-label-{}", document.id);
 
     let src = if first_time {
-        Some(crate::routes::documents::processing_route(team_id, document.id))
+        Some(crate::routes::documents::processing_route(
+            team_id,
+            document.id,
+        ))
     } else {
         None
     };
@@ -132,7 +135,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     turbo-frame {
                         id,
                         src,
-                
+
                         ToolTip {
                             text: "{text}",
                             Label {
@@ -145,7 +148,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     turbo-frame {
                         id,
                         src,
-                
+
                         Label {
                             "Queued"
                         }
@@ -154,7 +157,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     turbo-frame {
                         id,
                         src,
-                
+
                         Label {
                             label_role: LabelRole::Danger,
                             "Processed ({document.fail_count} failed)"
@@ -164,7 +167,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     turbo-frame {
                         id,
                         src,
-                
+
                         Label {
                             label_role: LabelRole::Danger,
                             "Failed"
@@ -174,7 +177,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     turbo-frame {
                         id,
                         src,
-                
+
                         Label {
                             label_role: LabelRole::Success,
                             "Processed"
@@ -198,12 +201,4 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
             }
         }
     )
-}
-
-pub fn index(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}
-
-pub fn row(props: RowProps) -> String {
-    crate::render(VirtualDom::new_with_props(Row, props))
 }

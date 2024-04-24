@@ -7,7 +7,7 @@ use db::TeamOwner;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, submit_action: String) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -104,7 +104,7 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, submit_action: Stri
             form {
                 method: "post",
                 "data-turbo-frame": "_top",
-                action: "{submit_action}",
+                action: "{crate::routes::team::new_team_route(team_id)}",
                 Drawer {
                     label: "Create a new team?",
                     trigger_id: "create-new-team",
@@ -132,18 +132,4 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, submit_action: Stri
             }
         }
     }
-}
-
-pub fn teams(teams: Vec<TeamOwner>, team_id: i32, rbac: Rbac) -> String {
-    let submit_action = crate::routes::team::new_team_route(team_id);
-
-    crate::render(VirtualDom::new_with_props(
-        Page,
-        PageProps {
-            team_id,
-            rbac,
-            teams,
-            submit_action,
-        },
-    ))
 }

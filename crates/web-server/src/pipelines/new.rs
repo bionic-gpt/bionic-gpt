@@ -7,8 +7,8 @@ use db::authz;
 use db::queries::document_pipelines;
 use db::Pool;
 use serde::Deserialize;
-use web_pages::routes::document_pipelines::index_route;
 use validator::Validate;
+use web_pages::routes::document_pipelines::index_route;
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 

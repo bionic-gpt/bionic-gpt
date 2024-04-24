@@ -115,7 +115,3 @@ pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt
         }
     }
 }
-
-pub fn index(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}

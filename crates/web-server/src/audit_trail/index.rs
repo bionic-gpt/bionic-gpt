@@ -34,7 +34,8 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(web_pages::audit_trail::index::index(
+    let html = web_pages::render_with_props(
+        web_pages::audit_trail::index::Page,
         web_pages::audit_trail::index::PageProps {
             team_id,
             rbac,
@@ -42,5 +43,7 @@ pub async fn index(
             audits,
             reset_search: true,
         },
-    )))
+    );
+
+    Ok(Html(html))
 }

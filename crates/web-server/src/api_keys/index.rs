@@ -3,7 +3,7 @@ use axum::extract::{Extension, Path};
 use axum::response::Html;
 use db::authz;
 use db::{queries, Pool};
-use web_pages::api_keys;
+use web_pages::{api_keys, render_with_props};
 
 pub async fn index(
     Path(team_id): Path<i32>,
@@ -29,10 +29,15 @@ pub async fn index(
         .all()
         .await?;
 
-    Ok(Html(api_keys::index(api_keys::index::PageProps {
-        team_id,
-        rbac,
-        api_keys,
-        prompts,
-    })))
+    let html = render_with_props(
+        api_keys::index::Page,
+        api_keys::index::PageProps {
+            team_id,
+            rbac,
+            api_keys,
+            prompts,
+        },
+    );
+
+    Ok(Html(html))
 }

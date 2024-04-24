@@ -46,7 +46,3 @@ pub fn Page(teams: Vec<(String, String)>, team: Team) -> Element {
         }
     }
 }
-
-pub fn team_popup(props: PageProps) -> String {
-    crate::render(VirtualDom::new_with_props(Page, props))
-}

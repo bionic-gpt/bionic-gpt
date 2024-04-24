@@ -4,6 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries::documents;
 use db::Pool;
+use web_pages::{render_with_props};
 
 pub async fn row(
     Path((team_id, document_id)): Path<(i32, i32)>,
@@ -20,11 +21,14 @@ pub async fn row(
         .one()
         .await?;
 
-    Ok(Html(web_pages::documents::index::row(
+    let html = render_with_props(
+        web_pages::documents::index::Row,
         web_pages::documents::index::RowProps {
             team_id,
             document,
-            first_time: false
+            first_time: false,
         },
-    )))
+    );
+
+    Ok(Html(html))
 }

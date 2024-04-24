@@ -87,7 +87,7 @@ pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {
 
     let form_action = crate::routes::profile::set_details_route(team_id);
 
-    crate::render(VirtualDom::new_with_props(
+    crate::render_with_props(
         Page,
         PageProps {
             team_id,
@@ -97,5 +97,5 @@ pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {
             users_name_or_email,
             form_action,
         },
-    ))
+    )
 }
