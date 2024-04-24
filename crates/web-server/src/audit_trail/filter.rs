@@ -1,13 +1,18 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::Html,
 };
 use db::authz;
 use db::queries;
 use db::Pool;
 use serde::Deserialize;
-use web_pages::{render_with_props, audit_trail, audit_trail::{position_to_access_type, position_to_audit_action}};
+use web_pages::{
+    audit_trail,
+    audit_trail::{position_to_access_type, position_to_audit_action},
+    render_with_props,
+    routes::audit_trail::Index,
+};
 
 #[derive(Deserialize, Default, Debug)]
 pub struct Filter {
@@ -50,7 +55,7 @@ impl Filter {
 }
 
 pub async fn filter(
-    Path(team_id): Path<i32>,
+    Index { team_id }: Index,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(filter_form): Form<Filter>,
@@ -76,7 +81,6 @@ pub async fn filter(
         )
         .all()
         .await?;
-
 
     let html = render_with_props(
         audit_trail::index::Page,

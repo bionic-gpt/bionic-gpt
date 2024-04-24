@@ -1,6 +1,6 @@
 use super::super::layout::empty_string_is_none;
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Path};
+use axum::extract::Extension;
 use axum::response::IntoResponse;
 use axum::Form;
 use db::authz;
@@ -8,6 +8,7 @@ use db::Pool;
 use db::{queries, ModelType};
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::models::New;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct ModelForm {
@@ -24,7 +25,7 @@ pub struct ModelForm {
 }
 
 pub async fn upsert(
-    Path(team_id): Path<i32>,
+    New { team_id }: New,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(model_form): Form<ModelForm>,
@@ -59,7 +60,7 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(super::super::layout::redirect_and_snackbar(
-                &web_pages::routes::models::index_route(team_id),
+                &web_pages::routes::models::Index { team_id }.to_string(),
                 "Model Updated",
             )
             .into_response())
@@ -82,13 +83,13 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(super::super::layout::redirect_and_snackbar(
-                &web_pages::routes::models::index_route(team_id),
+                &web_pages::routes::models::Index { team_id }.to_string(),
                 "Model Created",
             )
             .into_response())
         }
         (Err(_), _) => Ok(super::super::layout::redirect_and_snackbar(
-            &web_pages::routes::models::index_route(team_id),
+            &web_pages::routes::models::Index { team_id }.to_string(),
             "Problem with Model Validation",
         )
         .into_response()),

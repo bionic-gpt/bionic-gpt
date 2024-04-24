@@ -8,7 +8,7 @@ pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: i32) -> Element {
     rsx! {
         form {
             method: "post",
-            action: "{crate::routes::document_pipelines::new_route(team_id)}",
+            action: crate::routes::document_pipelines::New {team_id}.to_string(),
             Drawer {
                 label: "New Document Pipeline",
                 trigger_id: "create-api-key",

@@ -1,14 +1,18 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Multipart, Path},
+    extract::{Extension, Multipart},
     response::IntoResponse,
 };
 use db::authz;
 use db::queries;
 use db::Pool;
+use web_pages::routes::documents::Upload;
 
 pub async fn upload(
-    Path((team_id, dataset_id)): Path<(i32, i32)>,
+    Upload {
+        team_id,
+        dataset_id,
+    }: Upload,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     mut files: Multipart,
@@ -38,7 +42,11 @@ pub async fn upload(
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::documents::index_route(team_id, dataset_id),
+        &web_pages::routes::documents::Index {
+            team_id,
+            dataset_id,
+        }
+        .to_string(),
         "Document Uploaded",
     )
 }

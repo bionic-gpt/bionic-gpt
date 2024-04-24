@@ -247,7 +247,6 @@ fn add_message(
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
 
     #[tokio::test]

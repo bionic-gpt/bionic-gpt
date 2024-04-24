@@ -38,7 +38,7 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
 
                 // The form to create an invitation
                 super::upload::Upload {
-                    upload_action: crate::routes::documents::upload_route(team_id, dataset.id)
+                    upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
                 }
             } else {
                 Box {
@@ -84,7 +84,7 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
 
                 // The form to create an invitation
                 super::upload::Upload {
-                    upload_action: crate::routes::documents::upload_route(team_id, dataset.id)
+                    upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
                 }
             }
         }
@@ -108,10 +108,13 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
     let id = format!("processing-label-{}", document.id);
 
     let src = if first_time {
-        Some(crate::routes::documents::processing_route(
-            team_id,
-            document.id,
-        ))
+        Some(
+            crate::routes::documents::Processing {
+                team_id,
+                document_id: document.id,
+            }
+            .to_string(),
+        )
     } else {
         None
     };

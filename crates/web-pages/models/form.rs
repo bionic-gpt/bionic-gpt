@@ -16,7 +16,7 @@ pub fn Form(
 ) -> Element {
     rsx!(
         Drawer {
-            submit_action: "{crate::routes::models::new_route(team_id)}",
+            submit_action: crate::routes::models::New{team_id}.to_string(),
             label: "Add a Model",
             trigger_id: "{*trigger_id}",
             DrawerBody {

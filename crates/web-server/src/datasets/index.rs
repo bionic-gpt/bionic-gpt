@@ -1,12 +1,13 @@
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Path};
+use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::queries::{datasets, models};
 use db::{ModelType, Pool};
+use web_pages::routes::datasets::Index;
 
 pub async fn index(
-    Path(team_id): Path<i32>,
+    Index { team_id }: Index,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -24,7 +25,6 @@ pub async fn index(
         .bind(&transaction, &ModelType::Embeddings)
         .all()
         .await?;
-
 
     let html = web_pages::render_with_props(
         web_pages::datasets::index::Page,

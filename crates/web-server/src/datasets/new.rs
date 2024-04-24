@@ -1,6 +1,6 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
@@ -9,6 +9,7 @@ use db::Pool;
 use db::{queries, Visibility};
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::datasets::New;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewDataset {
@@ -23,8 +24,8 @@ pub struct NewDataset {
 }
 
 pub async fn new(
+    New { team_id }: New,
     Extension(pool): Extension<Pool>,
-    Path(team_id): Path<i32>,
     current_user: Authentication,
     Form(new_dataset): Form<NewDataset>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -60,7 +61,11 @@ pub async fn new(
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::documents::index_route(team_id, dataset_id),
+        &web_pages::routes::documents::Index {
+            team_id,
+            dataset_id,
+        }
+        .to_string(),
         "Dataset Created",
     )
 }
