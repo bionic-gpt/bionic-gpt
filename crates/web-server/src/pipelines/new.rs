@@ -1,6 +1,6 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
@@ -8,7 +8,7 @@ use db::queries::document_pipelines;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::document_pipelines::index_route;
+use web_pages::routes::document_pipelines::{Index, New};
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
@@ -20,9 +20,9 @@ pub struct NewForm {
 }
 
 pub async fn new(
+    New { team_id }: New,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    Path(team_id): Path<i32>,
     Form(new_pipeline): Form<NewForm>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
@@ -51,5 +51,5 @@ pub async fn new(
 
     transaction.commit().await?;
 
-    super::super::layout::redirect_and_snackbar(&index_route(team_id), "Pipeline Created")
+    super::super::layout::redirect_and_snackbar(&Index { team_id }.to_string(), "Pipeline Created")
 }

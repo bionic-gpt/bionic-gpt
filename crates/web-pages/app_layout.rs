@@ -89,7 +89,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::DocumentPipelines.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::document_pipelines::index_route(props.team_id),
+                                href: super::routes::document_pipelines::Index { team_id: props.team_id },
                                 icon: nav_ccsds_data_svg.name,
                                 title: "Document Pipelines"
                             }

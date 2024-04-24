@@ -65,20 +65,26 @@ pub mod routes {
     }
 
     pub mod document_pipelines {
-        pub static INDEX: &str = "/app/team/:team_id/pipelines";
-        pub static NEW: &str = "/app/team/:team_id/pipelines/new";
-        pub static DELETE: &str = "/app/team/:team_id/pipelines/delete/:id";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/pipelines", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/pipelines")]
+        pub struct Index {
+            pub team_id: i32,
         }
 
-        pub fn new_route(team_id: i32) -> String {
-            format!("/app/team/{}/pipelines/new", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/pipelines/new")]
+        pub struct New {
+            pub team_id: i32,
         }
 
-        pub fn delete_route(team_id: i32, id: i32) -> String {
-            format!("/app/team/{}/pipelines/delete/{}", team_id, id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/pipelines/delete/:id")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
         }
     }
 
