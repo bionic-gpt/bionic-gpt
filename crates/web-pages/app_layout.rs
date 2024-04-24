@@ -145,7 +145,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::AuditTrail.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::audit_trail::index_route(props.team_id),
+                                href: super::routes::audit_trail::Index { team_id: props.team_id },
                                 icon: nav_audit_svg.name,
                                 title: "Audit Trail"
                             }

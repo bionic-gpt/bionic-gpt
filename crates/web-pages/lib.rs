@@ -54,10 +54,13 @@ pub mod routes {
     }
 
     pub mod audit_trail {
-        pub static INDEX: &str = "/app/team/:team_id/audit_trail";
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/audit_trail", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/audit_trail")]
+        pub struct Index {
+            pub team_id: i32,
         }
     }
 
