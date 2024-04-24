@@ -11,7 +11,7 @@ pub fn DeleteDrawer(
 ) -> Element {
     rsx! {
         Drawer {
-            submit_action: crate::routes::documents::delete_route(team_id, document_id),
+            submit_action: crate::routes::documents::Delete{team_id, document_id}.to_string(),
             label: "Delete this document?",
             trigger_id: trigger_id,
             DrawerBody {

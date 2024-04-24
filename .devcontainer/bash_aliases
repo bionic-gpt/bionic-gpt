@@ -16,7 +16,7 @@ alias dburl='export DATABASE_URL=$(kubectl get secret database-urls -n bionic-gp
 alias app_dburl='export APP_DATABASE_URL=$(kubectl get secret database-urls -n bionic-gpt -o jsonpath="{.data.application-url}" | base64 --decode | sed "s/bionic-db-cluster-rw/pop-os/; s/\?sslmode=require//")'
 # dbport doesn't stay open for postgres https://github.com/kubernetes/kubernetes/issues/111825
 alias dbport='kubectl port-forward -n bionic-gpt bionic-db-cluster-1 5432:5432'
-alias dbmate='dbmate --no-dump-schema --migrations-dir /workspaces/bionic-gpt/crates/db/migrations'
+alias dbmate='dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations'
 alias dbdown='while dbmate down; do :; done'
 alias db='psql $DATABASE_URL'
 alias dbapp='psql $APP_DATABASE_URL'
@@ -29,24 +29,24 @@ alias rh='export HOST_IP_ADDRESS=$(grep -oP "(?<=https://)[^:]+(?=:)" ~/.kube/co
 alias get-env='dburl && app_dburl && rh'
 
 # Watch
-alias watch-zola='cd /workspaces/bionic-gpt/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
+alias watch-zola='cd /workspace/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
 alias wz=watch-zola
-alias watch-app='mold -run cargo watch --workdir /workspaces/bionic-gpt/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
+alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
 alias wa=watch-app
-alias watch-pipeline='npm install --prefix /workspaces/bionic-gpt/crates/web-assets && npm run start --prefix /workspaces/bionic-gpt/crates/web-assets'
+alias watch-pipeline='npm install --prefix /workspace/crates/web-assets && npm run start --prefix /workspace/crates/web-assets'
 alias wp=watch-pipeline
-alias watch-embeddings='mold -run cargo watch --workdir /workspaces/bionic-gpt/ -w crates/embeddings-api -w crates/pipeline-job --no-gitignore -x "run --bin pipeline-job"'
+alias watch-embeddings='mold -run cargo watch --workdir /workspace/ -w crates/embeddings-api -w crates/pipeline-job --no-gitignore -x "run --bin pipeline-job"'
 alias we=watch-embeddings
-alias watch-tailwind='cd /workspaces/bionic-gpt/crates/web-assets && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
+alias watch-tailwind='cd /workspace/crates/web-assets && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
 alias wt=watch-tailwind
 alias watch-leptos='cargo leptos watch'
 alias wl=watch-leptos
 
 # Mirrord
-alias ma='mirrord exec --target deployment/bionic-gpt -n bionic-gpt cargo watch --workdir /workspaces/bionic-gpt/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
+alias ma='mirrord exec --target deployment/bionic-gpt -n bionic-gpt cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
 
 # Spell check
-alias spell='docker run --rm -ti -v /workspaces/bionic-gpt/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
+alias spell='docker run --rm -ti -v /workspace/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
 
 # Devpod always deletes my website folder
 alias fu-devpod='git checkout -- website'

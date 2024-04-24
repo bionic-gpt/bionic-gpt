@@ -8,6 +8,7 @@ use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::documents::Delete;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct DeleteDoc {
@@ -17,6 +18,10 @@ pub struct DeleteDoc {
 }
 
 pub async fn delete(
+    Delete {
+        team_id: _,
+        document_id: _,
+    }: Delete,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(delete_doc): Form<DeleteDoc>,
@@ -34,7 +39,11 @@ pub async fn delete(
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::documents::index_route(delete_doc.team_id, delete_doc.dataset_id),
+        &web_pages::routes::documents::Index {
+            team_id: delete_doc.team_id,
+            dataset_id: delete_doc.dataset_id,
+        }
+        .to_string(),
         "Document Deleted",
     )
 }

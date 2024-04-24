@@ -1,6 +1,6 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
@@ -9,6 +9,7 @@ use db::ChatStatus;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::console::UpdateResponse;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct Chat {
@@ -17,9 +18,9 @@ pub struct Chat {
 }
 
 pub async fn update_response(
+    UpdateResponse { team_id }: UpdateResponse,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    Path(team_id): Path<i32>,
     Form(message): Form<Chat>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
@@ -51,8 +52,11 @@ pub async fn update_response(
 
     transaction.commit().await?;
 
-    super::super::layout::redirect(&web_pages::routes::console::conversation_route(
-        team_id,
-        chat.conversation_id,
-    ))
+    super::super::layout::redirect(
+        &web_pages::routes::console::Conversation {
+            team_id,
+            conversation_id: chat.conversation_id,
+        }
+        .to_string(),
+    )
 }

@@ -59,7 +59,7 @@ async fn main() {
         .layer(Extension(pool.clone()));
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    println!("listening on http://{}", &addr);
+    tracing::info!("listening on http://{}", &addr);
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();

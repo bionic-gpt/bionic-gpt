@@ -6,7 +6,7 @@ use dioxus::prelude::*;
 pub fn DeleteDrawer(team_id: i32, id: i64, trigger_id: String) -> Element {
     rsx! {
         Drawer {
-            submit_action: crate::routes::console::delete_route(team_id, id),
+            submit_action: crate::routes::console::Delete{team_id, id}.to_string(),
             label: "Delete this Conversation?",
             trigger_id: trigger_id,
             DrawerBody {
