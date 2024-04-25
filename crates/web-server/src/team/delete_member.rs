@@ -8,6 +8,7 @@ use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::team::Delete;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct DeleteMember {
@@ -16,6 +17,7 @@ pub struct DeleteMember {
 }
 
 pub async fn delete(
+    Delete { team_id: _ }: Delete,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(delete_member): Form<DeleteMember>,

@@ -1,36 +1,28 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Path},
+    extract::Extension,
     response::{IntoResponse, Redirect},
 };
 use db::authz;
 use db::queries;
 use db::Pool;
-use serde::Deserialize;
 use sha2::{Digest, Sha256};
-
-#[derive(Deserialize, Debug)]
-pub struct Invite {
-    invite_selector: String,
-    invite_validator: String,
-}
+use web_pages::routes::team::AcceptInvite;
 
 pub async fn invite(
-    Path(invite): Path<Invite>,
+    AcceptInvite {
+        invite_selector,
+        invite_validator,
+    }: AcceptInvite,
     Extension(pool): Extension<Pool>,
     current_user: Authentication,
 ) -> Result<impl IntoResponse, CustomError> {
-    let team_id = accept_invitation(
-        &pool,
-        current_user,
-        &invite.invite_selector,
-        &invite.invite_validator,
-    )
-    .await?;
+    let team_id =
+        accept_invitation(&pool, current_user, &invite_selector, &invite_validator).await?;
 
-    Ok(Redirect::to(&web_pages::routes::team::switch_route(
-        team_id,
-    )))
+    Ok(Redirect::to(
+        &web_pages::routes::team::Switch { team_id }.to_string(),
+    ))
 }
 
 pub async fn accept_invitation(

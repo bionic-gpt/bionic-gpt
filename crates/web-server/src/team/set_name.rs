@@ -1,6 +1,6 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
@@ -8,6 +8,7 @@ use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::team::SetName as SetNameRoute;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct SetName {
@@ -16,7 +17,7 @@ pub struct SetName {
 }
 
 pub async fn set_name(
-    Path(team_id): Path<i32>,
+    SetNameRoute { team_id }: SetNameRoute,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     Form(set_name): Form<SetName>,
@@ -33,7 +34,7 @@ pub async fn set_name(
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::team::index_route(team_id),
+        &web_pages::routes::team::Index { team_id }.to_string(),
         "Team Name Updated",
     )
 }

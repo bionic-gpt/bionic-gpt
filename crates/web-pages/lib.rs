@@ -257,32 +257,56 @@ pub mod routes {
     }
 
     pub mod team {
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}", team_id)
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id")]
+        pub struct Index {
+            pub team_id: i32,
         }
 
-        pub fn switch_route(team_id: i32) -> String {
-            format!("/app/team/{}/switch", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/switch")]
+        pub struct Switch {
+            pub team_id: i32,
         }
 
-        pub fn teams_popup_route(team_id: i32) -> String {
-            format!("/app/team/{}/teams_popup", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/teams_popup")]
+        pub struct Popup {
+            pub team_id: i32,
         }
 
-        pub fn create_route(team_id: i32) -> String {
-            format!("/app/team/{}/create_invite", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/create_invite")]
+        pub struct CreateInvite {
+            pub team_id: i32,
         }
 
-        pub fn delete_route(team_id: i32) -> String {
-            format!("/app/team/{}/delete", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/invite/:invite_selector/:invite_validator")]
+        pub struct AcceptInvite {
+            pub invite_selector: String,
+            pub invite_validator: String,
         }
 
-        pub fn set_name_route(team_id: i32) -> String {
-            format!("/app/team/{}/set_name", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/delete")]
+        pub struct Delete {
+            pub team_id: i32,
         }
 
-        pub fn new_team_route(team_id: i32) -> String {
-            format!("/app/team/{}/new", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/set_name")]
+        pub struct SetName {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/new")]
+        pub struct New {
+            pub team_id: i32,
         }
     }
 

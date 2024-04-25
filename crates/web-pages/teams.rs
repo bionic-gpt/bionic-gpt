@@ -56,7 +56,7 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
                                             if team.id != team_id {
                                                 a {
                                                     "data-turbo-frame": "_top",
-                                                    href: "{crate::routes::team::index_route(team.id)}",
+                                                    href: crate::routes::team::Index{ team_id: team.id }.to_string(),
                                                     "(Switch to this Team)"
                                                 }
                                             }
@@ -81,7 +81,7 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
                                             if team.id != team_id {
                                                 a {
                                                     "data-turbo-frame": "_top",
-                                                    href: "{crate::routes::team::index_route(team.id)}",
+                                                    href: crate::routes::team::Index{ team_id: team.id }.to_string(),
                                                     "(Switch to this Team)"
                                                 }
                                             }
@@ -104,7 +104,7 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
             form {
                 method: "post",
                 "data-turbo-frame": "_top",
-                action: "{crate::routes::team::new_team_route(team_id)}",
+                action: crate::routes::team::New{team_id}.to_string(),
                 Drawer {
                     label: "Create a new team?",
                     trigger_id: "create-new-team",
