@@ -56,7 +56,7 @@ pub fn Page(
                             p {
                                 "Please set your "
                                 a {
-                                    href: "{crate::routes::profile::index_route(team.id)}",
+                                    href: crate::routes::profile::Profile{team_id: team.id}.to_string(),
                                     "name"
                                 }
                             }

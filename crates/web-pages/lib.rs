@@ -311,17 +311,25 @@ pub mod routes {
     }
 
     pub mod profile {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
 
-        pub fn set_details_route(team_id: i32) -> String {
-            format!("/app/team/{}/set_details", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/set_details")]
+        pub struct SetDetails {
+            pub team_id: i32,
         }
 
-        pub fn index_route(team_id: i32) -> String {
-            format!("/app/team/{}/profile", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/profile")]
+        pub struct Profile {
+            pub team_id: i32,
         }
 
-        pub fn profile_popup_route(team_id: i32) -> String {
-            format!("/app/team/{}/profile_popup", team_id)
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/profile_popup")]
+        pub struct ProfilePopup {
+            pub team_id: i32,
         }
     }
 }

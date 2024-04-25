@@ -85,7 +85,7 @@ pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {
         user.email
     };
 
-    let form_action = crate::routes::profile::set_details_route(team_id);
+    let form_action = crate::routes::profile::SetDetails { team_id }.to_string();
 
     crate::render_with_props(
         Page,
