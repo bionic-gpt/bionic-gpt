@@ -1,6 +1,6 @@
 use super::super::{Authentication, CustomError};
 use axum::{
-    extract::{Extension, Form, Path},
+    extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
@@ -12,6 +12,7 @@ use rand::Rng;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use validator::Validate;
+use web_pages::routes::team::{AcceptInvite, CreateInvite};
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewInvite {
@@ -25,7 +26,7 @@ pub struct NewInvite {
 }
 
 pub async fn create_invite(
-    Path(team_id): Path<i32>,
+    CreateInvite { team_id }: CreateInvite,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
     authentication: Authentication,
@@ -34,14 +35,14 @@ pub async fn create_invite(
 ) -> Result<impl IntoResponse, CustomError> {
     let invite_hash = create(&pool, authentication, &new_invite, team_id).await?;
 
-    let invitation_verifier_base64 = invite_hash.0;
-    let invitation_selector_base64 = invite_hash.1;
-
     if let Some(smtp_config) = &config.smtp_config {
-        let url = format!(
-            "{}/app/invite/{}/{}",
-            smtp_config.domain, invitation_selector_base64, invitation_verifier_base64
-        );
+        let url = AcceptInvite {
+            invite_selector: invite_hash.1,
+            invite_validator: invite_hash.0,
+        }
+        .to_string();
+
+        let url = format!("{}//{}", smtp_config.domain, url);
 
         let body = format!(
             "
@@ -73,7 +74,7 @@ pub async fn create_invite(
         .await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::team::index_route(team.id),
+        &web_pages::routes::team::Index { team_id: team.id }.to_string(),
         "Invitation Created",
     )
 }

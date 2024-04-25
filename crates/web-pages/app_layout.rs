@@ -117,14 +117,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::Team.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::team::index_route(props.team_id),
+                                href: super::routes::team::Index{team_id:props.team_id},
                                 icon: nav_members_svg.name,
                                 title: "Team Members"
                             }
                             NavItem {
                                 id: SideBar::Switch.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::team::switch_route(props.team_id),
+                                href: super::routes::team::Switch{team_id:props.team_id},
                                 icon: nav_teams_svg.name,
                                 title: "Your Teams"
                             }
@@ -157,7 +157,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                 turbo-frame {
                     id: "teams-popup",
                     class: "min-w-full",
-                    src: "{super::routes::team::teams_popup_route(props.team_id)}"
+                    src: super::routes::team::Popup{ team_id: props.team_id}.to_string()
                 }
             ),
             sidebar_footer: rsx!(
