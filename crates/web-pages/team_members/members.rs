@@ -56,7 +56,7 @@ pub fn Page(
                             p {
                                 "Please set your "
                                 a {
-                                    href: "{crate::routes::profile::index_route(team.id)}",
+                                    href: crate::routes::profile::Profile{team_id: team.id}.to_string(),
                                     "name"
                                 }
                             }
@@ -204,12 +204,12 @@ pub fn Page(
 
             // The form to create an invitation
             super::invitation_form::InvitationForm {
-                submit_action: crate::routes::team::create_route(team.id)
+                submit_action: crate::routes::team::CreateInvite{team_id:team.id}.to_string()
             }
 
             // Form to set he org name
             super::team_name_form::TeamNameForm {
-                submit_action: crate::routes::team::set_name_route(team.id)
+                submit_action: crate::routes::team::SetName{team_id:team.id}.to_string()
             }
         }
     }

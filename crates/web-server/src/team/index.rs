@@ -1,16 +1,13 @@
 use super::super::{Authentication, CustomError};
-use axum::{
-    extract::{Extension, Path},
-    response::Html,
-};
+use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
 use db::types;
 use db::Pool;
-use web_pages::{render_with_props, team_members};
+use web_pages::{render_with_props, routes::team::Index, team_members};
 
 pub async fn index(
-    Path(team_id): Path<i32>,
+    Index { team_id }: Index,
     Extension(pool): Extension<Pool>,
     current_user: Authentication,
 ) -> Result<Html<String>, CustomError> {

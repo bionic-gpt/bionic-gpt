@@ -11,7 +11,7 @@ pub fn RemoveMemberDrawer(
 ) -> Element {
     rsx! {
         Drawer {
-            submit_action: crate::routes::team::delete_route(team_id),
+            submit_action: crate::routes::team::Delete{team_id}.to_string(),
             label: "Remove this user?",
             trigger_id: &trigger_id,
             DrawerBody {
