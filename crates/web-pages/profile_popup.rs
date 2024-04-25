@@ -40,7 +40,7 @@ pub fn ProfilePopup(email: String, first_name: String, last_name: String, team_i
                 "Profile"
             }
             DropDownLink {
-                href: "{crate::routes::profile::index_route(team_id)}",
+                href: crate::routes::profile::Profile{team_id},
                 target: "_top",
                 "Profile"
             }

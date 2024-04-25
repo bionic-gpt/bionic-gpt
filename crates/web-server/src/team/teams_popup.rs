@@ -1,14 +1,14 @@
 use super::super::{Authentication, CustomError};
-use axum::extract::{Extension, Path};
+use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::queries;
 use db::Pool;
-use web_pages::{render_with_props, team_members};
+use web_pages::{render_with_props, routes::team::Popup, team_members};
 
 pub async fn index(
+    Popup { team_id }: Popup,
     current_user: Authentication,
-    Path(team_id): Path<i32>,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
@@ -29,9 +29,12 @@ pub async fn index(
     let teams: Vec<(String, String)> = teams
         .iter()
         .filter_map(|team| {
-            team.team_name
-                .clone()
-                .map(|name| (name, web_pages::routes::team::index_route(team.id)))
+            team.team_name.clone().map(|name| {
+                (
+                    name,
+                    web_pages::routes::team::Index { team_id: team.id }.to_string(),
+                )
+            })
         })
         .collect();
 
