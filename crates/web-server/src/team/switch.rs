@@ -1,15 +1,12 @@
 use super::super::{Authentication, CustomError};
-use axum::{
-    extract::{Extension, Path},
-    response::Html,
-};
+use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
 use db::Pool;
-use web_pages::{render_with_props, teams};
+use web_pages::{render_with_props, routes::team::Switch, teams};
 
 pub async fn switch(
-    Path(team_id): Path<i32>,
+    Switch { team_id }: Switch,
     Extension(pool): Extension<Pool>,
     current_user: Authentication,
 ) -> Result<Html<String>, CustomError> {
