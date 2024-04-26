@@ -22,7 +22,6 @@ pub use auth::Authentication;
 use axum_extra::routing::RouterExt;
 pub use errors::CustomError;
 
-use axum::routing::get;
 use axum::{Extension, Router};
 use std::net::SocketAddr;
 
@@ -39,7 +38,7 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .typed_get(static_files::static_path)
-        .route("/", get(oidc_endpoint::index))
+        .typed_get(oidc_endpoint::index)
         .merge(api_pipeline::routes(&config))
         .merge(llm_reverse_proxy::routes())
         .merge(team::routes())
