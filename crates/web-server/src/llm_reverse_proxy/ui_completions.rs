@@ -48,7 +48,7 @@ pub async fn handler(
         content: chat.user_request,
     };
 
-    let messages = crate::prompt::execute_prompt(
+    let messages = super::prompt::execute_prompt(
         &transaction,
         prompt.id,
         conversation.team_id,

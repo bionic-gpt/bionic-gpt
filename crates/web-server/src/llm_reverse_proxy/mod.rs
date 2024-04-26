@@ -1,4 +1,5 @@
 pub mod api_reverse_proxy;
+mod prompt;
 pub mod ui_completions;
 use axum::Router;
 use axum_extra::routing::RouterExt;

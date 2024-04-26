@@ -14,7 +14,6 @@ pub mod models;
 pub mod oidc_endpoint;
 pub mod pipelines;
 pub mod profile;
-pub mod prompt;
 pub mod prompts;
 pub mod static_files;
 pub mod team;
