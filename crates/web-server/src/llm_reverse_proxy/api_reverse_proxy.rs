@@ -7,10 +7,11 @@ use axum::{
 use http::{HeaderName, Uri};
 use hyper_util::{client::legacy::Client, rt::TokioExecutor};
 
+use super::LLMHandler;
 use db::{queries, Pool};
 use serde::{Deserialize, Serialize};
 
-use super::errors::CustomError;
+use crate::errors::CustomError;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Message {
@@ -31,6 +32,7 @@ pub struct Completion {
 }
 
 pub async fn handler(
+    LLMHandler { path: _ }: LLMHandler,
     Extension(pool): Extension<Pool>,
     mut req: Request<Body>,
 ) -> Result<Response, CustomError> {
@@ -81,7 +83,7 @@ pub async fn handler(
                 .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
             let completion: Completion = serde_json::from_str(&body)?;
 
-            let messages = super::prompt::execute_prompt(
+            let messages = crate::prompt::execute_prompt(
                 &transaction,
                 prompt.id,
                 prompt.team_id,

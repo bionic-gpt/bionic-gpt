@@ -3779,6 +3779,7 @@ dependencies = [
  "lettre",
  "pgvector",
  "rand",
+ "reqwest",
  "serde",
  "serde_json",
  "sha2",

@@ -30,6 +30,7 @@ pgvector = { version = "0.3", features = ["postgres"] }
 tiktoken-rs = { version = "0.5.4" }
 
 # Used by ui_completions and api_reverse_proxy
+reqwest = { version = "0", default-features = false }
 hyper = { version = "1", features = ["server", "client"] }
 hyper-rustls = { version = "0.27", default-features = false, features = ["ring", "webpki-tokio", "http1"] }
 serde_json = { version = "1" }

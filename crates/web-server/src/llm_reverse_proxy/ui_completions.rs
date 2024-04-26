@@ -1,6 +1,5 @@
 use axum::{
     body::Body,
-    extract::Path,
     http::Request,
     response::{IntoResponse, Response},
     Extension,
@@ -10,14 +9,12 @@ use hyper_util::{client::legacy::Client, rt::TokioExecutor};
 
 use db::{queries, Pool};
 
-use super::{
-    api_reverse_proxy::{Completion, Message},
-    auth::Authentication,
-    errors::CustomError,
-};
+use super::api_reverse_proxy::{Completion, Message};
+use super::UICompletions;
+use crate::{auth::Authentication, errors::CustomError};
 
 pub async fn handler(
-    Path(chat_id): Path<i32>,
+    UICompletions { chat_id }: UICompletions,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Response, CustomError> {
@@ -51,7 +48,7 @@ pub async fn handler(
         content: chat.user_request,
     };
 
-    let messages = super::prompt::execute_prompt(
+    let messages = crate::prompt::execute_prompt(
         &transaction,
         prompt.id,
         conversation.team_id,
