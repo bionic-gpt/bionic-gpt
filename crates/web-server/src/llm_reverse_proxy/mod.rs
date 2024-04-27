@@ -12,7 +12,8 @@ pub fn routes() -> Router {
     Router::new()
         .typed_get(api_reverse_proxy::handler)
         .typed_post(api_reverse_proxy::handler)
-        .typed_post(ui_completions::handler)
+        //.typed_post(ui_completions::handler)
+        .typed_post(chat_stream::chat_generate)
 }
 
 #[derive(TypedPath, Deserialize)]
