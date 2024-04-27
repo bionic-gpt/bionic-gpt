@@ -1906,22 +1906,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
 
 [[package]]
-name = "llm-proxy"
-version = "0.1.0"
-dependencies = [
- "axum",
- "futures",
- "reqwest",
- "reqwest-eventsource",
- "serde",
- "serde_json",
- "tokio",
- "tokio-stream",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "local-ip-address"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3337,7 +3321,6 @@ dependencies = [
  "libc",
  "mio",
  "num_cpus",
- "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2 0.4.9",
@@ -3878,6 +3861,7 @@ dependencies = [
  "base64 0.13.1",
  "db",
  "embeddings-api",
+ "futures",
  "http 1.1.0",
  "hyper 1.2.0",
  "hyper-rustls 0.27.0",
@@ -3886,12 +3870,14 @@ dependencies = [
  "pgvector",
  "rand",
  "reqwest",
+ "reqwest-eventsource",
  "serde",
  "serde_json",
  "sha2",
  "tiktoken-rs",
  "time",
  "tokio",
+ "tokio-stream",
  "tokio-util",
  "tower",
  "tower-http 0.5.2",
