@@ -1910,6 +1910,7 @@ name = "llm-proxy"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "futures",
  "reqwest",
  "reqwest-eventsource",
  "serde",

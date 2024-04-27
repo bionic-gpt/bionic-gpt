@@ -3,15 +3,22 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
-use axum::Error;
-use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
+use axum::response::{sse::Event, Sse};
+use axum::response::{IntoResponse, Response};
+use axum::routing::get;
+use axum::Router;
+use axum::{Error, Json};
+use futures::stream::{self};
+use reqwest::StatusCode;
+use reqwest::{
+    header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
+    RequestBuilder,
+};
 use reqwest_eventsource::{Event as ReqwestEvent, EventSource as ReqwestEventSource};
 use serde::{Deserialize, Serialize};
-
-use axum::Router;
-use reqwest::Client;
 use serde_json::{json, Value};
 use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -25,6 +32,23 @@ struct Message {
 pub enum GenerationEvent {
     Text(String),
     End(String),
+}
+
+pub enum ChatError {
+    Other,
+    InvalidAPIKey,
+}
+// Implement Display for ChatError to provide user-facing error messages.
+
+impl IntoResponse for ChatError {
+    fn into_response(self) -> Response {
+        match self {
+            ChatError::Other => (StatusCode::BAD_REQUEST, Json("Chat Errror")).into_response(),
+            ChatError::InvalidAPIKey => {
+                (StatusCode::UNAUTHORIZED, Json("Chat Errror")).into_response()
+            }
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -49,17 +73,83 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let client = Client::new();
-
-    let app = Router::new()
-        //.route("/", get(proxy_via_reqwest))
-        //.route("/stream", get(stream_some_data))
-        // Add some logging so we can see the streams going through
-        .with_state(client);
+    let app = Router::new().route("/", get(chat_generate));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     tracing::debug!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
+}
+
+pub async fn chat_generate(
+) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, ChatError> {
+    // Read api key from .env
+    let api_key = std::env::var("OPENAI_API_KEY").unwrap();
+
+    let pairs = vec![ChatMessagePair {
+        id: 1,
+        chat_id: 1,
+        message_block_id: 1,
+        model: "gpt-3.5-turbo".to_string(),
+        human_message: "Hello".to_string(),
+        ai_message: Some("Hi there!".to_string()),
+        block_rank: 1,
+        block_size: 1,
+    }];
+
+    // Create a channel for sending SSE events
+    let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
+
+    // Spawn a task that generates SSE events and sends them into the channel
+    tokio::spawn(async move {
+        // Call your existing function to start generating events
+        if let Err(e) = generate_sse_stream(&api_key, &pairs[0].model.clone(), pairs, sender).await
+        {
+            eprintln!("Error generating SSE stream: {:?}", e);
+        }
+    });
+
+    let receiver_stream = ReceiverStream::new(receiver);
+    let initial_state = (receiver_stream, String::new()); // Initial state with an empty accumulator
+    let event_stream = stream::unfold(initial_state, move |(mut rc, mut accumulated)| {
+        async move {
+            match rc.next().await {
+                Some(Ok(event)) => {
+                    // Process the event
+                    match event {
+                        GenerationEvent::Text(text) => {
+                            accumulated.push_str(&text);
+                            // Return the accumulated data as part of the SSE event
+                            let s = format!(r##"<div>{}<div>"##, accumulated);
+
+                            Some((Ok(Event::default().data(s)), (rc, accumulated)))
+                        }
+                        GenerationEvent::End(text) => {
+                            println!("accumulated: {:?}", accumulated);
+
+                            let s = format!(
+                                r##"<div hx-swap-oob="outerHTML:#message-container">{}</div>"##,
+                                accumulated
+                            );
+                            // append s to text
+                            let ss = format!("{}\n{}", text, s);
+                            println!("ss: {}", ss);
+
+                            // accumulated.push_str(&ss);
+                            // Handle the end of a sequence, possibly resetting the accumulator if needed
+                            Some((Ok(Event::default().data(ss)), (rc, String::new())))
+                        } // ... handle other event types if necessary ...
+                    }
+                }
+                Some(Err(e)) => {
+                    // Handle error without altering the accumulator
+                    Some((Err(axum::Error::new(e)), (rc, accumulated)))
+                }
+                None => None, // When the receiver stream ends, finish the stream
+            }
+        }
+    });
+
+    Ok(Sse::new(event_stream))
 }
 
 pub async fn generate_sse_stream(
@@ -124,6 +214,15 @@ pub async fn generate_sse_stream(
 
     dbg!(&request);
 
+    generate_sse_stream_real(request, sender).await?;
+
+    Ok(())
+}
+
+pub async fn generate_sse_stream_real(
+    request: RequestBuilder,
+    sender: mpsc::Sender<Result<GenerationEvent, Error>>,
+) -> Result<(), Box<dyn std::error::Error>> {
     // Start streaming
     let mut stream = ReqwestEventSource::new(request)?;
 
@@ -200,7 +299,7 @@ mod tests {
             id: 1,
             chat_id: 1,
             message_block_id: 1,
-            model: "gpt-4".to_string(),
+            model: "gpt-3.5-turbo".to_string(),
             human_message: "Hello".to_string(),
             ai_message: Some("Hi there!".to_string()),
             block_rank: 1,
