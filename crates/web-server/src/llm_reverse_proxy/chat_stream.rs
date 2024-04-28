@@ -20,6 +20,7 @@ use tokio_stream::StreamExt;
 use super::api_reverse_proxy::{Completion, Message};
 use super::UICompletions;
 
+// Called from the front end to generate a streaming chat with the model
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
     current_user: Authentication,
@@ -56,6 +57,8 @@ pub async fn chat_generate(
     Ok(Sse::new(event_stream))
 }
 
+// Create the request that we'll send to reqwest to create an SSE stream of incoming
+// chat completions.
 async fn create_request(
     pool: &Pool,
     current_user: Authentication,
