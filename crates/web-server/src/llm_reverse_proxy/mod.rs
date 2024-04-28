@@ -1,5 +1,6 @@
 pub mod api_reverse_proxy;
 pub mod chat_stream;
+pub mod enriched_chat;
 mod prompt;
 pub mod ui_completions;
 use axum::Router;
