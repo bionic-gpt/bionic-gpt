@@ -88,9 +88,8 @@ pub fn Page(
                                     }
                                     TimeLineBody {
                                         class: "prose",
-                                        div  {
-                                            class: "response-formatter",
-                                            "{response}"
+                                        div {
+                                            dangerous_inner_html: "{response}"
                                         }
                                     }
                                 } else {
