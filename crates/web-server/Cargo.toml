@@ -34,7 +34,6 @@ tokio-stream = "0.1"
 reqwest = { version = "0", default-features = false, features = ["stream", "json", "rustls-tls"] }
 reqwest-eventsource = "0"
 serde_json = { version = "1" }
-futures = "0"
 
 # Used by ui_completions and api_reverse_proxy
 hyper = { version = "1", features = ["server", "client"] }

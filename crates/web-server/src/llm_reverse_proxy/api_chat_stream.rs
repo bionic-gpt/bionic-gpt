@@ -90,7 +90,7 @@ pub async fn chat_generate(
         // Spawn a task that generates SSE events and sends them into the channel
         tokio::spawn(async move {
             // Call your existing function to start generating events
-            if let Err(e) = enriched_chat(request, sender).await {
+            if let Err(e) = enriched_chat(request, sender, false).await {
                 eprintln!("Error generating SSE stream: {:?}", e);
             }
         });

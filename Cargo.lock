@@ -3861,7 +3861,6 @@ dependencies = [
  "base64 0.13.1",
  "db",
  "embeddings-api",
- "futures",
  "http 1.1.0",
  "hyper 1.2.0",
  "hyper-rustls 0.27.0",

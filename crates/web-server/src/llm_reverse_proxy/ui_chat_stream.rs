@@ -3,6 +3,8 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
+use std::time::Duration;
+
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use crate::auth::Authentication;
 use crate::CustomError;
@@ -34,7 +36,7 @@ pub async fn chat_generate(
     // Spawn a task that generates SSE events and sends them into the channel
     tokio::spawn(async move {
         // Call your existing function to start generating events
-        if let Err(e) = enriched_chat(request, sender).await {
+        if let Err(e) = enriched_chat(request, sender, true).await {
             eprintln!("Error generating SSE stream: {:?}", e);
         }
     });
@@ -114,11 +116,13 @@ async fn create_request(
             .post(format!("{}/chat/completions", model.base_url))
             .header(AUTHORIZATION, format!("Bearer {}", api_key))
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+            .timeout(Duration::from_secs(5))
             .body(completion_json.to_string())
     } else {
         client
             .post(format!("{}/chat/completions", model.base_url))
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+            .timeout(Duration::from_secs(5))
             .body(completion_json.to_string())
     };
     Ok(request)
