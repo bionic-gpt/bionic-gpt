@@ -86,7 +86,7 @@ fn convert_error_to_chat(err: reqwest_eventsource::Error) -> String {
             "index": 0,
             "delta": {{
               "role": "assistant",
-              "content": "{}"
+              "content": "Unable to complete your request due to the following error ```{}```"
             }},
             "finish_reason": "stop"
           }}
