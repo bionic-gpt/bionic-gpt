@@ -1,3 +1,4 @@
+import { Markdown } from "./markdown"
 import { Stream } from 'openai/streaming';
 import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
 import { OpenAIError } from "openai/error.mjs";
@@ -14,13 +15,12 @@ export const streamingChat = () => {
     }
 }
 
-
-
 async function streamResult(chatId: string, element: HTMLElement) {
 
     // Create a new AbortController instance
     const abortController = new AbortController();
     const signal = abortController.signal;
+    const markdown = new Markdown()
     var result = ''
 
 
@@ -44,7 +44,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
         const runner = ChatCompletionStream.fromReadableStream(stream.toReadableStream())
 
         runner.on('content', (delta, snapshot) => {
-            element.innerHTML = snapshot
+            element.innerHTML = markdown.markdown(snapshot)
             result = snapshot
         })
 

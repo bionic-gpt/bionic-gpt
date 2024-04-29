@@ -89,6 +89,7 @@ pub fn Page(
                                     TimeLineBody {
                                         class: "prose",
                                         div {
+                                            class: "response-formatter",
                                             dangerous_inner_html: "{response}"
                                         }
                                     }
@@ -164,6 +165,7 @@ pub fn Page(
                                 }
                                 TimeLineBody {
                                     span {
+                                        class: "prose",
                                         "{chat_with_chunks.chat.user_request} "
                                     }
                                 }

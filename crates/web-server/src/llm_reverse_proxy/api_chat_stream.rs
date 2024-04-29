@@ -100,8 +100,12 @@ pub async fn chat_generate(
         let event_stream = receiver_stream.map(|item| {
             match item {
                 Ok(event) => match event {
-                    GenerationEvent::Text(text) => Ok(Event::default().data(text)),
-                    GenerationEvent::End(text) => Ok(Event::default().data(text)),
+                    GenerationEvent::Text(completion_chunk) => {
+                        Ok(Event::default().data(completion_chunk.delta))
+                    }
+                    GenerationEvent::End(completion_chunk) => {
+                        Ok(Event::default().data(completion_chunk.delta))
+                    }
                 },
                 Err(e) => {
                     // Handle error without altering the accumulator

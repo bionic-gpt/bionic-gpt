@@ -11,9 +11,15 @@ use tokio::sync::mpsc;
 use tokio_stream::StreamExt;
 
 #[derive(Debug)]
+pub struct CompletionChunk {
+    pub delta: String,
+    pub snapshot: String,
+}
+
+#[derive(Debug)]
 pub enum GenerationEvent {
-    Text(String),
-    End(String),
+    Text(CompletionChunk),
+    End(CompletionChunk),
 }
 
 // Create an SSE connection to the model and intercept the incoming stream.
@@ -25,6 +31,7 @@ pub async fn enriched_chat(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Start streaming
     let mut stream = ReqwestEventSource::new(request)?;
+    let mut snapshot = String::new();
 
     // Handle streaming events
     while let Some(event) = stream.next().await {
@@ -32,23 +39,26 @@ pub async fn enriched_chat(
             Ok(ReqwestEvent::Open) => tracing::debug!("Connection Open!"),
             Ok(ReqwestEvent::Message(message)) => {
                 if message.data.trim() == "[DONE]" {
+                    let chunk = CompletionChunk {
+                        delta: message.data.clone(),
+                        snapshot: snapshot.clone(),
+                    };
                     stream.close();
-                    if sender
-                        .send(Ok(GenerationEvent::End("[DONE]".to_string())))
-                        .await
-                        .is_err()
-                    {
+                    if sender.send(Ok(GenerationEvent::End(chunk))).await.is_err() {
                         break; // Receiver has dropped, stop sending.
                     }
                     break;
                 } else {
-                    let m: Value = serde_json::from_str(&message.data).unwrap();
-                    if sender
-                        .send(Ok(GenerationEvent::Text(m.to_string())))
-                        .await
-                        .is_err()
-                    {
-                        break; // Receiver has dropped, stop sending.
+                    let m: Value = serde_json::from_str(&message.data)?;
+                    if let Some(text) = m["choices"][0]["delta"]["content"].as_str() {
+                        snapshot.push_str(text);
+                        let chunk = CompletionChunk {
+                            delta: message.data.clone(),
+                            snapshot: snapshot.clone(),
+                        };
+                        if sender.send(Ok(GenerationEvent::Text(chunk))).await.is_err() {
+                            break; // Receiver has dropped, stop sending.
+                        }
                     }
                 }
             }
@@ -59,7 +69,10 @@ pub async fn enriched_chat(
                         .send(Ok(GenerationEvent::Text(convert_error_to_chat(err))))
                         .await?;
                     sender
-                        .send(Ok(GenerationEvent::End("[DONE]".to_string())))
+                        .send(Ok(GenerationEvent::End(CompletionChunk {
+                            delta: "[DONE]".to_string(),
+                            snapshot: snapshot.clone(),
+                        })))
                         .await?;
                 } else if sender.send(Err(axum::Error::new(err))).await.is_err() {
                     break; // Receiver has dropped, stop sending.
@@ -73,8 +86,8 @@ pub async fn enriched_chat(
 }
 // During a chat setion its good to let the assitant show the error,
 // otherwise they get buried in the logs.
-fn convert_error_to_chat(err: reqwest_eventsource::Error) -> String {
-    format!(
+fn convert_error_to_chat(err: reqwest_eventsource::Error) -> CompletionChunk {
+    let json = format!(
         r#"{{
         "id": "chatcmpl-627",
         "object": "chat.completion.chunk",
@@ -93,5 +106,9 @@ fn convert_error_to_chat(err: reqwest_eventsource::Error) -> String {
         ]
       }}"#,
         err
-    )
+    );
+    CompletionChunk {
+        delta: json,
+        snapshot: "".to_string(),
+    }
 }
