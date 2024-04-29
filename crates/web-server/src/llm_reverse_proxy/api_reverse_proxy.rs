@@ -2,35 +2,17 @@ use axum::{
     body::Body,
     http::Request,
     response::{IntoResponse, Response},
-    Extension, RequestExt,
+    Extension,
 };
 use http::{HeaderName, Uri};
 use hyper_util::{client::legacy::Client, rt::TokioExecutor};
 
 use super::LLMHandler;
 use db::{queries, Pool};
-use serde::{Deserialize, Serialize};
 
 use crate::errors::CustomError;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Message {
-    pub role: String,
-    pub content: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Completion {
-    pub model: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_tokens: Option<i32>,
-    pub messages: Vec<Message>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>,
-}
-
+// Reverse proxy all LLM API calls directly to the model
 pub async fn handler(
     LLMHandler { path: _ }: LLMHandler,
     Extension(pool): Extension<Pool>,
@@ -67,46 +49,7 @@ pub async fn handler(
 
         let base_url = prompt.base_url.replace("/v1", "");
         let uri = format!("{base_url}{path_query}");
-
-        // If we are completions we need to add the prompt to the request
-        if path_query.ends_with("/completions") {
-            transaction
-                .query(
-                    &format!("SET LOCAL row_level_security.user_id = {}", api_key.user_id),
-                    &[],
-                )
-                .await?;
-
-            let body: String = req
-                .extract()
-                .await
-                .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
-            let completion: Completion = serde_json::from_str(&body)?;
-
-            let messages = super::prompt::execute_prompt(
-                &transaction,
-                prompt.id,
-                prompt.team_id,
-                None,
-                completion.messages,
-            )
-            .await?;
-
-            let completion = Completion {
-                messages,
-                ..completion
-            };
-
-            let completion_json = serde_json::to_string(&completion)?;
-
-            // Create a new request
-            req = Request::post(uri)
-                .header("content-type", "application/json")
-                .body(Body::from(completion_json))?;
-        } else {
-            // Anything that is not completions gets passed direct to the LLM API
-            *req.uri_mut() = Uri::try_from(uri).unwrap();
-        }
+        *req.uri_mut() = Uri::try_from(uri).unwrap();
 
         tracing::info!("{:?}", &req);
 

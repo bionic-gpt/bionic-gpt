@@ -3,7 +3,7 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
-use super::enriched_chat::{enriched_chat, GenerationEvent};
+use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use crate::auth::Authentication;
 use crate::CustomError;
 use axum::response::{sse::Event, Sse};
@@ -17,7 +17,7 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 
-use super::api_reverse_proxy::{Completion, Message};
+use super::api_chat_stream::{Completion, Message};
 use super::UICompletions;
 
 // Called from the front end to generate a streaming chat with the model
