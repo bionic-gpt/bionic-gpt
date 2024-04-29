@@ -1,11 +1,5 @@
-use axum::{
-    body::Body,
-    http::Request,
-    response::{IntoResponse, Response},
-    Extension,
-};
-use http::{HeaderName, Uri};
-use hyper_util::{client::legacy::Client, rt::TokioExecutor};
+use axum::{body::Body, http::Request, response::Response, Extension};
+use http::header;
 
 use super::LLMHandler;
 use db::{queries, Pool};
@@ -16,7 +10,7 @@ use crate::errors::CustomError;
 pub async fn handler(
     LLMHandler { path: _ }: LLMHandler,
     Extension(pool): Extension<Pool>,
-    mut req: Request<Body>,
+    req: Request<Body>,
 ) -> Result<Response, CustomError> {
     if let Some(api_key) = req.headers().get("Authorization") {
         let api_key = api_key.to_str().unwrap().replace("Bearer ", "");
@@ -47,30 +41,35 @@ pub async fn handler(
             .map(|v| v.as_str())
             .unwrap_or(path);
 
-        let base_url = prompt.base_url.replace("/v1", "");
-        let uri = format!("{base_url}{path_query}");
-        *req.uri_mut() = Uri::try_from(uri).unwrap();
-
-        tracing::info!("{:?}", &req);
-
-        // Do we have an API key, then add it.
+        let mut headers = header::HeaderMap::new();
         if let Some(api_key) = model.api_key {
-            req.headers_mut().append(
-                HeaderName::from_static("authorization"),
-                format!("Bearer {}", api_key).parse().unwrap(),
+            let api_key = format!("Bearer {}", api_key);
+            headers.insert(
+                "Authorization",
+                header::HeaderValue::from_str(&api_key).unwrap(),
             );
         }
 
-        let https = hyper_rustls::HttpsConnectorBuilder::new()
-            .with_webpki_roots()
-            .https_or_http()
-            .enable_http1()
-            .build();
+        let client = reqwest::Client::builder();
+        let client = client.default_headers(headers);
+        let client = client
+            .build()
+            .map_err(|e| CustomError::FaultySetup(e.to_string()))?;
 
-        // Give the client the option to use TLS if required
-        let client = Client::builder(TokioExecutor::new()).build(https);
+        let base_url = prompt.base_url.replace("/v1", "");
+        let uri = format!("{base_url}{path_query}");
 
-        Ok(client.request(req).await?.into_response())
+        let reqwest_response = if req.method().to_string().to_lowercase() == "post" {
+            client.post(uri).send().await?
+        } else {
+            client.get(uri).send().await?
+        };
+
+        let response_builder = Response::builder().status(reqwest_response.status().as_u16());
+        Ok(response_builder
+            .body(Body::from_stream(reqwest_response.bytes_stream()))
+            // This unwrap is fine because the body is empty here
+            .unwrap())
     } else {
         Err(CustomError::Authentication(
             "You need an API key".to_string(),
