@@ -21,6 +21,9 @@ CREATE TABLE api_chats (
 
 COMMENT ON TABLE api_chats IS 'Capture API Text Generation';
 
+-- Manage the updated_at column
+SELECT updated_at('api_chats');
+
 -- Grant access
 GRANT SELECT, INSERT, UPDATE ON api_chats TO bionic_application;
 GRANT USAGE, SELECT ON api_chats_id_seq TO bionic_application;

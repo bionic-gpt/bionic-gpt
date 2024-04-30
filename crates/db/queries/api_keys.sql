@@ -57,7 +57,8 @@ RETURNING id;
 UPDATE api_chats 
 SET 
     response = :response,
-    status = :chat_status
+    status = :chat_status,
+    tokens_received = :tokens_received
 WHERE
     api_key_id IN (SELECT id FROM api_keys WHERE api_key = :api_key)
 AND id = :api_chat_id;
