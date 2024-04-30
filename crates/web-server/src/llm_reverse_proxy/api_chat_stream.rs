@@ -1,15 +1,11 @@
-//! Run with
-//!
-//! ```not_rust
-//! cargo run -p example-reqwest-response
-//! ```
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
+use super::Completion;
 use crate::CustomError;
 use axum::body::Body;
 use axum::extract::Request;
 use axum::response::{sse::Event, Sse};
 use axum::{Extension, RequestExt};
-use db::{queries, Pool};
+use db::{queries, Pool, Transaction};
 use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
@@ -17,27 +13,8 @@ use tokio_stream::StreamExt;
 
 use super::ApiChatHandler;
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Message {
-    pub role: String,
-    pub content: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Completion {
-    pub model: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_tokens: Option<i32>,
-    pub messages: Vec<Message>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>,
-}
-
-// Called from the front end to generate a streaming chat with the model
+// We reverse proxy an LLM model, we also provide context to the chat if the
+// API key is attached to a prompt that is attached to a dataset.
 pub async fn chat_generate(
     ApiChatHandler {}: ApiChatHandler,
     Extension(pool): Extension<Pool>,
@@ -48,45 +25,19 @@ pub async fn chat_generate(
         let mut db_client = pool.get().await.unwrap();
         let transaction = db_client.transaction().await.unwrap();
 
-        // Check this first, if we have a false API key then return auth error
-        let api_key = queries::api_keys::find_api_key()
-            .bind(&transaction, &api_key)
-            .one()
-            .await
-            .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?;
-
-        let prompt = queries::prompts::prompt_by_api_key()
-            .bind(&transaction, &api_key.api_key)
-            .one()
-            .await?;
-
-        let model = queries::models::model()
-            .bind(&transaction, &prompt.model_id)
-            .one()
-            .await?;
-
         let body: String = req
             .extract()
             .await
             .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
+        let completion: Completion = serde_json::from_str(&body)?;
 
-        tracing::debug!("{:?}", &body);
-        let client = reqwest::Client::new();
-        let request = if let Some(api_key) = model.api_key {
-            client
-                .post(format!("{}/chat/completions", model.base_url))
-                .header(AUTHORIZATION, format!("Bearer {}", api_key))
-                .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
-                .body(body)
-        } else {
-            client
-                .post(format!("{}/chat/completions", model.base_url))
-                .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
-                .body(body)
-        };
+        let (_api_key, request) = create_request(&transaction, api_key, completion).await?;
 
         // Create a channel for sending SSE events
         let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
+
+        // Commit the transaction so we are sure the request is in the database.
+        transaction.commit().await?;
 
         // Spawn a task that generates SSE events and sends them into the channel
         tokio::spawn(async move {
@@ -99,6 +50,10 @@ pub async fn chat_generate(
 
         let receiver_stream = ReceiverStream::new(receiver);
 
+        // For every Server Side Event we get from the model process it
+        // and return it to the caller.
+        // The only extra processing we do is to log the full reponse when
+        // the stream ends.
         let event_stream = receiver_stream.map(|item| {
             match item {
                 Ok(event) => match event {
@@ -106,6 +61,7 @@ pub async fn chat_generate(
                         Ok(Event::default().data(completion_chunk.delta))
                     }
                     GenerationEvent::End(completion_chunk) => {
+                        //log_end_of_chat(pool, &completion_chunk.snapshot).await.unwrap();
                         Ok(Event::default().data(completion_chunk.delta))
                     }
                 },
@@ -122,4 +78,84 @@ pub async fn chat_generate(
             "You need an API key".to_string(),
         ))
     }
+}
+
+async fn create_request(
+    transaction: &Transaction<'_>,
+    api_key: String,
+    completion: Completion,
+) -> Result<(db::ApiKey, reqwest::RequestBuilder), CustomError> {
+    let api_key = queries::api_keys::find_api_key()
+        .bind(transaction, &api_key)
+        .one()
+        .await
+        .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?;
+
+    // Now we have an API Key we can kick off RLS
+    transaction
+        .query(
+            &format!("SET LOCAL row_level_security.user_id = {}", api_key.user_id),
+            &[],
+        )
+        .await?;
+
+    let prompt = queries::prompts::prompt_by_api_key()
+        .bind(transaction, &api_key.api_key)
+        .one()
+        .await?;
+    let model = queries::models::model()
+        .bind(transaction, &prompt.model_id)
+        .one()
+        .await?;
+
+    let messages = super::prompt::execute_prompt(
+        transaction,
+        prompt.id,
+        prompt.team_id,
+        None,
+        completion.messages,
+    )
+    .await?;
+
+    let completion = Completion {
+        messages,
+        ..completion
+    };
+
+    let completion_json = serde_json::to_string(&completion)?;
+
+    tracing::debug!("{:?}", &completion_json);
+
+    log_initial_chat(transaction, api_key.id, &completion).await?;
+
+    let client = reqwest::Client::new();
+    let request = if let Some(api_key) = model.api_key {
+        client
+            .post(format!("{}/chat/completions", model.base_url))
+            .header(AUTHORIZATION, format!("Bearer {}", api_key))
+            .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+            .body(completion_json)
+    } else {
+        client
+            .post(format!("{}/chat/completions", model.base_url))
+            .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
+            .body(completion_json)
+    };
+
+    Ok((api_key, request))
+}
+
+async fn log_initial_chat(
+    _transaction: &Transaction<'_>,
+    _api_key_id: i32,
+    _completion: &Completion,
+) -> Result<(), CustomError> {
+    //let size = num_tokens_from_messages("gpt-4", &[prompt]).unwrap();
+
+    // Store the prompt, ready for the front end webcomponent to pickup
+    //queries::api_keys::new_api_chat()
+    //    .bind(&db_client, &api_key_id, &prompt)
+    //    .await?;
+
+    Ok(())
 }

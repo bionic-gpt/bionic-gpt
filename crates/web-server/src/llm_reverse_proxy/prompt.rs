@@ -1,4 +1,4 @@
-use super::api_chat_stream::Message;
+use super::Message;
 use crate::errors::CustomError;
 use db::queries::{chats, chats_chunks, prompts};
 use db::{Chat, RelatedContext, Transaction};

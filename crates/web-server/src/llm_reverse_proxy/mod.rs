@@ -8,6 +8,25 @@ use axum_extra::routing::RouterExt;
 
 use axum_extra::routing::TypedPath;
 use serde::Deserialize;
+use serde::Serialize;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Message {
+    pub role: String,
+    pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Completion {
+    pub model: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_tokens: Option<i32>,
+    pub messages: Vec<Message>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature: Option<f32>,
+}
 
 pub fn routes() -> Router {
     Router::new()

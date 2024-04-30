@@ -19,8 +19,8 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 
-use super::api_chat_stream::{Completion, Message};
 use super::UICompletions;
+use super::{Completion, Message};
 
 // Called from the front end to generate a streaming chat with the model
 pub async fn chat_generate(
