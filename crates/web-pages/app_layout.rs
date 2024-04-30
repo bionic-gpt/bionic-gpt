@@ -12,14 +12,16 @@ pub enum SideBar {
     ApiKeys,
     AuditTrail,
     Console,
-    Training,
-    Prompts,
-    Models,
+    Dashboard,
     Datasets,
     DocumentPipelines,
-    Team,
+    Prompts,
+    Models,
     Profile,
+    RateLimits,
     Switch,
+    Team,
+    Training,
 }
 
 impl std::fmt::Display for SideBar {
@@ -148,6 +150,20 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::audit_trail::Index { team_id: props.team_id },
                                 icon: nav_audit_svg.name,
                                 title: "Audit Trail"
+                            }
+                            NavItem {
+                                id: SideBar::RateLimits.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::rate_limits::Index { team_id: props.team_id },
+                                icon: nav_audit_svg.name,
+                                title: "Rate Limits"
+                            }
+                            NavItem {
+                                id: SideBar::Dashboard.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::dashboard::Index { team_id: props.team_id },
+                                icon: nav_audit_svg.name,
+                                title: "Dashboard"
                             }
                         )
                     }
