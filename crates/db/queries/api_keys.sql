@@ -50,7 +50,8 @@ AND
 INSERT INTO api_chats 
     (api_key_id, prompt, tokens_sent)
 VALUES
-    (:api_key_id, :prompt, :tokens_sent);
+    (:api_key_id, :prompt, :tokens_sent)
+RETURNING id;
      
 --! update_api_chat
 UPDATE api_chats 
@@ -58,5 +59,6 @@ SET
     response = :response,
     status = :chat_status
 WHERE
-    api_key_id IN (SELECT id FROM api_keys WHERE api_key = :api_key);
+    api_key_id IN (SELECT id FROM api_keys WHERE api_key = :api_key)
+AND id = :api_chat_id;
    

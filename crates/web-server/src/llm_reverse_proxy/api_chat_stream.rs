@@ -34,7 +34,8 @@ pub async fn chat_generate(
             .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
         let completion: Completion = serde_json::from_str(&body)?;
 
-        let (api_key, request) = create_request(&transaction, api_key, completion).await?;
+        let (api_key, request, api_chat_id) =
+            create_request(&transaction, api_key, completion).await?;
 
         // Create a channel for sending SSE events
         let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
@@ -69,9 +70,14 @@ pub async fn chat_generate(
                             Ok(Event::default().data(completion_chunk.delta))
                         }
                         GenerationEvent::End(completion_chunk) => {
-                            log_end_of_chat(pool, &completion_chunk.snapshot, &api_key)
-                                .await
-                                .unwrap();
+                            log_end_of_chat(
+                                pool,
+                                &completion_chunk.snapshot,
+                                &api_key,
+                                api_chat_id,
+                            )
+                            .await
+                            .unwrap();
                             Ok(Event::default().data(completion_chunk.delta))
                         }
                     },
@@ -92,7 +98,7 @@ async fn create_request(
     transaction: &Transaction<'_>,
     api_key: String,
     completion: Completion,
-) -> Result<(db::ApiKey, reqwest::RequestBuilder), CustomError> {
+) -> Result<(db::ApiKey, reqwest::RequestBuilder, i32), CustomError> {
     let api_key = queries::api_keys::find_api_key()
         .bind(transaction, &api_key)
         .one()
@@ -134,7 +140,8 @@ async fn create_request(
 
     tracing::debug!("{:?}", &completion_json);
 
-    log_initial_chat(transaction, api_key.id, &completion_json, &completion).await?;
+    let api_chat_id =
+        log_initial_chat(transaction, api_key.id, &completion_json, &completion).await?;
 
     let client = reqwest::Client::new();
     let request = if let Some(api_key) = model.api_key {
@@ -150,7 +157,7 @@ async fn create_request(
             .body(completion_json)
     };
 
-    Ok((api_key, request))
+    Ok((api_key, request, api_chat_id))
 }
 
 async fn log_initial_chat(
@@ -158,25 +165,33 @@ async fn log_initial_chat(
     api_key_id: i32,
     completion_json: &str,
     completion: &Completion,
-) -> Result<(), CustomError> {
+) -> Result<i32, CustomError> {
     let size = super::token_count::token_count(completion).await;
 
     // Store the prompt, ready for the front end webcomponent to pickup
-    queries::api_keys::new_api_chat()
+    let api_chat_id = queries::api_keys::new_api_chat()
         .bind(transaction, &api_key_id, &completion_json, &size)
+        .one()
         .await?;
 
-    Ok(())
+    Ok(api_chat_id)
 }
 
 async fn log_end_of_chat(
     pool: Arc<Pool>,
     snapshot: &str,
     api_key: &str,
+    api_chat_id: i32,
 ) -> Result<(), CustomError> {
     let db_client = pool.get().await.unwrap();
     queries::api_keys::update_api_chat()
-        .bind(&db_client, &snapshot, &ChatStatus::Success, &api_key)
+        .bind(
+            &db_client,
+            &snapshot,
+            &ChatStatus::Success,
+            &api_key,
+            &api_chat_id,
+        )
         .await?;
 
     Ok(())
