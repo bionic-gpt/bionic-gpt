@@ -1,4 +1,5 @@
 use super::super::{Authentication, CustomError};
+use crate::llm_reverse_proxy::token_count;
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -39,6 +40,7 @@ pub async fn update_response(
             .bind(
                 &transaction,
                 &message.response,
+                &token_count::token_count_from_string(&message.response).await,
                 &chat_status,
                 &message.chat_id,
             )

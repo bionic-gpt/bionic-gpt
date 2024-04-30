@@ -45,3 +45,21 @@ WHERE
 AND
     team_id
     IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
+
+--! new_api_chat
+INSERT INTO api_chats 
+    (api_key_id, prompt, tokens_sent)
+VALUES
+    (:api_key_id, :prompt, :tokens_sent)
+RETURNING id;
+     
+--! update_api_chat
+UPDATE api_chats 
+SET 
+    response = :response,
+    status = :chat_status,
+    tokens_received = :tokens_received
+WHERE
+    api_key_id IN (SELECT id FROM api_keys WHERE api_key = :api_key)
+AND id = :api_chat_id;
+   
