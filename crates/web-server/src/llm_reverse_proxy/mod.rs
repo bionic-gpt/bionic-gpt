@@ -11,7 +11,7 @@ use axum_extra::routing::TypedPath;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Message {
     pub role: String,
     pub content: String,

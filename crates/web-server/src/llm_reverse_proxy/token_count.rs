@@ -1,4 +1,4 @@
-use super::Completion;
+use super::{Completion, Message};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 pub async fn token_count(completion: &Completion) -> i32 {
@@ -14,4 +14,31 @@ pub async fn token_count(completion: &Completion) -> i32 {
         .collect();
 
     num_tokens_from_messages("gpt-4", &messages).unwrap() as i32
+}
+
+pub async fn token_count_from_string(message: &str) -> i32 {
+    let completion = Completion {
+        model: "".to_string(),
+        max_tokens: None,
+        stream: None,
+        messages: vec![super::Message {
+            role: "".to_string(),
+            content: message.to_string(),
+        }],
+        temperature: None,
+    };
+
+    token_count(&completion).await
+}
+
+pub async fn token_count_from_messages(messages: Vec<Message>) -> i32 {
+    let completion = Completion {
+        model: "".to_string(),
+        max_tokens: None,
+        stream: None,
+        messages,
+        temperature: None,
+    };
+
+    token_count(&completion).await
 }

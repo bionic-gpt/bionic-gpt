@@ -102,8 +102,9 @@ async fn create_request(
     )
     .await?;
     let json_messages = serde_json::to_string(&messages)?;
+    let size = super::token_count::token_count_from_messages(messages.clone()).await;
     queries::chats::update_prompt()
-        .bind(&transaction, &json_messages, &chat_id)
+        .bind(&transaction, &json_messages, &size, &chat_id)
         .await?;
     transaction.commit().await?;
     let completion = Completion {

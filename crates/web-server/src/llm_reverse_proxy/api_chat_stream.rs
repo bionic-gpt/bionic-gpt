@@ -183,17 +183,7 @@ async fn log_end_of_chat(
     api_key: &str,
     api_chat_id: i32,
 ) -> Result<(), CustomError> {
-    let completion = Completion {
-        model: "".to_string(),
-        max_tokens: None,
-        stream: None,
-        messages: vec![super::Message {
-            role: "".to_string(),
-            content: snapshot.to_string(),
-        }],
-        temperature: None,
-    };
-    let size = super::token_count::token_count(&completion).await;
+    let size = super::token_count::token_count_from_string(snapshot).await;
     let db_client = pool.get().await.unwrap();
     queries::api_keys::update_api_chat()
         .bind(
