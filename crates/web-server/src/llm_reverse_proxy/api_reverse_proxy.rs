@@ -49,6 +49,10 @@ pub async fn handler(
                 header::HeaderValue::from_str(&api_key).unwrap(),
             );
         }
+        headers.insert(
+            "Content-Type",
+            header::HeaderValue::from_str("application/json").unwrap(),
+        );
 
         let client = reqwest::Client::builder();
         let client = client.default_headers(headers);

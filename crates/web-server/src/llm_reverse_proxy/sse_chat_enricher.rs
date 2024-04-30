@@ -29,6 +29,7 @@ pub async fn enriched_chat(
     sender: mpsc::Sender<Result<GenerationEvent, Error>>,
     convert_errors_to_chat: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    tracing::debug!("{:?}", &request);
     // Start streaming
     let mut stream = ReqwestEventSource::new(request)?;
     let mut snapshot = String::new();

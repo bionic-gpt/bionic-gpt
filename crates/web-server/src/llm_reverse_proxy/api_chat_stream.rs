@@ -70,6 +70,7 @@ pub async fn chat_generate(
             .await
             .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
 
+        tracing::debug!("{:?}", &body);
         let client = reqwest::Client::new();
         let request = if let Some(api_key) = model.api_key {
             client
@@ -89,9 +90,10 @@ pub async fn chat_generate(
 
         // Spawn a task that generates SSE events and sends them into the channel
         tokio::spawn(async move {
+            tracing::debug!("Spawning enriched chat process");
             // Call your existing function to start generating events
             if let Err(e) = enriched_chat(request, sender, false).await {
-                eprintln!("Error generating SSE stream: {:?}", e);
+                tracing::error!("Error generating SSE stream: {:?}", e);
             }
         });
 
