@@ -134,7 +134,7 @@ async fn create_request(
 
     tracing::debug!("{:?}", &completion_json);
 
-    log_initial_chat(transaction, api_key.id, &completion).await?;
+    log_initial_chat(transaction, api_key.id, &completion_json, &completion).await?;
 
     let client = reqwest::Client::new();
     let request = if let Some(api_key) = model.api_key {
@@ -154,16 +154,17 @@ async fn create_request(
 }
 
 async fn log_initial_chat(
-    _transaction: &Transaction<'_>,
-    _api_key_id: i32,
-    _completion: &Completion,
+    transaction: &Transaction<'_>,
+    api_key_id: i32,
+    completion_json: &str,
+    completion: &Completion,
 ) -> Result<(), CustomError> {
-    //let size = num_tokens_from_messages("gpt-4", &[prompt]).unwrap();
+    let size = super::token_count::token_count(completion).await;
 
     // Store the prompt, ready for the front end webcomponent to pickup
-    //queries::api_keys::new_api_chat()
-    //    .bind(&db_client, &api_key_id, &prompt)
-    //    .await?;
+    queries::api_keys::new_api_chat()
+        .bind(transaction, &api_key_id, &completion_json, &size)
+        .await?;
 
     Ok(())
 }
