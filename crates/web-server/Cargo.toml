@@ -29,11 +29,12 @@ pgvector = { version = "0.3", features = ["postgres"] }
 # Tiktoken counts our token usage for prompts
 tiktoken-rs = { version = "0.5.4" }
 
-# Used by ui_completions and api_reverse_proxy
-hyper = { version = "1", features = ["server", "client"] }
-hyper-rustls = { version = "0.27", default-features = false, features = ["ring", "webpki-tokio", "http1"] }
+# llm_reverse_proxy
+tokio-stream = "0.1"
+reqwest = { version = "0", default-features = false, features = ["stream", "json", "rustls-tls"] }
+reqwest-eventsource = "0"
 serde_json = { version = "1" }
-hyper-util = { version = "0.1", default-features = false, features = ["client-legacy", "tokio"] }
+comrak = "0"
 
 # Generate secure invitations
 sha2 = { version = "0" }

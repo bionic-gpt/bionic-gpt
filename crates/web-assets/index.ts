@@ -10,7 +10,6 @@ import { streamingChat } from './typescript/streaming-chat'
 import { drawers } from './typescript/side-drawer'
 import { formatter } from './typescript/format-json'
 import { copyPaste } from './typescript/copy-paste'
-import { responsesFormatter } from './typescript/response-formatter'
 import './typescript/remember-form'
 import './typescript/textarea-submit'
 import './typescript/update-sidebar'
@@ -31,7 +30,6 @@ function loadEverything() {
     drawers()
     formatter()
     streamingChat()
-    responsesFormatter()
     copyPaste()
 }
 

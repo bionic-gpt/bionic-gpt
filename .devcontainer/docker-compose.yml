@@ -21,6 +21,7 @@ services:
       - ..:/workspace:cached
 
     environment:
+      RUST_LOG: debug
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
 

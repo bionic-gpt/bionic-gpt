@@ -53,8 +53,8 @@ impl From<axum::http::uri::InvalidUri> for CustomError {
     }
 }
 
-impl From<hyper_util::client::legacy::Error> for CustomError {
-    fn from(err: hyper_util::client::legacy::Error) -> CustomError {
+impl From<reqwest::Error> for CustomError {
+    fn from(err: reqwest::Error) -> CustomError {
         CustomError::FaultySetup(err.to_string())
     }
 }

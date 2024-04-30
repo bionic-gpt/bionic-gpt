@@ -3,12 +3,19 @@ use axum::{
     response::{IntoResponse, Response},
     Extension,
 };
+use axum_extra::routing::TypedPath;
 use db::{authz, queries, Pool};
 use http::StatusCode;
+use serde::Deserialize;
 
 use super::{Authentication, CustomError};
 
+#[derive(TypedPath, Deserialize)]
+#[typed_path("/")]
+pub struct OidcEndpoint {}
+
 pub async fn index(
+    OidcEndpoint {}: OidcEndpoint,
     authentication: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
