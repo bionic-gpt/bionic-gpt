@@ -58,8 +58,5 @@ SET
     response = :response,
     status = :chat_status
 WHERE
-    id = :api_chat_id
-AND
-    -- Make sure the api_chat belongs to the user
-    api_key_id IN (SELECT id FROM api_keys WHERE user_id = current_app_user());
+    api_key_id IN (SELECT id FROM api_keys WHERE api_key = :api_key);
    

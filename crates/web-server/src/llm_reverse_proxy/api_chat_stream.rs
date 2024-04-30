@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::Completion;
 use crate::CustomError;
@@ -5,6 +7,7 @@ use axum::body::Body;
 use axum::extract::Request;
 use axum::response::{sse::Event, Sse};
 use axum::{Extension, RequestExt};
+use db::ChatStatus;
 use db::{queries, Pool, Transaction};
 use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use tokio::sync::mpsc;
@@ -31,7 +34,7 @@ pub async fn chat_generate(
             .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
         let completion: Completion = serde_json::from_str(&body)?;
 
-        let (_api_key, request) = create_request(&transaction, api_key, completion).await?;
+        let (api_key, request) = create_request(&transaction, api_key, completion).await?;
 
         // Create a channel for sending SSE events
         let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
@@ -49,25 +52,30 @@ pub async fn chat_generate(
         });
 
         let receiver_stream = ReceiverStream::new(receiver);
+        let pool_arc = Arc::new(pool);
+        let api_key_arc = Arc::new(api_key.api_key);
 
         // For every Server Side Event we get from the model process it
         // and return it to the caller.
         // The only extra processing we do is to log the full reponse when
         // the stream ends.
-        let event_stream = receiver_stream.map(|item| {
-            match item {
-                Ok(event) => match event {
-                    GenerationEvent::Text(completion_chunk) => {
-                        Ok(Event::default().data(completion_chunk.delta))
-                    }
-                    GenerationEvent::End(completion_chunk) => {
-                        //log_end_of_chat(pool, &completion_chunk.snapshot).await.unwrap();
-                        Ok(Event::default().data(completion_chunk.delta))
-                    }
-                },
-                Err(e) => {
-                    // Handle error without altering the accumulator
-                    Err(axum::Error::new(e))
+        let event_stream = receiver_stream.then(move |item| {
+            let pool = Arc::clone(&pool_arc);
+            let api_key = Arc::clone(&api_key_arc);
+            async move {
+                match item {
+                    Ok(event) => match event {
+                        GenerationEvent::Text(completion_chunk) => {
+                            Ok(Event::default().data(completion_chunk.delta))
+                        }
+                        GenerationEvent::End(completion_chunk) => {
+                            log_end_of_chat(pool, &completion_chunk.snapshot, &api_key)
+                                .await
+                                .unwrap();
+                            Ok(Event::default().data(completion_chunk.delta))
+                        }
+                    },
+                    Err(e) => Err(axum::Error::new(e)),
                 }
             }
         });
@@ -156,6 +164,19 @@ async fn log_initial_chat(
     //queries::api_keys::new_api_chat()
     //    .bind(&db_client, &api_key_id, &prompt)
     //    .await?;
+
+    Ok(())
+}
+
+async fn log_end_of_chat(
+    pool: Arc<Pool>,
+    snapshot: &str,
+    api_key: &str,
+) -> Result<(), CustomError> {
+    let db_client = pool.get().await.unwrap();
+    queries::api_keys::update_api_chat()
+        .bind(&db_client, &snapshot, &ChatStatus::Success, &api_key)
+        .await?;
 
     Ok(())
 }
