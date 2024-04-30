@@ -1,9 +1,3 @@
-export const responsesFormatter = () => {
-    document.querySelectorAll('div.response-formatter').forEach(async (response) => {
-        response.innerHTML = new Markdown().markdown(response.innerHTML)
-    })
-}
-
 export class Markdown  {
 
     markdown(src: string) {

@@ -1,4 +1,4 @@
-import { Markdown } from "./response-formatter"
+import { Markdown } from "./markdown"
 import { Stream } from 'openai/streaming';
 import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
 import { OpenAIError } from "openai/error.mjs";
@@ -14,8 +14,6 @@ export const streamingChat = () => {
         streamResult(chatId, chat)
     }
 }
-
-
 
 async function streamResult(chatId: string, element: HTMLElement) {
 

@@ -11,6 +11,7 @@ VALUES
 UPDATE chats 
 SET 
     response = :response,
+    tokens_received = :tokens_received,
     status = :chat_status
 WHERE
     id = :chat_id
@@ -21,7 +22,8 @@ AND
 --! update_prompt
 UPDATE chats 
 SET 
-    prompt = :prompt
+    prompt = :prompt,
+    tokens_sent = :tokens_sent
 WHERE
     id = :chat_id
 AND
