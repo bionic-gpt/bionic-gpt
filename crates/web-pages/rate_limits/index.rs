@@ -10,7 +10,7 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
-            selected_item: SideBar::ApiKeys,
+            selected_item: SideBar::RateLimits,
             team_id: team_id,
             rbac: rbac,
             title: "API Keys",
