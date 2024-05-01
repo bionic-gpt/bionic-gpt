@@ -13,9 +13,9 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
             selected_item: SideBar::RateLimits,
             team_id: team_id,
             rbac: rbac,
-            title: "API Keys",
+            title: "Rate Limits",
             header: rsx! {
-                h3 { "API Keys" }
+                h3 { "Rate Limits (Trial)" }
             },
             BlankSlate {
                 heading: "Looks like you don't have any API keys",
@@ -23,6 +23,8 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                 description: "API Keys allow you to access our programming interface",
                 primary_action_drawer: Some(("New API Key".to_string(), "create-api-key".to_string()))
             }
+
+            super::RateTable {}
         }
     }
 }
