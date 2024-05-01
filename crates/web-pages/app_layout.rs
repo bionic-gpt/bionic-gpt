@@ -71,7 +71,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 id: SideBar::Prompts.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::prompts::Index{team_id: props.team_id},
-                                icon: nav_dashboard_svg.name,
+                                icon: assistant_svg.name,
                                 title: "Prompts"
                             }
                         }
@@ -155,14 +155,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 id: SideBar::RateLimits.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::rate_limits::Index { team_id: props.team_id },
-                                icon: nav_audit_svg.name,
+                                icon: limits_svg.name,
                                 title: "Rate Limits"
                             }
                             NavItem {
                                 id: SideBar::Dashboard.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::dashboard::Index { team_id: props.team_id },
-                                icon: nav_audit_svg.name,
+                                icon: nav_dashboard_svg.name,
                                 title: "Dashboard"
                             }
                         )

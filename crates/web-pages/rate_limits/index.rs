@@ -16,12 +16,17 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
             title: "Rate Limits",
             header: rsx! {
                 h3 { "Rate Limits (Trial)" }
+                Button {
+                    prefix_image_src: "{button_plus_svg.name}",
+                    drawer_trigger: "new-model-form",
+                    button_scheme: ButtonScheme::Primary,
+                    "Add Limit"
+                }
             },
             BlankSlate {
-                heading: "Looks like you don't have any API keys",
-                visual: empty_api_keys_svg.name,
-                description: "API Keys allow you to access our programming interface",
-                primary_action_drawer: Some(("New API Key".to_string(), "create-api-key".to_string()))
+                heading: "Bionic can assign token limts based on a users role.",
+                visual: limits_svg.name,
+                description: "Roles are assigned in your identity system and mapped here to limits"
             }
 
             super::RateTable {}
