@@ -6,7 +6,7 @@ use db::authz::Rbac;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -18,7 +18,7 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                 h3 { "Your Licence" }
             },
             BlankSlate {
-                heading: "You are running the Community Edition of Bionic (v1.7.1)",
+                heading: format!("You are running the Community Edition of Bionic ({})", version),
                 visual: bionic_logo_svg.name,
                 description: "Add a licence to extend available resources and features",
                 primary_action_drawer: Some(("Licence Bionic".to_string(), "create-api-key".to_string()))
