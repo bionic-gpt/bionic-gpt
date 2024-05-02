@@ -29,7 +29,15 @@ pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<M
                 description: "Roles are assigned in your identity system and mapped here to limits"
             }
 
-            super::RateTable { rate_limits }
+            super::RateTable { rate_limits: rate_limits.clone(), team_id }
+
+            for item in rate_limits {
+                super::delete::DeleteDrawer {
+                    team_id: team_id,
+                    id: item.id,
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                }
+            }
 
             // Our pop out drawer to add limits
             super::form::Form {

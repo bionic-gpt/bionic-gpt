@@ -19,3 +19,9 @@ INSERT INTO rate_limits
 VALUES
     (:limits_role, :user_email, :model_id, :tokens_per_hour)
 RETURNING id;
+
+--! delete
+DELETE FROM
+    rate_limits
+WHERE
+    id = :rate_limit_id;

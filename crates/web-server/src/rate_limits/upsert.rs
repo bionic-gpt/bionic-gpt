@@ -51,7 +51,7 @@ pub async fn upsert(
             transaction.commit().await?;
 
             Ok(super::super::layout::redirect_and_snackbar(
-                &web_pages::routes::prompts::Index { team_id }.to_string(),
+                &web_pages::routes::rate_limits::Index { team_id }.to_string(),
                 "Rate Limit Created",
             )
             .into_response())
