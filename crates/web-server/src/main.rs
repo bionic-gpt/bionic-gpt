@@ -10,6 +10,7 @@ pub mod documents;
 pub mod email;
 pub mod errors;
 pub mod layout;
+pub mod licence;
 pub mod llm_reverse_proxy;
 pub mod models;
 pub mod oidc_endpoint;
@@ -48,6 +49,7 @@ async fn main() {
         .merge(dashboard::routes())
         .merge(datasets::routes())
         .merge(documents::routes())
+        .merge(licence::routes())
         .merge(llm_reverse_proxy::routes())
         .merge(models::routes())
         .merge(pipelines::routes())

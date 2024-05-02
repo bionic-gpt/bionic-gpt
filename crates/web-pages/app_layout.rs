@@ -15,8 +15,9 @@ pub enum SideBar {
     Dashboard,
     Datasets,
     DocumentPipelines,
-    Prompts,
+    Licence,
     Models,
+    Prompts,
     Profile,
     RateLimits,
     Switch,
@@ -137,6 +138,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                     NavGroup {
                         heading: "System Admin",
                         content:  rsx!(
+                            NavItem {
+                                id: SideBar::Licence.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::licence::Index { team_id: props.team_id },
+                                icon: nav_dashboard_svg.name,
+                                title: "Licence & Usage"
+                            }
                             NavItem {
                                 id: SideBar::Models.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
