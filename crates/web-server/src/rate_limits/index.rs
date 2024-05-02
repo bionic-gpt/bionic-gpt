@@ -1,8 +1,7 @@
 use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::Html;
-use db::authz;
-use db::Pool;
+use db::{authz, queries, Pool};
 use web_pages::{rate_limits, render_with_props, routes::rate_limits::Index};
 
 pub async fn index(
@@ -15,9 +14,18 @@ pub async fn index(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    let rate_limits = queries::rate_limits::rate_limits()
+        .bind(&transaction)
+        .all()
+        .await?;
+
     let html = render_with_props(
         rate_limits::index::Page,
-        rate_limits::index::PageProps { rbac, team_id },
+        rate_limits::index::PageProps {
+            rbac,
+            team_id,
+            rate_limits,
+        },
     );
 
     Ok(Html(html))

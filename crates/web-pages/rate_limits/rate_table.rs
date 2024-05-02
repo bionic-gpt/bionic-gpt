@@ -1,9 +1,10 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
+use db;
 use dioxus::prelude::*;
 
 #[component]
-pub fn RateTable() -> Element {
+pub fn RateTable(rate_limits: Vec<db::RateLimit>) -> Element {
     rsx!(
         Box {
             class: "has-data-table mt-6",

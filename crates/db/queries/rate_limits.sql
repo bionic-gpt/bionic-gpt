@@ -1,6 +1,6 @@
---: Limit()
+--: RateLimit()
 
---! limits : Limit
+--! rate_limits : RateLimit
 SELECT
     l.id,
     l.limits_role,
@@ -10,11 +10,11 @@ SELECT
     (SELECT name FROM models m WHERE m.id = l.model_id) as model_name,
     l.created_at
 FROM
-    limits l
+    rate_limits l
 ORDER BY created_at DESC;
 
 --! new
-INSERT INTO limits 
+INSERT INTO rate_limits 
     (limits_role, user_email, model_id, tokens_per_hour)
 VALUES
     (:limits_role, :user_email, :model_id, :tokens_per_hour)

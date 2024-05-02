@@ -2,11 +2,11 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::authz::Rbac;
+use db::{authz::Rbac, RateLimit};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -29,7 +29,7 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                 description: "Roles are assigned in your identity system and mapped here to limits"
             }
 
-            super::RateTable {}
+            super::RateTable { rate_limits }
 
             // Our pop out drawer to add limits
             super::form::Form {
