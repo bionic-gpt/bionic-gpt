@@ -7,9 +7,9 @@ use dioxus::prelude::*;
 pub fn TopUserTable(top_users: Vec<TopUser>) -> Element {
     rsx!(
         Box {
-            class: "has-data-table mt-4",
+            class: "has-data-table col-span-3",
             BoxHeader {
-                title: "Top 10 Users in the last 24 hours (by Characters Sent)"
+                title: "Top 10 Users in the last 24 hours (by Tokens Sent)"
             }
             BoxBody {
                 table {
@@ -18,9 +18,10 @@ pub fn TopUserTable(top_users: Vec<TopUser>) -> Element {
                         th { "Email" }
                         th { "Model Name" }
                         th { "Access Type" }
+                        th { "Tokens Sent" }
                         th {
                             class: "text-right",
-                            "Characters Sent" }
+                            "Tokens Received" }
                     }
                     tbody {
 
@@ -39,6 +40,12 @@ pub fn TopUserTable(top_users: Vec<TopUser>) -> Element {
                                         class: "mr-2",
                                         label_role: LabelRole::Neutral,
                                         "User Interface"
+                                    }
+                                }
+                                td {
+                                    class: "text-right",
+                                    code {
+                                        "{user.total_tokens_sent}"
                                     }
                                 }
                                 td {

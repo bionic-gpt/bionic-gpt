@@ -86,7 +86,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::datasets::Index{team_id: props.team_id},
                                 icon: nav_ccsds_data_svg.name,
-                                title: "Datasets"
+                                title: "Datasets & Documents"
                             }
                         )
                     }
@@ -100,14 +100,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::api_keys::Index { team_id: props.team_id },
                                 icon: nav_api_keys_svg.name,
-                                title: "API Keys"
+                                title: "AI Assistant API"
                             }
                             NavItem {
                                 id: SideBar::DocumentPipelines.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::document_pipelines::Index { team_id: props.team_id },
                                 icon: nav_ccsds_data_svg.name,
-                                title: "Document Pipelines"
+                                title: "Data Integrations"
                             }
                         )
                     }

@@ -2,7 +2,7 @@ use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
-use db::queries::{audit_trail, models};
+use db::queries::models;
 use db::{ModelType, Pool};
 use web_pages::routes::models::Index;
 
@@ -27,15 +27,12 @@ pub async fn index(
             .await?,
     );
 
-    let top_users = audit_trail::top_users().bind(&transaction).all().await?;
-
     let html = web_pages::render_with_props(
         web_pages::models::index::Page,
         web_pages::models::index::PageProps {
             team_id,
             rbac,
             models,
-            top_users,
         },
     );
 
