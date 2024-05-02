@@ -41,11 +41,36 @@ pub fn Page(rbac: Rbac, team_id: i32, top_users: Vec<TopUser>) -> Element {
                     }
                 }
                 Box {
-                    class: "col-span-2",
+                    class: "col-span-2 has-data-table",
                     BoxHeader {
-                        title: "Card 4"
+                        title: "Guardrails Monitoring"
                     }
                     BoxBody {
+                        table {
+                            class: "table table-sm",
+                            thead {
+                                th { "Email" }
+                                th { "Source" }
+                                th { "Type" }
+                            }
+                            tbody {
+                                tr {
+                                    td {
+                                        "ian.purton@gmail.com"
+                                    }
+                                    td {
+                                        Label {
+                                            "Data Upload"
+                                        }
+                                    }
+                                    td {
+                                        Label {
+                                            "PII Content"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 div {
