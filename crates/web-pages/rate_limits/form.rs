@@ -7,7 +7,7 @@ use dioxus::prelude::*;
 pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
     rsx!(
         Drawer {
-            submit_action: crate::routes::api_keys::New{ team_id }.to_string(),
+            submit_action: crate::routes::rate_limits::Upsert{ team_id }.to_string(),
             label: "New Limit",
             trigger_id: "create-limit",
             DrawerBody {
@@ -44,6 +44,15 @@ pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
                                 "{model.name}"
                             }
                         }
+                    }
+
+                    Input {
+                        input_type: InputType::Text,
+                        placeholder: "Tokens per Hour e.g. 1000",
+                        help_text: "Set the limit of the number of tokens per hour permitted",
+                        label: "Tokens per Hour",
+                        required: true,
+                        name: "tokens_per_hour"
                     }
                 }
             }

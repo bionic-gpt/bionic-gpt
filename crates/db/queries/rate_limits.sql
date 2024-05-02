@@ -1,4 +1,4 @@
---: RateLimit()
+--: RateLimit(limits_role?, user_email?, model_id?)
 
 --! rate_limits : RateLimit
 SELECT
@@ -13,8 +13,8 @@ FROM
     rate_limits l
 ORDER BY created_at DESC;
 
---! new
-INSERT INTO rate_limits 
+--! new(limits_role?, user_email?, model_id?) 
+INSERT INTO rate_limits
     (limits_role, user_email, model_id, tokens_per_hour)
 VALUES
     (:limits_role, :user_email, :model_id, :tokens_per_hour)

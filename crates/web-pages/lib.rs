@@ -66,6 +66,12 @@ pub mod routes {
         pub struct Index {
             pub team_id: i32,
         }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/rate_limits/upsert")]
+        pub struct Upsert {
+            pub team_id: i32,
+        }
     }
 
     pub mod api_keys {

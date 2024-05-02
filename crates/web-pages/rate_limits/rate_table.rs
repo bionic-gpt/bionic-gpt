@@ -27,10 +27,10 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>) -> Element {
                         for limit in rate_limits {
                             tr {
                                 td {
-                                    "{limit.limits_role}"
+                                    "{limit.limits_role.unwrap_or_default()}"
                                 }
                                 td {
-                                    "{limit.user_email}"
+                                    "{limit.user_email.unwrap_or_default()}"
                                 }
                                 td {
                                     "{limit.model_name}"
