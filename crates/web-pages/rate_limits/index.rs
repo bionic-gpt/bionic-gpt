@@ -2,11 +2,11 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::{authz::Rbac, RateLimit};
+use db::{authz::Rbac, Model, RateLimit};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<Model>) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -24,7 +24,7 @@ pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>) -> Element {
                 }
             },
             BlankSlate {
-                heading: "Bionic can assign token limts based on a users role.",
+                heading: "Bionic can assign token limits based on a users role.",
                 visual: limits_svg.name,
                 description: "Roles are assigned in your identity system and mapped here to limits"
             }
@@ -33,7 +33,8 @@ pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>) -> Element {
 
             // Our pop out drawer to add limits
             super::form::Form {
-                team_id: team_id
+                team_id: team_id,
+                models
             }
         }
     }

@@ -9,7 +9,7 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>) -> Element {
         Box {
             class: "has-data-table mt-6",
             BoxHeader {
-                title: "Limits"
+                title: "Rate Limits"
             }
             BoxBody {
                 table {
@@ -24,50 +24,23 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>) -> Element {
                         }
                     }
                     tbody {
-                        tr {
-                            td {
-                                "Default"
+                        for limit in rate_limits {
+                            tr {
+                                td {
+                                    "{limit.limits_role}"
+                                }
+                                td {
+                                    "{limit.user_email}"
+                                }
+                                td {
+                                    "{limit.model_name}"
+                                }
+                                td {
+                                    class: "text-right",
+                                    "..."
+                                }
                             }
-                            td {
-                                "All"
-                            }
-                            td {
-                                "400 Tokens per hour"
-                            }
-                            td {
-                                class: "text-right",
-                                "..."
-                            }
-                        }
-                        tr {
-                            td {
-                                "ian.purton@gmail.com"
-                            }
-                            td {
-                                "All"
-                            }
-                            td {
-                                "100 Tokens per hour"
-                            }
-                            td {
-                                class: "text-right",
-                                "..."
-                            }
-                        }
-                        tr {
-                            td {
-                                "Power User"
-                            }
-                            td {
-                                "LLama3"
-                            }
-                            td {
-                                "1000 Tokens per hour"
-                            }
-                            td {
-                                class: "text-right",
-                                "..."
-                            }
+
                         }
                     }
                 }

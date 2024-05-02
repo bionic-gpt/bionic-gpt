@@ -1,7 +1,7 @@
 use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::Html;
-use db::{authz, queries, Pool};
+use db::{authz, queries, ModelType, Pool};
 use web_pages::{rate_limits, render_with_props, routes::rate_limits::Index};
 
 pub async fn index(
@@ -19,12 +19,18 @@ pub async fn index(
         .all()
         .await?;
 
+    let models = queries::models::models()
+        .bind(&transaction, &ModelType::LLM)
+        .all()
+        .await?;
+
     let html = render_with_props(
         rate_limits::index::Page,
         rate_limits::index::PageProps {
             rbac,
             team_id,
             rate_limits,
+            models,
         },
     );
 
