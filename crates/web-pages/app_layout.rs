@@ -64,36 +64,29 @@ pub fn Layout(props: LayoutProps) -> Element {
                             selected_item_id: props.selected_item.to_string(),
                             href: super::routes::console::Index { team_id: props.team_id },
                             icon: nav_service_requests_svg.name,
-                            title: "Chat Console"
-                        }
-                        if props.rbac.can_view_prompts() {
-                            NavItem {
-                                id: SideBar::Prompts.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::prompts::Index{team_id: props.team_id},
-                                icon: assistant_svg.name,
-                                title: "Prompts"
-                            }
+                            title: "All Chats"
                         }
                     )
                 }
                 if props.rbac.can_view_datasets() {
                     NavGroup {
-                        heading: "Retrieval Augmented Generation",
+                        heading: "AI Assistants",
                         content:  rsx!(
+                            if props.rbac.can_view_prompts() {
+                                NavItem {
+                                    id: SideBar::Prompts.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::prompts::Index{team_id: props.team_id},
+                                    icon: assistant_svg.name,
+                                    title: "AI Assistants"
+                                }
+                            }
                             NavItem {
                                 id: SideBar::Datasets.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::datasets::Index{team_id: props.team_id},
                                 icon: nav_ccsds_data_svg.name,
-                                title: "Team Datasets"
-                            }
-                            NavItem {
-                                id: SideBar::DocumentPipelines.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::document_pipelines::Index { team_id: props.team_id },
-                                icon: nav_ccsds_data_svg.name,
-                                title: "Document Pipelines"
+                                title: "Datasets"
                             }
                         )
                     }
@@ -107,7 +100,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::api_keys::Index { team_id: props.team_id },
                                 icon: nav_api_keys_svg.name,
-                                title: "LLM API Keys"
+                                title: "API Keys"
+                            }
+                            NavItem {
+                                id: SideBar::DocumentPipelines.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::document_pipelines::Index { team_id: props.team_id },
+                                icon: nav_ccsds_data_svg.name,
+                                title: "Document Pipelines"
                             }
                         )
                     }

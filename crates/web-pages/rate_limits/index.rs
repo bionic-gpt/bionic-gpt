@@ -18,7 +18,7 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                 h3 { "Rate Limits (Trial)" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "new-model-form",
+                    drawer_trigger: "create-limit",
                     button_scheme: ButtonScheme::Primary,
                     "Add Limit"
                 }
@@ -30,6 +30,11 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
             }
 
             super::RateTable {}
+
+            // Our pop out drawer to add limits
+            super::form::Form {
+                team_id: team_id
+            }
         }
     }
 }
