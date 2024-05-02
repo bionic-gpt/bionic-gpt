@@ -21,7 +21,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                 heading: format!("You are running the Community Edition of Bionic ({})", version),
                 visual: bionic_logo_svg.name,
                 description: "Add a licence to extend available resources and features",
-                primary_action_drawer: Some(("Licence Bionic".to_string(), "create-api-key".to_string()))
+                primary_action_drawer: Some(("Licence Bionic".to_string(), "create-licence".to_string()))
             }
             Box {
                 class: "has-data-table mt-8",
@@ -122,6 +122,8 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                     }
                 }
             }
+
+            super::form::Form { }
         }
     }
 }
