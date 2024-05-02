@@ -1,5 +1,5 @@
-help:
-    just -h
+list:
+    just --list
 
 watch:
     mold -run cargo watch \
@@ -32,11 +32,12 @@ watch-tailwind:
         --watch
 
 open-ports:
+    #!/usr/bin/env bash
     kubectl -n bionic-gpt port-forward pod/bionic-db-cluster-1 5433 &
     postgresPID=$!
     kubectl -n bionic-gpt port-forward deployment/mailhog 8025 &
     mailhogPID=$!
-    kubectl -n bionic-gpt port-forward 0.0.0.0 deployment/llm-api 11434:11434 &
+    kubectl -n bionic-gpt port-forward deployment/llm-api 11434:11434 &
     ollamaPID=$!
     trap "kill ${ollamaPID} ${mailhogPID} ${postgresPID}; exit 1" INT
 
