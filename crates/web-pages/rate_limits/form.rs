@@ -47,7 +47,7 @@ pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
                     }
 
                     Input {
-                        input_type: InputType::Text,
+                        input_type: InputType::Number,
                         placeholder: "Tokens per Hour e.g. 1000",
                         help_text: "Set the limit of the number of tokens per hour permitted",
                         label: "Tokens per Hour",
