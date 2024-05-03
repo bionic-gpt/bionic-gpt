@@ -68,3 +68,11 @@ docker run -v $(pwd)/:/config \
     --rm -it public.ecr.aws/eksctl/eksctl create cluster \
     -f /config/cluster.yaml
 ```
+
+And wait....
+
+And wait....
+
+Finally after 20 minutes or more you'll hopefully have an EKS cluster.
+
+Follow the "Install Bionic" guide to continue the installation.
