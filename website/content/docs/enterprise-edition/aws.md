@@ -29,6 +29,10 @@ managedNodeGroups:
   minSize: 3
   maxSize: 6
   spot: true
+addons:
+- name: aws-ebs-csi-driver
+  version: latest
+  resolveConflicts: overwrite
 ```
 
 ## Dry Run `eksctl`
@@ -36,7 +40,7 @@ managedNodeGroups:
 First a dry run
 
 ```sh
-eksctl create cluster --dry-run -f /config/cluster.yaml
+eksctl create cluster --dry-run -f cluster.yaml
 ```
 
 You should see something like
@@ -58,7 +62,7 @@ availabilityZones:
 Run the command without the `--dry-run`.
 
 ```sh
-eksctl create cluster -f /config/cluster.yaml
+eksctl create cluster -f cluster.yaml
 ```
 
 And wait....
@@ -66,8 +70,6 @@ And wait....
 And wait....
 
 Finally after 20 minutes or more you'll hopefully have an EKS cluster.
-
-Follow the "Install Bionic" guide to continue the installation.
 
 ## Accessing the Kubeconfig file
 
@@ -82,3 +84,5 @@ You can then
 ```sh
 kubectl get nodes
 ```
+
+Follow the "Install Bionic" guide to continue the installation.
