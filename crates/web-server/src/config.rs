@@ -49,6 +49,8 @@ pub struct Config {
     pub app_database_url: String,
     // Configure SMTP for email.
     pub smtp_config: Option<SmtpConfig>,
+    // What version are we?
+    pub version: String,
 }
 
 impl Default for Config {
@@ -63,6 +65,12 @@ impl Config {
             env::var("PORT").unwrap().parse::<u16>().unwrap()
         } else {
             7703
+        };
+
+        let version: String = if env::var("VERSION").is_ok() {
+            env::var("VERSION").unwrap()
+        } else {
+            "Unknown".to_string()
         };
 
         let max_upload_size_mb: usize = if env::var("MAX_UPLOAD_SIZE_MB").is_ok() {
@@ -81,6 +89,7 @@ impl Config {
             port,
             app_database_url,
             smtp_config: SmtpConfig::new(),
+            version,
         }
     }
 }

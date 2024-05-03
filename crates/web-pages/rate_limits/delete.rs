@@ -6,8 +6,8 @@ use dioxus::prelude::*;
 pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
     rsx! {
         Drawer {
-            submit_action: crate::routes::prompts::Delete{team_id, id}.to_string(),
-            label: "Delete this Assistant?",
+            submit_action: crate::routes::rate_limits::Delete {team_id, id}.to_string(),
+            label: "Delete this API Key?",
             trigger_id: trigger_id,
             DrawerBody {
                 div {
@@ -16,7 +16,7 @@ pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
                         alert_color: AlertColor::Warn,
                         class: "mb-3",
                         p {
-                            "Are you sure you want to delete this Assistant?"
+                            "Are you sure you want to delete this rate limit?"
                         }
                     }
                     input {
