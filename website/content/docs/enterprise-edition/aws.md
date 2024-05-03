@@ -29,10 +29,21 @@ managedNodeGroups:
   minSize: 3
   maxSize: 6
   spot: true
+iam:
+  withOIDC: true
+  serviceAccounts:
+  - metadata:
+      name: ebs-csi-controller-sa
+      namespace: kube-system
+    attachPolicyARNs:
+    - "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+    wellKnownPolicies:
+      efsCSIController: true
 addons:
 - name: aws-ebs-csi-driver
   version: latest
   resolveConflicts: overwrite
+  serviceAccountRoleARN: "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
 ```
 
 ## Dry Run `eksctl`
@@ -73,7 +84,7 @@ Finally after 20 minutes or more you'll hopefully have an EKS cluster.
 
 ## Accessing the Kubeconfig file
 
-The below will create a file called `config` in your local folder.
+The below will export the kubeconfig to your home directory.
 
 ```sh
 eksctl utils write-kubeconfig --cluster devops-catalog --region us-east-2
