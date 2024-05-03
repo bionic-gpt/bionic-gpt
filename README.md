@@ -118,7 +118,7 @@ This covers:
 <!-- Try it out -->
 ## Try it out
 
-follow [our guide](https://bionic-gpt.com/docs/running-locally/introduction/) to running Bionic-GPT on your local machine.
+follow [our guide](https://bionic-gpt.com/docs/community-edition/introduction/) to running Bionic-GPT on your local machine.
 
 ## Kubernetes Ready
 
