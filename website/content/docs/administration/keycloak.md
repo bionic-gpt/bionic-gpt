@@ -6,7 +6,7 @@ sort_by = "weight"
 
 We include [Keycloak](https://www.keycloak.org/) as an identity and access management system to get you started quickly.
 
-We do recommend you connect Bionic with your own IAD system, however if you want to get admin access to keycloak follow this guide.
+We do recommend you connect Bionic with your own IAM system, however if you want to get admin access to Keycloak follow this guide.
 
 ## Getting the Admin Password
 
