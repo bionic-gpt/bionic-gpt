@@ -94,7 +94,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                             }
                             tr {
                                 td {
-                                    "Observability Dashboard"
+                                    "Observability Metrics Endpoint"
                                 }
                                 td {
                                     img {
