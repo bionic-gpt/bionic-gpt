@@ -197,6 +197,8 @@ pgAdmin
 Cuda
 YAML
 plugin
+k8's
+eks
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -544,3 +546,5 @@ ip
 k3d
  - docs/community-edition/docker-desktop.md
 Nginx
+ - docs/enterprise-edition/aws.md
+35
