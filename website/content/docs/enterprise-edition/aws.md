@@ -15,7 +15,7 @@ export AWS_SECRET_ACCESS_KEY=...
 
 ## 2. Setup your EKS install config
 
-Copy the below (changing it as necessary) into a file called `cluster.yaml`
+Copy the below (changing it as necessary) into a file called `cluster.yaml`. You'll need to set the {ACCOUNT_ID} to your account.
 
 ```yaml
 apiVersion: eksctl.io/v1alpha5
@@ -38,12 +38,12 @@ iam:
     attachPolicyARNs:
     - "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
     wellKnownPolicies:
-      efsCSIController: true
+      ebsCSIController: true
+    roleName: eksctl-cluster-ebs-role
+    roleOnly: true
 addons:
 - name: aws-ebs-csi-driver
-  version: latest
-  resolveConflicts: overwrite
-  serviceAccountRoleARN: "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  serviceAccountRoleARN: "arn:aws:iam::{ACCOUNT_ID}:role/eksctl-cluster-ebs-role"
 ```
 
 ## Dry Run `eksctl`
