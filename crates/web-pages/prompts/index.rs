@@ -21,22 +21,22 @@ pub fn Page(
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac,
-            title: "Prompts",
+            title: "Assistants",
             header: rsx!(
-                h3 { "Prompts" }
+                h3 { "Assistants" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     drawer_trigger: "new-prompt-form",
                     button_scheme: ButtonScheme::Primary,
-                    "New Prompt"
+                    "New Assistant"
                 }
             )
 
             if prompts.is_empty() {
                 BlankSlate {
-                    heading: "Looks like you haven't configured any prompts yet",
+                    heading: "Looks like you haven't configured any assiatnts yet",
                     visual: nav_dashboard_svg.name,
-                    description: "Researchers use prompt engineering to improve the capacity of LLMs on a wide range of common and complex tasks such as question answering and arithmetic reasoning.",
+                    description: "AI Assitants use your data to help you with your work.",
                     primary_action_drawer: (
                         "New Prompt".to_string(),
                         "new-prompt-form".to_string(),
@@ -46,7 +46,7 @@ pub fn Page(
                 Box {
                     class: "has-data-table",
                     BoxHeader {
-                        title: "Prompts"
+                        title: "Assistants"
                     }
                     BoxBody {
                         table {

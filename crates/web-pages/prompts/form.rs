@@ -45,7 +45,7 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 name: "name",
-                                label: "Prompt Name",
+                                label: "Assistant Name",
                                 help_text: "Make the name memorable and imply it's usage.",
                                 value: name,
                                 required: true

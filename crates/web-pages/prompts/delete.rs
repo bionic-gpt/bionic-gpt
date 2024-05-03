@@ -7,7 +7,7 @@ pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
     rsx! {
         Drawer {
             submit_action: crate::routes::prompts::Delete{team_id, id}.to_string(),
-            label: "Delete this Prompt?",
+            label: "Delete this Assistant?",
             trigger_id: trigger_id,
             DrawerBody {
                 div {
@@ -16,7 +16,7 @@ pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
                         alert_color: AlertColor::Warn,
                         class: "mb-3",
                         p {
-                            "Are you sure you want to delete this Prompt?"
+                            "Are you sure you want to delete this Assistant?"
                         }
                     }
                     input {
