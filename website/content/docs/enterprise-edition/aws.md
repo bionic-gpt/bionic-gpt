@@ -4,7 +4,7 @@ weight = 35
 sort_by = "weight"
 +++
 
-We can use https://eksctl.io which is the AWS supported way of setting up a K8's cluster (EKS). 
+We can use [https://eksctl.io](https://eksctl.io/) which is the AWS supported way of setting up a K8's cluster (EKS). 
 
 ## 1. Get your credentials
 
@@ -21,7 +21,7 @@ Copy the below (changing it as necessary) into a file called `cluster.yaml`
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
-  name: devops-catalog
+  name: bionic-gpt
   region: us-east-2
 managedNodeGroups:
 - name: bionic-gpt
@@ -36,11 +36,7 @@ managedNodeGroups:
 First a dry run
 
 ```sh
-docker run -v $(pwd)/:/config \
-    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-    -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-    --rm -it public.ecr.aws/eksctl/eksctl create cluster \
-    --dry-run -f /config/cluster.yaml
+eksctl create cluster --dry-run -f /config/cluster.yaml
 ```
 
 You should see something like
@@ -62,11 +58,7 @@ availabilityZones:
 Run the command without the `--dry-run`.
 
 ```sh
-docker run -v $(pwd)/:/config \
-    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-    -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-    --rm -it public.ecr.aws/eksctl/eksctl create cluster \
-    -f /config/cluster.yaml
+eksctl create cluster -f /config/cluster.yaml
 ```
 
 And wait....
@@ -76,3 +68,17 @@ And wait....
 Finally after 20 minutes or more you'll hopefully have an EKS cluster.
 
 Follow the "Install Bionic" guide to continue the installation.
+
+## Accessing the Kubeconfig file
+
+The below will create a file called `config` in your local folder.
+
+```sh
+eksctl utils write-kubeconfig --cluster devops-catalog --region us-east-2
+```
+
+You can then 
+
+```sh
+kubectl get nodes
+```
