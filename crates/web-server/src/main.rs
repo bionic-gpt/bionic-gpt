@@ -9,12 +9,14 @@ pub mod documents;
 pub mod email;
 pub mod errors;
 pub mod layout;
+pub mod licence;
 pub mod llm_reverse_proxy;
 pub mod models;
 pub mod oidc_endpoint;
 pub mod pipelines;
 pub mod profile;
 pub mod prompts;
+pub mod rate_limits;
 pub mod static_files;
 pub mod team;
 
@@ -40,17 +42,19 @@ async fn main() {
         .typed_get(static_files::static_path)
         .typed_get(oidc_endpoint::index)
         .merge(api_pipeline::routes(&config))
-        .merge(llm_reverse_proxy::routes())
-        .merge(team::routes())
-        .merge(audit_trail::routes())
-        .merge(profile::routes())
-        .merge(console::routes())
         .merge(api_keys::routes())
+        .merge(audit_trail::routes())
+        .merge(console::routes())
         .merge(datasets::routes())
         .merge(documents::routes())
-        .merge(pipelines::routes())
+        .merge(licence::routes())
+        .merge(llm_reverse_proxy::routes())
         .merge(models::routes())
+        .merge(pipelines::routes())
+        .merge(profile::routes())
         .merge(prompts::routes())
+        .merge(rate_limits::routes())
+        .merge(team::routes())
         .layer(Extension(config))
         .layer(Extension(pool.clone()));
 
