@@ -12,7 +12,6 @@ pub enum SideBar {
     ApiKeys,
     AuditTrail,
     Console,
-    Dashboard,
     Datasets,
     DocumentPipelines,
     Licence,
@@ -165,13 +164,6 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::rate_limits::Index { team_id: props.team_id },
                                 icon: limits_svg.name,
                                 title: "Rate Limits"
-                            }
-                            NavItem {
-                                id: SideBar::Dashboard.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::dashboard::Index { team_id: props.team_id },
-                                icon: nav_dashboard_svg.name,
-                                title: "Dashboard"
                             }
                         )
                     }

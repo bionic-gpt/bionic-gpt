@@ -5,7 +5,6 @@ pub mod api_keys;
 pub mod app_layout;
 pub mod audit_trail;
 pub mod console;
-pub mod dashboard;
 pub mod datasets;
 pub mod documents;
 pub mod licence;
@@ -41,17 +40,6 @@ pub mod routes {
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/licence")]
-        pub struct Index {
-            pub team_id: i32,
-        }
-    }
-
-    pub mod dashboard {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/dashboard")]
         pub struct Index {
             pub team_id: i32,
         }

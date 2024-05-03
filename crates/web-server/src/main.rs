@@ -4,7 +4,6 @@ pub mod audit_trail;
 pub mod auth;
 pub mod config;
 pub mod console;
-pub mod dashboard;
 pub mod datasets;
 pub mod documents;
 pub mod email;
@@ -46,7 +45,6 @@ async fn main() {
         .merge(api_keys::routes())
         .merge(audit_trail::routes())
         .merge(console::routes())
-        .merge(dashboard::routes())
         .merge(datasets::routes())
         .merge(documents::routes())
         .merge(licence::routes())

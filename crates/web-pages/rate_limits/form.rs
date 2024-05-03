@@ -21,6 +21,7 @@ pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
                         name: "limits_role"
                     }
                     Input {
+                        label_class: "mt-4",
                         input_type: InputType::Text,
                         placeholder: "Users Email",
                         help_text: "If the limit is only applied to 1 user, set the email name here.",
@@ -47,6 +48,7 @@ pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
                     }
 
                     Input {
+                        label_class: "mt-4",
                         input_type: InputType::Number,
                         placeholder: "Tokens per Hour e.g. 1000",
                         help_text: "Set the limit of the number of tokens per hour permitted",
