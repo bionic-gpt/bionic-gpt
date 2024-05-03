@@ -24,13 +24,6 @@ k8s-watch:
         -w crates/web-assets/images \
         --no-gitignore -x "run --bin web-server"
 
-watch-tailwind:
-    #!/usr/bin/env bash
-    cd /workspace/crates/web-assets
-    tailwind-extra -i ./input.css \
-        -o ./dist/output.css \
-        --watch
-
 open-ports:
     #!/usr/bin/env bash
     kubectl -n bionic-gpt port-forward pod/bionic-db-cluster-1 5433 &
