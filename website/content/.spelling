@@ -547,4 +547,5 @@ k3d
  - docs/community-edition/docker-desktop.md
 Nginx
  - docs/enterprise-edition/aws.md
+Kubeconfig
 35
