@@ -4,11 +4,10 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::models::Model;
-use db::{ModelType, TopUser};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>, top_users: Vec<TopUser>) -> Element {
+pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -31,10 +30,6 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>, top_users: Vec<TopUser
                 team_id: team_id
             }
 
-            super::top_users_table::TopUserTable {
-                top_users: top_users
-            }
-
             // The form to create a model
             super::form::Form {
                 team_id: team_id,
@@ -53,7 +48,7 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>, top_users: Vec<TopUser
                     team_id: team_id,
                     trigger_id: format!("edit-model-form-{}", model.id),
                     name: model.name.clone(),
-                    model_type: model_type(model.model_type),
+                    model_type: super::model_type(model.model_type),
                     base_url: model.base_url.clone(),
                     api_key: model.api_key.clone().unwrap_or("".to_string()),
                     billion_parameters: model.billion_parameters,
@@ -69,13 +64,5 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>, top_users: Vec<TopUser
                 }
             }
         }
-    }
-}
-
-fn model_type(model_type: ModelType) -> String {
-    if model_type == ModelType::LLM {
-        "LLM".to_string()
-    } else {
-        "Embeddings".to_string()
     }
 }

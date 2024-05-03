@@ -20,6 +20,12 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
             env: vec![
                 json!({
                     "name":
+                    "VERSION",
+                    "value":
+                    format!("{}", spec.version)
+                }),
+                json!({
+                    "name":
                     "APP_DATABASE_URL",
                     "valueFrom": {
                         "secretKeyRef": {

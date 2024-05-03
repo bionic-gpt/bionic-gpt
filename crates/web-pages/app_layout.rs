@@ -12,14 +12,16 @@ pub enum SideBar {
     ApiKeys,
     AuditTrail,
     Console,
-    Training,
-    Prompts,
-    Models,
     Datasets,
     DocumentPipelines,
-    Team,
+    Licence,
+    Models,
+    Prompts,
     Profile,
+    RateLimits,
     Switch,
+    Team,
+    Training,
 }
 
 impl std::fmt::Display for SideBar {
@@ -62,36 +64,29 @@ pub fn Layout(props: LayoutProps) -> Element {
                             selected_item_id: props.selected_item.to_string(),
                             href: super::routes::console::Index { team_id: props.team_id },
                             icon: nav_service_requests_svg.name,
-                            title: "Chat Console"
-                        }
-                        if props.rbac.can_view_prompts() {
-                            NavItem {
-                                id: SideBar::Prompts.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::prompts::Index{team_id: props.team_id},
-                                icon: nav_dashboard_svg.name,
-                                title: "Prompts"
-                            }
+                            title: "All Chats"
                         }
                     )
                 }
                 if props.rbac.can_view_datasets() {
                     NavGroup {
-                        heading: "Retrieval Augmented Generation",
+                        heading: "Enterprise AI Assistants",
                         content:  rsx!(
+                            if props.rbac.can_view_prompts() {
+                                NavItem {
+                                    id: SideBar::Prompts.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::prompts::Index{team_id: props.team_id},
+                                    icon: assistant_svg.name,
+                                    title: "AI Assistants"
+                                }
+                            }
                             NavItem {
                                 id: SideBar::Datasets.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::datasets::Index{team_id: props.team_id},
                                 icon: nav_ccsds_data_svg.name,
-                                title: "Team Datasets"
-                            }
-                            NavItem {
-                                id: SideBar::DocumentPipelines.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::document_pipelines::Index { team_id: props.team_id },
-                                icon: nav_ccsds_data_svg.name,
-                                title: "Document Pipelines"
+                                title: "Datasets & Documents"
                             }
                         )
                     }
@@ -105,7 +100,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::api_keys::Index { team_id: props.team_id },
                                 icon: nav_api_keys_svg.name,
-                                title: "LLM API Keys"
+                                title: "AI Assistant API"
+                            }
+                            NavItem {
+                                id: SideBar::DocumentPipelines.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::document_pipelines::Index { team_id: props.team_id },
+                                icon: nav_ccsds_data_svg.name,
+                                title: "Data Integrations"
                             }
                         )
                     }
@@ -136,6 +138,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                         heading: "System Admin",
                         content:  rsx!(
                             NavItem {
+                                id: SideBar::Licence.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::licence::Index { team_id: props.team_id },
+                                icon: nav_dashboard_svg.name,
+                                title: "Licence & Usage"
+                            }
+                            NavItem {
                                 id: SideBar::Models.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::models::Index{team_id: props.team_id},
@@ -148,6 +157,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::audit_trail::Index { team_id: props.team_id },
                                 icon: nav_audit_svg.name,
                                 title: "Audit Trail"
+                            }
+                            NavItem {
+                                id: SideBar::RateLimits.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::rate_limits::Index { team_id: props.team_id },
+                                icon: limits_svg.name,
+                                title: "Rate Limits"
                             }
                         )
                     }
