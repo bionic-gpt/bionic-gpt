@@ -16,6 +16,7 @@ pub use queries::document_pipelines::DocumentPipeline;
 pub use queries::invitations::Invitation;
 pub use queries::models::Model;
 pub use queries::prompts::Prompt;
+pub use queries::rate_limits::RateLimit;
 pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};
 pub use queries::users::User;

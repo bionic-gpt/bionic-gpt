@@ -23,7 +23,7 @@ pub fn Form(
 ) -> Element {
     rsx!(
         Drawer {
-            label: "Prompt",
+            label: "Assistant",
             submit_action: crate::routes::prompts::Upsert{team_id}.to_string(),
             trigger_id: "{trigger_id}",
             DrawerBody {
@@ -31,7 +31,7 @@ pub fn Form(
                     TabPanel {
                         checked: true,
                         name: "prompt-tabs",
-                        tab_name: "Prompt",
+                        tab_name: "Assistant",
                         div {
                             class: "flex flex-col mt-3",
                             if let Some(id) = id {
@@ -45,7 +45,7 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 name: "name",
-                                label: "Prompt Name",
+                                label: "Assistant Name",
                                 help_text: "Make the name memorable and imply it's usage.",
                                 value: name,
                                 required: true
@@ -53,9 +53,9 @@ pub fn Form(
 
                             Select {
                                 name: "visibility",
-                                label: "Who should be able to see this prompt?",
+                                label: "Who should be able to usee this assistant?",
                                 label_class: "mt-4",
-                                help_text: "Set to private if you don't want to share this prompt.",
+                                help_text: "Set to private if you don't want to share this assistant.",
                                 value: "{crate::visibility_to_string(visibility)}",
                                 SelectOption {
                                     value: "{crate::visibility_to_string(Visibility::Private)}",
@@ -76,9 +76,9 @@ pub fn Form(
 
                             Select {
                                 name: "model_id",
-                                label: "Select the model this prompt will use for inference",
+                                label: "Select the model this assistant will use",
                                 label_class: "mt-4",
-                                help_text: "The prompt will be passed to the model",
+                                help_text: "The model will be used to answer any questions.",
                                 value: "{model_id}",
                                 required: true,
                                 for model in models {
@@ -94,7 +94,7 @@ pub fn Form(
                                 class: "mt-3",
                                 name: "system_prompt",
                                 rows: "10",
-                                label: "Prompt",
+                                label: "System Prompt",
                                 label_class: "mt-4",
                                 "{system_prompt}",
                             }
@@ -107,7 +107,7 @@ pub fn Form(
                             class: "flex flex-col mt-3",
                             Alert {
                                 class: "mb-4",
-                                "Select which datasets you wish to attach to this prompt"
+                                "Select which datasets you wish to attach to this assistant"
                             }
                             table {
                                 class: "table table-sm",
