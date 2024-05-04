@@ -37,12 +37,13 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
         bail!("Namespace already exists");
     } else {
         install_postgres_operator(&client).await?;
-        create_namespace(&installer.namespace, namespaces).await?;
+        create_namespace(&installer.namespace, &namespaces).await?;
+        create_namespace(&installer.operator_namespace, &namespaces).await?;
         create_crd(&client).await?;
         create_bionic(&client, installer).await?;
         create_roles(&client, installer).await?;
         if !installer.no_operator {
-            create_bionic_operator(&client, &installer.namespace).await?;
+            create_bionic_operator(&client, &installer.operator_namespace).await?;
         }
         let my_local_ip = local_ip().unwrap();
         println!("When ready you can access bionic on http://{}", my_local_ip);
@@ -122,11 +123,12 @@ async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<()> 
 }
 
 async fn create_roles(client: &Client, installer: &super::Installer) -> Result<()> {
-    let sa_api: Api<ServiceAccount> = Api::namespaced(client.clone(), &installer.namespace);
+    let sa_api: Api<ServiceAccount> =
+        Api::namespaced(client.clone(), &installer.operator_namespace);
     let service_account = ServiceAccount {
         metadata: ObjectMeta {
             name: Some("bionic-gpt-operator-service-account".to_string()),
-            namespace: Some(installer.namespace.clone()),
+            namespace: Some(installer.operator_namespace.clone()),
             ..Default::default()
         },
         ..Default::default()
@@ -161,7 +163,7 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
         subjects: Some(vec![Subject {
             kind: "ServiceAccount".to_string(),
             name: "bionic-gpt-operator-service-account".to_string(),
-            namespace: Some(installer.namespace.clone()),
+            namespace: Some(installer.operator_namespace.clone()),
             ..Default::default()
         }]),
     };
@@ -215,7 +217,7 @@ async fn create_crd(client: &Client) -> Result<(), Error> {
     Ok(())
 }
 
-async fn create_namespace(namespace: &str, namespaces: Api<Namespace>) -> Result<()> {
+async fn create_namespace(namespace: &str, namespaces: &Api<Namespace>) -> Result<()> {
     let new_namespace = Namespace {
         metadata: ObjectMeta {
             name: Some(namespace.to_string()),
