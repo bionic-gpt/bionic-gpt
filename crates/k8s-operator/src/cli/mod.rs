@@ -24,6 +24,9 @@ pub struct Installer {
     /// In which namespace shall we install Bionic
     #[arg(long, default_value = "bionic-gpt")]
     namespace: String,
+    /// In which namespace shall we install Bionic
+    #[arg(long, default_value = "bionic-system")]
+    operator_namespace: String,
     /// The number of Bionic replicas
     #[arg(long, default_value_t = 1)]
     replicas: i32,
