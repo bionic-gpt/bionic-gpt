@@ -25,8 +25,9 @@
 
   {{ macros_hero::image_hero(
     title="Empower Your Enterprise With Private Generative AI", 
-    sub_title='Allow your teams to harness the full potential of Generative AI 
-    using your data in a private, controlled environment.',
+    sub_title='Bionic is a fully integrated open source solution that deploys 
+    on premise giving you all the benefits of generative 
+    AI whilst maintaining complete data privacy.',
       cta1='Get Started',
       cta1_url='/docs/community-edition/introduction/',
       cta2='Watch the Demo',
@@ -68,24 +69,28 @@
   </section>
 
   {{ macros_features::image_feature(
-    title='Accelerate Generative AI Adoption', 
-    sub_title='Text and Code Generation',
-    text='The low hanging fruit of Gen AI. With just these 2 features you unlock proven productivity gains.',
-    title1='Text Generation.',
-    text1='Generative AI excels in creative writing and automated content creation. LLMs can produce human-like text for various purposes, from generating news articles to crafting marketing copy.',
-    title2='Code Generation.',
-    text2="LLM's are trained on a vast corpus of code data from different programming languages, and therefore they're familiar with a wide array of coding styles, idioms, and best practices.",
-    title3="Chat Console",
-    text3='Our console gives your enterprise a Chat GPT user experience but with the safety of being on premise and therefore no data leakage.',
+    title='Retrieval Augmented Generation', 
+    sub_title='Create AI Assistants in Minutes',
+    text='Leverage your existing company knowledge to automate tasks like customer support, 
+      lead qualification, and RFP processing and much more.',
+    title1='Team Based.',
+    text1='Empower your teams to build their own AI assistants on their data with no code.
+      No need to hire expensive AI developers.',
+    title2='Chat Console.',
+    text2="A familiar chat console with text and code generation and the ability to select an assistant tuned on your data.",
+    title3="Data Governance.",
+    text3='By deploying Bionic close to your data you are able to benefit from Generative AI 
+      and still conform to data privacy and controls.',
     image='/github-readme.png'
   ) }}
 
 
   {{ macros_features::small_image_feature(
-    title="No Code Rag Pipelines", 
+    title="No Code AI Assistants", 
     sub_title="Buy don't Build",
     text="Don't spend time and resources re-inventing the wheel. 
-    Our production grade RAG pipelines work with most use cases out of the box.",
+    We've developed an integrated solution using the best open source tools on the market
+    to accelerate Gen AI adoption in your company.",
     image='/landing-page/rag-pipeline.svg'
   ) }}
 
@@ -109,14 +114,14 @@
 
 
   {{ macros_features::small_image_feature(
-    title="LLM's models are resource intensive you controls to help find issues.", 
-    sub_title='Full Audit Trail',
-    text='We audit all accesses to your models to help identify issues with performance and rogue processes.',
+    title="LLM Reverse Proxy", 
+    sub_title='Manage LLM Resource Allocation',
+    text='Apply limits to your teams to ensure precious LLM resources are fairly distributed.',
     image='/landing-page/audit-trail.png'
   ) }}
 
   {{ macros_features::quad_feature(
-    title='Deploy one of our models or integrate with any provider', 
+    title='Cloud Native', 
     sub_title='Private Cloud or Your Data Center',
     text='We fully support both options and can integrate with any provider',
     title1='Open Source Quantized Models.',
@@ -160,8 +165,8 @@
 
   {{ macros_features::small_image_feature(
     title="The easiest enterprise deployment you've ever seen",
-    sub_title='Cloud Native and Kubernetes Ready',
-    text='BionicGPT can deploy to a Laptop for testing and scales seemlessly to Kubernetes for production.',
+    sub_title='Built from the ground up for stability and performance',
+    text='Our high performance Rust solution is paired with Kubernetes for enterprise deployment stability.',
     image='landing-page/bionic-startup-k9s.png'
   ) }}
 
