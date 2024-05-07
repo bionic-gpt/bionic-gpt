@@ -57,7 +57,6 @@ pub async fn chat_generate(
                         Ok(Event::default().data(completion_chunk.delta))
                     }
                     GenerationEvent::End(completion_chunk) => {
-                        dbg!(&completion_chunk.snapshot);
                         save_resuls(&pool, &completion_chunk.snapshot, chat_id, &sub)
                             .await
                             .unwrap();
