@@ -40,58 +40,6 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                         tbody {
                             tr {
                                 td {
-                                    "Input and Output Guardrails"
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                            }
-                            tr {
-                                td {
-                                    "Batch Guardrails"
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                            }
-                            tr {
-                                td {
                                     "Rate Limits"
                                 }
                                 td {
@@ -103,7 +51,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                                 }
                                 td {
                                     img {
-                                        src: cross_svg.name,
+                                        src: tick_svg.name,
                                         width: "16",
                                         height: "16"
                                     }
@@ -119,6 +67,58 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                             tr {
                                 td {
                                     "Observability Metrics Endpoint"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Input and Output Guardrails"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Batch Guardrails"
                                 }
                                 td {
                                     img {
