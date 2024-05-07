@@ -25,9 +25,9 @@ metadata:
   region: us-east-2
 managedNodeGroups:
 - name: bionic-gpt
-  instanceType: t2.small
-  minSize: 3
-  maxSize: 6
+  instanceType: t2.large
+  minSize: 2
+  maxSize: 4
   spot: true
 iam:
   withOIDC: true
