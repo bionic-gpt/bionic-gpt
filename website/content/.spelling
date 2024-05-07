@@ -551,3 +551,5 @@ Kubeconfig
 kubeconfig
 ACCOUNT_ID
 35
+ - docs/community-edition/installation.md
+cli
