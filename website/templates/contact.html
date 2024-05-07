@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%- import 'macros/cta.html' as macros_cta -%}
 
 
 {% block seo %}
@@ -27,29 +28,14 @@
             <p><img src="/contact-us/dio.jpeg" width="150" height="150" /></p>
             <h3 class="font-bold">Kulbinder Dio - CEO</h3>
             <span><a class="underline" href="https://www.linkedin.com/in/kulbinderdio/">Linked In</a></span>
-            <ul class="mt-6 list-disc text-left">
-                <li>Over 30 years of extensive IT experience leading and managing 
-                    large-scale projects for multinational corporations. </li> 
-                <li>Delivered multi-million-pound solutions, collaborating with cross-functional 
-                    teams to align with business objectives.</li>
-                <li>Took a break from IT to train as a teacher. A rewarding experience developing new skills in 
-                    communication, leadership, and problem-solving.</li>
-                <li>A Tai Chi instructor and a volunteer for a number of charities.</li>
-            </ul>
         </div>
         <div class="border p-6 flex-1 flex flex-col items-center">
             <img src="/contact-us/ian.jpeg" width="150" height="150" />
             <h3 class="font-bold">Ian Purton - CTO</h3>
             <span><a class="underline" href="https://www.linkedin.com/in/ianpurton/">Linked In</a></span>
-            <ul class="mt-6 list-disc text-left">
-                <li>30+ years in the software industry and a multi time startup founder.</li> 
-                <li>Leadership and architecture roles in the investment 
-                    banking sector including Reuters, Barclays, HSBC and Credit Suisse.</li>
-                <li>Technical Architect and pioneer of open source projects for companies such as 
-                    Airbus Defence and Space and the European Space Agency</li>
-                <li>Ian is learning to WingFoil as well as dance Cuban Salsa.</li>
-            </ul>
         </div>
     </div>
 </section>
+
+{% include "extra_footer.html" %}
 {% endblock content %}

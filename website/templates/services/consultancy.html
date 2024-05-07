@@ -1,0 +1,97 @@
+{%- import 'macros/heros.html' as macros_hero -%}
+{%- import 'macros/pricing.html' as macros_pricing -%}
+{%- import 'macros/cta.html' as macros_cta -%}
+
+{% extends "base.html" %}
+
+{% block seo %}
+{{ super() }}
+
+{% set title = 'Consultancy' %}
+{% set description = 'Consultancy Services' %}
+
+{{ macros_head::seo(
+title=title,
+description=description
+) }}
+{% endblock seo %}
+
+{% block content %}
+
+<div>
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl sm:text-center">
+      <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Consultancy Services</h2>
+      <p class="mt-6 text-lg leading-8">We can help with your Generative AI and Retrieval Augmented Generation implementations</p>
+    </div>
+  </div>
+</div>
+
+<article class="mx-auto prose lg:prose-xl p-4">
+  {{ page.content | safe }}
+</article>
+
+<section class="mx-auto prose lg:prose-xl  se mb-12">
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Architecture and Design</summary>
+    <div class="collapse-content">
+      <p>Starting with the right architecture and hardware specifications for self-hosted 
+        deployments can lead to numerous benefits. 
+        Our solution architects carefully design an optimal architecture tailored 
+        to the specific environment and expected load, 
+        resulting in a platform that is both efficient and reliable.</p>
+      <p>
+        This comprehensive sizing exercise also encompasses 
+        hardware specifications for the central components of the Bionic platform.
+      </p> 
+
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Deployment</summary>
+    <div class="collapse-content">
+      <p>Our solution experts work closely with you to rapidly and effectively deploy the 
+        Bionic platform, customized to meet your specific 
+        requirements and environmental needs. </p>
+      
+      <p>With a focus on your growth plans and long-term objectives, our team ensures that 
+        the deployment is completed within the agreed-upon timeframe. 
+        Additionally, you will receive continuous guidance and best practices 
+        to achieve optimal results. </p>
+      
+      <p>The deployment service encompasses the installation of central components, 
+        automation of model deployment, configuration tuning, and integrations.</p>
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Tuning and Monitoring</summary>
+    <div class="collapse-content">
+      <p>The Bionic platform offers a wide range of capabilities 
+        designed to effectively deliver Generative AI. 
+        While it comes with a default configuration for 
+        immediate utility for your users, each environment is unique, 
+        making platform tuning essential to meet specific needs. 
+        Benefit from custom configuration, dashboards, and integrations with 
+        third-party tools to enhance your Gen AI experience. 
+        Leverage the expertise of our team to successfully navigate 
+        through this customization process.
+      </p>
+    </div>
+  </details>
+
+  <details class="collapse bg-base-300">
+    <summary class="collapse-title text-xl font-medium">Software Development</summary>
+    <div class="collapse-content">
+      <p>Bionic is a leading open source project in the LLM space. 
+        We are continuously working on new versions of
+        the platform that will come with enhanced or new capabilities. 
+        Customers can employ our consulting services for
+        the development of added features that positively contribute to 
+        your needs.</p>
+    </div>
+  </details>
+</section>
+
+{% endblock content %}
