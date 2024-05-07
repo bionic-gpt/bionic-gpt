@@ -40,30 +40,54 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                         tbody {
                             tr {
                                 td {
-                                    "Database Space"
+                                    "Input and Output Guardrails"
                                 }
                                 td {
-                                    "1 GB"
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
                                 }
                                 td {
-                                    "100 GB"
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
                                 }
                                 td {
-                                    "Unlimited"
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
                                 }
                             }
                             tr {
                                 td {
-                                    "AI Assistants"
+                                    "Batch Guardrails"
                                 }
                                 td {
-                                    "10 (Currently using 5)"
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
                                 }
                                 td {
-                                    "100"
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
                                 }
                                 td {
-                                    "Unlimited"
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
                                 }
                             }
                             tr {
@@ -79,7 +103,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                                 }
                                 td {
                                     img {
-                                        src: tick_svg.name,
+                                        src: cross_svg.name,
                                         width: "16",
                                         height: "16"
                                     }
@@ -105,7 +129,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                                 }
                                 td {
                                     img {
-                                        src: tick_svg.name,
+                                        src: cross_svg.name,
                                         width: "16",
                                         height: "16"
                                     }
