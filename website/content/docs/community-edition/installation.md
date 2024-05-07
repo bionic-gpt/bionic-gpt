@@ -67,15 +67,15 @@ The first user to register with **BionicGPT** will become the system administrat
 
 ![Alt text](../initial-screen.png "Start Screen")
 
-## Uninstall
+## Uninstall Bionic
 
-First we can remove k3s entirely. K3s comes with it's own uninstall script.
+First we can remove K3s entirely. K3s comes with it's own uninstall script.
 
 ```sh
 k3s-uninstall.sh
 ```
 
-The you can remove the bionic cli
+Then you can remove the bionic cli
 
 ```sh
 sudo rm /usr/local/bin/bionic
