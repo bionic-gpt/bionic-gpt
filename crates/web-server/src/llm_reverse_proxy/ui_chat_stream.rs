@@ -3,6 +3,8 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
+use db::ChatStatus;
+use std::sync::Arc;
 use std::time::Duration;
 
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
@@ -28,7 +30,7 @@ pub async fn chat_generate(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
-    let request = create_request(&pool, current_user, chat_id).await?;
+    let request = create_request(&pool, &current_user, chat_id).await?;
 
     // Create a channel for sending SSE events
     let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
@@ -42,20 +44,27 @@ pub async fn chat_generate(
     });
 
     let receiver_stream = ReceiverStream::new(receiver);
+    let pool_arc = Arc::new(pool);
+    let sub_arc = Arc::new(current_user.sub);
 
-    let event_stream = receiver_stream.map(|item| {
-        match item {
-            Ok(event) => match event {
-                GenerationEvent::Text(completion_chunk) => {
-                    Ok(Event::default().data(completion_chunk.delta))
-                }
-                GenerationEvent::End(completion_chunk) => {
-                    Ok(Event::default().data(completion_chunk.delta))
-                }
-            },
-            Err(e) => {
-                // Handle error without altering the accumulator
-                Err(axum::Error::new(e))
+    let event_stream = receiver_stream.then(move |item| {
+        let pool = Arc::clone(&pool_arc);
+        let sub = Arc::clone(&sub_arc);
+        async move {
+            match item {
+                Ok(event) => match event {
+                    GenerationEvent::Text(completion_chunk) => {
+                        Ok(Event::default().data(completion_chunk.delta))
+                    }
+                    GenerationEvent::End(completion_chunk) => {
+                        dbg!(&completion_chunk.snapshot);
+                        save_resuls(&pool, &completion_chunk.snapshot, chat_id, &sub)
+                            .await
+                            .unwrap();
+                        Ok(Event::default().data(completion_chunk.delta))
+                    }
+                },
+                Err(e) => Err(axum::Error::new(e)),
             }
         }
     });
@@ -63,16 +72,34 @@ pub async fn chat_generate(
     Ok(Sse::new(event_stream))
 }
 
+// When the chta has completed, store the results in the database.
+async fn save_resuls(pool: &Pool, delta: &str, chat_id: i32, sub: &str) -> Result<(), CustomError> {
+    let mut db_client = pool.get().await?;
+    let transaction = db_client.transaction().await?;
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
+    queries::chats::update_chat()
+        .bind(
+            &transaction,
+            &delta,
+            &super::token_count::token_count_from_string(delta).await,
+            &ChatStatus::Success,
+            &chat_id,
+        )
+        .await?;
+    transaction.commit().await?;
+    Ok(())
+}
+
 // Create the request that we'll send to reqwest to create an SSE stream of incoming
 // chat completions.
 async fn create_request(
     pool: &Pool,
-    current_user: Authentication,
+    current_user: &Authentication,
     chat_id: i32,
 ) -> Result<RequestBuilder, CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
-    db::authz::set_row_level_security_user_id(&transaction, current_user.sub).await?;
+    db::authz::set_row_level_security_user_id(&transaction, current_user.sub.to_string()).await?;
     let model = queries::models::model_host_by_chat_id()
         .bind(&transaction, &chat_id)
         .one()
