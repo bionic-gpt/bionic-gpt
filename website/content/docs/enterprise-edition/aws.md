@@ -87,7 +87,7 @@ Finally after 20 minutes or more you'll hopefully have an EKS cluster.
 The below will export the kubeconfig to your home directory.
 
 ```sh
-eksctl utils write-kubeconfig --cluster devops-catalog --region us-east-2
+eksctl utils write-kubeconfig --cluster bionic-gpt --region us-east-2
 ```
 
 You can then 
