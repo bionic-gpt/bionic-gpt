@@ -20,7 +20,7 @@ cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I
 
 ```sh
 curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp
-sudo mv /tmp/k9s /usr/bin
+sudo mv /tmp/k9s /usr/local/bin
 rm -rf k9s_Linux_x86_64.tar.gz
 ```
 
@@ -66,3 +66,23 @@ You can then access the front end from `http://localhost` and you'll be redirect
 The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
 ![Alt text](../initial-screen.png "Start Screen")
+
+## Uninstall
+
+First we can remove k3s entirely. K3s comes with it's own uninstall script.
+
+```sh
+k3s-uninstall.sh
+```
+
+The you can remove the bionic cli
+
+```sh
+sudo rm /usr/local/bin/bionic
+```
+
+And also remove k9s if you want to.
+
+```sh
+sudo rm /usr/local/bin/k9s
+```
