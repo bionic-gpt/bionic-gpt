@@ -63,7 +63,12 @@ pub async fn chat_generate(
                         Ok(Event::default().data(completion_chunk.delta))
                     }
                 },
-                Err(e) => Err(axum::Error::new(e)),
+                Err(e) => {
+                    save_results(&pool, &e.to_string(), chat_id, &sub)
+                        .await
+                        .unwrap();
+                    Err(axum::Error::new(e))
+                }
             }
         }
     });
