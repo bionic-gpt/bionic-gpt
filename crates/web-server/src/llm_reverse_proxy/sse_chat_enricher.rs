@@ -36,7 +36,6 @@ pub async fn enriched_chat(
 
     // Handle streaming events
     while let Some(event) = stream.next().await {
-        dbg!(&event);
         match event {
             Ok(ReqwestEvent::Open) => tracing::debug!("Connection Open!"),
             Ok(ReqwestEvent::Message(message)) => {
@@ -65,7 +64,7 @@ pub async fn enriched_chat(
                 }
             }
             Err(err) => {
-                tracing::error!("{}", err);
+                tracing::error!("{:?}", err);
                 if convert_errors_to_chat {
                     let completion_chunks = convert_error_to_chats(err);
                     for (chunk, markdown) in completion_chunks {
@@ -92,8 +91,9 @@ pub async fn enriched_chat(
 // otherwise they get buried in the logs.
 fn convert_error_to_chats(err: reqwest_eventsource::Error) -> Vec<(CompletionChunk, String)> {
     vec![
-        string_to_chunk("\n\nUnable to complete your request due to the following error"),
-        string_to_chunk(&format!("\n\n```{}```", err)),
+        string_to_chunk("\n\n*Unable to complete your request due to the following error*"),
+        string_to_chunk(&format!("\n\n`{}`\n\n", err)),
+        string_to_chunk(&format!("\n\n```\n{:#?}\n```", err)),
     ]
 }
 
@@ -101,6 +101,7 @@ fn convert_error_to_chats(err: reqwest_eventsource::Error) -> Vec<(CompletionChu
 // otherwise they get buried in the logs.
 fn string_to_chunk(content: &str) -> (CompletionChunk, String) {
     let escaped_content = content.replace('\n', "\\n");
+    let escaped_content = escaped_content.replace('"', "\\\"");
     let json = format!(
         r#"{{
         "id": "chatcmpl-627",
