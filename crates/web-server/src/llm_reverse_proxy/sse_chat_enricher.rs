@@ -36,6 +36,7 @@ pub async fn enriched_chat(
 
     // Handle streaming events
     while let Some(event) = stream.next().await {
+        dbg!(&event);
         match event {
             Ok(ReqwestEvent::Open) => tracing::debug!("Connection Open!"),
             Ok(ReqwestEvent::Message(message)) => {
@@ -91,14 +92,15 @@ pub async fn enriched_chat(
 // otherwise they get buried in the logs.
 fn convert_error_to_chats(err: reqwest_eventsource::Error) -> Vec<(CompletionChunk, String)> {
     vec![
-        string_to_chunk("Unable to complete your request due to the following error"),
-        string_to_chunk(&format!("```{}```", err)),
+        string_to_chunk("\n\nUnable to complete your request due to the following error"),
+        string_to_chunk(&format!("\n\n```{}```", err)),
     ]
 }
 
 // During a chat setion its good to let the assitant show the error,
 // otherwise they get buried in the logs.
 fn string_to_chunk(content: &str) -> (CompletionChunk, String) {
+    let escaped_content = content.replace('\n', "\\n");
     let json = format!(
         r#"{{
         "id": "chatcmpl-627",
@@ -117,7 +119,7 @@ fn string_to_chunk(content: &str) -> (CompletionChunk, String) {
           }}
         ]
       }}"#,
-        content
+        escaped_content
     );
     (
         CompletionChunk {
