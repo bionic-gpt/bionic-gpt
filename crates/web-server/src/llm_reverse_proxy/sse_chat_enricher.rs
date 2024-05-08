@@ -64,11 +64,13 @@ pub async fn enriched_chat(
                 }
             }
             Err(err) => {
-                tracing::error!("{}", err);
+                tracing::error!("{:?}", err);
                 if convert_errors_to_chat {
-                    sender
-                        .send(Ok(GenerationEvent::Text(convert_error_to_chat(err))))
-                        .await?;
+                    let completion_chunks = convert_error_to_chats(err);
+                    for (chunk, markdown) in completion_chunks {
+                        snapshot.push_str(&markdown);
+                        sender.send(Ok(GenerationEvent::Text(chunk))).await?;
+                    }
                     sender
                         .send(Ok(GenerationEvent::End(CompletionChunk {
                             delta: "[DONE]".to_string(),
@@ -87,7 +89,19 @@ pub async fn enriched_chat(
 }
 // During a chat setion its good to let the assitant show the error,
 // otherwise they get buried in the logs.
-fn convert_error_to_chat(err: reqwest_eventsource::Error) -> CompletionChunk {
+fn convert_error_to_chats(err: reqwest_eventsource::Error) -> Vec<(CompletionChunk, String)> {
+    vec![
+        string_to_chunk("\n\n*Unable to complete your request due to the following error*"),
+        string_to_chunk(&format!("\n\n`{}`\n\n", err)),
+        string_to_chunk(&format!("\n\n```\n{:#?}\n```", err)),
+    ]
+}
+
+// During a chat setion its good to let the assitant show the error,
+// otherwise they get buried in the logs.
+fn string_to_chunk(content: &str) -> (CompletionChunk, String) {
+    let escaped_content = content.replace('\n', "\\n");
+    let escaped_content = escaped_content.replace('"', "\\\"");
     let json = format!(
         r#"{{
         "id": "chatcmpl-627",
@@ -100,16 +114,19 @@ fn convert_error_to_chat(err: reqwest_eventsource::Error) -> CompletionChunk {
             "index": 0,
             "delta": {{
               "role": "assistant",
-              "content": "Unable to complete your request due to the following error ```{}```"
+              "content": "{}"
             }},
-            "finish_reason": "stop"
+            "finish_reason": null
           }}
         ]
       }}"#,
-        err
+        escaped_content
     );
-    CompletionChunk {
-        delta: json,
-        snapshot: "".to_string(),
-    }
+    (
+        CompletionChunk {
+            delta: json,
+            snapshot: "".to_string(),
+        },
+        content.to_string(),
+    )
 }

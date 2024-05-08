@@ -9,7 +9,12 @@ pub fn Form() -> Element {
             label: "Enter Licence",
             trigger_id: "create-licence",
             DrawerBody {
-                div {
+                Alert {
+                    alert_color: AlertColor::Info,
+                    class: "mb-3",
+                    p {
+                        "Please contact us to arrange licencing."
+                    }
                 }
             }
             DrawerFooter {

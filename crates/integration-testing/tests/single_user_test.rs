@@ -89,7 +89,7 @@ async fn audit_filter(driver: &WebDriver, email: &str) -> WebDriverResult<()> {
 
 async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Document Pipelines"))
+        .find(By::LinkText("Data Integrations"))
         .await?
         .click()
         .await?;
@@ -138,7 +138,7 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
 
 async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("LLM API Keys"))
+        .find(By::LinkText("AI Assistant API"))
         .await?
         .click()
         .await?;
@@ -230,7 +230,7 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
 
 async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Chat Console"))
+        .find(By::LinkText("All Chats"))
         .await?
         .click()
         .await?;
@@ -314,23 +314,27 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
     driver.refresh().await?;
 
     driver
-        .find(By::LinkText("Prompts"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver.find(By::LinkText("Prompts")).await?.click().await?;
-
-    driver
-        .find(By::XPath("//button[text()='New Prompt']"))
+        .find(By::LinkText("AI Assistants"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='New Prompt']"))
+        .find(By::LinkText("AI Assistants"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New Assistant']"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath("//button[text()='New Assistant']"))
         .await?
         .click()
         .await?;
@@ -411,7 +415,7 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
 
 async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Team Datasets"))
+        .find(By::LinkText("Datasets & Documents"))
         .await?
         .click()
         .await?;

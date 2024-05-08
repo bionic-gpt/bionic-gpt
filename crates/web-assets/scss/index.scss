@@ -35,6 +35,7 @@
 @import './timeline';
 @import './side-drawer';
 @import '../web-components/snack-bar';
+@import '../node_modules/highlight.js/styles/a11y-dark.css';
 
 // Fix side menu so the z-index takes effect. Otherwise
 // they are hidden behind other items.
