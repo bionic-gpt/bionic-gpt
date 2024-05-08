@@ -57,7 +57,7 @@ pub async fn chat_generate(
                         Ok(Event::default().data(completion_chunk.delta))
                     }
                     GenerationEvent::End(completion_chunk) => {
-                        save_resuls(&pool, &completion_chunk.snapshot, chat_id, &sub)
+                        save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
                             .await
                             .unwrap();
                         Ok(Event::default().data(completion_chunk.delta))
@@ -72,7 +72,12 @@ pub async fn chat_generate(
 }
 
 // When the chta has completed, store the results in the database.
-async fn save_resuls(pool: &Pool, delta: &str, chat_id: i32, sub: &str) -> Result<(), CustomError> {
+async fn save_results(
+    pool: &Pool,
+    delta: &str,
+    chat_id: i32,
+    sub: &str,
+) -> Result<(), CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
