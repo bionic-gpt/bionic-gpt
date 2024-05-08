@@ -40,34 +40,6 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                         tbody {
                             tr {
                                 td {
-                                    "Database Space"
-                                }
-                                td {
-                                    "1 GB"
-                                }
-                                td {
-                                    "100 GB"
-                                }
-                                td {
-                                    "Unlimited"
-                                }
-                            }
-                            tr {
-                                td {
-                                    "AI Assistants"
-                                }
-                                td {
-                                    "10 (Currently using 5)"
-                                }
-                                td {
-                                    "100"
-                                }
-                                td {
-                                    "Unlimited"
-                                }
-                            }
-                            tr {
-                                td {
                                     "Rate Limits"
                                 }
                                 td {
@@ -106,6 +78,84 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                                 td {
                                     img {
                                         src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Multi Tenancy"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Input and Output Guardrails"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Batch Guardrails"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
                                         width: "16",
                                         height: "16"
                                     }

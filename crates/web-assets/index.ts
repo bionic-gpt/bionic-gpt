@@ -1,5 +1,8 @@
 import './scss/index.scss'
 
+// Highlight JS
+import hljs from 'highlight.js';
+
 // Web components
 import { SnackBar } from './web-components/snack-bar'
 import '@github/relative-time-element';
@@ -23,6 +26,7 @@ import '@hotwired/turbo'
 
 // Set everything up
 function loadEverything() {
+    hljs.highlightAll()
     if(customElements.get('snack-bar') === undefined) {
         customElements.define('snack-bar', SnackBar);
     }

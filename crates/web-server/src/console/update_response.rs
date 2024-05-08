@@ -1,12 +1,10 @@
 use super::super::{Authentication, CustomError};
-use crate::llm_reverse_proxy::token_count;
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
 use db::queries::chats;
-use db::ChatStatus;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -29,30 +27,10 @@ pub async fn update_response(
 
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let chat_status = match message.response.as_str() {
-        "Request aborted." => ChatStatus::Cancelled,
-        "Error occurred while generating." => ChatStatus::Error,
-        _ => ChatStatus::Success,
-    };
-
-    if message.validate().is_ok() {
-        chats::update_chat()
-            .bind(
-                &transaction,
-                &message.response,
-                &token_count::token_count_from_string(&message.response).await,
-                &chat_status,
-                &message.chat_id,
-            )
-            .await?;
-    }
-
     let chat = chats::chat()
         .bind(&transaction, &message.chat_id)
         .one()
         .await?;
-
-    transaction.commit().await?;
 
     super::super::layout::redirect(
         &web_pages::routes::console::Conversation {
