@@ -5,7 +5,6 @@
 //! ```
 use db::ChatStatus;
 use std::sync::Arc;
-use std::time::Duration;
 
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use crate::auth::Authentication;
@@ -157,13 +156,11 @@ async fn create_request(
             .post(format!("{}/chat/completions", model.base_url))
             .header(AUTHORIZATION, format!("Bearer {}", api_key))
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
-            .timeout(Duration::from_secs(25))
             .body(completion_json.to_string())
     } else {
         client
             .post(format!("{}/chat/completions", model.base_url))
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
-            .timeout(Duration::from_secs(25))
             .body(completion_json.to_string())
     };
     Ok(request)
