@@ -13,6 +13,10 @@ Expose the ports in k9s
 From the host
 
 ```sh
+cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
+```
+
+```sh
 docker run -p 4444:4444 \
     -p 7900:7900 \
     --shm-size="2g" \

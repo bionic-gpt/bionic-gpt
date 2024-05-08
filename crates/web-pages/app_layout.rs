@@ -142,7 +142,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::licence::Index { team_id: props.team_id },
                                 icon: nav_dashboard_svg.name,
-                                title: "Licence & Usage"
+                                title: "Bionic Edition"
                             }
                             NavItem {
                                 id: SideBar::Models.to_string(),
