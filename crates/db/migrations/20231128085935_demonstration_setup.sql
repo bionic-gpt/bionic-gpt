@@ -23,7 +23,7 @@ INSERT INTO models (
     context_size
 )
 VALUES(
-    'llama2', 
+    'llama3', 
     'LLM', 
     'http://llm-api:11434/v1', 
     7, 
