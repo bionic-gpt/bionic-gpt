@@ -185,3 +185,22 @@ build-cli-windows:
     RUN cd k8s-operator \ 
         && cargo build --release --target x86_64-pc-windows-gnu
     SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
+
+# AWS Deployment
+
+# earthly +drop-eks-cluster --AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+drop-eks-cluster:
+    ARG AWS_ACCESS_KEY_ID
+    ARG AWS_SECRET_ACCESS_KEY
+    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
+        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
+        && sudo mv /tmp/eksctl /usr/local/bin
+    RUN eksctl delete cluster -n bionic-gpt -r us-east-2
+
+create-eks-cluster:
+    ARG AWS_ACCESS_KEY_ID
+    ARG AWS_SECRET_ACCESS_KEY
+    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
+        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
+        && sudo mv /tmp/eksctl /usr/local/bin
+    RUN eksctl create cluster --name bonic-gpt
