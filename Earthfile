@@ -200,7 +200,19 @@ drop-eks-cluster:
 create-eks-cluster:
     ARG AWS_ACCESS_KEY_ID
     ARG AWS_SECRET_ACCESS_KEY
+    ARG AWS_ACCOUNT_ID
+    ARG TOKEN
+    COPY --dir infra-as-code .
     RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
         && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
         && sudo mv /tmp/eksctl /usr/local/bin
-    RUN eksctl create cluster --name bonic-gpt
+    RUN curl -sLO "https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux" \
+        && sudo mv ./bionic-cli-linux /usr/local/bin/bionic \
+        && sudo chmod +x /usr/local/bin/bionic
+    RUN bionic -V
+    RUN sed -i "s/{ACCOUNT_ID}/$AWS_ACCOUNT_ID/g" ./infra-as-code/cluster.yaml
+    RUN cat ./infra-as-code/cluster.yaml
+    
+    #RUN eksctl create cluster --name bonic-gpt -f ./infra-as-code/cluster.yaml
+    #RUN kubectl create secret generic cloudflare-credentials --from-literal=token=$TOKEN
+
