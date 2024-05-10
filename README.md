@@ -27,6 +27,10 @@
     <a href="https://github.com/bionic-gpt/bionic-gpt/blob/main/CONTRIBUTING.md">
       Contributing
     </a>
+    |
+    <a href="https://bionic-gpt.com/docs/community-edition/installation/">
+      Quick Install Guide
+    </a>
   </h4>
 </div>
 
