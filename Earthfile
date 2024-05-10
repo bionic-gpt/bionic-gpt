@@ -210,9 +210,13 @@ create-eks-cluster:
         && sudo mv ./bionic-cli-linux /usr/local/bin/bionic \
         && sudo chmod +x /usr/local/bin/bionic
     RUN bionic -V
-    RUN sed -i "s/{ACCOUNT_ID}/$AWS_ACCOUNT_ID/g" ./infra-as-code/cluster.yaml
-    RUN cat ./infra-as-code/cluster.yaml
-    
-    #RUN eksctl create cluster --name bonic-gpt -f ./infra-as-code/cluster.yaml
+    #RUN sed -i "s/{ACCOUNT_ID}/$AWS_ACCOUNT_ID/g" ./infra-as-code/cluster.yaml
+    #RUN cat ./infra-as-code/cluster.yaml
+    #RUN eksctl create cluster -f ./infra-as-code/cluster.yaml
+    RUN eksctl utils write-kubeconfig --cluster bionic-gpt --region us-east-2
+    RUN cat /home/vscode/.kube/config
+    RUN kubectl get nodes
+    #RUN KUBE_CONFIG=/home/vscode/.kube/config bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
     #RUN kubectl create secret generic cloudflare-credentials --from-literal=token=$TOKEN
+    #RUN kubectl apply -f ./infra-as-code/cloudflare.yaml
 

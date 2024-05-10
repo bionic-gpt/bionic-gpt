@@ -138,13 +138,6 @@ pub fn Layout(props: LayoutProps) -> Element {
                         heading: "System Admin",
                         content:  rsx!(
                             NavItem {
-                                id: SideBar::Licence.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::licence::Index { team_id: props.team_id },
-                                icon: nav_dashboard_svg.name,
-                                title: "Bionic Edition"
-                            }
-                            NavItem {
                                 id: SideBar::Models.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::models::Index{team_id: props.team_id},
@@ -157,6 +150,18 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::audit_trail::Index { team_id: props.team_id },
                                 icon: nav_audit_svg.name,
                                 title: "Audit Trail"
+                            }
+                        )
+                    }
+                    NavGroup {
+                        heading: "Enterprise Trial",
+                        content:  rsx!(
+                            NavItem {
+                                id: SideBar::Licence.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::licence::Index { team_id: props.team_id },
+                                icon: nav_dashboard_svg.name,
+                                title: "Features & Extend Trial"
                             }
                             NavItem {
                                 id: SideBar::RateLimits.to_string(),
