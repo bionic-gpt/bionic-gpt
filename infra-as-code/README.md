@@ -21,3 +21,9 @@ earthly +create-eks-cluster --AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --AWS_SECRET_
 ## Cloudflare
 
 We install a cloudflare tunnel as a way to get ingress inot our cluster via the domain name.
+
+## Access Cluster
+
+```sh
+eksctl utils write-kubeconfig --cluster bionic-gpt --region us-east-2
+```
