@@ -89,9 +89,9 @@
 
 ## Manage Data Governance with GuardRails
 
-- 📁 doc uplaod
-- 🏅 streaming results
-- promp injection
+- 📁 Batch Guardrails: Apply rules to documents uploaded by our batch data pipeline.
+- 🏅 Streaming Guardrails: LLMs deliver results in streams, we can apply rules in realtime as hte stream flies by.
+- Prompt injection: We can gusrd against prompt injections attacks as well as many more.
 
 
 ## Muliple Models
@@ -100,27 +100,25 @@
 - 👾 Easy Switch: Seamlessly switch between different chat models for diverse interactions.
 - ⚙️ Many Models Conversations: Effortlessly engage with various models simultaneously, harnessing their unique strengths for optimal responses. Enhance your experience by leveraging a diverse set of models in parallel.
 
-## RBAC
+## Role Based Access Control
 
-- ⚠️ Fully assignable from your ID provider
--🚦 Use to set limits per user
-- 🎫 Fine grained control
+- ⚠️ Configurable UI: Give users access or not to certain features based on roles you give them in your IAM syatem.
+-🚦 With limits: Apply token usage limits based on a users role.
+- 🎫 Fully secured: Rules are applied in our server and defence in depth secured one more time with Postgres RLS.
 
 ## Data Integrations
 
-- 📤 Airbyte
-- 📥 Batching
-- Real time
-- 🚆 Document Upload
-- 🍟 Allow user to create datasets
-- 🏢 UI for datasets table
-- 🏣 Turn documents into 1K batches and generate embeddings
-- 📚 OCR for document upload
+- 📤 100s of Sources: With our Airbte integration you can batch upload data from sources such as Sharepoint, NFS, FTP, Kafka and more.
+- 📥 Batching: Run upload once a day or every hour. Set the way you want.
+- 📈 Real time: Capture data in real time to ensure your models are always using the latest data.
+- 🚆 Manual Upload: Users have the ability to manually uplaod data so RAG pipelines can be setup in minutes.
+- 🍟 Datastes: Data is stored in datasets and our security ensures data can't leak between users or teams.
+- 📚 OCR: We can process documents using OCR to unlock even more data.
 
 ## Deploy to Bare Metal or The Cloud
 
-- 🚀 Effortless Setup: Install seamlessly using Docker or Kubernetes (kubectl, kustomize or helm) for a hassle-free experience.
-- 🌟 Continuous Updates: We are committed to improving Open WebUI with regular updates and new features.
+- 🚀 Effortless Setup: Install seamlessly using Kubernetes (k3s, or the cloud) for a hassle-free experience.
+- 🌟 Continuous Updates: We are committed to improving Bionic with regular updates and new features.
 
 # Enterprise
 
