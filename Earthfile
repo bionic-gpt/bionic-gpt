@@ -187,9 +187,7 @@ build-cli-windows:
     SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
 
 # AWS Deployment
-
-# earthly +drop-eks-cluster --AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID --AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-drop-eks-cluster:
+bionic-cluster-delete:
     ARG AWS_ACCESS_KEY_ID
     ARG AWS_SECRET_ACCESS_KEY
     RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
@@ -197,7 +195,7 @@ drop-eks-cluster:
         && sudo mv /tmp/eksctl /usr/local/bin
     RUN eksctl delete cluster -n bionic-gpt -r us-east-2
 
-create-eks-cluster:
+bionic-cluster-create:
     ARG AWS_ACCESS_KEY_ID
     ARG AWS_SECRET_ACCESS_KEY
     ARG AWS_ACCOUNT_ID
@@ -210,13 +208,11 @@ create-eks-cluster:
         && sudo mv ./bionic-cli-linux /usr/local/bin/bionic \
         && sudo chmod +x /usr/local/bin/bionic
     RUN bionic -V
-    #RUN sed -i "s/{ACCOUNT_ID}/$AWS_ACCOUNT_ID/g" ./infra-as-code/cluster.yaml
-    #RUN cat ./infra-as-code/cluster.yaml
-    #RUN eksctl create cluster -f ./infra-as-code/cluster.yaml
-    RUN eksctl utils write-kubeconfig --cluster bionic-gpt --region us-east-2
-    RUN cat /home/vscode/.kube/config
+    RUN sed -i "s/{ACCOUNT_ID}/$AWS_ACCOUNT_ID/g" ./infra-as-code/cluster.yaml
+    RUN cat ./infra-as-code/cluster.yaml
+    RUN eksctl create cluster -f ./infra-as-code/cluster.yaml
     RUN kubectl get nodes
-    #RUN KUBE_CONFIG=/home/vscode/.kube/config bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
-    #RUN kubectl create secret generic cloudflare-credentials --from-literal=token=$TOKEN
-    #RUN kubectl apply -f ./infra-as-code/cloudflare.yaml
+    RUN KUBE_CONFIG=/home/vscode/.kube/config bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
+    RUN kubectl create secret generic cloudflare-credentials --from-literal=token=$TOKEN
+    RUN kubectl apply -f ./infra-as-code/cloudflare.yaml
 
