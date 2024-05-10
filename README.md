@@ -89,7 +89,7 @@
 
 - 📈 Fairly share resources: Without token limits it's easy for your models to become overloaded.
 - 🔒 Reverse Proxy: All models are protected with our reverse proxy that allows you to set limits and ensure fair usage across your users.
--🚦Role Based: Apply token usage limits based on a users role from your IAM system.
+- 👮 Role Based: Apply token usage limits based on a users role from your IAM system.
 
 ## Turn AI Assistants into APIs
 
