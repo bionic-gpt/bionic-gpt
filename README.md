@@ -34,66 +34,96 @@
 
 ![Alt text](website/static/github-readme.png "BionicGPT Screenshot")
 
-<!-- ROADMAP -->
-## Roadmap
+<!-- Features -->
 
-- [x] Text Generation
-    - [x] Connect to Open AI compatible API's i.e. LocalAI
-    - [x] Select different prompts
-    - [x] Syntax highlighting for code
-- [ ] Image Generation
-    - [ ] Connect to stable diffusion
-- [x] Authentication
-    - [x] Email/Password sign in and registration
-    - [x] SSO
-- [x] Teams
-    - [x] Invite Team Members
-    - [x] Manage the teams you belong to
-    - [x] Create new teams
-    - [x] Switch between teams
-    - [x] RBAC
-- [x] Document Management
-    - [x] Document Upload
-    - [x] Allow user to create datasets
-    - [x] UI for datasets table 
-    - [x] Turn documents into 1K batches and generate embeddings
-    - [x] OCR for document upload
-- [x] Document Pipelines
-    - [x] Allow user to upload docs via API to datasets
-    - [x] Process documents and create chunks and embeddings
-- [x] Retrieval Augmented Generation
-    - [x] Parse text out of documents
-    - [x] Generate Embeddings and store in pgVector
-    - [x] Add Embeddings to the prompt using similarity search
-- [x] Prompt Management 
-    - [x] Create and Edit prompts on a per team basis
-    - [x] Associate prompts with datasets
-- [x] Model Management 
-    - [x] Create/update default prompt fo a model
-    - [x] Set model location URL.
-    - [x] Switchable LLM backends.
-    - [ ] Associate models with a command i.e. /image
-- [ ] Guardrails
-    - [ ] Figure out a strategy
-- [x] API
-    - [x] Create per team API keys
-    - [x] Attach keys to a prompt
-    - [ ] Revoke keys
-- [ ] Fine Tuning
-    - [ ] QLORA adapters
-- [x] System Admin
-    - [x] Usage Statistics
-    - [x] Audit Trail
-    - [ ] Set API limits
-- [x] Deployment
-    - [x] Docker compose so people can test quickly.
-    - [x] Kubernetes deployment strategy.
-    - [x] Kubernetes Operator
-    - [ ] Hardware recommendations.
+## Familiar Chat Experience
 
-See the [open issues](https://github.com/purton-tech/bionicgpt/issues) for a full list of proposed features (and known issues).
+- 🖥️ Intuitive Interface: Our chat interface takes inspiration from ChatGPT, ensuring a user-friendly experience.
+- 🌈 Theme Customization: The theme for Bionic is completely customizable allowing you to brand Bionic as you like.
+- ⚡ Ultra Fast UI: Enjoy fast and responsive performance from our Rust based UI.
+- 📜 Chat History: Effortlessly access and manage your conversation history.
+
+## AI Assistants (Retrieval Augmented Generation)
+
+- 🤖 AI Assistants: Users can create assistants that work with their own data to enhance the AI.
+- 🗨️ Share Assistants with Team Members: Generate and share assistants seamlessly between users, enhancing collaboration and communication.
+- 📋 RAG Pipelines: Assistants are full scale enterprise ready RAG pipelines that can be launched in minutes.
+- 📑 Any Documents: 80% of enterprise data exists in difficult-to-use formats like HTML, PDF, CSV, PNG, PPTX, and more. We support all of them.
+- 💾 No Code: Confgure embeddings engine and chunking lagorithms all through our UI.
+- 🗨️ System Prompts: Configure system prompts to get the LLM to reply in the way you want.
+
+## Teams
+
+- 👫 Teams: Your company is made up of Teams of people and Bionic utilises this setup for maximum effect.
+- 👫 Invite Team Members: Teams manage themselves in a comntrolled way.
+- 🙋 Manage Teams: Manage who has access to Bionic with your SSO system.
+- 👬 Virtual Teams: Create teams within teams to 
+- 🚠 Switch Teams: Switch betweens teams whilst still keeping data isolated.
+- 🚓 RBAC: Use your SSO system to configure which features users have access to.
+
+## Defence in Depth Security
+
+- 👮 SAST: Static Application Security Testing - Our CI/CD pipeline runs SAST so we can identify risks before the code is built.
+- 📢 Authorization RLS - We use Row Level Security in Postgres as another check to ensure data is not leaked between unauthorized users.
+- 🚔 CSP: Our Content Security Policy is at the highest level and stops all manner of security threats.
+- 🐳 Minimal containers: We build containers from Scratch whenever possible to limit supply chain attacks.
+- ⏳ Non root containers: We run containers as non root to limit horizontal movement during an attack.
+- 👮 Audit Trail: See who did what and when.
+- ⏰ Postgres Roles: We run the minimum level of permissions for our postgres connections.
+- 📣 SIEM integration: Integrate with your SIEM system for threat detection and investigation.
+- ⌛ Resistant to timing attacks (api keys): Coming soon.
+- 📭 SSO: We didn't build our own authentication but use industry leading and secure open source IAM systems.
+- 👮 Secrets Management: Our Kubernetes operator creates secrets using secure algorithms at deployment time.
+
+## Usage Limits 
+
+- 📈 Fairly share resources: Without limits it's easy for your models to become overloaded.
+- 🔒 Reverse Proxy: All models are protected with our reverse proxy that allows you to set limits and ensure fair usage across your users.
+
+## Turn AI Assistants into APIs
+
+- 🔐 Assistants API: Any assistant you create can easily be turned into an Open AI compatible API.
+- 🔑 Key Management: Users can create API keys for Assitants they have access to.
+- 🔏 Throttling limits: All API keys follow the users throttling limits ensuring fair access to the models.
+
+
+## Manage Data Governance with GuardRails
+
+- 📁 doc uplaod
+- 🏅 streaming results
+- promp injection
+
+
+## Muliple Models
+
+- 🤖 Multiple Model Support: Install and manage as many models as you want.
+- 👾 Easy Switch: Seamlessly switch between different chat models for diverse interactions.
+- ⚙️ Many Models Conversations: Effortlessly engage with various models simultaneously, harnessing their unique strengths for optimal responses. Enhance your experience by leveraging a diverse set of models in parallel.
+
+## RBAC
+
+- ⚠️ Fully assignable from your ID provider
+-🚦 Use to set limits per user
+- 🎫 Fine grained control
+
+## Data Integrations
+
+- 📤 Airbyte
+- 📥 Batching
+- Real time
+- 🚆 Document Upload
+- 🍟 Allow user to create datasets
+- 🏢 UI for datasets table
+- 🏣 Turn documents into 1K batches and generate embeddings
+- 📚 OCR for document upload
+
+## Deploy to Bare Metal or The Cloud
+
+- 🚀 Effortless Setup: Install seamlessly using Docker or Kubernetes (kubectl, kustomize or helm) for a hassle-free experience.
+- 🌟 Continuous Updates: We are committed to improving Open WebUI with regular updates and new features.
 
 # Enterprise
+
 For companies that need better security, user management and professional support
 
 [Talk to the founders](https://calendly.com/bionicgpt)
