@@ -16,7 +16,7 @@ Go to settings and enable Kubernetes
 ## 1. Install the Bionic CLI (MacOS)
 
 ```sh
-export BIONIC_VERSION=1.6.51
+export BIONIC_VERSION={{ version() }}
 curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-darwin && chmod +x ./bionic-cli-darwin && sudo mv ./bionic-cli-darwin /usr/local/bin/bionic
 ```
 
@@ -39,7 +39,7 @@ bionic.exe -h
 ## 1. Install the Bionic CLI (Linux)
 
 ```sh
-export BIONIC_VERSION=1.6.51
+export BIONIC_VERSION={{ version() }}
 curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
@@ -55,7 +55,7 @@ bionic -h
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml
 ```
 
-## 3. Install the application into K3s
+## 3. Install the application into Docker Desktop
 
 ```sh
 bionic install
