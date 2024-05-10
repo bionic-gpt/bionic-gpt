@@ -21,7 +21,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                 heading: format!("You are running the Community Edition of Bionic ({})", version),
                 visual: bionic_logo_svg.name,
                 description: "Add a licence to extend available resources and features",
-                primary_action_drawer: Some(("Licence Bionic".to_string(), "create-licence".to_string()))
+                primary_action_drawer: Some(("Extend Trial or Licence Bionic".to_string(), "create-licence".to_string()))
             }
             Box {
                 class: "has-data-table mt-8",
@@ -103,7 +103,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                                 }
                                 td {
                                     img {
-                                        src: tick_svg.name,
+                                        src: cross_svg.name,
                                         width: "16",
                                         height: "16"
                                     }
@@ -119,6 +119,32 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                             tr {
                                 td {
                                     "Input and Output Guardrails"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Data Integrations Pipeline"
                                 }
                                 td {
                                     img {

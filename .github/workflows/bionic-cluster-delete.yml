@@ -1,0 +1,27 @@
+name: Bionic Cluster (Delete)
+
+on:
+  workflow_dispatch: # Triggers the workflow manually
+
+jobs:
+  embeddings-docker:
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+
+    - uses: earthly/actions/setup-earthly@v1
+      with:
+        version: v0.7.23
+        
+    - uses: actions/checkout@v4
+
+    - name: Delete Cluster
+      run: |
+        earthly +drop-eks-cluster \
+          --AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+          --AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+          --AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID \
+          --TOKEN=$TOKEN
