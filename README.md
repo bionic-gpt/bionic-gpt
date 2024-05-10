@@ -79,11 +79,17 @@
 - 📭 SSO: We didn't build our own authentication but use industry leading and secure open source IAM systems.
 - 👮 Secrets Management: Our Kubernetes operator creates secrets using secure algorithms at deployment time.
 
+## Observability and Reporting
+
+- 📈 Observability API: Compatible with Prometheus for measuring load and usage.
+- 🤖 Dashbaords: Create dashboards with Grafana for an overview of your whole system.
+- 📚 Monitor Chats: All questions and responses are recording and available in the Postgres database.
+
 ## Token Usage Limits and Controls
 
 - 📈 Fairly share resources: Without token limits it's easy for your models to become overloaded.
 - 🔒 Reverse Proxy: All models are protected with our reverse proxy that allows you to set limits and ensure fair usage across your users.
--🚦 Role Based: Apply token usage limits based on a users role from your IAM system.
+-🚦Role Based: Apply token usage limits based on a users role from your IAM system.
 
 ## Turn AI Assistants into APIs
 
@@ -96,7 +102,7 @@
 
 - 📁 Batch Guardrails: Apply rules to documents uploaded by our batch data pipeline.
 - 🏅 Streaming Guardrails: LLMs deliver results in streams, we can apply rules in realtime as hte stream flies by.
-- Prompt injection: We can gusrd against prompt injections attacks as well as many more.
+- 👾 Prompt injection: We can gusrd against prompt injections attacks as well as many more.
 
 
 ## Local or Remote Large Language Models
