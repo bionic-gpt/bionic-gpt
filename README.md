@@ -120,7 +120,7 @@
 
 ## Data Integrations
 
-- 📤 100s of Sources: With our Airbte integration you can batch upload data from sources such as Sharepoint, NFS, FTP, Kafka and more.
+- 📤 100s of Sources: With our Airbyte integration you can batch upload data from sources such as Sharepoint, NFS, FTP, Kafka and more.
 - 📥 Batching: Run upload once a day or every hour. Set the way you want.
 - 📈 Real time: Capture data in real time to ensure your models are always using the latest data.
 - 🚆 Manual Upload: Users have the ability to manually uplaod data so RAG pipelines can be setup in minutes.
