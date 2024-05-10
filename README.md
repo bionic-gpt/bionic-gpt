@@ -82,7 +82,7 @@
 ## Observability and Reporting
 
 - 📈 Observability API: Compatible with Prometheus for measuring load and usage.
-- 🤖 Dashbaords: Create dashboards with Grafana for an overview of your whole system.
+- 🤖 Dashboards: Create dashboards with Grafana for an overview of your whole system.
 - 📚 Monitor Chats: All questions and responses are recording and available in the Postgres database.
 
 ## Token Usage Limits and Controls
