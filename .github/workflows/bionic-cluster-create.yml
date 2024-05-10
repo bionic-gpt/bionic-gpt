@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # Triggers the workflow manually
 
 jobs:
-  embeddings-docker:
+  bionic-cluster-create:
     runs-on: ubuntu-latest
 
     env:
@@ -14,13 +14,13 @@ jobs:
 
     - uses: earthly/actions/setup-earthly@v1
       with:
-        version: v0.7.23
+        version: ^0.8.0
         
     - uses: actions/checkout@v4
 
-    - name: Delete Cluster
+    - name: Create Cluster
       run: |
-        earthly +drop-eks-cluster \
+        earthly +bionic-cluster-create \
           --AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
           --AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
           --AWS_ACCOUNT_ID=$AWS_ACCOUNT_ID \
