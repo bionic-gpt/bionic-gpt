@@ -165,4 +165,4 @@ This covers:
 BionicGPT is optimized to run on Kubernetes and implements the full pipeline of LLM fine tuning from data acquisition to user interface.
 
 
-![Alt text](website/static/bionic-startup-k9s.png "Bionic in Kubernetes")
+![Alt text](website/static/bionic-k9s.png "Bionic in Kubernetes")
