@@ -15,12 +15,14 @@ jobs:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       FORCE_COLOR: 1
     steps:
-
-    - uses: earthly/actions/setup-earthly@v1
-      with:
-        version: 0.8.1
         
     - uses: actions/checkout@v4
+
+    - name: Download latest earthly
+      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+    - name: Earthly version
+      run: earthly --version 
 
     - name: Delete Cluster
       run: |
