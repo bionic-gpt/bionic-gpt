@@ -200,7 +200,7 @@ bionic-cluster-create:
     ARG AWS_SECRET_ACCESS_KEY
     ARG AWS_ACCOUNT_ID
     ARG TOKEN
-    RUN sudo apt-get update && sudo apt-get install awscli
+    RUN sudo apt-get update && sudo apt-get install -y awscli
     COPY --dir infra-as-code .
     RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
         && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
