@@ -14,6 +14,7 @@ pub enum SideBar {
     Console,
     Datasets,
     DocumentPipelines,
+    Guardrails,
     Licence,
     Models,
     Prompts,
@@ -138,13 +139,6 @@ pub fn Layout(props: LayoutProps) -> Element {
                         heading: "System Admin",
                         content:  rsx!(
                             NavItem {
-                                id: SideBar::Licence.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::licence::Index { team_id: props.team_id },
-                                icon: nav_dashboard_svg.name,
-                                title: "Bionic Edition"
-                            }
-                            NavItem {
                                 id: SideBar::Models.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::models::Index{team_id: props.team_id},
@@ -158,12 +152,31 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 icon: nav_audit_svg.name,
                                 title: "Audit Trail"
                             }
+                        )
+                    }
+                    NavGroup {
+                        heading: "Enterprise Trial",
+                        content:  rsx!(
+                            NavItem {
+                                id: SideBar::Licence.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::licence::Index { team_id: props.team_id },
+                                icon: nav_dashboard_svg.name,
+                                title: "Features & Extend Trial"
+                            }
                             NavItem {
                                 id: SideBar::RateLimits.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::rate_limits::Index { team_id: props.team_id },
                                 icon: limits_svg.name,
                                 title: "Rate Limits"
+                            }
+                            NavItem {
+                                id: SideBar::Guardrails.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::guardrails::Index { team_id: props.team_id },
+                                icon: guardrails_svg.name,
+                                title: "Guardrails"
                             }
                         )
                     }

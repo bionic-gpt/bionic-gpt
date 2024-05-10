@@ -15,7 +15,7 @@ pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<M
             rbac: rbac,
             title: "Rate Limits",
             header: rsx! {
-                h3 { "Rate Limits (Trial)" }
+                h3 { "Rate Limits" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     drawer_trigger: "create-limit",
