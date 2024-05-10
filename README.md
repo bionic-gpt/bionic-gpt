@@ -114,8 +114,8 @@
 
 ## Role Based Access Control
 
-- ⚠️ Configurable UI: Give users access or not to certain features based on roles you give them in your IAM syatem.
--🚦 With limits: Apply token usage limits based on a users role.
+- ⚠️ Configurable UI: Give users access or not to certain features based on roles you give them in your IAM system.
+- 🚦 With limits: Apply token usage limits based on a users role.
 - 🎫 Fully secured: Rules are applied in our server and defence in depth secured one more time with Postgres RLS.
 
 ## Data Integrations
