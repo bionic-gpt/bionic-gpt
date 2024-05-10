@@ -185,3 +185,34 @@ build-cli-windows:
     RUN cd k8s-operator \ 
         && cargo build --release --target x86_64-pc-windows-gnu
     SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
+
+# AWS Deployment
+bionic-cluster-delete:
+    ARG AWS_ACCESS_KEY_ID
+    ARG AWS_SECRET_ACCESS_KEY
+    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
+        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
+        && sudo mv /tmp/eksctl /usr/local/bin
+    RUN eksctl delete cluster -n bionic-gpt -r us-east-2
+
+bionic-cluster-create:
+    ARG AWS_ACCESS_KEY_ID
+    ARG AWS_SECRET_ACCESS_KEY
+    ARG AWS_ACCOUNT_ID
+    ARG TOKEN
+    COPY --dir infra-as-code .
+    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
+        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
+        && sudo mv /tmp/eksctl /usr/local/bin
+    RUN curl -sLO "https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux" \
+        && sudo mv ./bionic-cli-linux /usr/local/bin/bionic \
+        && sudo chmod +x /usr/local/bin/bionic
+    RUN bionic -V
+    RUN sed -i "s/{ACCOUNT_ID}/$AWS_ACCOUNT_ID/g" ./infra-as-code/cluster.yaml
+    RUN cat ./infra-as-code/cluster.yaml
+    RUN eksctl create cluster -f ./infra-as-code/cluster.yaml
+    RUN kubectl get nodes
+    RUN KUBE_CONFIG=/home/vscode/.kube/config bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
+    RUN kubectl create secret generic cloudflare-credentials --from-literal=token=$TOKEN
+    RUN kubectl apply -f ./infra-as-code/cloudflare.yaml
+
