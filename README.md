@@ -121,8 +121,13 @@
 
 ## Deploy to Bare Metal or The Cloud
 
-- 🚀 Effortless Setup: Install seamlessly using Kubernetes (k3s, or the cloud) for a hassle-free experience.
+- 🚀 Effortless Setup: Install seamlessly using Kubernetes (k3s, Docker Desktop or the cloud) for a hassle-free experience.
 - 🌟 Continuous Updates: We are committed to improving Bionic with regular updates and new features.
+
+<!-- Try it out -->
+# Try it out
+
+follow [our guide](https://bionic-gpt.com/docs/community-edition/introduction/) to running Bionic-GPT on your local machine.
 
 # Enterprise
 
@@ -147,12 +152,7 @@ This covers:
 - [Connect on Linked in 💭](https://www.linkedin.com/in/kulbinderdio/)
 - Our emails ✉️ ian@bionic-gpt.com / dio@bionic-gpt.com
 
-<!-- Try it out -->
-## Try it out
-
-follow [our guide](https://bionic-gpt.com/docs/community-edition/introduction/) to running Bionic-GPT on your local machine.
-
-## Kubernetes Ready
+# Kubernetes First
 
 BionicGPT is optimized to run on Kubernetes and implements the full pipeline of LLM fine tuning from data acquisition to user interface.
 
