@@ -199,7 +199,7 @@ bionic-cluster-create:
     ARG AWS_ACCESS_KEY_ID
     ARG AWS_SECRET_ACCESS_KEY
     ARG AWS_ACCOUNT_ID
-    ARG TOKEN
+    ARG TUNNEL_TOKEN
     RUN sudo apt-get update && sudo apt-get install -y awscli
     COPY --dir infra-as-code .
     RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
@@ -214,6 +214,6 @@ bionic-cluster-create:
     RUN eksctl create cluster -f ./infra-as-code/cluster.yaml
     RUN kubectl get nodes
     RUN bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
-    RUN kubectl create secret generic cloudflare-credentials --from-literal=token=$TOKEN
-    RUN kubectl apply -f ./infra-as-code/cloudflare.yaml
+    RUN kubectl -n bionic-gpt create secret generic cloudflare-credentials --from-literal=token=$TUNNEL_TOKEN
+    RUN kubectl -n bionic-gpt apply -f ./infra-as-code/cloudflare.yaml
 
