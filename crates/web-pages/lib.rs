@@ -7,6 +7,7 @@ pub mod audit_trail;
 pub mod console;
 pub mod datasets;
 pub mod documents;
+pub mod guardrails;
 pub mod licence;
 pub mod logout_form;
 pub mod model_form;
@@ -40,6 +41,17 @@ pub mod routes {
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/licence")]
+        pub struct Index {
+            pub team_id: i32,
+        }
+    }
+
+    pub mod guardrails {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/guardrails")]
         pub struct Index {
             pub team_id: i32,
         }

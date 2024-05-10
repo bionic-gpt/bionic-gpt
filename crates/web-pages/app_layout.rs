@@ -14,6 +14,7 @@ pub enum SideBar {
     Console,
     Datasets,
     DocumentPipelines,
+    Guardrails,
     Licence,
     Models,
     Prompts,
@@ -169,6 +170,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::rate_limits::Index { team_id: props.team_id },
                                 icon: limits_svg.name,
                                 title: "Rate Limits"
+                            }
+                            NavItem {
+                                id: SideBar::Guardrails.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::guardrails::Index { team_id: props.team_id },
+                                icon: guardrails_svg.name,
+                                title: "Guardrails"
                             }
                         )
                     }
