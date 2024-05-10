@@ -79,10 +79,11 @@
 - 📭 SSO: We didn't build our own authentication but use industry leading and secure open source IAM systems.
 - 👮 Secrets Management: Our Kubernetes operator creates secrets using secure algorithms at deployment time.
 
-## Usage Limits 
+## Token Usage Limits and Controls
 
-- 📈 Fairly share resources: Without limits it's easy for your models to become overloaded.
+- 📈 Fairly share resources: Without token limits it's easy for your models to become overloaded.
 - 🔒 Reverse Proxy: All models are protected with our reverse proxy that allows you to set limits and ensure fair usage across your users.
+-🚦 Role Based: Apply token usage limits based on a users role from your IAM system.
 
 ## Turn AI Assistants into APIs
 
@@ -98,9 +99,10 @@
 - Prompt injection: We can gusrd against prompt injections attacks as well as many more.
 
 
-## Muliple Models
+## Local or Remote Large Language Models
 
-- 🤖 Multiple Model Support: Install and manage as many models as you want.
+- 🤖 Full support for open source models running locally or in your data center.
+- 🌟 Multiple Model Support: Install and manage as many models as you want.
 - 👾 Easy Switch: Seamlessly switch between different chat models for diverse interactions.
 - ⚙️ Many Models Conversations: Effortlessly engage with various models simultaneously, harnessing their unique strengths for optimal responses. Enhance your experience by leveraging a diverse set of models in parallel.
 
