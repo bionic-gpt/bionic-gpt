@@ -19,6 +19,7 @@ highlight_themes_css = [
 ]
 
 [extra]
+bionic_version = "1.7.5"
 
 logo = "bionic-logo.svg"
 goat_counter = "https://bionicgpt.goatcounter.com/count"
