@@ -10,17 +10,17 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
-            selected_item: SideBar::Licence,
+            selected_item: SideBar::Guardrails,
             team_id: team_id,
             rbac: rbac,
-            title: "Licence",
+            title: "Guardrails",
             header: rsx! {
-                h3 { "Your Licence" }
+                h3 { "Guardrails" }
             },
             BlankSlate {
-                heading: "GuardRails",
-                visual: bionic_logo_svg.name,
-                description: "GuardRails",
+                heading: "GuardRails protect your bionic installation.",
+                visual: guardrails_svg.name,
+                description: "PII, Confidential Data, Incorrect outputs and more...",
                 primary_action_drawer: Some(("Coming Summer 2024".to_string(), "create-licence".to_string()))
             }
         }
