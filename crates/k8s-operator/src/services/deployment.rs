@@ -1,10 +1,8 @@
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Service;
-use kube::{
-    api::{Api, PostParams},
-    Client,
-};
+use kube::api::{Patch, PatchParams};
+use kube::{api::Api, Client};
 use serde_json::{json, Value};
 
 pub struct Command {
@@ -79,7 +77,7 @@ pub async fn deployment(
     };
 
     // Create the Deployment object
-    let deployment = serde_json::from_value(serde_json::json!({
+    let deployment = serde_json::json!({
         "apiVersion": "apps/v1",
         "kind": "Deployment",
         "metadata": {
@@ -103,12 +101,16 @@ pub async fn deployment(
                 }
             }
         }
-    }))?;
+    });
 
     // Create the deployment defined above
     let deployment_api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    deployment_api
-        .create(&PostParams::default(), &deployment)
+    let _deployment = deployment_api
+        .patch(
+            &service_deployment.name,
+            &PatchParams::default(),
+            &Patch::Apply(deployment),
+        )
         .await?;
 
     service(
@@ -130,7 +132,7 @@ pub async fn service(
 ) -> Result<Service, Error> {
     // Create the Deployment object
 
-    let service = serde_json::from_value(serde_json::json!({
+    let service = serde_json::json!({
         "apiVersion": "v1",
         "kind": "Service",
         "metadata": {
@@ -150,8 +152,11 @@ pub async fn service(
                 }
             ]
         }
-    }))?;
+    });
 
     let service_api: Api<Service> = Api::namespaced(client, namespace);
-    Ok(service_api.create(&PostParams::default(), &service).await?)
+    let service = service_api
+        .patch(name, &PatchParams::default(), &Patch::Apply(service))
+        .await?;
+    Ok(service)
 }
