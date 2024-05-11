@@ -6,7 +6,7 @@ use k8s_openapi::api::core::v1::{Container, PodSpec, ResourceRequirements};
 use k8s_openapi::api::core::v1::{Pod, Service};
 use k8s_openapi::api::node::v1::RuntimeClass;
 use k8s_openapi::apimachinery::pkg::api::resource::Quantity;
-use kube::api::{DeleteParams, ObjectMeta, PostParams};
+use kube::api::{DeleteParams, ObjectMeta, PatchParams, PostParams};
 use kube::{Api, Client};
 
 pub const MODEL_NAME: &str = "phi-2-gptq";
@@ -64,7 +64,12 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
     };
 
     let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
-    api.create(&PostParams::default(), &pod).await?;
+    api.patch(
+        MODEL_NAME,
+        &PatchParams::apply(crate::MANAGER),
+        &kube::api::Patch::Apply(pod),
+    )
+    .await?;
 
     deployment::service(client, MODEL_NAME, 80, namespace).await?;
 

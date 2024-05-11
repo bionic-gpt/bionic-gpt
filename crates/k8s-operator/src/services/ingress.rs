@@ -5,11 +5,8 @@ use k8s_openapi::api::networking::v1::{
     HTTPIngressPath, HTTPIngressRuleValue, Ingress, IngressBackend, IngressRule,
     IngressServiceBackend, IngressSpec, ServiceBackendPort,
 };
-use kube::api::{DeleteParams, ObjectMeta};
-use kube::{
-    api::{Api, PostParams},
-    Client,
-};
+use kube::api::{DeleteParams, ObjectMeta, Patch, PatchParams};
+use kube::{api::Api, Client};
 
 const INGRESS: &str = "bionic-gpt-ingress";
 
@@ -104,7 +101,13 @@ pub async fn deploy(client: Client, namespace: &str, pgadmin: bool) -> Result<()
 
     // Create the deployment defined above
     let ingress_api: Api<Ingress> = Api::namespaced(client.clone(), namespace);
-    ingress_api.create(&PostParams::default(), &ingress).await?;
+    ingress_api
+        .patch(
+            INGRESS,
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(ingress),
+        )
+        .await?;
 
     Ok(())
 }

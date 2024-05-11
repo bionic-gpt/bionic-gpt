@@ -2,7 +2,7 @@ use super::deployment;
 use crate::error::Error;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{ConfigMap, Secret, Service};
-use kube::api::{DeleteParams, PostParams};
+use kube::api::{DeleteParams, Patch, PatchParams, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
@@ -22,7 +22,7 @@ pub async fn deploy(
         keycloak_password
     );
     // Put the envoy.yaml into a ConfigMap
-    let config_map = serde_json::from_value(serde_json::json!({
+    let config_map = serde_json::json!({
         "apiVersion": "v1",
         "kind": "ConfigMap",
         "metadata": {
@@ -34,10 +34,15 @@ pub async fn deploy(
             "passfile": &passfile,
             "passfile_keycloak": &keycloak_passfile,
         }
-    }))?;
+    });
 
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
-    api.create(&PostParams::default(), &config_map).await?;
+    api.patch(
+        PGADMIN,
+        &PatchParams::apply(crate::MANAGER),
+        &Patch::Apply(config_map),
+    )
+    .await?;
 
     deployment::deployment(
         client.clone(),
@@ -102,22 +107,29 @@ pub async fn deploy(
     )
     .await?;
 
-    let secret = serde_json::from_value(serde_json::json!({
-        "apiVersion": "v1",
-        "kind": "Secret",
-        "metadata": {
-            "name": PGADMIN,
-            "namespace": namespace
-        },
-        "stringData": {
-            "email": "pgadmin@pgadmin.com",
-            "password": super::database::rand_hex()
-        }
-    }))?;
+    pgadmin_secret(namespace, client).await?;
 
+    Ok(())
+}
+
+async fn pgadmin_secret(namespace: &str, client: Client) -> Result<(), Error> {
     let secret_api: Api<Secret> = Api::namespaced(client, namespace);
-    secret_api.create(&PostParams::default(), &secret).await?;
-
+    let secret = secret_api.get(PGADMIN).await;
+    if secret.is_err() {
+        let secret = serde_json::from_value(serde_json::json!({
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "metadata": {
+                "name": PGADMIN,
+                "namespace": namespace
+            },
+            "stringData": {
+                "email": "pgadmin@pgadmin.com",
+                "password": super::database::rand_hex()
+            }
+        }))?;
+        secret_api.create(&PostParams::default(), &secret).await?;
+    }
     Ok(())
 }
 

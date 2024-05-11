@@ -1,7 +1,7 @@
 use super::deployment;
 use crate::error::Error;
 use k8s_openapi::api::core::v1::ConfigMap;
-use kube::api::PostParams;
+use kube::api::{Patch, PatchParams};
 use kube::{Api, Client};
 use serde_json::json;
 
@@ -13,7 +13,7 @@ const OPENAI_MODEL_YAML: &str = include_str!("../../config/mocks/models.mock.yam
 // We are using envoy to add security headers to all responses from the main application.
 pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> Result<(), Error> {
     // Put the envoy.yaml into a ConfigMap
-    let config_map = serde_json::from_value(serde_json::json!({
+    let config_map = serde_json::json!({
         "apiVersion": "v1",
         "kind": "ConfigMap",
         "metadata": {
@@ -26,10 +26,15 @@ pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> R
             "unstructured.mock.yaml": UNSTRUCTURED_YAML,
             "modes.mock.yaml": OPENAI_MODEL_YAML,
         }
-    }))?;
+    });
 
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
-    api.create(&PostParams::default(), &config_map).await?;
+    api.patch(
+        name,
+        &PatchParams::apply(crate::MANAGER),
+        &Patch::Apply(config_map),
+    )
+    .await?;
 
     // Envoy
     deployment::deployment(

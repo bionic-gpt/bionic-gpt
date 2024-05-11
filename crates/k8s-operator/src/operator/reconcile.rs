@@ -91,8 +91,10 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // Apply the finalizer first. If that fails, the `?` operator invokes automatic conversion
             // of `kube::Error` to the `Error` defined in this crate.
             finalizer::add(client.clone(), &name, &namespace).await?;
-            // Invoke creation of a Kubernetes built-in resource named deployment with `n` echo service pods.
-            let readonly_database_password = database::deploy(client.clone(), &namespace).await?;
+
+            // The databases
+            database::deploy(client.clone(), &namespace).await?;
+            keycloak_db::deploy(client.clone(), &namespace).await?;
 
             if !development {
                 bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
@@ -100,8 +102,6 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             }
             envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
-            let keycloak_database_password =
-                keycloak_db::deploy(client.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             ingress::deploy(client.clone(), &namespace, pgadmin).await?;
             mailhog::deploy(client.clone(), &namespace).await?;
@@ -114,13 +114,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
                 llm::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
             if pgadmin {
-                pgadmin::deploy(
-                    client.clone(),
-                    &readonly_database_password,
-                    &keycloak_database_password,
-                    &namespace,
-                )
-                .await?;
+                pgadmin::deploy(client.clone(), "test", "test", &namespace).await?;
             }
             if testing {
                 http_mock::deploy(
