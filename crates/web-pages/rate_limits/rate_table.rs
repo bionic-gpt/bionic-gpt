@@ -32,10 +32,15 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
                                     "{limit.user_email.unwrap_or_default()}"
                                 }
                                 td {
-                                    "{limit.model_name}"
+                                    Label {
+                                        "{limit.model_name}"
+                                    }
                                 }
                                 td {
-                                    "{limit.tokens_per_hour}"
+                                    Label {
+                                        label_role: LabelRole::Success,
+                                        "{limit.tokens_per_hour}"
+                                    }
                                 }
                                 td {
                                     class: "text-right",
