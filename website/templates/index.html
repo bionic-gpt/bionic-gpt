@@ -115,8 +115,10 @@
 
   {{ macros_features::small_image_feature(
     title="LLM Reverse Proxy", 
-    sub_title='Manage LLM Resource Allocation',
-    text='Apply limits to your teams to ensure precious LLM resources are fairly distributed.',
+    sub_title='LLMs Quickly Become Overrun with Requests',
+    text='In most deployments the models are the bottleneck. 
+      Bionic comes with a reverse proxy to monitor usage and apply limits to users
+      when needed',
     image='/landing-page/audit-trail.png'
   ) }}
 
@@ -131,11 +133,11 @@
     text2='If you choose to use a provider either from the public cloud or via a 
       private cloud with have integrations with all the main suppliers.',
     title3="Multiple Models",
-    text3='We can run against more than 1 model at a time allowing you to test use
+    text3='We can run against more than one model at a time allowing you to test use
       cases by easily switching between models',
-    title4="Hybrid",
-    text4='Perhaps you have a mixture of use cases some private some not so. 
-      We support connecting to models from both areas.'
+    title4="Bare Metal",
+    text4='Bionic has been deployed and tested on multiple bare metal Kubernetes clusters.
+      You can run Bionic close to your private data for maximum control.'
   ) }}
 
 
