@@ -14,7 +14,7 @@ pub struct RateLimitForm {
     pub id: Option<i32>,
     pub limits_role: Option<String>,
     pub users_email: Option<String>,
-    pub model_id: Option<i32>,
+    pub model_id: String,
     pub tokens_per_hour: i32,
 }
 
@@ -36,13 +36,14 @@ pub async fn upsert(
         )
         .into_response()),
         (Ok(_), None) => {
+            let model_id = convert_model_id(&form.model_id);
             // The form is valid save to the database
             queries::rate_limits::new()
                 .bind(
                     &transaction,
                     &form.limits_role,
                     &form.users_email,
-                    &form.model_id,
+                    &model_id,
                     &form.tokens_per_hour,
                 )
                 .one()
@@ -61,5 +62,12 @@ pub async fn upsert(
             "Problem with Rate Limit Validation",
         )
         .into_response()),
+    }
+}
+
+fn convert_model_id(model_id: &str) -> Option<i32> {
+    match model_id.parse::<i32>() {
+        Ok(num) => Some(num),
+        Err(_) => None,
     }
 }
