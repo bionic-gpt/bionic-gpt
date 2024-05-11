@@ -7,7 +7,7 @@ SELECT
     l.user_email,
     l.model_id,
     l.tokens_per_hour,
-    (SELECT name FROM models m WHERE m.id = l.model_id) as model_name,
+    COALESCE((SELECT name FROM models m WHERE m.id = l.model_id), 'All') as model_name,
     l.created_at
 FROM
     rate_limits l
