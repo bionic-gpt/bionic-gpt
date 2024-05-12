@@ -109,25 +109,32 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
     )
     .await?;
 
-    let secret = serde_json::from_value(serde_json::json!({
-        "apiVersion": "v1",
-        "kind": "Secret",
-        "metadata": {
-            "name": "oidc-secret",
-            "namespace": namespace
-        },
-        "stringData": {
-            "client-id": "bionic-gpt",
-            "client-secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
-            "redirect-uri": format!("{}/oauth2/callback", spec.hostname_url),
-            "issuer-url": "http://keycloak:7910/oidc/realms/bionic-gpt",
-            "cookie-secret": rand_base64()
-        }
-    }))?;
+    oauthproxy_secret(namespace, spec, client).await?;
 
+    Ok(())
+}
+
+async fn oauthproxy_secret(namespace: &str, spec: BionicSpec, client: Client) -> Result<(), Error> {
     let secret_api: Api<Secret> = Api::namespaced(client, namespace);
-    secret_api.create(&PostParams::default(), &secret).await?;
-
+    let secret = secret_api.get("oidc-secret").await;
+    if secret.is_err() {
+        let secret = serde_json::from_value(serde_json::json!({
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "metadata": {
+                "name": "oidc-secret",
+                "namespace": namespace
+            },
+            "stringData": {
+                "client-id": "bionic-gpt",
+                "client-secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
+                "redirect-uri": format!("{}/oauth2/callback", spec.hostname_url),
+                "issuer-url": "http://keycloak:7910/oidc/realms/bionic-gpt",
+                "cookie-secret": rand_base64()
+            }
+        }))?;
+        secret_api.create(&PostParams::default(), &secret).await?;
+    }
     Ok(())
 }
 
@@ -144,14 +151,20 @@ pub fn rand_base64() -> String {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    if api.get("oauth2-proxy").await.is_ok() {
+        api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    if api.get("oauth2-proxy").await.is_ok() {
+        api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    }
 
     let api: Api<Secret> = Api::namespaced(client.clone(), namespace);
-    api.delete("oidc-secret", &DeleteParams::default()).await?;
+    if api.get("oidc-secret").await.is_ok() {
+        api.delete("oidc-secret", &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }

@@ -5,6 +5,8 @@ mod services;
 use anyhow::Result;
 use clap::Parser;
 
+const MANAGER: &str = "bionic-gpt-operator";
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = cli::Cli::parse();

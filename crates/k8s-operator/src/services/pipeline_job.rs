@@ -52,11 +52,15 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("pipeline-job", &DeleteParams::default()).await?;
+    if api.get("pipeline-job").await.is_ok() {
+        api.delete("pipeline-job", &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("pipeline-job", &DeleteParams::default()).await?;
+    if api.get("pipeline-job").await.is_ok() {
+        api.delete("pipeline-job", &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }

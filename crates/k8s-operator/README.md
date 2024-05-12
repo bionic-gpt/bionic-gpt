@@ -25,7 +25,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode=
 
 ## Install Bionic into a cluster
 
-You need the kubeconfig installed. The kubeconfig will need to point to the ip address of where the cluster is installed so we break out of the devconatiner.
+You need the kubeconfig installed. The kubeconfig will need to point to the ip address of where the cluster is installed so we break out of the devcontainer.
 
 Then run
 
