@@ -152,20 +152,28 @@ async fn keycloak_secrets(namespace: &str, client: Client) -> Result<(), Error> 
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
+    if api.get(KEYCLOAK_NAME).await.is_ok() {
+        api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
+    if api.get(KEYCLOAK_NAME).await.is_ok() {
+        api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
+    }
 
     // Remove configmaps
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
-    api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
+    if api.get(KEYCLOAK_NAME).await.is_ok() {
+        api.delete(KEYCLOAK_NAME, &DeleteParams::default()).await?;
+    }
 
     // Remove secrets
     let api: Api<Secret> = Api::namespaced(client, namespace);
-    api.delete("keycloak-secrets", &DeleteParams::default())
-        .await?;
+    if api.get("keycloak-secrets").await.is_ok() {
+        api.delete("keycloak-secrets", &DeleteParams::default())
+            .await?;
+    }
 
     Ok(())
 }

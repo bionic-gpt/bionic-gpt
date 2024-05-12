@@ -72,13 +72,17 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
-    api.delete("keycloak-db-cluster", &DeleteParams::default())
-        .await?;
+    if api.get("keycloak-db-cluster").await.is_ok() {
+        api.delete("keycloak-db-cluster", &DeleteParams::default())
+            .await?;
+    }
 
     let secret_api: Api<Secret> = Api::namespaced(client, namespace);
-    secret_api
-        .delete("keycloak-db-owner", &DeleteParams::default())
-        .await?;
+    if api.get("keycloak-db-owner").await.is_ok() {
+        secret_api
+            .delete("keycloak-db-owner", &DeleteParams::default())
+            .await?;
+    }
 
     Ok(())
 }

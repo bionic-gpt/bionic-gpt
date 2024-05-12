@@ -79,11 +79,15 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
-    api.delete(MODEL_NAME, &DeleteParams::default()).await?;
+    if api.get(MODEL_NAME).await.is_ok() {
+        api.delete(MODEL_NAME, &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete(MODEL_NAME, &DeleteParams::default()).await?;
+    if api.get(MODEL_NAME).await.is_ok() {
+        api.delete(MODEL_NAME, &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }

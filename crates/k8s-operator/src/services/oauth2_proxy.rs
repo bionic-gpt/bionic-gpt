@@ -151,14 +151,20 @@ pub fn rand_base64() -> String {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    if api.get("oauth2-proxy").await.is_ok() {
+        api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    if api.get("oauth2-proxy").await.is_ok() {
+        api.delete("oauth2-proxy", &DeleteParams::default()).await?;
+    }
 
     let api: Api<Secret> = Api::namespaced(client.clone(), namespace);
-    api.delete("oidc-secret", &DeleteParams::default()).await?;
+    if api.get("oidc-secret").await.is_ok() {
+        api.delete("oidc-secret", &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }

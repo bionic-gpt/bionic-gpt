@@ -73,15 +73,21 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
+    if api.get("envoy").await.is_ok() {
+        api.delete("envoy", &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
+    if api.get("envoy").await.is_ok() {
+        api.delete("envoy", &DeleteParams::default()).await?;
+    }
 
     // Remove configmaps
     let api: Api<ConfigMap> = Api::namespaced(client, namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
+    if api.get("envoy").await.is_ok() {
+        api.delete("envoy", &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }

@@ -169,16 +169,22 @@ pub fn rand_hex() -> String {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
-    api.delete("bionic-db-cluster", &DeleteParams::default())
-        .await?;
+    if api.get("bionic-db-cluster").await.is_ok() {
+        api.delete("bionic-db-cluster", &DeleteParams::default())
+            .await?;
+    }
 
     let secret_api: Api<Secret> = Api::namespaced(client, namespace);
-    secret_api
-        .delete("database-urls", &DeleteParams::default())
-        .await?;
-    secret_api
-        .delete("db-owner", &DeleteParams::default())
-        .await?;
+    if api.get("database-urls").await.is_ok() {
+        secret_api
+            .delete("database-urls", &DeleteParams::default())
+            .await?;
+    }
+    if api.get("db-owner").await.is_ok() {
+        secret_api
+            .delete("db-owner", &DeleteParams::default())
+            .await?;
+    }
 
     Ok(())
 }

@@ -115,7 +115,9 @@ pub async fn deploy(client: Client, namespace: &str, pgadmin: bool) -> Result<()
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Ingress> = Api::namespaced(client.clone(), namespace);
-    api.delete(INGRESS, &DeleteParams::default()).await?;
+    if api.get(INGRESS).await.is_ok() {
+        api.delete(INGRESS, &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }

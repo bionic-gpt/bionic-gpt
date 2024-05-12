@@ -136,17 +136,26 @@ async fn pgadmin_secret(namespace: &str, client: Client) -> Result<(), Error> {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete(PGADMIN, &DeleteParams::default()).await?;
+
+    if api.get(PGADMIN).await.is_ok() {
+        api.delete(PGADMIN, &DeleteParams::default()).await?;
+    }
 
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
-    api.delete(PGADMIN, &DeleteParams::default()).await?;
+    if api.get(PGADMIN).await.is_ok() {
+        api.delete(PGADMIN, &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete(PGADMIN, &DeleteParams::default()).await?;
+    if api.get(PGADMIN).await.is_ok() {
+        api.delete(PGADMIN, &DeleteParams::default()).await?;
+    }
 
     let secret_api: Api<Secret> = Api::namespaced(client, namespace);
-    secret_api.delete(PGADMIN, &DeleteParams::default()).await?;
+    if api.get(PGADMIN).await.is_ok() {
+        secret_api.delete(PGADMIN, &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }
