@@ -195,6 +195,22 @@ bionic-cluster-delete:
         && sudo mv /tmp/eksctl /usr/local/bin
     RUN eksctl delete cluster -n bionic-gpt -r us-east-2
 
+bionic-cluster-update:
+    ARG AWS_ACCESS_KEY_ID
+    ARG AWS_SECRET_ACCESS_KEY
+    ARG AWS_ACCOUNT_ID
+    RUN sudo apt-get update && sudo apt-get install -y awscli
+    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
+        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
+        && sudo mv /tmp/eksctl /usr/local/bin
+    RUN curl -sLO "https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux" \
+        && sudo mv ./bionic-cli-linux /usr/local/bin/bionic \
+        && sudo chmod +x /usr/local/bin/bionic
+    RUN bionic -V
+    RUN eksctl utils write-kubeconfig --cluster bionic-gpt --region us-east-2
+    RUN kubectl get nodes
+    RUN bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
+
 bionic-cluster-create:
     ARG AWS_ACCESS_KEY_ID
     ARG AWS_SECRET_ACCESS_KEY
