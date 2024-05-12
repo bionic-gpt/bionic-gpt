@@ -12,16 +12,28 @@ const CONFIG_JSON: &str = include_str!("../../config/servers.json");
 // Large Language Model
 pub async fn deploy(
     client: Client,
-    password: &str,
-    keycloak_password: &str,
+    password: Option<String>,
+    keycloak_password: Option<String>,
     namespace: &str,
 ) -> Result<(), Error> {
+    // If we have the passwords then extract them.
+    let password = if let Some(password) = password {
+        password
+    } else {
+        "".to_string()
+    };
+    let keycloak_password = if let Some(keycloak_password) = keycloak_password {
+        keycloak_password
+    } else {
+        "".to_string()
+    };
     let passfile = format!("bionic-db-cluster-rw:5432:*:bionic_readonly:{}", password);
     let keycloak_passfile = format!(
         "keycloak-db-cluster-rw:5432:*:keycloak-db-owner:{}",
         keycloak_password
     );
-    // Put the envoy.yaml into a ConfigMap
+
+    // Put the setup into a ConfigMap
     let config_map = serde_json::json!({
         "apiVersion": "v1",
         "kind": "ConfigMap",
@@ -36,13 +48,16 @@ pub async fn deploy(
         }
     });
 
+    // If the config doesn't already exist then crate it.
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
-    api.patch(
-        PGADMIN,
-        &PatchParams::apply(crate::MANAGER),
-        &Patch::Apply(config_map),
-    )
-    .await?;
+    if api.get(PGADMIN).await.is_err() {
+        api.patch(
+            PGADMIN,
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(config_map),
+        )
+        .await?;
+    }
 
     deployment::deployment(
         client.clone(),

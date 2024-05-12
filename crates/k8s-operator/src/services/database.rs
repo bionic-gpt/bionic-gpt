@@ -54,12 +54,12 @@ pub struct ClusterSpec {
     pub storage: StorageSpec,
 }
 
-pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
+pub async fn deploy(client: Client, namespace: &str) -> Result<Option<String>, Error> {
     // If the cluster config exists, then do nothing.
     let cluster_api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     let cluster = cluster_api.get("bionic-db-cluster").await;
     if cluster.is_ok() {
-        return Ok(());
+        return Ok(None);
     }
     let app_database_password: String = rand_hex();
     let readonly_database_password: String = rand_hex();
@@ -158,7 +158,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
         .create(&PostParams::default(), &db_urls_secret)
         .await?;
 
-    Ok(())
+    Ok(Some(readonly_database_password))
 }
 
 pub fn rand_hex() -> String {

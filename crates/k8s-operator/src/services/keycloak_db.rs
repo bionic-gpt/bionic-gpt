@@ -11,12 +11,12 @@ use kube::{
     Client,
 };
 
-pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
+pub async fn deploy(client: Client, namespace: &str) -> Result<Option<String>, Error> {
     // If the cluster is already created then leave it alone.
     let cluster_api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     let cluster = cluster_api.get("keycloak-db-cluster").await;
     if cluster.is_ok() {
-        return Ok(());
+        return Ok(None);
     }
 
     let database_password: String = rand_hex();
@@ -66,7 +66,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
         .create(&PostParams::default(), &dbowner_secret)
         .await?;
 
-    Ok(())
+    Ok(Some(database_password))
 }
 
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
