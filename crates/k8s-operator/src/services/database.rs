@@ -54,7 +54,13 @@ pub struct ClusterSpec {
     pub storage: StorageSpec,
 }
 
-pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
+pub async fn deploy(client: Client, namespace: &str) -> Result<Option<String>, Error> {
+    // If the cluster config exists, then do nothing.
+    let cluster_api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
+    let cluster = cluster_api.get("bionic-db-cluster").await;
+    if cluster.is_ok() {
+        return Ok(None);
+    }
     let app_database_password: String = rand_hex();
     let readonly_database_password: String = rand_hex();
     let dbowner_password: String = rand_hex();
@@ -95,7 +101,6 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
         },
     };
 
-    let cluster_api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     cluster_api.create(&PostParams::default(), &cluster).await?;
 
     let mut secret_data = BTreeMap::new();
@@ -153,7 +158,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<String, Error> {
         .create(&PostParams::default(), &db_urls_secret)
         .await?;
 
-    Ok(readonly_database_password)
+    Ok(Some(readonly_database_password))
 }
 
 pub fn rand_hex() -> String {
@@ -164,16 +169,22 @@ pub fn rand_hex() -> String {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
-    api.delete("bionic-db-cluster", &DeleteParams::default())
-        .await?;
+    if api.get("bionic-db-cluster").await.is_ok() {
+        api.delete("bionic-db-cluster", &DeleteParams::default())
+            .await?;
+    }
 
     let secret_api: Api<Secret> = Api::namespaced(client, namespace);
-    secret_api
-        .delete("database-urls", &DeleteParams::default())
-        .await?;
-    secret_api
-        .delete("db-owner", &DeleteParams::default())
-        .await?;
+    if api.get("database-urls").await.is_ok() {
+        secret_api
+            .delete("database-urls", &DeleteParams::default())
+            .await?;
+    }
+    if api.get("db-owner").await.is_ok() {
+        secret_api
+            .delete("db-owner", &DeleteParams::default())
+            .await?;
+    }
 
     Ok(())
 }

@@ -3,7 +3,7 @@ use crate::error::Error;
 use crate::operator::crd::BionicSpec;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{ConfigMap, Service};
-use kube::api::{DeleteParams, PostParams};
+use kube::api::{DeleteParams, Patch, PatchParams};
 use kube::{Api, Client};
 use serde_json::json;
 
@@ -12,7 +12,7 @@ const ENVOY_YAML: &str = include_str!("../../envoy/envoy.yaml");
 // We are using envoy to add security headers to all responses from the main application.
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     // Put the envoy.yaml into a ConfigMap
-    let config_map = serde_json::from_value(serde_json::json!({
+    let config_map = serde_json::json!({
         "apiVersion": "v1",
         "kind": "ConfigMap",
         "metadata": {
@@ -22,10 +22,15 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         "data": {
             "envoy.yaml": ENVOY_YAML,
         }
-    }))?;
+    });
 
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
-    api.create(&PostParams::default(), &config_map).await?;
+    api.patch(
+        "envoy",
+        &PatchParams::apply(crate::MANAGER),
+        &Patch::Apply(config_map),
+    )
+    .await?;
 
     // Envoy
     deployment::deployment(
@@ -68,15 +73,21 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
+    if api.get("envoy").await.is_ok() {
+        api.delete("envoy", &DeleteParams::default()).await?;
+    }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
+    if api.get("envoy").await.is_ok() {
+        api.delete("envoy", &DeleteParams::default()).await?;
+    }
 
     // Remove configmaps
     let api: Api<ConfigMap> = Api::namespaced(client, namespace);
-    api.delete("envoy", &DeleteParams::default()).await?;
+    if api.get("envoy").await.is_ok() {
+        api.delete("envoy", &DeleteParams::default()).await?;
+    }
 
     Ok(())
 }
