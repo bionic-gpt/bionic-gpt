@@ -1,7 +1,7 @@
 use crate::error::Error;
 use crate::operator::crd::Bionic;
 use crate::operator::crd::BionicSpec;
-use anyhow::{bail, Result};
+use anyhow::Result;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::Namespace;
 use k8s_openapi::api::core::v1::ServiceAccount;
@@ -12,6 +12,8 @@ use k8s_openapi::api::rbac::v1::RoleRef;
 use k8s_openapi::api::rbac::v1::Subject;
 use k8s_openapi::apiextensions_apiserver::pkg::apis::apiextensions::v1::CustomResourceDefinition;
 use kube::api::ObjectMeta;
+use kube::api::Patch;
+use kube::api::PatchParams;
 use kube::Api;
 use kube::Client;
 use kube::CustomResourceExt;
@@ -28,26 +30,17 @@ const CNPG_YAML: &str = include_str!("../../config/cnpg-1.22.1.yaml");
 pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     let client = Client::try_default().await?;
 
-    // Define the API object for Namespace
-    let namespaces: Api<Namespace> = Api::all(client.clone());
-
-    let ns = namespaces.get(&installer.namespace).await;
-
-    if ns.is_ok() {
-        bail!("Namespace already exists");
-    } else {
-        install_postgres_operator(&client).await?;
-        create_namespace(&installer.namespace, &namespaces).await?;
-        create_namespace(&installer.operator_namespace, &namespaces).await?;
-        create_crd(&client).await?;
-        create_bionic(&client, installer).await?;
-        create_roles(&client, installer).await?;
-        if !installer.no_operator {
-            create_bionic_operator(&client, &installer.operator_namespace).await?;
-        }
-        let my_local_ip = local_ip().unwrap();
-        println!("When ready you can access bionic on http://{}", my_local_ip);
+    install_postgres_operator(&client).await?;
+    create_namespace(&client, &installer.namespace).await?;
+    create_namespace(&client, &installer.operator_namespace).await?;
+    create_crd(&client).await?;
+    create_bionic(&client, installer).await?;
+    create_roles(&client, installer).await?;
+    if !installer.no_operator {
+        create_bionic_operator(&client, &installer.operator_namespace).await?;
     }
+    let my_local_ip = local_ip().unwrap();
+    println!("When ready you can access bionic on http://{}", my_local_ip);
     Ok(())
 }
 
@@ -86,7 +79,7 @@ async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<()> 
         "app": "bionic-gpt-operator",
     });
 
-    let deployment = serde_json::from_value(serde_json::json!({
+    let deployment = serde_json::json!({
         "apiVersion": "apps/v1",
         "kind": "Deployment",
         "metadata": {
@@ -111,12 +104,16 @@ async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<()> 
                 }
             }
         }
-    }))?;
+    });
 
     // Create the deployment defined above
     let deployment_api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
     deployment_api
-        .create(&Default::default(), &deployment)
+        .patch(
+            "bionic-gpt-operator",
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(deployment),
+        )
         .await?;
 
     Ok(())
@@ -133,7 +130,13 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
         },
         ..Default::default()
     };
-    sa_api.create(&Default::default(), &service_account).await?;
+    sa_api
+        .patch(
+            "bionic-gpt-operator-service-account",
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(service_account),
+        )
+        .await?;
     let role_api: Api<ClusterRole> = Api::all(client.clone());
     let role = ClusterRole {
         metadata: ObjectMeta {
@@ -148,7 +151,15 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
         }]),
         ..Default::default()
     };
-    role_api.create(&Default::default(), &role).await?;
+    role_api
+        .patch(
+            "bionic-gpt-operator-cluster-role",
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(role),
+        )
+        .await?;
+
+    // Now the cluster role
     let role_binding_api: Api<ClusterRoleBinding> = Api::all(client.clone());
     let role_binding = ClusterRoleBinding {
         metadata: ObjectMeta {
@@ -168,7 +179,11 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
         }]),
     };
     role_binding_api
-        .create(&Default::default(), &role_binding)
+        .patch(
+            "bionic-gpt-operator-cluster-role-binding",
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(role_binding),
+        )
         .await?;
     Ok(())
 }
@@ -196,14 +211,25 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             hash_bionicgpt_db_migrations: "".to_string(),
         },
     );
-    bionic_api.create(&Default::default(), &bionic).await?;
+    bionic_api
+        .patch(
+            "bionic-gpt",
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(bionic),
+        )
+        .await?;
     Ok(())
 }
 
 async fn create_crd(client: &Client) -> Result<(), Error> {
     let crd = Bionic::crd();
     let crds: Api<CustomResourceDefinition> = Api::all(client.clone());
-    crds.create(&Default::default(), &crd).await?;
+    crds.patch(
+        "bionics.bionic-gpt.com",
+        &PatchParams::apply(crate::MANAGER),
+        &Patch::Apply(crd),
+    )
+    .await?;
 
     println!("Waiting for Bionic CRD");
     let establish = await_condition(
@@ -217,7 +243,10 @@ async fn create_crd(client: &Client) -> Result<(), Error> {
     Ok(())
 }
 
-async fn create_namespace(namespace: &str, namespaces: &Api<Namespace>) -> Result<()> {
+async fn create_namespace(client: &Client, namespace: &str) -> Result<Namespace> {
+    // Define the API object for Namespace
+    let namespaces: Api<Namespace> = Api::all(client.clone());
+
     let new_namespace = Namespace {
         metadata: ObjectMeta {
             name: Some(namespace.to_string()),
@@ -225,8 +254,12 @@ async fn create_namespace(namespace: &str, namespaces: &Api<Namespace>) -> Resul
         },
         ..Default::default()
     };
-    namespaces
-        .create(&Default::default(), &new_namespace)
+    let ns = namespaces
+        .patch(
+            namespace,
+            &PatchParams::apply(crate::MANAGER),
+            &Patch::Apply(new_namespace),
+        )
         .await?;
-    Ok(())
+    Ok(ns)
 }
