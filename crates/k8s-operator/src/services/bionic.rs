@@ -9,6 +9,16 @@ use kube::api::{DeleteParams, ObjectMeta, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
+// Some constants so we don't get typos.
+static INVITE_DOMAIN: &str = "INVITE_DOMAIN";
+static INVITE_FROM_EMAIL_ADDRESS: &str = "INVITE_FROM_EMAIL_ADDRESS";
+static SMTP_HOST: &str = "SMTP_HOST";
+static SMTP_PORT: &str = "SMTP_PORT";
+static SMTP_USERNAME: &str = "SMTP_USERNAME";
+static SMTP_PASSWORD: &str = "SMTP_PASSWORD";
+static SMTP_TLS_OFF: &str = "SMTP_TLS_OFF";
+static SMTP_SECRETS: &str = "smtp-secrets";
+
 // The web user interface
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     // Bionic with the migrations as a sidecar
@@ -50,45 +60,73 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                 }),
                 json!({
                     "name":
-                    "INVITE_DOMAIN",
-                    "value":
-                    spec.hostname_url
+                    INVITE_DOMAIN,
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": SMTP_SECRETS,
+                            "key": lower_dash(INVITE_DOMAIN)
+                        }
+                    }
                 }),
                 json!({
                     "name":
-                    "INVITE_FROM_EMAIL_ADDRESS",
-                    "value":
-                    "support@application.com"
+                    INVITE_FROM_EMAIL_ADDRESS,
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": SMTP_SECRETS,
+                            "key": lower_dash(INVITE_FROM_EMAIL_ADDRESS)
+                        }
+                    }
                 }),
                 json!({
                     "name":
-                    "SMTP_HOST",
-                    "value":
-                    "mailhog"
+                    SMTP_HOST,
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": SMTP_SECRETS,
+                            "key": lower_dash(SMTP_HOST)
+                        }
+                    }
                 }),
                 json!({
                     "name":
-                    "SMTP_PORT",
-                    "value":
-                    "1025"
+                    SMTP_PORT,
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": SMTP_SECRETS,
+                            "key": lower_dash(SMTP_PORT)
+                        }
+                    }
                 }),
                 json!({
                     "name":
-                    "SMTP_USERNAME",
-                    "value":
-                    "thisisnotused"
+                    SMTP_USERNAME,
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": SMTP_SECRETS,
+                            "key": lower_dash(SMTP_USERNAME)
+                        }
+                    }
                 }),
                 json!({
                     "name":
-                    "SMTP_PASSWORD",
-                    "value":
-                    "thisisnotused"
+                    SMTP_PASSWORD,
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": SMTP_SECRETS,
+                            "key": lower_dash(SMTP_PASSWORD)
+                        }
+                    }
                 }),
                 json!({
                     "name":
-                    "SMTP_TLS_OFF",
-                    "value":
-                    "true"
+                    SMTP_TLS_OFF,
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": SMTP_SECRETS,
+                            "key": lower_dash(SMTP_TLS_OFF)
+                        }
+                    }
                 }),
             ],
             init_container: Some(deployment::InitContainer {
@@ -119,22 +157,22 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
 // Create the email secret if it doesn't exist.
 async fn email_secret(namespace: &str, spec: BionicSpec, client: Client) -> Result<(), Error> {
     let secret_api: Api<Secret> = Api::namespaced(client, namespace);
-    let secret = secret_api.get("smtp-secrets").await;
+    let secret = secret_api.get(SMTP_SECRETS).await;
     if secret.is_err() {
         let mut secret_data = BTreeMap::new();
-        secret_data.insert("INVITE_DOMAIN".to_string(), spec.hostname_url);
+        secret_data.insert(lower_dash(INVITE_DOMAIN), spec.hostname_url);
         secret_data.insert(
-            "INVITE_FROM_EMAIL_ADDRESS".to_string(),
+            lower_dash(INVITE_FROM_EMAIL_ADDRESS),
             "support@application.com".to_string(),
         );
-        secret_data.insert("SMTP_HOST".to_string(), "mailhog".to_string());
-        secret_data.insert("SMTP_PORT".to_string(), "1025".to_string());
-        secret_data.insert("SMTP_USERNAME".to_string(), "thisisnotused".to_string());
-        secret_data.insert("SMTP_PASSWORD".to_string(), "thisisnotused".to_string());
-        secret_data.insert("SMTP_TLS_OFF".to_string(), "true".to_string());
+        secret_data.insert(lower_dash(SMTP_HOST), "mailhog".to_string());
+        secret_data.insert(lower_dash(SMTP_PORT), "1025".to_string());
+        secret_data.insert(lower_dash(SMTP_USERNAME), "thisisnotused".to_string());
+        secret_data.insert(lower_dash(SMTP_PASSWORD), "thisisnotused".to_string());
+        secret_data.insert(lower_dash(SMTP_TLS_OFF), "true".to_string());
         let keycloak_secret = Secret {
             metadata: ObjectMeta {
-                name: Some("smtp-secrets".to_string()),
+                name: Some(SMTP_SECRETS.to_string()),
                 namespace: Some(namespace.to_string()),
                 ..ObjectMeta::default()
             },
@@ -146,6 +184,10 @@ async fn email_secret(namespace: &str, spec: BionicSpec, client: Client) -> Resu
             .await?;
     }
     Ok(())
+}
+
+fn lower_dash(s: &str) -> String {
+    s.to_lowercase().replace('_', "-")
 }
 
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
