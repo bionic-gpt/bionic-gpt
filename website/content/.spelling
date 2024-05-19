@@ -566,3 +566,5 @@ consultancy.html
 support.html
  - services/training.md
 training.html
+ - docs/enterprise-edition/email.md
+MailHog
