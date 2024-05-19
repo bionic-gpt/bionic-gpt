@@ -12,6 +12,10 @@ You can open a port to MailHog using K9s and check the email coming from Bionic 
 
 To use another provider you'll need to override the Kubernetes secret that we create on installation.
 
+## Example Config
+
+Save the below to a file called `smtp-secrets.yml`. You'll need to set the information to reflect your email server.
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -28,4 +32,10 @@ data:
     smtp-username: thisisnotused
     invite-domain: http://your-hostname.com
 
+```
+
+To apply this secret run 
+
+```sh
+kubectl apply -n bionic-gpt -f smtp-secrets.yml
 ```
