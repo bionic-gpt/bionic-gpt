@@ -199,6 +199,7 @@ YAML
 plugin
 k8's
 eks
+Nginx
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -544,6 +545,7 @@ kubectl
 kubeconfig
 ip
 k3d
+cli
  - docs/community-edition/docker-desktop.md
 Nginx
  - docs/enterprise-edition/aws.md
@@ -568,3 +570,6 @@ support.html
 training.html
  - docs/enterprise-edition/email.md
 MailHog
+ - docs/community-edition/introduction.md
+8B
+8

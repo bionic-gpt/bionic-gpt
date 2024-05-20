@@ -58,6 +58,8 @@ services:
   app:
     image: ghcr.io/bionic-gpt/bionicgpt:1.7.11
     platform: linux/amd64
+    ports:
+      - 3000:7703
     environment:
       BYPASS_AUTH: "support@bionic-gpt.com"
       LOGOUT_URL: http://localhost:3000
