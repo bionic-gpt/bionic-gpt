@@ -12,30 +12,26 @@ You can open a port to MailHog using K9s and check the email coming from Bionic 
 
 To use another provider you'll need to override the Kubernetes secret that we create on installation.
 
-## Example Config
+## Creating the secret
 
-Save the below to a file called `smtp-secrets.yml`. You'll need to set the information to reflect your email server.
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: smtp-secrets
-  namespace: bionic-gpt
-type: Opaque
-data:
-    invite-from-email-address: support@application.com
-    smtp-host: mailhog
-    smtp-password: thisisnotused
-    smtp-port: 1025
-    smtp-tls-off: true
-    smtp-username: thisisnotused
-    invite-domain: http://your-hostname.com
-
-```
-
-To apply this secret run 
+The below is an example using the data we already setup when you install Bionic. You'll need to look at the parameters and set them as the same for you provider.
 
 ```sh
-kubectl apply -n bionic-gpt -f smtp-secrets.yml
+kubectl delete secret smtp-secrets -n bionic-gpt
+kubectl create secret generic smtp-secrets -n bionic-gpt \
+    --from-literal=invite-from-email-address=support@application.com \
+    --from-literal=smtp-host=mailhog \
+    --from-literal=smtp-password=thisisnotused \
+    --from-literal=smtp-port=1025 \
+    --from-literal=smtp-tls-off=true \
+    --from-literal=smtp-username=thisisnotused \
+    --from-literal=invite-domain=http://your-hostname.com
 ```
+
+## Restart the Bionic Server
+
+```sh
+kubectl rollout restart deployment bionic-gpt -n bionic-gpt
+```
+
+You should now be able to see Bionic sending email to your provider.
