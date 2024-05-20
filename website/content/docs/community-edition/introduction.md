@@ -17,9 +17,9 @@ We're open source. If you have any suggestions, recommendations are just have an
 
 ![Alt text](/github-readme.png "Start Screen")
 
-## LLama 2 7B
+## LLama 3 8B
 
-For installations on modest hardware we run a quantized model with 7 billion parameters.
+For installations on modest hardware we run a quantized model with 8 billion parameters.
 
 However typically larger models give better results and if you have access to a model with for example 70 billion parameters you'll get some great results.
 
