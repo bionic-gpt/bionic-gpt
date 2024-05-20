@@ -18,6 +18,8 @@ WHERE
     (visibility = 'Private' AND created_by = current_app_user()) 
 OR 
     (team_id IN (SELECT team_id FROM team_users WHERE user_id = current_app_user()))
+OR 
+    (visibility = 'Company')
 AND
     team_id = :team_id
 ORDER BY updated_at;
