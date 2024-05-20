@@ -46,7 +46,10 @@ WHERE
         )
         AND team_id = :team_id
     )
-    OR p.visibility='Company'
+    OR 
+        (p.visibility='Company')
+    OR 
+        (p.visibility = 'Private' AND created_by = current_app_user()) 
 ORDER BY updated_at;
 
 --! prompt : SinglePrompt
@@ -102,7 +105,10 @@ AND
         )
         AND team_id = :team_id
     )
-    OR p.visibility='Company'
+    OR 
+        (p.visibility='Company')
+    OR 
+        (p.visibility = 'Private' AND created_by = current_app_user()) 
 ORDER BY updated_at;
 
 --! prompt_by_api_key : Prompt

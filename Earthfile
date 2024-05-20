@@ -233,3 +233,9 @@ bionic-cluster-create:
     RUN kubectl -n bionic-gpt create secret generic cloudflare-credentials --from-literal=token=$TUNNEL_TOKEN
     RUN kubectl -n bionic-gpt apply -f ./infra-as-code/cloudflare.yaml
 
+# One docker container with all our services
+community-edition:
+    FROM purtontech/rust-on-nails-devcontainer:1.3.1
+    COPY +build/$APP_EXE_NAME /usr/bin/web-server
+    COPY +build/$PIPELINE_EXE_NAME /usr/bin/pipeline-job
+    ENTRYPOINT ["/usr/bin/web-server"]
