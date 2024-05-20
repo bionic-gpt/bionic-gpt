@@ -18,4 +18,4 @@ The enterprise version of Bionic-GPT includes the following
 
 ## Architecture Diagram
 
-![Alt text](../architecture.svg "BionicGPT Architetcure")
+![Alt text](/landing-page/rag-architecture.png "BionicGPT Architetcure")
