@@ -23,6 +23,9 @@ CREATE TABLE datasets (
     CONSTRAINT FK_team FOREIGN KEY(team_id)
         REFERENCES teams(id) ON DELETE CASCADE,
 
+    CONSTRAINT FK_user FOREIGN KEY(created_by)
+        REFERENCES users(id) ON DELETE CASCADE,
+
     CONSTRAINT FK_model FOREIGN KEY(embeddings_model_id)
         REFERENCES models(id) ON DELETE CASCADE
 );

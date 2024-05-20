@@ -15,7 +15,9 @@ SELECT
 FROM 
     datasets d
 WHERE
-    team_id IN (SELECT team_id FROM team_users WHERE user_id = current_app_user())
+    (visibility = 'Private' AND created_by = current_app_user()) 
+OR 
+    (team_id IN (SELECT team_id FROM team_users WHERE user_id = current_app_user()))
 AND
     team_id = :team_id
 ORDER BY updated_at;
@@ -96,7 +98,8 @@ INSERT INTO
         combine_under_n_chars,
         new_after_n_chars,
         multipage_sections,
-        visibility
+        visibility,
+        created_by
     )
 VALUES(
     :team_id, 
@@ -106,7 +109,8 @@ VALUES(
     :combine_under_n_chars,
     :new_after_n_chars,
     :multipage_sections,
-    :visibility)
+    :visibility,
+    current_app_user())
 RETURNING id;
 
 --! delete
