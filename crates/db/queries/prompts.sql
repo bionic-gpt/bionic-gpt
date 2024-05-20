@@ -209,7 +209,8 @@ INSERT INTO prompts (
     max_chunks,
     max_tokens,
     trim_ratio,
-    temperature
+    temperature,
+    created_by
 )
 VALUES(
     :team_id, 
@@ -221,7 +222,8 @@ VALUES(
     :max_chunks,
     :max_tokens,
     :trim_ratio,
-    :temperature
+    :temperature,
+    current_app_user()
 )
 RETURNING id;
 
