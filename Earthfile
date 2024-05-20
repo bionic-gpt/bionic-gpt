@@ -16,6 +16,7 @@ ARG --global EMBEDDINGS_IMAGE_NAME=ghcr.io/bionic-gpt/bionicgpt-embeddings-api:c
 
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
+ARG --global CE_IMAGE_NAME=bionic-gpt/bionic-ce:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
@@ -238,4 +239,7 @@ community-edition:
     FROM purtontech/rust-on-nails-devcontainer:1.3.1
     COPY +build/$APP_EXE_NAME /usr/bin/web-server
     COPY +build/$PIPELINE_EXE_NAME /usr/bin/pipeline-job
+    ENV APP_DATABASE_URL=postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
+    ENV APP_DATABASE_URL=postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
     ENTRYPOINT ["/usr/bin/web-server"]
+    SAVE IMAGE --push $CE_IMAGE_NAME
