@@ -1,6 +1,6 @@
 +++
 title = "Docker Desktop Installation (Experimental)"
-weight = 30
+weight = 15
 sort_by = "weight"
 +++
 

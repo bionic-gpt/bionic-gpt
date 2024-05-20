@@ -1,74 +1,88 @@
 +++
-title = "Installing Bionic"
-weight = 30
+title = "Quick Installation (Linux)"
+weight = 10
 sort_by = "weight"
 +++
 
-## Step 0: Setup
+## K3s Installation
 
-Before anything else, we need to ensure you have access to modern Kubernetes cluster and a functioning kubectl command on your local machine. (If you don’t already have a Kubernetes cluster, one easy option is to run one on your local machine. There are many ways to do this, including kind, k3d, Docker for Desktop, and more.)
+To run Bionic we'll install a very lightweight Kubernetes onto our system using [K3s](https://k3s.io/)
 
-Validate your Kubernetes setup by running:
+### 1. Install K3s
 
 ```sh
-kubectl version
+sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
+mkdir -p ~/.kube
+cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
 ```
-The bionic installer simplifies a lot of the setup. To install it run the following.
 
-## Step 1: Install the CLI
+### 2. Install K9s (Optional)
 
 ```sh
-export BIONIC_VERSION=1.6.35
+curl -L -s https://github.com/derailed/k9s/releases/download/v0.24.15/k9s_Linux_x86_64.tar.gz | tar xvz -C /tmp
+sudo mv /tmp/k9s /usr/local/bin
+rm -rf k9s_Linux_x86_64.tar.gz
+```
+
+### 3. Check your K3s install
+
+```sh
+kubectl get pods
+# No resources found in default namespace.
+```
+
+## 4. Install the Bionic CLI
+
+```sh
+export BIONIC_VERSION={{ version() }}
 curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/v${BIONIC_VERSION}/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
-Check the installation
+Try it out
 
 ```sh
-bionic -h
+bionic -V
 ```
 
-## Step 2: Run the Install
-
-The following will install `k3s` as our kubernetes engine and then install bionic into the cluster. It will also install `k9s` which is a terminal UI for Kubernetes.
+## 5. Install the application into K3s
 
 ```sh
-bionic install --pgadmin
+bionic install
 ```
 
-Note you can skip the `--pgadmin` if you don't want [pgAdmin](https://www.pgadmin.org/) installed.
-
-You can optionally install [k9s](https://k9scli.io/) which is a great way to get insight into your cluster.
-
-```sh
-curl -L -s https://github.com/derailed/k9s/releases/download/v0.32.4/k9s_Linux_amd64.tar.gz | tar xvz -C /tmp && sudo mv /tmp/k9s /usr/local/bin && rm -rf k9s_Linux_amd64.tar.gz
-```
-
-## Step 3: The Finished Result
-
-and then.
-
-```sh
-k9s
-```
+## The Finished Result
 
 After a while of container creation you should see all the pods running and then be able to access Bionic.
 
 
 ![Alt text](../bionic-startup-k9s.png "Bionic K9s")
 
-## Step 4: Run the User Interface
+## Run the User Interface
 
-You can then access the front end from `http://{YOUR_IP_ADDRESS}` and you'll be redirected to a registration screen.
+You can then access the front end from `http://localhost` and you'll be redirected to a registration screen.
 
-To get your ip address
-
-```sh
-hostname -I | awk '{print $1}'
-```
-
-## Step 5: Registration
+## Registration
 
 The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
 ![Alt text](../initial-screen.png "Start Screen")
+
+## Uninstall Bionic
+
+First we can remove K3s entirely. K3s comes with it's own uninstall script.
+
+```sh
+k3s-uninstall.sh
+```
+
+Then you can remove the bionic cli
+
+```sh
+sudo rm /usr/local/bin/bionic
+```
+
+And also remove k9s if you want to.
+
+```sh
+sudo rm /usr/local/bin/k9s
+```
