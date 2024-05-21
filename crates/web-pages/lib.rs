@@ -305,6 +305,23 @@ pub mod routes {
         }
     }
 
+    pub mod teams {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/switch")]
+        pub struct Switch {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/new")]
+        pub struct New {
+            pub team_id: i32,
+        }
+    }
+
     pub mod team {
         use axum_extra::routing::TypedPath;
         use serde::Deserialize;
@@ -312,12 +329,6 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id")]
         pub struct Index {
-            pub team_id: i32,
-        }
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/switch")]
-        pub struct Switch {
             pub team_id: i32,
         }
 
@@ -349,12 +360,6 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/set_name")]
         pub struct SetName {
-            pub team_id: i32,
-        }
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/new")]
-        pub struct New {
             pub team_id: i32,
         }
     }

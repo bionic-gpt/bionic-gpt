@@ -9,7 +9,7 @@ use db::Pool;
 use db::{queries, Visibility};
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::team::New;
+use web_pages::routes::teams::New;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewTeam {
@@ -70,7 +70,7 @@ pub async fn new_team(
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::team::Switch { team_id }.to_string(),
+        &web_pages::routes::teams::Switch { team_id }.to_string(),
         "New Team Created",
     )
 }

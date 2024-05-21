@@ -1,3 +1,4 @@
+pub mod accept_invite;
 pub mod new_team;
 pub mod switch;
 use axum::Router;

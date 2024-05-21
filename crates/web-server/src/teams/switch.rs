@@ -3,7 +3,7 @@ use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
 use db::Pool;
-use web_pages::{render_with_props, routes::team::Switch, teams};
+use web_pages::{render_with_props, routes::teams::Switch, teams};
 
 pub async fn switch(
     Switch { team_id }: Switch,

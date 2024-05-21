@@ -148,7 +148,8 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, invites: Vec<Invita
 
             for invite in invites {
                 super::accept_invitation::AcceptInvite {
-                    invite
+                    invite,
+                    team_id
                 }
             }
 
@@ -156,7 +157,7 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, invites: Vec<Invita
             form {
                 method: "post",
                 "data-turbo-frame": "_top",
-                action: crate::routes::team::New{team_id}.to_string(),
+                action: crate::routes::teams::New{team_id}.to_string(),
                 Drawer {
                     label: "Create a new team?",
                     trigger_id: "create-new-team",
