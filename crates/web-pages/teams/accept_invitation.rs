@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AcceptInvite() -> Element {
+pub fn AcceptInvite(invite: db::Invitation) -> Element {
     rsx! {
         // The form to create an invitation
         form {
@@ -11,7 +11,7 @@ pub fn AcceptInvite() -> Element {
             action: "",
             Drawer {
                 label: "Do you want to accept this invitation?",
-                trigger_id: "create-invite-form",
+                trigger_id: format!("accept-invite-trigger-{}", invite.id),
                 DrawerBody {
                     div {
                         class: "flex flex-col",

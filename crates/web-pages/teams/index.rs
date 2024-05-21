@@ -120,7 +120,7 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, invites: Vec<Invita
                             }
                         }
                         tbody {
-                            for invite in invites {
+                            for invite in &invites {
                                 td {
                                     "{invite.id}"
                                 }
@@ -143,6 +143,12 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, invites: Vec<Invita
                             }
                         }
                     }
+                }
+            }
+
+            for invite in invites {
+                super::accept_invitation::AcceptInvite {
+                    invite
                 }
             }
 
