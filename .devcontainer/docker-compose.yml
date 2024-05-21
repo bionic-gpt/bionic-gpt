@@ -45,7 +45,7 @@ services:
       RUST_LOG: debug
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
-
+      SIGNOUT_URL: /auth/sign_out
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
