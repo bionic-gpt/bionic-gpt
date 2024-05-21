@@ -1,5 +1,4 @@
 pub mod invitation_form;
-pub mod invitation_view;
 pub mod members;
 pub mod remove_member;
 pub mod remove_warning;

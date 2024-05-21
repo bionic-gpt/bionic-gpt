@@ -175,13 +175,7 @@ pub fn Page(
                                         class: "text-right",
                                         DropDown {
                                             button_text: "...",
-                                            direction: Direction::Left,
-                                            DropDownLink {
-                                                href: "#",
-                                                drawer_trigger: format!("invitation-view-trigger-{}", invite.id),
-                                                target: "_top",
-                                                "Show Invite"
-                                            }
+                                            direction: Direction::Left
                                         }
                                     }
                                 }
@@ -197,12 +191,6 @@ pub fn Page(
                     user_id: member.id,
                     email: member.email.clone(),
                     trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.team_id)
-                }
-            }
-
-            for invite in invites {
-                super::invitation_view::InvitationView {
-                    invite
                 }
             }
 
