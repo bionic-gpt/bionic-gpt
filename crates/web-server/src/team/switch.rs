@@ -25,12 +25,18 @@ pub async fn switch(
         .all()
         .await?;
 
+    let invites = queries::invitations::get_by_user()
+        .bind(&transaction)
+        .all()
+        .await?;
+
     let html = render_with_props(
-        teams::Page,
-        teams::PageProps {
+        teams::index::Page,
+        teams::index::PageProps {
             teams,
             team_id: team.id,
             rbac,
+            invites,
         },
     );
 

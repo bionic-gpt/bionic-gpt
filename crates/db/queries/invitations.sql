@@ -57,3 +57,19 @@ SELECT
 FROM 
     invitations 
 WHERE team_id = :team_id;
+
+--! get_by_user : Invitation
+SELECT  
+    id, 
+    email,
+    first_name, 
+    last_name, 
+    invitation_selector, 
+    invitation_verifier_hash,
+    team_id,
+    roles,
+    created_at  
+FROM 
+    invitations 
+WHERE 
+    email in (SELECT email from users WHERE id = current_app_user());

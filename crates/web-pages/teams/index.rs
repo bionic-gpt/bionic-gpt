@@ -3,11 +3,11 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::TeamOwner;
+use db::{Invitation, TeamOwner};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, invites: Vec<Invitation>) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -91,6 +91,52 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
                                             strong {
                                                 "{team.team_owner}"
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            Box {
+                class: "has-data-table mt-8",
+                BoxHeader {
+                    title: "You have invitations to join the following teams"
+                }
+                BoxBody {
+                    table {
+                        class: "table table-sm",
+                        thead {
+                            th { "Team" }
+                            th {
+                                "Team Creator"
+                            }
+                            th {
+                                class: "text-right",
+                                "Action"
+                            }
+                        }
+                        tbody {
+                            for invite in invites {
+                                td {
+                                    "{invite.id}"
+                                }
+                                td {
+                                    "{invite.id}"
+                                }
+                                td {
+                                    class: "text-right",
+                                    DropDown {
+                                        direction: Direction::Left,
+                                        button_text: "...",
+                                        DropDownLink {
+                                            drawer_trigger: format!("accept-invite-trigger-{}", invite.id),
+                                            href: "#",
+                                            target: "_top",
+                                            "Accept Invite"
                                         }
                                     }
                                 }
