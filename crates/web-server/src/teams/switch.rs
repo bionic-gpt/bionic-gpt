@@ -3,7 +3,7 @@ use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
 use db::Pool;
-use web_pages::{render_with_props, routes::team::Switch, teams};
+use web_pages::{render_with_props, routes::teams::Switch, teams};
 
 pub async fn switch(
     Switch { team_id }: Switch,
@@ -25,12 +25,18 @@ pub async fn switch(
         .all()
         .await?;
 
+    let invites = queries::invitations::get_by_user()
+        .bind(&transaction)
+        .all()
+        .await?;
+
     let html = render_with_props(
-        teams::Page,
-        teams::PageProps {
+        teams::index::Page,
+        teams::index::PageProps {
             teams,
             team_id: team.id,
             rbac,
+            invites,
         },
     );
 

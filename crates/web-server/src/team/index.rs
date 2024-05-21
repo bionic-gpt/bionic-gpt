@@ -4,7 +4,7 @@ use db::authz;
 use db::queries;
 use db::types;
 use db::Pool;
-use web_pages::{render_with_props, routes::team::Index, team_members};
+use web_pages::{render_with_props, routes::team::Index, team};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -52,8 +52,8 @@ pub async fn index(
     };
 
     let html = render_with_props(
-        team_members::members::Page,
-        team_members::members::PageProps {
+        team::members::Page,
+        team::members::PageProps {
             invites,
             rbac,
             members,
