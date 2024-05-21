@@ -17,7 +17,7 @@ pub mod profile;
 pub mod profile_popup;
 pub mod prompts;
 pub mod rate_limits;
-pub mod team_members;
+pub mod team;
 pub mod teams;
 
 // Generic function to render a component and its props to a string
