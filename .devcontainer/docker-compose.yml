@@ -21,7 +21,7 @@ services:
         DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
         FORWARD_URL: development
         FORWARD_PORT: 7703
-        # Any requests that meet the following regulkar expressions
+        # Any requests that meet the following regular expressions
         # with pass through. i.e. They don't require auth.
         SKIP_AUTH_FOR: /static*
         REDIRECT_URL: '/'
