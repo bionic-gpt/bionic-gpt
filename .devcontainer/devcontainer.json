@@ -10,9 +10,6 @@
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
-	"containerEnv": {
-		"BYPASS_AUTH": "test.user@test.com"
-	},
 	// Set *default* container specific settings.json values on container create.
 	"customizations": {
 		"vscode": {
