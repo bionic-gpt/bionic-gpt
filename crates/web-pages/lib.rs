@@ -320,6 +320,10 @@ pub mod routes {
         pub struct New {
             pub team_id: i32,
         }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/accept_invite")]
+        pub struct AcceptInvite {}
     }
 
     pub mod team {

@@ -8,7 +8,7 @@ pub fn AcceptInvite(invite: db::Invitation, team_id: i32) -> Element {
         // The form to create an invitation
         form {
             method: "post",
-            action: "",
+            action: crate::routes::teams::AcceptInvite{}.to_string(),
             Drawer {
                 label: "Do you want to accept this invitation?",
                 trigger_id: format!("accept-invite-trigger-{}", invite.id),

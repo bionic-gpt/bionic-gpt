@@ -8,4 +8,5 @@ pub fn routes() -> Router {
     Router::new()
         .typed_get(switch::switch)
         .typed_post(new_team::new_team)
+        .typed_post(accept_invite::accept_invite)
 }
