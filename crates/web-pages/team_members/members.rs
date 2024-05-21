@@ -146,7 +146,7 @@ pub fn Page(
                                 }
                             }
 
-                            for invite in invites {
+                            for invite in &invites {
                                 tr {
                                     td {
                                             Avatar {
@@ -165,23 +165,22 @@ pub fn Page(
                                         }
                                     }
                                     td {
-                                        for role in invite.roles {
+                                        for role in invite.roles.clone() {
                                             super::team_role::Role {
                                                 role
                                             }
                                         }
                                     }
-                                    if can_manage_team {
-                                        td {
-                                            class: "text-right",
-                                            DropDown {
-                                                direction: Direction::Left,
-                                                button_text: "",
-                                                DropDownLink {
-                                                    href: "#",
-                                                    target: "_top",
-                                                    "Resend Invite"
-                                                }
+                                    td {
+                                        class: "text-right",
+                                        DropDown {
+                                            button_text: "...",
+                                            direction: Direction::Left,
+                                            DropDownLink {
+                                                href: "#",
+                                                drawer_trigger: format!("invitation-view-trigger-{}", invite.id),
+                                                target: "_top",
+                                                "Show Invite"
                                             }
                                         }
                                     }
@@ -198,7 +197,12 @@ pub fn Page(
                     user_id: member.id,
                     email: member.email.clone(),
                     trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.team_id)
-                    //team_id: &team.id
+                }
+            }
+
+            for invite in invites {
+                super::invitation_view::InvitationView {
+                    invite
                 }
             }
 
