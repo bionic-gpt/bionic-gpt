@@ -21,7 +21,7 @@ pub async fn invite(
         accept_invitation(&pool, current_user, &invite_selector, &invite_validator).await?;
 
     Ok(Redirect::to(
-        &web_pages::routes::team::Switch { team_id }.to_string(),
+        &web_pages::routes::teams::Switch { team_id }.to_string(),
     ))
 }
 
