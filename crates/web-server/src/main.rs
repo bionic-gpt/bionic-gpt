@@ -20,6 +20,7 @@ pub mod prompts;
 pub mod rate_limits;
 pub mod static_files;
 pub mod team;
+pub mod teams;
 
 pub use auth::Authentication;
 use axum_extra::routing::RouterExt;
@@ -57,6 +58,7 @@ async fn main() {
         .merge(prompts::routes())
         .merge(rate_limits::routes())
         .merge(team::routes())
+        .merge(teams::routes())
         .layer(Extension(config))
         .layer(Extension(pool.clone()));
 

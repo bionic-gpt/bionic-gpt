@@ -127,7 +127,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             NavItem {
                                 id: SideBar::Switch.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::team::Switch{team_id:props.team_id},
+                                href: super::routes::teams::Switch{team_id:props.team_id},
                                 icon: nav_teams_svg.name,
                                 title: "Your Teams"
                             }

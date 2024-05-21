@@ -69,7 +69,7 @@ GRANT SELECT ON audit_trail_id_seq, audit_trail_text_generation_id_seq TO bionic
 
 -- migrate:down
 DROP TABLE audit_trail_text_generation;
-DROP TABLE audit_trail;
+DROP TABLE audit_trail CASCADE;
 DROP TYPE audit_access_type;
 DROP TYPE audit_action;
 

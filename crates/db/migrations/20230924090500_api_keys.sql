@@ -30,4 +30,4 @@ GRANT SELECT ON api_keys_id_seq TO bionic_readonly;
 
 -- migrate:down
 
-DROP TABLE api_keys;
+DROP TABLE api_keys CASCADE;

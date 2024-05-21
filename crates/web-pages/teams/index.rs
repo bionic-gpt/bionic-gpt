@@ -3,11 +3,16 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::TeamOwner;
+use db::{InviteSummary, TeamOwner};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
+pub fn Page(
+    rbac: Rbac,
+    team_id: i32,
+    teams: Vec<TeamOwner>,
+    invites: Vec<InviteSummary>,
+) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -100,11 +105,64 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>) -> Element {
                 }
             }
 
+
+            Box {
+                class: "has-data-table mt-8",
+                BoxHeader {
+                    title: "You have invitations to join the following teams"
+                }
+                BoxBody {
+                    table {
+                        class: "table table-sm",
+                        thead {
+                            th { "Team" }
+                            th {
+                                "Team Creator"
+                            }
+                            th {
+                                class: "text-right",
+                                "Action"
+                            }
+                        }
+                        tbody {
+                            for invite in &invites {
+                                td {
+                                    "{invite.team_name}"
+                                }
+                                td {
+                                    "{invite.created_by}"
+                                }
+                                td {
+                                    class: "text-right",
+                                    DropDown {
+                                        direction: Direction::Left,
+                                        button_text: "...",
+                                        DropDownLink {
+                                            drawer_trigger: format!("accept-invite-trigger-{}", invite.id),
+                                            href: "#",
+                                            target: "_top",
+                                            "Accept Invite"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for invite in invites {
+                super::accept_invitation::AcceptInvite {
+                    invite,
+                    team_id
+                }
+            }
+
             // The for to create new teams
             form {
                 method: "post",
                 "data-turbo-frame": "_top",
-                action: crate::routes::team::New{team_id}.to_string(),
+                action: crate::routes::teams::New{team_id}.to_string(),
                 Drawer {
                     label: "Create a new team?",
                     trigger_id: "create-new-team",
