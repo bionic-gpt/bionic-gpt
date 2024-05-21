@@ -1,4 +1,5 @@
 --: Invitation()
+--: InviteSummary()
 
 --! insert_invitation
 INSERT INTO 
@@ -74,16 +75,15 @@ FROM
     invitations 
 WHERE team_id = :team_id;
 
---! get_by_user : Invitation
+--! get_by_user : InviteSummary
 SELECT  
     id, 
     email,
     first_name, 
     last_name, 
-    invitation_selector, 
-    invitation_verifier_hash,
+    COALESCE((SELECT name FROM teams t WHERE t.id = team_id), 'Name Not Set') AS team_name,
     team_id,
-    roles,
+    (SELECT email FROM users u WHERE u.id IN (SELECT created_by_user_id FROM teams t WHERE t.id = team_id)) AS created_by,
     created_at  
 FROM 
     invitations 

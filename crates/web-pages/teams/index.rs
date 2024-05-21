@@ -3,11 +3,16 @@ use crate::app_layout::{Layout, SideBar};
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::{Invitation, TeamOwner};
+use db::{InviteSummary, TeamOwner};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, invites: Vec<Invitation>) -> Element {
+pub fn Page(
+    rbac: Rbac,
+    team_id: i32,
+    teams: Vec<TeamOwner>,
+    invites: Vec<InviteSummary>,
+) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -122,10 +127,10 @@ pub fn Page(rbac: Rbac, team_id: i32, teams: Vec<TeamOwner>, invites: Vec<Invita
                         tbody {
                             for invite in &invites {
                                 td {
-                                    "{invite.id}"
+                                    "{invite.team_name}"
                                 }
                                 td {
-                                    "{invite.id}"
+                                    "{invite.created_by}"
                                 }
                                 td {
                                     class: "text-right",

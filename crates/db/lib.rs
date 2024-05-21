@@ -13,7 +13,7 @@ pub use queries::chats::Chat;
 pub use queries::conversations::Conversation;
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
-pub use queries::invitations::Invitation;
+pub use queries::invitations::{Invitation, InviteSummary};
 pub use queries::models::Model;
 pub use queries::prompts::Prompt;
 pub use queries::rate_limits::RateLimit;
