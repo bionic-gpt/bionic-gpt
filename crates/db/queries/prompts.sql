@@ -38,14 +38,18 @@ SELECT
 FROM 
     prompts p
 WHERE
-    p.model_id IN (
-        SELECT id FROM models WHERE team_id IN(
-            SELECT team_id 
-            FROM team_users 
-            WHERE user_id = current_app_user()
-        )
-        AND team_id = :team_id
-    )
+    (
+        p.visibility='Team' 
+        AND 
+        p.model_id IN (
+            SELECT id FROM models WHERE team_id IN(
+                SELECT team_id 
+                FROM team_users 
+                WHERE user_id = current_app_user()
+            )
+        AND 
+        team_id = :team_id
+    ))
     OR 
         (p.visibility='Company')
     OR 
@@ -97,7 +101,9 @@ FROM
 WHERE
     p.id = :prompts_id
 AND
-    (p.model_id IN (
+    (
+        p.visibility='Team' 
+        AND p.model_id IN (
         SELECT id FROM models WHERE team_id IN(
             SELECT team_id 
             FROM team_users 
