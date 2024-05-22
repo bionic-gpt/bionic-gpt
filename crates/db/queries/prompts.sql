@@ -97,7 +97,7 @@ FROM
 WHERE
     p.id = :prompts_id
 AND
-    p.model_id IN (
+    (p.model_id IN (
         SELECT id FROM models WHERE team_id IN(
             SELECT team_id 
             FROM team_users 
@@ -108,7 +108,7 @@ AND
     OR 
         (p.visibility='Company')
     OR 
-        (p.visibility = 'Private' AND created_by = current_app_user()) 
+        (p.visibility = 'Private' AND created_by = current_app_user()))
 ORDER BY updated_at;
 
 --! prompt_by_api_key : Prompt
