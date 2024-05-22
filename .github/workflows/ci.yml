@@ -229,7 +229,12 @@ jobs:
     - name: Wait for All the Pods
       run: |
         kubectl get pods -n bionic-gpt
-        kubectl wait pod --all --for=condition=Ready --namespace=bionic-gpt
+        kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/bionic-db-cluster-1
+        kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/keycloak-db-cluster-1
+        kubectl wait  --timeout=120s --for=condition=ready pod -l app=bionic-gpt -n bionic-gpt
+        kubectl wait  --timeout=120s --for=condition=ready pod -l app=keycloak -n bionic-gpt
+        kubectl wait  --timeout=120s --for=condition=ready pod -l app=oauth2-proxy -n bionic-gpt
+        kubectl wait  --timeout=120s --for=condition=ready pod -l app=pipeline-job -n bionic-gpt
         kubectl get pods -n bionic-gpt
 
 
