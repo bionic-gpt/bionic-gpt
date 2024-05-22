@@ -1,0 +1,42 @@
+services:
+
+  # For the earthly integration testing we need to make some ports public.
+  db:
+    ports:
+      - "5432:5432"
+    
+  selenium:
+    ports:
+      - 4444:4444
+
+  smtp:
+    ports:
+      - "8025:8025"
+  
+  # Mock out the slow big stuff
+  unstructured:
+    image: alexliesenfeld/httpmock:latest
+    volumes:
+      - ./mocks:/mocks
+    entrypoint: httpmock
+    command: --expose -m /mocks -p 8000
+    ports:
+      - "8000:8000"
+      
+  llm-api:
+    image: alexliesenfeld/httpmock:latest
+    volumes:
+      - ./mocks:/mocks
+    entrypoint: httpmock
+    command: --expose -m /mocks -p 3000
+    ports:
+      - "3000:3000"
+
+  embeddings-api:
+    image: alexliesenfeld/httpmock:latest
+    volumes:
+      - ./mocks:/mocks
+    entrypoint: httpmock
+    command: --expose -m /mocks -p 8080
+    ports:
+      - "8080:8080"
