@@ -73,10 +73,6 @@ jobs:
         cp cargo-binstall /usr/local/cargo/bin
         cargo binstall --version 0.9.0 cornucopia
 
-
-# Install cargo-leptos
-RUN cargo binstall cargo-leptos -y
-
     - name: Run the integrations tests
       run: |
         kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 &
