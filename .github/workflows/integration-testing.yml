@@ -26,7 +26,7 @@ jobs:
     - uses: debianmaster/actions-k3s@master
       id: k3s
       with:
-        version: 'latest'
+        version: 'v1.28.10+k3s1'
 
     - name: Get latest release info
       id: get_latest_release
