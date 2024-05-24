@@ -38,7 +38,9 @@ jobs:
 
     - name: Give K3s time to start
       run: |
-        #sleep 20
+        kubectl get node
+        sleep 20
+        kubectl get node
 
     - name: Install Bionic CLI
       run: |
