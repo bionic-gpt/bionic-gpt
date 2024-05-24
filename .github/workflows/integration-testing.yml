@@ -51,6 +51,7 @@ jobs:
     
     - name: Install Bionic Application into K3s
       run: |
+        cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
         export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
         echo $HOST_IP_ADDRESS
         bionic install --testing --hostname-url http://$HOST_IP_ADDRESS
