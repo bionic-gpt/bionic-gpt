@@ -255,7 +255,6 @@ jobs:
         export IP_ADDRESS=$(hostname -i)
         export WEB_DRIVER_DESTINATION_HOST=http://$IP_ADDRESS
         export MAILHOG_URL=http://localhost:8025/api/v2/messages?limit=1
-        cd crates/integration-testing
         cargo test
 
 
