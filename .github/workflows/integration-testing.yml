@@ -38,7 +38,7 @@ jobs:
 
     - name: Give K3s time to start
       run: |
-        sleep 20
+        #sleep 20
 
     - name: Install Bionic CLI
       run: |
