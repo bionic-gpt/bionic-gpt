@@ -80,6 +80,7 @@ jobs:
         export APP_DATABASE_URL=$DATABASE_URL
         echo $DATABASE_URL
 
+        export HOST_IP_ADDRESS=$(hostname -i)
         export WEB_DRIVER_URL=http://localhost:4444
         cd crates/integration-testing
         cargo test -- --nocapture
