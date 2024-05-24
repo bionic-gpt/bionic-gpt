@@ -23,24 +23,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - uses: debianmaster/actions-k3s@master
+      id: k3s
+      with:
+        version: 'latest'
 
     - name: Get latest release info
       id: get_latest_release
       run: |
         latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
         echo "::set-output name=latest_release::$latest_release"
-
-    - name: Install K3s
-      run: |
-        sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
-        mkdir -p ~/.kube
-        cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
-
-    - name: Give K3s time to start
-      run: |
-        kubectl get node
-        sleep 20
-        kubectl get node
 
     - name: Install Bionic CLI
       run: |
@@ -50,13 +42,17 @@ jobs:
         sudo mv ./bionic-cli-linux /usr/local/bin/bionic
         bionic -V
 
+    - name: Check K3s
+      run: |
+        kubectl get node
+    
     - name: Install Bionic Application into K3s
       run: |
         export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
         echo $HOST_IP_ADDRESS
         bionic install --testing --hostname-url http://$HOST_IP_ADDRESS
 
-    - name: Install Cornucopis
+    - name: Install Cornucopia
       run: |
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
         cargo binstall --version 0.9.0 cornucopia -y
