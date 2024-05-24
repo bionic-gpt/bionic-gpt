@@ -48,6 +48,13 @@ jobs:
         chmod +x ./bionic-cli-linux
         sudo mv ./bionic-cli-linux /usr/local/bin/bionic
         bionic -V
+
+    - name: Get the logs even on failure
+      if: always()
+      run: |
+        sleep 10
+        kubectl get pods -n bionic-system
+        kubectl logs deployment/bionic-gpt-operator-deployment -n bionic-system
     
     - name: Install Bionic Application into K3s
       run: |
