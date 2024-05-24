@@ -73,22 +73,3 @@ pub async fn get_embeddings(
         Err("Problem generating embeddings")?
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_get_embeddings() {
-        let input = "The food was delicious and the waiter...".to_string();
-        let embeddings = get_embeddings(
-            &input,
-            "http://embeddings-api:80/embeddings",
-            "text-embedding-ada-002",
-        )
-        .await
-        .unwrap();
-
-        println!("{:#?}", embeddings);
-    }
-}
