@@ -47,6 +47,7 @@ jobs:
     - name: Install Bionic Application into K3s
       run: |
         export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
+        echo $HOST_IP_ADDRESS
         bionic install --testing --hostname-url http://$HOST_IP_ADDRESS
 
     - name: Install Cornucopis
@@ -56,7 +57,7 @@ jobs:
 
     - name: Wait for All the Pods
       run: |
-        sleep 40
+        sleep 80
         kubectl get pods -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/bionic-db-cluster-1
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/keycloak-db-cluster-1
