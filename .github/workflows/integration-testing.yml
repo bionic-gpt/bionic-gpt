@@ -49,6 +49,11 @@ jobs:
         export IP_ADDRESS=$(hostname -i)
         bionic install --testing --hostname-url http://$IP_ADDRESS
 
+    - name: Install Cornucopis
+      run: |
+        curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+        cargo binstall --version 0.9.0 cornucopia -y
+
     - name: Wait for All the Pods
       run: |
         sleep 40
@@ -66,11 +71,6 @@ jobs:
         export IP_ADDRESS=$(hostname -i)
         curl $IP_ADDRESS:80
 
-    - name: Install Cornucopis
-      run: |
-        curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-        cargo binstall --version 0.9.0 cornucopia -y
-
     - name: Run the integrations tests
       run: |
         kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 &
@@ -83,5 +83,5 @@ jobs:
         export IP_ADDRESS=$(hostname -i)
         export WEB_DRIVER_DESTINATION_HOST=http://$IP_ADDRESS
         export MAILHOG_URL=http://localhost:8025/api/v2/messages?limit=1
-        ls -la crates/db/queries
+        cd crates/integration-testing
         cargo test
