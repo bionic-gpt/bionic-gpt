@@ -69,7 +69,7 @@ jobs:
     - name: Install Cornucopis
       run: |
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-        cargo binstall --version 0.9.0 cornucopia
+        cargo binstall --version 0.9.0 cornucopia -y
 
     - name: Run the integrations tests
       run: |
