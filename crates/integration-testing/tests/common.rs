@@ -34,6 +34,8 @@ impl Config {
 
         let host = format!("http://{}", host);
 
+        dbg!(&host);
+
         Config {
             webdriver_url,
             host,
