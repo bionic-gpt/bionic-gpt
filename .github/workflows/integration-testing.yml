@@ -66,6 +66,17 @@ jobs:
         export IP_ADDRESS=$(hostname -i)
         curl $IP_ADDRESS:80
 
+    - name: Install Cornucopis
+      run: |
+        wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
+        tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
+        cp cargo-binstall /usr/local/cargo/bin
+        cargo binstall --version 0.9.0 cornucopia
+
+
+# Install cargo-leptos
+RUN cargo binstall cargo-leptos -y
+
     - name: Run the integrations tests
       run: |
         kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 &
