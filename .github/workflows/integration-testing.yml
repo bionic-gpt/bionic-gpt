@@ -79,5 +79,4 @@ jobs:
         export WEB_DRIVER_DESTINATION_HOST=http://$IP_ADDRESS
         export MAILHOG_URL=http://localhost:8025/api/v2/messages?limit=1
         ls -la crates/db/queries
-        cd crates/integration-testing
         cargo test
