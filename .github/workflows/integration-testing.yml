@@ -36,6 +36,10 @@ jobs:
         mkdir -p ~/.kube
         cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
 
+    - name: Give K3s time to start
+      run: |
+        sleep 20
+
     - name: Install Bionic CLI
       run: |
         export BIONIC_VERSION=${{ steps.get_latest_release.outputs.latest_release }}
@@ -57,7 +61,10 @@ jobs:
 
     - name: Wait for All the Pods
       run: |
-        sleep 80
+        sleep 60
+
+    - name: Check if pods are running
+      run: |
         kubectl get pods -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/bionic-db-cluster-1
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/keycloak-db-cluster-1
