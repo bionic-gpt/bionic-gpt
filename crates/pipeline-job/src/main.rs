@@ -31,6 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 dataset.combine_under_n_chars as u32,
                 dataset.new_after_n_chars as u32,
                 dataset.multipage_sections,
+                &config.unstructured_endpoint,
             )
             .await;
 

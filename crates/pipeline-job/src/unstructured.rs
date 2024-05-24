@@ -38,14 +38,9 @@ pub async fn call_unstructured_api(
     combine_under_n_chars: u32,
     new_after_n_chars: u32,
     multipage_sections: bool,
+    unstructured_endpoint: &str,
 ) -> Result<Vec<Unstructured>, Box<dyn Error>> {
     let client = Client::new();
-
-    let unstructured_endpoint = if let Ok(domain) = std::env::var("CHUNKING_ENGINE") {
-        domain
-    } else {
-        "http://unstructured:8000".to_string()
-    };
 
     let url = format!("{}/general/v0/general", unstructured_endpoint);
 
@@ -82,9 +77,16 @@ mod tests {
     #[tokio::test]
     async fn test_post_form_file() {
         let file = "Hello World\nline1".as_bytes().to_vec();
-        let get_json = call_unstructured_api(file, "hello.txt", 500, 1000, true)
-            .await
-            .unwrap();
+        let get_json = call_unstructured_api(
+            file,
+            "hello.txt",
+            500,
+            1000,
+            true,
+            "http://chunking-engine:8000",
+        )
+        .await
+        .unwrap();
 
         println!("{:#?} ", get_json);
     }
