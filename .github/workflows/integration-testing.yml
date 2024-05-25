@@ -38,7 +38,6 @@ jobs:
 
     - name: Check K3s
       run: |
-        sleep 10
         kubectl get node
 
     - name: Install Bionic CLI
