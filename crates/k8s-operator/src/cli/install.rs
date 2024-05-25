@@ -34,7 +34,9 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     println!("Connected");
 
     install_postgres_operator(&client).await?;
-    install_nginx_operator(&client).await?;
+    if installer.nginx_ingress {
+        install_nginx_operator(&client).await?;
+    }
     create_namespace(&client, &installer.namespace).await?;
     create_namespace(&client, &installer.operator_namespace).await?;
     create_crd(&client).await?;
