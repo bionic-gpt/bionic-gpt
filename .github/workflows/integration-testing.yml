@@ -30,13 +30,14 @@ jobs:
         latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
         echo "::set-output name=latest_release::$latest_release"
         
-    - name: Install K3s
+    - name: Install Minikube
       run: |
-        sudo curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION='v1.29.3+k3s1' INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
-        mkdir -p ~/.kube
-        cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+        minikube start
 
-    - name: Check K3s
+
+    - name: Check Kubernetes Node
       run: |
         kubectl get node
 
@@ -48,7 +49,7 @@ jobs:
         sudo mv ./bionic-cli-linux /usr/local/bin/bionic
         bionic -V
     
-    - name: Install Bionic Application into K3s
+    - name: Install Bionic Application into Kubernetes
       run: |
         export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
         echo $HOST_IP_ADDRESS
