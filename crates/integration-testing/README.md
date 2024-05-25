@@ -48,8 +48,8 @@ rm ./open-ports.sh
 ```sh
 cat <<EOF > open-ports.sh
 # Push commands in the background, when the script exits, the commands will exit too
-minikube kubectl -- -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 & \
-minikube kubectl -- -n bionic-gpt port-forward --address 0.0.0.0 deployment/mailhog 8025 & \
+kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 & \
+kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/mailhog 8025 & \
 
 echo "Press CTRL-C to stop port forwarding and exit the script"
 wait
