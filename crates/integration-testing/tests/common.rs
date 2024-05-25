@@ -40,7 +40,9 @@ impl Config {
 
         let db_pool = db::create_pool(&database_url);
 
+        dbg!(&webdriver_url);
         dbg!(&application_url);
+        dbg!(&mailhog_url);
 
         Config {
             webdriver_url,
