@@ -26,6 +26,7 @@ use serde_json::json;
 const BIONIC_OPERATOR_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const CNPG_YAML: &str = include_str!("../../config/cnpg-1.22.1.yaml");
+const NGINX_YAML: &str = include_str!("../../config/nginx-ingress.yaml");
 
 pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     println!("Connecting to the cluster...");
@@ -33,6 +34,7 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     println!("Connected");
 
     install_postgres_operator(&client).await?;
+    install_nginx_operator(&client).await?;
     create_namespace(&client, &installer.namespace).await?;
     create_namespace(&client, &installer.operator_namespace).await?;
     create_crd(&client).await?;
@@ -43,6 +45,37 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     }
     let my_local_ip = local_ip().unwrap();
     println!("When ready you can access bionic on http://{}", my_local_ip);
+    Ok(())
+}
+
+async fn install_nginx_operator(client: &Client) -> Result<()> {
+    println!("Installing Nginx Ingress Operator");
+    super::apply::apply(client, NGINX_YAML, None).await?;
+
+    fn is_deployment_available() -> impl Condition<Deployment> {
+        |obj: Option<&Deployment>| {
+            if let Some(deployment) = &obj {
+                if let Some(status) = &deployment.status {
+                    if let Some(phase) = &status.available_replicas {
+                        return phase >= &1;
+                    }
+                }
+            }
+            false
+        }
+    }
+
+    println!("Waiting for Nginx Operator to be Available");
+    let deploys: Api<Deployment> = Api::namespaced(client.clone(), "ingress-nginx");
+    let establish = await_condition(
+        deploys,
+        "ingress-nginx-controller",
+        is_deployment_available(),
+    );
+    let _ = tokio::time::timeout(std::time::Duration::from_secs(120), establish)
+        .await
+        .unwrap();
+
     Ok(())
 }
 
