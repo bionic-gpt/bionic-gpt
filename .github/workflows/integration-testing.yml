@@ -55,12 +55,6 @@ jobs:
         echo $HOST_IP_ADDRESS
         bionic install --testing --hostname-url http://$HOST_IP_ADDRESS
 
-    - name: Get the logs even on failure
-      if: always()
-      run: |
-        kubectl get pods -n bionic-system
-        kubectl logs deployment/bionic-gpt-operator-deployment -n bionic-system
-
     - name: Install Cornucopia
       run: |
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
@@ -80,6 +74,12 @@ jobs:
         kubectl wait  --timeout=120s --for=condition=ready pod -l app=oauth2-proxy -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready pod -l app=pipeline-job -n bionic-gpt
         kubectl get pods -n bionic-gpt
+
+    - name: Get the logs even on failure
+      if: always()
+      run: |
+        kubectl get pods -n bionic-system
+        kubectl logs deployment/bionic-gpt-operator-deployment -n bionic-system
 
     - name: Curl the cluster
       run: |
