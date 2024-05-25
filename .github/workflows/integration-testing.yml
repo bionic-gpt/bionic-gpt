@@ -30,17 +30,12 @@ jobs:
         latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
         echo "::set-output name=latest_release::$latest_release"
         
-    - name: Install Minikube
+    - name: Install K3s
       run: |
-        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
-        minikube start
-        
-    - name: Install Ingress
-      run: |
-        minikube addons enable ingress
-        kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
-
+        sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644" --disable traefik' sh -
+        mkdir -p ~/.kube
+        cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
+      
     - name: Check Kubernetes Node
       run: |
         kubectl get node
@@ -55,9 +50,9 @@ jobs:
     
     - name: Install Bionic Application into Kubernetes
       run: |
-        export HOST_IP_ADDRESS=$(minikube ip)
+        export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
         echo $HOST_IP_ADDRESS
-        bionic install --testing --hostname-url https://$HOST_IP_ADDRESS
+        bionic install --testing --nginx-ingress --hostname-url https://$HOST_IP_ADDRESS
 
     - name: Install Cornucopia
       run: |
@@ -81,7 +76,7 @@ jobs:
 
     - name: Curl the cluster
       run: |
-        export HOST_IP_ADDRESS=$(minikube ip)
+        export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
         curl -k https://$HOST_IP_ADDRESS
 
     - name: Run the integrations tests
@@ -93,7 +88,7 @@ jobs:
         export APP_DATABASE_URL=$DATABASE_URL
         echo $DATABASE_URL
 
-        export HOST_IP_ADDRESS=$(minikube ip)
+        export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
         export WEB_DRIVER_URL=http://localhost:4444
         cd crates/integration-testing
         cargo test -- --nocapture
