@@ -67,6 +67,8 @@ Get the host ip address
 minikube ip
 ```
 
+## Run
+
 ```sh
 export APPLICATION_URL=https://$(minikube ip)
 export WEB_DRIVER_URL=http://localhost:4444
