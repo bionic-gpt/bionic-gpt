@@ -52,7 +52,7 @@ async fn sign_in_user(
     config: &common::Config,
 ) -> WebDriverResult<()> {
     // Go to sign in page
-    driver.goto(format!("{}/", &config.host)).await?;
+    driver.goto(format!("{}/", &config.application_url)).await?;
 
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
