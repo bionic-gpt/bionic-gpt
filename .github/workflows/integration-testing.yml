@@ -7,15 +7,6 @@ jobs:
 
   integration_testing:
     runs-on: ubuntu-latest
-    services:
-      # docker run -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:latest
-      selenium:
-        # Docker Hub image
-        image: selenium/standalone-chrome:latest
-        ports:
-          - 4444:4444
-          - 7900:7900
-        options: --shm-size="2g" --network host
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,6 +54,15 @@ jobs:
       run: |
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
         cargo binstall --version 0.9.0 cornucopia -y
+
+    - name: Run Selenium
+      run: |
+        docker run -d -p 4444:4444 \
+          -p 5900:5900 \
+          --shm-size="2g" \
+          --network host \
+          -v crates/integration-testing/files:/workspace \
+          selenium/standalone-chrome:latest
 
     - name: Wait for All the Pods
       run: |
