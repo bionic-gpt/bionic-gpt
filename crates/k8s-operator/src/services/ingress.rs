@@ -15,6 +15,10 @@ const INGRESS: &str = "bionic-gpt-ingress";
 pub async fn deploy(client: Client, namespace: &str, pgadmin: bool) -> Result<(), Error> {
     let mut annotations = BTreeMap::new();
     annotations.insert(
+        "kubernetes.io/ingress.class".to_string(),
+        "nginx".to_string(),
+    );
+    annotations.insert(
         "nginx.ingress.kubernetes.io/proxy-buffer-size".to_string(),
         "128k".to_string(),
     );
