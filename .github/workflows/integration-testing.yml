@@ -36,9 +36,9 @@ jobs:
         sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
         minikube start
         
-    - name: Install Ingress
-      run: |
-        minikube addons enable ingress
+    #- name: Install Ingress
+    #  run: |
+    #    minikube addons enable ingress
 
 
     - name: Check Kubernetes Node
@@ -57,7 +57,7 @@ jobs:
       run: |
         export HOST_IP_ADDRESS=$(minikube ip)
         echo $HOST_IP_ADDRESS
-        bionic install --testing --hostname-url http://$HOST_IP_ADDRESS
+        bionic install --testing --nginx-ingress --hostname-url https://$HOST_IP_ADDRESS
 
     - name: Install Cornucopia
       run: |
@@ -82,7 +82,7 @@ jobs:
     - name: Curl the cluster
       run: |
         export HOST_IP_ADDRESS=$(minikube ip)
-        curl $HOST_IP_ADDRESS:80
+        curl https://$HOST_IP_ADDRESS
 
     - name: Run the integrations tests
       run: |
