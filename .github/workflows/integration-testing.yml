@@ -82,7 +82,7 @@ jobs:
     - name: Curl the cluster
       run: |
         export HOST_IP_ADDRESS=$(minikube ip)
-        curl https://$HOST_IP_ADDRESS
+        curl -k https://$HOST_IP_ADDRESS
 
     - name: Run the integrations tests
       run: |
