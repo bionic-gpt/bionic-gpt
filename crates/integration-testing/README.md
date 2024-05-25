@@ -48,9 +48,10 @@ rm ./open-ports.sh
 ```sh
 cat <<EOF > open-ports.sh
 # Push commands in the background, when the script exits, the commands will exit too
-kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 & \
-kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/mailhog 8025 & \
-
+minikube kubectl -- -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 & \
+minikube kubectl -- -n bionic-gpt port-forward --address 0.0.0.0 deployment/mailhog 8025 & \
+DATABASE_URL=$(minikube kubectl -- get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode | sed "s/bionic-db-cluster-rw/localhost/; s/\?sslmode=require//")
+echo $DATABASE_URL
 echo "Press CTRL-C to stop port forwarding and exit the script"
 wait
 EOF
@@ -70,8 +71,9 @@ minikube ip
 ## Run
 
 ```sh
-export APPLICATION_URL=https://$(minikube ip)
-export WEB_DRIVER_URL=http://localhost:4444
-export MAILHOG_URL=http://localhost:8025
+export DATABASE_URL=DATABASE_URL=postgres://db-owner:PASSSWORD@192.168.178.57:5432/bionic-gpt?sslmode=disable
+export APPLICATION_URL=https://192.168.49.2
+export WEB_DRIVER_URL=http://192.168.178.57:4444
+export MAILHOG_URL=http://192.168.178.57:8025
 cargo test
 ```
