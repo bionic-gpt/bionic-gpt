@@ -28,7 +28,9 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const CNPG_YAML: &str = include_str!("../../config/cnpg-1.22.1.yaml");
 
 pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
+    println!("Connecting to the cluster...");
     let client = Client::try_default().await?;
+    println!("Connected");
 
     install_postgres_operator(&client).await?;
     create_namespace(&client, &installer.namespace).await?;
@@ -45,6 +47,7 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
 }
 
 async fn install_postgres_operator(client: &Client) -> Result<()> {
+    println!("Installing Cloud Native Postgres Operator (CNPG)");
     super::apply::apply(client, CNPG_YAML, None).await?;
 
     fn is_deployment_available() -> impl Condition<Deployment> {
@@ -75,6 +78,7 @@ async fn install_postgres_operator(client: &Client) -> Result<()> {
 }
 
 async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<()> {
+    println!("Installing the Bionic Operator into {}", namespace);
     let app_labels = serde_json::json!({
         "app": "bionic-gpt-operator",
     });
@@ -120,6 +124,7 @@ async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<()> 
 }
 
 async fn create_roles(client: &Client, installer: &super::Installer) -> Result<()> {
+    println!("Setting up roles");
     let sa_api: Api<ServiceAccount> =
         Api::namespaced(client.clone(), &installer.operator_namespace);
     let service_account = ServiceAccount {
@@ -189,6 +194,7 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
 }
 
 async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<()> {
+    println!("Installing Bionic Services into {}", &installer.namespace);
     let hostname_url = if let Some(hostname_url) = &installer.hostname_url {
         hostname_url.into()
     } else {
@@ -222,6 +228,7 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
 }
 
 async fn create_crd(client: &Client) -> Result<(), Error> {
+    println!("Installing Bionic CRD");
     let crd = Bionic::crd();
     let crds: Api<CustomResourceDefinition> = Api::all(client.clone());
     crds.patch(
@@ -244,6 +251,7 @@ async fn create_crd(client: &Client) -> Result<(), Error> {
 }
 
 async fn create_namespace(client: &Client, namespace: &str) -> Result<Namespace> {
+    println!("Creating namespace {}", namespace);
     // Define the API object for Namespace
     let namespaces: Api<Namespace> = Api::all(client.clone());
 
