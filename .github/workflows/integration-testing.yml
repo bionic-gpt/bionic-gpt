@@ -64,9 +64,14 @@ jobs:
           -v ./crates/integration-testing/files:/workspace \
           selenium/standalone-chrome:latest
 
-    - name: Wait for All the Pods
+    - name: Pull Selenium Video
       run: |
-        sleep 60
+        docker pull selenium/video:ffmpeg-4.3.1-20220208
+
+    - name: Precompile the tests
+      run: |
+        cd crates/integration-testing
+        cargo test --no-run
 
     - name: Check if pods are running
       run: |
@@ -83,6 +88,14 @@ jobs:
       run: |
         export HOST_IP_ADDRESS=$(minikube ip)
         curl -k https://$HOST_IP_ADDRESS
+
+    - name: Start the Recording
+      run: |
+        mkdir -P /tmp
+        docker run -d --name video \
+          -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
+          -e FILE_NAME=chrome-video.mp4 \
+          -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
 
     - name: Run the integrations tests
       run: |
