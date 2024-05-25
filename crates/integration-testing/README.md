@@ -68,6 +68,8 @@ minikube ip
 ```
 
 ```sh
-export HOST_IP_ADDRESS=...From above
+export APPLICATION_URL=https://$(minikube ip)
+export WEB_DRIVER_URL=http://localhost:4444
+export MAILHOG_URL=http://localhost:8025
 cargo test
 ```
