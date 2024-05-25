@@ -231,12 +231,8 @@ async fn add_team_member(
 }
 
 async fn get_invite_url_from_email(config: &common::Config) -> WebDriverResult<String> {
-    let body: String = reqwest::get(config.mailhog_url.clone())
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap();
+    let url = format!("{}/api/v2/messages?limit=1", config.mailhog_url);
+    let body: String = reqwest::get(url).await.unwrap().text().await.unwrap();
 
     let url: Vec<&str> = body.split("Click ").collect();
     let url: Vec<&str> = url[1].split(' ').collect();
