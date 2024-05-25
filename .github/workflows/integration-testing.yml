@@ -68,11 +68,6 @@ jobs:
       run: |
         docker pull selenium/video:ffmpeg-4.3.1-20220208
 
-    - name: Precompile the tests
-      run: |
-        cd crates/integration-testing
-        cargo test --no-run
-
     - name: Check if pods are running
       run: |
         kubectl get pods -n bionic-gpt
@@ -89,14 +84,6 @@ jobs:
         export HOST_IP_ADDRESS=$(minikube ip)
         curl -k https://$HOST_IP_ADDRESS
 
-    - name: Start the Recording
-      run: |
-        mkdir -P /tmp
-        docker run -d --name video \
-          -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
-          -e FILE_NAME=chrome-video.mp4 \
-          -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
-
     - name: Run the integrations tests
       run: |
         kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 &
@@ -108,5 +95,12 @@ jobs:
         export APPLICATION_URL=https://$(minikube ip)
         export WEB_DRIVER_URL=http://localhost:4444
         export MAILHOG_URL=http://localhost:8025
+
+        mkdir -P /tmp
+        docker run -d --name video \
+          -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
+          -e FILE_NAME=chrome-video.mp4 \
+          -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
+
         cd crates/integration-testing
         cargo test -- --nocapture
