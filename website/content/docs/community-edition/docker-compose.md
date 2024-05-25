@@ -11,7 +11,7 @@ We have a very lightweight version of Bionic for running locally for for limited
 The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 ```sh
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/v{{ version() }}/infra-as-code/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/{{ bionic_docker_compose() }}/infra-as-code/docker-compose.yml
 ```
 
 And run
