@@ -70,6 +70,7 @@ jobs:
 
     - name: Check if pods are running
       run: |
+        sleep 40
         kubectl get pods -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/bionic-db-cluster-1
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/keycloak-db-cluster-1
