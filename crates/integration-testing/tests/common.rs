@@ -7,7 +7,7 @@ use tokio::time::{sleep, Duration};
 #[derive(Clone)]
 pub struct Config {
     pub webdriver_url: String,
-    pub host: String,
+    pub application_url: String,
     // The database
     pub db_pool: Pool,
     pub headless: bool,
@@ -16,29 +16,35 @@ pub struct Config {
 
 impl Config {
     pub async fn new() -> Config {
-        let host = if env::var("HOST_IP_ADDRESS").is_ok() {
-            env::var("HOST_IP_ADDRESS").unwrap()
+        let webdriver_url = if env::var("WEB_DRIVER_URL").is_ok() {
+            env::var("WEB_DRIVER_URL").unwrap()
         } else {
-            "localhost".into()
+            "http://localhost:4444".into()
         };
 
-        let webdriver_url = format!("http://{}:4444", host);
+        let application_url = if env::var("APPLICATION_URL").is_ok() {
+            env::var("APPLICATION_URL").unwrap()
+        } else {
+            "http://localhost".into()
+        };
+
+        let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
+            env::var("MAILHOG_URL").unwrap()
+        } else {
+            "http://localhost:8025".into()
+        };
 
         let headless = env::var("ENABLE_HEADLESS").is_ok();
-
-        let mailhog_url = format!("http://{}:8025/api/v2/messages?limit=1", host);
 
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
 
         let db_pool = db::create_pool(&database_url);
 
-        let host = format!("http://{}", host);
-
-        dbg!(&host);
+        dbg!(&application_url);
 
         Config {
             webdriver_url,
-            host,
+            application_url,
             db_pool,
             headless,
             mailhog_url,
@@ -81,7 +87,7 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    driver.goto(format!("{}/", &config.host)).await?;
+    driver.goto(format!("{}/", &config.application_url)).await?;
 
     let email = register_random_user(driver).await?;
 
