@@ -24,7 +24,7 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
     driver.set_implicit_wait_timeout(delay).await?;
 
     driver
-        .goto(format!("{}/auth/sign_up", &config.host))
+        .goto(format!("{}/auth/sign_up", &config.application_url))
         .await?;
 
     println!("Testing : register_user");
@@ -190,7 +190,7 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
 
     // Making a GET request and passing the API key in the headers
     let response = client
-        .get(format!("{}/v1/models", &config.host))
+        .get(format!("{}/v1/models", &config.application_url))
         .header("Authorization", format!("Bearer {}", api_key))
         .send()
         .await;
@@ -208,7 +208,7 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
 
     // Make a request with no auth
     let response = client
-        .get(format!("{}/v1/models", &config.host))
+        .get(format!("{}/v1/models", &config.application_url))
         .send()
         .await;
 
