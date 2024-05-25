@@ -15,7 +15,7 @@ jobs:
         ports:
           - 4444:4444
           - 7900:7900
-        options: --shm-size="2g"
+        options: --shm-size="2g" --network host
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
