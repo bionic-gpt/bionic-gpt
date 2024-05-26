@@ -196,15 +196,6 @@ jobs:
   integration_testing:
     needs: [build-windows-cli, build-osx-cli, build-cli-linux]
     runs-on: ubuntu-latest
-    services:
-      # docker run -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:latest
-      selenium:
-        # Docker Hub image
-        image: selenium/standalone-chrome:latest
-        ports:
-          - 4444:4444
-          - 7900:7900
-        options: --shm-size="2g"
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -253,12 +244,23 @@ jobs:
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
         cargo binstall --version 0.9.0 cornucopia -y
 
-    - name: Wait for All the Pods
+    - name: Run Selenium
       run: |
-        sleep 60
+        docker run -d -p 4444:4444 \
+          -p 5900:5900 \
+          --name selenium \
+          --shm-size="2g" \
+          --network host \
+          -v ./crates/integration-testing/files:/workspace \
+          selenium/standalone-chrome:latest
+
+    - name: Pull Selenium Video
+      run: |
+        docker pull selenium/video:ffmpeg-4.3.1-20220208
 
     - name: Check if pods are running
       run: |
+        sleep 40
         kubectl get pods -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/bionic-db-cluster-1
         kubectl wait  --timeout=120s --for=condition=ready -n bionic-gpt pod/keycloak-db-cluster-1
@@ -284,7 +286,30 @@ jobs:
         export APPLICATION_URL=https://$(minikube ip)
         export WEB_DRIVER_URL=http://localhost:4444
         export MAILHOG_URL=http://localhost:8025
+
         cd crates/integration-testing
+        cargo test --no-run 
+
+        docker run -d --name video \
+          -e DISPLAY_CONTAINER_NAME=selenium \
+          -e FILE_NAME=chrome-video.mp4 \
+          --network host \
+          -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
+
         cargo test -- --nocapture
+
+    - name: Stop the Recording
+      if: always()
+      run: |
+        docker logs video
+        docker stop video
+        ls -la /tmp
+
+    # Upload the video of our selenium session
+    - uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-testing-screen-recording
+        path: /tmp/chrome-video.mp4
 
 
