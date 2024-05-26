@@ -111,6 +111,7 @@ jobs:
     - name: Stop the Recording
       if: always()
       run: |
+        docker logs video
         docker stop video
         ls -la /tmp
 
