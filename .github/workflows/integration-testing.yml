@@ -104,6 +104,7 @@ jobs:
         docker run -d --name video \
           -e DISPLAY_CONTAINER_NAME=selenium \
           -e FILE_NAME=chrome-video.mp4 \
+          --network host \
           -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
 
         cargo test -- --nocapture
