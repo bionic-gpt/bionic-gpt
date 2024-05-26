@@ -163,9 +163,8 @@ This covers:
 - [Schedule a Chat 👋](https://calendly.com/bionicgpt)
 - [Connect on Linked in 💭](https://www.linkedin.com/in/kulbinderdio/)
 
-# Kubernetes First
+# Scales to 1000's of users.
 
-BionicGPT is optimized to run on Kubernetes and implements the full pipeline of LLM fine tuning from data acquisition to user interface.
-
+BionicGPT is optimized to run on Kubernetes and provide Generative AI services for potentially 1000's of users.
 
 ![Alt text](website/static/bionic-k9s.png "Bionic in Kubernetes")
