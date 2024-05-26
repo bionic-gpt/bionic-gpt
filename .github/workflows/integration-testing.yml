@@ -59,7 +59,7 @@ jobs:
       run: |
         docker run -d -p 4444:4444 \
           -p 5900:5900 \
-          --name video \
+          --name selenium \
           --shm-size="2g" \
           --network host \
           -v ./crates/integration-testing/files:/workspace \
