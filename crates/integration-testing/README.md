@@ -62,10 +62,15 @@ rm ./open-ports.sh
 
 ## Run the tests
 
-Get the host ip address
+Get the host ip address for the application url
 
 ```sh
 minikube ip
+```
+
+Get the DB password.
+
+```sh
 ```
 
 ## Run
@@ -76,4 +81,20 @@ export APPLICATION_URL=https://192.168.49.2
 export WEB_DRIVER_URL=http://192.168.178.57:4444
 export MAILHOG_URL=http://192.168.178.57:8025
 cargo test
+```
+
+## Install into minikube
+
+```sh
+minikube start
+minikube addons enable ingress
+kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
+```
+
+## Install Bionic
+
+```sh
+export HOST_IP_ADDRESS=$(minikube ip)
+echo $HOST_IP_ADDRESS
+bionic install --testing --hostname-url https://$HOST_IP_ADDRESS
 ```
