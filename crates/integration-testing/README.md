@@ -76,7 +76,11 @@ Get the DB password.
 ## Run
 
 ```sh
-export DATABASE_URL=DATABASE_URL=postgres://db-owner:PASSSWORD@192.168.178.57:5432/bionic-gpt?sslmode=disable
+minikube kubectl -- get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode 
+```
+
+```sh
+export DATABASE_URL=postgres://db-owner:11120360149224@192.168.178.57:5432/bionic-gpt?sslmode=disable
 export APPLICATION_URL=https://192.168.49.2
 export WEB_DRIVER_URL=http://192.168.178.57:4444
 export MAILHOG_URL=http://192.168.178.57:8025
@@ -88,7 +92,7 @@ cargo test
 ```sh
 minikube start
 minikube addons enable ingress
-kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
+minikube kubectl -- wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
 ```
 
 ## Install Bionic
