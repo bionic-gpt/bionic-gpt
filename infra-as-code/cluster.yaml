@@ -24,6 +24,3 @@ iam:
 addons:
 - name: aws-ebs-csi-driver
   serviceAccountRoleARN: "arn:aws:iam::{ACCOUNT_ID}:role/eksctl-cluster-ebs-role"
-  storageClasses:
-    ebs:
-      region: "us-east-2"
