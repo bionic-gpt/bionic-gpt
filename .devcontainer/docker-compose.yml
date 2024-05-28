@@ -23,7 +23,7 @@ services:
         FORWARD_PORT: 7703
         # Any requests that meet the following regular expressions
         # with pass through. i.e. They don't require auth.
-        SKIP_AUTH_FOR: /static*,/v1
+        SKIP_AUTH_FOR: /static*,/v1*
         REDIRECT_URL: '/'
         USER_TABLE_NAME: 'barricade_users'
         MAX_PAYLOAD_SIZE: 4000000
