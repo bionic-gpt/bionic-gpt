@@ -8,19 +8,5 @@ managedNodeGroups:
   instanceType: t2.large
   minSize: 2
   maxSize: 4
-  spot: true
-iam:
-  withOIDC: true
-  serviceAccounts:
-  - metadata:
-      name: ebs-csi-controller-sa
-      namespace: kube-system
-    attachPolicyARNs:
-    - "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-    wellKnownPolicies:
-      ebsCSIController: true
-    roleName: eksctl-cluster-ebs-role
-    roleOnly: true
-addons:
-- name: aws-ebs-csi-driver
-  serviceAccountRoleARN: "arn:aws:iam::{ACCOUNT_ID}:role/eksctl-cluster-ebs-role"
+  volumeSize: 80
+  volumeType: gp3
