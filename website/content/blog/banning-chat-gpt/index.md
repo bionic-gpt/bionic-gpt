@@ -52,7 +52,21 @@ Failure to comply with these laws can result in severe penalties, including:
 
 ## Issue #2 Responses
 
-1. Using copyright
+The reply you get back from ChatGPT can also raise legal concerns..
+
+1. **Misinformation**: Responses that contain inaccurate or misleading information, leading to potential legal liabilities if acted upon.
+
+2. **Privacy Violations**: Responses containing confidential or personally identifiable information without proper consent or authorization, it could violate privacy laws.
+
+3. **Defamation**: Responses that contain defamatory statements about individuals or organizations could result in legal action for libel or slander.
+
+4. **Copyright Infringement**: Responses that reproduce copyrighted material without permission, potentially leading to claims of copyright infringement.
+
+5. **Regulatory Compliance**: Responses may need to comply with industry-specific regulations, such as those governing financial advice or healthcare information, to avoid legal repercussions.
+
+6. **Harmful Content**: Generating responses that promote hate speech, violence, or illegal activities could result in legal consequences for facilitating such content.
+
+So even if we address the data leakage issue before we ask the questions, we still have the problem of what the model can say back to us.
 
 ## Approaches to Solving the Issue
 
@@ -62,7 +76,7 @@ By installing a ChatGPT replacement that runs on premise in the companies privat
 
 ### Using models trained on Open Source Data
 
-The "pile" is a vast and diverse dataset used to train open-source large language models (LLMs) like Llama 7B. It contains text from various sources, aiding LLMs in learning language patterns and context. However, careful curation is necessary to address potential biases or inappropriate content.
+The "[pile](https://pile.eleuther.ai/)" is a vast and diverse dataset used to train open-source large language models (LLMs) like Llama 7B. It contains text from various sources, aiding LLMs in learning language patterns and context.
 
 Due to its open source nature it easy to verify that it doesn't contain copyright information.
 
@@ -110,4 +124,4 @@ This is still in the very early stages but some promising research is available.
 
 ## Conclusion
 
-How to we combine all the approaches above into a combined solution.
+To bring Generative AI back to the enterprise we need solutions that address all the concerns raised above and implement **Defence in Depth**.
