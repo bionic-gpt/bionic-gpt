@@ -19,8 +19,8 @@ highlight_themes_css = [
 ]
 
 [extra]
-bionic_version = "v1.7.23"
-bionic_docker_compose = "64e574cf0e64f8b635b4d98482181e5fc4574a02"
+bionic_version = "v1.7.24"
+bionic_docker_compose = "ef3e82bfe4fd652b5871989015191341182e1726"
 
 logo = "bionic-logo.svg"
 goat_counter = "https://bionicgpt.goatcounter.com/count"
