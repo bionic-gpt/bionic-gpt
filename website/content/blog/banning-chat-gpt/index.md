@@ -50,20 +50,9 @@ Failure to comply with these laws can result in severe penalties, including:
    - **Lawsuits:** Non-compliance can lead to litigation from affected parties, including class-action lawsuits.
    - **Reputational Damage:** Breaches and non-compliance can damage a company's reputation and customer trust.
 
-
-### Dark Data and Accidental Data Sending
-
-Compounding the issue is that a lot of companies do not know what there data is or its classification
-
 ## Issue #2 Responses
 
 1. Using copyright
-
-## Side effects of Chat GPT Bans
-
-1. **Shadow IT** In companies that have banned ChatGPT, shadow IT is becoming a concern as employees find unauthorized workarounds. This practice risks data breaches, compliance violations, and security vulnerabilities, as employees might use personal devices or external networks to access ChatGPT.
-
-1. Repetition
 
 ## Approaches to Solving the Issue
 
@@ -73,11 +62,24 @@ By installing a ChatGPT replacement that runs on premise in the companies privat
 
 ### Using models trained on Open Source Data
 
+The "pile" is a vast and diverse dataset used to train open-source large language models (LLMs) like Llama 7B. It contains text from various sources, aiding LLMs in learning language patterns and context. However, careful curation is necessary to address potential biases or inappropriate content.
+
+Due to its open source nature it easy to verify that it doesn't contain copyright information.
 
 ![alt text](the-pile.png "Data Residency")
 
-### Data Leakage Prevention Solutions
+### Data Loss Prevention Solutions
 
+Data loss prevention (DLP) solutions are deployed in many organisations and any internal ChatGPT replacements should be integrated with those systems.
+
+- **Protecting Data**: DLP solutions prevent unauthorized access, use, or transmission of sensitive information, such as personal or proprietary data.
+- **Monitoring and Detection**: They monitor data in motion, at rest, and in use, identifying and flagging potential security risks or policy violations.
+- **Policy Enforcement**: DLP solutions enforce organizational policies and regulatory requirements regarding data protection and privacy.
+- **Encryption and Masking**: They encrypt or mask sensitive data to ensure confidentiality and integrity, even if it's compromised.
+- **Incident Response**: DLP solutions facilitate timely incident response by alerting administrators to security breaches or policy violations, allowing them to take corrective action.
+- **Compliance Management**: They assist organizations in meeting compliance standards and regulations by ensuring the secure handling of sensitive data.
+
+There are many existing solutions on the market.
 
 ![alt text](dlp-software.png "Data Residency")
 
