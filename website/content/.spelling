@@ -215,6 +215,7 @@ NDAs
 SCCs
 reputational
 GenAI
+DLP
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
