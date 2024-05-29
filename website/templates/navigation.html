@@ -17,15 +17,19 @@
                     {% endfor %}
                     {% endif %}
 
+                    <li><a href="/blog">Blog</a></li>
                     <li><a href="{{ config.extra.first_doc_page | default(value='/docs') | safe }}">Documentation</a></li>
     
+                    <li><a href="/services/support">Professional Support</a></li>
+                    <li><a href="/services/consultancy">Consulting Services</a></li>
+                    <li><a href="/services/training">Training Courses</a></li>
+                    <li><a href="https://github.com/bionic-gpt/bionic-gpt"><img src="https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" /></a></li>
+                   
+                    
                     {% if sign_up_url %}
                     <li><a href="{{ sign_up_url }}">Sign Up</a></li>
                     <li><a href="{{ sign_in_url }}">Sign In</a></li>
                     {% endif %}
-
-                    <li>
-                    </li>
                 </ul>
             </div>
             <a href="/">
