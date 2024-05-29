@@ -200,6 +200,21 @@ plugin
 k8's
 eks
 Nginx
+ChatGPT
+Kulbinder
+Dio
+GDPR
+CCPA
+HIPAA
+U.S.
+GLBA
+ITAR
+SOX
+Dodd-Frank
+NDAs
+SCCs
+reputational
+GenAI
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -573,3 +588,19 @@ MailHog
  - docs/community-edition/introduction.md
 8B
 8
+ - blog/banning-chat-gpt/index.md
+2024-05-28
+main_image
+banning-chat-gpt
+chat-gpt-banned
+png
+listing_image
+author_image
+dio.jpeg
+Gramm-Leach-Bliley
+Sarbanes-Oxley
+whistleblower
+GPT
+inclusivity
+E2EE
+LLMs
