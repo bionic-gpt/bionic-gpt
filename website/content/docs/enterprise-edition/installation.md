@@ -11,7 +11,7 @@ To run Bionic we'll install a very lightweight Kubernetes onto our system using 
 ### 1. Install K3s
 
 ```sh
-sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
+sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --disable=traefik --write-kubeconfig-mode="644"' sh -
 mkdir -p ~/.kube
 cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sed -i "s,127.0.0.1,$(hostname -I | awk '{print $1}'),g" ~/.kube/config
 ```
@@ -47,7 +47,7 @@ bionic -V
 ## 5. Install the application into K3s
 
 ```sh
-bionic install
+bionic install --nginx-ingress
 ```
 
 ## The Finished Result
