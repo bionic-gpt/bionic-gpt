@@ -20,7 +20,7 @@ pub struct Installer {
     no_operator: bool,
     /// Install ingress
     #[arg(long, default_value_t = false)]
-    nginx_ingress: bool,
+    no_ingress: bool,
     /// The setup needed for development. See CONTRIBUTING.md in the main project.
     #[arg(long, default_value_t = false)]
     development: bool,
