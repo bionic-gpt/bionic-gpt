@@ -47,7 +47,7 @@ bionic -V
 ## 5. Install the application into K3s
 
 ```sh
-bionic install --nginx-ingress
+bionic install
 ```
 
 ## The Finished Result
