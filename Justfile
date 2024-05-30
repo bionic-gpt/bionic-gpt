@@ -34,11 +34,8 @@ open-ports:
     ollamaPID=$!
     trap "kill ${ollamaPID} ${mailhogPID} ${postgresPID}; exit 1" INT
 
-k8s-db:
-    export DATABASE_URL=$(kubectl get secret database-urls -n bionic-gpt -o jsonpath="{.data.migrations-url}" | base64 --decode | sed "s/bionic-db-cluster-rw/localhost/; s/\?sslmode=require//")
-    psql $DATABASE_URL
-
 release:
+    #!/usr/bin/env bash
     export COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" -- infra-as-code/docker-compose.yml)
     echo $COMMIT_HASH
     export LATEST_TAG=$(git describe --tags --abbrev=0)
