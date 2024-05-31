@@ -34,7 +34,7 @@ services:
       
   # Handles routing between our containers
   envoy:
-    image: purtontech/bionicgpt-envoy:1.7.27
+    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.7.27
     ports:
       - "3000:7700"
 
@@ -44,7 +44,7 @@ services:
     environment:
         # This secret key is used to encrypt cookies.
         SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-        DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
+        DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
         REDIRECT_URL: /app/post_registration
         USER_TABLE_NAME: 'barricade_users'
     depends_on:
@@ -81,6 +81,7 @@ services:
     platform: linux/amd64
     environment:
       SIGNOUT_URL: /auth/sign_out
+      ENABLE_BARRICADE: 1
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
     depends_on:
       postgres:
