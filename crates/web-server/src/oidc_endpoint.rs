@@ -19,6 +19,13 @@ pub async fn index(
     authentication: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
+    setup_user(&pool, authentication).await
+}
+
+pub async fn setup_user(
+    pool: &Pool,
+    authentication: Authentication,
+) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 

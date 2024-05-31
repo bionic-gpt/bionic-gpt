@@ -51,6 +51,8 @@ pub struct Config {
     pub smtp_config: Option<SmtpConfig>,
     // What version are we?
     pub version: String,
+    // Are we using barricade?
+    pub enable_barricade: bool,
 }
 
 impl Default for Config {
@@ -82,6 +84,8 @@ impl Config {
             1000
         };
 
+        let enable_barricade = env::var("ENABLE_BARRICADE").is_ok();
+
         let app_database_url = env::var("APP_DATABASE_URL").expect("APP_DATABASE_URL not set");
 
         Config {
@@ -90,6 +94,7 @@ impl Config {
             app_database_url,
             smtp_config: SmtpConfig::new(),
             version,
+            enable_barricade,
         }
     }
 }
