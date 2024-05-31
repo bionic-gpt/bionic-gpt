@@ -1,0 +1,186 @@
+admin:
+  access_log_path: /tmp/admin_access.log
+  address:
+    socket_address: { address: 0.0.0.0, port_value: 7701 }
+
+static_resources:
+  listeners:
+  - name: listener1
+    address:
+      socket_address: { address: 0.0.0.0, port_value: 7700 }
+    filter_chains:
+    - filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          codec_type: AUTO
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: local_service
+              domains: ["*"]
+              routes:
+              # Sign in and registration
+              - match: { prefix: "/auth" }
+                route: { cluster: ext-authn }
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
+
+              # API requests to the LLM (they all start with /v1)
+              - match: 
+                  prefix: "/v1"
+                route:
+                  cluster: app
+                  # Disable timeout for SSE
+                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
+                  timeout: 0s 
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
+
+              # These are requests coming from the front end typescript
+              - match: 
+                  prefix: "/completions"
+                route:
+                  cluster: app
+                  # Disable timeout for SSE
+                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
+                  timeout: 0s 
+
+              # Web request to our app
+              - match: { prefix: "/app" }
+                route: 
+                  cluster: app
+                  timeout: 60s
+                # We have a function to add security headers as the web app needed to open up
+                # some permissions
+                typed_per_filter_config:
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    name: security_headers.lua
+
+              # Paths that don't need authentication
+
+              # Images JS, and CSS.
+              - match: { prefix: "/static" }
+                route: { cluster: app }
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
+                    
+              # Everything else passes in to here. The marketing pages
+              - match: { prefix: "/" }
+                route: { cluster: app }
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
+     
+          http_filters:
+          # Use Authn Proxy to authenticate routes.  
+          - name: envoy.filters.http.ext_authz
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+              http_service:
+                server_uri:
+                  uri: auth:9090
+                  cluster: ext-authn
+                  timeout: 0.25s
+                authorization_request:
+                  allowed_headers:
+                    patterns: 
+                      - exact: "cookie"
+                authorization_response:
+                  allowed_upstream_headers_to_append:
+                    patterns: 
+                      - exact: "x-user-id"
+                      - exact: "x-forwarded-user"
+                      - exact: "x-forwarded-email"
+
+          # Add all the security headers, if an item is already set, it will be left alone.
+          - name: envoy.filters.http.lua
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+
+              source_codes:
+                # Lock everything down
+                security_headers.lua:
+                  inline_string: |
+                    function envoy_on_response(response_handle)
+
+                      response_handle:headers():add("Cache-Control", "none");
+
+                      csp = "default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
+                      response_handle:headers():add("Content-Security-Policy", csp);
+                      response_handle:headers():add("X-Frame-Options", "deny");
+                      response_handle:headers():add("X-XSS-Protection", "1; mode=block");
+                      response_handle:headers():add("X-Content-Type-Options", "nosniff");
+                      response_handle:headers():add("Referrer-Policy", "no-referrer");
+                      response_handle:headers():add("X-Download-Options", "noopen");
+                      response_handle:headers():add("X-DNS-Prefetch-Control", "off");
+                      response_handle:headers():add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+                      response_handle:headers():add("Permissions-Policy",
+                                                    "accelerometer=(), "..
+                                                    "camera=(), "..
+                                                    "geolocation=(), "..
+                                                    "gyroscope=(), "..
+                                                    "magnetometer=(), "..
+                                                    "microphone=(), "..
+                                                    "payment=(), "..
+                                                    "usb=()");
+                      response_handle:headers():remove("X-Powered-By");
+                    end
+              inline_code: |
+                function envoy_on_response(response_handle)
+                end
+
+          - name: envoy.filters.http.router
+
+  clusters:
+  # The Barricade authentication service
+  - name: ext-authn
+    connect_timeout: 1.25s
+    type: strict_dns
+    lb_policy: round_robin
+    load_assignment:
+      cluster_name: ext-authn
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: barricade
+                port_value: 9090
+
+  # The web application
+  - name: app
+    connect_timeout: 1.25s
+    type: strict_dns
+    lb_policy: round_robin
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: app
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: development
+                port_value: 7703
