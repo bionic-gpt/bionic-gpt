@@ -86,6 +86,11 @@ jobs:
       run: |
         sleep 60
 
+    - name: Pre compile the tests
+      run: |
+        cd crates/integration-testing
+        cargo test --no-run 
+
     - name: Curl the cluster
       run: |
         export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
@@ -106,15 +111,25 @@ jobs:
         export WEB_DRIVER_URL=http://localhost:4444
         export MAILHOG_URL=http://localhost:8025
 
-        cd crates/integration-testing
-        cargo test --no-run 
-
         mkdir -p /tmp
         docker run -d --name video \
           -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
           -e FILE_NAME=chrome-video.mp4 \
           -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
 
-        cargo test -- --nocapture
+        cd crates/integration-testing
+        cargo test run_multi_user -- --nocapture
 
+    - name: Stop the Recording
+      if: always()
+      run: |
+        docker logs video
         docker stop video
+        ls -la /tmp
+
+    # Upload the video of our selenium session
+    - uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: integration-testing-screen-recording
+        path: /tmp/chrome-video.mp4
