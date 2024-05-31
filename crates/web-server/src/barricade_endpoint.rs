@@ -21,7 +21,7 @@ pub async fn post_registration(
     authentication: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
-    dbg!(&authentication);
+    tracing::debug!("{:?}", authentication);
     crate::oidc_endpoint::setup_user(&pool, authentication).await
 }
 
