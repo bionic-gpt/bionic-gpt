@@ -11,24 +11,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      
+  # Handles routing between our containers
+  envoy:
+    build: 
+      context: .
+      dockerfile: Dockerfile.envoy
+    ports:
+      - "7700:7700"
+      - "7701:7701"
 
   # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
   barricade:
-    image: purtontech/barricade:1.2.9
+    image: purtontech/barricade:1.2.10
     environment:
         # This secret key is used to encrypt cookies.
         SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
         DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
         FORWARD_URL: development
         FORWARD_PORT: 7703
-        # Any requests that meet the following regular expressions
-        # with pass through. i.e. They don't require auth.
-        SKIP_AUTH_FOR: /static*,/v1*
-        REDIRECT_URL: '/'
+        REDIRECT_URL: /app/post_registration
         USER_TABLE_NAME: 'barricade_users'
-        MAX_PAYLOAD_SIZE: 4000000
-    ports:
-      - "7700:9090"
     depends_on:
       db:
         condition: service_healthy
@@ -44,6 +47,7 @@ services:
 
     environment:
       RUST_LOG: debug
+      ENABLE_BARRICADE: 1
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
       SIGNOUT_URL: /auth/sign_out
