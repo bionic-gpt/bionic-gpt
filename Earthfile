@@ -1,4 +1,5 @@
 VERSION 0.8
+
 FROM purtontech/rust-on-nails-devcontainer:1.3.1
 
 ARG --global APP_EXE_NAME=web-server

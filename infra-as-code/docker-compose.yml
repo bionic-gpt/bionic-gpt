@@ -31,25 +31,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      
+  # Handles routing between our containers
+  envoy:
+    image: purtontech/bionicgpt-envoy:1.7.26
+    ports:
+      - "3000:7700"
 
   # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
   barricade:
-    image: purtontech/barricade:1.2.9
+    image: purtontech/barricade:1.2.10
     environment:
         # This secret key is used to encrypt cookies.
         SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-        DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
-        FORWARD_URL: app
-        FORWARD_PORT: 7703
-        PORT: 3000
-        # Any requests that meet the following regular expressions
-        # with pass through. i.e. They don't require auth.
-        SKIP_AUTH_FOR: /static*,/v1*
-        REDIRECT_URL: '/'
+        DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
+        REDIRECT_URL: /app/post_registration
         USER_TABLE_NAME: 'barricade_users'
-        MAX_PAYLOAD_SIZE: 4000000
-    ports:
-      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
