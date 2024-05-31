@@ -15,6 +15,10 @@
           "skipLogin": true
       }],
       ["@semantic-release-plus/docker", {
+          "name": "ghcr.io/bionic-gpt/bionicgpt-envoy:latest",
+          "skipLogin": true
+      }],
+      ["@semantic-release-plus/docker", {
           "name": "ghcr.io/bionic-gpt/bionicgpt-k8s-operator:latest",
           "skipLogin": true
       }],
