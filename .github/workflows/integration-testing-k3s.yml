@@ -2,6 +2,11 @@ name: Integration Testing K3s
 
 on:
   workflow_dispatch: # Triggers the workflow manually
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: 
+      - completed
 
 jobs:
 
