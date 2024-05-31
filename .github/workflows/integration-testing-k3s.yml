@@ -43,7 +43,7 @@ jobs:
       run: |
         export HOST_IP_ADDRESS=$(hostname -I | awk '{print $1}')
         echo $HOST_IP_ADDRESS
-        bionic install --testing --nginx-ingress --hostname-url https://$HOST_IP_ADDRESS
+        bionic install --testing --hostname-url https://$HOST_IP_ADDRESS
 
     - name: Run Selenium
       run: |
