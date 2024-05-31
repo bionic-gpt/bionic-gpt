@@ -11,7 +11,7 @@ on:
       - '*.md'
       - 'Pulumi.yaml'
       - 'bionic.sh'
-      - '.github/workflows/integration-testing.yml'
+      - '.github/workflows/integration*.yml'
       - '.github/workflows/embeddings-docker.yml'
       - 'crates/k8s-operator/config/*'
       - Justfile
@@ -25,7 +25,7 @@ on:
       - '*.md'
       - 'Pulumi.yaml'
       - 'bionic.sh'
-      - '.github/workflows/integration-testing.yml'
+      - '.github/workflows/integration*.yml'
       - '.github/workflows/embeddings-docker.yml'
       - 'crates/k8s-operator/config/*'
       - Justfile
