@@ -96,7 +96,7 @@ jobs:
         export APP_DATABASE_URL=$DATABASE_URL
         echo $DATABASE_URL
 
-        mkdir -P /tmp
+        mkdir -p /tmp
         docker run -d --name video \
           -e DISPLAY_CONTAINER_NAME=build_selenium_1 \
           -e FILE_NAME=chrome-video.mp4 \
