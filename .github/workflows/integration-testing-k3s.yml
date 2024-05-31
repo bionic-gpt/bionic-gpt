@@ -50,7 +50,7 @@ jobs:
 
     - name: Wait for cluster to be ready
       run: |
-        sleep 20
+        sleep 30
     
     - name: Install Bionic Application into Kubernetes
       run: |
