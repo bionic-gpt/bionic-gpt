@@ -119,7 +119,7 @@ jobs:
         mkdir -p /tmp
         docker run -d --name video \
           --network grid \
-          -e DISPLAY_CONTAINER_NAME=grid_selenium \
+          -e DISPLAY_CONTAINER_NAME=selenium \
           -e FILE_NAME=chrome-video.mp4 \
           -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
 
