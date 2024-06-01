@@ -65,6 +65,7 @@ jobs:
 
     - name: Run Selenium
       run: |
+        docker network create grid
         docker run -d -p 4444:4444 \
           -p 5900:5900 \
           --name selenium \
