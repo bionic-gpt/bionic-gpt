@@ -1,6 +1,6 @@
 +++
 title = "Installing the Licence"
-weight = 20
+weight = 120
 sort_by = "weight"
 +++
 
