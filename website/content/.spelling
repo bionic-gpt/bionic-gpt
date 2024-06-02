@@ -216,6 +216,11 @@ SCCs
 reputational
 GenAI
 DLP
+RKE
+conformant
+FIPS
+CVEs
+trivy
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -605,3 +610,7 @@ GPT
 inclusivity
 E2EE
 LLMs
+ - docs/enterprise-edition/rke2.md
+v1.6
+v1.23
+6
