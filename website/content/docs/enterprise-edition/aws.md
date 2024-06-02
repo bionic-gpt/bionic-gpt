@@ -28,7 +28,6 @@ managedNodeGroups:
   instanceType: t2.large
   minSize: 2
   maxSize: 4
-  spot: true
 iam:
   withOIDC: true
   serviceAccounts:
