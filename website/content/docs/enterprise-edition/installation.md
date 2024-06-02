@@ -50,6 +50,12 @@ bionic -V
 bionic install
 ```
 
+If you get the error below then wait a bit longer. The cluster is still coming up.
+
+```sh
+Error: ApiError: "service unavailable\n": Failed to parse error data (ErrorResponse { status: "503 Service Unavailable", message: "\"service unavailable\\n\"", reason: "Failed to parse error data", code: 503 })
+```
+
 ## The Finished Result
 
 After a while of container creation you should see all the pods running and then be able to access Bionic.
