@@ -31,7 +31,7 @@ alias get-env='rh && dburl && app_dburl'
 # Watch
 alias watch-zola='cd /workspace/website && zola serve --drafts --interface 0.0.0.0 --port 7704 --base-url localhost'
 alias wz=watch-zola
-alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
+alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
 alias wa=watch-app
 alias watch-pipeline='npm install --prefix /workspace/crates/web-assets && npm run start --prefix /workspace/crates/web-assets'
 alias wp=watch-pipeline
