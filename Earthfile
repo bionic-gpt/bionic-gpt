@@ -65,7 +65,6 @@ npm-build:
     COPY $PIPELINE_FOLDER $PIPELINE_FOLDER
     COPY +npm-deps/node_modules $PIPELINE_FOLDER/node_modules
     COPY --dir crates/web-pages crates/web-pages
-    COPY --dir crates/daisy-rsx crates/daisy-rsx
     RUN cd $PIPELINE_FOLDER && npm run release
     SAVE ARTIFACT $PIPELINE_FOLDER/dist
 
