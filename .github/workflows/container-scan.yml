@@ -1,0 +1,19 @@
+name: Integration Testing K3s
+
+on:
+  workflow_dispatch: # Triggers the workflow manually
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: 
+      - completed
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v3
+        with:
+          image: ghcr.io/bionic-gpt/bionicgpt:latest
