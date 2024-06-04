@@ -1,4 +1,4 @@
-name: Integration Testing K3s
+name: Container Scanner
 
 on:
   workflow_dispatch: # Triggers the workflow manually
