@@ -17,3 +17,28 @@ jobs:
         uses: crazy-max/ghaction-container-scan@v3
         with:
           image: ghcr.io/bionic-gpt/bionicgpt:latest
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v3
+        with:
+          image: ghcr.io/bionic-gpt/bionicgpt-envoy:latest
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v3
+        with:
+          image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:latest
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v3
+        with:
+          image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:latest
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v3
+        with:
+          image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:latest
+      -
+        name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v3
+        with:
+          image: ghcr.io/bionic-gpt/bionicgpt-rabbitmq:latest
