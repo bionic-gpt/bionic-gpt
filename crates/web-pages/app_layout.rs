@@ -101,7 +101,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::api_keys::Index { team_id: props.team_id },
                                 icon: nav_api_keys_svg.name,
-                                title: "AI Assistant API"
+                                title: "Virtual API Keys"
                             }
                             NavItem {
                                 id: SideBar::DocumentPipelines.to_string(),
