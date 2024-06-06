@@ -12,7 +12,6 @@ use web_pages::routes::rate_limits::Upsert;
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct RateLimitForm {
     pub id: Option<i32>,
-    pub model_id: i32,
     pub api_key_id: i32,
     pub tpm_limit: i32,
     pub rpm_limit: i32,
@@ -41,7 +40,6 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &form.api_key_id,
-                    &form.model_id,
                     &form.tpm_limit,
                     &form.rpm_limit,
                 )

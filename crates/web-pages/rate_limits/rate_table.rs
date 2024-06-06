@@ -16,7 +16,6 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
                     class: "table table-sm",
                     thead {
                         th { "API Key ID" }
-                        th { "Model" }
                         th { "TPM Limit" }
                         th { "RPM Limit" }
                         th {
@@ -29,11 +28,6 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
                             tr {
                                 td {
                                     "{limit.api_key_id}"
-                                }
-                                td {
-                                    Label {
-                                        "{limit.model_name}"
-                                    }
                                 }
                                 td {
                                     Label {
