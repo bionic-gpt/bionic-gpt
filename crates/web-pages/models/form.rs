@@ -83,8 +83,8 @@ pub fn Form(
                         input_type: InputType::Number,
                         label_class: "mt-4",
                         name: "tpm_limit",
-                        label: "How many billion parameters is the model",
-                        help_text: "This is used only for information purposes.",
+                        label: "Set the maximum tokens per minute for each user.",
+                        help_text: "If users exceed this limit there access to the model will be limited.",
                         value: "{tpm_limit}",
                         required: true
                     }
@@ -93,8 +93,8 @@ pub fn Form(
                         input_type: InputType::Number,
                         label_class: "mt-4",
                         name: "rpm_limit",
-                        label: "How many billion parameters is the model",
-                        help_text: "This is used only for information purposes.",
+                        label: "Set the maximum requests per minute for each user.",
+                        help_text: "If users exceed this limit there access to the model will be limited.",
                         value: "{rpm_limit}",
                         required: true
                     }
