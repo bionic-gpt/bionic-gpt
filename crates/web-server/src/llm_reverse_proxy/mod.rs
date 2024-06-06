@@ -1,5 +1,6 @@
 pub mod api_chat_stream;
 pub mod api_reverse_proxy;
+pub mod limits;
 mod prompt;
 pub mod sse_chat_enricher;
 pub mod token_count;

@@ -27,10 +27,11 @@ CREATE TYPE inference_type AS ENUM (
     'Console'
 );
 
-CREATE VIEW inference_metrics AS
-    (SELECT 
+CREATE OR REPLACE VIEW inference_metrics AS
+WITH combined_data AS (
+    SELECT 
         id, 
-        'API'::inference_type,
+        'API'::inference_type AS inference_type,
         (SELECT model_id FROM prompts p WHERE p.id IN (SELECT prompt_id FROM api_keys a WHERE a.id = api_key_id)) AS model_id,
         (SELECT user_id FROM api_keys k WHERE k.id = api_key_id) AS user_id,
         tokens_sent, 
@@ -38,10 +39,11 @@ CREATE VIEW inference_metrics AS
         time_taken_ms, 
         created_at, 
         updated_at 
-        FROM api_chats
-    UNION
-    SELECT id, 
-        'Console'::inference_type,
+    FROM api_chats
+    UNION ALL
+    SELECT 
+        id, 
+        'Console'::inference_type AS inference_type,
         (SELECT model_id FROM prompts p WHERE p.id = prompt_id) AS model_id,
         (SELECT user_id FROM conversations c WHERE c.id = conversation_id) AS user_id,
         tokens_sent, 
@@ -49,7 +51,25 @@ CREATE VIEW inference_metrics AS
         time_taken_ms, 
         created_at, 
         updated_at 
-        FROM chats);
+    FROM chats
+),
+recent_data AS (
+    SELECT 
+        model_id, 
+        user_id, 
+        SUM(tokens_sent) AS tpm_sent, 
+        SUM(tokens_received) AS tpm_recv 
+    FROM combined_data
+    WHERE created_at >= NOW() - INTERVAL '1 minute'
+    GROUP BY model_id, user_id
+)
+SELECT 
+    model_id, 
+    user_id, 
+    tpm_sent, 
+    tpm_recv 
+FROM recent_data;
+
 
 -- Give access to the application user.
 GRANT SELECT ON inference_metrics TO bionic_application;
