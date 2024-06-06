@@ -1,23 +1,23 @@
---: RateLimit(limits_role?, user_email?, model_id?)
+--: RateLimit()
 
 --! rate_limits : RateLimit
 SELECT
     l.id,
-    l.limits_role,
-    l.user_email,
+    l.api_key_id,
     l.model_id,
-    l.tokens_per_hour,
+    l.tpm_limit,
+    l.rpm_limit,
     COALESCE((SELECT name FROM models m WHERE m.id = l.model_id), 'All') as model_name,
     l.created_at
 FROM
     rate_limits l
 ORDER BY created_at DESC;
 
---! new(limits_role?, user_email?, model_id?) 
+--! new
 INSERT INTO rate_limits
-    (limits_role, user_email, model_id, tokens_per_hour)
+    (api_key_id, model_id, tpm_limit, rpm_limit)
 VALUES
-    (:limits_role, :user_email, :model_id, :tokens_per_hour)
+    (:api_key_id, :model_id, :tpm_limit, :rpm_limit)
 RETURNING id;
 
 --! delete

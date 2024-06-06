@@ -10,7 +10,8 @@ pub fn Form(
     model_type: String,
     trigger_id: String,
     api_key: String,
-    billion_parameters: i32,
+    tpm_limit: i32,
+    rpm_limit: i32,
     context_size_bytes: i32,
     id: Option<i32>,
 ) -> Element {
@@ -81,10 +82,20 @@ pub fn Form(
                     Input {
                         input_type: InputType::Number,
                         label_class: "mt-4",
-                        name: "billion_parameters",
+                        name: "tpm_limit",
                         label: "How many billion parameters is the model",
                         help_text: "This is used only for information purposes.",
-                        value: "{billion_parameters}",
+                        value: "{tpm_limit}",
+                        required: true
+                    }
+
+                    Input {
+                        input_type: InputType::Number,
+                        label_class: "mt-4",
+                        name: "rpm_limit",
+                        label: "How many billion parameters is the model",
+                        help_text: "This is used only for information purposes.",
+                        value: "{rpm_limit}",
                         required: true
                     }
 
