@@ -3,6 +3,7 @@ pub mod api_reverse_proxy;
 pub mod limits;
 mod prompt;
 pub mod sse_chat_enricher;
+pub mod sse_chat_error;
 pub mod token_count;
 pub mod ui_chat_stream;
 use axum::Router;

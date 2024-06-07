@@ -7,6 +7,7 @@ use db::ChatStatus;
 use std::sync::Arc;
 
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
+use super::sse_chat_error::error_to_chat;
 use crate::auth::Authentication;
 use crate::CustomError;
 use axum::response::{sse::Event, Sse};
@@ -31,52 +32,57 @@ pub async fn chat_generate(
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
     let (request, model_id, user_id) = create_request(&pool, &current_user, chat_id).await?;
 
-    if limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await? {
-        unimplemented!()
-    } else {
-        // Create a channel for sending SSE events
-        let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
+    let is_limit_breached = limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await?;
 
-        // Spawn a task that generates SSE events and sends them into the channel
-        tokio::spawn(async move {
+    // Create a channel for sending SSE events
+    let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
+
+    // Spawn a task that generates SSE events and sends them into the channel
+    tokio::spawn(async move {
+        if is_limit_breached {
+            // Call your existing function to start generating events
+            if let Err(e) = error_to_chat(sender).await {
+                eprintln!("Error generating SSE stream: {:?}", e);
+            }
+        } else {
             // Call your existing function to start generating events
             if let Err(e) = enriched_chat(request, sender, true).await {
                 eprintln!("Error generating SSE stream: {:?}", e);
             }
-        });
+        }
+    });
 
-        let receiver_stream = ReceiverStream::new(receiver);
-        let pool_arc = Arc::new(pool);
-        let sub_arc = Arc::new(current_user.sub);
+    let receiver_stream = ReceiverStream::new(receiver);
+    let pool_arc = Arc::new(pool);
+    let sub_arc = Arc::new(current_user.sub);
 
-        let event_stream = receiver_stream.then(move |item| {
-            let pool = Arc::clone(&pool_arc);
-            let sub = Arc::clone(&sub_arc);
-            async move {
-                match item {
-                    Ok(event) => match event {
-                        GenerationEvent::Text(completion_chunk) => {
-                            Ok(Event::default().data(completion_chunk.delta))
-                        }
-                        GenerationEvent::End(completion_chunk) => {
-                            save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
-                                .await
-                                .unwrap();
-                            Ok(Event::default().data(completion_chunk.delta))
-                        }
-                    },
-                    Err(e) => {
-                        save_results(&pool, &e.to_string(), chat_id, &sub)
+    let event_stream = receiver_stream.then(move |item| {
+        let pool = Arc::clone(&pool_arc);
+        let sub = Arc::clone(&sub_arc);
+        async move {
+            match item {
+                Ok(event) => match event {
+                    GenerationEvent::Text(completion_chunk) => {
+                        Ok(Event::default().data(completion_chunk.delta))
+                    }
+                    GenerationEvent::End(completion_chunk) => {
+                        save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
                             .await
                             .unwrap();
-                        Err(axum::Error::new(e))
+                        Ok(Event::default().data(completion_chunk.delta))
                     }
+                },
+                Err(e) => {
+                    save_results(&pool, &e.to_string(), chat_id, &sub)
+                        .await
+                        .unwrap();
+                    Err(axum::Error::new(e))
                 }
             }
-        });
+        }
+    });
 
-        Ok(Sse::new(event_stream))
-    }
+    Ok(Sse::new(event_stream))
 }
 
 // When the chta has completed, store the results in the database.
