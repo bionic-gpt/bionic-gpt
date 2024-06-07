@@ -22,11 +22,12 @@ pub async fn is_limit_exceeded(
 
     let model = models::model().bind(transaction, &model_id).one().await?;
 
-    dbg!(&inference_metric);
-    dbg!(&total_tokens);
-    dbg!(&model.tpm_limit);
-
-    Ok((model.tpm_limit as i64) < total_tokens)
+    if (model.tpm_limit as i64) > total_tokens {
+        Ok(false)
+    } else {
+        tracing::warn!("Restricting user {} for model {}", user_id, model_id);
+        Ok(true)
+    }
 }
 
 pub async fn is_limit_exceeded_from_pool(
