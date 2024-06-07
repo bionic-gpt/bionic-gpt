@@ -6,10 +6,18 @@ use super::sse_chat_enricher::{CompletionChunk, GenerationEvent};
 // We needed a way to send errors to the users UI console.
 // So we use the existing stream and send the message as a chunk.
 pub async fn error_to_chat(
+    error: &str,
     sender: mpsc::Sender<Result<GenerationEvent, Error>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     sender
-        .send(Ok(GenerationEvent::Text(string_to_chunk("Hello"))))
+        .send(Ok(GenerationEvent::Text(string_to_chunk(error))))
+        .await?;
+
+    sender
+        .send(Ok(GenerationEvent::End(CompletionChunk {
+            delta: "[DONE]".to_string(),
+            snapshot: error.to_string(),
+        })))
         .await?;
 
     Ok(())

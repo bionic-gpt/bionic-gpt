@@ -1,4 +1,7 @@
-use db::{queries::inference_metrics, Pool, Transaction};
+use db::{
+    queries::{inference_metrics, models},
+    Pool, Transaction,
+};
 
 use crate::CustomError;
 
@@ -15,9 +18,15 @@ pub async fn is_limit_exceeded(
         .one()
         .await?;
 
-    let _total_tokens = inference_metric.tpm_recv + inference_metric.tpm_sent;
+    let total_tokens = inference_metric.tpm_recv + inference_metric.tpm_sent;
 
-    Ok(false)
+    let model = models::model().bind(transaction, &model_id).one().await?;
+
+    dbg!(&inference_metric);
+    dbg!(&total_tokens);
+    dbg!(&model.tpm_limit);
+
+    Ok((model.tpm_limit as i64) < total_tokens)
 }
 
 pub async fn is_limit_exceeded_from_pool(

@@ -41,7 +41,9 @@ pub async fn chat_generate(
     tokio::spawn(async move {
         if is_limit_breached {
             // Call your existing function to start generating events
-            if let Err(e) = error_to_chat(sender).await {
+            if let Err(e) =
+                error_to_chat("You have exceeded your token limit for this model", sender).await
+            {
                 eprintln!("Error generating SSE stream: {:?}", e);
             }
         } else {
