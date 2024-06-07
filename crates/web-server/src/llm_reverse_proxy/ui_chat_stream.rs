@@ -20,7 +20,7 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 
-use super::UICompletions;
+use super::{limits, UICompletions};
 use super::{Completion, Message};
 
 // Called from the front end to generate a streaming chat with the model
@@ -29,50 +29,54 @@ pub async fn chat_generate(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
-    let request = create_request(&pool, &current_user, chat_id).await?;
+    let (request, model_id, user_id) = create_request(&pool, &current_user, chat_id).await?;
 
-    // Create a channel for sending SSE events
-    let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
+    if limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await? {
+        unimplemented!()
+    } else {
+        // Create a channel for sending SSE events
+        let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
 
-    // Spawn a task that generates SSE events and sends them into the channel
-    tokio::spawn(async move {
-        // Call your existing function to start generating events
-        if let Err(e) = enriched_chat(request, sender, true).await {
-            eprintln!("Error generating SSE stream: {:?}", e);
-        }
-    });
+        // Spawn a task that generates SSE events and sends them into the channel
+        tokio::spawn(async move {
+            // Call your existing function to start generating events
+            if let Err(e) = enriched_chat(request, sender, true).await {
+                eprintln!("Error generating SSE stream: {:?}", e);
+            }
+        });
 
-    let receiver_stream = ReceiverStream::new(receiver);
-    let pool_arc = Arc::new(pool);
-    let sub_arc = Arc::new(current_user.sub);
+        let receiver_stream = ReceiverStream::new(receiver);
+        let pool_arc = Arc::new(pool);
+        let sub_arc = Arc::new(current_user.sub);
 
-    let event_stream = receiver_stream.then(move |item| {
-        let pool = Arc::clone(&pool_arc);
-        let sub = Arc::clone(&sub_arc);
-        async move {
-            match item {
-                Ok(event) => match event {
-                    GenerationEvent::Text(completion_chunk) => {
-                        Ok(Event::default().data(completion_chunk.delta))
-                    }
-                    GenerationEvent::End(completion_chunk) => {
-                        save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
+        let event_stream = receiver_stream.then(move |item| {
+            let pool = Arc::clone(&pool_arc);
+            let sub = Arc::clone(&sub_arc);
+            async move {
+                match item {
+                    Ok(event) => match event {
+                        GenerationEvent::Text(completion_chunk) => {
+                            Ok(Event::default().data(completion_chunk.delta))
+                        }
+                        GenerationEvent::End(completion_chunk) => {
+                            save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
+                                .await
+                                .unwrap();
+                            Ok(Event::default().data(completion_chunk.delta))
+                        }
+                    },
+                    Err(e) => {
+                        save_results(&pool, &e.to_string(), chat_id, &sub)
                             .await
                             .unwrap();
-                        Ok(Event::default().data(completion_chunk.delta))
+                        Err(axum::Error::new(e))
                     }
-                },
-                Err(e) => {
-                    save_results(&pool, &e.to_string(), chat_id, &sub)
-                        .await
-                        .unwrap();
-                    Err(axum::Error::new(e))
                 }
             }
-        }
-    });
+        });
 
-    Ok(Sse::new(event_stream))
+        Ok(Sse::new(event_stream))
+    }
 }
 
 // When the chta has completed, store the results in the database.
@@ -104,7 +108,7 @@ async fn create_request(
     pool: &Pool,
     current_user: &Authentication,
     chat_id: i32,
-) -> Result<RequestBuilder, CustomError> {
+) -> Result<(RequestBuilder, i32, i32), CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, current_user.sub.to_string()).await?;
@@ -163,5 +167,5 @@ async fn create_request(
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
             .body(completion_json.to_string())
     };
-    Ok(request)
+    Ok((request, model.id, conversation.user_id))
 }
