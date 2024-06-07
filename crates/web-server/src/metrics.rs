@@ -16,17 +16,24 @@ pub async fn track_metrics(
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
 
-    let inference_metrics = inference_metrics::inference_metrics()
+    let inference_metrics = inference_metrics::inference_models()
         .bind(&transaction)
         .all()
         .await?;
 
     let mut prometheus_metrics = "".to_string();
 
+    for im in &inference_metrics {
+        prometheus_metrics.push_str(&format!(
+            "tokens_send_in_the_last_minute{{model=\"{}\"}} {}\n",
+            im.model_name, im.tpm_sent
+        ))
+    }
+
     for im in inference_metrics {
         prometheus_metrics.push_str(&format!(
-            "tokens_per_second_sent{{model=\"{}\"}} {}",
-            im.model_id, im.tpm_sent
+            "tokens_received_in_the_last_minute{{model=\"{}\"}} {}\n",
+            im.model_name, im.tpm_recv
         ))
     }
 
