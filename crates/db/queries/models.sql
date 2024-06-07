@@ -7,7 +7,8 @@ SELECT
     model_type,
     base_url,
     api_key,
-    billion_parameters,
+    tpm_limit,
+    rpm_limit,
     context_size,
     created_at,
     updated_at
@@ -23,7 +24,8 @@ SELECT
     model_type,
     base_url,
     api_key,
-    billion_parameters,
+    tpm_limit,
+    rpm_limit,
     context_size,
     created_at,
     updated_at
@@ -42,7 +44,8 @@ SELECT
     model_type,
     base_url,
     api_key,
-    billion_parameters,
+    tpm_limit,
+    rpm_limit,
     context_size,
     created_at,
     updated_at
@@ -59,7 +62,8 @@ SELECT
     model_type,
     base_url,
     api_key,
-    billion_parameters,
+    tpm_limit,
+    rpm_limit,
     context_size,
     created_at,
     updated_at
@@ -78,7 +82,8 @@ INSERT INTO models (
     model_type,
     base_url,
     api_key,
-    billion_parameters,
+    tpm_limit,
+    rpm_limit,
     context_size
 )
 VALUES(
@@ -86,7 +91,8 @@ VALUES(
     :model_type,
     :base_url, 
     :api_key, 
-    :billion_parameters, 
+    :tpm_limit,
+    :rpm_limit,
     :context_size
 )
 RETURNING id;
@@ -99,7 +105,8 @@ SET
     model_type = :model_type,
     base_url = :base_url,
     api_key = :api_key,
-    billion_parameters = :billion_parameters,
+    tpm_limit = :tpm_limit,
+    rpm_limit = :rpm_limit,
     context_size = :context_size
 WHERE
     id = :id;

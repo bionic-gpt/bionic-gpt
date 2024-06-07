@@ -7,6 +7,7 @@ SELECT
     a.prompt_id,
     a.user_id,
     (SELECT name FROM prompts p WHERE p.id = a.prompt_id) as prompt_name,
+    (SELECT model_id FROM prompts p WHERE p.id = a.prompt_id) as model_id,
     a.api_key,
     a.created_at
 FROM
@@ -30,6 +31,7 @@ SELECT
     a.prompt_id,
     a.user_id,
     (SELECT name FROM prompts p WHERE p.id = a.prompt_id) as prompt_name,
+    (SELECT model_id FROM prompts p WHERE p.id = a.prompt_id) as model_id,
     a.api_key,
     a.created_at
 FROM

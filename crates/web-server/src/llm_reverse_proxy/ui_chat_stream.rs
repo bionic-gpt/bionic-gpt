@@ -7,6 +7,7 @@ use db::ChatStatus;
 use std::sync::Arc;
 
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
+use super::sse_chat_error::error_to_chat;
 use crate::auth::Authentication;
 use crate::CustomError;
 use axum::response::{sse::Event, Sse};
@@ -20,7 +21,7 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 
-use super::UICompletions;
+use super::{limits, UICompletions};
 use super::{Completion, Message};
 
 // Called from the front end to generate a streaming chat with the model
@@ -29,16 +30,27 @@ pub async fn chat_generate(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
-    let request = create_request(&pool, &current_user, chat_id).await?;
+    let (request, model_id, user_id) = create_request(&pool, &current_user, chat_id).await?;
+
+    let is_limit_breached = limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await?;
 
     // Create a channel for sending SSE events
     let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
 
     // Spawn a task that generates SSE events and sends them into the channel
     tokio::spawn(async move {
-        // Call your existing function to start generating events
-        if let Err(e) = enriched_chat(request, sender, true).await {
-            eprintln!("Error generating SSE stream: {:?}", e);
+        if is_limit_breached {
+            // Call your existing function to start generating events
+            if let Err(e) =
+                error_to_chat("You have exceeded your token limit for this model", sender).await
+            {
+                eprintln!("Error generating SSE stream: {:?}", e);
+            }
+        } else {
+            // Call your existing function to start generating events
+            if let Err(e) = enriched_chat(request, sender, true).await {
+                eprintln!("Error generating SSE stream: {:?}", e);
+            }
         }
     });
 
@@ -104,7 +116,7 @@ async fn create_request(
     pool: &Pool,
     current_user: &Authentication,
     chat_id: i32,
-) -> Result<RequestBuilder, CustomError> {
+) -> Result<(RequestBuilder, i32, i32), CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, current_user.sub.to_string()).await?;
@@ -163,5 +175,5 @@ async fn create_request(
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
             .body(completion_json.to_string())
     };
-    Ok(request)
+    Ok((request, model.id, conversation.user_id))
 }

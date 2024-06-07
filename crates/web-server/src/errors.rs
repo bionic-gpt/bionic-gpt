@@ -10,6 +10,7 @@ pub enum CustomError {
     Database(String),
     ExternalApi(String),
     Authentication(String),
+    Limits(String),
     Authorization,
 }
 
@@ -20,6 +21,7 @@ impl fmt::Display for CustomError {
             CustomError::FaultySetup(ref cause) => write!(f, "Setup Error: {}", cause),
             CustomError::ExternalApi(ref cause) => write!(f, "Api Error: {}", cause),
             CustomError::Authentication(ref cause) => write!(f, "Api Error: {}", cause),
+            CustomError::Limits(ref cause) => write!(f, "Api Error: {}", cause),
             CustomError::Authorization => write!(f, "Authorization Error"),
             CustomError::Database(ref cause) => {
                 write!(f, "Database Error: {}", cause)
@@ -36,6 +38,7 @@ impl IntoResponse for CustomError {
             CustomError::FaultySetup(message) => (StatusCode::UNPROCESSABLE_ENTITY, message),
             CustomError::ExternalApi(message) => (StatusCode::UNPROCESSABLE_ENTITY, message),
             CustomError::Authentication(message) => (StatusCode::UNAUTHORIZED, message),
+            CustomError::Limits(message) => (StatusCode::TOO_MANY_REQUESTS, message),
             CustomError::Authorization => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
         };
 

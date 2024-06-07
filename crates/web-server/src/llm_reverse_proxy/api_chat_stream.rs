@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use super::limits;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::Completion;
 use crate::CustomError;
@@ -36,6 +37,12 @@ pub async fn chat_generate(
 
         let (api_key, request, api_chat_id) =
             create_request(&transaction, api_key, completion).await?;
+
+        if limits::is_limit_exceeded(&transaction, api_key.model_id, api_key.user_id).await? {
+            return Err(CustomError::Limits(
+                "You have exceededs the token limits for this user and model".to_string(),
+            ));
+        }
 
         // Create a channel for sending SSE events
         let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);

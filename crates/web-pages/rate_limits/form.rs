@@ -13,48 +13,35 @@ pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
             DrawerBody {
                 div {
                     class: "flex flex-col",
-                    Input {
-                        input_type: InputType::Text,
-                        placeholder: "RBAC Role Name",
-                        help_text: "Which RBAC role should this limit apply to. Leave blank for any role.",
-                        label: "Limit Role",
-                        name: "limits_role"
-                    }
-                    Input {
-                        label_class: "mt-4",
-                        input_type: InputType::Text,
-                        placeholder: "Users Email",
-                        help_text: "If the limit is only applied to 1 user, set the email name here.",
-                        label: "Users Email",
-                        name: "users_email"
-                    }
 
-                    Select {
-                        name: "model_id",
-                        label: "Select the model to apply this limit to",
+                    Input {
                         label_class: "mt-4",
-                        help_text: "The prompt will be passed to the model",
+                        input_type: InputType::Number,
+                        placeholder: "Api Key Id i.e. 1234",
+                        help_text: "We need the ID of the Api Key from the ID field",
+                        label: "API Key ID",
                         required: true,
-                        SelectOption {
-                            value: "all",
-                            "All"
-                        }
-                        for model in models {
-                            SelectOption {
-                                value: "{model.id}",
-                                "{model.name}"
-                            }
-                        }
+                        name: "api_key_id"
                     }
 
                     Input {
                         label_class: "mt-4",
                         input_type: InputType::Number,
-                        placeholder: "Tokens per Hour e.g. 1000",
-                        help_text: "Set the limit of the number of tokens per hour permitted",
-                        label: "Tokens per Hour",
+                        placeholder: "Tokens per Minute e.g. 1000",
+                        help_text: "Tokens Per minute",
+                        label: "Tokens per Minute",
                         required: true,
-                        name: "tokens_per_hour"
+                        name: "tpm_limit"
+                    }
+
+                    Input {
+                        label_class: "mt-4",
+                        input_type: InputType::Number,
+                        placeholder: "Requests per Minute e.g. 1000",
+                        help_text: "Requests Per minute",
+                        label: "Requests per Minute",
+                        required: true,
+                        name: "rpm_limit"
                     }
                 }
             }

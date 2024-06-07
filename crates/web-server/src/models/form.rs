@@ -20,7 +20,8 @@ pub struct ModelForm {
     pub model_type: String,
     #[serde(deserialize_with = "empty_string_is_none")]
     pub api_key: Option<String>,
-    pub billion_parameters: i32,
+    pub tpm_limit: i32,
+    pub rpm_limit: i32,
     pub context_size: i32,
 }
 
@@ -51,7 +52,8 @@ pub async fn upsert(
                     &model_type,
                     &model_form.base_url,
                     &model_form.api_key,
-                    &model_form.billion_parameters,
+                    &model_form.tpm_limit,
+                    &model_form.rpm_limit,
                     &model_form.context_size,
                     &id,
                 )
@@ -74,7 +76,8 @@ pub async fn upsert(
                     &model_type,
                     &model_form.base_url,
                     &model_form.api_key,
-                    &model_form.billion_parameters,
+                    &model_form.tpm_limit,
+                    &model_form.rpm_limit,
                     &model_form.context_size,
                 )
                 .one()
