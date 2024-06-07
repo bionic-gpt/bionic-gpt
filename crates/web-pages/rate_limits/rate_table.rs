@@ -15,9 +15,9 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
                 table {
                     class: "table table-sm",
                     thead {
-                        th { "Role Name or User" }
-                        th { "Model" }
-                        th { "Limit" }
+                        th { "API Key ID" }
+                        th { "TPM Limit" }
+                        th { "RPM Limit" }
                         th {
                             class: "text-right",
                             "Action"
@@ -27,19 +27,18 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
                         for limit in rate_limits {
                             tr {
                                 td {
-                                    "{limit.limits_role.unwrap_or_default()}"
-
-                                    "{limit.user_email.unwrap_or_default()}"
+                                    "{limit.api_key_id}"
                                 }
                                 td {
                                     Label {
-                                        "{limit.model_name}"
+                                        label_role: LabelRole::Success,
+                                        "{limit.tpm_limit}"
                                     }
                                 }
                                 td {
                                     Label {
                                         label_role: LabelRole::Success,
-                                        "{limit.tokens_per_hour}"
+                                        "{limit.rpm_limit}"
                                     }
                                 }
                                 td {

@@ -70,14 +70,18 @@ npm-build:
 
 pipeline-job-container:
     FROM scratch
-    COPY +build/$PIPELINE_EXE_NAME pipeline-job
+    # Don't run as root 
+    USER 1001
+    COPY --chown=1001:1001 +build/$PIPELINE_EXE_NAME pipeline-job
     ENTRYPOINT ["./pipeline-job"]
     SAVE IMAGE --push $PIPELINE_IMAGE_NAME
      
 
 rabbitmq-container:
     FROM scratch
-    COPY +build/$RABBITMQ_EXE_NAME rabbit-mq
+    # Don't run as root 
+    USER 1001
+    COPY --chown=1001:1001 +build/$RABBITMQ_EXE_NAME rabbit-mq
     ENTRYPOINT ["./rabbit-mq"]
     SAVE IMAGE --push $RABBITMQ_IMAGE_NAME
 
@@ -137,10 +141,12 @@ migration-container:
 # docker run -it --rm -e APP_DATABASE_URL=$APP_DATABASE_URL -p 7703:7703 bionic-gpt/bionicgpt:latest
 app-container:
     FROM scratch
-    COPY +build/$APP_EXE_NAME axum-server
+    # Don't run as root 
+    USER 1001
+    COPY --chown=1001:1001 +build/$APP_EXE_NAME axum-server
     # Place assets in a build folder as that's where statics is expecting them.
-    COPY --dir +npm-build/dist /build/$PIPELINE_FOLDER/
-    COPY --dir $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
+    COPY --dir --chown=1001:1001 +npm-build/dist /build/$PIPELINE_FOLDER/
+    COPY --dir --chown=1001:1001 $PIPELINE_FOLDER/images /build/$PIPELINE_FOLDER/images
     ENTRYPOINT ["./axum-server"]
     SAVE IMAGE --push $APP_IMAGE_NAME
 
@@ -248,13 +254,3 @@ bionic-cluster-create:
     RUN bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
     RUN kubectl -n bionic-gpt create secret generic cloudflare-credentials --from-literal=token=$TUNNEL_TOKEN
     RUN kubectl -n bionic-gpt apply -f ./infra-as-code/cloudflare.yaml
-
-# One docker container with all our services
-community-edition:
-    FROM purtontech/rust-on-nails-devcontainer:1.3.1
-    COPY +build/$APP_EXE_NAME /usr/bin/web-server
-    COPY +build/$PIPELINE_EXE_NAME /usr/bin/pipeline-job
-    ENV APP_DATABASE_URL=postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
-    ENV APP_DATABASE_URL=postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
-    ENTRYPOINT ["/usr/bin/web-server"]
-    SAVE IMAGE --push $CE_IMAGE_NAME

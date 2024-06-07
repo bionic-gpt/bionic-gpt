@@ -37,7 +37,8 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>) -> Element {
                 name: "".to_string(),
                 model_type: "LLM".to_string(),
                 base_url: "".to_string(),
-                billion_parameters: 7,
+                tpm_limit: 10_000,
+                rpm_limit: 10_000,
                 api_key: "".to_string(),
                 context_size_bytes: 2048,
             }
@@ -51,7 +52,8 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>) -> Element {
                     model_type: super::model_type(model.model_type),
                     base_url: model.base_url.clone(),
                     api_key: model.api_key.clone().unwrap_or("".to_string()),
-                    billion_parameters: model.billion_parameters,
+                    tpm_limit: model.tpm_limit,
+                    rpm_limit: model.rpm_limit,
                     context_size_bytes: model.context_size,
                 }
             }

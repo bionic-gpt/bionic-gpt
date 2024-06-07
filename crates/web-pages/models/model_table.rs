@@ -18,7 +18,8 @@ pub fn ModelTable(models: Vec<Model>, team_id: i32) -> Element {
                         th { "Name" }
                         th { "Base URL" }
                         th { "Model Type" }
-                        th { "Parameters" }
+                        th { "TPM Limit" }
+                        th { "RPM Limit" }
                         th { "Context Length" }
                         th {
                             class: "text-right",
@@ -44,7 +45,10 @@ pub fn ModelTable(models: Vec<Model>, team_id: i32) -> Element {
                                     }
                                 }
                                 td {
-                                    "{model.billion_parameters} Billion"
+                                    "{model.tpm_limit}"
+                                }
+                                td {
+                                    "{model.rpm_limit}"
                                 }
                                 td {
                                     "{model.context_size}"
