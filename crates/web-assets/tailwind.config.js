@@ -1,6 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["../web-pages/**/*.rs", "../daisy-rsx/**/*.rs", "typescript/**/*.ts"],
+  /** We need this because we use daisy-rsx library */
+  safelist: [
+    "text-center",
+    "z-[1]",
+    "w-52",
+    "rounded-box",
+    "bg-base-100",
+    "shadow",
+    {
+      pattern: /alert*|btn*|menu*|dropdown*|badge*|card*|input*|select*|textarea*|label*/
+    }
+  ],
   theme: {
     extend: {},
   },

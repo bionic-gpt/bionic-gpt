@@ -12,8 +12,8 @@ pub async fn is_limit_exceeded(
     model_id: i32,
     user_id: i32,
 ) -> Result<bool, CustomError> {
-    // Get the prompt
-    let inference_metric = inference_metrics::inference_metrics()
+    // Get the inference metrics
+    let inference_metric = inference_metrics::inference_metric()
         .bind(transaction, &model_id, &user_id)
         .one()
         .await?;

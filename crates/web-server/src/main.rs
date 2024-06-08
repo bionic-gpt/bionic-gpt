@@ -13,6 +13,7 @@ pub mod guardrails;
 pub mod layout;
 pub mod licence;
 pub mod llm_reverse_proxy;
+pub mod metrics;
 pub mod models;
 pub mod oidc_endpoint;
 pub mod pipelines;
@@ -53,6 +54,7 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .typed_get(static_files::static_path)
+        .typed_get(metrics::track_metrics)
         .merge(auth_routes)
         .merge(api_pipeline::routes(&config))
         .merge(api_keys::routes())
