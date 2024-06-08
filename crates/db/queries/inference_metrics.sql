@@ -26,12 +26,13 @@ FROM
 SELECT
     m.id,
     m.name AS model_name,
-    COALESCE(im.user_id, 0) AS user_id,
-    COALESCE(im.tpm_sent, 0) AS tpm_sent,
-    COALESCE(im.tpm_recv, 0) AS tpm_recv
+    COALESCE(SUM(im.tpm_sent), 0)::int AS tpm_sent,
+    COALESCE(SUM(im.tpm_recv), 0)::int AS tpm_recv
 FROM
     models m
 LEFT JOIN
     inference_metrics im
 ON
-    m.id = im.model_id;
+    m.id = im.model_id
+GROUP BY
+    m.id, m.name;
