@@ -1,5 +1,5 @@
 +++
-title = "How to prevent model denial of service for production LLM applications."
+title = "Model Denial of Service prevention for  production LLM applications"
 date = 2024-04-10
 description = "How to prevent model denial of service for production LLM applications."
 
