@@ -38,7 +38,7 @@ Here are some of the types of DoS.
 
 ## Resource Exhaustion
 
-In this article we'll focus on Respource Exhaustion as its the most likely DoS that you'll see in a Gen AI Application.
+In this article we'll focus on Resource Exhaustion as its the most likely DoS that you'll see in a Gen AI Application.
 
 [Benchmarking LLM Inference Backends](https://www.bentoml.com/blog/benchmarking-llm-inference-backends)
 
@@ -48,11 +48,25 @@ In this article we'll focus on Respource Exhaustion as its the most likely DoS t
 
 ![alt text](llama3_70b_performance.png "Data Residency")
 
-We need to take care of 2 scenarios
+## We need to take care of 2 scenarios
 
 ### 1. High Volume of Queries
 
-### 2. High Token Volume
+A high volume of queries to a large language model (LLM) can significantly strain its computational resources, leading to performance degradation and potential unavailability. 
+
+This makes sense and is the same problem for any API that gets deployed into production.
+
+### 2. Large Prompt and Response Sizes
+
+LLMs have an additional problem that is not often seen with other API endpoints. A single call to an LLM can be large, especially in the case of Retrieval Augmented Generation where the **prompt may contain whole documents**.
+
+![alt text](rag-arch.png "Data Residency")
+
+This puts extra strain on the Inference Engine.
+
+It also works both ways. Ask an LLM to write a __10,000 word essay__ and although the initial prompt is small the LLM will need to generate thousands of tokens.
+
+So we need a way to limit query volumes and sizes and still give our users the best results.
 
 ## Prevention using a Gateway or Reverse Proxy
 
@@ -60,7 +74,7 @@ We need to take care of 2 scenarios
 
 ![alt text](token-bucket.webp "Data Residency")
 
-### Whats out there
+### What's out there
 
 #### LLM-Lite
 
