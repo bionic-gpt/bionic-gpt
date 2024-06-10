@@ -70,12 +70,50 @@ So we need a way to limit query volumes and sizes and still give our users the b
 
 ## Prevention using a Gateway or Reverse Proxy
 
+LLM Inference engines actually have a relatively simple API. Nearly all popular engines support the [Open AI API](https://platform.openai.com/docs/api-reference/completions) Completions endpoint.
+
+So when we talk about prevention we're applying protection to more or less just one main endpoint. Below is an example of calling an LLM.
+
+```sh
+curl https://api.openai.com/v1/completions \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer YOUR_API_KEY" \
+-d '{"model": "text-davinci-003", 
+    "prompt": "Say this is a test", 
+    "temperature": 0, 
+    "max_tokens": 7}'
+```
+
+So ideally we'd like to put a Gateway or Reverse Proxy in front of our chosen inference engine so that we can somehow throttle requests.
+
+Ask any budding interviewee who's studied for their [System Design](https://interviewing.io/guides/system-design-interview) concepots how they woukd solve this and they would reply [Token Buckets](https://en.wikipedia.org/wiki/Token_bucket).
+
 ### Token Buckets
+
+A token bucket is a mechanism used in network traffic management to control the amount of data that can be sent over a network. It works by generating tokens at a fixed rate and storing them in a bucket. Each token represents the permission to send a certain amount of data. When data is sent, tokens are removed from the bucket. If the bucket is empty, no data can be sent until more tokens are added, effectively regulating the data flow and ensuring network stability.
 
 ![alt text](token-bucket.webp "Data Residency")
 
-### What's out there
+So ideally we want to expand on this concept and add not just rate limiting but **token usage limiting**.
+
+### Proxies with Rate Limiting and LLM Awareness?
+
+To be useful our proxy needs to manage request rate limiting, throttling based on over use of token/request response sizes and to be **user aware**. By user aware we mean the proxy should not just limit all users but just those users who are overusing resources.
+
+![alt text](rate-limiter.jpeg "Data Residency")
+
+#### Envoy, Kong and Other API Gateways
+
+Most of the mainstream Gateways support Token Buckets and have mixed support for LLM specific API calls.
+
+They all seem to lack the ability to support throttling based on specific users. So for example we would like to have added a header to our API call based on a particular user.
 
 #### LLM-Lite
 
-#### Envoy, Kong and Other API Gateways
+[LLM Lite](https://www.litellm.ai) is an LLM aware proxy and has support for rate limiting based on users which it calls a budget manager.
+
+#### How we manage this in Bionic
+
+Bionic comes with a built in proxy that is both user aware and API key aware.
+
+This allows you to dynamically adjust the load on your inference engines in real time and give your users the best and most fair experience.
