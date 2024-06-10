@@ -12,7 +12,7 @@ author = "Ian Purton"
 
 ## What is Model Denial of Service?
 
-Denial of Service (DoS) on large language models (LLMs) and other machine learning (ML) systems can disrupt normal operations or degrade performance. These attacks can take various forms, each exploiting different aspects of the model's functionality or its supporting infrastructure. [Model Denial of Service](https://genai.owasp.org/llmrisk/llm04-model-denial-of-service/) is on the Owasp Top 10 List for LLM and Generative AI applications.
+Model Denial of Service (DoS) on large language models (LLMs) and other machine learning (ML) systems can disrupt normal operations or degrade performance. These attacks can take various forms, each exploiting different aspects of the model's functionality or its supporting infrastructure. [Model Denial of Service](https://genai.owasp.org/llmrisk/llm04-model-denial-of-service/) is on the Owasp Top 10 List for LLM and Generative AI applications.
 
 Note: We call them *attacks* but **often these can be unintentional** i.e. a script left running overnight or just normal day to day usage.
 
@@ -38,17 +38,23 @@ Here are some of the types of DoS.
 
 ## Resource Exhaustion
 
-In this article we'll focus on Resource Exhaustion as its the most likely DoS that you'll see in a Gen AI Application.
+In this article we'll focus on Resource Exhaustion as its the most likely DoS that you'll see in a production Generative AI Application.
 
-[Benchmarking LLM Inference Backends](https://www.bentoml.com/blog/benchmarking-llm-inference-backends)
+There's a great article [Benchmarking LLM Inference Backends](https://www.bentoml.com/blog/benchmarking-llm-inference-backends) that gives us an insight into what performance we can expect when simulating LLM usage on an A100 GPU.
 
-![alt text](nvidia-a100-80gb.jpg "Data Residency")
+![alt text](nvidia-a100-80gb.jpg "Nvidia A100")
+
+The main issue is that GPUs are expensive, non trivial to install and it's very difficult to know how many users a card will support.
+
+How do we ensure our investment will be successful?
 
 ### LLMs are Memory Bound
 
+This means you need **very fast memory** to get the best performance and the very fastest memory you can get is on the most expensive GPU cards.
+
 ![alt text](llama3_70b_performance.png "Data Residency")
 
-## We need to take care of 2 scenarios
+## We need to take care of two scenarios
 
 ### 1. High Volume of Queries
 
@@ -62,7 +68,7 @@ LLMs have an additional problem that is not often seen with other API endpoints.
 
 ![alt text](rag-arch.png "Data Residency")
 
-This puts extra strain on the Inference Engine.
+**RAG** puts extra strain on the Inference Engine.
 
 It also works both ways. Ask an LLM to write a __10,000 word essay__ and although the initial prompt is small the LLM will need to generate thousands of tokens.
 
@@ -84,17 +90,23 @@ curl https://api.openai.com/v1/completions \
     "max_tokens": 7}'
 ```
 
-So ideally we'd like to put a Gateway or Reverse Proxy in front of our chosen inference engine so that we can somehow throttle requests.
+So ideally we'd like to put a Gateway or Reverse Proxy in front of our chosen inference engine so that we can **throttle requests**.
 
-Ask any budding interviewee who's studied for their [System Design](https://interviewing.io/guides/system-design-interview) concepots how they woukd solve this and they would reply [Token Buckets](https://en.wikipedia.org/wiki/Token_bucket).
+Ask any budding interviewee who's studied for their [System Design Interview](https://interviewing.io/guides/system-design-interview) how they would solve this and they would reply [Token Buckets](https://en.wikipedia.org/wiki/Token_bucket).
 
 ### Token Buckets
 
-A token bucket is a mechanism used in network traffic management to control the amount of data that can be sent over a network. It works by generating tokens at a fixed rate and storing them in a bucket. Each token represents the permission to send a certain amount of data. When data is sent, tokens are removed from the bucket. If the bucket is empty, no data can be sent until more tokens are added, effectively regulating the data flow and ensuring network stability.
+A token bucket is a mechanism used in network traffic management to control the amount of data that can be sent over a network.
+
+- It generates tokens at a fixed rate, storing them in a bucket.
+- Each token permits the sending of a certain amount of data.
+- Tokens are removed from the bucket when data is sent.
+- If the bucket is empty, data transmission halts until more tokens are added.
+- Regulates data flow and ensures network stability.
 
 ![alt text](token-bucket.webp "Data Residency")
 
-So ideally we want to expand on this concept and add not just rate limiting but **token usage limiting**.
+So ideally we want to expand on this concept and add not just rate limiting but **token usage limiting**. We'd also ideally like to use a pre-built production ready proxy so we don't have to re-invent the wheel.
 
 ### Proxies with Rate Limiting and LLM Awareness?
 
@@ -112,8 +124,12 @@ They all seem to lack the ability to support throttling based on specific users.
 
 [LLM Lite](https://www.litellm.ai) is an LLM aware proxy and has support for rate limiting based on users which it calls a budget manager.
 
+To make this work you'll need to setup a database for Lite LLM and then also add users based on an API that Lite LLM provides.
+
+This is not ideal as it adds complexity to your production setup.
+
 #### How we manage this in Bionic
 
-Bionic comes with a built in proxy that is both user aware and API key aware.
+Bionic comes with a built in proxy that is both user aware and API key aware. We custom built our solution as no solution quite fitted all the use cases we needed to handle.
 
-This allows you to dynamically adjust the load on your inference engines in real time and give your users the best and most fair experience.
+Bionic allows you to dynamically adjust the load on your inference engines in real time and give your users the best and most fair experience.
