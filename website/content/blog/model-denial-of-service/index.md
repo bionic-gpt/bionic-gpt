@@ -137,3 +137,7 @@ Bionic comes with a built in proxy that is both **user aware** and **API key** a
 ![alt text](bionic-limits.png "Bionic Token Limits")
 
 Bionic allows you to dynamically adjust the load on your inference engines in real time and give your users the best and most fair experience.
+
+## Join the Discussion
+
+I have you [have any comments](https://www.reddit.com/r/LocalLLaMA/comments/1dch7bv/model_denial_of_service_prevention_for_production/please let us know on Reddit.
