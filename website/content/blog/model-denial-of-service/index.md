@@ -76,6 +76,8 @@ So we need a way to limit query volumes and sizes and still give our users the b
 
 ## Prevention using a Gateway or Reverse Proxy
 
+A gateway or reverse proxy acts as an intermediary server that forwards client requests to other servers, enhancing security, load balancing, and performance.
+
 LLM Inference engines actually have a relatively simple API. Nearly all popular engines support the [Open AI API](https://platform.openai.com/docs/api-reference/completions) Completions endpoint.
 
 So when we talk about prevention we're applying protection to more or less just one main endpoint. Below is an example of calling an LLM.
@@ -106,7 +108,7 @@ A token bucket is a mechanism used in network traffic management to control the 
 
 ![alt text](token-bucket.webp "Token Buckets")
 
-So ideally we want to expand on this concept and add not just rate limiting but **token usage limiting**. We'd also ideally like to use a pre-built production ready proxy so we don't have to re-invent the wheel.
+So ideally we want to expand on this concept and add not just rate limiting but **token usage limiting**. We'd also like to use a pre-built production ready proxy so we don't have to re-invent the wheel.
 
 ### Proxies with Rate Limiting and LLM Awareness?
 
@@ -118,7 +120,7 @@ To be useful our proxy needs to manage request rate limiting, throttling based o
 
 Most of the mainstream Gateways support Token Buckets and have mixed support for LLM specific API calls.
 
-They all seem to lack the ability to support throttling based on specific users. So for example we would like to have added a header to our API call based on a particular user.
+They all seem to lack the ability to support throttling based on specific users. So for example we would like to have the ability to pass in user details with each call.
 
 #### LLM-Lite
 
