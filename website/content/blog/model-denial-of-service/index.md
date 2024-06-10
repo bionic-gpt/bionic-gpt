@@ -52,7 +52,7 @@ How do we ensure our investment will be successful?
 
 This means you need **very fast memory** to get the best performance and the very fastest memory you can get is on the most expensive GPU cards.
 
-![alt text](llama3_70b_performance.png "Data Residency")
+![alt text](llama3_70b_performance.png "LLM Performance and Rate Limiting")
 
 ## We need to take care of two scenarios
 
@@ -66,7 +66,7 @@ This makes sense and is the same problem for any API that gets deployed into pro
 
 LLMs have an additional problem that is not often seen with other API endpoints. A single call to an LLM can be large, especially in the case of Retrieval Augmented Generation where the **prompt may contain whole documents**.
 
-![alt text](rag-arch.png "Data Residency")
+![alt text](rag-arch.png "RAG Architecturey")
 
 **RAG** puts extra strain on the Inference Engine.
 
@@ -104,7 +104,7 @@ A token bucket is a mechanism used in network traffic management to control the 
 - If the bucket is empty, data transmission halts until more tokens are added.
 - Regulates data flow and ensures network stability.
 
-![alt text](token-bucket.webp "Data Residency")
+![alt text](token-bucket.webp "Token Buckets")
 
 So ideally we want to expand on this concept and add not just rate limiting but **token usage limiting**. We'd also ideally like to use a pre-built production ready proxy so we don't have to re-invent the wheel.
 
@@ -112,7 +112,7 @@ So ideally we want to expand on this concept and add not just rate limiting but 
 
 To be useful our proxy needs to manage request rate limiting, throttling based on over use of token/request response sizes and to be **user aware**. By user aware we mean the proxy should not just limit all users but just those users who are overusing resources.
 
-![alt text](rate-limiter.jpeg "Data Residency")
+![alt text](rate-limiter.jpeg "Rate Limiting")
 
 #### Envoy, Kong and Other API Gateways
 
@@ -130,6 +130,8 @@ This is not ideal as it adds complexity to your production setup.
 
 #### How we manage this in Bionic
 
-Bionic comes with a built in proxy that is both user aware and API key aware. We custom built our solution as no solution quite fitted all the use cases we needed to handle.
+Bionic comes with a built in proxy that is both **user aware** and **API key** aware. We custom built our solution as no solution quite fitted all the use cases we needed to handle.
+
+![alt text](bionic-limits.png "Bionic Token Limits")
 
 Bionic allows you to dynamically adjust the load on your inference engines in real time and give your users the best and most fair experience.
