@@ -18,6 +18,9 @@ pub struct CloudflareInstaller {
     /// The tunnel name i.e. bionic-gpt
     #[arg(long, default_value = "bionic-gpt")]
     pub name: String,
+    /// In which namespace shall we install Bionic
+    #[arg(long, default_value = "bionic-gpt")]
+    pub namespace: String,
 }
 
 #[derive(Parser)]
