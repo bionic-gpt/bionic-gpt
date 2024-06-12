@@ -1,5 +1,6 @@
 pub mod bionic;
 pub mod chunking_engine;
+pub mod cloudflare;
 pub mod database;
 pub mod deployment;
 pub mod embeddings_engine;
