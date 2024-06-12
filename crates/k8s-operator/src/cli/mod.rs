@@ -11,6 +11,16 @@ pub struct Cli {
 }
 
 #[derive(Parser)]
+pub struct CloudflareInstaller {
+    /// The cloudflare tuneel token
+    #[arg(long)]
+    pub token: String,
+    /// The tunnel name i.e. bionic-gpt
+    #[arg(long, default_value = "bionic-gpt")]
+    pub name: String,
+}
+
+#[derive(Parser)]
 pub struct Installer {
     /// Run a cut down version of Bionic for integration testing
     #[arg(long, default_value_t = false)]
@@ -50,6 +60,8 @@ pub enum Commands {
     Install(Installer),
     /// Run the Bionic Kubernetes Operator
     Operator {},
+    /// Run the Bionic Kubernetes Operator
+    Cloudflare(CloudflareInstaller),
     /// Upgrade Bionic (Not Yet Complete)
     Upgrade {},
 }
