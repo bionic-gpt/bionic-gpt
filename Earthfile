@@ -252,5 +252,4 @@ bionic-cluster-create:
     RUN eksctl create cluster -f ./infra-as-code/cluster.yaml
     RUN kubectl get nodes
     RUN bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
-    RUN kubectl -n bionic-gpt create secret generic cloudflare-credentials --from-literal=token=$TUNNEL_TOKEN
-    RUN kubectl -n bionic-gpt apply -f ./infra-as-code/cloudflare.yaml
+    RUN bionic cloudflare --token $TUNNEL_TOKEN
