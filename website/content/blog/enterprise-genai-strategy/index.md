@@ -2,6 +2,7 @@
 title = "10 Reasons Why your Enterprise Gen AI Strategy won't work"
 date = 2023-10-13
 description = "Postgres implements everything a vector database does and a lot more"
+draft = true
 
 [extra]
 main_image = "blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"
