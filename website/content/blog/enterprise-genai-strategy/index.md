@@ -13,9 +13,9 @@ author = "Ian Purton"
 
 ## 1. Gathering Use Cases doesn't scale
 
-## 2. Building the worng type of team
+## 2. Building the wrong type of team
 
-## 3. You made a buikd decision but the market has moved on
+## 3. You made a build decision but the market has moved on
 
 ## 4. You confused shadow IT with innovation
 
