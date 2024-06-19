@@ -41,4 +41,4 @@ bionic cloudflare --token $TUNNEL_TOKEN --name bionic-gpt
 To connect to a domain you won you need to setup 2 routes as follows.
 
 ![Alt text](../cloudflare-routes.png "Cloudflare Routes")
-You should now be able to access bionic via 
+You should now be able to access bionic via your domain.
