@@ -19,7 +19,7 @@ highlight_themes_css = [
 ]
 
 [extra]
-bionic_version = "v1.7.25"
+bionic_version = "v1.7.30"
 bionic_docker_compose = "2f943038cf35098a8fbba7885603898050a9bf95"
 
 logo = "bionic-logo.svg"
