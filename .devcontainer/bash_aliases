@@ -7,7 +7,7 @@ alias gcam='git commit -a -m'
 alias gpsup="git push --set-upstream origin $(git symbolic-ref -q HEAD | sed -e 's|^refs/heads/||')"
 alias gcb='git checkout -b'
 alias gcr='f() { git checkout -b $1 origin/$1; }; f'
-alias gitsetup='git config --global user.name \$NAME && git config --global user.email \$EMAIL'
+alias gitsetup='git config --global user.name "Bionic Dev" && git config --global user.email dev@bionic-gpt.com'
 alias gsu='git submodule update --recursive --remote'
 alias gdb='git branch | grep -v "main" | xargs git branch -D'
 
