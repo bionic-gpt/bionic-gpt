@@ -1,15 +1,13 @@
 +++
-title = "Introduction"
+title = "Local Edition"
 description = "LLM Introduction"
 weight = 10
 sort_by = "weight"
 +++
 
-Bionic-GPT is designed to be installed in your data center and then serve Generative AI to potentially hundreds of people via their browser.
+Bionic-GPT Local Edition allows you to run Generative AI on your laptop.
 
-However, before that can happen you need to be able to trial the software. 
-
-Using Kubernetes on Docker desktop or K3s we're able to package a version of the software that show cases all it can do. Many people are using Bionic-GPT in this way as they like the user interface and the easy install. We hope you like it too.
+If you're already thinking about deploying Bionic for multiple users you may want to get started with the enterprise edition which is more robust and secure.
 
 Bionic-GPT can run on modest hardware (16GB ram) and then scale into more powerful hardware when required. For example 70B running across multiple GPU cards.
 
