@@ -18,9 +18,9 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                 h3 { "Your Licence" }
             },
             BlankSlate {
-                heading: format!("You are running the Community Edition of Bionic ({})", version),
+                heading: format!("You are running the Bionic Version {}", version),
                 visual: bionic_logo_svg.name,
-                description: "Add a licence to extend available resources and features",
+                description: "You have 14 Days Trial Remaining",
                 primary_action_drawer: Some(("Extend Trial or Licence Bionic".to_string(), "create-licence".to_string()))
             }
             Box {
@@ -33,11 +33,89 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                         class: "table table-sm",
                         thead {
                             th { "Feature" }
-                            th { "Community Edition" }
-                            th { "Edge Edition" }
+                            th { "Unlicenced" }
+                            th { "Trial" }
                             th { "Enterprise" }
                         }
                         tbody {
+                            tr {
+                                td {
+                                    "AI Chat Console"
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Manage Models"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "AI Assistants & Datasets"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
                             tr {
                                 td {
                                     "Rate Limits"
@@ -92,14 +170,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                             }
                             tr {
                                 td {
-                                    "Multi Tenancy"
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
+                                    "Virtual API Keys"
                                 }
                                 td {
                                     img {
@@ -111,25 +182,6 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                                 td {
                                     img {
                                         src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                            }
-                            tr {
-                                td {
-                                    "Input and Output Guardrails"
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
                                         width: "16",
                                         height: "16"
                                     }
@@ -155,6 +207,32 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                                 }
                                 td {
                                     img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Custom Guardrails Setup"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
                                         src: cross_svg.name,
                                         width: "16",
                                         height: "16"
@@ -170,7 +248,59 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                             }
                             tr {
                                 td {
-                                    "Batch Guardrails"
+                                    "Trusted Compute Environment Setup"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Custom Themes"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Support Agreement"
                                 }
                                 td {
                                     img {
