@@ -144,7 +144,33 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String, remaining_days: i32) -> E
                             }
                             tr {
                                 td {
-                                    "Observability Metrics Endpoint"
+                                    "Prometheus Metrics Endpoint"
+                                }
+                                td {
+                                    img {
+                                        src: cross_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                                td {
+                                    img {
+                                        src: tick_svg.name,
+                                        width: "16",
+                                        height: "16"
+                                    }
+                                }
+                            }
+                            tr {
+                                td {
+                                    "AI Observability and Compliance"
                                 }
                                 td {
                                     img {
@@ -196,7 +222,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String, remaining_days: i32) -> E
                             }
                             tr {
                                 td {
-                                    "Data Integrations Pipeline"
+                                    "Data Integration Pipelines (Airbyte)"
                                 }
                                 td {
                                     img {
@@ -208,84 +234,6 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String, remaining_days: i32) -> E
                                 td {
                                     img {
                                         src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                            }
-                            tr {
-                                td {
-                                    "Custom Guardrails Setup"
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                            }
-                            tr {
-                                td {
-                                    "Trusted Compute Environment Setup"
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: tick_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                            }
-                            tr {
-                                td {
-                                    "Custom Themes"
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
-                                        width: "16",
-                                        height: "16"
-                                    }
-                                }
-                                td {
-                                    img {
-                                        src: cross_svg.name,
                                         width: "16",
                                         height: "16"
                                     }
@@ -322,6 +270,37 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String, remaining_days: i32) -> E
                                         width: "16",
                                         height: "16"
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Box {
+                class: "has-data-table mt-8",
+                BoxHeader {
+                    title: "Custom Features"
+                }
+                BoxBody {
+                    table {
+                        class: "table table-sm",
+                        thead {
+                            th { "Feature" }
+                        }
+                        tbody {
+                            tr {
+                                td {
+                                    "Integration with Secure Enclaves"
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Custom Guardrails"
+                                }
+                            }
+                            tr {
+                                td {
+                                    "Custom Theme"
                                 }
                             }
                         }
