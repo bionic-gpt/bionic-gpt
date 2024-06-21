@@ -6,7 +6,7 @@ use db::authz::Rbac;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, version: String, remaining_days: i32) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -20,7 +20,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
             BlankSlate {
                 heading: format!("You are running the Bionic Version {}", version),
                 visual: bionic_logo_svg.name,
-                description: "You have 14 Days Trial Remaining",
+                description: format!("You have {} Days Trial Remaining", remaining_days),
                 primary_action_drawer: Some(("Extend Trial or Licence Bionic".to_string(), "create-licence".to_string()))
             }
             Box {
@@ -92,7 +92,7 @@ pub fn Page(rbac: Rbac, team_id: i32, version: String) -> Element {
                             }
                             tr {
                                 td {
-                                    "AI Assistants & Datasets"
+                                    "AI Assistants & Datasets (R.A.G)"
                                 }
                                 td {
                                     img {
