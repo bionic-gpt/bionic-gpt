@@ -21,7 +21,7 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                 heading: "GuardRails protect your bionic installation.",
                 visual: guardrails_svg.name,
                 description: "PII, Confidential Data, Incorrect outputs and more...",
-                primary_action_drawer: Some(("Coming Summer 2024".to_string(), "create-licence".to_string()))
+                primary_action_drawer: Some(("Requires an Enterprise Licence".to_string(), "create-licence".to_string()))
             }
         }
     }
