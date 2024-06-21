@@ -17,13 +17,7 @@ From the Cloudflare dashboard go to `zero trust / networks`. Then create a tunne
 
 This is a bit tricky as you'll need to copy paste the command line cloudflare gives you and just extract the secret.
 
-i.e. from the command below
-
-```sh
-sudo cloudflared service install eyJhIjoiOGMyN2IyMTg1M2YwY2VhOWQ1YTFmNmUwMzAzMzUzNTIiLCJ0IjoiYWFjYz................
-```
-
-We just need
+We just need the secret itself.
 
 ```sh
 eyJhIjoiOGMyN2IyMTg1M2YwY2VhOWQ1YTFmNmUwMzAzMzUzNTIiLCJ0....................
