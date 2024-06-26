@@ -5,7 +5,8 @@
 	"service": "development",
 	"workspaceFolder": "/workspace",
 	"mounts": [
-		"source=${localEnv:HOME}/.kube/config,target=/home/vscode/.kube/config,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.kube/config,target=/home/vscode/.kube/config,type=bind,consistency=cached",
+    	"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
 	],
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
