@@ -126,7 +126,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         if saas {
             env.push(json!({
                 "name":
-                "SAAS",
+                "ENABLE_SAAS",
                 "value":
                 saas
             }));
