@@ -1,9 +1,12 @@
+use crate::config::Config;
+
 use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::IntoResponse;
 use axum_extra::extract::Form;
 use db::authz;
 use db::Pool;
+use db::Visibility;
 use db::{queries, Transaction};
 use serde::Deserialize;
 use validator::Validate;
@@ -30,6 +33,7 @@ pub async fn upsert(
     Upsert { team_id }: Upsert,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
+    Extension(config): Extension<Config>,
     Form(new_prompt_template): Form<NewPromptTemplate>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
@@ -37,7 +41,12 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let visibility = string_to_visibility(&new_prompt_template.visibility);
+    let mut visibility = string_to_visibility(&new_prompt_template.visibility);
+
+    // Is someone trying to override the permitted form values?
+    if visibility == Visibility::Company && config.saas {
+        visibility = Visibility::Team;
+    }
 
     // Id the system prompt is empty store it as null
     let system_prompt = if new_prompt_template.system_prompt.is_empty() {

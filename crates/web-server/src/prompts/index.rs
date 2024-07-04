@@ -1,3 +1,5 @@
+use crate::config::Config;
+
 use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::Html;
@@ -10,6 +12,7 @@ pub async fn index(
     Index { team_id }: Index,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
+    Extension(config): Extension<Config>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -39,6 +42,7 @@ pub async fn index(
             prompts,
             datasets,
             models,
+            is_saas: config.saas,
         },
     );
 

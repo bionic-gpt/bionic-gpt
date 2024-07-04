@@ -16,6 +16,7 @@ pub struct BionicSpec {
     pub replicas: i32,
     pub version: String,
     pub gpu: Option<bool>,
+    pub saas: Option<bool>,
     pub pgadmin: Option<bool>,
     pub development: Option<bool>,
     pub testing: Option<bool>,

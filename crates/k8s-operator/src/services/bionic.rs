@@ -21,116 +21,133 @@ static SMTP_SECRETS: &str = "smtp-secrets";
 
 // The web user interface
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
+    let mut env = vec![
+        json!({
+            "name":
+            "VERSION",
+            "value":
+            format!("{}", spec.version)
+        }),
+        json!({
+            "name":
+            "APP_DATABASE_URL",
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": "database-urls",
+                    "key": "application-url"
+                }
+            }
+        }),
+        json!({
+            "name":
+            "PORT",
+            "value":
+            "7903"
+        }),
+        json!({
+            "name":
+            "LOGOUT_URL",
+            "value":
+            "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
+        }),
+        json!({
+            "name":
+            INVITE_DOMAIN,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": SMTP_SECRETS,
+                    "key": lower_dash(INVITE_DOMAIN)
+                }
+            }
+        }),
+        json!({
+            "name":
+            INVITE_FROM_EMAIL_ADDRESS,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": SMTP_SECRETS,
+                    "key": lower_dash(INVITE_FROM_EMAIL_ADDRESS)
+                }
+            }
+        }),
+        json!({
+            "name":
+            SMTP_HOST,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": SMTP_SECRETS,
+                    "key": lower_dash(SMTP_HOST)
+                }
+            }
+        }),
+        json!({
+            "name":
+            SMTP_PORT,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": SMTP_SECRETS,
+                    "key": lower_dash(SMTP_PORT)
+                }
+            }
+        }),
+        json!({
+            "name":
+            SMTP_USERNAME,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": SMTP_SECRETS,
+                    "key": lower_dash(SMTP_USERNAME)
+                }
+            }
+        }),
+        json!({
+            "name":
+            SMTP_PASSWORD,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": SMTP_SECRETS,
+                    "key": lower_dash(SMTP_PASSWORD)
+                }
+            }
+        }),
+        json!({
+            "name":
+            SMTP_TLS_OFF,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": SMTP_SECRETS,
+                    "key": lower_dash(SMTP_TLS_OFF)
+                }
+            }
+        }),
+    ];
+
+    if let Some(saas) = spec.saas {
+        if saas {
+            env.push(json!({
+                "name":
+                "ENABLE_SAAS",
+                "value":
+                saas
+            }));
+        }
+    }
+
     // Bionic with the migrations as a sidecar
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
             name: "bionic-gpt".to_string(),
-            image_name: format!("{}:{}", super::BIONICGPT_IMAGE, spec.version),
+            image_name: format!("{}@{}", super::BIONICGPT_IMAGE, spec.hash_bionicgpt),
             replicas: spec.replicas,
             port: 7903,
-            env: vec![
-                json!({
-                    "name":
-                    "VERSION",
-                    "value":
-                    format!("{}", spec.version)
-                }),
-                json!({
-                    "name":
-                    "APP_DATABASE_URL",
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": "database-urls",
-                            "key": "application-url"
-                        }
-                    }
-                }),
-                json!({
-                    "name":
-                    "PORT",
-                    "value":
-                    "7903"
-                }),
-                json!({
-                    "name":
-                    "LOGOUT_URL",
-                    "value":
-                    "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
-                }),
-                json!({
-                    "name":
-                    INVITE_DOMAIN,
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": SMTP_SECRETS,
-                            "key": lower_dash(INVITE_DOMAIN)
-                        }
-                    }
-                }),
-                json!({
-                    "name":
-                    INVITE_FROM_EMAIL_ADDRESS,
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": SMTP_SECRETS,
-                            "key": lower_dash(INVITE_FROM_EMAIL_ADDRESS)
-                        }
-                    }
-                }),
-                json!({
-                    "name":
-                    SMTP_HOST,
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": SMTP_SECRETS,
-                            "key": lower_dash(SMTP_HOST)
-                        }
-                    }
-                }),
-                json!({
-                    "name":
-                    SMTP_PORT,
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": SMTP_SECRETS,
-                            "key": lower_dash(SMTP_PORT)
-                        }
-                    }
-                }),
-                json!({
-                    "name":
-                    SMTP_USERNAME,
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": SMTP_SECRETS,
-                            "key": lower_dash(SMTP_USERNAME)
-                        }
-                    }
-                }),
-                json!({
-                    "name":
-                    SMTP_PASSWORD,
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": SMTP_SECRETS,
-                            "key": lower_dash(SMTP_PASSWORD)
-                        }
-                    }
-                }),
-                json!({
-                    "name":
-                    SMTP_TLS_OFF,
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": SMTP_SECRETS,
-                            "key": lower_dash(SMTP_TLS_OFF)
-                        }
-                    }
-                }),
-            ],
+            env,
             init_container: Some(deployment::InitContainer {
-                image_name: format!("{}:{}", super::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version),
+                image_name: format!(
+                    "{}@{}",
+                    super::BIONICGPT_DB_MIGRATIONS_IMAGE,
+                    spec.hash_bionicgpt_db_migrations
+                ),
                 env: vec![json!({
                 "name":
                 "DATABASE_URL",
