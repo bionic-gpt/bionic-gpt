@@ -49,6 +49,9 @@ pub struct Installer {
     /// Install A GPU based inference engine?
     #[arg(long, default_value_t = false)]
     gpu: bool,
+    /// Are we a saas
+    #[arg(long, default_value_t = false)]
+    saas: bool,
     /// Install pgAdmin?
     #[arg(long, default_value_t = false)]
     pgadmin: bool,

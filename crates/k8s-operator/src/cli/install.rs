@@ -243,6 +243,7 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             replicas: 1,
             version: VERSION.into(),
             gpu: Some(installer.gpu),
+            saas: Some(installer.saas),
             pgadmin: Some(installer.pgadmin),
             testing: Some(installer.testing),
             development: Some(installer.development),

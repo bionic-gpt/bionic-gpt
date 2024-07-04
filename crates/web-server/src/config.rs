@@ -51,6 +51,8 @@ pub struct Config {
     pub smtp_config: Option<SmtpConfig>,
     // What version are we?
     pub version: String,
+    // Are we a Saas
+    pub saas: bool,
     // Are we using barricade?
     pub enable_barricade: bool,
 }
@@ -75,6 +77,8 @@ impl Config {
             "Unknown".to_string()
         };
 
+        let saas = env::var("ENABLE_SAAS").is_ok();
+
         let max_upload_size_mb: usize = if env::var("MAX_UPLOAD_SIZE_MB").is_ok() {
             env::var("MAX_UPLOAD_SIZE_MB")
                 .unwrap()
@@ -94,6 +98,7 @@ impl Config {
             app_database_url,
             smtp_config: SmtpConfig::new(),
             version,
+            saas,
             enable_barricade,
         }
     }
