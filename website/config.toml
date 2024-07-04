@@ -39,7 +39,7 @@ every_page_cta = { cta_url = "/docs", title = "You're seconds away from trying u
 footer_cta = { title = "BionicGPT", prompt = "Full Stack LLM", cta_button = "Check it Out" }
 
 # Where shall we point the sign in and sign up buttons.
-authentication = { sign_up = "https://saas.bionic-gpt.com", sign_in = "https://saas.bionic-gpt.com" }
+authentication = { sign_up = "https://app.bionic-gpt.com", sign_in = "https://app.bionic-gpt.com" }
 # When running on localhost you can set the sign up and sign links to somewhere else.
 #localhost = "http://localhost:7704/"
 #authentication_development = { sign_up = "/auth/sign_up", sign_in = "/auth/sign_in" }
