@@ -14,6 +14,7 @@ pub fn Page(
     prompts: Vec<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
+    is_saas: bool,
 ) -> Element {
     rsx! {
         Layout {
@@ -132,6 +133,7 @@ pub fn Page(
                         max_tokens: prompt.max_tokens,
                         trim_ratio: prompt.trim_ratio,
                         temperature: prompt.temperature.unwrap_or(0.7),
+                        is_saas
                     }
                 }
             }
@@ -151,7 +153,8 @@ pub fn Page(
                 max_chunks: 10,
                 max_tokens: 1024,
                 trim_ratio: 80,
-                temperature: 0.7
+                temperature: 0.7,
+                is_saas
             }
         }
     }

@@ -20,6 +20,7 @@ pub fn Form(
     max_tokens: i32,
     trim_ratio: i32,
     temperature: f32,
+    is_saas: bool,
 ) -> Element {
     rsx!(
         Drawer {
@@ -67,10 +68,12 @@ pub fn Form(
                                     selected_value: "{crate::visibility_to_string(visibility)}",
                                     {crate::visibility_to_string(Visibility::Team)}
                                 },
-                                SelectOption {
-                                    value: "{crate::visibility_to_string(Visibility::Company)}",
-                                    selected_value: "{crate::visibility_to_string(visibility)}",
-                                    {crate::visibility_to_string(Visibility::Company)}
+                                if ! is_saas {
+                                    SelectOption {
+                                        value: "{crate::visibility_to_string(Visibility::Company)}",
+                                        selected_value: "{crate::visibility_to_string(visibility)}",
+                                        {crate::visibility_to_string(Visibility::Company)}
+                                    }
                                 }
                             }
 
