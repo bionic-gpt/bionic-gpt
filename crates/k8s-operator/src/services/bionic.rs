@@ -128,7 +128,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                 "name":
                 "ENABLE_SAAS",
                 "value":
-                saas
+                "1"
             }));
         }
     }
