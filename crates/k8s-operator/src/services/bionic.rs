@@ -133,21 +133,33 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         }
     }
 
+    let image_name = if spec.hash_bionicgpt.is_empty() {
+        format!("{}:{}", super::BIONICGPT_IMAGE, spec.version)
+    } else {
+        format!("{}@{}", super::BIONICGPT_IMAGE, spec.hash_bionicgpt)
+    };
+
+    let migrations_image_name = if spec.hash_bionicgpt_db_migrations.is_empty() {
+        format!("{}:{}", super::BIONICGPT_DB_MIGRATIONS_IMAGE, spec.version)
+    } else {
+        format!(
+            "{}@{}",
+            super::BIONICGPT_DB_MIGRATIONS_IMAGE,
+            spec.hash_bionicgpt_db_migrations
+        )
+    };
+
     // Bionic with the migrations as a sidecar
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
             name: "bionic-gpt".to_string(),
-            image_name: format!("{}@{}", super::BIONICGPT_IMAGE, spec.hash_bionicgpt),
+            image_name,
             replicas: spec.replicas,
             port: 7903,
             env,
             init_container: Some(deployment::InitContainer {
-                image_name: format!(
-                    "{}@{}",
-                    super::BIONICGPT_DB_MIGRATIONS_IMAGE,
-                    spec.hash_bionicgpt_db_migrations
-                ),
+                image_name: migrations_image_name,
                 env: vec![json!({
                 "name":
                 "DATABASE_URL",

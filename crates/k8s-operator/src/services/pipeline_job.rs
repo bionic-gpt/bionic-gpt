@@ -9,15 +9,21 @@ use serde_json::json;
 
 // Large Language Model
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
+    let image_name = if spec.hash_bionicgpt_pipeline_job.is_empty() {
+        format!("{}:{}", super::BIONICGPT_PIPELINE_JOB_IMAGE, spec.version)
+    } else {
+        format!(
+            "{}@{}",
+            super::BIONICGPT_PIPELINE_JOB_IMAGE,
+            spec.hash_bionicgpt_pipeline_job
+        )
+    };
+
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
             name: "pipeline-job".to_string(),
-            image_name: format!(
-                "{}@{}",
-                super::BIONICGPT_PIPELINE_JOB_IMAGE,
-                spec.hash_bionicgpt_pipeline_job
-            ),
+            image_name,
             replicas: spec.replicas,
             port: 3000,
             env: vec![
