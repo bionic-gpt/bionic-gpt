@@ -158,6 +158,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             keycloak_db::delete(client.clone(), &namespace).await?;
             oauth2_proxy::delete(client.clone(), &namespace).await?;
             ingress::delete(client.clone(), &namespace).await?;
+            mailhog::delete(client.clone(), &namespace).await?;
 
             if !development {
                 pipeline_job::delete(client.clone(), &namespace).await?;

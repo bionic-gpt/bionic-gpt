@@ -54,7 +54,7 @@ pub fn Form(
 
                             Select {
                                 name: "visibility",
-                                label: "Who should be able to usee this assistant?",
+                                label: "Who should be able to use this assistant?",
                                 label_class: "mt-4",
                                 help_text: "Set to private if you don't want to share this assistant.",
                                 value: "{crate::visibility_to_string(visibility)}",

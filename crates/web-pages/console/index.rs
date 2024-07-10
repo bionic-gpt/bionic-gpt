@@ -194,7 +194,7 @@ pub fn Page(
                                 class: "flex flex-row ",
                                 label {
                                     class: "mr-2",
-                                    "Prompt"
+                                    "Assistant"
                                 }
                                 input {
                                     "type": "hidden",
