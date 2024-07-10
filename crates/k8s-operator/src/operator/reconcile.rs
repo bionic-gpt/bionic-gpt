@@ -18,6 +18,7 @@ use crate::services::pgadmin;
 use crate::services::pipeline_job;
 use crate::services::tgi;
 use k8s_openapi::api::core::v1::Pod;
+use kube::api::ListParams;
 use kube::Api;
 use kube::Client;
 use kube::Resource;
@@ -88,7 +89,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
 
     // Performs action as decided by the `determine_action` function.
     match determine_action(&bionic, bionic_version) {
-        BionicAction::Create => {
+        BionicAction::Create | BionicAction::Upgrade => {
             // Creates a deployment with `n` Bionic service pods, but applies a finalizer first.
             // Finalizer is applied first, as the operator might be shut down and restarted
             // at any time, leaving subresources in intermediate state. This prevents leaks on
@@ -176,30 +177,31 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
         }
         // The resource is already in desired state, do nothing and re-check after 10 seconds
         BionicAction::NoOp => Ok(Action::requeue(Duration::from_secs(10))),
-        // The resource is already in desired state, do nothing and re-check after 10 seconds
-        BionicAction::Upgrade => Ok(Action::requeue(Duration::from_secs(10))),
     }
 }
 
+/// If we already have a deployment, get the version we are running.
+/// We can do this by getting the bionic pod by name
 async fn get_current_bionic_version(
     client: &Client,
-    namespace: &String,
+    namespace: &str,
 ) -> Result<Option<String>, Error> {
-    let pod_name = "bionic-gpt";
-
     // Get the API for Pod resources in the specified namespace
     let pods: Api<Pod> = Api::namespaced(client.clone(), namespace);
+    let lp = ListParams::default().labels("app=bionic-gpt"); // for this app only
 
-    if let Ok(pod) = pods.get(pod_name).await {
-        if let Some(spec) = pod.spec {
+    for p in pods.list(&lp).await? {
+        if let Some(spec) = p.spec {
             for container in spec.containers {
-                if let Some(image) = &container.image {
-                    println!("Container: {}, Image: {}", container.name, image);
+                if let Some(env_vars) = container.env {
+                    for env_var in env_vars {
+                        if env_var.name == "VERSION" {
+                            return Ok(env_var.value);
+                        }
+                    }
                 }
             }
         }
-    } else {
-        println!("Pod {} not found in namespace {}", pod_name, namespace);
     }
 
     Ok(None)
@@ -228,6 +230,11 @@ fn determine_action(bionic: &Bionic, bionic_version: Option<String>) -> BionicAc
     {
         BionicAction::Create
     } else if bionic.spec.version != bionic_version {
+        tracing::info!(
+            "Upgrade detected from {} to {}",
+            bionic_version,
+            bionic.spec.version
+        );
         BionicAction::Upgrade
     } else {
         BionicAction::NoOp
