@@ -17,6 +17,9 @@ use crate::services::oauth2_proxy;
 use crate::services::pgadmin;
 use crate::services::pipeline_job;
 use crate::services::tgi;
+use k8s_openapi::api::core::v1::Pod;
+use kube::api::ListParams;
+use kube::Api;
 use kube::Client;
 use kube::Resource;
 use kube::ResourceExt;
@@ -46,6 +49,8 @@ enum BionicAction {
     Create,
     /// Delete all subresources created in the `Create` phase
     Delete,
+    /// CRD version has chnaged, upgrade the installation.
+    Upgrade,
     /// This `Bionic` resource is in desired state and requires no actions to be taken
     NoOp,
 }
@@ -80,9 +85,11 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
         false
     };
 
+    let bionic_version = get_current_bionic_version(&client, &namespace).await?;
+
     // Performs action as decided by the `determine_action` function.
-    match determine_action(&bionic) {
-        BionicAction::Create => {
+    match determine_action(&bionic, bionic_version) {
+        BionicAction::Create | BionicAction::Upgrade => {
             // Creates a deployment with `n` Bionic service pods, but applies a finalizer first.
             // Finalizer is applied first, as the operator might be shut down and restarted
             // at any time, leaving subresources in intermediate state. This prevents leaks on
@@ -173,13 +180,46 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
     }
 }
 
+/// If we already have a deployment, get the version we are running.
+/// We can do this by getting the bionic pod by name
+async fn get_current_bionic_version(
+    client: &Client,
+    namespace: &str,
+) -> Result<Option<String>, Error> {
+    // Get the API for Pod resources in the specified namespace
+    let pods: Api<Pod> = Api::namespaced(client.clone(), namespace);
+    let lp = ListParams::default().labels("app=bionic-gpt"); // for this app only
+
+    for p in pods.list(&lp).await? {
+        if let Some(spec) = p.spec {
+            for container in spec.containers {
+                if let Some(env_vars) = container.env {
+                    for env_var in env_vars {
+                        if env_var.name == "VERSION" {
+                            return Ok(env_var.value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(None)
+}
+
 /// Resources arrives into reconciliation queue in a certain state. This function looks at
 /// the state of given `Bionic` resource and decides which actions needs to be performed.
 /// The finite set of possible actions is represented by the `BionicAction` enum.
 ///
 /// # Arguments
 /// - `echo`: A reference to `Bionic` being reconciled to decide next action upon.
-fn determine_action(bionic: &Bionic) -> BionicAction {
+fn determine_action(bionic: &Bionic, bionic_version: Option<String>) -> BionicAction {
+    let bionic_version = if let Some(bionic_version) = bionic_version {
+        bionic_version
+    } else {
+        "".to_string()
+    };
+
     if bionic.meta().deletion_timestamp.is_some() {
         BionicAction::Delete
     } else if bionic
@@ -189,6 +229,13 @@ fn determine_action(bionic: &Bionic) -> BionicAction {
         .map_or(true, |finalizers| finalizers.is_empty())
     {
         BionicAction::Create
+    } else if bionic.spec.version != bionic_version {
+        tracing::info!(
+            "Upgrade detected from {} to {}",
+            bionic_version,
+            bionic.spec.version
+        );
+        BionicAction::Upgrade
     } else {
         BionicAction::NoOp
     }
