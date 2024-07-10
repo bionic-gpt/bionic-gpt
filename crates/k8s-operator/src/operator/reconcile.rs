@@ -17,6 +17,8 @@ use crate::services::oauth2_proxy;
 use crate::services::pgadmin;
 use crate::services::pipeline_job;
 use crate::services::tgi;
+use k8s_openapi::api::core::v1::Pod;
+use kube::Api;
 use kube::Client;
 use kube::Resource;
 use kube::ResourceExt;
@@ -46,6 +48,8 @@ enum BionicAction {
     Create,
     /// Delete all subresources created in the `Create` phase
     Delete,
+    /// CRD version has chnaged, upgrade the installation.
+    Upgrade,
     /// This `Bionic` resource is in desired state and requires no actions to be taken
     NoOp,
 }
@@ -80,8 +84,10 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
         false
     };
 
+    let bionic_version = get_current_bionic_version(&client, &namespace).await?;
+
     // Performs action as decided by the `determine_action` function.
-    match determine_action(&bionic) {
+    match determine_action(&bionic, bionic_version) {
         BionicAction::Create => {
             // Creates a deployment with `n` Bionic service pods, but applies a finalizer first.
             // Finalizer is applied first, as the operator might be shut down and restarted
@@ -170,7 +176,33 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
         }
         // The resource is already in desired state, do nothing and re-check after 10 seconds
         BionicAction::NoOp => Ok(Action::requeue(Duration::from_secs(10))),
+        // The resource is already in desired state, do nothing and re-check after 10 seconds
+        BionicAction::Upgrade => Ok(Action::requeue(Duration::from_secs(10))),
     }
+}
+
+async fn get_current_bionic_version(
+    client: &Client,
+    namespace: &String,
+) -> Result<Option<String>, Error> {
+    let pod_name = "bionic-gpt";
+
+    // Get the API for Pod resources in the specified namespace
+    let pods: Api<Pod> = Api::namespaced(client.clone(), namespace);
+
+    if let Ok(pod) = pods.get(pod_name).await {
+        if let Some(spec) = pod.spec {
+            for container in spec.containers {
+                if let Some(image) = &container.image {
+                    println!("Container: {}, Image: {}", container.name, image);
+                }
+            }
+        }
+    } else {
+        println!("Pod {} not found in namespace {}", pod_name, namespace);
+    }
+
+    Ok(None)
 }
 
 /// Resources arrives into reconciliation queue in a certain state. This function looks at
@@ -179,7 +211,13 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
 ///
 /// # Arguments
 /// - `echo`: A reference to `Bionic` being reconciled to decide next action upon.
-fn determine_action(bionic: &Bionic) -> BionicAction {
+fn determine_action(bionic: &Bionic, bionic_version: Option<String>) -> BionicAction {
+    let bionic_version = if let Some(bionic_version) = bionic_version {
+        bionic_version
+    } else {
+        "".to_string()
+    };
+
     if bionic.meta().deletion_timestamp.is_some() {
         BionicAction::Delete
     } else if bionic
@@ -189,6 +227,8 @@ fn determine_action(bionic: &Bionic) -> BionicAction {
         .map_or(true, |finalizers| finalizers.is_empty())
     {
         BionicAction::Create
+    } else if bionic.spec.version != bionic_version {
+        BionicAction::Upgrade
     } else {
         BionicAction::NoOp
     }
