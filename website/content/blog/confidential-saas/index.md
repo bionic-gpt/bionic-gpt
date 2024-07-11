@@ -1,12 +1,12 @@
 +++
 title = "Building SaaS applications for highly regulated industries using Secure Compute"
 date = 2024-07-11
-description = "Why Companies are banning ChatGPT"
+description = "Building SaaS applications for highly regulated industries using Secure Compute"
 draft = true
 
 [extra]
-main_image = "blog/banning-chat-gpt/chat-gpt-banned.png"
-listing_image = "blog/banning-chat-gpt/chat-gpt-banned.png"
+main_image = "blog/confidential-saas/kubernetes.png"
+listing_image = "blog/confidential-saas/kubernetes.png"
 author_image = "blog-authors/dio.jpeg"
 author = "Kulbinder Dio"
 +++
