@@ -17,22 +17,22 @@ Despite the advantages of SaaS, **not all enterprise software has transitioned t
 
 In this article we'll cover some Defence in Depth best practices along with the emerging availability of Secure Compute to show how even more Enterprise Applications can move to a SaaS model.
 
+![alt text](defense-in-depth.jpg "Deffence in Depth")
+
 We'll cover the following
 
-- Multi tenancy best practices to fix data leakage issues.
-- Encryption at rest and BYOK for data ownership.
-- Secure compute to secure data in use
-- Sandboxing multi tenant installations
-- Attestation of cloud infrastructure
-- How open source software can lead to provable secure deployments
+- **Multi tenancy** best practices to fix data leakage issues.
+- Encryption at rest and **BYOK** for data ownership.
+- **Confidential Compute** to secure data in use
+- **Sandboxing** multi tenant installations
+- **Attestation** of cloud infrastructure
+- How open source software can lead to **provably secure deployments**
 
 
-
-![alt text](defense-in-depth.jpg "Deffence in Depth")
 
 ## On Premise vs Encryption
 
-## Multi Tanancy Siloes
+## Multi Tenancy Silos
 
 ## Secure Compute for Encryption in Use
 
@@ -40,5 +40,5 @@ We'll cover the following
 
 ## BYOK for Crypto Shredding
 
-## Repeatble builds
+## Repeatable builds
 

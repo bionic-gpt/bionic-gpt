@@ -222,6 +222,9 @@ FIPS
 CVEs
 trivy
 GKE
+SaaS
+B2B
+BYOK
  - docs/rag/generating-embeddings.md
 80
 Instruction-Finetuned
@@ -638,3 +641,5 @@ cloudflare
 36
 kubectl
 container.roles.update
+ - blog/confidential-saas/index.md
+2024-07-11
