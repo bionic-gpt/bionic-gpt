@@ -642,4 +642,6 @@ cloudflare
 kubectl
 container.roles.update
  - blog/confidential-saas/index.md
+confidential-saas
+kubernetes.png
 2024-07-11
