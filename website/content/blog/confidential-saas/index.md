@@ -97,6 +97,18 @@ In summary, BYOK is important because it allows organizations to maintain contro
 
 ### How we handle BYOK and Encryption at Rest
 
+First we identified the columns in our database that hold information that are confidential. For a Generative AI solution like ours that tends to be chat history, prompts and model responses.
+
+We then use a Postgres Proxy that intercepts these fields on the fly and encrypts/decrypts data using customer keys.
+
+In the case of the free cloud version we use our own keys.
+
+Postgres proxies that handle encryption can be found below
+
+- [Jumpwire - The easiest way to secure your database infrastructure. ](https://github.com/extragoodlabs/jumpwire-db-gateway)
+- [Baffle is the only security platform that cryptographically protects the data itself across cloud-native data stores.](https://baffle.io/)
+- [AcraServer, an SQL database proxy](https://docs.cossacklabs.com/acra/acra-in-depth/architecture/acraserver/)
+
 ## Confidential Computing
 
 
