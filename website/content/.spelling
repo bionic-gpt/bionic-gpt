@@ -645,4 +645,6 @@ container.roles.update
 confidential-saas
 kubernetes.png
 PCI-DSS
+SGX
+SEV
 2024-07-11

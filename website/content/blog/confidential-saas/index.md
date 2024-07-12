@@ -99,17 +99,48 @@ In summary, BYOK is important because it allows organizations to maintain contro
 
 ## Confidential Computing
 
+
+Confidential computing is a technology that enables secure data processing and analysis on sensitive data while it remains encrypted. This means that even the party performing the computation (e.g., a cloud provider) cannot access or view the data in plaintext, ensuring the confidentiality and integrity of the data.
+
 ![alt text](confidential-compute.jpeg "Confidential Compute")
 
+### Key Features:
+
+- Encryption in use: Data remains encrypted throughout the entire processing cycle, including when it's being computed on.
+- Private computation: Computation is performed on encrypted data, without decrypting it first.
+- Secure enclaves: Computation takes place within a secure, isolated environment (e.g., Trusted Execution Environment (TEE) or Secure Enclave) that protects the data and the computation process.
+
+### Benefits:
+
+- Enhanced data security: Protects sensitive data from unauthorized access, even from cloud providers or insiders.
+- Increased trust: Enables organizations to share sensitive data with third-party service providers or collaborators while maintaining control and confidentiality.
+- Compliance: Helps organizations meet regulatory requirements and industry standards for data protection.
+
+### Technologies:
+
+- Intel SGX (Software Guard Extensions): Provides a hardware-based secure enclave for confidential computing.
+- AMD SEV (Secure Encrypted Virtualisation): Offers a secure environment for confidential computing.
+- Google Cloud Confidential Computing: A cloud-based confidential computing platform.
+
 ### Confidential Computing Availability
+
+Confidential Compute is available on most cloud providers and is also available for bare metal installations. More details can be found with the [Confidential Computing Consortium – Linux Foundation Project](https://confidentialcomputing.io/) 
 
 ![alt text](confidential-compute-consortium.jpeg "Confidential Compute")
 
 ### How we have implemented Confidential Compute
 
-- Running secure compute Google
-- Running secure compute Azure
-- Confidential compute
+For our cloud solution we are running on Google Cloud [GKE](https://cloud.google.com/kubernetes-engine?hl=en).
+
+To turn on Confidential Compute is as easy as passing one parameter to the CLI when creating a cluster.
+
+```sh
+gcloud container clusters create bionic 
+    --zone us-west1-b --machine-type n2d-standard-2 
+    --enable-confidential-nodes
+```
+
+It's really that easy.
 
 ## Deterministic Builds and Github
 
