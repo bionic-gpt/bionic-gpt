@@ -2,7 +2,6 @@
 title = "Building SaaS applications for highly regulated industries using Confidential Computing"
 date = 2024-07-11
 description = "Building SaaS applications for highly regulated industries using Confidential Computing"
-draft = true
 
 [extra]
 main_image = "blog/confidential-saas/kubernetes.png"
@@ -63,9 +62,19 @@ There are three main types of multi-tenancy:
 - Shared Database, Separate Schemas: Tenants share a database but have separate schemas, which provides a balance between isolation and resource efficiency.
 - Shared Database, Shared Schema: Tenants share a database and schema, which is the most resource-efficient but may compromise data isolation.
 
-### How we handle Multi Tenancy
+### How we implement Multi Tenancy
 
-## Bring Your Own Key
+We actually use a shared database for our cloud customers on the free plan. For paying customers we have the option to use namespaces in our kubernetes cluster or customers can create their own clusters on premise or in their own private cloud.
+
+The implementation is helped by the way Kubernetes works
+
+1. We have a Kubernetes Operator that given a config file will create a Bionic GPT deployment in a namespace.
+1. Each namespace has its own Postgres database using [Cloud Native PG](https://cloudnative-pg.io/)
+1. We apply a network security policy in the cluster to lock down each namespace.
+
+The Kubernetes Operator handles upgrades of the application. The code for the operator is [available on Github](https://github.com/bionic-gpt/bionic-gpt/tree/main/crates/k8s-operator)
+
+## Bring Your Own Key and Encryption at Rest
 
 BYOK (Bring Your Own Key) is a cloud security model that allows customers to manage and maintain control over their own encryption keys, rather than relying on the cloud provider's keys, to protect their data in the cloud.
 
@@ -92,15 +101,15 @@ In summary, BYOK is important because it allows organizations to maintain contro
 
 ![alt text](confidential-compute.jpeg "Confidential Compute")
 
-### How to implement Confidential Computing
+### Confidential Computing Availability
 
-### More on Confidential Computing
+![alt text](confidential-compute-consortium.jpeg "Confidential Compute")
+
+### How we have implemented Confidential Compute
 
 - Running secure compute Google
 - Running secure compute Azure
 - Confidential compute
-
-## Attestation
 
 ## Deterministic Builds and Github
 
@@ -111,4 +120,14 @@ The process ensures that given the same source code, environment, and build inst
 4. **Build Environment**: Achieving repeatable builds often requires careful management of the build environment, including the use of containerization or virtualisation to isolate the build process from external influences.
 5. **Documentation and Tools**: Detailed documentation of the build process and tools designed to facilitate repeatable builds, such as `reproducible-builds.org`, help developers implement and maintain this practice across different projects and ecosystems.
 
+## Attestation
+
 ## Conclusion
+
+In conclusion, building SaaS applications for highly regulated industries requires a deep understanding of the security and compliance requirements that come with handling sensitive data. Key takeaways include:
+
+- Implementing Defence in Depth best practices, such as multi-tenancy, to ensure data isolation and scalability 
+- Using Bring Your Own Key (BYOK) encryption to maintain control over encryption keys and ensure data security 
+- Leveraging Confidential Computing to protect data in use and provide an additional layer of security 
+- Implementing deterministic builds to ensure repeatable and verifiable build processes that can be tied back to the original source code for verification and trust
+- Utilizing attestation and Secure Compute to provide an added layer of security and trust 
