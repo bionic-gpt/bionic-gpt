@@ -1,7 +1,7 @@
 +++
-title = "Building SaaS applications for highly regulated industries using Secure Compute"
+title = "Building SaaS applications for highly regulated industries using Confidential Computing"
 date = 2024-07-11
-description = "Building SaaS applications for highly regulated industries using Secure Compute"
+description = "Building SaaS applications for highly regulated industries using Confidential Computing"
 draft = true
 
 [extra]
@@ -11,34 +11,104 @@ author_image = "blog-authors/dio.jpeg"
 author = "Kulbinder Dio"
 +++
 
-Enterprises prefer **B2B SaaS solutions** because they offer a cost-effective, scalable, and flexible way to streamline business operations. With SaaS, companies can avoid upfront capital expenditures, reduce IT burdens, and enjoy automatic software updates, freeing up resources for core business activities.
+Enterprises prefer B2B SaaS solutions over on premise solutions because they offer:
+
+- A cost-effective way to streamline business operations 
+- Scalability to meet changing business needs 
+- Flexibility to adapt to evolving business requirements 
+- Avoidance of upfront capital expenditures 
+- Reduced IT burdens 
+- Automatic software updates, freeing up resources for core business activities
 
 Despite the advantages of SaaS, **not all enterprise software has transitioned to the cloud**. Legacy systems, complex integrations, and **sensitive data concerns** can make migration challenging. Some industries, such as finance and healthcare, have strict regulations and security requirements that may necessitate on-premise solutions.
 
+## Defence in Depth for Regulated Data
+
 In this article we'll cover some Defence in Depth best practices along with the emerging availability of Secure Compute to show how even more Enterprise Applications can move to a SaaS model.
 
-![alt text](defense-in-depth.jpg "Deffence in Depth")
+![alt text](cloud-encryption.png "Encrypting Regulated Data")
 
 We'll cover the following
 
-- **Multi tenancy** best practices to fix data leakage issues.
-- Encryption at rest and **BYOK** for data ownership.
-- **Confidential Compute** to secure data in use
-- **Sandboxing** multi tenant installations
+- **Multi tenancy** best practices and implementation options.
+- **Bring Your Own Key BYOK** and encryption at rest.
+- **What is Confidential Computing** and how can we use it.
 - **Attestation** of cloud infrastructure
-- How open source software can lead to **provably secure deployments**
+- How **Deterministic builds** promote trust.
 
+## Multi Tenancy 
 
+What is Multi-Tenancy?
 
-## On Premise vs Encryption
+Multi-tenancy is a software architecture that allows a single instance of a software application to serve multiple customers, or "tenants", simultaneously. Each tenant's data is isolated from others, and the application provides a separate and secure environment for each tenant.
 
-## Multi Tenancy Silos
+![alt text](multi-tenancy.png "Multi Tenancy")
 
-## Secure Compute for Encryption in Use
+Why is Multi-Tenancy Important for SaaS Applications?
+
+In a SaaS (Software as a Service) model, multiple customers (tenants) use the same application, and multi-tenancy is crucial to ensure:
+
+- Data Isolation: Each tenant's data is separated from others, ensuring confidentiality, integrity, and compliance with regulatory requirements.
+- Scalability: A single instance of the application can serve multiple tenants, making it more efficient and cost-effective.
+- Customization: Tenants can have their own configurations, branding, and feature sets without affecting other tenants.
+- Security: Multi-tenancy ensures that a security breach in one tenant's environment does not compromise others.
+
+### Types of Multi-Tenancy
+
+There are three main types of multi-tenancy:
+
+![alt text](multi-tenant.jpg "Bring Your Own Keys")
+
+- Separate Databases: Each tenant has its own database, which provides maximum isolation but can be resource-intensive.
+- Shared Database, Separate Schemas: Tenants share a database but have separate schemas, which provides a balance between isolation and resource efficiency.
+- Shared Database, Shared Schema: Tenants share a database and schema, which is the most resource-efficient but may compromise data isolation.
+
+### How we handle Multi Tenancy
+
+## Bring Your Own Key
+
+BYOK (Bring Your Own Key) is a cloud security model that allows customers to manage and maintain control over their own encryption keys, rather than relying on the cloud provider's keys, to protect their data in the cloud.
+
+![alt text](byok.png "Bring Your Own Keys")
+
+BYOK stands for "Bring Your Own Key," which is an important concept in cloud computing and data encryption. Here's why BYOK is important:
+
+1. Data Security: BYOK allows organizations to maintain control over their encryption keys, which are used to protect sensitive data in the cloud. This ensures that even the cloud provider doesn't have access to the encrypted data, reducing the risk of unauthorized access.
+1. Compliance: Many regulatory requirements, such as HIPAA, PCI-DSS, and GDPR, mandate that organizations maintain control over their encryption keys. BYOK helps organizations comply with these regulations and avoid potential penalties.
+1. Key Management: BYOK enables organizations to manage their encryption keys centrally, which is essential for key rotation, revocation, and auditing. This ensures that encryption keys are properly managed and secured.
+1. Multi-Cloud Strategy: With BYOK, organizations can use the same encryption keys across multiple cloud providers, making it easier to adopt a multi-cloud strategy without worrying about key management inconsistencies.
+1. Reduced Risk of Insider Threats: BYOK reduces the risk of insider threats, as even cloud provider personnel won't have access to the encryption keys.
+1. Customizable Security: BYOK allows organizations to choose their own encryption algorithms, key lengths, and management practices, giving them more control over their data security.
+1. Vendor Lock-In Prevention: BYOK prevents cloud providers from locking organizations into their proprietary encryption schemes, making it easier to switch providers if needed.
+1. Cost Savings: BYOK can help organizations avoid the costs associated with cloud providers' proprietary encryption services.
+1. Improved Data Sovereignty: BYOK ensures that organizations maintain control over their data, even when it's stored in the cloud, which is essential for organizations with sensitive data.
+1. Peace of Mind: BYOK provides organizations with greater confidence in the security of their data, as they maintain control over the encryption keys and can ensure that their data is properly protected.
+
+In summary, BYOK is important because it allows organizations to maintain control over their encryption keys, ensuring data security, compliance, and peace of mind in the cloud.
+
+### How we handle BYOK and Encryption at Rest
+
+## Confidential Computing
 
 ![alt text](confidential-compute.jpeg "Confidential Compute")
 
-## BYOK for Crypto Shredding
+### How to implement Confidential Computing
 
-## Repeatable builds
+### More on Confidential Computing
 
+- Running secure compute Google
+- Running secure compute Azure
+- Confidential compute
+
+## Attestation
+
+## Deterministic Builds and Github
+
+The process ensures that given the same source code, environment, and build instructions, the resulting binary will be identical. This involves controlling all factors that can affect the build output, such as timestamps, file ordering, and system-specific details.
+
+2. **Security and Verification**: Repeatable builds enhance security by making it easier to detect and prevent malicious modifications. Developers and users can verify that the binary code they are running matches the source code, ensuring that no unauthorized changes have been introduced.
+3. **Collaboration and Trust**: In open-source projects, repeatable builds foster trust among contributors and users. They allow multiple parties to independently verify the integrity of the software, enhancing collaboration and reducing the risk of supply chain attacks.
+4. **Build Environment**: Achieving repeatable builds often requires careful management of the build environment, including the use of containerization or virtualisation to isolate the build process from external influences.
+5. **Documentation and Tools**: Detailed documentation of the build process and tools designed to facilitate repeatable builds, such as `reproducible-builds.org`, help developers implement and maintain this practice across different projects and ecosystems.
+
+## Conclusion
