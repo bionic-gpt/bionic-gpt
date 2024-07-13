@@ -209,4 +209,6 @@ In conclusion, building SaaS applications for highly regulated industries requir
 - **Using Bring Your Own Key (BYOK) encryption** to maintain control over encryption keys and ensure data security 
 - Leveraging **Confidential Computing** to protect data in use and provide an additional layer of security 
 - Implementing deterministic builds to ensure repeatable and **verifiable build processes** that can be tied back to the original source code for verification and trust
-- Utilizing **attestation** so we can prove the cloud provider has given us a secure environment. 
+- Utilizing **attestation** so we can prove the cloud provider has given us a secure environment.
+
+[Join the discussion](https://www.reddit.com/r/SaaS/comments/1e25i8z/building_saas_applications_for_highly_regulated/) on Reddit.
