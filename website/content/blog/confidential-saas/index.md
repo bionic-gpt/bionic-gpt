@@ -193,7 +193,7 @@ With a deterministic build you can generate a Hash code for docker containers an
 
 We use a tool called [Earthly](https://earthly.dev/) which uses Docker to help us create reproducible builds.
 
-Our docker **containers are hashed** and the has code is stored in the repository for each version.
+Our docker **containers are cryptographically hashed** and the hash code is stored in the repository for each version.
 
 Using Kubernetes we can deploy container images based on the hash. It's then easy for a customer to verify that a given container is traceable back to the source code.
 
