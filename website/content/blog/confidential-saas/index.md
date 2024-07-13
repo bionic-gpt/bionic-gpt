@@ -183,9 +183,9 @@ One way for open source projects is to map what's deployed to the cloud back to 
 
 This process ensures that given the same source code, environment, and build instructions, the resulting binary will be identical. This involves controlling all factors that can affect the build output, such as timestamps, file ordering, and system-specific details.
 
-2. **Security and Verification**: Repeatable builds enhance security by making it easier to detect and prevent malicious modifications. Developers and users can verify that the binary code they are running matches the source code, ensuring that no unauthorized changes have been introduced.
-3. **Collaboration and Trust**: In open-source projects, repeatable builds foster trust among contributors and users. They allow multiple parties to independently verify the integrity of the software, enhancing collaboration and reducing the risk of supply chain attacks.
-4. **Build Environment**: Achieving repeatable builds often requires careful management of the build environment, including the use of containerization or virtualisation to isolate the build process from external influences.
+1. **Security and Verification**: Repeatable builds enhance security by making it easier to detect and prevent malicious modifications. Developers and users can verify that the binary code they are running matches the source code, ensuring that no unauthorized changes have been introduced.
+1. **Collaboration and Trust**: In open-source projects, repeatable builds foster trust among contributors and users. They allow multiple parties to independently verify the integrity of the software, enhancing collaboration and reducing the risk of supply chain attacks.
+1. **Build Environment**: Achieving repeatable builds often requires careful management of the build environment, including the use of containerization or virtualisation to isolate the build process from external influences.
 
 With a deterministic build you can generate a Hash code for docker containers and anyone can reproduce the build and get the same hash.
 
