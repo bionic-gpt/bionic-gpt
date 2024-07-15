@@ -4,7 +4,9 @@ export const copy = () => {
     copyIcons.forEach((copyIcon) => {
 
         copyIcon.addEventListener('click', () => {
-            const previousElement = copyIcon.previousElementSibling;
+
+            const parent = copyIcon.parentElement
+            const previousElement = parent?.previousElementSibling;
 
             const clickedImage = copyIcon.getAttribute("clicked-img")
     

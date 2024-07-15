@@ -96,13 +96,15 @@ pub fn Page(
                                             class: "hidden",
                                             "{response}"
                                         }
-                                        img {
-                                            class: "copy-response tooltip",
-                                            "data-tip": "Copy",
-                                            "clicked-img": tick_copy_svg.name,
-                                            src: copy_svg.name,
-                                            width: "16",
-                                            height: "16"
+                                        ToolTip {
+                                            text: "Copy",
+                                            img {
+                                                class: "copy-response mt-0 mb-0",
+                                                "clicked-img": tick_copy_svg.name,
+                                                src: copy_svg.name,
+                                                width: "16",
+                                                height: "16"
+                                            }
                                         }
                                     }
                                 } else {

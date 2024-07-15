@@ -10,7 +10,7 @@ module.exports = {
     "bg-base-100",
     "shadow",
     {
-      pattern: /alert*|btn*|menu*|dropdown*|badge*|card*|input*|select*|textarea*|label*|tab*|tooltip*/
+      pattern: /alert*|btn*|menu*|dropdown*|badge*|card*|input*|select*|textarea*|label*|tab*|tooltip*|flex*|text*|overflow*/
     }
   ],
   theme: {
