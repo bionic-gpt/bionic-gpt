@@ -90,7 +90,21 @@ pub fn Page(
                                         class: "prose",
                                         div {
                                             class: "response-formatter",
-                                            dangerous_inner_html: "{response}"
+                                            dangerous_inner_html: "{comrak::markdown_to_html(response, &comrak::Options::default())}"
+                                        }
+                                        div {
+                                            class: "hidden",
+                                            "{response}"
+                                        }
+                                        ToolTip {
+                                            text: "Copy",
+                                            img {
+                                                class: "copy-response mt-0 mb-0",
+                                                "clicked-img": tick_copy_svg.name,
+                                                src: copy_svg.name,
+                                                width: "16",
+                                                height: "16"
+                                            }
                                         }
                                     }
                                 } else {

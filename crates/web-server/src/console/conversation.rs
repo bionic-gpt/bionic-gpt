@@ -30,17 +30,9 @@ pub async fn conversation(
     let mut chats_with_chunks = Vec::new();
     let mut lock_console = false;
 
-    for mut chat in chats.into_iter() {
+    for chat in chats.into_iter() {
         // If any chat has not had a response yet, lock the console
-        if let Some(response) = chat.response {
-            // Convert the Markdown to HTML
-            chat.response = Some(comrak::markdown_to_html(
-                &response,
-                &comrak::Options::default(),
-            ));
-        } else {
-            lock_console = true;
-        }
+        lock_console = chat.response.is_none();
 
         // Get all chunks for each chat
         let chunks_chats = chats_chunks::chunks_chats()
