@@ -92,6 +92,11 @@ pub fn Page(
                                             class: "response-formatter",
                                             dangerous_inner_html: "{response}"
                                         }
+                                        img {
+                                            src: copy_svg.name,
+                                            width: "16",
+                                            height: "16"
+                                        }
                                     }
                                 } else {
                                     // The generated text
