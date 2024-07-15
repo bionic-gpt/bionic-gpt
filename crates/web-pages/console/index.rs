@@ -93,6 +93,7 @@ pub fn Page(
                                             dangerous_inner_html: "{response}"
                                         }
                                         img {
+                                            class: "copy-response",
                                             src: copy_svg.name,
                                             width: "16",
                                             height: "16"

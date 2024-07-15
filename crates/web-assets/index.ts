@@ -13,13 +13,13 @@ import { streamingChat } from './typescript/streaming-chat'
 import { drawers } from './typescript/side-drawer'
 import { formatter } from './typescript/format-json'
 import { copyPaste } from './typescript/copy-paste'
+import { copy } from './typescript/copy'
 import './typescript/remember-form'
 import './typescript/textarea-submit'
 import './typescript/update-sidebar'
 import './typescript/refresh-frame'
 import './typescript/disable-submit-button'
 import './typescript/theme-switcher'
-import './typescript/copy-paste'
 
 // Hotwired Turbo
 import '@hotwired/turbo'
@@ -35,6 +35,7 @@ function loadEverything() {
     formatter()
     streamingChat()
     copyPaste()
+    copy()
 }
 
 document.addEventListener('turbo:load', () => {
