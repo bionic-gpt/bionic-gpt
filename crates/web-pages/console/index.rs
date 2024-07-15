@@ -95,7 +95,7 @@ pub fn Page(
                                         img {
                                             class: "copy-response tooltip",
                                             "data-tip": "Copy",
-                                            "clicked-img": tick_svg.name,
+                                            "clicked-img": tick_copy_svg.name,
                                             src: copy_svg.name,
                                             width: "16",
                                             height: "16"
