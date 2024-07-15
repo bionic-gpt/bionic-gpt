@@ -90,7 +90,11 @@ pub fn Page(
                                         class: "prose",
                                         div {
                                             class: "response-formatter",
-                                            dangerous_inner_html: "{response}"
+                                            dangerous_inner_html: "{comrak::markdown_to_html(response, &comrak::Options::default())}"
+                                        }
+                                        div {
+                                            class: "hidden",
+                                            "{response}"
                                         }
                                         img {
                                             class: "copy-response tooltip",

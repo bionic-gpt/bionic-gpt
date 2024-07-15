@@ -531,9 +531,9 @@ checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
 name = "comrak"
-version = "0.19.0"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82c995deda3bfdebd07d0e2af79e9da13e4b1be652b21a746f3f5b24bf0a49ef"
+checksum = "ab5681b26a36dc46800a908f7d932672a4e82f74759419dd4018bf40658457d5"
 dependencies = [
  "derive_builder",
  "entities",
@@ -831,9 +831,9 @@ dependencies = [
 
 [[package]]
 name = "deunicode"
-version = "1.4.4"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "322ef0094744e63628e6f0eb2295517f79276a5b342a4c2ff3042566ca181d4e"
+checksum = "339544cc9e2c4dc3fc7149fd630c5f22263a4fdf18a98afd0075784968b5cf00"
 
 [[package]]
 name = "digest"
@@ -3920,6 +3920,7 @@ dependencies = [
  "assets",
  "axum",
  "axum-extra",
+ "comrak",
  "daisy_rsx",
  "db",
  "dioxus",
@@ -3935,7 +3936,6 @@ dependencies = [
  "axum",
  "axum-extra",
  "base64 0.13.1",
- "comrak",
  "db",
  "embeddings-api",
  "http 1.1.0",
