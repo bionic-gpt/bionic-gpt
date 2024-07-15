@@ -1,4 +1,4 @@
-<h1 align="center">BionicGPT </h1>
+<h1 align="center">BionicGPT</h1>
 <div align="center">
  <strong>
    BionicGPT is an on-premise replacement for ChatGPT, offering the advantages of Generative AI while maintaining strict data confidentiality
