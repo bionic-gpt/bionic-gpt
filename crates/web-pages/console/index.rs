@@ -93,7 +93,9 @@ pub fn Page(
                                             dangerous_inner_html: "{response}"
                                         }
                                         img {
-                                            class: "copy-response",
+                                            class: "copy-response tooltip",
+                                            "data-tip": "Copy",
+                                            "clicked-img": tick_svg.name,
                                             src: copy_svg.name,
                                             width: "16",
                                             height: "16"
