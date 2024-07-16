@@ -30,61 +30,71 @@ pub async fn chat_generate(
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
-    let (request, model_id, user_id) = create_request(&pool, &current_user, chat_id).await?;
+    match create_request(&pool, &current_user, chat_id).await {
+        Ok((request, model_id, user_id)) => {
+            let is_limit_breached =
+                limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await?;
 
-    let is_limit_breached = limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await?;
+            // Create a channel for sending SSE events
+            let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
 
-    // Create a channel for sending SSE events
-    let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
-
-    // Spawn a task that generates SSE events and sends them into the channel
-    tokio::spawn(async move {
-        if is_limit_breached {
-            // Call your existing function to start generating events
-            if let Err(e) =
-                error_to_chat("You have exceeded your token limit for this model", sender).await
-            {
-                eprintln!("Error generating SSE stream: {:?}", e);
-            }
-        } else {
-            // Call your existing function to start generating events
-            if let Err(e) = enriched_chat(request, sender, true).await {
-                eprintln!("Error generating SSE stream: {:?}", e);
-            }
-        }
-    });
-
-    let receiver_stream = ReceiverStream::new(receiver);
-    let pool_arc = Arc::new(pool);
-    let sub_arc = Arc::new(current_user.sub);
-
-    let event_stream = receiver_stream.then(move |item| {
-        let pool = Arc::clone(&pool_arc);
-        let sub = Arc::clone(&sub_arc);
-        async move {
-            match item {
-                Ok(event) => match event {
-                    GenerationEvent::Text(completion_chunk) => {
-                        Ok(Event::default().data(completion_chunk.delta))
-                    }
-                    GenerationEvent::End(completion_chunk) => {
-                        save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
+            // Spawn a task that generates SSE events and sends them into the channel
+            tokio::spawn(async move {
+                if is_limit_breached {
+                    // Call your existing function to start generating events
+                    if let Err(e) =
+                        error_to_chat("You have exceeded your token limit for this model", sender)
                             .await
-                            .unwrap();
-                        Ok(Event::default().data(completion_chunk.delta))
+                    {
+                        eprintln!("Error generating SSE stream: {:?}", e);
                     }
-                },
-                Err(e) => {
-                    save_results(&pool, &e.to_string(), chat_id, &sub)
-                        .await
-                        .unwrap();
-                    Err(axum::Error::new(e))
+                } else {
+                    // Call your existing function to start generating events
+                    if let Err(e) = enriched_chat(request, sender, true).await {
+                        eprintln!("Error generating SSE stream: {:?}", e);
+                    }
                 }
-            }
-        }
-    });
+            });
 
-    Ok(Sse::new(event_stream))
+            let receiver_stream = ReceiverStream::new(receiver);
+            let pool_arc = Arc::new(pool);
+            let sub_arc = Arc::new(current_user.sub);
+
+            let event_stream = receiver_stream.then(move |item| {
+                let pool = Arc::clone(&pool_arc);
+                let sub = Arc::clone(&sub_arc);
+                async move {
+                    match item {
+                        Ok(event) => match event {
+                            GenerationEvent::Text(completion_chunk) => {
+                                Ok(Event::default().data(completion_chunk.delta))
+                            }
+                            GenerationEvent::End(completion_chunk) => {
+                                save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
+                                    .await
+                                    .unwrap();
+                                Ok(Event::default().data(completion_chunk.delta))
+                            }
+                        },
+                        Err(e) => {
+                            save_results(&pool, &e.to_string(), chat_id, &sub)
+                                .await
+                                .unwrap();
+                            Err(axum::Error::new(e))
+                        }
+                    }
+                }
+            });
+
+            Ok(Sse::new(event_stream))
+        }
+        Err(err) => {
+            save_results(&pool, &err.to_string(), chat_id, &current_user.sub)
+                .await
+                .unwrap();
+            Err(CustomError::FaultySetup(err.to_string()))
+        }
+    }
 }
 
 // When the chta has completed, store the results in the database.
