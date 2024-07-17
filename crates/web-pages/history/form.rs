@@ -14,11 +14,11 @@ pub fn Form(team_id: i32) -> Element {
                     class: "flex flex-col",
                     Input {
                         input_type: InputType::Text,
-                        placeholder: "Production API Key",
-                        help_text: "Give your new key a name",
+                        placeholder: "Your Search",
+                        help_text: "What do you want to look for?",
                         required: true,
-                        label: "Name",
-                        name: "name"
+                        label: "Search",
+                        name: "search"
                     }
                 }
             }
@@ -26,7 +26,7 @@ pub fn Form(team_id: i32) -> Element {
                 Button {
                     button_type: ButtonType::Submit,
                     button_scheme: ButtonScheme::Primary,
-                    "Create API Key"
+                    "Run Search"
                 }
             }
         }
