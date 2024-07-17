@@ -18,7 +18,7 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                 Button {
                     drawer_trigger: "create-api-key",
                     button_scheme: ButtonScheme::Primary,
-                    "Add Key"
+                    "Search Chats"
                 }
             ),
             Box {
@@ -43,6 +43,12 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                     }
                 }
             },
+
+            // Drawers have to be fairly high up in the hierarchy or they
+            // get missed off in turbo::load
+            super::form::Form {
+                team_id: team_id
+            }
         }
     }
 }

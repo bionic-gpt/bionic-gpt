@@ -72,7 +72,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             id: SideBar::History.to_string(),
                             selected_item_id: props.selected_item.to_string(),
                             href: super::routes::history::Index { team_id: props.team_id },
-                            icon: nav_service_requests_svg.name,
+                            icon: nav_history_svg.name,
                             title: "Chat History"
                         }
                     )
