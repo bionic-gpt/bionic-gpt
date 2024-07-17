@@ -7,7 +7,7 @@ use dioxus::prelude::*;
 pub fn HistoryDrawer(trigger_id: String, team_id: i32, history: Vec<History>) -> Element {
     rsx! {
         Drawer {
-            label: "Your History",
+            label: "Recent Chats",
             trigger_id: &trigger_id,
             DrawerBody {
                 for history in history {

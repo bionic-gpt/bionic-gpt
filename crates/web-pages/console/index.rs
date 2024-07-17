@@ -57,7 +57,7 @@ pub fn Page(
                     Button {
                         drawer_trigger: "history-selector",
                         button_scheme: ButtonScheme::Default,
-                        "Show History"
+                        "Recent Chats"
                     }
                     super::history_drawer::HistoryDrawer{
                         trigger_id: "history-selector".to_string(),
