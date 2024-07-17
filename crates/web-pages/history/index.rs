@@ -21,28 +21,44 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                     "Search Chats"
                 }
             ),
-            Box {
-                class: "has-data-table",
-                BoxHeader {
-                    title: "API Keys"
-                }
-                BoxBody {
-                    table {
-                        class: "table table-sm",
-                        thead {
-                            th { "Name" }
-                            th { "API Key" }
-                            th { "Prompt" }
-                            th {
-                                class: "text-right",
-                                "Action"
-                            }
-                        }
-                        tbody {
-                        }
+            div {
+                class: "grid md:grid-cols-3 xl:grid-cols-4 sm:grid-cols-1 gap-4",
+                Box {
+                    BoxHeader {
+                        title: "Say Hi"
                     }
-                }
-            },
+                    BoxBody {
+                    }
+                },
+                Box {
+                    BoxHeader {
+                        title: "Say Hi"
+                    }
+                    BoxBody {
+                    }
+                },
+                Box {
+                    BoxHeader {
+                        title: "Say Hi"
+                    }
+                    BoxBody {
+                    }
+                },
+                Box {
+                    BoxHeader {
+                        title: "Say Hi"
+                    }
+                    BoxBody {
+                    }
+                },
+                Box {
+                    BoxHeader {
+                        title: "Say Hi"
+                    }
+                    BoxBody {
+                    }
+                },
+            }
 
             // Drawers have to be fairly high up in the hierarchy or they
             // get missed off in turbo::load
