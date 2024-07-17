@@ -44,7 +44,7 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
                 },
                 Box {
                     BoxHeader {
-                        class: "truncate ellipses",
+                        class: "truncate text-ellipses",
                         title: "What organ nisation enforces SAR requests in munich "
                     }
                     BoxBody {
