@@ -51,7 +51,7 @@ pub async fn send_message(
             &embeddings_model.name,
         )
         .await
-        .map_err(|_| CustomError::ExternalApi("Problem calling embeddings API".to_string()));
+        .map_err(|e| CustomError::ExternalApi(e.to_string()));
 
         if let Ok(embeddings) = embeddings {
             let embedding_data = pgvector::Vector::from(embeddings);
