@@ -39,7 +39,7 @@ pub fn Page(rbac: Rbac, team_id: i32, results: Vec<HistoryResult>) -> Element {
                                 href: crate::routes::console::Conversation{team_id, conversation_id: result.conversation_id}.to_string(),
                                 "{result.summary}"
                             }
-                            p {
+                            code {
                                 "{result.created_at}"
                             }
                         }

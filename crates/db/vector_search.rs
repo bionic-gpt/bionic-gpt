@@ -92,7 +92,7 @@ pub async fn search_history(
                 SELECT 
                     conv.id::bigint,
                     c.response,
-                    c.created_at::Text 
+                    to_char(c.created_at, 'DD Mon YYYY')
                 FROM 
                     chats c
                 LEFT JOIN
