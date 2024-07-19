@@ -4,7 +4,7 @@ use axum::{
     response::IntoResponse,
 };
 use db::authz;
-use db::queries::chats;
+use db::queries::{chats, models};
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -31,7 +31,7 @@ pub async fn send_message(
             authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
         // Store the prompt, ready for the front end webcomponent to pickup
-        chats::new_chat()
+        let chat_id = chats::new_chat()
             .bind(
                 &transaction,
                 &message.conversation_id,
@@ -39,7 +39,41 @@ pub async fn send_message(
                 &message.message,
                 &"",
             )
+            .one()
             .await?;
+
+        // We generate embeddings so we can search the history.
+        let embeddings_model = models::get_system_embedding_model()
+            .bind(&transaction)
+            .one()
+            .await?;
+
+        let embeddings = embeddings_api::get_embeddings(
+            &message.message,
+            &embeddings_model.base_url,
+            &embeddings_model.name,
+            &embeddings_model.api_key,
+        )
+        .await
+        .map_err(|e| CustomError::ExternalApi(e.to_string()));
+
+        match embeddings {
+            Ok(embeddings) => {
+                let embedding_data = pgvector::Vector::from(embeddings);
+                transaction
+                    .execute(
+                        "
+                        UPDATE chats SET request_embeddings = $1
+                        WHERE id = $2
+                        ",
+                        &[&embedding_data, &chat_id],
+                    )
+                    .await?;
+            }
+            Err(e) => {
+                tracing::error!("Problem trying to get embeddings data {}", e);
+            }
+        }
 
         transaction.commit().await?;
 

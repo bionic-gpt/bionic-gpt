@@ -31,10 +31,14 @@ pub async fn execute_prompt(
     if let (Some(embeddings_base_url), Some(embeddings_model)) =
         (prompt.embeddings_base_url, prompt.embeddings_model)
     {
-        let embeddings =
-            embeddings_api::get_embeddings(&question, &embeddings_base_url, &embeddings_model)
-                .await
-                .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+        let embeddings = embeddings_api::get_embeddings(
+            &question,
+            &embeddings_base_url,
+            &embeddings_model,
+            &prompt.api_key,
+        )
+        .await
+        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
 
         tracing::info!(prompt.name);
         // Get related context

@@ -23,7 +23,7 @@ pub use queries::users::User;
 pub use types::public::{
     AuditAccessType, AuditAction, ChatStatus, ModelType, Permission, Role, Visibility,
 };
-pub use vector_search::{get_related_context, RelatedContext};
+pub use vector_search::{get_related_context, search_history, HistoryResult, RelatedContext};
 
 pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {
     let config = tokio_postgres::Config::from_str(database_url).unwrap();

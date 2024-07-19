@@ -1,11 +1,12 @@
---: Prompt(temperature?, system_prompt?)
---: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?)
+--: Prompt(temperature?, system_prompt?, api_key?)
+--: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?)
 
 --! prompts : Prompt
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT api_key FROM models WHERE id = p.model_id) as api_key, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
     p.model_id,
@@ -61,6 +62,7 @@ SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT api_key FROM models WHERE id = p.model_id) as api_key, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT team_id FROM models WHERE id = p.model_id) as team_id,  
     (SELECT base_url FROM models WHERE id IN 
@@ -122,6 +124,7 @@ SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
     (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT api_key FROM models WHERE id = p.model_id) as api_key, 
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
     p.model_id,

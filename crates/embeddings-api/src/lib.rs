@@ -1,3 +1,4 @@
+use reqwest::header::AUTHORIZATION;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
@@ -47,6 +48,7 @@ pub async fn get_embeddings(
     input: &str,
     api_end_point: &str,
     model: &str,
+    api_key: &Option<String>,
 ) -> Result<Vec<f32>, Box<dyn Error>> {
     let client = Client::new();
 
@@ -57,12 +59,18 @@ pub async fn get_embeddings(
         user: None,
     };
 
+    let request = if let Some(api_key) = api_key {
+        client
+            .post(api_end_point)
+            .header(AUTHORIZATION, format!("Bearer {}", api_key))
+            .json(&calling_json)
+    } else {
+        client.post(api_end_point).json(&calling_json)
+    };
+
     //send request
-    let response = client
-        .post(api_end_point)
-        .json(&calling_json)
-        .send()
-        .await?;
+    let response = request.send().await?;
+
     let result = response.json::<EmbeddingResponse>().await?;
 
     if let Some(result) = result.data.first() {

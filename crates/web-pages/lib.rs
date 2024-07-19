@@ -8,6 +8,7 @@ pub mod console;
 pub mod datasets;
 pub mod documents;
 pub mod guardrails;
+pub mod history;
 pub mod licence;
 pub mod logout_form;
 pub mod model_form;
@@ -34,6 +35,23 @@ pub fn render_with_props<P: Clone + 'static, M: 'static>(
 // All the routes of the application are mapped here and are typesafe
 // https://docs.rs/axum-extra/latest/axum_extra/routing/trait.TypedPath.html
 pub mod routes {
+
+    pub mod history {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/history")]
+        pub struct Index {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/search")]
+        pub struct Search {
+            pub team_id: i32,
+        }
+    }
 
     pub mod licence {
         use axum_extra::routing::TypedPath;
@@ -180,17 +198,6 @@ pub mod routes {
         pub struct Delete {
             pub team_id: i32,
             pub id: i64,
-        }
-    }
-
-    pub mod training {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/training")]
-        pub struct Index {
-            pub team_id: i32,
         }
     }
 
