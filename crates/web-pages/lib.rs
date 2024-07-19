@@ -45,6 +45,12 @@ pub mod routes {
         pub struct Index {
             pub team_id: i32,
         }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/search")]
+        pub struct Search {
+            pub team_id: i32,
+        }
     }
 
     pub mod licence {

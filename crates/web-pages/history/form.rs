@@ -6,7 +6,7 @@ use dioxus::prelude::*;
 pub fn Form(team_id: i32) -> Element {
     rsx!(
         Drawer {
-            submit_action: crate::routes::api_keys::New{ team_id }.to_string(),
+            submit_action: crate::routes::history::Search{ team_id }.to_string(),
             label: "Search Chat History",
             trigger_id: "search-history",
             DrawerBody {
