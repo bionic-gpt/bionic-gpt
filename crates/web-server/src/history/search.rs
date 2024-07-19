@@ -27,7 +27,10 @@ pub async fn search(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // We generate embeddings so we can search the history.
-    let embeddings_model = models::get_system_model().bind(&transaction).one().await?;
+    let embeddings_model = models::get_system_embedding_model()
+        .bind(&transaction)
+        .one()
+        .await?;
 
     let embeddings = embeddings_api::get_embeddings(
         &search.search,

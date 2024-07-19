@@ -69,7 +69,7 @@ pub async fn get_related_context(
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct HistoryResult {
-    pub conversation_id: i32,
+    pub conversation_id: i64,
     pub summary: String,
     pub created_at: String,
 }
@@ -89,20 +89,21 @@ pub async fn search_history(
     let responses = transaction
         .query(
             "
-                    SELECT 
-                        conv.id,
-                        c.response 
-                    FROM 
-                        chats c
-                    LEFT JOIN
-                        conversations conv
-                    ON conv.id = c.conversation.id
-                    WHERE
-                        conv.user_id = $1
-                    ORDER BY 
-                        embeddings <-> $2 
-                    LIMIT $3;
-                    ",
+                SELECT 
+                    conv.id::bigint,
+                    c.response,
+                    c.created_at::Text 
+                FROM 
+                    chats c
+                LEFT JOIN
+                    conversations conv
+                ON conv.id = c.conversation_id
+                WHERE
+                    conv.user_id = $1
+                ORDER BY 
+                    request_embeddings <-> $2 
+                LIMIT $3;
+            ",
             &[&user_id, &embedding_data, &(limit as i64)],
         )
         .await?;

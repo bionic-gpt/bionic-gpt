@@ -32,13 +32,15 @@ pub fn Page(rbac: Rbac, team_id: i32, results: Vec<HistoryResult>) -> Element {
                     Box {
                         BoxHeader {
                             class: "truncate ellipses",
-                            title: "I have this rust code. let (request, model_id, user_id) =
-                            create_request(&pool, &current_user, chat_id).await?; 
-                            How do I check for an error before proceeding "
+                            title: "{result.summary}"
                         }
                         BoxBody {
                             a {
+                                href: crate::routes::console::Conversation{team_id, conversation_id: result.conversation_id}.to_string(),
                                 "{result.summary}"
+                            }
+                            p {
+                                "{result.created_at}"
                             }
                         }
                     }
