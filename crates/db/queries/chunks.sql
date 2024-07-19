@@ -1,4 +1,4 @@
---! unprocessed_chunks : Chunk()
+--! unprocessed_chunks : Chunk(api_key?)
 SELECT
     id,
     text,
@@ -10,6 +10,14 @@ SELECT
         id IN (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
         (SELECT dataset_id FROM documents d WHERE d.id = document_id))
     ) as base_url,
+    (SELECT 
+        api_key 
+    FROM 
+        models 
+    WHERE 
+        id IN (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
+        (SELECT dataset_id FROM documents d WHERE d.id = document_id))
+    ) as api_key,
     (SELECT 
         name 
     FROM 

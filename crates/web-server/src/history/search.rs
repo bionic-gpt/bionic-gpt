@@ -33,6 +33,7 @@ pub async fn search(
         &search.search,
         &embeddings_model.base_url,
         &embeddings_model.name,
+        &embeddings_model.api_key,
     )
     .await
     .map_err(|e| CustomError::ExternalApi(e.to_string()));

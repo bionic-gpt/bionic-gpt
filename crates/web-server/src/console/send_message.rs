@@ -43,30 +43,37 @@ pub async fn send_message(
             .await?;
 
         // We generate embeddings so we can search the history.
-        let embeddings_model = models::get_system_model().bind(&transaction).one().await?;
+        let embeddings_model = models::get_system_embedding_model()
+            .bind(&transaction)
+            .one()
+            .await?;
 
         let embeddings = embeddings_api::get_embeddings(
             &message.message,
             &embeddings_model.base_url,
             &embeddings_model.name,
+            &embeddings_model.api_key,
         )
         .await
         .map_err(|e| CustomError::ExternalApi(e.to_string()));
 
-        if let Ok(embeddings) = embeddings {
-            let embedding_data = pgvector::Vector::from(embeddings);
-            transaction
-                .execute(
-                    "
-                    UPDATE chats SET request_embeddings = $1
-                    WHERE id = $2
-                    ",
-                    &[&embedding_data, &chat_id],
-                )
-                .await?;
-        } else {
-            tracing::error!("Problem trying to get embeddings data");
-        };
+        match embeddings {
+            Ok(embeddings) => {
+                let embedding_data = pgvector::Vector::from(embeddings);
+                transaction
+                    .execute(
+                        "
+                        UPDATE chats SET request_embeddings = $1
+                        WHERE id = $2
+                        ",
+                        &[&embedding_data, &chat_id],
+                    )
+                    .await?;
+            }
+            Err(e) => {
+                tracing::error!("Problem trying to get embeddings data {}", e);
+            }
+        }
 
         transaction.commit().await?;
 
