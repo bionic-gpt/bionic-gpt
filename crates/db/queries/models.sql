@@ -36,6 +36,25 @@ WHERE
 ORDER BY created_at
 LIMIT 1;
 
+--! get_system_embedding_model : Model
+SELECT
+    id,
+    name,
+    model_type,
+    base_url,
+    api_key,
+    tpm_limit,
+    rpm_limit,
+    context_size,
+    created_at,
+    updated_at
+FROM 
+    models
+WHERE
+    model_type = 'Embeddings'
+ORDER BY created_at
+LIMIT 1;
+
 
 --! model : Model
 SELECT
