@@ -8,7 +8,7 @@ pub fn Form(team_id: i32) -> Element {
         Drawer {
             submit_action: crate::routes::api_keys::New{ team_id }.to_string(),
             label: "Search Chat History",
-            trigger_id: "create-api-key",
+            trigger_id: "search-history",
             DrawerBody {
                 div {
                     class: "flex flex-col",
