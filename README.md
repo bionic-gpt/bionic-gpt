@@ -28,7 +28,7 @@
       Contributing
     </a>
     |
-    <a href="https://bionic-gpt.com/docs/community-edition/installation/">
+    <a href="https://bionic-gpt.com/docs/community-edition/introduction/">
       Quick Install Guide
     </a>
   </h4>
