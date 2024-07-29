@@ -12,7 +12,6 @@ use web_pages::routes::console::UpdateResponse;
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct Chat {
-    pub response: String,
     pub chat_id: i32,
 }
 

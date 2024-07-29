@@ -33,11 +33,11 @@ pub struct ContextData {
 }
 
 impl ContextData {
-    /// Constructs a new instance of ContextData.
-    ///
-    /// # Arguments:
-    /// - `client`: A Kubernetes client to make Kubernetes REST API requests with. Resources
-    /// will be created and deleted with this client.
+    // Constructs a new instance of ContextData.
+    //
+    // # Arguments:
+    // - `client`: A Kubernetes client to make Kubernetes REST API requests with.
+    // Resources will be created and deleted with this client.
     pub fn new(client: Client) -> Self {
         ContextData { client }
     }
@@ -61,29 +61,13 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
     let namespace: String = bionic.namespace().unwrap_or("default".to_string());
     let name = bionic.name_any();
 
-    let gpu = if let Some(gpu) = bionic.spec.gpu {
-        gpu
-    } else {
-        false
-    };
+    let gpu = bionic.spec.gpu.unwrap_or_default();
 
-    let pgadmin = if let Some(pgadmin) = bionic.spec.pgadmin {
-        pgadmin
-    } else {
-        false
-    };
+    let pgadmin = bionic.spec.pgadmin.unwrap_or_default();
 
-    let testing = if let Some(testing) = bionic.spec.testing {
-        testing
-    } else {
-        false
-    };
+    let testing = bionic.spec.testing.unwrap_or_default();
 
-    let development = if let Some(development) = bionic.spec.development {
-        development
-    } else {
-        false
-    };
+    let development = bionic.spec.development.unwrap_or_default();
 
     let bionic_version = get_current_bionic_version(&client, &namespace).await?;
 

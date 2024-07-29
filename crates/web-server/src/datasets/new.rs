@@ -15,6 +15,7 @@ use web_pages::routes::datasets::New;
 pub struct NewDataset {
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
+    #[allow(dead_code)]
     pub chunking_strategy: String,
     pub combine_under_n_chars: i32,
     pub new_after_n_chars: i32,

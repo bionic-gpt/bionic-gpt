@@ -32,12 +32,6 @@ pub struct Usage {
     pub total_tokens: i32,
 }
 
-#[derive(Serialize, Debug)]
-struct CallingJson {
-    input: String,
-    model: String,
-}
-
 #[derive(Debug)]
 pub struct Embedding {
     pub embeddings: Vec<f32>,

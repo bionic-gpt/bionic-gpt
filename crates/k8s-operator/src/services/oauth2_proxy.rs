@@ -14,11 +14,7 @@ use url::Url;
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     let whitelist_domain = Url::parse(&spec.hostname_url);
     let whitelist_domain = if let Ok(host) = &whitelist_domain {
-        if let Some(host) = host.host_str() {
-            host
-        } else {
-            ""
-        }
+        host.host_str().unwrap_or_default()
     } else {
         ""
     };
