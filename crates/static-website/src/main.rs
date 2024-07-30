@@ -15,7 +15,7 @@ use dioxus_logger::tracing::{info, Level};
 enum Route {
     #[route("/")]
     Home {},
-    #[route("/blog/:slug")]
+    #[route("/blog/:slug/")]
     Blog { slug: String },
 }
 

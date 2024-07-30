@@ -13,7 +13,7 @@ pub(crate) struct BlogPost {
 
 pub(crate) const POST_TEMPLATE: BlogPost = BlogPost {
     date: "Dec 11, 2022",
-    title: "Making Dioxus (almost) as fast as SolidJS",
+    title: "Why Companies are banning ChatGPT",
     description:
         "Using a new technique called subtree memoization, Dioxus is now almost as fast as SolidJS.",
     link: "/blog/templates-diffing/",
@@ -38,9 +38,17 @@ pub fn BlogPost(post: BlogPost) -> Element {
         }
         article {
             class: "mx-auto prose lg:prose-xl p-4",
-            dangerous_inner_html: "{content}",
             h1 {
                 "{post.title}"
+            }
+            img {
+                class: "mb-8",
+                width: "768",
+                height: "487",
+                src: "chat-gpt-banned.png"
+            }
+            div {
+                dangerous_inner_html: "{content}"
             }
         }
         Footer {
