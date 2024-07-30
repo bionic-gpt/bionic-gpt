@@ -1,3 +1,4 @@
+use crate::navigation::Navigation;
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Eq, Clone, Copy)]
@@ -22,6 +23,9 @@ pub(crate) const POST_TEMPLATE: BlogPost = BlogPost {
 pub fn Blog(slug: String) -> Element {
     let content = markdown::to_html(POST_TEMPLATE.markdown);
     rsx! {
+        Navigation {
+
+        }
         div {
             class: "prose",
             dangerous_inner_html: "{content}"

@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 mod blog;
+mod navigation;
 
 use crate::blog::Blog;
 use dioxus::prelude::*;
