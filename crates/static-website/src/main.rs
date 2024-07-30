@@ -1,8 +1,13 @@
 #![allow(non_snake_case)]
 mod blog;
+mod footer;
+mod image_hero;
 mod navigation;
 
 use crate::blog::Blog;
+use crate::footer::Footer;
+use crate::image_hero::ImageHero;
+use crate::navigation::Navigation;
 use dioxus::prelude::*;
 use dioxus_logger::tracing::{info, Level};
 
@@ -30,11 +35,14 @@ fn App() -> Element {
 #[component]
 fn Home() -> Element {
     rsx! {
-        Link {
-            to: Route::Blog {
-                slug: "banning-chat-gpt".to_string()
-            },
-            "Go to blog"
+        Navigation {
+
+        }
+        ImageHero {
+
+        }
+        Footer {
+
         }
     }
 }

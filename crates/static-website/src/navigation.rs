@@ -27,10 +27,12 @@ pub fn Navigation() -> Element {
                         }
                         ul { class: "menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52",
                             li {
-                                a {
-                                    href: "{{ resource.url }}",
-                                    class: "menu-item",
-                                    "{{ resource.name }}"
+
+                                Link {
+                                    to: crate::Route::Blog {
+                                        slug: "banning-chat-gpt".to_string()
+                                    },
+                                    "Blog"
                                 }
                             }
                             li {
@@ -47,7 +49,8 @@ pub fn Navigation() -> Element {
                             li {}
                         }
                     }
-                    a { href: "/",
+                    Link {
+                        to: crate::Route::Home {},
                         span { class: "flex flex-row gap-4",
                             img {
                                 alt: "Logo",
@@ -61,8 +64,13 @@ pub fn Navigation() -> Element {
                 div { class: "navbar-center hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         li {
-                            a { href: "{{ resource.url }}", class: "menu-item", "{{ resource.name }}" }
-                        }
+                            Link {
+                                class: "menu-item",
+                                to: crate::Route::Blog {
+                                    slug: "banning-chat-gpt".to_string()
+                                },
+                                "Blog"
+                            }}
                         li {
                             details {
                                 summary { "Resources" }

@@ -1,3 +1,4 @@
+use crate::footer::Footer;
 use crate::navigation::Navigation;
 use dioxus::prelude::*;
 
@@ -21,14 +22,29 @@ pub(crate) const POST_TEMPLATE: BlogPost = BlogPost {
 
 #[component]
 pub fn Blog(slug: String) -> Element {
-    let content = markdown::to_html(POST_TEMPLATE.markdown);
+    rsx! {
+        BlogPost {
+            post: POST_TEMPLATE
+        }
+    }
+}
+
+#[component]
+pub fn BlogPost(post: BlogPost) -> Element {
+    let content = markdown::to_html(post.markdown);
     rsx! {
         Navigation {
 
         }
-        div {
-            class: "prose",
-            dangerous_inner_html: "{content}"
+        article {
+            class: "mx-auto prose lg:prose-xl p-4",
+            dangerous_inner_html: "{content}",
+            h1 {
+                "{post.title}"
+            }
+        }
+        Footer {
+
         }
     }
 }
