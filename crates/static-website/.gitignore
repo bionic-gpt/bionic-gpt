@@ -4,6 +4,7 @@
 /dist/
 /static/
 /.dioxus/
+/node_modules/
 
 # this file will generate by tailwind:
 /assets/tailwind.css

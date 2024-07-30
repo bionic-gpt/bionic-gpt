@@ -23,6 +23,7 @@ pub fn Blog(slug: String) -> Element {
     let content = markdown::to_html(POST_TEMPLATE.markdown);
     rsx! {
         div {
+            class: "prose",
             dangerous_inner_html: "{content}"
         }
     }
