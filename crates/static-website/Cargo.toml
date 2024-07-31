@@ -6,10 +6,15 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+
 [dependencies]
-
-dioxus = { version = "0.5", features = ["web", "router"] }
-
-# Debug
-dioxus-logger = "0.5.1"
+dioxus = { version = "0.5", features = ["web", "router", "fullstack"] }
+serde = "1.0.159"
+simple_logger = "4.2.0"
+tracing-wasm = "0.2.1"
 markdown = "1.0.0-alpha.18"
+
+[features]
+default = []
+server = ["dioxus/axum"]
+web = ["dioxus/web"]
