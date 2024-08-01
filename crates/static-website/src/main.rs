@@ -1,4 +1,5 @@
 pub mod blog;
+pub mod docs;
 pub mod footer;
 pub mod image_hero;
 pub mod layout;
@@ -58,6 +59,7 @@ async fn main() {
     let app = Router::new()
         .typed_get(static_files::static_path)
         .merge(blog::routes())
+        .merge(docs::routes())
         .merge(marketing::routes());
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
