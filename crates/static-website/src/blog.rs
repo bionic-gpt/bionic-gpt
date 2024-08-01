@@ -1,5 +1,4 @@
-use crate::footer::Footer;
-use crate::navigation::Navigation;
+use crate::layout::Layout;
 use crate::routes::blog::Index;
 use axum::response::Html;
 use axum::Router;
@@ -47,26 +46,23 @@ pub fn Blog(slug: String) -> Element {
 pub fn BlogPost(post: BlogPost) -> Element {
     let content = markdown::to_html(post.markdown);
     rsx! {
-        Navigation {
-
-        }
-        article {
-            class: "mx-auto prose lg:prose-xl p-4",
-            h1 {
-                "{post.title}"
+        Layout {
+            title: "{post.title}",
+            article {
+                class: "mx-auto prose lg:prose-xl p-4",
+                h1 {
+                    "{post.title}"
+                }
+                img {
+                    class: "mb-8",
+                    width: "768",
+                    height: "487",
+                    src: "chat-gpt-banned.png"
+                }
+                div {
+                    dangerous_inner_html: "{content}"
+                }
             }
-            img {
-                class: "mb-8",
-                width: "768",
-                height: "487",
-                src: "chat-gpt-banned.png"
-            }
-            div {
-                dangerous_inner_html: "{content}"
-            }
-        }
-        Footer {
-
         }
     }
 }
