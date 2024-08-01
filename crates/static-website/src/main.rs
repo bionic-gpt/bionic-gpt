@@ -32,6 +32,18 @@ pub mod routes {
         #[typed_path("/")]
         pub struct Index {}
     }
+
+    pub mod docs {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/docs/:section/:title")]
+        pub struct Index {
+            pub section: String,
+            pub title: String,
+        }
+    }
 }
 
 #[tokio::main]
