@@ -8,13 +8,17 @@ edition = "2021"
 
 
 [dependencies]
-dioxus = { version = "0.5", features = ["web", "router", "fullstack"] }
-serde = "1.0.159"
-simple_logger = "4.2.0"
-tracing-wasm = "0.2.1"
+axum = { version = "0.7", features = ["multipart"] }
+axum-extra = { version = "0", features = ["typed-routing"] }
+tokio = { version = "1", features = ["rt-multi-thread", "fs"] }
+tokio-util = { version = "0", features = ["io"] }
+tracing = { version = "0.1" }
+tracing-subscriber = { version="0", features = ["env-filter"] }
+dioxus = { version = "0.5" }
+dioxus-ssr = "0.5"
 markdown = "1.0.0-alpha.18"
+serde = "1"
+mime = "0.3.0"
 
-[features]
-default = []
-server = ["dioxus/axum"]
-web = ["dioxus/web"]
+[build-dependencies]
+ructe = { version="0.15.0", features = ["mime03"] }

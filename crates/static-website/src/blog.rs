@@ -1,9 +1,23 @@
 use crate::footer::Footer;
 use crate::navigation::Navigation;
+use crate::routes::blog::Index;
+use axum::response::Html;
+use axum::Router;
+use axum_extra::routing::RouterExt;
 use dioxus::prelude::*;
 
+pub fn routes() -> Router {
+    Router::new().typed_get(index)
+}
+
+pub async fn index(Index { slug }: Index) -> Html<String> {
+    let html = crate::render_with_props(Blog, BlogProps { slug });
+
+    Html(html)
+}
+
 #[derive(PartialEq, Eq, Clone, Copy)]
-pub(crate) struct BlogPost {
+pub struct BlogPost {
     date: &'static str,
     title: &'static str,
     description: &'static str,
@@ -11,7 +25,7 @@ pub(crate) struct BlogPost {
     markdown: &'static str,
 }
 
-pub(crate) const POST_TEMPLATE: BlogPost = BlogPost {
+pub const POST_TEMPLATE: BlogPost = BlogPost {
     date: "Dec 11, 2022",
     title: "Why Companies are banning ChatGPT",
     description:

@@ -27,13 +27,7 @@ pub fn Navigation() -> Element {
                         }
                         ul { class: "menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52",
                             li {
-
-                                Link {
-                                    to: crate::Route::Blog {
-                                        slug: "banning-chat-gpt".to_string()
-                                    },
-                                    "Blog"
-                                }
+                                "Blog"
                             }
                             li {
                                 a { href: "{{ config.extra.first_doc_page | default(value='/docs') | safe }}",
@@ -49,28 +43,20 @@ pub fn Navigation() -> Element {
                             li {}
                         }
                     }
-                    Link {
-                        to: crate::Route::Home {},
-                        span { class: "flex flex-row gap-4",
-                            img {
-                                alt: "Logo",
-                                width: "22",
-                                height: "22",
-                                src: "/{{config.extra.logo}}"
-                            }
+                    span { class: "flex flex-row gap-4",
+                        img {
+                            alt: "Logo",
+                            width: "22",
+                            height: "22",
+                            src: "/{{config.extra.logo}}"
                         }
                     }
                 }
                 div { class: "navbar-center hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         li {
-                            Link {
-                                class: "menu-item",
-                                to: crate::Route::Blog {
-                                    slug: "banning-chat-gpt".to_string()
-                                },
-                                "Blog"
-                            }}
+                            "Blog"
+                        }
                         li {
                             details {
                                 summary { "Resources" }
