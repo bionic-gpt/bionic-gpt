@@ -2,7 +2,7 @@
 
 use crate::footer::Footer;
 use crate::navigation::Navigation;
-use crate::templates::statics::{favicon_ico, tailwind_css};
+use crate::templates::statics::favicon_ico;
 use dioxus::prelude::*;
 
 // Remember: owned props must implement PartialEq!
@@ -31,7 +31,7 @@ pub fn Layout(props: LayoutProps) -> Element {
             }
             link {
                 rel: "stylesheet",
-                href: "{tailwind_css.name}",
+                href: "/tailwind.css",
                 "type": "text/css"
             }
             link {

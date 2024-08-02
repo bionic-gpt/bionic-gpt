@@ -1,51 +1,72 @@
-use std::fs;
+use std::fs::{self, File};
+use std::io::Write;
+use std::path::Path;
 
-use crate::routes::docs::Index;
-use axum::response::Html;
-use axum::Router;
-use axum_extra::routing::RouterExt;
+use dioxus::prelude::*;
 
-pub fn routes() -> Router {
-    Router::new().typed_get(index)
+use crate::layout::Layout;
+
+#[derive(PartialEq, Eq, Clone, Copy)]
+pub struct Doc {
+    title: &'static str,
+    link: &'static str,
+    markdown: &'static str,
 }
 
-pub async fn index(Index { section, title }: Index) -> Html<String> {
-    let sections = parse_directory("docs");
-    for section in sections {
-        println!("Section: {}", section.section);
-        for title in section.titles {
-            println!("  Title: {}", title);
-        }
+pub async fn generate() {
+    let src = Path::new("docs");
+    let dst = Path::new("dist/docs");
+    copy_folder(src, dst).unwrap();
+
+    let docs: Vec<Doc> = vec![Doc {
+        title: "Why Companies are banning ChatGPT",
+        link: "/blog/templates-diffing/",
+        markdown: include_str!("../docs/community-edition/introduction.md"),
+    }];
+
+    for doc in docs {
+        let html = crate::render_with_props(Document, DocumentProps { post: doc });
+
+        let mut file = File::create("dist/docs/community-edition/introduction.html")
+            .expect("Unable to create file");
+        file.write_all(html.as_bytes())
+            .expect("Unable to write to file");
     }
-
-    Html(format!("{} {}", section, title))
 }
 
-struct Section {
-    section: String,
-    titles: Vec<String>,
-}
-
-fn parse_directory(dir_path: &str) -> Vec<Section> {
-    let mut sections = Vec::new();
-
-    for entry in fs::read_dir(dir_path).unwrap() {
-        let entry = entry.unwrap();
-        let path = entry.path();
-        if path.is_dir() {
-            let section = path.file_name().unwrap().to_str().unwrap().to_string();
-            let mut titles = Vec::new();
-            for file in fs::read_dir(path).unwrap() {
-                let file = file.unwrap();
-                let file_path = file.path();
-                if file_path.is_file() && file_path.extension().unwrap() == "md" {
-                    let title = file_path.file_name().unwrap().to_str().unwrap().to_string();
-                    titles.push(title);
+#[component]
+pub fn Document(post: Doc) -> Element {
+    let content = markdown::to_html(post.markdown);
+    rsx! {
+        Layout {
+            title: "{post.title}",
+            article {
+                class: "mx-auto prose lg:prose-xl p-4",
+                h1 {
+                    "{post.title}"
+                }
+                div {
+                    dangerous_inner_html: "{content}"
                 }
             }
-            sections.push(Section { section, titles });
+        }
+    }
+}
+
+fn copy_folder(src: &Path, dst: &Path) -> std::io::Result<()> {
+    fs::create_dir_all(dst)?;
+
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let src_path = entry.path();
+        let dst_path = dst.join(entry.file_name());
+
+        if src_path.is_dir() {
+            copy_folder(&src_path, &dst_path)?;
+        } else {
+            fs::copy(&src_path, &dst_path)?;
         }
     }
 
-    sections
+    Ok(())
 }

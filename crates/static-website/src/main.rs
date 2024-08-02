@@ -8,9 +8,9 @@ pub mod navigation;
 pub mod static_files;
 
 use axum::Router;
-use axum_extra::routing::RouterExt;
 use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
 use std::net::SocketAddr;
+use tower_http::services::ServeDir;
 
 pub mod routes {
 
@@ -53,14 +53,18 @@ async fn main() {
         .with_max_level(tracing::Level::INFO)
         .init();
 
+    marketing::generate().await;
+    docs::generate().await;
+
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
     // build our application with a route
     let app = Router::new()
-        .typed_get(static_files::static_path)
-        .merge(blog::routes())
-        .merge(docs::routes())
-        .merge(marketing::routes());
+        //.typed_get(static_files::static_path)
+        //.merge(blog::routes())
+        //.merge(docs::routes())
+        //.merge(marketing::routes())
+        .nest_service("/", ServeDir::new("dist"));
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("listening on http://{}", &addr);
