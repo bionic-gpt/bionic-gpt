@@ -1,11 +1,14 @@
 pub mod blog;
+pub mod blog_summary;
 pub mod docs;
+pub mod docs_summary;
 pub mod footer;
 pub mod image_hero;
 pub mod layout;
 pub mod marketing;
 pub mod navigation;
 pub mod static_files;
+pub mod summary;
 
 use axum::Router;
 use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
@@ -54,7 +57,8 @@ async fn main() {
         .init();
 
     marketing::generate().await;
-    docs::generate().await;
+    summary::generate(docs_summary::summary());
+    summary::generate(blog_summary::summary());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
