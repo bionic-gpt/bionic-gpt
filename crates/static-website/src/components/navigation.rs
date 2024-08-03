@@ -27,10 +27,12 @@ pub fn Navigation() -> Element {
                         }
                         ul { class: "menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52",
                             li {
-                                "Blog"
+                                a { href: "/blog/",
+                                    "Blog"
+                                }
                             }
                             li {
-                                a { href: "{{ config.extra.first_doc_page | default(value='/docs') | safe }}",
+                                a { href: "/docs",
                                     "Documentation"
                                 }
                             }
@@ -44,18 +46,21 @@ pub fn Navigation() -> Element {
                         }
                     }
                     span { class: "flex flex-row gap-4",
-                        img {
-                            alt: "Logo",
-                            width: "22",
-                            height: "22",
-                            src: "/{{config.extra.logo}}"
+                        a {
+                            href: "/",
+                            img {
+                                alt: "Logo",
+                                width: "22",
+                                height: "22",
+                                src: "/{{config.extra.logo}}"
+                            }
                         }
                     }
                 }
                 div { class: "navbar-center hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         li {
-                            "Blog"
+                            a { href: "/blog", "Blog" }
                         }
                         li {
                             details {
@@ -65,7 +70,7 @@ pub fn Navigation() -> Element {
                                         a { href: "/blog", "Blog" }
                                     }
                                     li {
-                                        a { href: "{{ config.extra.first_doc_page | default(value='/docs') | safe }}",
+                                        a { href: "/docs",
                                             "Documentation"
                                         }
                                     }

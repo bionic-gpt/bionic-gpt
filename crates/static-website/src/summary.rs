@@ -2,7 +2,7 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::Path;
 
-use crate::blog::{BlogPost, BlogPostProps};
+use crate::blog::{BlogList, BlogListProps, BlogPost, BlogPostProps};
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct Summary {
@@ -41,6 +41,14 @@ pub fn generate(summary: Summary) {
                 .expect("Unable to write to file");
         }
     }
+}
+
+pub async fn generate_blog_list(summary: Summary) {
+    let html = crate::render_with_props(BlogList, BlogListProps { summary });
+
+    let mut file = File::create("dist/blog/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
 }
 
 fn copy_folder(src: &Path, dst: &Path) -> std::io::Result<()> {

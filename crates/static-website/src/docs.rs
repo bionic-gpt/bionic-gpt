@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::layout::Layout;
+use crate::components::layout::Layout;
 use crate::summary::Page;
 
 #[component]

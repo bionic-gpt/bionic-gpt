@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::Write;
 
-use crate::image_hero::ImageHero;
-use crate::layout::Layout;
+use super::image_hero::ImageHero;
+use super::layout::Layout;
 use crate::routes::marketing::Index;
 use axum::response::Html;
 use axum::Router;

@@ -1,5 +1,5 @@
-use crate::layout::Layout;
-use crate::summary::Page;
+use crate::components::layout::Layout;
+use crate::summary::{Page, Summary};
 use dioxus::prelude::*;
 
 #[component]
@@ -21,6 +21,22 @@ pub fn BlogPost(post: Page) -> Element {
                 }
                 div {
                     dangerous_inner_html: "{content}"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn BlogList(summary: Summary) -> Element {
+    rsx! {
+        Layout {
+            title: "Blog",
+            for category in summary.categories {
+                for page in category.pages {
+                    h1 {
+                        "{page.title}"
+                    }
                 }
             }
         }

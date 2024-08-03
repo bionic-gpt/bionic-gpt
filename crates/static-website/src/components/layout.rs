@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
+use super::navigation::Navigation;
 use crate::footer::Footer;
-use crate::navigation::Navigation;
 use crate::templates::statics::favicon_ico;
 use dioxus::prelude::*;
 

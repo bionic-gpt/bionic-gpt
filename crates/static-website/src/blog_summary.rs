@@ -7,7 +7,7 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![Page {
                 date: "",
-                title: "",
+                title: "Why companies are banning Chat-GPT",
                 description: "",
                 folder: "blog/banning-chat-gpt",
                 markdown: include_str!("../blog/banning-chat-gpt/index.md"),

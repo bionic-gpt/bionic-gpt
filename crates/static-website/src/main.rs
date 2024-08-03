@@ -1,12 +1,9 @@
 pub mod blog;
 pub mod blog_summary;
+pub mod components;
 pub mod docs;
 pub mod docs_summary;
 pub mod footer;
-pub mod image_hero;
-pub mod layout;
-pub mod marketing;
-pub mod navigation;
 pub mod static_files;
 pub mod summary;
 
@@ -56,19 +53,15 @@ async fn main() {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    marketing::generate().await;
+    components::marketing::generate().await;
+    summary::generate_blog_list(blog_summary::summary()).await;
     summary::generate(docs_summary::summary());
     summary::generate(blog_summary::summary());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
     // build our application with a route
-    let app = Router::new()
-        //.typed_get(static_files::static_path)
-        //.merge(blog::routes())
-        //.merge(docs::routes())
-        //.merge(marketing::routes())
-        .nest_service("/", ServeDir::new("dist"));
+    let app = Router::new().nest_service("/", ServeDir::new("dist"));
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("listening on http://{}", &addr);
