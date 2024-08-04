@@ -5,14 +5,24 @@ pub fn summary() -> Summary {
         source_folder: "docs",
         categories: vec![Category {
             name: "Introduction".to_string(),
-            pages: vec![Page {
-                date: "",
-                title: "",
-                description: "",
-                folder: "docs/community-edition/introduction/",
-                markdown: include_str!("../docs/community-edition/introduction/index.md"),
-                image: None,
-            }],
+            pages: vec![
+                Page {
+                    date: "",
+                    title: "",
+                    description: "",
+                    folder: "docs/",
+                    markdown: include_str!("../docs/index.md"),
+                    image: None,
+                },
+                Page {
+                    date: "",
+                    title: "",
+                    description: "",
+                    folder: "docs/community-edition/docker-compose/",
+                    markdown: include_str!("../docs/community-edition/docker-compose/index.md"),
+                    image: None,
+                },
+            ],
         }],
     }
 }
