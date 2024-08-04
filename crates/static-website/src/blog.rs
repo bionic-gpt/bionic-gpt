@@ -33,14 +33,14 @@ pub fn BlogList(summary: Summary) -> Element {
         Layout {
             title: "Blog",
             section {
-                class: "lg:max-w-5xl mx-auto text-center mb-12",
+                class: "lg:max-w-5xl mx-auto text-center mb-12 mt-12",
                 h1 {
                     class: "text-4xl font-extrabold",
-                    "The Blog"
+                    "Enterprise Generative AI"
                 }
                 h2 {
                     class: "text-2xl font-bold",
-                    "Ideas, Updates and Inspiration"
+                    "The Bionic blog explores issues around LLMs in the enterprise"
                 }
             }
             section {
