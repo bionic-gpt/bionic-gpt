@@ -1,9 +1,3 @@
-+++
-title = "Installing on RKE2 (Linux)"
-weight = 15
-sort_by = "weight"
-+++
-
 ## Why RKE2?
 
 RKE2, also known as RKE Government, is Rancher's next-generation Kubernetes distribution.

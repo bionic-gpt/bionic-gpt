@@ -1,9 +1,3 @@
-+++
-title = "Docker Compose"
-weight = 15
-sort_by = "weight"
-+++
-
 We have a very lightweight version of Bionic for running locally for for limited Proofs of concept. If you require features such as user management, document pipelines etc from the enterprise version then install the enterprise version instead.
 
 ## Prerequisites

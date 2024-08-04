@@ -44,11 +44,18 @@ fn LeftNav(summary: Summary) -> Element {
                 //}
                 for category in &summary.categories {
                     p {
+                        class: "font-semibold mb-2 mt-6",
                         "{category.name}"
                     }
-                    for page in &category.pages {
-                        p {
-                            "{page.title}"
+                    ul {
+                        for page in &category.pages {
+                            li {
+                                a {
+                                    class: "rounded-md hover:text-sky-500 dark:hover:text-sky-400",
+                                    href: "/{page.folder}",
+                                    "{page.title}"
+                                }
+                            }
                         }
                     }
                 }
