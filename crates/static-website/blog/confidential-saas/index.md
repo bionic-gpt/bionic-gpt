@@ -1,15 +1,3 @@
-+++
-title = "Building SaaS applications for highly regulated industries using Confidential Computing"
-date = 2024-07-11
-description = "Building SaaS applications for highly regulated industries using Confidential Computing"
-
-[extra]
-main_image = "blog/confidential-saas/kubernetes.png"
-listing_image = "blog/confidential-saas/kubernetes.png"
-author_image = "blog-authors/dio.jpeg"
-author = "Kulbinder Dio"
-+++
-
 Enterprises prefer B2B SaaS solutions over on premise solutions because they offer:
 
 - A **cost-effective** way to streamline business operations 

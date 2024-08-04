@@ -49,7 +49,7 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Introduction",
+                        title: "AI Assistants",
                         description: "",
                         folder: "docs/rag/rag/",
                         markdown: include_str!("../docs/rag/rag/index.md"),
