@@ -51,9 +51,16 @@ pub fn generate_docs(summary: Summary) {
     let dst = Path::new(&dst);
     copy_folder(src, dst).unwrap();
 
-    for category in summary.categories {
-        for page in category.pages {
-            let html = crate::render_with_props(Document, DocumentProps { post: page });
+    for category in &summary.categories {
+        for page in &category.pages {
+            let html = crate::render_with_props(
+                Document,
+                DocumentProps {
+                    summary: summary.clone(),
+                    category: category.clone(),
+                    doc: *page,
+                },
+            );
             let file = format!("dist/{}/index.html", page.folder);
 
             let mut file = File::create(&file).expect("Unable to create file");

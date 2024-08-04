@@ -55,7 +55,7 @@ async fn main() {
 
     components::marketing::generate().await;
     summary::generate_blog_list(blog_summary::summary()).await;
-    summary::generate(docs_summary::summary());
+    summary::generate_docs(docs_summary::summary());
     summary::generate(blog_summary::summary());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));

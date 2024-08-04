@@ -8,7 +8,7 @@ pub fn summary() -> Summary {
             pages: vec![
                 Page {
                     date: "",
-                    title: "",
+                    title: "Intro",
                     description: "",
                     folder: "docs/",
                     markdown: include_str!("../docs/index.md"),
@@ -16,7 +16,7 @@ pub fn summary() -> Summary {
                 },
                 Page {
                     date: "",
-                    title: "",
+                    title: "Docker Compose",
                     description: "",
                     folder: "docs/community-edition/docker-compose/",
                     markdown: include_str!("../docs/community-edition/docker-compose/index.md"),
