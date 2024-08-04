@@ -39,8 +39,8 @@ alias watch-embeddings='mold -run cargo watch --workdir /workspace/ -w crates/em
 alias we=watch-embeddings
 alias watch-tailwind='cd /workspace/crates/web-assets && npx tailwindcss -i ./input.css -o ./dist/output.css --watch'
 alias wt=watch-tailwind
-alias watch-leptos='cargo leptos watch'
-alias wl=watch-leptos
+alias watch-static='cd /workspace/crates/static-website && cargo watch --workdir /workspace/crates/static-website -w ./docs -w ./blog -w ./src --no-gitignore -x "run --bin static-website"'
+alias ws=watch-static
 
 # Mirrord
 alias ma='mirrord exec --target deployment/bionic-gpt -n bionic-gpt cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'

@@ -32,10 +32,38 @@ pub fn BlogList(summary: Summary) -> Element {
     rsx! {
         Layout {
             title: "Blog",
-            for category in summary.categories {
-                for page in category.pages {
-                    h1 {
-                        "{page.title}"
+            section {
+                class: "lg:max-w-5xl mx-auto text-center mb-12",
+                h1 {
+                    class: "text-4xl font-extrabold",
+                    "The Blog"
+                }
+                h2 {
+                    class: "text-2xl font-bold",
+                    "Ideas, Updates and Inspiration"
+                }
+            }
+            section {
+                class: "lg:max-w-5xl mx-auto p-4",
+                div {
+                    div {
+                        class: "md:grid grid-cols-2 gap-4",
+                        for category in summary.categories {
+                            for page in category.pages {
+                                div {
+                                    class: "border p-4",
+                                    div {
+                                        img {
+                                            src: page.image
+                                        }
+                                        a {
+                                            href: "/{page.folder}",
+                                            "{page.title}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -23,6 +23,7 @@ pub struct Page {
     pub description: &'static str,
     pub folder: &'static str,
     pub markdown: &'static str,
+    pub image: Option<&'static str>,
 }
 
 pub fn generate(summary: Summary) {

@@ -11,6 +11,7 @@ pub fn summary() -> Summary {
                 description: "",
                 folder: "docs/community-edition/introduction/",
                 markdown: include_str!("../docs/community-edition/introduction/index.md"),
+                image: None,
             }],
         }],
     }

@@ -9,8 +9,9 @@ pub fn summary() -> Summary {
                 date: "",
                 title: "Why companies are banning Chat-GPT",
                 description: "",
-                folder: "blog/banning-chat-gpt",
+                folder: "blog/banning-chat-gpt/",
                 markdown: include_str!("../blog/banning-chat-gpt/index.md"),
+                image: Some("chat-gpt-banned.png"),
             }],
         }],
     }
