@@ -51,7 +51,7 @@ pub fn HomePage() -> Element {
                 title3: "Data Governance.",
                 text3: "By deploying Bionic close to your data you are able to benefit from Generative AI
       and still conform to data privacy and controls.",
-                image: "/github-readme.png",
+                image: "/landing-page/bionic-console.png",
             }
 
             SmallImageFeature {

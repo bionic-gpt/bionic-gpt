@@ -78,7 +78,7 @@ pub async fn generate_blog_list(summary: Summary) {
         .expect("Unable to write to file");
 }
 
-fn copy_folder(src: &Path, dst: &Path) -> std::io::Result<()> {
+pub fn copy_folder(src: &Path, dst: &Path) -> std::io::Result<()> {
     fs::create_dir_all(dst)?;
 
     for entry in fs::read_dir(src)? {

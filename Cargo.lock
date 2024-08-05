@@ -3208,7 +3208,6 @@ dependencies = [
  "dioxus-ssr",
  "markdown",
  "mime",
- "ructe",
  "serde",
  "tokio",
  "tokio-util",

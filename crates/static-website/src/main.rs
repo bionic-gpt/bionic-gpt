@@ -4,12 +4,11 @@ pub mod components;
 pub mod docs;
 pub mod docs_summary;
 pub mod footer;
-pub mod static_files;
 pub mod summary;
 
 use axum::Router;
 use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
-use std::net::SocketAddr;
+use std::{net::SocketAddr, path::Path};
 use tower_http::services::ServeDir;
 
 pub mod routes {
@@ -54,9 +53,12 @@ async fn main() {
         .init();
 
     components::marketing::generate().await;
-    summary::generate_blog_list(blog_summary::summary()).await;
     summary::generate_docs(docs_summary::summary());
     summary::generate(blog_summary::summary());
+    summary::generate_blog_list(blog_summary::summary()).await;
+    let src = Path::new("assets");
+    let dst = Path::new("dist");
+    summary::copy_folder(src, dst).expect("Couldn't copy folder");
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
@@ -91,5 +93,3 @@ async fn render(ele: fn() -> Element) -> String {
     let html = dioxus_ssr::render(&vdom);
     format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
 }
-
-include!(concat!(env!("OUT_DIR"), "/templates.rs"));

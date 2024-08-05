@@ -2,7 +2,6 @@
 
 use super::navigation::Navigation;
 use crate::footer::Footer;
-use crate::templates::statics::favicon_ico;
 use dioxus::prelude::*;
 
 // Remember: owned props must implement PartialEq!
@@ -37,7 +36,7 @@ pub fn Layout(props: LayoutProps) -> Element {
             link {
                 rel: "icon",
                 "type": "image/svg+xml",
-                href: "{favicon_ico.name}"
+                href: "/favicon.svg"
             }
         }
         body {
