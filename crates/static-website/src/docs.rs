@@ -34,7 +34,7 @@ fn LeftNav(summary: Summary) -> Element {
 
     rsx! {
         // Create a flex grow container, and then right-align its contents so it's squahed against the center
-        div { class: "overflow-y-auto sticky docs-links pt-12 flex flex-row justify-end",
+        div { class: "overflow-y-auto sticky docs-links flex flex-row justify-end",
             nav {
                 class: "bg-white dark:bg-ideblack lg:bg-inherit pl-6 pb-32 z-20 text-base lg:block top-28 lg:-ml-3.5 pr-2 w-[calc(100%-1rem)] md:w-60 lg:text-[14px] text-navy content-startleading-5 ",
                 //class: if SHOW_SIDEBAR() { "min-w-full" } else { "hidden" },
@@ -69,7 +69,7 @@ fn LeftNav(summary: Summary) -> Element {
 fn Content(doc: Page) -> Element {
     let content = markdown::to_html(doc.markdown);
     rsx! {
-        section { class: "text-gray-600 body-font overflow-hidden dark:bg-ideblack container pb-12 max-w-screen-sm mx-2 lg:mx-24 pt-12 grow",
+        section { class: "text-gray-600 body-font overflow-hidden dark:bg-ideblack container pb-12 max-w-screen-sm mx-2 lg:mx-24 grow",
             div {
                 class: "-py-8",
                 //class: if HIGHLIGHT_DOCS_LAYOUT() { "border border-green-600 rounded-md" },

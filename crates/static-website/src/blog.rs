@@ -14,10 +14,8 @@ pub fn BlogPost(post: Page) -> Element {
                     "{post.title}"
                 }
                 img {
-                    class: "mb-8",
-                    width: "768",
-                    height: "487",
-                    src: "chat-gpt-banned.png"
+                    class: "mb-8 object-cover h-48 w-96",
+                    src: "{post.image.unwrap()}"
                 }
                 div {
                     dangerous_inner_html: "{content}"
@@ -54,6 +52,7 @@ pub fn BlogList(summary: Summary) -> Element {
                                     class: "border p-4",
                                     div {
                                         img {
+                                            class: "object-cover h-24 w-96",
                                             src: page.image
                                         }
                                         a {

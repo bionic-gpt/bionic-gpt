@@ -4,9 +4,8 @@ use dioxus::prelude::*;
 pub fn ImageHero() -> Element {
     rsx! {
         section {
-            class: "hero lg:mt-12",
             div {
-                class: "hero-content text-center",
+                class: "text-center",
                 div {
                     class: "max-w-md",
                     h1 {

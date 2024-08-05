@@ -41,7 +41,10 @@ pub fn Layout(props: LayoutProps) -> Element {
         }
         body {
             Navigation {}
-            {props.children}
+            div {
+                class: "mt-12",
+                {props.children}
+            }
             Footer {}
         }
     )

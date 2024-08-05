@@ -12,7 +12,7 @@ pub fn summary() -> Summary {
                     description: "",
                     folder: "blog/api-chatbot/",
                     markdown: include_str!("../blog/api-chatbot/index.md"),
-                    image: Some("chatbot-screenshot.png"),
+                    image: Some("/blog/api-chatbot/chatbot-screenshot.png"),
                 },
                 Page {
                     date: "",
@@ -20,7 +20,7 @@ pub fn summary() -> Summary {
                     description: "",
                     folder: "blog/code-rag-usecase/",
                     markdown: include_str!("../blog/code-rag-usecase/index.md"),
-                    image: Some("codeimage.png"),
+                    image: Some("/blog/code-rag-usecase/codeimage.png"),
                 },
                 Page {
                     date: "",
@@ -28,7 +28,7 @@ pub fn summary() -> Summary {
                     description: "",
                     folder: "blog/confidential-saas/",
                     markdown: include_str!("../blog/confidential-saas/index.md"),
-                    image: Some("kubernetes.png"),
+                    image: Some("/blog/confidential-saas/kubernetes.png"),
                 },
                 Page {
                     date: "",
@@ -36,7 +36,7 @@ pub fn summary() -> Summary {
                     description: "",
                     folder: "blog/banning-chat-gpt/",
                     markdown: include_str!("../blog/banning-chat-gpt/index.md"),
-                    image: Some("chat-gpt-banned.png"),
+                    image: Some("/blog/banning-chat-gpt/chat-gpt-banned.png"),
                 },
                 Page {
                     date: "",
@@ -44,7 +44,7 @@ pub fn summary() -> Summary {
                     description: "",
                     folder: "blog/model-denial-of-service/",
                     markdown: include_str!("../blog/model-denial-of-service/index.md"),
-                    image: Some("model-denial-of-service.png"),
+                    image: Some("/blog/model-denial-of-service/model-denial-of-service.png"),
                 },
                 Page {
                     date: "",
@@ -52,7 +52,7 @@ pub fn summary() -> Summary {
                     description: "",
                     folder: "blog/jupyter/",
                     markdown: include_str!("../blog/jupyter/index.md"),
-                    image: Some("llama-jupyter.jpg"),
+                    image: Some("/blog/jupyter/llama-jupyter.jpg"),
                 },
                 Page {
                     date: "",
@@ -60,7 +60,7 @@ pub fn summary() -> Summary {
                     description: "What hardware is required to put LLM's into production?",
                     folder: "blog/llm-hardware/",
                     markdown: include_str!("../blog/llm-hardware/index.md"),
-                    image: Some("multi-gpu-llm-setup.jpg"),
+                    image: Some("/blog/llm-hardware/multi-gpu-llm-setup.jpg"),
                 },
                 Page {
                     date: "",
@@ -68,7 +68,7 @@ pub fn summary() -> Summary {
                     description: "Questioning the use of adding another database to your system",
                     folder: "blog/you-dont-need-a-vector-database/",
                     markdown: include_str!("../blog/you-dont-need-a-vector-database/index.md"),
-                    image: Some("postgres-vs-vector.jpg"),
+                    image: Some("/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"),
                 },
                 Page {
                     date: "",
@@ -76,7 +76,7 @@ pub fn summary() -> Summary {
                     description: "Understanding Quantisation in Large Language Models (LLMs)",
                     folder: "blog/quantisation/",
                     markdown: include_str!("../blog/quantisation/index.md"),
-                    image: Some("futuristic-llama.jpg"),
+                    image: Some("/blog/quantisation/futuristic-llama.jpg"),
                 },
                 Page {
                     date: "",
@@ -84,7 +84,7 @@ pub fn summary() -> Summary {
                     description: "A more low level guide to Retrieval Augmented Generation",
                     folder: "blog/retrieval-augmented-generation/",
                     markdown: include_str!("../blog/retrieval-augmented-generation/index.md"),
-                    image: Some("rag-llama.webp"),
+                    image: Some("/blog/retrieval-augmented-generation/rag-llama.webp"),
                 },
             ],
         }],
