@@ -45,53 +45,30 @@ pub fn Navigation() -> Element {
                             li {}
                         }
                     }
-                    span { class: "flex flex-row gap-4",
-                        a {
-                            href: "/",
+                    a {
+                        href: "/",
+                        span {
+                            class: "flex flex-row gap-4",
                             img {
                                 alt: "Logo",
                                 width: "22",
                                 height: "22",
-                                src: "/{{config.extra.logo}}"
+                                src: "/bionic-logo.svg"
                             }
+                            "Bionic"
                         }
                     }
                 }
                 div { class: "navbar-center hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         li {
+                            a { href: "/pricing", "Pricing" }
+                        }
+                        li {
+                            a { href: "/docs", "Learn" }
+                        }
+                        li {
                             a { href: "/blog", "Blog" }
-                        }
-                        li {
-                            details {
-                                summary { "Resources" }
-                                ul { class: "p-2 bg-base-100 rounded-t-none",
-                                    li {
-                                        a { href: "/blog", "Blog" }
-                                    }
-                                    li {
-                                        a { href: "/docs",
-                                            "Documentation"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        li {
-                            details {
-                                summary { "Services" }
-                                ul { class: "p-2 bg-base-100 rounded-t-none",
-                                    li {
-                                        a { href: "/services/support", "Professional Support" }
-                                    }
-                                    li {
-                                        a { href: "/services/consultancy", "Consulting Services" }
-                                    }
-                                    li {
-                                        a { href: "/services/training", "Training Courses" }
-                                    }
-                                }
-                            }
                         }
                     }
                 }

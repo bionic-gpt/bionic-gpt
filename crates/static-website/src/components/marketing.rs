@@ -26,7 +26,7 @@ pub async fn generate() {
 
     let html = crate::render(Pricing).await;
 
-    fs::create_dir("dist/pricing").expect("Couyldn't create folder");
+    fs::create_dir_all("dist/pricing").expect("Couyldn't create folder");
     let mut file = File::create("dist/pricing/index.html").expect("Unable to create file");
     file.write_all(html.as_bytes())
         .expect("Unable to write to file");
@@ -44,7 +44,7 @@ pub fn Pricing() -> Element {
         Layout {
             title: "Pricing",
             div {
-                div { class: "mx-auto max-w-7xl px-6 lg:px-8",
+                div { class: "mx-auto max-w-7xl px-6 lg:px-8 mt-12",
                     div { class: "mx-auto max-w-2xl sm:text-center",
                         h2 { class: "text-3xl font-bold tracking-tight sm:text-4xl", "Pricing" }
                         p { class: "mt-6 text-lg leading-8",
@@ -170,7 +170,7 @@ pub fn Pricing() -> Element {
 pub fn HomePage() -> Element {
     rsx! {
         Layout {
-            title: "Test",
+            title: "Enterprise Generative AI",
 
             div {
                 class: "flex flex-col items-center",
