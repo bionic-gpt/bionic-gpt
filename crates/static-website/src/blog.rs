@@ -14,7 +14,7 @@ pub fn BlogPost(post: Page) -> Element {
                     "{post.title}"
                 }
                 img {
-                    class: "mb-8 object-cover h-48 w-96",
+                    class: "mb-8 object-cover h-96 w-full",
                     src: "{post.image.unwrap()}"
                 }
                 div {
@@ -52,7 +52,7 @@ pub fn BlogList(summary: Summary) -> Element {
                                     class: "border p-4",
                                     div {
                                         img {
-                                            class: "object-cover h-24 w-96",
+                                            class: "object-cover h-24 w-full",
                                             src: page.image
                                         }
                                         a {
