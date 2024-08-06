@@ -1,9 +1,3 @@
-+++
-title = "Visualising RAG data"
-weight = 130
-sort_by = "weight"
-+++
-
 You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](jupyter-notebook)
 
 The example code below assumes you already have your documents loaded into the bionicGPT database.  
