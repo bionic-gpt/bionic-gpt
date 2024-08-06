@@ -13,6 +13,8 @@ pub fn summary() -> Summary {
                     folder: "docs/",
                     markdown: include_str!("../docs/index.md"),
                     image: None,
+                    author_image: None,
+                    author: None,
                 }],
             },
             Category {
@@ -25,6 +27,8 @@ pub fn summary() -> Summary {
                         folder: "docs/guides/managing-models/",
                         markdown: include_str!("../docs/guides/managing-models/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -33,6 +37,8 @@ pub fn summary() -> Summary {
                         folder: "docs/guides/uploading-documents/",
                         markdown: include_str!("../docs/guides/uploading-documents/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -41,6 +47,8 @@ pub fn summary() -> Summary {
                         folder: "docs/guides/api/",
                         markdown: include_str!("../docs/guides/api/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                 ],
             },
@@ -54,6 +62,8 @@ pub fn summary() -> Summary {
                         folder: "docs/rag/rag/",
                         markdown: include_str!("../docs/rag/rag/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -62,6 +72,8 @@ pub fn summary() -> Summary {
                         folder: "docs/rag/prompts/",
                         markdown: include_str!("../docs/rag/prompts/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                 ],
             },
@@ -75,6 +87,8 @@ pub fn summary() -> Summary {
                         folder: "docs/running-locally/docker-compose/",
                         markdown: include_str!("../docs/running-locally/docker-compose/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -83,6 +97,8 @@ pub fn summary() -> Summary {
                         folder: "docs/running-locally/ollama/",
                         markdown: include_str!("../docs/running-locally/ollama/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                 ],
             },
@@ -96,6 +112,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/install-linux/",
                         markdown: include_str!("../docs/on-premise/install-linux/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -104,6 +122,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/install-rke2/",
                         markdown: include_str!("../docs/on-premise/install-rke2/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -112,6 +132,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/aws/",
                         markdown: include_str!("../docs/on-premise/aws/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -120,6 +142,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/gcloud/",
                         markdown: include_str!("../docs/on-premise/gcloud/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -128,6 +152,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/airbyte/",
                         markdown: include_str!("../docs/on-premise/airbyte/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -136,6 +162,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/email/",
                         markdown: include_str!("../docs/on-premise/email/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -144,6 +172,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/upgrades/",
                         markdown: include_str!("../docs/on-premise/upgrades/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -152,6 +182,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/sso/",
                         markdown: include_str!("../docs/on-premise/sso/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -160,6 +192,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/rbac/",
                         markdown: include_str!("../docs/on-premise/rbac/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -168,6 +202,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/pgadmin/",
                         markdown: include_str!("../docs/on-premise/pgadmin/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -176,6 +212,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/cloudflare/",
                         markdown: include_str!("../docs/on-premise/cloudflare/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                     Page {
                         date: "",
@@ -184,6 +222,8 @@ pub fn summary() -> Summary {
                         folder: "docs/on-premise/licencing/",
                         markdown: include_str!("../docs/on-premise/licencing/index.md"),
                         image: None,
+                        author_image: None,
+                        author: None,
                     },
                 ],
             },

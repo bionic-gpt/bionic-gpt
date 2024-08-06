@@ -1,15 +1,3 @@
-+++
-title = "Hardware requirements for LLM's in production"
-date = 2023-10-30
-description = "What hardware is required to put LLM's into production?"
-
-[extra]
-main_image = "blog/llm-hardware/multi-gpu-llm-setup.jpg"
-listing_image = "blog/llm-hardware/multi-gpu-llm-setup.jpg"
-author_image = "blog-authors/ian-purton.jpeg"
-author = "Ian Purton"
-+++
-
 Here we try our best to breakdown the possible hardware options and requirements for running *LLM's in a production scenario*.
 
 We do this by estimating the **tokens per second** the LLM will need to produce to work for 1000 registered users. Then we try to match that with hardware.

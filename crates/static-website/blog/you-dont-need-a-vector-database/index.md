@@ -1,15 +1,3 @@
-+++
-title = "Why you don't need a specialist Vector Database"
-date = 2023-10-13
-description = "Postgres implements everything a vector database does and a lot more"
-
-[extra]
-main_image = "blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"
-listing_image = "blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"
-author_image = "blog-authors/ian-purton.jpeg"
-author = "Ian Purton"
-+++
-
 ## The short version
 
 [Postgres](https://www.postgresql.org/) and [pgVector](https://github.com/pgvector/pgvector) do everything a specialist Vector database can do and a whole lot more. If you choose a specialist Vector database you're going to end up needing 2 databases.

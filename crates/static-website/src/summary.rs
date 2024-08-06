@@ -25,6 +25,8 @@ pub struct Page {
     pub folder: &'static str,
     pub markdown: &'static str,
     pub image: Option<&'static str>,
+    pub author: Option<&'static str>,
+    pub author_image: Option<&'static str>,
 }
 
 pub fn generate(summary: Summary) {

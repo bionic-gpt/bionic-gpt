@@ -1,16 +1,3 @@
-+++
-title = "What is Retrieval Augmented Generation?"
-date = 2023-09-21
-description = "A more low level guide to Retrieval Augmented Generation"
-
-[extra]
-main_image = "blog/retrieval-augmented-generation/rag-llama.webp"
-listing_image = "blog/retrieval-augmented-generation/rag-llama.webp"
-author_image = "blog-authors/ian-purton.jpeg"
-author = "Ian Purton"
-+++
-
-
 ## What is Retrieval Augmented Generation?
 
 Basically we give the Large Language Model the best chance of answering the question by giving the model the answer as well as the question.

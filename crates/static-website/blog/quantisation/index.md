@@ -1,13 +1,3 @@
-+++
-title = "Understanding Quantisation in Large Language Models (LLMs)"
-date = 2023-10-01
-description = "Understanding Quantisation in Large Language Models (LLMs)"
-
-[extra]
-main_image = "blog/quantisation/futuristic-llama.jpg"
-listing_image = "blog/quantisation/futuristic-llama.jpg"
-+++
-
 The default setup for BionicGPT allows you to run a proof of concept on your laptop, but given the much publicised large resource requirements for LLMs how do we achieve this. Step forward quantisation.	
 
 ## What is Quantisation?

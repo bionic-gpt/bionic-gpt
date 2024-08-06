@@ -1,15 +1,3 @@
-+++
-title = "Model Denial of Service prevention for  production LLM applications"
-date = 2024-04-10
-description = "How to prevent model denial of service for production LLM applications."
-
-[extra]
-main_image = "blog/model-denial-of-service/model-denial-of-service.png"
-listing_image = "blog/model-denial-of-service/model-denial-of-service.png"
-author_image = "blog-authors/ian-purton.jpeg"
-author = "Ian Purton"
-+++
-
 ## What is Model Denial of Service?
 
 Model Denial of Service (DoS) on large language models (LLMs) and other machine learning (ML) systems can disrupt normal operations or degrade performance. These attacks can take various forms, each exploiting different aspects of the model's functionality or its supporting infrastructure. [Model Denial of Service](https://genai.owasp.org/llmrisk/llm04-model-denial-of-service/) is on the Owasp Top 10 List for LLM and Generative AI applications.
