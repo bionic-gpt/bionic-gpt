@@ -178,6 +178,30 @@ pub fn ContactPage() -> Element {
     rsx! {
         Layout {
             title: "Enterprise Generative AI",
+            section {
+                class: "mt-4 text-center mb-12",
+                h1 {
+                    class: "text-4xl font-extrabold mt-4",
+                    "Our Team is Waiting to Hear From You"
+                }
+                h2 {
+                    class: "text-2xl font-bold mt-4",
+                    "Contact the Experts in Gen AI Deployments"
+                }
+                p {
+                    class: "font-bold mt-4",
+                    "Email founders (at) bionic-gpt.com"
+                }
+                p {
+                    class: "mt-4 mb-4",
+                    "Or Schedule a Meeting with Calendly"
+                }
+                a {
+                    class: "btn btn-primary",
+                    href: "https://calendly.com/bionicgpt",
+                    "Schedule a Meeting"
+                }
+            }
         }
     }
 }
