@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
+use super::footer::Footer;
 use super::navigation::Navigation;
-use crate::footer::Footer;
 use dioxus::prelude::*;
 
 // Remember: owned props must implement PartialEq!

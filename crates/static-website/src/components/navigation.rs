@@ -70,7 +70,7 @@ pub fn Navigation() -> Element {
                             a { href: pricing::Index {}.to_string(), "Pricing" }
                         }
                         li {
-                            a { href: docs::Index {}.to_string(), "Learn" }
+                            a { href: docs::Index {}.to_string(), "Documentation" }
                         }
                         li {
                             a { href: blog::Index {}.to_string(), "Blog" }

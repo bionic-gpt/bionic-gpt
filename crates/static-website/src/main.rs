@@ -3,7 +3,6 @@ pub mod blog_summary;
 pub mod components;
 pub mod docs;
 pub mod docs_summary;
-pub mod footer;
 pub mod summary;
 
 use axum::Router;

@@ -22,12 +22,12 @@ pub fn ImageHero() -> Element {
                         class: "flex gap-2 justify-center",
                         a {
                             class: "btn btn-primary",
-                            href: "/cta1",
+                            href: "{crate::routes::SIGN_IN_UP}",
                             "Get started with Cloud Edition"
                         }
                         a {
                             class: "btn btn-secondary btn-outline",
-                            href: "/cta2",
+                            href: crate::routes::contact::Index {}.to_string(),
                             "Schedule a Meeting"
                         }
                     }
