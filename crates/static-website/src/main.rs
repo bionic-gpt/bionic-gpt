@@ -61,16 +61,18 @@ async fn main() {
     let dst = Path::new("dist");
     summary::copy_folder(src, dst).expect("Couldn't copy folder");
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    if std::env::var("DO_NOT_RUN_SERVER").is_err() {
+        let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
-    // build our application with a route
-    let app = Router::new().nest_service("/", ServeDir::new("dist"));
+        // build our application with a route
+        let app = Router::new().nest_service("/", ServeDir::new("dist"));
 
-    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    tracing::info!("listening on http://{}", &addr);
-    axum::serve(listener, app.into_make_service())
-        .await
-        .unwrap();
+        let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+        tracing::info!("listening on http://{}", &addr);
+        axum::serve(listener, app.into_make_service())
+            .await
+            .unwrap();
+    }
 }
 
 // Generic function to render a component and its props to a string
