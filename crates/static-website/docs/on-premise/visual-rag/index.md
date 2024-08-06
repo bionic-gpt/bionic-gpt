@@ -4,12 +4,12 @@ weight = 130
 sort_by = "weight"
 +++
 
-You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](../jupyter-notebook)
+You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](jupyter-notebook)
 
 The example code below assumes you already have your documents loaded into the bionicGPT database.  
 We will create a scatter graph showing the document chunks of data together with the 4 most 'relevant' chunks based on the query you specified.
 At the end we should have a diagram like this
-![Alt text](../vis-rag-scatter-example.png "Scatter example")
+![Alt text](vis-rag-scatter-example.png "Scatter example")
 
 
 
@@ -92,7 +92,7 @@ df_tsne
 
 ```
 
-![Alt text](../vis-rag-convert.png "Data Conversion")
+![Alt text](vis-rag-convert.png "Data Conversion")
 
 
 ### Plot Results ###
@@ -115,4 +115,4 @@ plt.ylabel('y');
 plt.axis('equal')
 ```
 
-![Alt text](../vis-rag-plot.png "Data Conversion")
+![Alt text](vis-rag-plot.png "Data Conversion")

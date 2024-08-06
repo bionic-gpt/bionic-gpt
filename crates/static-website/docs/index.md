@@ -6,7 +6,7 @@ Bionic-GPT can run on modest hardware (16GB ram) and then scale into more powerf
 
 We're open source. If you have any suggestions, recommendations are just have any questions you can either [contact us](/contact) or raise an issue on our github.
 
-![Alt text](/github-readme.png "Start Screen")
+![Alt text](/landing-page/bionic-console.png "Start Screen")
 
 ## LLama 3 8B
 

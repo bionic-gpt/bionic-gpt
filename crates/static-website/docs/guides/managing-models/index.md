@@ -1,9 +1,3 @@
-+++
-title = "Using a Hosted Model"
-weight = 5
-sort_by = "weight"
-+++
-
 By "adding a remote model" we mean a model that's not running in your Kubernetes cluster. This could be a model running on a private cloud service or other providers.
 
 You basically have 2 options.
@@ -15,7 +9,7 @@ You basically have 2 options.
 
 Great news. Add the URL for your provider and any API keys directly into the models section of the user interface.
 
-![Alt text](../../running-locally/bionic-setup.png "Adding Models")
+![Alt text](bionic-setup.png "Adding Models")
 
 ## For providers that don't support the Open AI `chat/completions` API (Work in Progress)
 

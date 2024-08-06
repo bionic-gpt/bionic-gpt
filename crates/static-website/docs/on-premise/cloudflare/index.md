@@ -1,14 +1,8 @@
-+++
-title = "Installing Cloudflare"
-weight = 110
-sort_by = "weight"
-+++
-
 ## Setup a Cloudflare Tunnel
 
 From the Cloudflare dashboard go to `zero trust / networks`. Then create a tunnel and give it a name.
 
-![Alt text](../cloudflare-tunnel.png "Cloudflare Tunnel")
+![Alt text](cloudflare-tunnel.png "Cloudflare Tunnel")
 
 - Tunnel Type - Cloudfared
 - Name - bionic-gpt
@@ -34,5 +28,5 @@ bionic cloudflare --token $TUNNEL_TOKEN --name bionic-gpt
 
 To connect to a domain you own you need to setup 2 routes as follows.
 
-![Alt text](../cloudflare-routes.png "Cloudflare Routes")
+![Alt text](cloudflare-routes.png "Cloudflare Routes")
 You should now be able to access bionic via your domain.

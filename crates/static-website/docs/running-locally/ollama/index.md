@@ -1,9 +1,3 @@
-+++
-title = "Integrating with Ollama"
-weight = 40
-sort_by = "weight"
-+++
-
 ## Ollama
 
 Ollama is an inference engine for serving models.

@@ -1,9 +1,3 @@
-+++
-title = "Installing the Licence"
-weight = 120
-sort_by = "weight"
-+++
-
 ```sh
 kubectl create secret generic bionic-enterprise-key \
   --from-literal=enterprise-key='your-enterprise-key' \

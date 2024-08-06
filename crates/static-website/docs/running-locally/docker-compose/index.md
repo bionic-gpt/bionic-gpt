@@ -26,4 +26,4 @@ You can then access the front end from `http://localhost:3000`.
 
 ## Screenshot
 
-![Alt text](/github-readme.png "Start Screen")
+![Alt text](/landing-page/bionic-console.png "Start Screen")

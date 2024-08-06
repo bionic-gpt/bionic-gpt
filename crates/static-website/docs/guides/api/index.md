@@ -1,10 +1,3 @@
-+++
-title = "Using the API"
-description = "Using the API"
-weight = 20
-sort_by = "weight"
-+++
-
 Here we assume you have BionicGPT running locally, you'll need to change all references from `localhost` to the domain your using for production.
 
 ## View all Models

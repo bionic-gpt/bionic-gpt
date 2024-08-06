@@ -1,9 +1,3 @@
-+++
-title = "Integrate pgAdmin"
-weight = 100
-sort_by = "weight"
-+++
-
 [pgAdmin](https://www.pgadmin.org/) is installed  by passing the parameter `--pgadmin` to bionic at install time.
 
 ## Getting the pgAdmin Logon Password

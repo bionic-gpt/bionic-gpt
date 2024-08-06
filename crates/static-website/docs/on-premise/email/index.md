@@ -1,9 +1,3 @@
-+++
-title = "Configure Email"
-weight = 55
-sort_by = "weight"
-+++
-
 ## Creating an SMTP secret
 
 Bionic needs to connect with your SMTP provider. Out of the box we install [MailHog](https://github.com/mailhog/MailHog) which is an SMTP testing server.

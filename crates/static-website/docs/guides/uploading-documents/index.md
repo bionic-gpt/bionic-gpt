@@ -1,12 +1,6 @@
-+++
-title = "Upload documents with an API"
-weight = 10
-sort_by = "weight"
-+++
-
 Document pipelines give you a way to upload documents via an API. You first need to create an API key and attach that to a dataset. The documents will be uploaded to that dataset.
 
-![Alt text](../document-pipeline.png "Document Pipeline")
+![Alt text](document-pipeline.png "Document Pipeline")
 
 ## Accessing the API
 

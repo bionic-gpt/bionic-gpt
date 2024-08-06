@@ -1,9 +1,3 @@
-+++
-title = "Installation on Google Cloud"
-weight = 36
-sort_by = "weight"
-+++
-
 ## Prerequisites
 
 * Download and install [Google Cloud SDK](https://cloud.google.com/sdk/docs/install). Note that if you install `gcloud` using a package manager (as opposed to downloading and installing it manually), some of the commands will not be supported.

@@ -1,9 +1,3 @@
-+++
-title = "Role Based Access Control"
-weight = 90
-sort_by = "weight"
-+++
-
 We currently have 3 roles assigned in the system.
 
 ## System Administrator
@@ -82,4 +76,4 @@ UPDATE roles_permissions SET role = 'SystemAdministrator' where permission = 'In
 
 This would leave the user interface looking like the one below for any user that is not **System Administrator**.
 
-![Alt text](../rbac.png "Start Screen")
+![Alt text](rbac.png "Start Screen")

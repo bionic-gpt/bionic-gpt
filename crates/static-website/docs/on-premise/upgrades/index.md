@@ -1,9 +1,3 @@
-+++
-title = "Upgrading Bionic"
-weight = 130
-sort_by = "weight"
-+++
-
 Before doing an upgrade it's a good idea to check if you have created database backups and can restore a Bionic installation if anything goes wrong.
 
 Assuming that all works the upgrade procedure is actually similar to the installation procedure.

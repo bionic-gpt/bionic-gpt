@@ -1,9 +1,3 @@
-+++
-title = "Adding a Jupyter Notebook"
-weight = 120
-sort_by = "weight"
-+++
-
 We can extend our `docker-compose` to include a [Jupyter Notebook](https://jupyter.org/).
 
 Store the following in `docker-compose-jupyter.yml`
@@ -40,7 +34,7 @@ curl embeddings-api:80/embed     -X POST     -d '{"inputs":"What is Deep Learnin
 ```
 
 
-![Alt text](../jupyter-notebook.png "Jupyter Notebook")
+![Alt text](jupyter-notebook.png "Jupyter Notebook")
 
 
 ## Accessing the Database ##
@@ -55,7 +49,7 @@ import pandas as pd
 pd.read_sql("SELECT * FROM information_schema.tables",conn)
 ```
 
-![Alt text](../jupyter-database.png "Connect to Database")
+![Alt text](jupyter-database.png "Connect to Database")
 
 
 ## Accessing Embeddings From Python ##
@@ -72,7 +66,7 @@ print(response.text[1:-1])
 
 ```
 
-![Alt text](../jupyter-embedding.png "Embedding Calls")
+![Alt text](jupyter-embedding.png "Embedding Calls")
 
 
 ## Embedding Based Query on Database ##
@@ -91,4 +85,4 @@ df = pd.read_sql(sql,conn)
 df
 ```
 
-![Alt text](../jupyter-embedding-query.png "Database Embedding Calls")
+![Alt text](jupyter-embedding-query.png "Database Embedding Calls")

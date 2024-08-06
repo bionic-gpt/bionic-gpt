@@ -1,9 +1,3 @@
-+++
-title = "Single Sign On"
-weight = 50
-sort_by = "weight"
-+++
-
 ## Creating an OIDC secret
 
 We need the credentials form your SSO provider stored in a Kubernetes Secret i.e.

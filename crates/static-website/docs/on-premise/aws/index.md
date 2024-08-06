@@ -1,9 +1,3 @@
-+++
-title = "Installation on AWS"
-weight = 35
-sort_by = "weight"
-+++
-
 We can use [https://eksctl.io](https://eksctl.io/) which is the AWS supported way of setting up a K8's cluster (EKS). 
 
 ## 1. Get your credentials
