@@ -8,7 +8,7 @@ pub mod summary;
 
 use axum::Router;
 use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
-use std::{net::SocketAddr, path::Path};
+use std::{fs, net::SocketAddr, path::Path};
 use tower_http::services::ServeDir;
 
 pub mod routes {
@@ -52,6 +52,7 @@ async fn main() {
         .with_max_level(tracing::Level::INFO)
         .init();
 
+    fs::create_dir_all("dist").expect("Couldn't create dist folder");
     components::marketing::generate().await;
     summary::generate_docs(docs_summary::summary());
     summary::generate(blog_summary::summary());
