@@ -3,6 +3,7 @@ use std::io::Write;
 
 use super::image_hero::ImageHero;
 use super::layout::Layout;
+use crate::components::extra_footer::ExtraFooter;
 use crate::components::image_feature::ImageFeature;
 use crate::components::partners::Partners;
 use crate::components::quad_feature::QuadFeature;
@@ -169,6 +170,14 @@ pub fn Pricing() -> Element {
                     }
                 }
             }
+            ExtraFooter {
+                title: "The secure open source Chat-GPT replacement
+                that runs in a trusted execution environment for 
+                maximum data security and compliance",
+                image: "/landing-page/bionic-console.png",
+                cta: "Find out more",
+                cta_url: crate::routes::marketing::Index {}.to_string()
+            }
         }
     }
 }
@@ -201,6 +210,14 @@ pub fn ContactPage() -> Element {
                     href: "https://calendly.com/bionicgpt",
                     "Schedule a Meeting"
                 }
+            }
+            ExtraFooter {
+                title: "The secure open source Chat-GPT replacement
+                that runs in a trusted execution environment for 
+                maximum data security and compliance",
+                image: "/landing-page/bionic-console.png",
+                cta: "Find out more",
+                cta_url: crate::routes::marketing::Index {}.to_string()
             }
         }
     }
