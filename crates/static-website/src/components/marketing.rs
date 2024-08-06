@@ -30,6 +30,13 @@ pub async fn generate() {
     let mut file = File::create("dist/pricing/index.html").expect("Unable to create file");
     file.write_all(html.as_bytes())
         .expect("Unable to write to file");
+
+    let html = crate::render(ContactPage).await;
+
+    fs::create_dir_all("dist/contact").expect("Couyldn't create folder");
+    let mut file = File::create("dist/contact/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
 }
 
 pub async fn index(Index {}: Index) -> Html<String> {
@@ -162,6 +169,15 @@ pub fn Pricing() -> Element {
                     }
                 }
             }
+        }
+    }
+}
+
+#[component]
+pub fn ContactPage() -> Element {
+    rsx! {
+        Layout {
+            title: "Enterprise Generative AI",
         }
     }
 }

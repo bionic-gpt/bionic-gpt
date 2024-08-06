@@ -13,15 +13,15 @@ use tower_http::services::ServeDir;
 
 pub mod routes {
 
+    pub const SIGN_IN_UP: &str = "https://app.bionic-gpt.com";
+
     pub mod blog {
         use axum_extra::routing::TypedPath;
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/blog/:slug")]
-        pub struct Index {
-            pub slug: String,
-        }
+        #[typed_path("/blog/")]
+        pub struct Index {}
     }
 
     pub mod marketing {
@@ -38,11 +38,26 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/docs/:section/:title")]
-        pub struct Index {
-            pub section: String,
-            pub title: String,
-        }
+        #[typed_path("/docs/")]
+        pub struct Index {}
+    }
+
+    pub mod pricing {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/pricing/")]
+        pub struct Index {}
+    }
+
+    pub mod contact {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/contact/")]
+        pub struct Index {}
     }
 }
 

@@ -1,10 +1,12 @@
+use crate::routes::{blog, contact, docs, marketing, pricing, SIGN_IN_UP};
 use dioxus::prelude::*;
 
 #[component]
 pub fn Navigation() -> Element {
     rsx! {
         header {
-            div { class: "navbar justify-between bg-base-100",
+            div {
+                class: "navbar justify-between bg-base-100",
                 div {
                     div { class: "dropdown lg:hidden",
                         div {
@@ -25,28 +27,31 @@ pub fn Navigation() -> Element {
                                 }
                             }
                         }
-                        ul { class: "menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52",
+                        ul {
+                            class: "menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52",
                             li {
-                                a { href: "/blog/",
+                                a {
+                                    href: blog::Index {}.to_string(),
                                     "Blog"
                                 }
                             }
                             li {
-                                a { href: "/docs",
+                                a {
+                                    href: docs::Index {}.to_string(),
                                     "Documentation"
                                 }
                             }
                             li {
-                                a { href: "{{ sign_up_url }}", "Sign Up" }
+                                a { href: SIGN_IN_UP, "Sign Up" }
                             }
                             li {
-                                a { href: "{{ sign_in_url }}", "Sign In" }
+                                a { href: SIGN_IN_UP, "Sign In" }
                             }
                             li {}
                         }
                     }
                     a {
-                        href: "/",
+                        href: marketing::Index {}.to_string(),
                         span {
                             class: "flex flex-row gap-4",
                             img {
@@ -62,28 +67,32 @@ pub fn Navigation() -> Element {
                 div { class: "navbar-center hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         li {
-                            a { href: "/pricing", "Pricing" }
+                            a { href: pricing::Index {}.to_string(), "Pricing" }
                         }
                         li {
-                            a { href: "/docs", "Learn" }
+                            a { href: docs::Index {}.to_string(), "Learn" }
                         }
                         li {
-                            a { href: "/blog", "Blog" }
+                            a { href: blog::Index {}.to_string(), "Blog" }
+                        }
+                        li {
+                            a { href: contact::Index {}.to_string(), "Contact Us" }
                         }
                     }
                 }
                 div { class: "hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         li {
-                            a { href: "https://github.com/bionic-gpt/bionic-gpt",
+                            a {
+                                href: "https://github.com/bionic-gpt/bionic-gpt",
                                 img { src: "https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" }
                             }
                         }
                         li {
-                            a { href: "{{ sign_up_url }}", "Sign Up" }
+                            a { href: SIGN_IN_UP, "Sign Up" }
                         }
                         li {
-                            a { href: "{{ sign_in_url }}", "Sign In" }
+                            a { href: SIGN_IN_UP, "Sign In" }
                         }
                         li {
                             label { class: "swap swap-rotate",
