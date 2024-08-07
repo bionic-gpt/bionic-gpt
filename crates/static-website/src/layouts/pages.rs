@@ -1,5 +1,5 @@
 use super::layout::Layout;
-use crate::generator::Page;
+use crate::{components::footer::Footer, generator::Page};
 use dioxus::prelude::*;
 use markdown::{CompileOptions, Options};
 
@@ -28,6 +28,7 @@ pub fn MarkdownPage(post: Page) -> Element {
                     dangerous_inner_html: "{content}"
                 }
             }
+            Footer {}
         }
     }
 }

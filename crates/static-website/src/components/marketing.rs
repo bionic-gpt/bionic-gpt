@@ -3,6 +3,7 @@ use std::io::Write;
 
 use super::image_hero::ImageHero;
 use crate::components::extra_footer::ExtraFooter;
+use crate::components::footer::Footer;
 use crate::components::image_feature::ImageFeature;
 use crate::components::partners::Partners;
 use crate::components::quad_feature::QuadFeature;
@@ -52,7 +53,7 @@ pub fn Pricing() -> Element {
         Layout {
             title: "Pricing",
             div {
-                div { class: "mx-auto max-w-7xl px-6 lg:px-8",
+                div { class: "mt-12 mx-auto max-w-7xl px-6 lg:px-8",
                     div { class: "mx-auto max-w-2xl sm:text-center",
                         h2 { class: "text-3xl font-bold tracking-tight sm:text-4xl", "Pricing" }
                         p { class: "mt-6 text-lg leading-8",
@@ -61,10 +62,14 @@ pub fn Pricing() -> Element {
                     }
                 }
             }
-            div { class: "mx-auto lg:flex lg:flex-row justify-center gap-4 lg:max-w-5xl w-full p-5",
-                div { class: "card card-bordered lg:w-1/3",
-                    div { class: "card-body flex flex-col justify-between list-tick",
-                        div { class: "flex flex-col gap-3",
+            div {
+                class: "mx-auto lg:flex lg:flex-row justify-center gap-4 lg:max-w-5xl w-full p-5",
+                div {
+                    class: "card card-bordered lg:w-1/3",
+                    div {
+                        class: "card-body flex flex-col justify-between list-tick",
+                        div {
+                            class: "flex flex-col gap-3",
                             h3 { class: "card-title", "Cloud" }
                             span { class: "badge badge-primary badge-outline", "Free" }
                             p { "Ideal for evaluating Bionic and testing RAG use cases." }
@@ -178,6 +183,7 @@ pub fn Pricing() -> Element {
                 cta: "Find out more",
                 cta_url: crate::routes::marketing::Index {}.to_string()
             }
+            Footer {}
         }
     }
 }
@@ -188,7 +194,7 @@ pub fn ContactPage() -> Element {
         Layout {
             title: "Enterprise Generative AI",
             section {
-                class: "mt-4 text-center mb-12",
+                class: "mt-12 text-center mb-12",
                 h1 {
                     class: "text-4xl font-extrabold mt-4",
                     "Our Team is Waiting to Hear From You"
@@ -219,6 +225,7 @@ pub fn ContactPage() -> Element {
                 cta: "Find out more",
                 cta_url: crate::routes::marketing::Index {}.to_string()
             }
+            Footer {}
         }
     }
 }
@@ -230,7 +237,7 @@ pub fn HomePage() -> Element {
             title: "Enterprise Generative AI",
 
             div {
-                class: "flex flex-col items-center",
+                class: "mt-12 flex flex-col items-center",
                 ImageHero {}
                 Partners {}
 
@@ -327,6 +334,7 @@ pub fn HomePage() -> Element {
                     text: "Our high performance Rust solution is paired with Kubernetes for enterprise deployment stability.",
                     image: "/landing-page/bionic-startup-k9s.png"
                 }
+                Footer {}
             }
         }
     }

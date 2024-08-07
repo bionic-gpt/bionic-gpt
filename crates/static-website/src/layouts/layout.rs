@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 
-use crate::components::footer::Footer;
 use crate::components::navigation::Navigation;
 use dioxus::prelude::*;
 
@@ -42,10 +41,8 @@ pub fn Layout(props: LayoutProps) -> Element {
         body {
             Navigation {}
             div {
-                class: "mt-12",
                 {props.children}
             }
-            Footer {}
         }
     )
 }

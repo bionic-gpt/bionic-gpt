@@ -1,5 +1,8 @@
 use super::layout::Layout;
-use crate::generator::{Page, Summary};
+use crate::{
+    components::footer::Footer,
+    generator::{Page, Summary},
+};
 use dioxus::prelude::*;
 use markdown::{CompileOptions, Options};
 
@@ -20,7 +23,7 @@ pub fn BlogPost(post: Page) -> Element {
         Layout {
             title: "{post.title}",
             article {
-                class: "mx-auto prose lg:prose-xl p-4",
+                class: "mt-12 mx-auto prose lg:prose-xl p-4",
                 h1 {
                     "{post.title}"
                 }
@@ -32,6 +35,7 @@ pub fn BlogPost(post: Page) -> Element {
                     dangerous_inner_html: "{content}"
                 }
             }
+            Footer {}
         }
     }
 }
@@ -77,6 +81,7 @@ pub fn BlogList(summary: Summary) -> Element {
                     }
                 }
             }
+            Footer {}
         }
     }
 }
