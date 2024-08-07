@@ -1,5 +1,5 @@
 use super::layout::Layout;
-use crate::summary::{Page, Summary};
+use crate::generator::{Page, Summary};
 use dioxus::prelude::*;
 use markdown::{CompileOptions, Options};
 

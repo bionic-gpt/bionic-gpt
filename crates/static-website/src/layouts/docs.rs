@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use markdown::{CompileOptions, Options};
 
 use super::layout::Layout;
-use crate::summary::{Category, Page, Summary};
+use crate::generator::{Category, Page, Summary};
 
 #[component]
 pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {

@@ -1,9 +1,9 @@
 pub mod blog_summary;
 pub mod components;
 pub mod docs_summary;
+pub mod generator;
 pub mod layouts;
 pub mod pages_summary;
-pub mod summary;
 
 use axum::Router;
 use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
@@ -66,13 +66,13 @@ async fn main() {
 
     fs::create_dir_all("dist").expect("Couldn't create dist folder");
     components::marketing::generate().await;
-    summary::generate_docs(docs_summary::summary());
-    summary::generate(blog_summary::summary());
-    summary::generate_pages(pages_summary::summary()).await;
-    summary::generate_blog_list(blog_summary::summary()).await;
+    generator::generate_docs(docs_summary::summary());
+    generator::generate(blog_summary::summary());
+    generator::generate_pages(pages_summary::summary()).await;
+    generator::generate_blog_list(blog_summary::summary()).await;
     let src = Path::new("assets");
     let dst = Path::new("dist");
-    summary::copy_folder(src, dst).expect("Couldn't copy folder");
+    generator::copy_folder(src, dst).expect("Couldn't copy folder");
 
     if std::env::var("DO_NOT_RUN_SERVER").is_err() {
         let addr = SocketAddr::from(([0, 0, 0, 0], 8080));

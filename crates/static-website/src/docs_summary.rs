@@ -1,4 +1,4 @@
-use crate::summary::*;
+use crate::generator::*;
 
 pub fn summary() -> Summary {
     Summary {
