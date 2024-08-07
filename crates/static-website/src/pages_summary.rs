@@ -8,8 +8,8 @@ pub fn summary() -> Summary {
             pages: vec![
                 Page {
                     date: "2024-07-16",
-                    title: "Create A ChatBot On Your Data",
-                    description: "Create A ChatBot On Your Data",
+                    title: "Privacy Policy",
+                    description: "Privacy Policy",
                     folder: "privacy",
                     markdown: include_str!("../content/pages/privacy.md"),
                     image: None,
@@ -18,8 +18,8 @@ pub fn summary() -> Summary {
                 },
                 Page {
                     date: "2024-07-12",
-                    title: "The Perfect RAG Use Case?",
-                    description: "The Perfect RAG Use Case?",
+                    title: "Terms and Conditions",
+                    description: "Terms and Conditions",
                     folder: "terms",
                     markdown: include_str!("../content/pages/terms.md"),
                     image: None,

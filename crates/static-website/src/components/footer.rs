@@ -8,15 +8,17 @@ pub fn Footer() -> Element {
             nav {
                 h6 {
                     class: "footer-title",
-                    "Services"
+                    "Resources"
                 }
                 a {
+                    href: crate::routes::blog::Index {}.to_string(),
                     class: "link link-hover",
-                    "Branding"
+                    "Blog"
                 }
                 a {
+                    href: crate::routes::marketing::Pricing {}.to_string(),
                     class: "link link-hover",
-                    "Design"
+                    "Pricing"
                 }
             }
             nav {

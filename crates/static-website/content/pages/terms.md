@@ -1,9 +1,3 @@
-+++
-title = "Terms and Conditions"
-description = "Please read these Terms of Service carefully before accessing or using our website. By accessing or using any part of the site, you agree to be bound by these Terms of Service."
-date = 2022-01-25
-+++
-
 ## OVERVIEW
 
 This website is operated by {{ company() }}. Throughout the site, the terms “we”, “us” and “our” refer to {{ company() }}. {{ company() }} offers this website, including all information, tools and services available from this site to you, the user, conditioned upon your acceptance of all terms, conditions, policies and notices stated here.

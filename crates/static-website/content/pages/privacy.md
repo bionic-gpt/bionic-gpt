@@ -1,9 +1,3 @@
-+++
-title = "Privacy Policy"
-description = "We take your privacy very seriously. We are very delighted that you have shown interest in our enterprise. "
-date = 2022-01-25
-+++
-
 Privacy Policy
 We take your privacy very seriously
 Privacy Policy
