@@ -11,7 +11,7 @@ pub fn summary() -> Summary {
                     title: "Create A ChatBot On Your Data",
                     description: "Create A ChatBot On Your Data",
                     folder: "blog/api-chatbot/",
-                    markdown: include_str!("../blog/api-chatbot/index.md"),
+                    markdown: include_str!("../content/blog/api-chatbot/index.md"),
                     image: Some("/blog/api-chatbot/chatbot-screenshot.png"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -21,7 +21,7 @@ pub fn summary() -> Summary {
                     title: "The Perfect RAG Use Case?",
                     description: "The Perfect RAG Use Case?",
                     folder: "blog/code-rag-usecase/",
-                    markdown: include_str!("../blog/code-rag-usecase/index.md"),
+                    markdown: include_str!("../content/blog/code-rag-usecase/index.md"),
                     image: Some("/blog/code-rag-usecase/codeimage.png"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -31,7 +31,7 @@ pub fn summary() -> Summary {
                     title: "Building SaaS applications for highly regulated industries using Confidential Computing",
                     description: "Building SaaS applications for highly regulated industries using Confidential Computing",
                     folder: "blog/confidential-saas/",
-                    markdown: include_str!("../blog/confidential-saas/index.md"),
+                    markdown: include_str!("../content/blog/confidential-saas/index.md"),
                     image: Some("/blog/confidential-saas/kubernetes.png"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -41,7 +41,7 @@ pub fn summary() -> Summary {
                     title: "Why companies are banning Chat-GPT",
                     description: "",
                     folder: "blog/banning-chat-gpt/",
-                    markdown: include_str!("../blog/banning-chat-gpt/index.md"),
+                    markdown: include_str!("../content/blog/banning-chat-gpt/index.md"),
                     image: Some("/blog/banning-chat-gpt/chat-gpt-banned.png"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -51,7 +51,7 @@ pub fn summary() -> Summary {
                     title: "Model Denial of Service prevention for  production LLM applications",
                     description: "",
                     folder: "blog/model-denial-of-service/",
-                    markdown: include_str!("../blog/model-denial-of-service/index.md"),
+                    markdown: include_str!("../content/blog/model-denial-of-service/index.md"),
                     image: Some("/blog/model-denial-of-service/model-denial-of-service.png"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -61,7 +61,7 @@ pub fn summary() -> Summary {
                     title: "bionicGPT Integration with Jupyter",
                     description: "",
                     folder: "blog/jupyter/",
-                    markdown: include_str!("../blog/jupyter/index.md"),
+                    markdown: include_str!("../content/blog/jupyter/index.md"),
                     image: Some("/blog/jupyter/llama-jupyter.jpg"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -71,7 +71,7 @@ pub fn summary() -> Summary {
                     title: "Hardware requirements for LLM's in production",
                     description: "What hardware is required to put LLM's into production?",
                     folder: "blog/llm-hardware/",
-                    markdown: include_str!("../blog/llm-hardware/index.md"),
+                    markdown: include_str!("../content/blog/llm-hardware/index.md"),
                     image: Some("/blog/llm-hardware/multi-gpu-llm-setup.jpg"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -81,7 +81,7 @@ pub fn summary() -> Summary {
                     title: "Why you don't need a specialist Vector Database",
                     description: "Questioning the use of adding another database to your system",
                     folder: "blog/you-dont-need-a-vector-database/",
-                    markdown: include_str!("../blog/you-dont-need-a-vector-database/index.md"),
+                    markdown: include_str!("../content/blog/you-dont-need-a-vector-database/index.md"),
                     image: Some("/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -91,7 +91,7 @@ pub fn summary() -> Summary {
                     title: "Understanding Quantisation in Large Language Models (LLMs)",
                     description: "Understanding Quantisation in Large Language Models (LLMs)",
                     folder: "blog/quantisation/",
-                    markdown: include_str!("../blog/quantisation/index.md"),
+                    markdown: include_str!("../content/blog/quantisation/index.md"),
                     image: Some("/blog/quantisation/futuristic-llama.jpg"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
@@ -101,7 +101,7 @@ pub fn summary() -> Summary {
                     title: "What is Retrieval Augmented Generation?",
                     description: "A more low level guide to Retrieval Augmented Generation",
                     folder: "blog/retrieval-augmented-generation/",
-                    markdown: include_str!("../blog/retrieval-augmented-generation/index.md"),
+                    markdown: include_str!("../content/blog/retrieval-augmented-generation/index.md"),
                     image: Some("/blog/retrieval-augmented-generation/rag-llama.webp"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")

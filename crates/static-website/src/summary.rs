@@ -4,6 +4,7 @@ use std::path::Path;
 
 use crate::blog::{BlogList, BlogListProps, BlogPost, BlogPostProps};
 use crate::docs::{Document, DocumentProps};
+use crate::markdown_page::{MarkdownPage, MarkdownPageProps};
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct Summary {
@@ -30,7 +31,8 @@ pub struct Page {
 }
 
 pub fn generate(summary: Summary) {
-    let src = Path::new(summary.source_folder);
+    let src = format!("content/{}", summary.source_folder);
+    let src = Path::new(&src);
     let dst = format!("dist/{}", summary.source_folder);
     let dst = Path::new(&dst);
     copy_folder(src, dst).unwrap();
@@ -48,7 +50,8 @@ pub fn generate(summary: Summary) {
 }
 
 pub fn generate_docs(summary: Summary) {
-    let src = Path::new(summary.source_folder);
+    let src = format!("content/{}", summary.source_folder);
+    let src = Path::new(&src);
     let dst = format!("dist/{}", summary.source_folder);
     let dst = Path::new(&dst);
     copy_folder(src, dst).unwrap();
@@ -63,6 +66,24 @@ pub fn generate_docs(summary: Summary) {
                     doc: *page,
                 },
             );
+            let file = format!("dist/{}/index.html", page.folder);
+
+            let mut file = File::create(&file).expect("Unable to create file");
+            file.write_all(html.as_bytes())
+                .expect("Unable to write to file");
+        }
+    }
+}
+
+pub async fn generate_pages(summary: Summary) {
+    for category in &summary.categories {
+        for page in &category.pages {
+            let html = crate::render_with_props(MarkdownPage, MarkdownPageProps { post: *page });
+
+            let file = format!("dist/{}", page.folder);
+
+            fs::create_dir_all(&file).expect("Could not create directory");
+
             let file = format!("dist/{}/index.html", page.folder);
 
             let mut file = File::create(&file).expect("Unable to create file");

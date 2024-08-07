@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use markdown::{CompileOptions, Options};
 
 use crate::components::layout::Layout;
 use crate::summary::{Category, Page, Summary};
@@ -67,7 +68,17 @@ fn LeftNav(summary: Summary) -> Element {
 
 #[component]
 fn Content(doc: Page) -> Element {
-    let content = markdown::to_html(doc.markdown);
+    let content = markdown::to_html_with_options(
+        doc.markdown,
+        &Options {
+            compile: CompileOptions {
+                allow_dangerous_html: true,
+                ..CompileOptions::default()
+            },
+            ..Options::default()
+        },
+    )
+    .expect("Couldn't generate markdown");
     rsx! {
         section { class: "text-gray-600 body-font overflow-hidden dark:bg-ideblack container pb-12 max-w-screen-sm mx-2 lg:mx-24 grow",
             div {

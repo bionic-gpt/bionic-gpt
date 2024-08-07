@@ -3,6 +3,8 @@ pub mod blog_summary;
 pub mod components;
 pub mod docs;
 pub mod docs_summary;
+pub mod markdown_page;
+pub mod pages_summary;
 pub mod summary;
 
 use axum::Router;
@@ -70,6 +72,7 @@ async fn main() {
     components::marketing::generate().await;
     summary::generate_docs(docs_summary::summary());
     summary::generate(blog_summary::summary());
+    summary::generate_pages(pages_summary::summary()).await;
     summary::generate_blog_list(blog_summary::summary()).await;
     let src = Path::new("assets");
     let dst = Path::new("dist");
