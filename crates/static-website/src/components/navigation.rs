@@ -1,4 +1,4 @@
-use crate::routes::{blog, contact, docs, marketing, pricing, SIGN_IN_UP};
+use crate::routes::{blog, docs, marketing, SIGN_IN_UP};
 use dioxus::prelude::*;
 
 #[component]
@@ -67,7 +67,7 @@ pub fn Navigation() -> Element {
                 div { class: "navbar-center hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         li {
-                            a { href: pricing::Index {}.to_string(), "Pricing" }
+                            a { href: marketing::Pricing {}.to_string(), "Pricing" }
                         }
                         li {
                             a { href: docs::Index {}.to_string(), "Documentation" }
@@ -76,7 +76,7 @@ pub fn Navigation() -> Element {
                             a { href: blog::Index {}.to_string(), "Blog" }
                         }
                         li {
-                            a { href: contact::Index {}.to_string(), "Contact Us" }
+                            a { href: marketing::Contact {}.to_string(), "Contact Us" }
                         }
                     }
                 }

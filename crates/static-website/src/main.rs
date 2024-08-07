@@ -30,6 +30,22 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/")]
         pub struct Index {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/terms/")]
+        pub struct Terms {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/privacy/")]
+        pub struct Privacy {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/pricing/")]
+        pub struct Pricing {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/contact/")]
+        pub struct Contact {}
     }
 
     pub mod docs {
@@ -38,24 +54,6 @@ pub mod routes {
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/docs/")]
-        pub struct Index {}
-    }
-
-    pub mod pricing {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/pricing/")]
-        pub struct Index {}
-    }
-
-    pub mod contact {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/contact/")]
         pub struct Index {}
     }
 }

@@ -29,6 +29,7 @@ pub fn Footer() -> Element {
                     "About Us"
                 }
                 a {
+                    href: crate::routes::marketing::Contact {}.to_string(),
                     class: "link link-hover",
                     "Contact"
                 }
@@ -39,10 +40,12 @@ pub fn Footer() -> Element {
                     "Legal"
                 }
                 a {
+                    href: crate::routes::marketing::Terms {}.to_string(),
                     class: "link link-hover",
                     "Terms of Use"
                 }
                 a {
+                    href: crate::routes::marketing::Privacy {}.to_string(),
                     class: "link link-hover",
                     "Privacy Policy"
                 }

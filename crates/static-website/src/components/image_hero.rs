@@ -27,7 +27,7 @@ pub fn ImageHero() -> Element {
                         }
                         a {
                             class: "btn btn-secondary btn-outline",
-                            href: crate::routes::contact::Index {}.to_string(),
+                            href: crate::routes::marketing::Contact {}.to_string(),
                             "Schedule a Meeting"
                         }
                     }
