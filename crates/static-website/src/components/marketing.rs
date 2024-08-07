@@ -2,12 +2,12 @@ use std::fs::{self, File};
 use std::io::Write;
 
 use super::image_hero::ImageHero;
-use super::layout::Layout;
 use crate::components::extra_footer::ExtraFooter;
 use crate::components::image_feature::ImageFeature;
 use crate::components::partners::Partners;
 use crate::components::quad_feature::QuadFeature;
 use crate::components::small_image_feature::SmallImageFeature;
+use crate::layouts::layout::Layout;
 use crate::routes::marketing::Index;
 use axum::response::Html;
 use axum::Router;

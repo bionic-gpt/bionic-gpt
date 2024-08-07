@@ -1,9 +1,7 @@
-pub mod blog;
 pub mod blog_summary;
 pub mod components;
-pub mod docs;
 pub mod docs_summary;
-pub mod markdown_page;
+pub mod layouts;
 pub mod pages_summary;
 pub mod summary;
 

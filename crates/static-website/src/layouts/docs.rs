@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use markdown::{CompileOptions, Options};
 
-use crate::components::layout::Layout;
+use super::layout::Layout;
 use crate::summary::{Category, Page, Summary};
 
 #[component]

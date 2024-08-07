@@ -1,8 +1,7 @@
 #![allow(non_snake_case)]
 
-use crate::footer::Footer;
-use crate::navigation::Navigation;
-use crate::templates::statics::{favicon_ico, tailwind_css};
+use crate::components::footer::Footer;
+use crate::components::navigation::Navigation;
 use dioxus::prelude::*;
 
 // Remember: owned props must implement PartialEq!
@@ -31,18 +30,21 @@ pub fn Layout(props: LayoutProps) -> Element {
             }
             link {
                 rel: "stylesheet",
-                href: "{tailwind_css.name}",
+                href: "/tailwind.css",
                 "type": "text/css"
             }
             link {
                 rel: "icon",
                 "type": "image/svg+xml",
-                href: "{favicon_ico.name}"
+                href: "/favicon.svg"
             }
         }
         body {
             Navigation {}
-            {props.children}
+            div {
+                class: "mt-12",
+                {props.children}
+            }
             Footer {}
         }
     )

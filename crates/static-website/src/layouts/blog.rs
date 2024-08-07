@@ -1,4 +1,4 @@
-use crate::components::layout::Layout;
+use super::layout::Layout;
 use crate::summary::{Page, Summary};
 use dioxus::prelude::*;
 use markdown::{CompileOptions, Options};

@@ -2,9 +2,9 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::path::Path;
 
-use crate::blog::{BlogList, BlogListProps, BlogPost, BlogPostProps};
-use crate::docs::{Document, DocumentProps};
-use crate::markdown_page::{MarkdownPage, MarkdownPageProps};
+use crate::layouts::blog::{BlogList, BlogListProps, BlogPost, BlogPostProps};
+use crate::layouts::docs::{Document, DocumentProps};
+use crate::layouts::pages::{MarkdownPage, MarkdownPageProps};
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct Summary {
