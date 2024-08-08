@@ -42,6 +42,7 @@ fn LeftNav(summary: Summary) -> Element {
                         class: "mb-6",
                         for page in &category.pages {
                             li {
+                                class: "mb-2",
                                 a {
                                     class: "rounded-md hover:text-sky-500 dark:hover:text-sky-400",
                                     href: "/{page.folder}",
