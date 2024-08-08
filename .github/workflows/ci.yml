@@ -15,6 +15,7 @@ on:
       - '.github/workflows/container-scan.yml'
       - '.github/workflows/embeddings-docker.yml'
       - 'crates/k8s-operator/config/*'
+      - 'crates/static-website/*'
       - Justfile
   pull_request:
     branches:
@@ -30,6 +31,7 @@ on:
       - '.github/workflows/container-scan.yml'
       - '.github/workflows/embeddings-docker.yml'
       - 'crates/k8s-operator/config/*'
+      - 'crates/static-website/*'
       - Justfile
 
 jobs:
