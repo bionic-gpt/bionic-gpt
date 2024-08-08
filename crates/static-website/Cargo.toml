@@ -1,0 +1,20 @@
+[package]
+name = "static-website"
+version = "0.1.0"
+authors = ["Bionic Dev <dev@bionic-gpt.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[dependencies]
+axum = { version = "0.7", features = ["multipart"] }
+axum-extra = { version = "0", features = ["typed-routing"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+tracing = { version = "0.1" }
+tracing-subscriber = { version="0", features = ["env-filter"] }
+dioxus = { version = "0.5" }
+dioxus-ssr = "0.5"
+markdown = { version = "1.0.0-alpha.18" }
+serde = "1"
+tower-http = { version = "0.5.0", features = ["fs", "trace"] }
