@@ -59,8 +59,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                 "type": "image/svg+xml",
                 href: "/favicon.svg"
             }
+            script {
+                src: "/goat-counter.js"
+
+            }
         }
         body {
+            "data-goatcounter": "https://bioinicgpt.goatcounter.com/count",
             Navigation {}
             div {
                 {props.children}
