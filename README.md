@@ -28,8 +28,8 @@
       Contributing
     </a>
     |
-    <a href="https://bionic-gpt.com/docs/community-edition/introduction/">
-      Quick Install Guide
+    <a href="https://bionic-gpt.com/docs/">
+      Documentation
     </a>
   </h4>
 </div>
@@ -42,7 +42,7 @@
 
 ### Run Gen AI Locally in Seconds
 
-Try our [Docker Compose](https://bionic-gpt.com/docs/community-edition/docker-compose/) installation. Great for running AI locally and small Pilots.
+Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-compose/) installation. Great for running AI locally and small Pilots.
 
 ### Familiar Chat Experience
 
@@ -139,7 +139,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/community-edition/docker-co
 <!-- Try it out -->
 ## Try it out
 
-follow [our guide](https://bionic-gpt.com/docs/community-edition/introduction/) to running Bionic-GPT on your local machine.
+follow [our guide](https://bionic-gpt.com/docs/) to running Bionic-GPT in production.
 
 ## Enterprise
 
