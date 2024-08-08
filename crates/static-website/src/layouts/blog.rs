@@ -8,6 +8,11 @@ use markdown::{CompileOptions, Options};
 
 #[component]
 pub fn BlogPost(post: Page) -> Element {
+    let image = if post.image.is_some() {
+        post.image.unwrap()
+    } else {
+        ""
+    };
     let content = markdown::to_html_with_options(
         post.markdown,
         &Options {
@@ -22,6 +27,8 @@ pub fn BlogPost(post: Page) -> Element {
     rsx! {
         Layout {
             title: "{post.title}",
+            description: "{post.description}",
+            image: "{image}",
             article {
                 class: "mt-12 mx-auto prose lg:prose-xl p-4",
                 h1 {
@@ -45,6 +52,7 @@ pub fn BlogList(summary: Summary) -> Element {
     rsx! {
         Layout {
             title: "Blog",
+            description: "Blog",
             section {
                 class: "lg:max-w-5xl mx-auto text-center mb-12 mt-12",
                 h1 {

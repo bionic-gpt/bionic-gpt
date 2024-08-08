@@ -7,6 +7,8 @@ use dioxus::prelude::*;
 #[derive(Props, Clone, PartialEq)]
 pub struct LayoutProps {
     title: String,
+    description: String,
+    image: Option<String>,
     children: Element,
 }
 
@@ -27,6 +29,26 @@ pub fn Layout(props: LayoutProps) -> Element {
                 name: "viewport",
                 content: "width=device-width, initial-scale=1"
             }
+            meta {
+                name: "description",
+                content: "{props.description}"
+            }
+            meta {
+                "property": "og:description",
+                content: "{props.description}"
+            }
+            meta {
+                "property": "og:title",
+                content: "{props.title}"
+            }
+            if let Some(image) = props.image {
+                {rsx!(
+                    meta {
+                        "property": "og:image",
+                        content: "{image}"
+                    }
+                )}
+            }
             link {
                 rel: "stylesheet",
                 href: "/tailwind.css",
@@ -37,8 +59,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                 "type": "image/svg+xml",
                 href: "/favicon.svg"
             }
+            script {
+                src: "/goat-counter.js"
+
+            }
         }
         body {
+            "data-goatcounter": "https://bioinicgpt.goatcounter.com/count",
             Navigation {}
             div {
                 {props.children}

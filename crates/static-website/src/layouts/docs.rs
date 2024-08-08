@@ -9,6 +9,7 @@ pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
     rsx! {
         Layout {
             title: "{doc.title}",
+            description: "{doc.description}",
             div {
                 class: "w-full text-sm dark:bg-ideblack",
 

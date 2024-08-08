@@ -19,6 +19,7 @@ pub fn MarkdownPage(post: Page) -> Element {
     rsx! {
         Layout {
             title: "{post.title}",
+            description: "{post.description}",
             article {
                 class: "mx-auto prose lg:prose-xl p-4",
                 h1 {

@@ -28,21 +28,21 @@
       Contributing
     </a>
     |
-    <a href="https://bionic-gpt.com/docs/community-edition/introduction/">
-      Quick Install Guide
+    <a href="https://bionic-gpt.com/docs/">
+      Documentation
     </a>
   </h4>
 </div>
 
 <br />
 
-![Alt text](website/static/github-readme.png "BionicGPT Screenshot")
+![Alt text](crates/static-website/assets/landing-page/bionic-console.png "BionicGPT Screenshot")
 
 <!-- Features -->
 
 ### Run Gen AI Locally in Seconds
 
-Try our [Docker Compose](https://bionic-gpt.com/docs/community-edition/docker-compose/) installation. Great for running AI locally and small Pilots.
+Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-compose/) installation. Great for running AI locally and small Pilots.
 
 ### Familiar Chat Experience
 
@@ -139,7 +139,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/community-edition/docker-co
 <!-- Try it out -->
 ## Try it out
 
-follow [our guide](https://bionic-gpt.com/docs/community-edition/introduction/) to running Bionic-GPT on your local machine.
+follow [our guide](https://bionic-gpt.com/docs/) to running Bionic-GPT in production.
 
 ## Enterprise
 
@@ -167,4 +167,4 @@ This covers:
 
 BionicGPT is optimized to run on Kubernetes and provide Generative AI services for potentially 1000's of users.
 
-![Alt text](website/static/bionic-k9s.png "Bionic in Kubernetes")
+![Alt text](crates/static-website/assets/landing-page/bionic-startup-k9s.png "Bionic in Kubernetes")
