@@ -36,7 +36,7 @@
 
 <br />
 
-![Alt text](website/static/github-readme.png "BionicGPT Screenshot")
+![Alt text](crates/static-website/assets/landing-page/bionic-console.png "BionicGPT Screenshot")
 
 <!-- Features -->
 
@@ -167,4 +167,4 @@ This covers:
 
 BionicGPT is optimized to run on Kubernetes and provide Generative AI services for potentially 1000's of users.
 
-![Alt text](website/static/bionic-k9s.png "Bionic in Kubernetes")
+![Alt text](crates/static-website/assets/landing-page/bionic-startup-k9s.png "Bionic in Kubernetes")
