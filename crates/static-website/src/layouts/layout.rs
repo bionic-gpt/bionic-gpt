@@ -60,12 +60,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                 href: "/favicon.svg"
             }
             script {
+                "async": "true",
+                "data-goatcounter": "https://bioinicgpt.goatcounter.com/count",
                 src: "/goat-counter.js"
 
             }
         }
         body {
-            "data-goatcounter": "https://bioinicgpt.goatcounter.com/count",
             Navigation {}
             div {
                 {props.children}
