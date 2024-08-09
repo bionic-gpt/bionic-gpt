@@ -61,7 +61,7 @@ pub fn Layout(props: LayoutProps) -> Element {
             }
             script {
                 "async": "true",
-                "data-goatcounter": "https://bioinicgpt.goatcounter.com/count",
+                "data-goatcounter": "https://bionicgpt.goatcounter.com/count",
                 src: "/goat-counter.js"
 
             }
