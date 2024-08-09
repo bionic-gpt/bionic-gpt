@@ -5,33 +5,25 @@ on:
     branches: 
       - main
     paths-ignore:
-      - 'docker-compose/*'
-      - 'website/**'
       - 'infra-as-code/**'
       - '*.md'
-      - 'Pulumi.yaml'
-      - 'bionic.sh'
       - '.github/workflows/integration*.yml'
       - '.github/workflows/container-scan.yml'
       - '.github/workflows/embeddings-docker.yml'
       - 'crates/k8s-operator/config/*'
-      - 'crates/static-website/*'
+      - 'crates/static-website/**'
       - Justfile
   pull_request:
     branches:
       - main
     paths-ignore:
-      - 'docker-compose/*'
-      - 'website/**'
       - 'infra-as-code/**'
       - '*.md'
-      - 'Pulumi.yaml'
-      - 'bionic.sh'
       - '.github/workflows/integration*.yml'
       - '.github/workflows/container-scan.yml'
       - '.github/workflows/embeddings-docker.yml'
       - 'crates/k8s-operator/config/*'
-      - 'crates/static-website/*'
+      - 'crates/static-website/**'
       - Justfile
 
 jobs:
