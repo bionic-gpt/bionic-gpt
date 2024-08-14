@@ -66,7 +66,10 @@ pub fn Page(
                                 for prompt in &prompts {
                                     tr {
                                         td {
-                                            "{prompt.name}"
+                                            a {
+                                                href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                                                "{prompt.name}"
+                                            }
                                         }
                                         td {
                                             super::visibility::VisLabel {

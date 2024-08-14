@@ -3,10 +3,10 @@ use axum::{extract::Extension, response::IntoResponse};
 use db::authz;
 use db::queries::conversations;
 use db::Pool;
-use web_pages::routes::console::NewChat;
+use web_pages::routes::prompts::NewChat;
 
 pub async fn new_chat(
-    NewChat { team_id }: NewChat,
+    NewChat { team_id, prompt_id }: NewChat,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -16,7 +16,7 @@ pub async fn new_chat(
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let conversation_id = conversations::create_conversation()
-        .bind(&transaction, &team_id, &None)
+        .bind(&transaction, &team_id, &Some(prompt_id))
         .one()
         .await?;
 
