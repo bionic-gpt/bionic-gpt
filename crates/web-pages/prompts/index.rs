@@ -35,11 +35,11 @@ pub fn Page(
 
             if prompts.is_empty() {
                 BlankSlate {
-                    heading: "Looks like you haven't configured any assiatnts yet",
+                    heading: "Looks like you haven't configured any assistants yet",
                     visual: nav_dashboard_svg.name,
-                    description: "AI Assitants use your data to help you with your work.",
+                    description: "AI Assistants use your data to help you with your work.",
                     primary_action_drawer: (
-                        "New Prompt".to_string(),
+                        "New Assistant".to_string(),
                         "new-prompt-form".to_string(),
                     )
                 }
