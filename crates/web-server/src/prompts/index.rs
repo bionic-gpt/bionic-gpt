@@ -20,7 +20,7 @@ pub async fn index(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id, &db::PromptType::Assistant)
         .all()
         .await?;
 

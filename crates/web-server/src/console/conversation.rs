@@ -47,7 +47,7 @@ pub async fn conversation(
     }
 
     let prompts = prompts::prompts()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id, &db::PromptType::Model)
         .all()
         .await?;
 

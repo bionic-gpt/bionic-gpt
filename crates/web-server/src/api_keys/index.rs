@@ -25,7 +25,7 @@ pub async fn index(
         .await?;
 
     let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id, &db::PromptType::Assistant)
         .all()
         .await?;
 
