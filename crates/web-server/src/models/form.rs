@@ -3,8 +3,8 @@ use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::IntoResponse;
 use axum::Form;
-use db::authz;
 use db::Pool;
+use db::{authz, Visibility};
 use db::{queries, ModelType};
 use serde::Deserialize;
 use validator::Validate;
@@ -69,7 +69,7 @@ pub async fn upsert(
         }
         (Ok(_), None) => {
             // The form is valid save to the database
-            queries::models::insert()
+            let model_id = queries::models::insert()
                 .bind(
                     &transaction,
                     &model_form.name,
@@ -79,6 +79,32 @@ pub async fn upsert(
                     &model_form.tpm_limit,
                     &model_form.rpm_limit,
                     &model_form.context_size,
+                )
+                .one()
+                .await?;
+
+            let system_prompt: Option<String> = None;
+
+            let context_size = if model_form.context_size == 0 {
+                model_form.context_size / 2
+            } else {
+                0
+            };
+
+            queries::prompts::insert()
+                .bind(
+                    &transaction,
+                    &team_id,
+                    &model_id,
+                    &model_form.name,
+                    &Visibility::Company,
+                    &system_prompt,
+                    &3,
+                    &10,
+                    &context_size,
+                    &80,
+                    &0.7,
+                    &db::PromptType::Model,
                 )
                 .one()
                 .await?;

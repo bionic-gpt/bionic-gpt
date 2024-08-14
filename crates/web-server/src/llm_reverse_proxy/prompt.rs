@@ -211,6 +211,8 @@ async fn generate_prompt(
         }
     }
 
+    tracing::debug!("{:?}", &messages);
+
     (messages, chunk_ids)
 }
 
