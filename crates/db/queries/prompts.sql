@@ -222,6 +222,7 @@ INSERT INTO prompts (
     max_tokens,
     trim_ratio,
     temperature,
+    prompt_type,
     created_by
 )
 VALUES(
@@ -235,6 +236,7 @@ VALUES(
     :max_tokens,
     :trim_ratio,
     :temperature,
+    :prompt_type,
     current_app_user()
 )
 RETURNING id;
