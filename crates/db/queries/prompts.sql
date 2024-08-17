@@ -40,21 +40,24 @@ FROM
     prompts p
 WHERE
     (
-        p.visibility='Team' 
-        AND 
-        p.model_id IN (
-            SELECT id FROM models WHERE team_id IN(
-                SELECT team_id 
-                FROM team_users 
-                WHERE user_id = current_app_user()
-            )
-        AND 
-        team_id = :team_id
-    ))
-    OR 
-        (p.visibility='Company')
-    OR 
-        (p.visibility = 'Private' AND created_by = current_app_user()) 
+        (
+            p.visibility='Team' 
+            AND 
+            p.model_id IN (
+                SELECT id FROM models WHERE team_id IN(
+                    SELECT team_id 
+                    FROM team_users 
+                    WHERE user_id = current_app_user()
+                )
+            AND 
+            team_id = :team_id)
+        )
+        OR 
+            (p.visibility='Company')
+        OR 
+            (p.visibility = 'Private' AND created_by = current_app_user()) 
+    )
+    AND p.prompt_type = :prompt_type
 ORDER BY updated_at;
 
 --! prompt : SinglePrompt
@@ -219,6 +222,7 @@ INSERT INTO prompts (
     max_tokens,
     trim_ratio,
     temperature,
+    prompt_type,
     created_by
 )
 VALUES(
@@ -232,6 +236,7 @@ VALUES(
     :max_tokens,
     :trim_ratio,
     :temperature,
+    :prompt_type,
     current_app_user()
 )
 RETURNING id;

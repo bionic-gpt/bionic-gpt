@@ -4,9 +4,9 @@ use axum::{
     response::IntoResponse,
 };
 use db::authz;
+use db::queries;
 use db::types;
 use db::Pool;
-use db::{queries, Visibility};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::teams::New;
@@ -41,30 +41,6 @@ pub async fn new_team(
 
     queries::teams::set_name()
         .bind(&transaction, &new_team.name, &team_id)
-        .await?;
-
-    let model = queries::models::get_system_model()
-        .bind(&transaction)
-        .one()
-        .await?;
-
-    let system_prompt: Option<String> = None;
-
-    queries::prompts::insert()
-        .bind(
-            &transaction,
-            &team_id,
-            &model.id,
-            &"Default (Exclude All Datasets)",
-            &Visibility::Private,
-            &system_prompt,
-            &3,
-            &10,
-            &1024,
-            &80,
-            &0.7,
-        )
-        .one()
         .await?;
 
     transaction.commit().await?;

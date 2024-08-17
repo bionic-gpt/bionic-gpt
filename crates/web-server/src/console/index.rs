@@ -27,7 +27,7 @@ pub async fn index(
         conversation.id
     } else {
         conversations::create_conversation()
-            .bind(&transaction, &team_id)
+            .bind(&transaction, &team_id, &None)
             .one()
             .await?
     };

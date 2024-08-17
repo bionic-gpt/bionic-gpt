@@ -17,11 +17,11 @@ AND
 ORDER BY created_at DESC
 LIMIT 1;
 
---! create_conversation
+--! create_conversation(prompt_id?)
 INSERT INTO conversations 
-    (user_id, team_id)
+    (user_id, team_id, prompt_id)
 VALUES
-    (current_app_user(), :team_id)
+    (current_app_user(), :team_id, :prompt_id)
 RETURNING id;
 
 --! get_conversation_from_chat : Conversation

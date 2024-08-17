@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::queries;
-use crate::{types, Permission, Transaction, Visibility};
+use crate::{types, Permission, Transaction};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
@@ -98,30 +98,6 @@ pub async fn setup_user_if_not_already_registered(
 
     queries::teams::add_user_to_team()
         .bind(transaction, &user_id, &inserted_org_id, &roles)
-        .await?;
-
-    let model = queries::models::get_system_model()
-        .bind(transaction)
-        .one()
-        .await?;
-
-    let system_prompt: Option<String> = None;
-
-    queries::prompts::insert()
-        .bind(
-            transaction,
-            &inserted_org_id,
-            &model.id,
-            &"Default (Exclude All Datasets)",
-            &Visibility::Private,
-            &system_prompt,
-            &3,
-            &10,
-            &1024,
-            &100,
-            &0.7,
-        )
-        .one()
         .await?;
 
     let user = queries::users::user()

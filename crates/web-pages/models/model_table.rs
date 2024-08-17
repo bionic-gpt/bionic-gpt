@@ -36,6 +36,7 @@ pub fn ModelTable(models: Vec<Model>, team_id: i32) -> Element {
                                 }
                                 td {
                                     code {
+                                        class: "[overflow-wrap:anywhere]",
                                         "{model.base_url}"
                                     }
                                 }

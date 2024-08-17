@@ -103,6 +103,7 @@ pub async fn upsert(
                     &new_prompt_template.max_tokens,
                     &new_prompt_template.trim_ratio,
                     &new_prompt_template.temperature,
+                    &db::PromptType::Assistant,
                 )
                 .one()
                 .await?;

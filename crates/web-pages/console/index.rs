@@ -205,10 +205,10 @@ pub fn Page(
                         div {
                             class: "flex flex-col justify-between",
                             div {
-                                class: "flex flex-row ",
+                                class: "flex flex-row",
                                 label {
-                                    class: "mr-2",
-                                    "Assistant"
+                                    class: "my-auto mr-2",
+                                    "Model"
                                 }
                                 input {
                                     "type": "hidden",

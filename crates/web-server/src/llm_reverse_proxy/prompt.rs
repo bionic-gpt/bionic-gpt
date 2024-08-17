@@ -132,7 +132,11 @@ async fn generate_prompt(
     };
 
     // This is the space we have to fill
-    let size_allowed = ((model_context_size - max_tokens) as f32 * trim_ratio) as usize;
+    let size_allowed = if max_tokens < model_context_size {
+        ((model_context_size - max_tokens) as f32 * trim_ratio) as usize
+    } else {
+        model_context_size
+    };
 
     tracing::info!("Using context size of {}", size_allowed);
 
@@ -210,6 +214,8 @@ async fn generate_prompt(
             break;
         }
     }
+
+    tracing::debug!("{:?}", &messages);
 
     (messages, chunk_ids)
 }
