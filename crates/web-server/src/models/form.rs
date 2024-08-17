@@ -85,7 +85,7 @@ pub async fn upsert(
 
             let system_prompt: Option<String> = None;
 
-            let context_size = if model_form.context_size == 0 {
+            let context_size = if model_form.context_size != 0 {
                 model_form.context_size / 2
             } else {
                 0
