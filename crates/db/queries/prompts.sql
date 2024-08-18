@@ -1,5 +1,5 @@
 --: Prompt(temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
---: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?)
+--: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?, example1?, example2?, example3?, example4?)
 
 --! prompts : Prompt
 SELECT
@@ -83,6 +83,12 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
+    p.description,
+    p.disclaimer,
+    p.example1,
+    p.example2,
+    p.example3,
+    p.example4,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 

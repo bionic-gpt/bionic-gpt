@@ -164,7 +164,7 @@ pub fn Page(
                 trim_ratio: 80,
                 temperature: 0.7,
                 description: "".to_string(),
-                disclaimer: "".to_string(),
+                disclaimer: "LLMs can make mistakes. Check important info.".to_string(),
                 example1: None,
                 example2: None,
                 example3: None,

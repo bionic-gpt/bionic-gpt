@@ -23,8 +23,9 @@ pub async fn new_chat(
     transaction.commit().await?;
 
     super::super::layout::redirect(
-        &web_pages::routes::console::Conversation {
+        &web_pages::routes::prompts::Conversation {
             team_id,
+            prompt_id,
             conversation_id,
         }
         .to_string(),
