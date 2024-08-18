@@ -110,6 +110,7 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
+    p.prompt_type,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at

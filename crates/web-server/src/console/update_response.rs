@@ -3,9 +3,9 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
-use db::authz;
-use db::queries::{chats, models};
+use db::queries::{chats, models, prompts};
 use db::Pool;
+use db::{authz, PromptType};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::console::UpdateResponse;
@@ -72,13 +72,29 @@ pub async fn update_response(
         }
     }
 
+    let prompt = prompts::prompt()
+        .bind(&transaction, &chat.prompt_id, &team_id)
+        .one()
+        .await?;
+
     transaction.commit().await?;
 
-    super::super::layout::redirect(
-        &web_pages::routes::console::Conversation {
-            team_id,
-            conversation_id: chat.conversation_id,
-        }
-        .to_string(),
-    )
+    if prompt.prompt_type == PromptType::Assistant {
+        super::super::layout::redirect(
+            &web_pages::routes::prompts::Conversation {
+                team_id,
+                conversation_id: chat.conversation_id,
+                prompt_id: prompt.id,
+            }
+            .to_string(),
+        )
+    } else {
+        super::super::layout::redirect(
+            &web_pages::routes::console::Conversation {
+                team_id,
+                conversation_id: chat.conversation_id,
+            }
+            .to_string(),
+        )
+    }
 }
