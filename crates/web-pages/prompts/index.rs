@@ -136,6 +136,12 @@ pub fn Page(
                         max_tokens: prompt.max_tokens,
                         trim_ratio: prompt.trim_ratio,
                         temperature: prompt.temperature.unwrap_or(0.7),
+                        description: prompt.description,
+                        disclaimer: prompt.disclaimer,
+                        example1: prompt.example1,
+                        example2: prompt.example2,
+                        example3: prompt.example3,
+                        example4: prompt.example4,
                         is_saas
                     }
                 }
@@ -157,6 +163,12 @@ pub fn Page(
                 max_tokens: 1024,
                 trim_ratio: 80,
                 temperature: 0.7,
+                description: "".to_string(),
+                disclaimer: "".to_string(),
+                example1: None,
+                example2: None,
+                example3: None,
+                example4: None,
                 is_saas
             }
         }

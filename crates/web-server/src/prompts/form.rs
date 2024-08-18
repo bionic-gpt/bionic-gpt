@@ -27,6 +27,14 @@ pub struct NewPromptTemplate {
     pub trim_ratio: i32,
     pub temperature: f32,
     pub visibility: String,
+    #[validate(length(min = 1, message = "The description is mandatory"))]
+    pub description: String,
+    #[validate(length(min = 1, message = "The disclaimer is mandatory"))]
+    pub disclaimer: String,
+    pub example1: Option<String>,
+    pub example2: Option<String>,
+    pub example3: Option<String>,
+    pub example4: Option<String>,
 }
 
 pub async fn upsert(
@@ -70,6 +78,13 @@ pub async fn upsert(
                     &new_prompt_template.max_tokens,
                     &new_prompt_template.trim_ratio,
                     &new_prompt_template.temperature,
+                    &new_prompt_template.description,
+                    &new_prompt_template.disclaimer,
+                    &new_prompt_template.example1,
+                    &new_prompt_template.example2,
+                    &new_prompt_template.example3,
+                    &new_prompt_template.example4,
+                    &db::PromptType::Assistant,
                     &id,
                 )
                 .await?;
@@ -103,6 +118,12 @@ pub async fn upsert(
                     &new_prompt_template.max_tokens,
                     &new_prompt_template.trim_ratio,
                     &new_prompt_template.temperature,
+                    &new_prompt_template.description,
+                    &new_prompt_template.disclaimer,
+                    &new_prompt_template.example1,
+                    &new_prompt_template.example2,
+                    &new_prompt_template.example3,
+                    &new_prompt_template.example4,
                     &db::PromptType::Assistant,
                 )
                 .one()

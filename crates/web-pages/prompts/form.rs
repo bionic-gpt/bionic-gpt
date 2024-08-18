@@ -20,8 +20,18 @@ pub fn Form(
     max_tokens: i32,
     trim_ratio: i32,
     temperature: f32,
+    description: String,
+    disclaimer: String,
+    example1: Option<String>,
+    example2: Option<String>,
+    example3: Option<String>,
+    example4: Option<String>,
     is_saas: bool,
 ) -> Element {
+    let example1 = example1.unwrap_or("".to_string());
+    let example2 = example2.unwrap_or("".to_string());
+    let example3 = example3.unwrap_or("".to_string());
+    let example4 = example4.unwrap_or("".to_string());
     rsx!(
         Drawer {
             label: "Assistant",
@@ -95,6 +105,15 @@ pub fn Form(
 
                             TextArea {
                                 class: "mt-3",
+                                name: "description",
+                                rows: "3",
+                                label: "Description",
+                                label_class: "mt-4",
+                                "{description}",
+                            }
+
+                            TextArea {
+                                class: "mt-3",
                                 name: "system_prompt",
                                 rows: "10",
                                 label: "System Prompt",
@@ -153,6 +172,53 @@ pub fn Form(
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                    TabPanel {
+                        name: "prompt-tabs",
+                        tab_name: "Examples",
+                        div {
+                            class: "flex flex-col mt-3",
+
+                            Input {
+                                input_type: InputType::Text,
+                                label: "Disclaimer",
+                                help_text: "Value between 0 and 2.",
+                                name: "disclaimer",
+                                value: "{disclaimer}"
+                            }
+
+                            Input {
+                                input_type: InputType::Text,
+                                label: "Example 1",
+                                help_text: "Value between 0 and 2.",
+                                name: "example1",
+                                value: "{example1}"
+                            }
+
+                            Input {
+                                input_type: InputType::Text,
+                                label: "Example 2",
+                                help_text: "Value between 0 and 2.",
+                                name: "example2",
+                                value: "{example2}"
+                            }
+
+                            Input {
+                                input_type: InputType::Text,
+                                label: "Example 3",
+                                help_text: "Value between 0 and 2.",
+                                name: "example3",
+                                value: "{example3}"
+                            }
+
+                            Input {
+                                input_type: InputType::Text,
+                                label: "Example 4",
+                                help_text: "Value between 0 and 2.",
+                                name: "example4",
+                                value: "{example4}"
                             }
                         }
                     }
