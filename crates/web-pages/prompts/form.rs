@@ -106,7 +106,7 @@ pub fn Form(
                             TextArea {
                                 class: "mt-3",
                                 name: "description",
-                                rows: "3",
+                                rows: "2",
                                 label: "Description",
                                 label_class: "mt-4",
                                 "{description}",
@@ -115,7 +115,7 @@ pub fn Form(
                             TextArea {
                                 class: "mt-3",
                                 name: "system_prompt",
-                                rows: "10",
+                                rows: "8",
                                 label: "System Prompt",
                                 label_class: "mt-4",
                                 "{system_prompt}",
