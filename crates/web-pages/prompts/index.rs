@@ -44,67 +44,32 @@ pub fn Page(
                     )
                 }
             } else {
-                Box {
-                    class: "has-data-table",
-                    BoxHeader {
-                        title: "Assistants"
-                    }
-                    BoxBody {
-                        table {
-                            class: "table table-sm",
-                            thead {
-                                th { "Name" }
-                                th { "Visibility" }
-                                th { "Model" }
-                                th { "Updated" }
-                                th {
-                                    class: "text-right",
-                                    "Action"
+
+                div {
+                    class: "grid md:grid-cols-3 xl:grid-cols-4 sm:grid-cols-1 gap-4",
+                    for prompt in &prompts {
+                        Box {
+                            BoxHeader {
+                                class: "truncate ellipses",
+                                title: "{prompt.name}",
+                                super::visibility::VisLabel {
+                                    visibility: prompt.visibility
                                 }
                             }
-                            tbody {
-                                for prompt in &prompts {
-                                    tr {
-                                        td {
-                                            a {
-                                                href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                                                "{prompt.name}"
-                                            }
-                                        }
-                                        td {
-                                            super::visibility::VisLabel {
-                                                visibility: prompt.visibility
-                                            }
-                                        }
-                                        td {
-                                            "{prompt.model_name}"
-                                        }
-                                        td {
-                                            RelativeTime {
-                                                format: RelativeTimeFormat::Relative,
-                                                datetime: "{prompt.updated_at}"
-                                            }
-                                        }
-                                        td {
-                                            class: "text-right",
-                                            DropDown {
-                                                direction: Direction::Left,
-                                                button_text: "...",
-                                                DropDownLink {
-                                                    href: "#",
-                                                    drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                    "Edit"
-                                                }
-                                                DropDownLink {
-                                                    drawer_trigger: format!("delete-trigger-{}-{}",
-                                                        prompt.id, team_id),
-                                                    href: "#",
-                                                    target: "_top",
-                                                    "Delete"
-                                                }
-                                            }
-                                        }
-                                    }
+                            BoxBody {
+                                a {
+                                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                                    "{prompt.description}"
+                                }
+                                RelativeTime {
+                                    format: RelativeTimeFormat::Relative,
+                                    datetime: "{prompt.updated_at}"
+                                }
+                                button {
+                                    "Delete"
+                                }
+                                button {
+                                    "Edit"
                                 }
                             }
                         }
