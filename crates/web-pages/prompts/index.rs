@@ -44,66 +44,49 @@ pub fn Page(
                     )
                 }
             } else {
-                Box {
-                    class: "has-data-table",
-                    BoxHeader {
-                        title: "Assistants"
-                    }
-                    BoxBody {
-                        table {
-                            class: "table table-sm",
-                            thead {
-                                th { "Name" }
-                                th { "Visibility" }
-                                th { "Model" }
-                                th { "Updated" }
-                                th {
-                                    class: "text-right",
-                                    "Action"
+
+                div {
+                    class: "grid md:grid-cols-3 xl:grid-cols-4 sm:grid-cols-1 gap-4",
+                    for prompt in &prompts {
+                        Box {
+                            BoxHeader {
+                                class: "truncate ellipses flex justify-between",
+                                title: "{prompt.name}",
+                                super::visibility::VisLabel {
+                                    visibility: prompt.visibility
                                 }
                             }
-                            tbody {
-                                for prompt in &prompts {
-                                    tr {
-                                        td {
-                                            a {
-                                                href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                                                "{prompt.name}"
-                                            }
+                            BoxBody {
+                                p {
+                                    class: "text-sm",
+                                    "{prompt.description}"
+                                }
+                                div {
+                                    class: "mt-3 flex flex-row justify-between",
+                                    a {
+                                        class: "btn btn-primary btn-sm",
+                                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                                        "Chat"
+                                    }
+                                    div {
+                                        class: "flex gap-1",
+                                        Button {
+                                            drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
+                                            button_scheme: ButtonScheme::Danger,
+                                            "Delete"
                                         }
-                                        td {
-                                            super::visibility::VisLabel {
-                                                visibility: prompt.visibility
-                                            }
+                                        Button {
+                                            drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                            "Edit"
                                         }
-                                        td {
-                                            "{prompt.model_name}"
-                                        }
-                                        td {
-                                            RelativeTime {
-                                                format: RelativeTimeFormat::Relative,
-                                                datetime: "{prompt.updated_at}"
-                                            }
-                                        }
-                                        td {
-                                            class: "text-right",
-                                            DropDown {
-                                                direction: Direction::Left,
-                                                button_text: "...",
-                                                DropDownLink {
-                                                    href: "#",
-                                                    drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                    "Edit"
-                                                }
-                                                DropDownLink {
-                                                    drawer_trigger: format!("delete-trigger-{}-{}",
-                                                        prompt.id, team_id),
-                                                    href: "#",
-                                                    target: "_top",
-                                                    "Delete"
-                                                }
-                                            }
-                                        }
+                                    }
+                                }
+                                div {
+                                    class: "mt-3 text-xs flex justify-center gap-1",
+                                    "Last update",
+                                    RelativeTime {
+                                        format: RelativeTimeFormat::Relative,
+                                        datetime: "{prompt.updated_at}"
                                     }
                                 }
                             }
@@ -136,6 +119,12 @@ pub fn Page(
                         max_tokens: prompt.max_tokens,
                         trim_ratio: prompt.trim_ratio,
                         temperature: prompt.temperature.unwrap_or(0.7),
+                        description: prompt.description,
+                        disclaimer: prompt.disclaimer,
+                        example1: prompt.example1,
+                        example2: prompt.example2,
+                        example3: prompt.example3,
+                        example4: prompt.example4,
                         is_saas
                     }
                 }
@@ -157,6 +146,12 @@ pub fn Page(
                 max_tokens: 1024,
                 trim_ratio: 80,
                 temperature: 0.7,
+                description: "".to_string(),
+                disclaimer: "LLMs can make mistakes. Check important info.".to_string(),
+                example1: None,
+                example2: None,
+                example3: None,
+                example4: None,
                 is_saas
             }
         }

@@ -206,6 +206,14 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/assistant/:prompt_id/console/:conversation_id")]
+        pub struct Conversation {
+            pub team_id: i32,
+            pub prompt_id: i32,
+            pub conversation_id: i64,
+        }
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/new_chat/:prompt_id")]
         pub struct NewChat {
             pub team_id: i32,
@@ -229,6 +237,14 @@ pub mod routes {
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/prompt/:prompt_id/delete_conv/:conversation_id")]
+        pub struct DeleteConv {
+            pub team_id: i32,
+            pub prompt_id: i32,
+            pub conversation_id: i64,
         }
     }
 

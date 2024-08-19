@@ -1,5 +1,5 @@
---: Prompt(temperature?, system_prompt?, api_key?)
---: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?)
+--: Prompt(temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
+--: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?, example1?, example2?, example3?, example4?)
 
 --! prompts : Prompt
 SELECT
@@ -12,6 +12,12 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
+    p.description,
+    p.disclaimer,
+    p.example1,
+    p.example2,
+    p.example3,
+    p.example4,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -77,6 +83,12 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
+    p.description,
+    p.disclaimer,
+    p.example1,
+    p.example2,
+    p.example3,
+    p.example4,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -98,6 +110,7 @@ SELECT
     p.max_tokens,
     p.trim_ratio,
     p.temperature,
+    p.prompt_type,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at
@@ -133,6 +146,12 @@ SELECT
     p.model_id,
     p.name,
     p.visibility,
+    p.description,
+    p.disclaimer,
+    p.example1,
+    p.example2,
+    p.example3,
+    p.example4,
     -- Creata a string showing the datsets connected to this prompt
     (
         SELECT 
@@ -210,7 +229,7 @@ VALUES(
 );
     
 
---! insert(system_prompt?)
+--! insert(system_prompt?, example1?, example2?, example3?, example4?)
 INSERT INTO prompts (
     team_id, 
     model_id, 
@@ -222,6 +241,12 @@ INSERT INTO prompts (
     max_tokens,
     trim_ratio,
     temperature,
+    description,
+    disclaimer,
+    example1,
+    example2,
+    example3,
+    example4,
     prompt_type,
     created_by
 )
@@ -236,12 +261,18 @@ VALUES(
     :max_tokens,
     :trim_ratio,
     :temperature,
+    :description,
+    :disclaimer,
+    :example1,
+    :example2,
+    :example3,
+    :example4,
     :prompt_type,
     current_app_user()
 )
 RETURNING id;
 
---! update(system_prompt?)
+--! update(system_prompt?, example1?, example2?, example3?, example4?)
 UPDATE 
     prompts 
 SET 
@@ -253,7 +284,14 @@ SET
     max_chunks = :max_chunks,
     max_tokens = :max_tokens,
     trim_ratio = :trim_ratio,
-    temperature = :temperature
+    temperature = :temperature,
+    description = :description,
+    disclaimer = :disclaimer,
+    example1 = :example1,
+    example2 = :example2,
+    example3 = :example3,
+    example4 = :example4,
+    prompt_type = :prompt_type
 WHERE
     id = :id
 AND

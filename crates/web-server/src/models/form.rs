@@ -104,6 +104,12 @@ pub async fn upsert(
                     &context_size,
                     &80,
                     &0.7,
+                    &"Please add a description",
+                    &"LLms can make mistakes. Please check.",
+                    &system_prompt,
+                    &system_prompt,
+                    &system_prompt,
+                    &system_prompt,
                     &db::PromptType::Model,
                 )
                 .one()

@@ -6,7 +6,6 @@
 use axum::Error;
 use reqwest::RequestBuilder;
 use reqwest_eventsource::{Event as ReqwestEvent, EventSource as ReqwestEventSource};
-use serde::Serialize;
 use serde_json::Value;
 use tokio::sync::mpsc;
 use tokio_stream::StreamExt;
@@ -15,29 +14,6 @@ use tokio_stream::StreamExt;
 pub struct CompletionChunk {
     pub delta: String,
     pub snapshot: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct Choice {
-    pub index: i32,
-    pub delta: ChoiceDelta,
-    pub finish_reason: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct Delta {
-    id: String,
-    object: String,
-    created: i32,
-    model: String,
-    system_fingerprint: String,
-    choices: Vec<Choice>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct ChoiceDelta {
-    role: String,
-    content: String,
 }
 
 #[derive(Debug)]
@@ -124,27 +100,8 @@ fn convert_error_to_chats(err: reqwest_eventsource::Error) -> Vec<(CompletionChu
 // During a chat setion its good to let the assitant show the error,
 // otherwise they get buried in the logs.
 fn string_to_chunk(content: &str) -> (CompletionChunk, String) {
-    let delta = Delta {
-        id: "chatcmpl-627".to_string(),
-        object: "chat.completion.chunk".to_string(),
-        created: 1714383347,
-        model: "bionic-generated".to_string(),
-        system_fingerprint: "fp_ollama".to_string(),
-        choices: vec![Choice {
-            index: 0,
-            delta: ChoiceDelta {
-                role: "assistant".to_string(),
-                content: content.to_string(),
-            },
-            finish_reason: "null".to_string(),
-        }],
-    };
-
     (
-        CompletionChunk {
-            delta: serde_json::to_string(&delta).unwrap(),
-            snapshot: "".to_string(),
-        },
+        super::sse_chat_error::string_to_chunk(content),
         content.to_string(),
     )
 }
