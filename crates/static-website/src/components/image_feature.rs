@@ -43,7 +43,7 @@ pub fn ImageFeature(
                                         }
                                         "{title1}"
                                     }
-                                    dd { class: "inline", "{{text1}}" }
+                                    dd { class: "inline", "{text1}" }
                                 }
                                 div { class: "relative pl-9",
                                     dt { class: "inline font-semibold",
@@ -60,7 +60,7 @@ pub fn ImageFeature(
                                         }
                                         "{title2}"
                                     }
-                                    dd { class: "inline", "{{text2}}" }
+                                    dd { class: "inline", "{text2}" }
                                 }
                                 div { class: "relative pl-9",
                                     dt { class: "inline font-semibold",
