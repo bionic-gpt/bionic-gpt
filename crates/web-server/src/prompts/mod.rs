@@ -1,5 +1,6 @@
 mod conversation;
 mod delete;
+mod delete_conv;
 mod form;
 mod index;
 mod new_chat;
@@ -11,6 +12,7 @@ pub fn routes() -> Router {
         .typed_get(index::index)
         .typed_get(conversation::conversation)
         .typed_post(form::upsert)
+        .typed_post(delete_conv::delete)
         .typed_post(delete::delete)
         .typed_get(new_chat::new_chat)
 }

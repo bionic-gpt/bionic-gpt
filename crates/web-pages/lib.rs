@@ -238,6 +238,14 @@ pub mod routes {
             pub team_id: i32,
             pub id: i32,
         }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/prompt/:prompt_id/delete_conv/:conversation_id")]
+        pub struct DeleteConv {
+            pub team_id: i32,
+            pub prompt_id: i32,
+            pub conversation_id: i64,
+        }
     }
 
     pub mod models {

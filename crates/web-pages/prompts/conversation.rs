@@ -29,29 +29,32 @@ pub fn Page(
             title: "{prompt.name}",
             header: rsx!(
                 h3 { "{prompt.name}" }
-                div {
-                    class: "flex flex-row",
-                    Button {
-                        class: "btn-circle mr-2 p-1",
-                        drawer_trigger: "delete-conv-{conversation_id}",
-                        button_scheme: ButtonScheme::Default,
-                        img {
-                            src: delete_svg.name
-                        }
-                    }
-                    super::delete::DeleteDrawer{
-                        trigger_id: format!("delete-conv-{}", conversation_id),
-                        team_id: team_id,
-                        id: conversation_id.try_into().unwrap()
-                    }
-                    form {
-                        method: "post",
-                        action: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                if ! chats_with_chunks.is_empty() {
+                    div {
+                        class: "flex flex-row",
                         Button {
-                            class: "mr-2",
+                            class: "btn-circle mr-2 p-1",
+                            drawer_trigger: "delete-conv-{conversation_id}",
                             button_scheme: ButtonScheme::Default,
-                            button_type: ButtonType::Submit,
-                            "New Chat"
+                            img {
+                                src: delete_svg.name
+                            }
+                        }
+                        super::delete_conv::DeleteDrawer{
+                            trigger_id: format!("delete-conv-{}", conversation_id),
+                            team_id: team_id,
+                            prompt_id: prompt.id,
+                            conversation_id
+                        }
+                        form {
+                            method: "get",
+                            action: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                            Button {
+                                class: "mr-2",
+                                button_scheme: ButtonScheme::Default,
+                                button_type: ButtonType::Submit,
+                                "New Chat"
+                            }
                         }
                     }
                 }
