@@ -1,4 +1,5 @@
 use axum::Error;
+use serde::Serialize;
 use tokio::sync::mpsc;
 
 use super::sse_chat_enricher::{CompletionChunk, GenerationEvent};
@@ -23,33 +24,49 @@ pub async fn error_to_chat(
     Ok(())
 }
 
+#[derive(Debug, Serialize)]
+struct Choice {
+    pub index: i32,
+    pub delta: ChoiceDelta,
+    pub finish_reason: String,
+}
+
+#[derive(Debug, Serialize)]
+struct Delta {
+    id: String,
+    object: String,
+    created: i32,
+    model: String,
+    system_fingerprint: String,
+    choices: Vec<Choice>,
+}
+
+#[derive(Debug, Serialize)]
+struct ChoiceDelta {
+    role: String,
+    content: String,
+}
+
 // During a chat setion its good to let the assitant show the error,
 // otherwise they get buried in the logs.
-fn string_to_chunk(content: &str) -> CompletionChunk {
-    let escaped_content = content.replace('\n', "\\n");
-    let escaped_content = escaped_content.replace('"', "\\\"");
-    let json = format!(
-        r#"{{
-        "id": "chatcmpl-627",
-        "object": "chat.completion.chunk",
-        "created": 1714383347,
-        "model": "llama2",
-        "system_fingerprint": "fp_ollama",
-        "choices": [
-          {{
-            "index": 0,
-            "delta": {{
-              "role": "assistant",
-              "content": "{}"
-            }},
-            "finish_reason": null
-          }}
-        ]
-      }}"#,
-        escaped_content
-    );
+pub fn string_to_chunk(content: &str) -> CompletionChunk {
+    let delta = Delta {
+        id: "chatcmpl-627".to_string(),
+        object: "chat.completion.chunk".to_string(),
+        created: 1714383347,
+        model: "bionic-generated".to_string(),
+        system_fingerprint: "fp_ollama".to_string(),
+        choices: vec![Choice {
+            index: 0,
+            delta: ChoiceDelta {
+                role: "assistant".to_string(),
+                content: content.to_string(),
+            },
+            finish_reason: "null".to_string(),
+        }],
+    };
     CompletionChunk {
-        delta: json,
+        delta: serde_json::to_string(&delta).unwrap(),
         snapshot: "".to_string(),
     }
 }
