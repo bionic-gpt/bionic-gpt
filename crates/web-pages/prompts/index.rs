@@ -50,26 +50,41 @@ pub fn Page(
                     for prompt in &prompts {
                         Box {
                             BoxHeader {
-                                class: "truncate ellipses",
+                                class: "truncate ellipses flex justify-between",
                                 title: "{prompt.name}",
                                 super::visibility::VisLabel {
                                     visibility: prompt.visibility
                                 }
                             }
                             BoxBody {
-                                a {
-                                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                                p {
+                                    class: "text-sm",
                                     "{prompt.description}"
                                 }
-                                RelativeTime {
-                                    format: RelativeTimeFormat::Relative,
-                                    datetime: "{prompt.updated_at}"
+                                div {
+                                    class: "mt-3 flex flex-row justify-between",
+                                    a {
+                                        class: "btn btn-primary btn-sm",
+                                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                                        "Chat"
+                                    }
+                                    Button {
+                                        drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
+                                        button_scheme: ButtonScheme::Danger,
+                                        "Delete"
+                                    }
+                                    Button {
+                                        drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                        "Edit"
+                                    }
                                 }
-                                button {
-                                    "Delete"
-                                }
-                                button {
-                                    "Edit"
+                                div {
+                                    class: "mt-3 text-xs flex justify-center gap-1",
+                                    "Last update",
+                                    RelativeTime {
+                                        format: RelativeTimeFormat::Relative,
+                                        datetime: "{prompt.updated_at}"
+                                    }
                                 }
                             }
                         }
