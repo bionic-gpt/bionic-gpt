@@ -61,7 +61,9 @@ pub fn Page(
                 class: "h-full",
                 if chats_with_chunks.is_empty() {
                     EmptyStream {
-                        prompt: prompt.clone()
+                        prompt: prompt.clone(),
+                        conversation_id,
+                        team_id
                     }
                 } else {
                     ConsoleStream {
@@ -114,19 +116,84 @@ pub fn Page(
 }
 
 #[component]
-pub fn EmptyStream(prompt: SinglePrompt) -> Element {
+pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> Element {
     rsx! {
         div {
             class: "flex h-[calc(100%-100px)] overflow-y-auto justify-center items-center",
             div {
                 class: "w-1/2 text-center",
                 h1 {
+                    class: "text-lg",
                     "{prompt.name}"
                 }
                 p {
-                    class: "text-sm",
+                    class: "text-sm mt-2 mb-4",
                     "{prompt.description}"
                 }
+                div {
+                    class: "flex gap-2 justify-center",
+                    if let Some(example1) = prompt.example1 {
+                        ExampleForm {
+                            conversation_id,
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example1
+                        }
+                    }
+                    if let Some(example2) = prompt.example2 {
+                        ExampleForm {
+                            conversation_id,
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example2
+                        }
+                    }
+                    if let Some(example3) = prompt.example3 {
+                        ExampleForm {
+                            conversation_id,
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example3
+                        }
+                    }
+                    if let Some(example4) = prompt.example4 {
+                        ExampleForm {
+                            conversation_id,
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example4
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: String) -> Element {
+    rsx! {
+        form {
+            method: "post",
+            action: routes::console::SendMessage{team_id}.to_string(),
+            input {
+                "type": "hidden",
+                name: "conversation_id",
+                value: "{conversation_id}"
+            }
+            input {
+                "type": "hidden",
+                name: "prompt_id",
+                value: "{prompt_id}"
+            }
+            input {
+                "type": "hidden",
+                name: "message",
+                value: "{example}"
+            }
+            Button {
+                button_type: ButtonType::Submit,
+                "{example}"
             }
         }
     }

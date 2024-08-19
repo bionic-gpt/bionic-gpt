@@ -68,14 +68,17 @@ pub fn Page(
                                         href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
                                         "Chat"
                                     }
-                                    Button {
-                                        drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
-                                        button_scheme: ButtonScheme::Danger,
-                                        "Delete"
-                                    }
-                                    Button {
-                                        drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                        "Edit"
+                                    div {
+                                        class: "flex gap-1",
+                                        Button {
+                                            drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
+                                            button_scheme: ButtonScheme::Danger,
+                                            "Delete"
+                                        }
+                                        Button {
+                                            drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                            "Edit"
+                                        }
                                     }
                                 }
                                 div {
