@@ -29,7 +29,6 @@ pub struct NewPromptTemplate {
     pub visibility: String,
     #[validate(length(min = 1, message = "The description is mandatory"))]
     pub description: String,
-    #[validate(length(min = 1, message = "The disclaimer is mandatory"))]
     pub disclaimer: String,
     pub example1: Option<String>,
     pub example2: Option<String>,

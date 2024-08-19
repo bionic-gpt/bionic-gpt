@@ -110,6 +110,7 @@ pub fn Form(
                                 label: "Description",
                                 label_class: "mt-4",
                                 "{description}",
+                                required: true
                             }
 
                             TextArea {
