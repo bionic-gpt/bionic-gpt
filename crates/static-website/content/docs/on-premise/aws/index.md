@@ -1,3 +1,5 @@
+## Install on Amazon Cloud
+
 We can use [https://eksctl.io](https://eksctl.io/) which is the AWS supported way of setting up a K8's cluster (EKS). 
 
 ## 1. Get your credentials

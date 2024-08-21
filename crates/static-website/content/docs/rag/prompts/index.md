@@ -10,7 +10,7 @@ However, the inference engines may count in a different way, to stop Bionic over
 
 When using TGI try setting the trim ration to 80% or lower.
 
-![Alt text](../trim-ratio.png "Uploading documents")
+![Alt text](trim-ratio.png "Uploading documents")
 
 ## Max Tokens
 

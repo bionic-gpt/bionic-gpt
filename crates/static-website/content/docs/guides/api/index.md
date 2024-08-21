@@ -1,3 +1,5 @@
+## Using the API
+
 Here we assume you have BionicGPT running locally, you'll need to change all references from `localhost` to the domain your using for production.
 
 ## View all Models
@@ -16,16 +18,11 @@ curl http://localhost/v1/chat/completions
 -d '{
      "model": "ggml-gpt4all-j",
      "messages": [{"role": "user", "content": "Say this is a test!"}],
-     "temperature": 0.7
+     "temperature": 0.7,
+     "stream:" true
    }'
 #{"object":"chat.completion","model":"ggml-gpt4all-j","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","content":"I'm sorry, I don't understand what you mean. Can you please provide more context or clarify your statement?"}}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}}
 ```
-
-## Completions Streaming
-
-Not yet available. We're working on this see
-
-
 
 ## Embeddings
 

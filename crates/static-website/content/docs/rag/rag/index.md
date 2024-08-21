@@ -10,13 +10,11 @@ Having identified documents that you would the LLM to use as part of it's answer
 
 In the background we use a service called unstructured to remove the text from those documents. So the quality of answers you get is going to depend on the quality of the text within those documents.
 
-![Alt text](../document-upload.png "Uploading documents")
+![Alt text](document-upload.png "Uploading documents")
 
 ## Selecting Datasets
 
 Once you've uploaded your documents go to the chat window and in the prompt dropdown choose 'Default (Use All Datasets)' you can then try out your questions.
-
-![Alt text](/github-readme.png "Uploading docements")
 
 ## Collecting Questions
 

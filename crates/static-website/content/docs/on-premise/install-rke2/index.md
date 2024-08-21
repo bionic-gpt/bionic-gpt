@@ -72,7 +72,7 @@ Error: ApiError: "service unavailable\n": Failed to parse error data (ErrorRespo
 After a while of container creation you should see all the pods running and then be able to access Bionic.
 
 
-![Alt text](../bionic-startup-k9s.png "Bionic K9s")
+![Alt text](bionic-startup-k9s.png "Bionic K9s")
 
 ## Run the User Interface
 
@@ -82,7 +82,7 @@ You can then access the front end from `http://localhost` and you'll be redirect
 
 The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
-![Alt text](../initial-screen.png "Start Screen")
+![Alt text](/landing-page/bionic-console.png "Start Screen")
 
 ## Uninstall Bionic
 

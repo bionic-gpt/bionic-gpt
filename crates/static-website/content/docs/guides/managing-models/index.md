@@ -1,3 +1,5 @@
+## Managing Models
+
 By "adding a remote model" we mean a model that's not running in your Kubernetes cluster. This could be a model running on a private cloud service or other providers.
 
 You basically have 2 options.

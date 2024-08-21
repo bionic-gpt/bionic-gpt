@@ -1,3 +1,5 @@
+## Visualising RAG
+
 You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](jupyter-notebook)
 
 The example code below assumes you already have your documents loaded into the bionicGPT database.  
@@ -40,7 +42,7 @@ response = requests.post(url, json=data, headers=headers)
 engine = sqlalchemy.create_engine('postgresql://postgres:testpassword@postgres:5432/bionic-gpt')
 conn = engine.connect()
 ```
-![Alt text](../vis-rag-1.png "Setup")
+![Alt text](vis-rag-1.png "Setup")
 
 
 ### Retrieve Document Data from Database ###
@@ -59,7 +61,7 @@ df = pd.read_sql(sql,conn)
 df
 ```
 
-![Alt text](../vis-rag-ret-chunks.png "Retrieve chunks")
+![Alt text](vis-rag-ret-chunks.png "Retrieve chunks")
 
 
 ### Convert Data Retrieved into 2 Dimensional Data ###
