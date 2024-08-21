@@ -30,6 +30,12 @@ pub struct Page {
     pub author_image: Option<&'static str>,
 }
 
+impl Page {
+    pub fn permalink(&self) -> String {
+        format!("https://bionic-gpt.com/{}", self.folder)
+    }
+}
+
 pub fn generate(summary: Summary) {
     let src = format!("content/{}", summary.source_folder);
     let src = Path::new(&src);

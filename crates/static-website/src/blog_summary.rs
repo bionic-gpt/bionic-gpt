@@ -33,8 +33,8 @@ pub fn summary() -> Summary {
                     folder: "blog/confidential-saas/",
                     markdown: include_str!("../content/blog/confidential-saas/index.md"),
                     image: Some("/blog/confidential-saas/kubernetes.png"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
                 Page {
                     date: "2024-05-28",
@@ -43,8 +43,8 @@ pub fn summary() -> Summary {
                     folder: "blog/banning-chat-gpt/",
                     markdown: include_str!("../content/blog/banning-chat-gpt/index.md"),
                     image: Some("/blog/banning-chat-gpt/chat-gpt-banned.png"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
                 Page {
                     date: "2024-04-10",
@@ -53,8 +53,8 @@ pub fn summary() -> Summary {
                     folder: "blog/model-denial-of-service/",
                     markdown: include_str!("../content/blog/model-denial-of-service/index.md"),
                     image: Some("/blog/model-denial-of-service/model-denial-of-service.png"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
                 Page {
                     date: "2023-12-04",
@@ -73,8 +73,8 @@ pub fn summary() -> Summary {
                     folder: "blog/llm-hardware/",
                     markdown: include_str!("../content/blog/llm-hardware/index.md"),
                     image: Some("/blog/llm-hardware/multi-gpu-llm-setup.jpg"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
                 Page {
                     date: "2023-10-13",
@@ -83,8 +83,8 @@ pub fn summary() -> Summary {
                     folder: "blog/you-dont-need-a-vector-database/",
                     markdown: include_str!("../content/blog/you-dont-need-a-vector-database/index.md"),
                     image: Some("/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
                 Page {
                     date: "2023-10-01",
@@ -103,8 +103,8 @@ pub fn summary() -> Summary {
                     folder: "blog/retrieval-augmented-generation/",
                     markdown: include_str!("../content/blog/retrieval-augmented-generation/index.md"),
                     image: Some("/blog/retrieval-augmented-generation/rag-llama.webp"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
             ],
         }],

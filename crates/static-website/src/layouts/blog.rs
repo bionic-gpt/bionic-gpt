@@ -34,6 +34,53 @@ pub fn BlogPost(post: Page) -> Element {
                 h1 {
                     "{post.title}"
                 }
+                div {
+                    class: "not-prose flex flex-row mt-8 mb-4",
+                    img {
+                        width: "44",
+                        height: "44",
+                        src: post.author_image
+                    }
+                    div {
+                        class: "not-prose flex flex-col pl-2",
+                        if let Some(author) = post.author {
+                            strong {
+                                class: "text-base",
+                                "{author}"
+                            }
+                        }
+                        small {
+                            class: "text-base",
+                            "{post.date}"
+                        }
+                    }
+                }
+                div {
+                    class: "not-prose flex justify-between items-center border-t border-b mb-4",
+                    small {
+                        class: "not-prose",
+                        "Share"
+                    }
+                    div {
+                        class: "not-prose flex flex-row gap-1",
+                        a {
+                            href: "https://twitter.com/intent/tweet?url={post.permalink()}",
+                            img {
+                                width: "16",
+                                height: "16",
+                                src: "/social-sharing/x-twitter.svg"
+                            }
+                        }
+                        a {
+                            href: "https://www.linkedin.com/sharing/share-offsite/?url={post.permalink()}",
+                            img {
+                                width: "16",
+                                height: "16",
+                                src: "/social-sharing/linkedin.svg"
+                            }
+                        }
+                    }
+                }
                 img {
                     class: "mb-8 object-cover h-96 w-full",
                     src: "{post.image.unwrap()}"
@@ -73,14 +120,30 @@ pub fn BlogList(summary: Summary) -> Element {
                             for page in category.pages {
                                 div {
                                     class: "border p-4",
-                                    div {
+                                    a {
+                                        href: "/{page.folder}",
                                         img {
                                             class: "object-cover h-24 w-full",
                                             src: page.image
                                         }
-                                        a {
-                                            href: "/{page.folder}",
-                                            "{page.title}"
+                                    }
+                                    div {
+                                        div {
+                                            h3 {
+                                                "{page.title}"
+                                            }
+                                            p {
+                                                class: "subtitle",
+                                                strong {
+                                                    "{page.date}"
+                                                }
+                                            }
+                                            p {
+                                                a {
+                                                    href: "/{page.folder}",
+                                                    "Read More..."
+                                                }
+                                            }
                                         }
                                     }
                                 }

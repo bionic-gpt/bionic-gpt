@@ -1,15 +1,3 @@
-+++
-title = "bionicGPT Integration with Jupyter"
-date = 2023-12-04
-description = "Calling Local LLMs for Data Scientists. Access any LLM without writing a provider"
-
-[extra]
-main_image = "blog/jupyter/llama-jupyter.jpg"
-listing_image = "blog/jupyter/llama-jupyter.jpg"
-author_image = "blog-authors/dio.jpeg"
-author = "Kulbinder Dio"
-+++
-
 #### Calling Local LLMs for Data Scientists. Access any LLM without writing a provider
 
 While it couldn’t be said all, it can be said with a fair degree of certainty that a large
