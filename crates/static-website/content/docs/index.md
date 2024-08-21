@@ -1,3 +1,5 @@
+## Bionic GPT
+
 Bionic-GPT Local Edition allows you to run Generative AI on your laptop.
 
 If you're already thinking about deploying Bionic for multiple users you may want to get started with the enterprise edition which is more robust and secure.

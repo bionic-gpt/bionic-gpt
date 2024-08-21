@@ -1,10 +1,4 @@
-+++
-title = "How to try out your use cases"
-description = "How to try out your use cases"
-weight = 10
-sort_by = "weight"
-+++
-
+## AI Assistants or Retrieval Augmented Generation
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/mNFd0Bur238?si=JlP70y5QclqdD9mi" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 

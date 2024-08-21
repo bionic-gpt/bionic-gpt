@@ -1,8 +1,4 @@
-+++
-title = "The Prompt and Context Size"
-weight = 20
-sort_by = "weight"
-+++
+## The Prompt and Context Size
 
 Retrieval augmented generation places a heavy burden on the prompt. For some setups such as [Text Generation Inference](https://huggingface.co/docs/text-generation-inference/index) from hugging face they have a hard requirement on how many tokens can be sent to the model.
 
