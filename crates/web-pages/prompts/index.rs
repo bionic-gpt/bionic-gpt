@@ -21,7 +21,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Prompts,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Assistants",
             header: rsx!(
                 h3 { "Assistants" }
@@ -68,16 +68,18 @@ pub fn Page(
                                         href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
                                         "Chat"
                                     }
-                                    div {
-                                        class: "flex gap-1",
-                                        Button {
-                                            drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
-                                            button_scheme: ButtonScheme::Danger,
-                                            "Delete"
-                                        }
-                                        Button {
-                                            drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                            "Edit"
+                                    if rbac.can_edit_prompt(prompt) {
+                                        div {
+                                            class: "flex gap-1",
+                                            Button {
+                                                drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
+                                                button_scheme: ButtonScheme::Danger,
+                                                "Delete"
+                                            }
+                                            Button {
+                                                drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                                "Edit"
+                                            }
                                         }
                                     }
                                 }
