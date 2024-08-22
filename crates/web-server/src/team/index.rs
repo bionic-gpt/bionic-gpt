@@ -2,7 +2,6 @@ use super::super::{Authentication, CustomError};
 use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
-use db::types;
 use db::Pool;
 use web_pages::{render_with_props, routes::team::Index, team};
 
@@ -25,15 +24,6 @@ pub async fn index(
         .bind(&transaction, &team_id)
         .all()
         .await?;
-
-    let permissions: Vec<types::public::Permission> = queries::rbac::permissions()
-        .bind(&transaction, &rbac.user_id, &team_id)
-        .all()
-        .await?;
-
-    let can_manage_team = permissions
-        .iter()
-        .any(|p| p == &types::public::Permission::InvitePeopleToTeam);
 
     let user = queries::users::user()
         .bind(&transaction, &rbac.user_id)
@@ -60,7 +50,6 @@ pub async fn index(
             team,
             user,
             team_name,
-            can_manage_team,
         },
     );
 

@@ -37,8 +37,14 @@ pub async fn setup_user(
     let authentication: authz::Authentication = authentication.into();
 
     // Do we have a user with this sub?
-    let (user_id, _, _, _) = if let Ok(user) = user {
-        (user.id, user.email, user.first_name, user.last_name)
+    let (user_id, _, _, _, _) = if let Ok(user) = user {
+        (
+            user.id,
+            user.email,
+            user.first_name,
+            user.last_name,
+            user.system_admin,
+        )
     } else {
         authz::setup_user_if_not_already_registered(&transaction, &authentication).await?
     };
