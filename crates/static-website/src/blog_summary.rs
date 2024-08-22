@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2024-08-21",
+                    title: "How Enterprises Can Prepare for Generative AI",
+                    description: "A comprehensive guide for businesses to effectively integrate and leverage Generative AI. Emphasising the importance of strategic planning, stakeholder engagement, and infrastructure readiness. Outlining the potential benefits, while cautioning about risks like algorithmic bias and data privacy concerns. Highlighting the need for robust governance, multidisciplinary teams, and continuous monitoring to ensure AI initiatives align with business goals and deliver measurable value.",
+                    folder: "blog/preparing-for-gen-ai/",
+                    markdown: include_str!("../content/blog/preparing-for-gen-ai/index.md"),
+                    image: Some("/blog/preparing-for-gen-ai/enterprise.png"),
+                    author_image: Some("/blog-authors/dio.jpeg"),
+                    author: Some("Kulbinder Dio")
+                },
+                Page {
                     date: "2024-07-16",
                     title: "Create A ChatBot On Your Data",
                     description: "Create A ChatBot On Your Data",
