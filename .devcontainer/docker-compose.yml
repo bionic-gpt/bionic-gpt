@@ -46,7 +46,6 @@ services:
     environment:
       RUST_LOG: debug
       ENABLE_BARRICADE: 1
-      ENABLE_SAAS: 1
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
       SIGNOUT_URL: /auth/sign_out

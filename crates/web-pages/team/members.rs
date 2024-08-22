@@ -13,7 +13,6 @@ pub fn Page(
     invites: Vec<Invitation>,
     team: Team,
     user: User,
-    can_manage_team: bool,
     team_name: String,
 ) -> Element {
     rsx! {
@@ -21,7 +20,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Team,
             team_id: team.id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Team Members",
             header: rsx!(
                 h3 { "Team Members" }
@@ -35,7 +34,7 @@ pub fn Page(
 
             // If the user hasn't set their org name or their own name
             // get them to do it.
-            if can_manage_team && (user.first_name.is_none() || team.name.is_none()) {
+            if rbac.can_make_invitations() && (user.first_name.is_none() || team.name.is_none()) {
                 Box {
                     class: "mb-3",
                     BoxHeader {
@@ -83,7 +82,7 @@ pub fn Page(
                             th { "Name or Email" }
                             th { "Status" }
                             th { "Special Privelages" }
-                            if can_manage_team {
+                            if rbac.can_make_invitations() {
                                 th {
                                     class: "text-right",
                                     "Action"
@@ -127,7 +126,7 @@ pub fn Page(
                                             }
                                         }
                                     }
-                                    if can_manage_team {
+                                    if rbac.can_make_invitations() {
                                         td {
                                             class: "text-right",
                                             DropDown {

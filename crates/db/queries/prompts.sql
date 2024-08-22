@@ -41,7 +41,8 @@ SELECT
     p.temperature,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
-    trim(both '"' from to_json(p.updated_at)::text) as updated_at
+    trim(both '"' from to_json(p.updated_at)::text) as updated_at,
+    p.created_by
 FROM 
     prompts p
 WHERE
@@ -113,7 +114,8 @@ SELECT
     p.prompt_type,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
-    trim(both '"' from to_json(p.updated_at)::text) as updated_at
+    trim(both '"' from to_json(p.updated_at)::text) as updated_at,
+    p.created_by
 FROM 
     prompts p
 WHERE
@@ -175,7 +177,8 @@ SELECT
     p.temperature,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
-    trim(both '"' from to_json(p.updated_at)::text) as updated_at
+    trim(both '"' from to_json(p.updated_at)::text) as updated_at,
+    p.created_by
 FROM 
     prompts p
 WHERE

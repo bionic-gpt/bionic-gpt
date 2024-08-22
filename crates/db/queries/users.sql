@@ -1,6 +1,6 @@
 --! user : (first_name?, last_name?)
 SELECT 
-    id, email, first_name, last_name
+    id, email, first_name, last_name, system_admin
 FROM 
     users
 WHERE
@@ -14,7 +14,7 @@ RETURNING id;
 
 --! user_by_openid_sub : (first_name?, last_name?)
 SELECT 
-    id, email, first_name, last_name
+    id, email, first_name, last_name, system_admin
 FROM 
     users
 WHERE
