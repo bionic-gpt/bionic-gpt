@@ -10,6 +10,7 @@ pub struct LayoutProps {
     description: String,
     image: Option<String>,
     children: Element,
+    mobile_menu: Element,
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
@@ -67,7 +68,9 @@ pub fn Layout(props: LayoutProps) -> Element {
             }
         }
         body {
-            Navigation {}
+            Navigation {
+                mobile_menu: props.mobile_menu
+            }
             div {
                 {props.children}
             }

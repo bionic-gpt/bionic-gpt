@@ -1,6 +1,6 @@
 use super::layout::Layout;
 use crate::{
-    components::footer::Footer,
+    components::{extra_footer::ExtraFooter, footer::Footer},
     generator::{Page, Summary},
 };
 use dioxus::prelude::*;
@@ -29,6 +29,7 @@ pub fn BlogPost(post: Page) -> Element {
             title: "{post.title}",
             description: "{post.description}",
             image: "{image}",
+            mobile_menu: None,
             article {
                 class: "mt-12 mx-auto prose lg:prose-xl p-4",
                 h1 {
@@ -89,6 +90,12 @@ pub fn BlogPost(post: Page) -> Element {
                     dangerous_inner_html: "{content}"
                 }
             }
+            ExtraFooter {
+                title: "You're seconds away from trying us out",
+                image: "/landing-page/bionic-console.png",
+                cta: "Find out More",
+                cta_url: "/"
+            }
             Footer {}
         }
     }
@@ -100,6 +107,7 @@ pub fn BlogList(summary: Summary) -> Element {
         Layout {
             title: "Blog",
             description: "Blog",
+            mobile_menu: None,
             section {
                 class: "lg:max-w-5xl mx-auto text-center mb-12 mt-12",
                 h1 {

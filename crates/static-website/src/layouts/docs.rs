@@ -10,6 +10,9 @@ pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
         Layout {
             title: "{doc.title}",
             description: "{doc.description}",
+            mobile_menu: rsx! (MobileMenu {
+                summary: summary.clone()
+            }),
             div {
                 class: "w-full text-sm dark:bg-ideblack",
 
@@ -28,10 +31,28 @@ pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
 }
 
 #[component]
+fn MobileMenu(summary: Summary) -> Element {
+    rsx! {
+        for category in &summary.categories {
+            ul {
+                for page in &category.pages {
+                    li {
+                        a {
+                            href: "/{page.folder}",
+                            "{page.title}",
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
 fn LeftNav(summary: Summary) -> Element {
     rsx! {
         div {
-            class: "h-[calc(100vh-68px)]",
+            class: "h-[calc(100vh-68px)] hidden lg:flex",
             nav {
                 class: "h-[calc(100vh-86px)] overflow-scroll p-3",
                 for category in &summary.categories {

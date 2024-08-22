@@ -53,6 +53,7 @@ pub fn Pricing() -> Element {
         Layout {
             title: "Pricing",
             description: "Bionic Pricing",
+            mobile_menu: None,
             div {
                 div { class: "mt-12 mx-auto max-w-7xl px-6 lg:px-8",
                     div { class: "mx-auto max-w-2xl sm:text-center",
@@ -194,6 +195,7 @@ pub fn ContactPage() -> Element {
     rsx! {
         Layout {
             title: "Enterprise Generative AI",
+            mobile_menu: None,
             description: "The Industry Standard For Enterprise Generative AI",
             section {
                 class: "mt-12 text-center mb-12",
@@ -238,6 +240,7 @@ pub fn HomePage() -> Element {
         Layout {
             title: "Enterprise Generative AI",
             description: "The Industry Standard For Enterprise Generative AI",
+            mobile_menu: None,
 
             div {
                 class: "mt-12 flex flex-col items-center",
