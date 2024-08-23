@@ -25,24 +25,26 @@ pub fn Page(
             section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
             selected_item: SideBar::Console,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "AI Chat Console",
             header: rsx!(
                 h3 { "AI Chat Console" }
                 div {
                     class: "flex flex-row",
-                    Button {
-                        class: "btn-circle mr-2 p-1",
-                        drawer_trigger: "delete-conv-{conversation_id}",
-                        button_scheme: ButtonScheme::Default,
-                        img {
-                            src: delete_svg.name
+                    if rbac.can_delete_chat() {
+                        Button {
+                            class: "btn-circle mr-2 p-1",
+                            drawer_trigger: "delete-conv-{conversation_id}",
+                            button_scheme: ButtonScheme::Default,
+                            img {
+                                src: delete_svg.name
+                            }
                         }
-                    }
-                    super::delete::DeleteDrawer{
-                        trigger_id: format!("delete-conv-{}", conversation_id),
-                        team_id: team_id,
-                        id: conversation_id
+                        super::delete::DeleteDrawer{
+                            trigger_id: format!("delete-conv-{}", conversation_id),
+                            team_id: team_id,
+                            id: conversation_id
+                        }
                     }
                     form {
                         method: "post",

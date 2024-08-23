@@ -140,6 +140,10 @@ impl Rbac {
         self.permissions.contains(&Permission::ViewCurrentTeam)
     }
 
+    pub fn can_delete_chat(&self) -> bool {
+        self.permissions.contains(&Permission::DeleteChat)
+    }
+
     pub fn can_make_invitations(&self) -> bool {
         self.permissions.contains(&Permission::InvitePeopleToTeam)
     }
