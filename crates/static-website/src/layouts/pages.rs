@@ -20,6 +20,7 @@ pub fn MarkdownPage(post: Page) -> Element {
         Layout {
             title: "{post.title}",
             description: "{post.description}",
+            mobile_menu: None,
             article {
                 class: "mx-auto prose lg:prose-xl p-4",
                 h1 {

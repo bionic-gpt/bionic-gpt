@@ -2,7 +2,7 @@ use crate::routes::{blog, docs, marketing, SIGN_IN_UP};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Navigation() -> Element {
+pub fn Navigation(mobile_menu: Element) -> Element {
     rsx! {
         header {
             div {
@@ -47,7 +47,7 @@ pub fn Navigation() -> Element {
                             li {
                                 a { href: SIGN_IN_UP, "Sign In" }
                             }
-                            li {}
+                            {mobile_menu}
                         }
                     }
                     a {
