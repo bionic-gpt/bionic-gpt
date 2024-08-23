@@ -17,7 +17,7 @@ pub fn Page(teams: Vec<(String, String)>, team: Team) -> Element {
                     button_text: "{name}",
                     prefix_image_src: profile_svg.name,
                     suffix_image_src: button_select_svg.name,
-                    class: "min-w-full",
+                    class: "w-full",
                     strong {
                         "Switch Teams"
                     },
