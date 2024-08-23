@@ -1,19 +1,14 @@
 ## Bionic GPT
 
-Bionic-GPT Local Edition allows you to run Generative AI on your laptop.
+**bionicGPT** is a privacy-focused Generative AI system, designed to meet the needs of enterprise users. While its simplest use is as a secure interface for AI interactions, bionicGPT offers much more—bringing a multi-user, enterprise-grade platform to your organization.
 
-If you're already thinking about deploying Bionic for multiple users you may want to get started with the enterprise edition which is more robust and secure.
+With bionicGPT, you can leverage a no-code Retrieval-Augmented Generation (RAG) data pipeline through AI Assistants, all within a team-based permissioning system that ensures robust data governance. The platform seamlessly integrates into your existing infrastructure with Single Sign-On (SSO) support, provides observability for compliance, and multi-model setup (have specialised models for different teams) with model rate limiting. Additionally, its OpenAI-compatible API allows for extendability for all your use cases.
 
-Bionic-GPT can run on modest hardware (16GB ram) and then scale into more powerful hardware when required. For example 70B running across multiple GPU cards.
+**bionicGPT** can be deployed on premise in your own data centre, in your private cloud or as a Saas offering, all providing secure LLM usage for your users and their data.
 
-We're open source. If you have any suggestions, recommendations are just have any questions you can either [contact us](/contact) or raise an issue on our github.
+
 
 ![Alt text](/landing-page/bionic-console.png "Start Screen")
 
-## LLama 3 8B
 
-For installations on modest hardware we run a quantized model with 8 billion parameters.
 
-However typically larger models give better results and if you have access to a model with for example 70 billion parameters you'll get some great results.
-
-We still believe this is a great way to start to look at the ways LLM's can help out in your company. We've tried to minimise the time it takes to go from idea to practical proof of concept.
