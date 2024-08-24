@@ -1,5 +1,10 @@
 ## Using the API
 
+In order to use the API you must obtain a key first
+
+![Alt text](add-api-key.png "API Screen")
+
+
 Here we assume you have BionicGPT running locally, you'll need to change all references from `localhost` to the domain your using for production.
 
 ## View all Models
@@ -12,9 +17,9 @@ curl -H "Authorization: Bearer $BIONIC_API_KEY" http://localhost/v1/models
 ## Completions
 
 ```sh
-curl http://localhost/v1/chat/completions   
--H "Content-Type: application/json"   
--H "Authorization: Bearer $BIONIC_API_KEY"   
+curl http://localhost/v1/chat/completions
+-H "Content-Type: application/json"
+-H "Authorization: Bearer $BIONIC_API_KEY"
 -d '{
      "model": "ggml-gpt4all-j",
      "messages": [{"role": "user", "content": "Say this is a test!"}],
@@ -27,9 +32,9 @@ curl http://localhost/v1/chat/completions
 ## Embeddings
 
 ```sh
-curl http://localhost/v1/chat/completions   
--H "Content-Type: application/json"   
--H "Authorization: Bearer $BIONIC_API_KEY"   
+curl http://localhost/v1/chat/completions
+-H "Content-Type: application/json"
+-H "Authorization: Bearer $BIONIC_API_KEY"
 -d '{
      "model": "ggml-gpt4all-j",
      "messages": [{"role": "user", "content": "Say this is a test!"}],

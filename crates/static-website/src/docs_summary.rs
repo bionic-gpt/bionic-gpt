@@ -50,6 +50,16 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    Page {
+                        date: "",
+                        title: "Teams",
+                        description: "",
+                        folder: "docs/guides/teams/",
+                        markdown: include_str!("../content/docs/guides/teams/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
