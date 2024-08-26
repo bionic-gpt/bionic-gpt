@@ -19,10 +19,7 @@ pub async fn index(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let datasets = datasets::datasets()
-        .bind(&transaction, &team_id)
-        .all()
-        .await?;
+    let datasets = datasets::datasets().bind(&transaction).all().await?;
 
     let models = models::models()
         .bind(&transaction, &ModelType::Embeddings)

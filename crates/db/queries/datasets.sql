@@ -18,11 +18,12 @@ WHERE
     (visibility = 'Private' AND created_by = current_app_user()) 
 OR 
     (
-    visibility = 'Team' 
-    AND 
-    team_id = :team_id 
-    AND 
-    team_id IN (SELECT team_id FROM team_users WHERE user_id = current_app_user())
+        visibility = 'Team' 
+        AND
+        team_id IN (
+            SELECT 
+                team_id 
+            FROM team_users WHERE user_id = current_app_user())
     )
 OR 
     (visibility = 'Company')
@@ -68,10 +69,21 @@ FROM
 WHERE
     id = :dataset_id
 AND
-    team_id IN (
-        SELECT 
-            team_id 
-        FROM team_users WHERE user_id = current_app_user())
+
+    (
+        (visibility = 'Private' AND created_by = current_app_user()) 
+        OR 
+            (
+                visibility = 'Team' 
+                AND
+                team_id IN (
+                    SELECT 
+                        team_id 
+                    FROM team_users WHERE user_id = current_app_user())
+            )
+        OR 
+            (visibility = 'Company')
+    )
 ORDER BY updated_at;
 
 --! pipeline_dataset : Dataset()
@@ -118,6 +130,23 @@ VALUES(
     :visibility,
     current_app_user())
 RETURNING id;
+
+--! update
+UPDATE 
+    datasets 
+SET 
+    name = :name, 
+    visibility = :visibility,
+    embeddings_model_id = :embeddings_model_id,
+    chunking_strategy = :chunking_strategy,
+    combine_under_n_chars = :combine_under_n_chars,
+    new_after_n_chars = :new_after_n_chars,
+    multipage_sections = :multipage_sections
+WHERE
+    id = :id
+AND
+    team_id
+    IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
 
 --! delete
 DELETE FROM

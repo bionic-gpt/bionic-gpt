@@ -5,7 +5,7 @@ use db::Visibility;
 use dioxus::prelude::*;
 
 #[component]
-pub fn New(
+pub fn Upsert(
     models: Vec<models::Model>,
     team_id: i32,
     combine_under_n_chars: i32,
@@ -16,7 +16,7 @@ pub fn New(
 ) -> Element {
     rsx!(
         form {
-            action: crate::routes::datasets::New{team_id}.to_string(),
+            action: crate::routes::datasets::Upsert{team_id}.to_string(),
             method: "post",
             Drawer {
                 label: "Create a new Dataset",

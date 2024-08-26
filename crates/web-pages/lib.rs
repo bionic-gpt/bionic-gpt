@@ -283,8 +283,8 @@ pub mod routes {
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/datasets/new")]
-        pub struct New {
+        #[typed_path("/app/team/:team_id/datasets/upsert")]
+        pub struct Upsert {
             pub team_id: i32,
         }
 

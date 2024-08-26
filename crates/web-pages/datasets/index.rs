@@ -38,16 +38,6 @@ pub fn Page(
                     visual: nav_ccsds_data_svg.name,
                     description: "Datasets allow you to organize your documents like folders"
                 }
-
-                super::new::New {
-                    models: models.clone(),
-                    team_id: team_id,
-                    combine_under_n_chars: 500,
-                    new_after_n_chars: 1000,
-                    _multipage_sections: true,
-                    visibility: db::Visibility::Private,
-                    is_saas
-                }
             } else {
                 Box {
                     class: "has-data-table",
@@ -121,17 +111,17 @@ pub fn Page(
                             trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
                         }
                     }
-
-                    super::new::New {
-                        models: models.clone(),
-                        team_id: team_id,
-                        combine_under_n_chars: 500,
-                        new_after_n_chars: 1000,
-                        _multipage_sections: true,
-                        visibility: db::Visibility::Private,
-                        is_saas
-                    }
                 }
+            }
+
+            super::upsert::Upsert {
+                models: models.clone(),
+                team_id: team_id,
+                combine_under_n_chars: 500,
+                new_after_n_chars: 1000,
+                _multipage_sections: true,
+                visibility: db::Visibility::Private,
+                is_saas
             }
         }
     }
