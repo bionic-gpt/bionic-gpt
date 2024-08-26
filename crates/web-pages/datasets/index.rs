@@ -13,7 +13,7 @@ pub fn Page(
     team_id: i32,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
-    is_saas: bool,
+    can_set_visibility_to_company: bool,
 ) -> Element {
     rsx! {
         Layout {
@@ -122,6 +122,7 @@ pub fn Page(
                         }
 
                         super::upsert::Upsert {
+                            id: dataset.id,
                             trigger_id: format!("edit-trigger-{}-{}", dataset.id, team_id),
                             name: dataset.name,
                             models: models.clone(),
@@ -130,7 +131,7 @@ pub fn Page(
                             new_after_n_chars: dataset.new_after_n_chars,
                             _multipage_sections: true,
                             visibility: dataset.visibility,
-                            is_saas
+                            can_set_visibility_to_company
                         }
                     }
                 }
@@ -145,7 +146,7 @@ pub fn Page(
                 new_after_n_chars: 1000,
                 _multipage_sections: true,
                 visibility: db::Visibility::Private,
-                is_saas
+                can_set_visibility_to_company
             }
         }
     }

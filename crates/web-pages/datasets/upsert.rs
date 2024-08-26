@@ -6,6 +6,7 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn Upsert(
+    id: Option<i32>,
     trigger_id: String,
     models: Vec<models::Model>,
     name: String,
@@ -14,7 +15,7 @@ pub fn Upsert(
     new_after_n_chars: i32,
     _multipage_sections: bool,
     visibility: Visibility,
-    is_saas: bool,
+    can_set_visibility_to_company: bool,
 ) -> Element {
     rsx!(
         form {
@@ -33,6 +34,13 @@ pub fn Upsert(
                                 class: "flex flex-col justify-between height-full",
                                 div {
                                     class: "flex flex-col",
+                                    if let Some(id) = id {
+                                        input {
+                                            "type": "hidden",
+                                            value: "{id}",
+                                            name: "id"
+                                        }
+                                    }
                                     Input {
                                         input_type: InputType::Text,
                                         placeholder: "Dataset Name",
@@ -60,7 +68,7 @@ pub fn Upsert(
                                             selected_value: "{crate::visibility_to_string(visibility)}",
                                             {crate::visibility_to_string(Visibility::Team)}
                                         },
-                                        if ! is_saas {
+                                        if can_set_visibility_to_company {
                                             SelectOption {
                                                 value: "{crate::visibility_to_string(Visibility::Company)}",
                                                 selected_value: "{crate::visibility_to_string(visibility)}",

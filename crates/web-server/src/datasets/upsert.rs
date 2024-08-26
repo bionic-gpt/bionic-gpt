@@ -37,7 +37,7 @@ pub async fn upsert(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // There's only 1 currently so just select it.
     let chunking_strategy = ChunkingStrategy::ByTitle;
@@ -48,17 +48,30 @@ pub async fn upsert(
     if visibility == Visibility::Company && config.saas {
         visibility = Visibility::Team;
     }
+    if visibility == Visibility::Company && !permissions.is_sys_admin {
+        visibility = Visibility::Team;
+    }
 
     match (new_dataset.validate(), new_dataset.id) {
         (Ok(_), Some(id)) => {
+            queries::datasets::update()
+                .bind(
+                    &transaction,
+                    &new_dataset.name,
+                    &visibility,
+                    &new_dataset.embeddings_model_id,
+                    &chunking_strategy,
+                    &new_dataset.combine_under_n_chars,
+                    &new_dataset.new_after_n_chars,
+                    &new_dataset.multipage_sections,
+                    &id,
+                )
+                .await?;
+
             transaction.commit().await?;
 
             super::super::layout::redirect_and_snackbar(
-                &web_pages::routes::documents::Index {
-                    team_id,
-                    dataset_id: id,
-                }
-                .to_string(),
+                &web_pages::routes::datasets::Index { team_id }.to_string(),
                 "Dataset Updated",
             )
         }
