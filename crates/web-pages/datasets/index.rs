@@ -20,7 +20,7 @@ pub fn Page(
             section_class: "normal",
             selected_item: SideBar::Datasets,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Datasets",
             header: rsx!(
                 h3 { "Datasets" }
@@ -89,12 +89,15 @@ pub fn Page(
                                                     target: "_top",
                                                     "View"
                                                 }
-                                                DropDownLink {
-                                                    drawer_trigger: format!("edit-trigger-{}-{}",
-                                                        dataset.id, team_id),
-                                                    href: "#",
-                                                    target: "_top",
-                                                    "Edit"
+
+                                                if rbac.can_edit_dataset(dataset) {
+                                                    DropDownLink {
+                                                        drawer_trigger: format!("edit-trigger-{}-{}",
+                                                            dataset.id, team_id),
+                                                        href: "#",
+                                                        target: "_top",
+                                                        "Edit"
+                                                    }
                                                 }
                                                 DropDownLink {
                                                     drawer_trigger: format!("delete-trigger-{}-{}",

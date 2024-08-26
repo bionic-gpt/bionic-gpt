@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{queries, Prompt};
+use crate::{queries, Dataset, Prompt};
 use crate::{types, Permission, Transaction};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -170,5 +170,9 @@ impl Rbac {
 
     pub fn can_edit_prompt(&self, prompt: &Prompt) -> bool {
         prompt.created_by == self.user_id || self.is_sys_admin
+    }
+
+    pub fn can_edit_dataset(&self, _dataset: &Dataset) -> bool {
+        self.is_sys_admin
     }
 }
