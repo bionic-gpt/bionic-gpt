@@ -426,14 +426,14 @@ pub fn visibility_to_string(visibility: Visibility) -> String {
     match visibility {
         Visibility::Private => "Private".to_string(),
         Visibility::Team => "Team".to_string(),
-        Visibility::Company => "Company".to_string(),
+        Visibility::Company => "Everyone".to_string(),
     }
 }
 
 pub fn string_to_visibility(visibility: &str) -> Visibility {
     match visibility {
         "Team" => Visibility::Team,
-        "Company" => Visibility::Company,
+        "Everyone" => Visibility::Company,
         _ => Visibility::Private,
     }
 }

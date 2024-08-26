@@ -9,22 +9,22 @@ pub fn VisLabel(visibility: Visibility) -> Element {
         Visibility::Company => rsx!(
             Label {
                 class: "mr-2",
-                label_role: LabelRole::Highlight,
-                "Company"
+                label_role: LabelRole::Danger,
+                "{crate::visibility_to_string(visibility)}"
             }
         ),
         Visibility::Private => rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Highlight,
-                "Private"
+                "{crate::visibility_to_string(visibility)}"
             }
         ),
         Visibility::Team => rsx!(
             Label {
                 class: "mr-2",
-                label_role: LabelRole::Highlight,
-                "Team"
+                label_role: LabelRole::Info,
+                "{crate::visibility_to_string(visibility)}"
             }
         ),
     }
