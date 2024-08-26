@@ -90,6 +90,13 @@ pub fn Page(
                                                     "View"
                                                 }
                                                 DropDownLink {
+                                                    drawer_trigger: format!("edit-trigger-{}-{}",
+                                                        dataset.id, team_id),
+                                                    href: "#",
+                                                    target: "_top",
+                                                    "Edit"
+                                                }
+                                                DropDownLink {
                                                     drawer_trigger: format!("delete-trigger-{}-{}",
                                                         dataset.id, team_id),
                                                     href: "#",
@@ -104,17 +111,31 @@ pub fn Page(
                         }
                     }
 
-                    for item in datasets {
+                    for dataset in datasets {
                         super::delete::DeleteDrawer {
                             team_id: team_id,
-                            id: item.id,
-                            trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                            id: dataset.id,
+                            trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id)
+                        }
+
+                        super::upsert::Upsert {
+                            trigger_id: format!("edit-trigger-{}-{}", dataset.id, team_id),
+                            name: dataset.name,
+                            models: models.clone(),
+                            team_id: team_id,
+                            combine_under_n_chars: dataset.combine_under_n_chars,
+                            new_after_n_chars: dataset.new_after_n_chars,
+                            _multipage_sections: true,
+                            visibility: dataset.visibility,
+                            is_saas
                         }
                     }
                 }
             }
 
             super::upsert::Upsert {
+                trigger_id: "new-dataset-form",
+                name: "".to_string(),
                 models: models.clone(),
                 team_id: team_id,
                 combine_under_n_chars: 500,

@@ -6,7 +6,9 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn Upsert(
+    trigger_id: String,
     models: Vec<models::Model>,
+    name: String,
     team_id: i32,
     combine_under_n_chars: i32,
     new_after_n_chars: i32,
@@ -19,8 +21,8 @@ pub fn Upsert(
             action: crate::routes::datasets::Upsert{team_id}.to_string(),
             method: "post",
             Drawer {
-                label: "Create a new Dataset",
-                trigger_id: "new-dataset-form",
+                label: "Dataset",
+                trigger_id,
                 DrawerBody {
                     TabContainer {
                         TabPanel {
@@ -38,6 +40,7 @@ pub fn Upsert(
                                         required: true,
                                         label: "Name",
                                         label_class: "mt-4",
+                                        value: name,
                                         name: "name"
                                     }
 
@@ -142,7 +145,7 @@ pub fn Upsert(
                     Button {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,
-                        "Create Dataset"
+                        "Save"
                     }
                 }
             }
