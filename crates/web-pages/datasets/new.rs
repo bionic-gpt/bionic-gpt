@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
 use db::queries::models;
+use db::Visibility;
 use dioxus::prelude::*;
 
 #[component]
@@ -10,6 +11,8 @@ pub fn New(
     combine_under_n_chars: i32,
     new_after_n_chars: i32,
     _multipage_sections: bool,
+    visibility: Visibility,
+    is_saas: bool,
 ) -> Element {
     rsx!(
         form {
@@ -44,13 +47,22 @@ pub fn New(
                                         label_class: "mt-4",
                                         help_text: "Set to private if you don't want to share this dataset",
                                         value: "Private",
-                                        option {
-                                            value: "Private",
-                                            "Just Me"
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Private)}",
+                                            selected_value: "{crate::visibility_to_string(visibility)}",
+                                            {crate::visibility_to_string(Visibility::Private)}
                                         },
-                                        option {
-                                            value: "Team",
-                                            "Team"
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Team)}",
+                                            selected_value: "{crate::visibility_to_string(visibility)}",
+                                            {crate::visibility_to_string(Visibility::Team)}
+                                        },
+                                        if ! is_saas {
+                                            SelectOption {
+                                                value: "{crate::visibility_to_string(Visibility::Company)}",
+                                                selected_value: "{crate::visibility_to_string(visibility)}",
+                                                {crate::visibility_to_string(Visibility::Company)}
+                                            }
                                         }
                                     }
                                 }

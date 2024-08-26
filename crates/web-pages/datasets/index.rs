@@ -8,7 +8,13 @@ use db::queries::{datasets::Dataset, models::Model};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -> Element {
+pub fn Page(
+    rbac: Rbac,
+    team_id: i32,
+    datasets: Vec<Dataset>,
+    models: Vec<Model>,
+    is_saas: bool,
+) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
@@ -39,6 +45,8 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
                     combine_under_n_chars: 500,
                     new_after_n_chars: 1000,
                     _multipage_sections: true,
+                    visibility: db::Visibility::Private,
+                    is_saas
                 }
             } else {
                 Box {
@@ -120,6 +128,8 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
                         combine_under_n_chars: 500,
                         new_after_n_chars: 1000,
                         _multipage_sections: true,
+                        visibility: db::Visibility::Private,
+                        is_saas
                     }
                 }
             }
