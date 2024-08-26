@@ -8,13 +8,19 @@ use db::queries::{datasets::Dataset, models::Model};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>) -> Element {
+pub fn Page(
+    rbac: Rbac,
+    team_id: i32,
+    datasets: Vec<Dataset>,
+    models: Vec<Model>,
+    can_set_visibility_to_company: bool,
+) -> Element {
     rsx! {
         Layout {
             section_class: "normal",
             selected_item: SideBar::Datasets,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Datasets",
             header: rsx!(
                 h3 { "Datasets" }
@@ -31,14 +37,6 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
                     heading: "Looks like you don't have any datasets yet",
                     visual: nav_ccsds_data_svg.name,
                     description: "Datasets allow you to organize your documents like folders"
-                }
-
-                super::new::New {
-                    models: models.clone(),
-                    team_id: team_id,
-                    combine_under_n_chars: 500,
-                    new_after_n_chars: 1000,
-                    _multipage_sections: true,
                 }
             } else {
                 Box {
@@ -91,6 +89,16 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
                                                     target: "_top",
                                                     "View"
                                                 }
+
+                                                if rbac.can_edit_dataset(dataset) {
+                                                    DropDownLink {
+                                                        drawer_trigger: format!("edit-trigger-{}-{}",
+                                                            dataset.id, team_id),
+                                                        href: "#",
+                                                        target: "_top",
+                                                        "Edit"
+                                                    }
+                                                }
                                                 DropDownLink {
                                                     drawer_trigger: format!("delete-trigger-{}-{}",
                                                         dataset.id, team_id),
@@ -106,22 +114,39 @@ pub fn Page(rbac: Rbac, team_id: i32, datasets: Vec<Dataset>, models: Vec<Model>
                         }
                     }
 
-                    for item in datasets {
+                    for dataset in datasets {
                         super::delete::DeleteDrawer {
                             team_id: team_id,
-                            id: item.id,
-                            trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                            id: dataset.id,
+                            trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id)
+                        }
+
+                        super::upsert::Upsert {
+                            id: dataset.id,
+                            trigger_id: format!("edit-trigger-{}-{}", dataset.id, team_id),
+                            name: dataset.name,
+                            models: models.clone(),
+                            team_id: team_id,
+                            combine_under_n_chars: dataset.combine_under_n_chars,
+                            new_after_n_chars: dataset.new_after_n_chars,
+                            _multipage_sections: true,
+                            visibility: dataset.visibility,
+                            can_set_visibility_to_company
                         }
                     }
-
-                    super::new::New {
-                        models: models.clone(),
-                        team_id: team_id,
-                        combine_under_n_chars: 500,
-                        new_after_n_chars: 1000,
-                        _multipage_sections: true,
-                    }
                 }
+            }
+
+            super::upsert::Upsert {
+                trigger_id: "new-dataset-form",
+                name: "".to_string(),
+                models: models.clone(),
+                team_id: team_id,
+                combine_under_n_chars: 500,
+                new_after_n_chars: 1000,
+                _multipage_sections: true,
+                visibility: db::Visibility::Private,
+                can_set_visibility_to_company
             }
         }
     }

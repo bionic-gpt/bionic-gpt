@@ -1,23 +1,29 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
 use db::queries::models;
+use db::Visibility;
 use dioxus::prelude::*;
 
 #[component]
-pub fn New(
+pub fn Upsert(
+    id: Option<i32>,
+    trigger_id: String,
     models: Vec<models::Model>,
+    name: String,
     team_id: i32,
     combine_under_n_chars: i32,
     new_after_n_chars: i32,
     _multipage_sections: bool,
+    visibility: Visibility,
+    can_set_visibility_to_company: bool,
 ) -> Element {
     rsx!(
         form {
-            action: crate::routes::datasets::New{team_id}.to_string(),
+            action: crate::routes::datasets::Upsert{team_id}.to_string(),
             method: "post",
             Drawer {
-                label: "Create a new Dataset",
-                trigger_id: "new-dataset-form",
+                label: "Dataset",
+                trigger_id,
                 DrawerBody {
                     TabContainer {
                         TabPanel {
@@ -28,6 +34,13 @@ pub fn New(
                                 class: "flex flex-col justify-between height-full",
                                 div {
                                     class: "flex flex-col",
+                                    if let Some(id) = id {
+                                        input {
+                                            "type": "hidden",
+                                            value: "{id}",
+                                            name: "id"
+                                        }
+                                    }
                                     Input {
                                         input_type: InputType::Text,
                                         placeholder: "Dataset Name",
@@ -35,6 +48,7 @@ pub fn New(
                                         required: true,
                                         label: "Name",
                                         label_class: "mt-4",
+                                        value: name,
                                         name: "name"
                                     }
 
@@ -44,13 +58,22 @@ pub fn New(
                                         label_class: "mt-4",
                                         help_text: "Set to private if you don't want to share this dataset",
                                         value: "Private",
-                                        option {
-                                            value: "Private",
-                                            "Just Me"
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Private)}",
+                                            selected_value: "{crate::visibility_to_string(visibility)}",
+                                            {crate::visibility_to_string(Visibility::Private)}
                                         },
-                                        option {
-                                            value: "Team",
-                                            "Team"
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Team)}",
+                                            selected_value: "{crate::visibility_to_string(visibility)}",
+                                            {crate::visibility_to_string(Visibility::Team)}
+                                        },
+                                        if can_set_visibility_to_company {
+                                            SelectOption {
+                                                value: "{crate::visibility_to_string(Visibility::Company)}",
+                                                selected_value: "{crate::visibility_to_string(visibility)}",
+                                                {crate::visibility_to_string(Visibility::Company)}
+                                            }
                                         }
                                     }
                                 }
@@ -130,7 +153,7 @@ pub fn New(
                     Button {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,
-                        "Create Dataset"
+                        "Save"
                     }
                 }
             }

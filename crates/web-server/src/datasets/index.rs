@@ -16,15 +16,14 @@ pub async fn index(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let datasets = datasets::datasets()
-        .bind(&transaction, &team_id)
-        .all()
-        .await?;
+    let datasets = datasets::datasets().bind(&transaction).all().await?;
 
     let models = models::models()
         .bind(&transaction, &ModelType::Embeddings)
         .all()
         .await?;
+
+    let can_set_visibility_to_company = rbac.is_sys_admin;
 
     let html = web_pages::render_with_props(
         web_pages::datasets::index::Page,
@@ -33,6 +32,7 @@ pub async fn index(
             rbac,
             datasets,
             models,
+            can_set_visibility_to_company,
         },
     );
 
