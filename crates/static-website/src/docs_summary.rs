@@ -90,6 +90,35 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
+                name: "How-To".to_string(),
+                pages: vec![
+                    Page {
+                        date: "",
+                        title: "Deploying Jupyter Notebook",
+                        description: "",
+                        folder: "docs/guides/jupyter/",
+                        markdown: include_str!(
+                            "../content/docs/guides/jupyter/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Visualising RAG",
+                        description: "",
+                        folder: "docs/guides/visual-rag/",
+                        markdown: include_str!(
+                            "../content/docs/guides/visual-rag/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
+            },
+            Category {
                 name: "Admin".to_string(),
                 pages: vec![Page {
                     date: "",
@@ -283,16 +312,6 @@ pub fn summary() -> Summary {
                         description: "",
                         folder: "docs/on-premise/jupyter/",
                         markdown: include_str!("../content/docs/on-premise/jupyter/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Visualising RAG",
-                        description: "",
-                        folder: "docs/on-premise/visual-rag/",
-                        markdown: include_str!("../content/docs/on-premise/visual-rag/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
