@@ -1,10 +1,12 @@
-## Visualising RAG
+## Visualising RAG Data
 
-You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](jupyter-notebook)
+You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](/docs/guides/jupyter)
 
-The example code below assumes you already have your documents loaded into the bionicGPT database.  
+The example code below assumes you already have your documents loaded into the bionicGPT database.
 We will create a scatter graph showing the document chunks of data together with the 4 most 'relevant' chunks based on the query you specified.
-At the end we should have a diagram like this
+At the end we should have a diagram like this.
+This can be a useful technique for data scientists to debug RAG settings.
+
 ![Alt text](vis-rag-scatter-example.png "Scatter example")
 
 
@@ -19,7 +21,7 @@ At the end we should have a diagram like this
 ```python
 import sqlalchemy
 import pandas as pd
-import requests 
+import requests
 from sqlalchemy import text
 import json
 import numpy as np
@@ -30,16 +32,20 @@ import matplotlib.pyplot as plt
 ```
 
 ```python
-url = "http://embeddings-api:80/embed"
+url = "http://embeddings-api:80/embeddings"
 
-data = {"inputs": "how much money did the bank of england hold at end of 2022?"}
+data = {"input": "what is tokenising","model" : "bge-small-en-v1.5"}
 headers = {"Content-Type": "application/json"}
 
 response = requests.post(url, json=data, headers=headers)
 ```
 
+Get the database login details using
+
+`kubectl get secret -n bionic-gpt database-urls -o jsonpath='{.data.readonly-url}' | base64 --decode`
+
 ```python
-engine = sqlalchemy.create_engine('postgresql://postgres:testpassword@postgres:5432/bionic-gpt')
+engine = sqlalchemy.create_engine('postgresql://bionic_readonly:6323714616921@bionic-db-cluster-rw:5432/bionic-gpt')
 conn = engine.connect()
 ```
 ![Alt text](vis-rag-1.png "Setup")
@@ -47,15 +53,18 @@ conn = engine.connect()
 
 ### Retrieve Document Data from Database ###
 
-We will now use the query embeddings from above to retrieve all document chunks from the data ordered by 'similarity'  
+We will now use the query embeddings from above to retrieve all document chunks from the data ordered by 'similarity'
 
 ```python
-query_embedding = response.text # From above embedding call
+query_embedding = response.json()['data'][0]['embedding']
 
-sql = text(f"""SELECT  document_id, file_name, text, embeddings  FROM  chunks, documents 
-where documents.id = document_id 
-and embeddings is not null 
-ORDER BY embeddings <-> '{query_embedding[1:-1]}'""")
+
+# query_embedding = response.text # From above embedding call
+
+sql = text(f"""SELECT  document_id, file_name, text, embeddings  FROM  chunks, documents
+where documents.id = document_id
+and embeddings is not null
+ORDER BY embeddings <-> '{query_embedding}'""")
 
 df = pd.read_sql(sql,conn)
 df
@@ -102,7 +111,7 @@ sns.set_style('darkgrid', {"grid.color": ".6", "grid.linestyle": ":"})
 sns.scatterplot(data=df_tsne, x='x', y='y', hue='doc', palette='hls')
 
 # Highlight the most 'relevant' chunks for query provided
-sns.scatterplot(data=df_tsne.head(4), x='x', y='y', marker="$\circ$", ec="face", hue='doc', s=30)
+sns.scatterplot(data=df_tsne.head(5), x='x', y='y', marker="$\circ$", ec="face", hue='doc', s=30)
 
 sns.move_legend(ax, "upper left", bbox_to_anchor=(1, 1))
 plt.title('Scatter plot of document chunks in bionic database');
