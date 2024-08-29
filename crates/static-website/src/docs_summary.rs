@@ -132,6 +132,23 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
+                name: "Reference".to_string(),
+                pages: vec![
+                    Page {
+                        date: "",
+                        title: "Glossary",
+                        description: "",
+                        folder: "docs/guides/glossary/",
+                        markdown: include_str!(
+                            "../content/docs/guides/glossary/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
+            },
+            Category {
                 name: "Retrieval Augmented Generation".to_string(),
                 pages: vec![
                     Page {
