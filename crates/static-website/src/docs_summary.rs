@@ -90,6 +90,19 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
+                name: "Admin".to_string(),
+                pages: vec![Page {
+                    date: "",
+                    title: "Managing Models",
+                    description: "",
+                    folder: "docs/guides/managing-models/",
+                    markdown: include_str!("../content/docs/guides/managing-models/index.md"),
+                    image: None,
+                    author_image: None,
+                    author: None,
+                }],
+            },
+            Category {
                 name: "How-To".to_string(),
                 pages: vec![
                     Page {
@@ -117,19 +130,6 @@ pub fn summary() -> Summary {
                         author: None,
                     },
                 ],
-            },
-            Category {
-                name: "Admin".to_string(),
-                pages: vec![Page {
-                    date: "",
-                    title: "Managing Models",
-                    description: "",
-                    folder: "docs/guides/managing-models/",
-                    markdown: include_str!("../content/docs/guides/managing-models/index.md"),
-                    image: None,
-                    author_image: None,
-                    author: None,
-                }],
             },
             Category {
                 name: "How-To".to_string(),
