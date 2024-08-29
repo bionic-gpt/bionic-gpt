@@ -90,6 +90,19 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
+                name: "Admin".to_string(),
+                pages: vec![Page {
+                    date: "",
+                    title: "Managing Models",
+                    description: "",
+                    folder: "docs/guides/managing-models/",
+                    markdown: include_str!("../content/docs/guides/managing-models/index.md"),
+                    image: None,
+                    author_image: None,
+                    author: None,
+                }],
+            },
+            Category {
                 name: "How-To".to_string(),
                 pages: vec![
                     Page {
@@ -119,17 +132,33 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Admin".to_string(),
-                pages: vec![Page {
-                    date: "",
-                    title: "Managing Models",
-                    description: "",
-                    folder: "docs/guides/managing-models/",
-                    markdown: include_str!("../content/docs/guides/managing-models/index.md"),
-                    image: None,
-                    author_image: None,
-                    author: None,
-                }],
+                name: "How-To".to_string(),
+                pages: vec![
+                    Page {
+                        date: "",
+                        title: "Deploying Jupyter Notebook",
+                        description: "",
+                        folder: "docs/guides/jupyter/",
+                        markdown: include_str!(
+                            "../content/docs/guides/jupyter/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Visualising RAG",
+                        description: "",
+                        folder: "docs/guides/visual-rag/",
+                        markdown: include_str!(
+                            "../content/docs/guides/visual-rag/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
             },
             Category {
                 name: "How-To".to_string(),
