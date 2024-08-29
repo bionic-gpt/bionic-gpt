@@ -149,31 +149,6 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Retrieval Augmented Generation".to_string(),
-                pages: vec![
-                    Page {
-                        date: "",
-                        title: "AI Assistants",
-                        description: "",
-                        folder: "docs/rag/rag/",
-                        markdown: include_str!("../content/docs/rag/rag/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Managing Prompts",
-                        description: "",
-                        folder: "docs/rag/prompts/",
-                        markdown: include_str!("../content/docs/rag/prompts/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                ],
-            },
-            Category {
                 name: "Local Bionic".to_string(),
                 pages: vec![
                     Page {
