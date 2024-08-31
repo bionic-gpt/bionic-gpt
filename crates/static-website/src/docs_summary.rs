@@ -129,6 +129,18 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    Page {
+                        date: "",
+                        title: "Coding CoPilot",
+                        description: "",
+                        folder: "docs/guides/code-copilot/",
+                        markdown: include_str!(
+                            "../content/docs/guides/code-copilot/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
