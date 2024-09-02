@@ -110,9 +110,7 @@ pub fn summary() -> Summary {
                         title: "Deploying Jupyter Notebook",
                         description: "",
                         folder: "docs/guides/jupyter/",
-                        markdown: include_str!(
-                            "../content/docs/guides/jupyter/index.md"
-                        ),
+                        markdown: include_str!("../content/docs/guides/jupyter/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -122,9 +120,7 @@ pub fn summary() -> Summary {
                         title: "Visualising RAG",
                         description: "",
                         folder: "docs/guides/visual-rag/",
-                        markdown: include_str!(
-                            "../content/docs/guides/visual-rag/index.md"
-                        ),
+                        markdown: include_str!("../content/docs/guides/visual-rag/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -134,9 +130,7 @@ pub fn summary() -> Summary {
                         title: "Coding CoPilot",
                         description: "",
                         folder: "docs/guides/code-copilot/",
-                        markdown: include_str!(
-                            "../content/docs/guides/code-copilot/index.md"
-                        ),
+                        markdown: include_str!("../content/docs/guides/code-copilot/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -151,9 +145,7 @@ pub fn summary() -> Summary {
                         title: "Glossary",
                         description: "",
                         folder: "docs/guides/glossary/",
-                        markdown: include_str!(
-                            "../content/docs/guides/glossary/index.md"
-                        ),
+                        markdown: include_str!("../content/docs/guides/glossary/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -163,9 +155,7 @@ pub fn summary() -> Summary {
                         title: "Open Source Models",
                         description: "",
                         folder: "docs/guides/opensourcemodels/",
-                        markdown: include_str!(
-                            "../content/docs/guides/opensourcemodels/index.md"
-                        ),
+                        markdown: include_str!("../content/docs/guides/opensourcemodels/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
