@@ -1,6 +1,10 @@
 ## Open Source Models
+A wide variety of open-source large language models are available, many of which are refinements of foundation models. Some of these models have been fine-tuned to excel in specific tasks. Below is a curated list of some of the top open-source models currently available.
+
 
 ### General Models
+
+---
 
 #### Lllama3.1 from Meta ####
 https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct
@@ -18,6 +22,9 @@ Llama 3.1 is intended for commercial and research use in multiple languages. Ins
 
 
 ### Coding Models
+
+---
+
 #### Granite from IBM ####
 https://huggingface.co/ibm-granite/granite-8b-code-instruct-128k
 
@@ -40,6 +47,9 @@ Codestral Mamba is an open code model based on the Mamba2 architecture. It perfo
 
 
 ### Maths
+
+---
+
 #### Mathstral from Mixtral ####
 https://huggingface.co/mistralai/Mathstral-7B-v0.1
 
