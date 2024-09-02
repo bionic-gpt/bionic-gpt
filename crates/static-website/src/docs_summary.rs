@@ -158,6 +158,18 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    Page {
+                        date: "",
+                        title: "Open Source Models",
+                        description: "",
+                        folder: "docs/guides/opensourcemodels/",
+                        markdown: include_str!(
+                            "../content/docs/guides/opensourcemodels/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
