@@ -7,6 +7,7 @@ use db::{queries, Pool};
 use crate::errors::CustomError;
 
 // Reverse proxy all LLM API calls directly to the model
+// This handles the calls that are NOT /v1/chat/completions
 pub async fn handler(
     LLMHandler { path: _ }: LLMHandler,
     Extension(pool): Extension<Pool>,
