@@ -12,7 +12,7 @@ pub fn summary() -> Summary {
                     description: "How to choose the perfect inference engine for LLMs in production",
                     folder: "blog/perfect-llm-inference/",
                     markdown: include_str!("../content/blog/perfect-llm-inference/index.md"),
-                    image: Some("/blog/confidential-saas/kubernetes.png"),
+                    image: Some("/blog/perfect-llm-inference/llama-holding-a-gpu.jpg"),
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
