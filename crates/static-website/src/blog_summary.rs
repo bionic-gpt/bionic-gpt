@@ -7,7 +7,17 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
-                    date: "2024-08-21",
+                    date: "2024-09-24",
+                    title: "What is the perfect LLM inference engine",
+                    description: "How to choose the perfect inference engine for LLMs in production",
+                    folder: "blog/perfect-llm-inference/",
+                    markdown: include_str!("../content/blog/perfect-llm-inference/index.md"),
+                    image: Some("/blog/confidential-saas/kubernetes.png"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                Page {
+                    date: "2024-0-21",
                     title: "How Enterprises Can Prepare for Generative AI",
                     description: "A comprehensive guide for businesses to effectively integrate and leverage Generative AI. Emphasising the importance of strategic planning, stakeholder engagement, and infrastructure readiness. Outlining the potential benefits, while cautioning about risks like algorithmic bias and data privacy concerns. Highlighting the need for robust governance, multidisciplinary teams, and continuous monitoring to ensure AI initiatives align with business goals and deliver measurable value.",
                     folder: "blog/preparing-for-gen-ai/",
@@ -49,7 +59,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-05-28",
                     title: "Why companies are banning Chat-GPT",
-                    description: "",
+                    description: "A look at why companies are banning Chat-GPT",
                     folder: "blog/banning-chat-gpt/",
                     markdown: include_str!("../content/blog/banning-chat-gpt/index.md"),
                     image: Some("/blog/banning-chat-gpt/chat-gpt-banned.png"),
@@ -58,8 +68,8 @@ pub fn summary() -> Summary {
                 },
                 Page {
                     date: "2024-04-10",
-                    title: "Model Denial of Service prevention for  production LLM applications",
-                    description: "",
+                    title: "Model Denial of Service prevention for production LLM applications",
+                    description: "What is Model denial of Service and how can we prevent it.",
                     folder: "blog/model-denial-of-service/",
                     markdown: include_str!("../content/blog/model-denial-of-service/index.md"),
                     image: Some("/blog/model-denial-of-service/model-denial-of-service.png"),
@@ -69,7 +79,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2023-12-04",
                     title: "bionicGPT Integration with Jupyter",
-                    description: "",
+                    description: "Using Jupoyter notebook with Bionic.",
                     folder: "blog/jupyter/",
                     markdown: include_str!("../content/blog/jupyter/index.md"),
                     image: Some("/blog/jupyter/llama-jupyter.jpg"),
