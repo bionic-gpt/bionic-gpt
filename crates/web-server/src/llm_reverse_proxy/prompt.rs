@@ -49,14 +49,8 @@ pub async fn execute_prompt(
 
         tracing::info!(prompt.name);
         // Get related context
-        related_context = db::get_related_context(
-            transaction,
-            prompt_id,
-            team_id,
-            prompt.max_chunks,
-            embeddings,
-        )
-        .await?;
+        related_context =
+            db::get_related_context(transaction, prompt_id, prompt.max_chunks, embeddings).await?;
         tracing::info!("Retrieved {} chunks", related_context.len());
     }
 
