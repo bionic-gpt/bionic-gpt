@@ -14,6 +14,7 @@ Run the script in a terminal on the host (i.e. not in the devcontainer). This wi
 cat <<EOF > open-ports.sh
 # Push commands in the background, when the script exits, the commands will exit too
 kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/chunking-engine 8000:8000 & \
+kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/embeddings-api 8090:80 & \
 
 echo "Press CTRL-C to stop port forwarding and exit the script"
 wait
@@ -22,6 +23,8 @@ chmod +x ./open-ports.sh
 ./open-ports.sh
 rm ./open-ports.sh
 ```
+
+You need to chnage the embeddings model to point to 8090 and also the IP address.
 
 ## Test Unstructured API
 
