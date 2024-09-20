@@ -38,7 +38,14 @@ pub async fn execute_prompt(
             &prompt.api_key,
         )
         .await
-        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+        .map_err(|e| {
+            tracing::error!(
+                "Problem getting embeddings {} {}",
+                embeddings_base_url,
+                embeddings_model
+            );
+            CustomError::ExternalApi(e.to_string())
+        })?;
 
         tracing::info!(prompt.name);
         // Get related context
