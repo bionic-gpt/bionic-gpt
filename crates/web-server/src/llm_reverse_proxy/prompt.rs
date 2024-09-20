@@ -38,18 +38,19 @@ pub async fn execute_prompt(
             &prompt.api_key,
         )
         .await
-        .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+        .map_err(|e| {
+            tracing::error!(
+                "Problem getting embeddings {} {}",
+                embeddings_base_url,
+                embeddings_model
+            );
+            CustomError::ExternalApi(e.to_string())
+        })?;
 
         tracing::info!(prompt.name);
         // Get related context
-        related_context = db::get_related_context(
-            transaction,
-            prompt_id,
-            team_id,
-            prompt.max_chunks,
-            embeddings,
-        )
-        .await?;
+        related_context =
+            db::get_related_context(transaction, prompt_id, prompt.max_chunks, embeddings).await?;
         tracing::info!("Retrieved {} chunks", related_context.len());
     }
 

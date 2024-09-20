@@ -1,5 +1,6 @@
 use std::env;
 
+#[derive(Debug)]
 pub struct Config {
     pub app_database_url: String,
     pub unstructured_endpoint: String,
