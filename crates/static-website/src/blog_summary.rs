@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2024-09-20",
+                    title: "What Are Guardrails",
+                    description: "A guide to AI guardrails, what they are, what they do and the types of guardrail you can implement",
+                    folder: "blog/guardrails/",
+                    markdown: include_str!("../content/blog/guardrails/index.md"),
+                    image: Some("/blog/guardrails/guardrails.jpg"),
+                    author_image: Some("/blog-authors/dio.jpeg"),
+                    author: Some("Kulbinder Dio")
+                },
+                Page {
                     date: "2024-08-21",
                     title: "How Enterprises Can Prepare for Generative AI",
                     description: "A comprehensive guide for businesses to effectively integrate and leverage Generative AI. Emphasising the importance of strategic planning, stakeholder engagement, and infrastructure readiness. Outlining the potential benefits, while cautioning about risks like algorithmic bias and data privacy concerns. Highlighting the need for robust governance, multidisciplinary teams, and continuous monitoring to ensure AI initiatives align with business goals and deliver measurable value.",
