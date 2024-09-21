@@ -17,6 +17,7 @@ pub fn Page(
     conversation_id: i64,
     history: Vec<History>,
     lock_console: bool,
+    is_tts_disabled: bool,
 ) -> Element {
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
