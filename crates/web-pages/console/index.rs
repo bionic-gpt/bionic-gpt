@@ -99,26 +99,28 @@ pub fn Page(
                                             class: "hidden",
                                             "{response}"
                                         }
-                                        if ! is_tts_disabled {
+                                        div {
+                                            if ! is_tts_disabled {
+                                                ToolTip {
+                                                    text: "Read aloud",
+                                                    class: "mr-2",
+                                                    img {
+                                                        class: "read-aloud mt-0 mb-0",
+                                                        src: read_aloud_svg.name,
+                                                        width: "16",
+                                                        height: "16"
+                                                    }
+                                                }
+                                            }
                                             ToolTip {
-                                                text: "Read aloud",
-                                                class: "mr-2",
+                                                text: "Copy",
                                                 img {
                                                     class: "copy-response mt-0 mb-0",
-                                                    src: read_aloud_svg.name,
+                                                    "clicked-img": tick_copy_svg.name,
+                                                    src: copy_svg.name,
                                                     width: "16",
                                                     height: "16"
                                                 }
-                                            }
-                                        }
-                                        ToolTip {
-                                            text: "Copy",
-                                            img {
-                                                class: "copy-response mt-0 mb-0",
-                                                "clicked-img": tick_copy_svg.name,
-                                                src: copy_svg.name,
-                                                width: "16",
-                                                height: "16"
                                             }
                                         }
                                     }
@@ -162,9 +164,10 @@ pub fn Page(
                                 }
                                 TimeLineBody {
                                     Label {
-                                        "Model: "
+                                        "Model:"
                                         strong {
-                                            " {chat_with_chunks.chat.model_name}"
+                                            class: "ml-2",
+                                            "{chat_with_chunks.chat.model_name}"
                                         }
                                     }
 
