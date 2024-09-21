@@ -3,7 +3,7 @@ use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::queries::models;
-use db::{ModelType, Pool};
+use db::Pool;
 use web_pages::routes::models::Index;
 
 pub async fn index(
@@ -16,16 +16,7 @@ pub async fn index(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let mut models = models::models()
-        .bind(&transaction, &ModelType::LLM)
-        .all()
-        .await?;
-    models.append(
-        &mut models::models()
-            .bind(&transaction, &ModelType::Embeddings)
-            .all()
-            .await?,
-    );
+    let models = models::all_models().bind(&transaction).all().await?;
 
     let html = web_pages::render_with_props(
         web_pages::models::index::Page,

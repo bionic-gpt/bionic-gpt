@@ -36,10 +36,11 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let model_type = if model_form.model_type == "LLM" {
-        ModelType::LLM
-    } else {
-        ModelType::Embeddings
+    let model_type = match model_form.model_type.as_str() {
+        "LLM" => ModelType::LLM,
+        "Image" => ModelType::Image,
+        "TextToSpeech" => ModelType::TextToSpeech,
+        _ => ModelType::Embeddings,
     };
 
     match (model_form.validate(), model_form.id) {
