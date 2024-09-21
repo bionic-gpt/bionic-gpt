@@ -201,10 +201,19 @@ LEFT JOIN
 WHERE
     p.prompt_id = :prompts_id
 AND
-    d.team_id IN (
-        SELECT team_id 
-        FROM team_users 
-        WHERE user_id = current_app_user()
+    (
+        (d.visibility = 'Private' AND d.created_by = current_app_user()) 
+        OR 
+            (
+                d.visibility = 'Team' 
+                AND
+                team_id IN (
+                    SELECT 
+                        team_id 
+                    FROM team_users WHERE user_id = current_app_user())
+            )
+        OR 
+            (d.visibility = 'Company')
     );
 
 --! delete_prompt_datasets

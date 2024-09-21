@@ -12,7 +12,6 @@ pub struct RelatedContext {
 pub async fn get_related_context(
     transaction: &Transaction<'_>,
     prompt_id: i32,
-    team_id: i32,
     limit: i32,
     embeddings: Vec<f32>,
 ) -> Result<Vec<RelatedContext>, TokioPostgresError> {
@@ -38,20 +37,13 @@ pub async fn get_related_context(
                         chunks
                     WHERE
                         document_id IN (
-                            SELECT id FROM documents WHERE dataset_id IN (
-                                SELECT id FROM datasets WHERE team_id IN (
-                                    SELECT team_id FROM team_users 
-                                    WHERE user_id = current_app_user()
-                                    AND team_id = $1
-                                )
-                                AND dataset_id = ANY($2)
-                            )
+                            SELECT id FROM documents WHERE dataset_id = ANY($1)
                         )
                     ORDER BY 
-                        embeddings <-> $3 
-                    LIMIT $4;
+                        embeddings <-> $2 
+                    LIMIT $3;
                     ",
-            &[&team_id, &datasets, &embedding_data, &(limit as i64)],
+            &[&datasets, &embedding_data, &(limit as i64)],
         )
         .await?;
 

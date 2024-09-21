@@ -65,14 +65,6 @@ Create all the database tables with
 
 `dbmate up`
 
-## Update any of the git submodules
-
-The website uses a zola theme. This will need to be loaded with
-
-`git submodule init`
-
-`gsu`
-
 ## Expose port on k3s
 
 Run the script in a terminal on the host (i.e. not in the devcontainer). This will open up ports so we can access the services from our devcontainer.

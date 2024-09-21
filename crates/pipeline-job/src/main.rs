@@ -10,6 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     let config = config::Config::new();
+    dbg!(&config);
     let pool = db::create_pool(&config.app_database_url);
     let client = pool.get().await?;
 
