@@ -135,6 +135,16 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    Page {
+                        date: "",
+                        title: "Credit Card Categorising Assistant",
+                        description: "",
+                        folder: "docs/guides/howtocategorise/",
+                        markdown: include_str!("../content/docs/guides/howtocategorise/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
