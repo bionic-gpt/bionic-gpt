@@ -99,6 +99,18 @@ pub fn Page(
                                             class: "hidden",
                                             "{response}"
                                         }
+                                        if ! is_tts_disabled {
+                                            ToolTip {
+                                                text: "Read aloud",
+                                                class: "mr-2",
+                                                img {
+                                                    class: "copy-response mt-0 mb-0",
+                                                    src: read_aloud_svg.name,
+                                                    width: "16",
+                                                    height: "16"
+                                                }
+                                            }
+                                        }
                                         ToolTip {
                                             text: "Copy",
                                             img {
