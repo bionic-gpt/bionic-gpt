@@ -92,29 +92,31 @@ pub async fn upsert(
                 0
             };
 
-            queries::prompts::insert()
-                .bind(
-                    &transaction,
-                    &team_id,
-                    &model_id,
-                    &model_form.name,
-                    &Visibility::Company,
-                    &system_prompt,
-                    &3,
-                    &10,
-                    &context_size,
-                    &80,
-                    &0.7,
-                    &"Please add a description",
-                    &"LLms can make mistakes. Please check.",
-                    &system_prompt,
-                    &system_prompt,
-                    &system_prompt,
-                    &system_prompt,
-                    &db::PromptType::Model,
-                )
-                .one()
-                .await?;
+            if model_type == ModelType::LLM {
+                queries::prompts::insert()
+                    .bind(
+                        &transaction,
+                        &team_id,
+                        &model_id,
+                        &model_form.name,
+                        &Visibility::Company,
+                        &system_prompt,
+                        &3,
+                        &10,
+                        &context_size,
+                        &80,
+                        &0.7,
+                        &"Please add a description",
+                        &"LLms can make mistakes. Please check.",
+                        &system_prompt,
+                        &system_prompt,
+                        &system_prompt,
+                        &system_prompt,
+                        &db::PromptType::Model,
+                    )
+                    .one()
+                    .await?;
+            }
 
             transaction.commit().await?;
 
