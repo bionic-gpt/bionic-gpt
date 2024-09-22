@@ -76,13 +76,13 @@ async fn create_request(
     let client = reqwest::Client::new();
     let request = if let Some(api_key) = model.api_key {
         client
-            .post(format!("{}/chat/completions", model.base_url))
+            .post(format!("{}/audio/speech", model.base_url))
             .header(AUTHORIZATION, format!("Bearer {}", api_key))
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
             .body(body)
     } else {
         client
-            .post(format!("{}/chat/completions", model.base_url))
+            .post(format!("{}/audio/speech", model.base_url))
             .header(CONTENT_TYPE, HeaderValue::from_static("application/json"))
             .body(body)
     };
