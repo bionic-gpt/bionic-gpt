@@ -127,7 +127,7 @@ static_resources:
 
                       response_handle:headers():add("Cache-Control", "none");
 
-                      csp = "default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
+                      csp = "media-src blob:; default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
                       response_handle:headers():add("Content-Security-Policy", csp);
                       response_handle:headers():add("X-Frame-Options", "deny");
                       response_handle:headers():add("X-XSS-Protection", "1; mode=block");

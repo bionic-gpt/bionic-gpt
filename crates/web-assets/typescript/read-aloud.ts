@@ -21,7 +21,8 @@ function readAloudContent(text: string): void {
     fetch('/app/synthesize', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            "Accept":  "audio/mpeg"
         },
         body: JSON.stringify({
             model: "tts-1",
