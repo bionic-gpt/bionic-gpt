@@ -52,10 +52,14 @@ pub async fn synthesize(
 
             // Build axum response
             let response = (status, headers, body).into_response();
+            dbg!(&response);
 
             Ok(response)
         }
-        Err(err) => Err(CustomError::FaultySetup(err.to_string())),
+        Err(err) => {
+            dbg!(&err);
+            Err(CustomError::FaultySetup(err.to_string()))
+        }
     }
 }
 

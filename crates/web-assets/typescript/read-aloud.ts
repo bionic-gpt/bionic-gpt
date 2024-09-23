@@ -7,7 +7,7 @@ export const readAloud = () => {
 
             const parent = icon.parentElement
             const previousElement = parent?.parentElement?.previousElementSibling;
-    
+
             if (previousElement && icon instanceof HTMLImageElement) {
                 const previousElementContent = previousElement.innerHTML;
                 readAloudContent(previousElementContent);
@@ -17,5 +17,24 @@ export const readAloud = () => {
 }
 
 function readAloudContent(text: string): void {
-    alert(text)
+
+    fetch('/app/synthesize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: "tts-1",
+            voice: "alloy",
+            input: text
+        }),
+    })
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+            const blob = new Blob([buffer], { type: 'audio/mp3' });
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.play();
+        })
+        .catch(error => alert(error));
 }

@@ -50,7 +50,7 @@ pub struct UICompletions {
 }
 
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/synthesize")]
+#[typed_path("/app/synthesize")]
 pub struct UISynthesize {}
 
 #[derive(TypedPath, Deserialize)]
