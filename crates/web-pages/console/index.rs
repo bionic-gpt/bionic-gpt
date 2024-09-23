@@ -17,6 +17,7 @@ pub fn Page(
     conversation_id: i64,
     history: Vec<History>,
     lock_console: bool,
+    is_tts_disabled: bool,
 ) -> Element {
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
@@ -98,14 +99,28 @@ pub fn Page(
                                             class: "hidden",
                                             "{response}"
                                         }
-                                        ToolTip {
-                                            text: "Copy",
-                                            img {
-                                                class: "copy-response mt-0 mb-0",
-                                                "clicked-img": tick_copy_svg.name,
-                                                src: copy_svg.name,
-                                                width: "16",
-                                                height: "16"
+                                        div {
+                                            if ! is_tts_disabled {
+                                                ToolTip {
+                                                    text: "Read aloud",
+                                                    class: "mr-2",
+                                                    img {
+                                                        class: "read-aloud mt-0 mb-0",
+                                                        src: read_aloud_svg.name,
+                                                        width: "16",
+                                                        height: "16"
+                                                    }
+                                                }
+                                            }
+                                            ToolTip {
+                                                text: "Copy",
+                                                img {
+                                                    class: "copy-response mt-0 mb-0",
+                                                    "clicked-img": tick_copy_svg.name,
+                                                    src: copy_svg.name,
+                                                    width: "16",
+                                                    height: "16"
+                                                }
                                             }
                                         }
                                     }
@@ -149,9 +164,10 @@ pub fn Page(
                                 }
                                 TimeLineBody {
                                     Label {
-                                        "Model: "
+                                        "Model:"
                                         strong {
-                                            " {chat_with_chunks.chat.model_name}"
+                                            class: "ml-2",
+                                            "{chat_with_chunks.chat.model_name}"
                                         }
                                     }
 

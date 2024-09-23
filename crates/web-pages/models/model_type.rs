@@ -20,5 +20,19 @@ pub fn Model(model_type: ModelType) -> Element {
                 "Embeddings Model"
             }
         ),
+        ModelType::TextToSpeech => rsx!(
+            Label {
+                class: "mr-2 truncate",
+                label_role: LabelRole::Warning,
+                "Text To Speech"
+            }
+        ),
+        ModelType::Image => rsx!(
+            Label {
+                class: "mr-2 truncate",
+                label_role: LabelRole::Neutral,
+                "Image Generation"
+            }
+        ),
     }
 }

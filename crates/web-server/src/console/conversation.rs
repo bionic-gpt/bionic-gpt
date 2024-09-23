@@ -1,9 +1,9 @@
 use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::Html;
-use db::authz;
-use db::queries::{chats, chats_chunks, conversations, prompts};
+use db::queries::{chats, chats_chunks, conversations, models, prompts};
 use db::Pool;
+use db::{authz, ModelType};
 use web_pages::console::ChatWithChunks;
 use web_pages::{console, render_with_props, routes::console::Conversation};
 
@@ -26,6 +26,12 @@ pub async fn conversation(
         .bind(&transaction, &conversation_id)
         .all()
         .await?;
+
+    let is_tts_disabled = models::models()
+        .bind(&transaction, &ModelType::TextToSpeech)
+        .all()
+        .await?
+        .is_empty();
 
     let mut chats_with_chunks = Vec::new();
     let mut lock_console = false;
@@ -61,6 +67,7 @@ pub async fn conversation(
             prompts,
             history,
             lock_console,
+            is_tts_disabled,
         },
     );
 

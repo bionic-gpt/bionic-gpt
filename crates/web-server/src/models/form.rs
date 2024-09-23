@@ -36,10 +36,11 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let model_type = if model_form.model_type == "LLM" {
-        ModelType::LLM
-    } else {
-        ModelType::Embeddings
+    let model_type = match model_form.model_type.as_str() {
+        "LLM" => ModelType::LLM,
+        "Image" => ModelType::Image,
+        "TextToSpeech" => ModelType::TextToSpeech,
+        _ => ModelType::Embeddings,
     };
 
     match (model_form.validate(), model_form.id) {
@@ -91,29 +92,31 @@ pub async fn upsert(
                 0
             };
 
-            queries::prompts::insert()
-                .bind(
-                    &transaction,
-                    &team_id,
-                    &model_id,
-                    &model_form.name,
-                    &Visibility::Company,
-                    &system_prompt,
-                    &3,
-                    &10,
-                    &context_size,
-                    &80,
-                    &0.7,
-                    &"Please add a description",
-                    &"LLms can make mistakes. Please check.",
-                    &system_prompt,
-                    &system_prompt,
-                    &system_prompt,
-                    &system_prompt,
-                    &db::PromptType::Model,
-                )
-                .one()
-                .await?;
+            if model_type == ModelType::LLM {
+                queries::prompts::insert()
+                    .bind(
+                        &transaction,
+                        &team_id,
+                        &model_id,
+                        &model_form.name,
+                        &Visibility::Company,
+                        &system_prompt,
+                        &3,
+                        &10,
+                        &context_size,
+                        &80,
+                        &0.7,
+                        &"Please add a description",
+                        &"LLms can make mistakes. Please check.",
+                        &system_prompt,
+                        &system_prompt,
+                        &system_prompt,
+                        &system_prompt,
+                        &db::PromptType::Model,
+                    )
+                    .one()
+                    .await?;
+            }
 
             transaction.commit().await?;
 

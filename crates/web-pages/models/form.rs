@@ -57,6 +57,16 @@ pub fn Form(
                             selected_value: model_type.clone(),
                             "Embeddings Model"
                         }
+                        SelectOption {
+                            value: "Image",
+                            selected_value: model_type.clone(),
+                            "Image Generation"
+                        }
+                        SelectOption {
+                            value: "TextToSpeech",
+                            selected_value: model_type.clone(),
+                            "Text To Speech"
+                        }
                     }
 
                     Input {

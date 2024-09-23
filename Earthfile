@@ -1,6 +1,6 @@
 VERSION 0.8
 
-FROM purtontech/rust-on-nails-devcontainer:1.3.1
+FROM purtontech/rust-on-nails-devcontainer:1.3.3
 
 ARG --global APP_EXE_NAME=web-server
 ARG --global OPERATOR_EXE_NAME=k8s-operator
@@ -188,7 +188,7 @@ build-cli-linux:
     SAVE ARTIFACT k8s-operator/target/release/k8s-operator AS LOCAL ./bionic-cli-linux
 
 build-cli-osx:
-    FROM joseluisq/rust-linux-darwin-builder:1.76.0
+    FROM joseluisq/rust-linux-darwin-builder:1.81.0
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator \ 
         && CC=o64-clang \
