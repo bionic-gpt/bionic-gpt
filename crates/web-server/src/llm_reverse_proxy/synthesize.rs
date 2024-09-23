@@ -2,11 +2,10 @@ use crate::auth::Authentication;
 use crate::CustomError;
 use axum::body::Body;
 use axum::extract::Request;
-use axum::response::{IntoResponse, Response};
+use axum::response::Response;
 use axum::{Extension, RequestExt};
 use db::queries::models;
 use db::{ModelType, Pool};
-use http::{HeaderMap, StatusCode};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -34,27 +33,11 @@ pub async fn synthesize(
                 CustomError::FaultySetup("Error calling model".to_string())
             })?;
 
-            // Extract status code
-            let status = StatusCode::from_u16(response.status().as_u16()).map_err(|e| {
-                tracing::error!("Error generating status code: {:?}", e);
-                CustomError::FaultySetup("Error generating status code".to_string())
-            })?;
-
-            // Extract headers from reqwest response
-            let mut headers = HeaderMap::new();
-            for (key, value) in response.headers() {
-                headers.insert(key, value.clone());
-            }
-
-            // Extract body
-            let body_bytes = response.bytes().await?;
-            let body = body_bytes.to_vec(); // Convert body to Vec<u8> (Axum uses hyper)
-
-            // Build axum response
-            let response = (status, headers, body).into_response();
-            dbg!(&response);
-
-            Ok(response)
+            let response_builder = Response::builder().status(response.status().as_u16());
+            Ok(response_builder
+                .body(Body::from_stream(response.bytes_stream()))
+                // This unwrap is fine because the body is empty here
+                .unwrap())
         }
         Err(err) => {
             dbg!(&err);
