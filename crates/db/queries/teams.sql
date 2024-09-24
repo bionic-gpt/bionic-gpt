@@ -5,6 +5,11 @@ FROM
     teams
 WHERE
     id = :org_id;
+    
+--! delete
+DELETE FROM teams 
+WHERE
+    id = :org_id;
 
 --! set_name
 UPDATE
