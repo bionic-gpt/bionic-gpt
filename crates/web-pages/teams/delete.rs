@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
+pub fn DeleteDrawer(team_id: i32, trigger_id: String) -> Element {
     rsx! {
         Drawer {
             submit_action: crate::routes::teams::Delete {team_id}.to_string(),

@@ -19,11 +19,13 @@ pub async fn delete(
         .bind(&transaction, &team_id)
         .await?;
 
+    transaction.commit().await?;
+
+    let transaction = client.transaction().await?;
     let team = queries::teams::get_primary_team()
         .bind(&transaction, &permissions.user_id)
         .one()
         .await?;
-
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
