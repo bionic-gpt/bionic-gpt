@@ -11,28 +11,34 @@ use validator::Validate;
 use web_pages::routes::team::{DeleteInvite, Index};
 
 #[derive(Deserialize, Validate, Default, Debug)]
-pub struct DeleteMember {
+pub struct DeleteInviteForm {
     pub team_id: i32,
-    pub user_id: i32,
+    pub invite_id: i32,
 }
 
 pub async fn delete(
     DeleteInvite { team_id }: DeleteInvite,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    Form(delete_member): Form<DeleteMember>,
+    Form(delete_invite): Form<DeleteInviteForm>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        authz::get_permissions(&transaction, &current_user.into(), delete_member.team_id).await?;
+    let permissions =
+        authz::get_permissions(&transaction, &current_user.into(), delete_invite.team_id).await?;
 
-    queries::teams::remove_user()
-        .bind(&transaction, &delete_member.user_id, &delete_member.team_id)
-        .await?;
+    if permissions.can_make_invitations() {
+        queries::invitations::delete()
+            .bind(
+                &transaction,
+                &delete_invite.invite_id,
+                &delete_invite.team_id,
+            )
+            .await?;
+    }
 
     transaction.commit().await?;
 
-    super::super::layout::redirect_and_snackbar(&Index { team_id }.to_string(), "User Removed")
+    super::super::layout::redirect_and_snackbar(&Index { team_id }.to_string(), "Invite Deleted")
 }

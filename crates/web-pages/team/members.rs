@@ -179,7 +179,7 @@ pub fn Page(
                                                 button_text: "...",
                                                 DropDownLink {
                                                     drawer_trigger: format!("remove-invite-trigger-{}-{}",
-                                                        invite.team_id, invite.id),
+                                                        invite.id, invite.team_id),
                                                     href: "#",
                                                     target: "_top",
                                                     "Delete Invite"
