@@ -12,6 +12,7 @@ pub fn Page(
     team_id: i32,
     teams: Vec<TeamOwner>,
     invites: Vec<InviteSummary>,
+    current_user_email: String,
 ) -> Element {
     rsx! {
         Layout {
@@ -39,13 +40,14 @@ pub fn Page(
                         class: "table table-sm",
                         thead {
                             th { "Team" }
+                            th { "Team Creator" }
                             th {
                                 class: "text-right",
-                                "Team Creator"
+                                "Action"
                             }
                         }
                         tbody {
-                            for team in teams {
+                            for team in &teams {
 
                                 if let Some(name) = &team.team_name {
                                     tr {
@@ -67,9 +69,27 @@ pub fn Page(
                                             }
                                         }
                                         td {
-                                            class: "text-right",
                                             strong {
                                                 "{team.team_owner}"
+                                            }
+                                        }
+                                        if team.team_owner == current_user_email && teams.len() > 1 {
+                                            td {
+                                                class: "text-right",
+                                                DropDown {
+                                                    direction: Direction::Left,
+                                                    button_text: "...",
+                                                    DropDownLink {
+                                                        drawer_trigger: format!("delete-trigger-{}", team.id),
+                                                        href: "#",
+                                                        target: "_top",
+                                                        "Delete Team"
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            td {
+                                                class: "text-right",
                                             }
                                         }
                                     }
@@ -92,9 +112,27 @@ pub fn Page(
                                             }
                                         }
                                         td {
-                                            class: "text-right",
                                             strong {
                                                 "{team.team_owner}"
+                                            }
+                                        }
+                                        if team.team_owner == current_user_email && teams.len() > 1 {
+                                            td {
+                                                class: "text-right",
+                                                DropDown {
+                                                    direction: Direction::Left,
+                                                    button_text: "...",
+                                                    DropDownLink {
+                                                        drawer_trigger: format!("delete-trigger-{}", team.id),
+                                                        href: "#",
+                                                        target: "_top",
+                                                        "Delete Team"
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            td {
+                                                class: "text-right",
                                             }
                                         }
                                     }
@@ -155,6 +193,13 @@ pub fn Page(
                 super::accept_invitation::AcceptInvite {
                     invite,
                     team_id
+                }
+            }
+
+            for team in teams {
+                super::delete::DeleteDrawer {
+                    team_id: team.id,
+                    trigger_id: format!("delete-trigger-{}", team.id)
                 }
             }
 

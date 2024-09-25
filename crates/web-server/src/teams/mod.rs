@@ -1,4 +1,5 @@
 pub mod accept_invite;
+pub mod delete;
 pub mod new_team;
 pub mod switch;
 use axum::Router;
@@ -9,4 +10,5 @@ pub fn routes() -> Router {
         .typed_get(switch::switch)
         .typed_post(new_team::new_team)
         .typed_post(accept_invite::accept_invite)
+        .typed_post(delete::delete)
 }

@@ -126,7 +126,7 @@ pub fn Page(
                                             }
                                         }
                                     }
-                                    if rbac.can_make_invitations() {
+                                    if rbac.can_make_invitations() && rbac.email != member.email {
                                         td {
                                             class: "text-right",
                                             DropDown {
@@ -170,11 +170,21 @@ pub fn Page(
                                             }
                                         }
                                     }
-                                    td {
-                                        class: "text-right",
-                                        DropDown {
-                                            button_text: "...",
-                                            direction: Direction::Left
+
+                                    if rbac.can_make_invitations() {
+                                        td {
+                                            class: "text-right",
+                                            DropDown {
+                                                direction: Direction::Left,
+                                                button_text: "...",
+                                                DropDownLink {
+                                                    drawer_trigger: format!("remove-invite-trigger-{}-{}",
+                                                        invite.id, invite.team_id),
+                                                    href: "#",
+                                                    target: "_top",
+                                                    "Delete Invite"
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -190,6 +200,14 @@ pub fn Page(
                     user_id: member.id,
                     email: member.email.clone(),
                     trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.team_id)
+                }
+            }
+
+            for invite in invites {
+                super::remove_invite::RemoveInviteDrawer {
+                    team_id: invite.team_id,
+                    invite_id: invite.id,
+                    trigger_id: format!("remove-invite-trigger-{}-{}", invite.id, invite.team_id)
                 }
             }
 

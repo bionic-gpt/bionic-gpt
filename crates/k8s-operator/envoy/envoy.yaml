@@ -40,7 +40,7 @@ static_resources:
               "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
               inline_code: |
                 function envoy_on_response(response_handle)
-                    csp = "default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
+                    csp = "media-src blob:; default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
                     response_handle:headers():add("Content-Security-Policy", csp);
                     response_handle:headers():add("X-Frame-Options", "deny");
                     response_handle:headers():add("X-XSS-Protection", "1; mode=block");

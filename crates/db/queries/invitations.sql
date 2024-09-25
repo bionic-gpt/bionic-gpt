@@ -60,6 +60,14 @@ WHERE
 AND
     team_id = :team_id;
 
+--! delete
+DELETE FROM
+    invitations
+WHERE
+    id = :invite_id
+AND
+    team_id = :team_id;
+
 --! get_all : Invitation
 SELECT  
     id, 
