@@ -126,7 +126,7 @@ pub fn Page(
                                             }
                                         }
                                     }
-                                    if rbac.can_make_invitations() {
+                                    if rbac.can_make_invitations() && rbac.email != member.email {
                                         td {
                                             class: "text-right",
                                             DropDown {
