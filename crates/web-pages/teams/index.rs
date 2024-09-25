@@ -73,7 +73,7 @@ pub fn Page(
                                                 "{team.team_owner}"
                                             }
                                         }
-                                        if team.team_owner == current_user_email {
+                                        if team.team_owner == current_user_email && teams.len() > 1 {
                                             td {
                                                 class: "text-right",
                                                 DropDown {
@@ -116,7 +116,7 @@ pub fn Page(
                                                 "{team.team_owner}"
                                             }
                                         }
-                                        if team.team_owner == current_user_email {
+                                        if team.team_owner == current_user_email && teams.len() > 1 {
                                             td {
                                                 class: "text-right",
                                                 DropDown {
