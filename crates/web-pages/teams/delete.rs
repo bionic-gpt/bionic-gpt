@@ -27,10 +27,11 @@ pub fn DeleteDrawer(team_id: i32, trigger_id: String) -> Element {
                 }
             }
             DrawerFooter {
-                Button {
-                    button_type: ButtonType::Submit,
-                    button_scheme: ButtonScheme::Danger,
-                    "Delete"
+                button {
+                    "data-turbo-frame": "_top",
+                    "type": "submit",
+                    class: "btn btn-primary btn-sm",
+                    "Delete",
                 }
             }
         }
