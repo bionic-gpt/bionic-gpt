@@ -198,7 +198,7 @@ pub fn Page(
 
             for team in teams {
                 super::delete::DeleteDrawer {
-                    team_id,
+                    team_id: team.id,
                     trigger_id: format!("delete-trigger-{}", team.id)
                 }
             }
