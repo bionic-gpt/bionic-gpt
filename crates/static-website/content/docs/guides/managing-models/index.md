@@ -24,7 +24,7 @@ Luckily the guys at [Lite LLM](https://litellm.ai/) have got you covered. They b
 
 1. **Model Name** - This is the name of the model and must match exactly as specified in the inference engine
 
-2. **LLM or Embeddings** - bionicGPT allows for 2 different types of models, LLMs are used for normal 'chat' mode and Embedding models are used for the RAG functionality to convert uploaded text into Embeddings for RAG searching
+2. **LLM, Embeddings or Text-to-Speech** - bionicGPT allows for 3 different types of models, LLMs are used for normal 'chat' mode, Embedding models are used for the RAG functionality to convert uploaded text into Embeddings for RAG searching and text to speech models. Once a text-to-speech model has been added you will see an extra icon appear under each chat, clicking on this will 'speak' the returned text.
 
 3. **Model URL** - this is the address of the deployed model, example http://api.groq.com/v1
 
