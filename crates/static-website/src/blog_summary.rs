@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2024-09-26",
+                    title: "AI Agents: Transforming Business Operations",
+                    description: "A detailed guide to AI agents, what they are, how they can be used and how they will shape the future",
+                    folder: "blog/ai-agents/",
+                    markdown: include_str!("../content/blog/ai-agents/index.md"),
+                    image: Some("/blog/ai-agents/ai-agents.png"),
+                    author_image: Some("/blog-authors/dio.jpeg"),
+                    author: Some("Kulbinder Dio")
+                },
+                Page {
                     date: "2024-09-20",
                     title: "What Are Guardrails",
                     description: "A guide to AI guardrails, what they are, what they do and the types of guardrail you can implement",
