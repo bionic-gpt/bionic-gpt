@@ -27,6 +27,16 @@ static_resources:
               routes:
 
               - match:
+                  prefix: "/observability"
+                route:
+                  cluster: observability
+                typed_per_filter_config:
+
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
+
+              - match:
                   prefix: "/"
                 route:
                   cluster: upstream
@@ -80,3 +90,17 @@ static_resources:
               socket_address:
                 address: bionic-gpt
                 port_value: 7903
+
+  - name: observability
+    connect_timeout: 1s
+    type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
+    load_assignment:
+      cluster_name: observability
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: grafana
+                port_value: 3000
