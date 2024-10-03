@@ -9,7 +9,7 @@ const GRAFANA_YAML: &str = include_str!("../../config/grafana.yaml");
 pub async fn deploy(
     client: Client,
     password: Option<String>,
-    _namespace: &str,
+    namespace: &str,
 ) -> Result<(), Error> {
     // If we have the passwords then extract them.
     let password = if let Some(password) = password {
@@ -20,7 +20,7 @@ pub async fn deploy(
 
     let yaml = GRAFANA_YAML.replace("$BIONIC_PASSWORD", &password);
 
-    apply::apply(&client, &yaml, None).await.unwrap();
+    apply::apply(&client, &yaml, Some(namespace)).await.unwrap();
 
     Ok(())
 }
