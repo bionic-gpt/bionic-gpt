@@ -14,6 +14,7 @@ use crate::services::llm;
 use crate::services::llm_lite;
 use crate::services::mailhog;
 use crate::services::oauth2_proxy;
+use crate::services::observability;
 use crate::services::pgadmin;
 use crate::services::pipeline_job;
 use crate::services::tgi;
@@ -65,6 +66,8 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
 
     let pgadmin = bionic.spec.pgadmin.unwrap_or_default();
 
+    let observability = bionic.spec.observability.unwrap_or_default();
+
     let testing = bionic.spec.testing.unwrap_or_default();
 
     let development = bionic.spec.development.unwrap_or_default();
@@ -94,7 +97,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
-            ingress::deploy(client.clone(), &namespace, pgadmin).await?;
+            ingress::deploy(client.clone(), &namespace, pgadmin, observability).await?;
             mailhog::deploy(client.clone(), &namespace).await?;
             if gpu {
                 tgi::deploy(client.clone(), &namespace).await?;
@@ -105,8 +108,16 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
                 llm::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
             if pgadmin {
-                pgadmin::deploy(client.clone(), bionic_db_pass, keycloak_db_pass, &namespace)
-                    .await?;
+                pgadmin::deploy(
+                    client.clone(),
+                    bionic_db_pass.clone(),
+                    keycloak_db_pass,
+                    &namespace,
+                )
+                .await?;
+            }
+            if observability {
+                observability::deploy(client.clone(), bionic_db_pass, &namespace).await?;
             }
             if testing {
                 http_mock::deploy(
@@ -153,6 +164,9 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             embeddings_engine::delete(client.clone(), &namespace).await?;
             if pgadmin {
                 pgadmin::delete(client.clone(), &namespace).await?;
+            }
+            if observability {
+                observability::delete(client.clone(), &namespace).await?;
             }
 
             // Once the deployment is successfully removed, remove the finalizer to make it possible

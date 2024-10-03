@@ -22,7 +22,7 @@ data:
         user: bionic_readonly
         database: bionic-gpt
         secureJsonData:
-          password: 1691196207192
+          password: $BIONIC_PASSWORD
         jsonData:
           sslmode: disable  
   dashboards.yaml: |

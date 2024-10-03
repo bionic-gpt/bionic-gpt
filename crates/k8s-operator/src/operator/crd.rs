@@ -18,6 +18,7 @@ pub struct BionicSpec {
     pub gpu: Option<bool>,
     pub saas: Option<bool>,
     pub pgadmin: Option<bool>,
+    pub observability: Option<bool>,
     pub development: Option<bool>,
     pub testing: Option<bool>,
     #[serde(rename = "hostname-url")]
