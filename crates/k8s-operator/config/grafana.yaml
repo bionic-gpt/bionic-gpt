@@ -1,0 +1,192 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+data:
+  grafana.ini: |
+    [server]
+    domain = 192.168.178.57
+    root_url = http://192.168.178.57/observability/
+    serve_from_sub_path = true
+
+    [security]
+    admin_user = admin
+    admin_password = admin
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Bionic Database
+        type: postgres
+        access: proxy
+        url: bionic-db-cluster-rw:5432
+        user: bionic_readonly
+        database: bionic-gpt
+        secureJsonData:
+          password: $BIONIC_PASSWORD
+        jsonData:
+          sslmode: disable  
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'Default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /etc/grafana/provisioning/dashboards
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin-secret
+type: Opaque
+data:
+  admin-user: YWRtaW4=   # base64 for 'admin'
+  admin-password: YWRtaW4= # base64 for 'admin'
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: grafana-storage
+          mountPath: /var/lib/grafana
+        - name: grafana-config-volume
+          mountPath: /etc/grafana/grafana.ini
+          subPath: grafana.ini
+        - name: grafana-datasources-volume
+          mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+          subPath: datasources.yaml
+        - name: grafana-dashboards-volume
+          mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
+          subPath: dashboards.yaml
+        - name: bionic-dashboard
+          mountPath: /etc/grafana/provisioning/dashboards/bionic-dashboard.json
+          subPath: bionic-dashboard.json
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-secret
+              key: admin-user
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-secret
+              key: admin-password
+      volumes:
+      - name: grafana-storage
+        emptyDir: {}
+      - name: grafana-config-volume
+        configMap:
+          name: grafana-config
+      - name: grafana-datasources-volume
+        configMap:
+          name: grafana-config
+      - name: grafana-dashboards-volume
+        configMap:
+          name: grafana-config
+      - name: bionic-dashboard
+        configMap:
+          name: bionic-dashboard
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+    nodePort: 32000
+  selector:
+    app: grafana
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin-secret
+type: Opaque
+data:
+  admin-user: YWRtaW4=   # base64 for 'admin'
+  admin-password: YWRtaW4= # base64 for 'admin'
+  pg-password: cGFzc3dvcmQ= # base64 for your PostgreSQL password
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bionic-dashboard
+data:
+  bionic-dashboard.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "panels": [
+        {
+          "datasource": "Bionic Database",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {},
+              "mappings": [],
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "id": 2,
+          "targets": [
+            {
+              "format": "table",
+              "rawSql": "SELECT count(*) AS \"user_count\" FROM users",
+              "refId": "A"
+            }
+          ],
+          "title": "User Count",
+          "type": "stat"
+        }
+      ],
+      "schemaVersion": 27,
+      "title": "User Count Dashboard",
+      "version": 1
+    }
+
