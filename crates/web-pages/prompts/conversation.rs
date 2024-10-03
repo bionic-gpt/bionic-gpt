@@ -124,17 +124,9 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
         div {
             class: "flex h-[calc(100%-100px)] overflow-y-auto justify-center items-center",
             div {
-                class: "w-1/2 text-center",
-                h1 {
-                    class: "text-lg",
-                    "{prompt.name}"
-                }
-                p {
-                    class: "text-sm mt-2 mb-4",
-                    "{prompt.description}"
-                }
+                class: "mx-3 mt-12 max-w-3xl gap-4 text-center",
                 div {
-                    class: "flex gap-2 justify-center",
+                    class: "flex max-w-3xl flex-wrap items-stretch justify-center gap-4",
                     if let Some(example1) = prompt.example1 {
                         ExampleForm {
                             conversation_id,
@@ -194,8 +186,9 @@ fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: Stri
                 name: "message",
                 value: "{example}"
             }
-            Button {
-                button_type: ButtonType::Submit,
+            button {
+                class: "relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed",
+                "type": "submit",
                 "{example}"
             }
         }

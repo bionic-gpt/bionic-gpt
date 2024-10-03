@@ -12,7 +12,12 @@ const INGRESS: &str = "bionic-gpt-ingress";
 
 /// Create a deployment and a service.
 /// Include sidecars if needed.
-pub async fn deploy(client: Client, namespace: &str, pgadmin: bool) -> Result<(), Error> {
+pub async fn deploy(
+    client: Client,
+    namespace: &str,
+    pgadmin: bool,
+    observability: bool,
+) -> Result<(), Error> {
     let mut annotations = BTreeMap::new();
     annotations.insert(
         "kubernetes.io/ingress.class".to_string(),
@@ -79,6 +84,23 @@ pub async fn deploy(client: Client, namespace: &str, pgadmin: bool) -> Result<()
                     name: "pgadmin".to_string(),
                     port: Some(ServiceBackendPort {
                         number: Some(80),
+                        ..Default::default()
+                    }),
+                }),
+                ..Default::default()
+            },
+        });
+    }
+
+    if observability {
+        paths.push(HTTPIngressPath {
+            path: Some("/observability".to_string()),
+            path_type: "Prefix".to_string(),
+            backend: IngressBackend {
+                service: Some(IngressServiceBackend {
+                    name: "grafana".to_string(),
+                    port: Some(ServiceBackendPort {
+                        number: Some(3000),
                         ..Default::default()
                     }),
                 }),

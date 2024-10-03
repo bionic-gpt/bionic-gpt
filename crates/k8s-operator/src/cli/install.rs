@@ -245,6 +245,7 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             gpu: Some(installer.gpu),
             saas: Some(installer.saas),
             pgadmin: Some(installer.pgadmin),
+            observability: Some(installer.observability),
             testing: Some(installer.testing),
             development: Some(installer.development),
             hostname_url,

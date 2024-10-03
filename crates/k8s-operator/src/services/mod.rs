@@ -13,6 +13,7 @@ pub mod llm;
 pub mod llm_lite;
 pub mod mailhog;
 pub mod oauth2_proxy;
+pub mod observability;
 pub mod pgadmin;
 pub mod pipeline_job;
 pub mod tgi;

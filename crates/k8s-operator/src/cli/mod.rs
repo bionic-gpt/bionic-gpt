@@ -55,6 +55,9 @@ pub struct Installer {
     /// Install pgAdmin?
     #[arg(long, default_value_t = false)]
     pgadmin: bool,
+    /// Install Observability?
+    #[arg(long, default_value_t = false)]
+    observability: bool,
     /// The hostname we are deploying on. By default use the local ip address
     #[arg(long)]
     hostname_url: Option<String>,
