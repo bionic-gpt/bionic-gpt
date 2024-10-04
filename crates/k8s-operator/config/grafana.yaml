@@ -83,7 +83,8 @@ spec:
           mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
           subPath: dashboards.yaml
         - name: grafana-dashboards
-          mountPath: /etc/grafana/provisioning/dashboards
+          mountPath: /etc/grafana/provisioning/dashboards/bionic-dashboard.json
+          subPath: bionic-dashboard.json
         env:
         - name: GF_SECURITY_ADMIN_USER
           valueFrom:
