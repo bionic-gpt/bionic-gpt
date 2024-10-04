@@ -71,6 +71,4 @@ pub enum Commands {
     Operator {},
     /// Run the Bionic Kubernetes Operator
     Cloudflare(CloudflareInstaller),
-    /// Upgrade Bionic (Not Yet Complete)
-    Upgrade {},
 }
