@@ -66,7 +66,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
 
     let pgadmin = bionic.spec.pgadmin.unwrap_or_default();
 
-    let disable_ingress = bionic.spec.pgadmin.unwrap_or_default();
+    let disable_ingress = bionic.spec.disable_ingress.unwrap_or_default();
 
     let observability = bionic.spec.observability.unwrap_or_default();
 
