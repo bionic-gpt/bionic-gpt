@@ -59,4 +59,10 @@ data:
       path: /oidc
       service: http://keycloak:7910
     - hostname: "*"
+      path: /observability
+      service: http://grafana:3000
+    - hostname: "*"
+      path: /pgadmin
+      service: http://pgadmin:80
+    - hostname: "*"
       service: http://oauth2-proxy:7900
