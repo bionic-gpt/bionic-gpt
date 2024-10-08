@@ -121,11 +121,10 @@ metadata:
   labels:
     app: grafana
 spec:
-  type: NodePort
   ports:
   - port: 3000
+    name: grafana-port
     targetPort: 3000
-    nodePort: 32000
   selector:
     app: grafana
 
