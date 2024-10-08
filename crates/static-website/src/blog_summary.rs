@@ -12,7 +12,7 @@ pub fn summary() -> Summary {
                     description: "A Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
                     folder: "blog/ai-lakehouse/",
                     markdown: include_str!("../content/blog/ai-lakehouse/index.md"),
-                    image: Some("/blog/ai-agents/ai-agents.png"),
+                    image: Some("/blog/ai-lakehouse/lakehouse-architecture.png"),
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },
