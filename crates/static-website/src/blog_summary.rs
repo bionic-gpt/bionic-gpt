@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2024-10-09",
+                    title: "Create a Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
+                    description: "A Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
+                    folder: "blog/ai-lakehouse/",
+                    markdown: include_str!("../content/blog/ai-lakehouse/index.md"),
+                    image: Some("/blog/ai-agents/ai-agents.png"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                Page {
                     date: "2024-09-26",
                     title: "AI Agents: Transforming Business Operations",
                     description: "A detailed guide to AI agents, what they are, how they can be used and how they will shape the future",
