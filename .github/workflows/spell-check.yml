@@ -5,7 +5,7 @@ on:
     branches:
     - main
     paths:
-    - 'website/**'
+    - 'crates/static-website/content/**'
 
 jobs:
   build:
@@ -19,5 +19,5 @@ jobs:
       run: pwd
 
     - name: Spell Check
-      run: docker run --rm -v $(pwd)/website/content:/workdir tmaier/markdown-spellcheck:latest --report "**/*.md"
+      run: docker run --rm -v $(pwd)/crates/static-website/content/:/workdir tmaier/markdown-spellcheck:latest --report "**/*.md"
     

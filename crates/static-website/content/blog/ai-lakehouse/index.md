@@ -157,7 +157,7 @@ When you access your cluster (We're using k9s) you should see minio running in t
 
 ### 2. `trino-configmap.yaml` (Trino ConfigMap)
 
-The configuration below works with Minio. If you want to connect it to another S3 provider then chnage the settings to match your provider.
+The configuration below works with Minio. If you want to connect it to another S3 provider then change the settings to match your provider.
 
 ```yaml
 apiVersion: v1
@@ -185,7 +185,7 @@ Apply the config using
 kubectl apply -f trino-configmap.yaml
 ```
 
-No we've setup our config, let's intall out lakehouse.
+No we've setup our config, let's install out lakehouse.
 
 ### 3. `lakehouse.yaml` (Namespace, Nessie, Trino)
 ```yaml
