@@ -20,9 +20,9 @@ One of the key features of bionicGPT is its code-free RAG pipelines. To integrat
 
 2. **Chunking Strategy** - chunking strategy refers to the method used to break down large documents or texts into smaller, manageable pieces or "chunks," which are then stored and retrieved individually to provide relevant information in response to user queries. The default value in bionicGPT is 'By Title'. The 'By Title' chunking strategy involves splitting a document into chunks based on its section or chapter titles, with each chunk containing the content that follows a specific title. This allows for easier retrieval of relevant sections based on their headings.
 
-3. **Combine Under N Chars** - Text sections that are shorter than the number of characters defined here will be combinded together
+3. **Combine Under N Chars** - Text sections that are shorter than the number of characters defined here will be combined together
 
-4. **New After N Chars** - This is the maximum size of any indivdual section. Sections larger than this size will be split into multiple sections.
+4. **New After N Chars** - This is the maximum size of any individual section. Sections larger than this size will be split into multiple sections.
 
 5. **Multipage Sections** - If a section spans multiple pages this parameter determines whether to split at the page or not.
 

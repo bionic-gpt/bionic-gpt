@@ -1,0 +1,287 @@
+# markdown-spellcheck spelling configuration file
+# Format - lines beginning # are comments
+# global dictionary is at the start, file overrides afterwards
+# one word per line, to define a file override use ' - filename'
+# where filename is relative to this configuration file
+LLMs
+CrewAI
+agentic
+1
+2
+NLP
+3
+4
+5
+24
+7
+6
+Lakehouse
+Nessie
+catalog
+Trino
+Kubernetes
+MinIO
+S3
+minio
+config
+k9s
+ConfigMap
+trino
+Postgres
+PostgreSQL
+YAML
+bionicGPT's
+bionicGPT
+Streamlit
+OpenAI
+LLM
+SaaS
+ChatGPT
+GDPR
+CCPA
+HIPAA
+U.S.
+Gramm-Leach-Bliley
+GLBA
+ITAR
+Sarbanes-Oxley
+SOX
+Dodd-Frank
+whistleblower
+NDAs
+SCCs
+20
+Reputational
+7B
+DLP
+GenAI
+inclusivity
+E2EE
+startups
+JIRAs
+80
+B2B
+BYOK
+kubernetes
+GPT
+Github
+PCI-DSS
+GKE
+regex
+NSFW
+Jupyter
+langchain
+2023
+1000's
+1000
+10
+center
+5000
+70
+3.7
+38
+7500
+41.2
+github
+Owasp
+reputational
+BionicGPT
+jpeg
+512
+pgVector
+384
+1536
+math
+200
+3.1
+SSO
+Saas
+Airbyte
+localhost
+RabbitMQ
+MQ
+15672
+AWS
+K8's
+EKS
+Cloudflare
+bionic-gpt
+kubectl
+K3s
+cli
+RKE2
+RKE
+FIPS
+RBAC
+TGI
+OSX
+Ollama
+ - blog/ai-agents/index.md
+socioeconomic
+ - blog/ai-lakehouse/index.md
+lakehouse
+ - blog/api-chatbot/index.md
+OpenAI-compatible
+secrets.toml
+streamlit
+ - blog/confidential-saas/index.md
+Jumpwire
+AcraServer
+SGX
+SEV
+ - blog/jupyter/index.md
+jupyter_ai
+JupyterAI
+OPENAI_API_KEY
+OPENAI_API_BASE
+ai
+ - blog/llm-hardware/index.md
+A100
+title1
+2700X
+data1
+1.2
+description1
+1500
+title2
+RTX
+4090
+data2
+138
+description2
+title3
+Nvidia
+data3
+714.33
+description3
+000
+1U
+GPT3.5.
+GPT4
+Epyc
+A10G
+15
+MLC
+TPS
+OctoML
+2xA100
+70b
+13.77
+192GB
+599
+vLLM
+ - blog/model-denial-of-service/index.md
+Backends
+LLM-Lite
+Lite
+ - blog/preparing-for-gen-ai/index.md
+lifecycle
+KPIs
+CSAT
+NPS
+Nat
+ - blog/retrieval-augmented-generation/index.md
+Dobblenobblê
+dobbler
+Dobblenobbl
+postgres
+text-embedding-ada-002
+ - blog/you-dont-need-a-vector-database/index.md
+HN
+afaics
+bueno
+dbmate
+PgVector
+DBA
+DevOps
+20x
+ - docs/guides/aiassistants/index.md
+Assiatmt
+permissioning
+xxxx
+context_size
+max_tokens
+ - docs/guides/console/index.md
+dropdown
+llama3
+ - docs/guides/datasets/index.md
+Multipage
+ - docs/guides/glossary/index.md
+DALL-E
+TensorFlow
+AlphaGo
+T5
+pre-labeled
+ - docs/guides/jupyter/index.md
+yaml
+Undeploy
+ - docs/guides/opensourcemodels/index.md
+Lllama3.1
+pretrained
+8B
+405B
+Granite-8B-Code-Instruct-128K
+Granite-8B-Code-Base-128K
+128K
+Codestral
+Mamba2
+Mathstral
+Mixtral
+ - docs/on-premise/aws/index.md
+ACCOUNT_ID
+Kubeconfig
+kubeconfig
+ - docs/on-premise/cloudflare/index.md
+Cloudfared
+ - docs/on-premise/email/index.md
+MailHog
+ - docs/on-premise/gcloud/index.md
+IAM
+container.roles.update
+ - docs/on-premise/install-rke2/index.md
+conformant
+v1.6
+v1.23
+140-2
+CVEs
+trivy
+ - docs/on-premise/jupyter/index.md
+pgAdmin
+ - docs/on-premise/rbac/index.md
+Enum
+ - docs/on-premise/sso/index.md
+OIDC
+ - docs/rag/prompts/index.md
+setups
+ - pages/privacy.md
+alia
+Pseudonymisation
+i
+71-75
+WC2H
+9JQ
+77918118055
+u
+o
+datas
+8
+22
+9
+21
+17
+89
+2002
+58
+47
+ - pages/terms.md
+Shopify
+11
+12
+phish
+pharm
+13
+14
+SEVERABILITY
+16
+18
+19

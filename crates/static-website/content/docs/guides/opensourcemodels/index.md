@@ -32,7 +32,7 @@ https://huggingface.co/ibm-granite/granite-8b-code-instruct-128k
 Granite-8B-Code-Instruct-128K is a 8B parameter long-context instruct model fine tuned from Granite-8B-Code-Base-128K on a combination of permissively licensed data used in training the original Granite code instruct models, in addition to synthetically generated code instruction datasets tailored for solving long context problems. By exposing the model to both short and long context data, we aim to enhance its long-context capability without sacrificing code generation performance at short input context.
 
 **Intended use**
-The model is designed to respond to coding related instructions over long-conext input up to 128K length and can be used to build coding assistants.
+The model is designed to respond to coding related instructions over long context input up to 128K length and can be used to build coding assistants.
 
 
 

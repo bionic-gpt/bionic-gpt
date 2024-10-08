@@ -79,10 +79,10 @@ A technique that combines retrieval of relevant information from a dataset with 
 ### Sentiment Analysis
 The process of analysing text to determine the sentiment expressed, such as positive, negative, or neutral. It’s commonly used in social media monitoring, customer feedback analysis, and other applications.
 
-*Example: Analyssing tweets to determine public sentiment towards a new product launch.*
+*Example: Analysing tweets to determine public sentiment towards a new product launch.*
 
 ### System Prompt
-A predefined instruction given to a language model that guides its behavior or sets the tone for how it should respond to user inputs. It defines the context or role the model should assume during the interaction.
+A predefined instruction given to a language model that guides its behaviour or sets the tone for how it should respond to user inputs. It defines the context or role the model should assume during the interaction.
 
 *Example: A system prompt might instruct a model to behave as a helpful customer service agent when interacting with users.*
 
@@ -104,9 +104,9 @@ In AI, transparency refers to the clarity and openness with which the functionin
 *Example: Providing users with explanations for how an AI model arrived at a particular decision or output, such as why a loan application was approved or denied.*
 
 ### Unsupervised Learning
-A type of machine learning where the model learns patterns and relationships in data without being provided labeled examples. The model tries to identify structure in the data on its own, often used for clustering and anomaly detection.
+A type of machine learning where the model learns patterns and relationships in data without being provided labelled examples. The model tries to identify structure in the data on its own, often used for clustering and anomaly detection.
 
-*Example: Clustering customers into different segments based on purchasing behavior without pre-labeled categories.*
+*Example: Clustering customers into different segments based on purchasing behaviour without pre-labeled categories.*
 
 ### User Prompt
 The input or query provided by a user to a language model, which the model then processes to generate a response. The prompt guides the model's output and can include specific instructions or questions.
@@ -114,7 +114,7 @@ The input or query provided by a user to a language model, which the model then 
 *Example: A user asking "What is the capital of France?" serves as the prompt for the model to generate the response "Paris."*
 
 ### Zero-Shot Learning
-A capability of some models to perform tasks without having been explicitly trained on those tasks. Instead, the model uses its generalised knowledge to infer the correct behavior or response.
+A capability of some models to perform tasks without having been explicitly trained on those tasks. Instead, the model uses its generalised knowledge to infer the correct behaviour or response.
 
 *Example: A model that correctly classifies images of animals it has never seen before based on its understanding of general features from other training data.*
 

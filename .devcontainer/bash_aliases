@@ -45,7 +45,7 @@ alias ws=watch-static
 alias ma='mirrord exec --target deployment/bionic-gpt -n bionic-gpt cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
 
 # Spell check
-alias spell='docker run --rm -ti -v /workspace/website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
+alias spell='docker run --rm -ti -v /workspace/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
 
 # Devpod always deletes my website folder
 alias fu-devpod='git checkout -- website'
