@@ -106,6 +106,9 @@ pub fn Page(
                                                     class: "mr-2",
                                                     img {
                                                         class: "read-aloud mt-0 mb-0",
+                                                        "data-loading-img": loading_svg.name,
+                                                        "data-stop-img": stop_svg.name,
+                                                        "data-play-img": read_aloud_svg.name,
                                                         src: read_aloud_svg.name,
                                                         width: "16",
                                                         height: "16"
