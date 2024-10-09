@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2024-10-10",
+                    title: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
+                    description: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
+                    folder: "blog/ai-coding-automation/",
+                    markdown: include_str!("../content/blog/ai-coding-automation/index.md"),
+                    image: Some("/blog/ai-coding-automation/llama-coder.jpg"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                Page {
                     date: "2024-10-09",
                     title: "Create a Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
                     description: "A Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",

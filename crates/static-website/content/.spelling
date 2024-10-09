@@ -116,6 +116,12 @@ RBAC
 TGI
 OSX
 Ollama
+0
+100
+95
+60
+40
+15
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -285,3 +291,9 @@ SEVERABILITY
 16
 18
 19
+ - blog/ai-coding-automation/index.md
+20capabilities
+labor-intensive
+5-8
+10-15
+lifecycle
