@@ -37,7 +37,7 @@ As artificial intelligence (AI) continues to evolve, it’s reshaping various in
 
 ---
 
-### **Level 3: Conditional Automation (AI Making Pull Requests)**
+### **Level 3: Conditional Automation (AI Making Pull/Change Requests)**
 **Autonomous Driving**: At Level 3, the car can handle most driving tasks under specific conditions (e.g., on highways). The driver can take their hands off the wheel but must be ready to take over if the system requests it.
 
 **AI in Development**: In this stage, AI takes on a more proactive role, creating pull requests or suggesting code changes autonomously. It can identify bugs, propose feature implementations, or refactor existing code based on analysis of the codebase.
