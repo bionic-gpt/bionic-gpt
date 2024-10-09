@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2024-10-11",
+                    title: "LLama Stack : A comprehensice guide with practical examples and comparisons",
+                    description: "A comprehensice guide to what the LLama stacjk actually is",
+                    folder: "blog/what-is-llama-stack/",
+                    markdown: include_str!("../content/blog/what-is-llama-stack/index.md"),
+                    image: Some("/blog/what-is-llama-stack/llama-stack.jpg"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                Page {
                     date: "2024-10-10",
                     title: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
                     description: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
