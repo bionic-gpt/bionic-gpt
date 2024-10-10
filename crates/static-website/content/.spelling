@@ -122,6 +122,11 @@ Ollama
 60
 40
 15
+2.0.
+GIS
+116
+2024
+29
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -297,3 +302,39 @@ labor-intensive
 5-8
 10-15
 lifecycle
+ - blog/streaming/index.md
+Debezium
+ - docs/guides/opensourcemodels/ibm/index.md
+granite-8b-code-instruct-4k
+granite-34b-code-instruct-8k
+granite-guardian-hap-125m
+ - docs/guides/opensourcemodels/meta/index.md
+1B
+18
+10M
+Llama3.2
+3.2
+11B
+90B
+3B
+13B
+34B
+500B
+20B
+5B
+100B
+CodeLlama-7b-Instruct-hf
+CodeLlama-13b-Instruct-hf
+CodeLlama-34b-Instruct-hf
+CodeLlama-70b-Instruct-hf
+CodeLlama-7b-Python-hf
+CodeLlama-13b-Python-hf
+CodeLlama-34b-Python-hf
+CodeLlama-70b-Python-hf
+ - docs/guides/opensourcemodels/mistral/index.md
+Mamba-Codestral-7B-v0
+Mistral-7B-Instruct-v0
+Mathstral-7B-v0
+ - docs/guides/opensourcemodels/qwen/index.md
+Qwen
+Alibaba

@@ -4,7 +4,7 @@
 As large language models (LLMs) like GPT become integral to business operations, the need for real-time content alerting grows. Organisations must ensure that their AI systems remain compliant, ethical, and safe, especially when deployed at scale. In this blog post, we introduce a solution that provides real-time monitoring of LLM inputs and outputs to flag harmful content, ensuring smooth and responsible use. While large organisations already employ sophisticated monitoring systems, such as banks overseeing traders, this solution extends the same safeguards to AI-driven interactions—without crossing into “Big Brother” territory.
 
 ### Leveraging bionicGPT for Seamless Monitoring
-One of the key advantages of bionicGPT is its built-in capability to log all inputs and outputs to the LLMs it manages. By automatically capturing this data, bionicGPT simplifies the task of real-time alerting. Because the data flow is already logged and accessible, configuring a system to monitor and analyze these interactions in real time becomes a relatively straightforward task. This seamless logging infrastructure allows organisations to easily implement content alerting with minimal additional effort.
+One of the key advantages of bionicGPT is its built-in capability to log all inputs and outputs to the LLMs it manages. By automatically capturing this data, bionicGPT simplifies the task of real-time alerting. Because the data flow is already logged and accessible, configuring a system to monitor and analyse these interactions in real time becomes a relatively straightforward task. This seamless logging infrastructure allows organisations to easily implement content alerting with minimal additional effort.
 
 ### What is Real-Time Content Alerting?
 Real-Time Content Alerting refers to the continuous monitoring and analysis of all interactions handled by large language models to identify harmful, inappropriate, or non-compliant content. It provides a robust mechanism for flagging content in real time, ensuring that both inputs (prompts) and outputs (responses) align with corporate policies and legal standards.
@@ -40,7 +40,7 @@ Our solution for Real-Time Content Alerting uses the following key components:
 
 **Kafka** Acts as a message broker, handling the high-volume flow of data and ensuring smooth communication between the systems.
 
-**IBM Granite HAP** A robust model designed to analyze text for harmful content, including bias, hate speech, and misinformation. This model serves as the final layer of analysis, ensuring flagged content is detected before it can cause issues.
+**IBM Granite HAP** A robust model designed to analyse text for harmful content, including bias, hate speech, and misinformation. This model serves as the final layer of analysis, ensuring flagged content is detected before it can cause issues.
 
 By utilizing this architecture, large organisations can manage real-time alerting without overwhelming existing systems or compromising performance.
 
@@ -59,4 +59,4 @@ While compliance is a major benefit of real-time content alerting, it’s far fr
 **Operational Transparency** By keeping a close eye on AI outputs, companies can provide greater transparency to auditors, regulators, and customers.
 
 ### Conclusion
-Real-Time Content Alerting offers a sophisticated yet non-intrusive solution for large organisations looking to safeguard their AI-driven interactions. With bionicGPT’s logging of all inputs and outputs, implementing a real-time alerting system is both straightforward and efficient. Much like the monitoring that already exists in sensitive sectors like banking, this system provides essential oversight without compromising privacy or ethical standards. Whether for compliance, bias detection, or simply ensuring safe and trustworthy outputs, real-time alerting is a necessary layer of defense in today’s AI landscape.
+Real-Time Content Alerting offers a sophisticated yet non-intrusive solution for large organisations looking to safeguard their AI-driven interactions. With bionicGPT’s logging of all inputs and outputs, implementing a real-time alerting system is both straightforward and efficient. Much like the monitoring that already exists in sensitive sectors like banking, this system provides essential oversight without compromising privacy or ethical standards. Whether for compliance, bias detection, or simply ensuring safe and trustworthy outputs, real-time alerting is a necessary layer of defence in today’s AI landscape.
