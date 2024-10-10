@@ -7,7 +7,7 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
-                    date: "2024-10-09",
+                    date: "2024-10-10",
                     title: "Real-Time Content Alerting: A Smarter Approach to Monitoring Harmful Content in Large Language Models",
                     description: "A detailed guide how to set up streaming of content from bionicGPT",
                     folder: "blog/streaming/",
@@ -15,6 +15,26 @@ pub fn summary() -> Summary {
                     image: Some("/blog/streaming/contentMonitoring.png"),
                     author_image: Some("/blog-authors/dio.jpeg"),
                     author: Some("Kulbinder Dio")
+                },
+                Page  {
+                    date: "2024-10-10",
+                    title: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
+                    description: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
+                    folder: "blog/ai-coding-automation/",
+                    markdown: include_str!("../content/blog/ai-coding-automation/index.md"),
+                    image: Some("/blog/ai-coding-automation/llama-coder.jpg"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
+                },
+                Page {
+                    date: "2024-10-09",
+                    title: "Create a Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
+                    description: "A Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
+                    folder: "blog/ai-lakehouse/",
+                    markdown: include_str!("../content/blog/ai-lakehouse/index.md"),
+                    image: Some("/blog/ai-lakehouse/lakehouse-architecture.png"),
+                    author_image: Some("/blog-authors/ian-purton.jpeg"),
+                    author: Some("Ian Purton")
                 },
                 Page {
                     date: "2024-09-26",

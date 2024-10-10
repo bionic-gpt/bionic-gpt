@@ -33,7 +33,7 @@ pub struct Installer {
     no_operator: bool,
     /// Install ingress
     #[arg(long, default_value_t = false)]
-    no_ingress: bool,
+    disable_ingress: bool,
     /// The setup needed for development. See CONTRIBUTING.md in the main project.
     #[arg(long, default_value_t = false)]
     development: bool,
@@ -71,6 +71,4 @@ pub enum Commands {
     Operator {},
     /// Run the Bionic Kubernetes Operator
     Cloudflare(CloudflareInstaller),
-    /// Upgrade Bionic (Not Yet Complete)
-    Upgrade {},
 }

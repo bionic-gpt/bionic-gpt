@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use crate::components::navigation::Navigation;
+use crate::components::webinar::WebinarHeader;
 use dioxus::prelude::*;
 
 // Remember: owned props must implement PartialEq!
@@ -89,6 +90,7 @@ pub fn Layout(props: LayoutProps) -> Element {
             }
         }
         body {
+            WebinarHeader {}
             Navigation {
                 mobile_menu: props.mobile_menu
             }

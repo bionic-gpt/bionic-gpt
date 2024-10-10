@@ -7,9 +7,9 @@ From the Cloudflare dashboard go to `zero trust / networks`. Then create a tunne
 - Tunnel Type - Cloudfared
 - Name - bionic-gpt
 
-## Get your cloudflare tunnel secret
+## Get your Cloudflare tunnel secret
 
-This is a bit tricky as you'll need to copy paste the command line cloudflare gives you and just extract the secret.
+This is a bit tricky as you'll need to copy paste the command line Cloudflare gives you and just extract the secret.
 
 We just need the secret itself.
 

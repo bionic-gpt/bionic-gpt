@@ -7,3 +7,4 @@ pub mod navigation;
 pub mod partners;
 pub mod quad_feature;
 pub mod small_image_feature;
+pub mod webinar;

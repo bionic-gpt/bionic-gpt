@@ -17,6 +17,7 @@ pub struct BionicSpec {
     pub version: String,
     pub gpu: Option<bool>,
     pub saas: Option<bool>,
+    pub disable_ingress: Option<bool>,
     pub pgadmin: Option<bool>,
     pub observability: Option<bool>,
     pub development: Option<bool>,

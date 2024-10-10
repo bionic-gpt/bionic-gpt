@@ -34,7 +34,7 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     println!("Connected");
 
     install_postgres_operator(&client).await?;
-    if !installer.no_ingress {
+    if !installer.disable_ingress {
         install_nginx_operator(&client).await?;
     }
     create_namespace(&client, &installer.namespace).await?;
@@ -244,6 +244,7 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             version: VERSION.into(),
             gpu: Some(installer.gpu),
             saas: Some(installer.saas),
+            disable_ingress: Some(installer.disable_ingress),
             pgadmin: Some(installer.pgadmin),
             observability: Some(installer.observability),
             testing: Some(installer.testing),

@@ -15,9 +15,6 @@ async fn main() -> Result<()> {
         cli::Commands::Install(installer) => {
             cli::install::install(installer).await?;
         }
-        cli::Commands::Upgrade {} => {
-            println!("Not Implemented");
-        }
         cli::Commands::Operator {} => {
             operator::operator().await?;
         }

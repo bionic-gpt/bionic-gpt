@@ -82,7 +82,7 @@ spec:
         - name: grafana-dashboards-volume
           mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
           subPath: dashboards.yaml
-        - name: bionic-dashboard
+        - name: grafana-dashboards
           mountPath: /etc/grafana/provisioning/dashboards/bionic-dashboard.json
           subPath: bionic-dashboard.json
         env:
@@ -108,9 +108,9 @@ spec:
       - name: grafana-dashboards-volume
         configMap:
           name: grafana-config
-      - name: bionic-dashboard
+      - name: grafana-dashboards
         configMap:
-          name: bionic-dashboard
+          name: grafana-dashboards
 
 ---
 
@@ -121,11 +121,10 @@ metadata:
   labels:
     app: grafana
 spec:
-  type: NodePort
   ports:
   - port: 3000
+    name: grafana-port
     targetPort: 3000
-    nodePort: 32000
   selector:
     app: grafana
 
@@ -140,53 +139,3 @@ data:
   admin-user: YWRtaW4=   # base64 for 'admin'
   admin-password: YWRtaW4= # base64 for 'admin'
   pg-password: cGFzc3dvcmQ= # base64 for your PostgreSQL password
-
----
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: bionic-dashboard
-data:
-  bionic-dashboard.json: |
-    {
-      "annotations": {
-        "list": []
-      },
-      "panels": [
-        {
-          "datasource": "Bionic Database",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {},
-              "mappings": [],
-              "unit": "short"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 9,
-            "w": 24,
-            "x": 0,
-            "y": 0
-          },
-          "id": 2,
-          "targets": [
-            {
-              "format": "table",
-              "rawSql": "SELECT count(*) AS \"user_count\" FROM users",
-              "refId": "A"
-            }
-          ],
-          "title": "User Count",
-          "type": "stat"
-        }
-      ],
-      "schemaVersion": 27,
-      "title": "User Count Dashboard",
-      "version": 1
-    }
-

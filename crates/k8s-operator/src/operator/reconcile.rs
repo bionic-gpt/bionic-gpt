@@ -66,6 +66,8 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
 
     let pgadmin = bionic.spec.pgadmin.unwrap_or_default();
 
+    let disable_ingress = bionic.spec.disable_ingress.unwrap_or_default();
+
     let observability = bionic.spec.observability.unwrap_or_default();
 
     let testing = bionic.spec.testing.unwrap_or_default();
@@ -97,7 +99,9 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
-            ingress::deploy(client.clone(), &namespace, pgadmin, observability).await?;
+            if !disable_ingress {
+                ingress::deploy(client.clone(), &namespace, pgadmin, observability).await?;
+            }
             mailhog::deploy(client.clone(), &namespace).await?;
             if gpu {
                 tgi::deploy(client.clone(), &namespace).await?;
@@ -152,7 +156,10 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             keycloak::delete(client.clone(), &namespace).await?;
             keycloak_db::delete(client.clone(), &namespace).await?;
             oauth2_proxy::delete(client.clone(), &namespace).await?;
-            ingress::delete(client.clone(), &namespace).await?;
+
+            if !disable_ingress {
+                ingress::delete(client.clone(), &namespace).await?;
+            }
             mailhog::delete(client.clone(), &namespace).await?;
 
             if !development {
