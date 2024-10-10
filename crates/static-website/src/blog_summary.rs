@@ -8,6 +8,16 @@ pub fn summary() -> Summary {
             pages: vec![
                 Page {
                     date: "2024-10-10",
+                    title: "Real-Time Content Alerting: A Smarter Approach to Monitoring Harmful Content in Large Language Models",
+                    description: "A detailed guide how to set up streaming of content from bionicGPT",
+                    folder: "blog/streaming/",
+                    markdown: include_str!("../content/blog/streaming/index.md"),
+                    image: Some("/blog/streaming/contentMonitoring.png"),
+                    author_image: Some("/blog-authors/dio.jpeg"),
+                    author: Some("Kulbinder Dio")
+                },
+                Page  {
+                    date: "2024-10-10",
                     title: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
                     description: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
                     folder: "blog/ai-coding-automation/",
