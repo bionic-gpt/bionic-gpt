@@ -175,7 +175,9 @@ pub fn summary() -> Summary {
                         title: "IBM Models",
                         description: "",
                         folder: "docs/guides/opensourcemodels/ibm",
-                        markdown: include_str!("../content/docs/guides/opensourcemodels/ibm/index.md"),
+                        markdown: include_str!(
+                            "../content/docs/guides/opensourcemodels/ibm/index.md"
+                        ),
                         image: None,
                         author_image: None,
                         author: None,
@@ -185,7 +187,9 @@ pub fn summary() -> Summary {
                         title: "Mistral Models",
                         description: "",
                         folder: "docs/guides/opensourcemodels/mistral",
-                        markdown: include_str!("../content/docs/guides/opensourcemodels/mistral/index.md"),
+                        markdown: include_str!(
+                            "../content/docs/guides/opensourcemodels/mistral/index.md"
+                        ),
                         image: None,
                         author_image: None,
                         author: None,
@@ -195,7 +199,9 @@ pub fn summary() -> Summary {
                         title: "Meta Llama Models",
                         description: "",
                         folder: "docs/guides/opensourcemodels/meta",
-                        markdown: include_str!("../content/docs/guides/opensourcemodels/meta/index.md"),
+                        markdown: include_str!(
+                            "../content/docs/guides/opensourcemodels/meta/index.md"
+                        ),
                         image: None,
                         author_image: None,
                         author: None,
