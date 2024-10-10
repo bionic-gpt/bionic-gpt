@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2024-10-09",
+                    title: "Real-Time Content Alerting: A Smarter Approach to Monitoring Harmful Content in Large Language Models",
+                    description: "A detailed guide how to set up streaming of content from bionicGPT",
+                    folder: "blog/streaming/",
+                    markdown: include_str!("../content/blog/streaming/index.md"),
+                    image: Some("/blog/streaming/contentMonitoring.png"),
+                    author_image: Some("/blog-authors/dio.jpeg"),
+                    author: Some("Kulbinder Dio")
+                },
+                Page {
                     date: "2024-09-26",
                     title: "AI Agents: Transforming Business Operations",
                     description: "A detailed guide to AI agents, what they are, how they can be used and how they will shape the future",
