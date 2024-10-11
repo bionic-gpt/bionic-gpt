@@ -57,6 +57,11 @@ pub async fn conversation(
         .all()
         .await?;
 
+    let prompt = prompts::prompt()
+        .bind(&transaction, &prompts.first().unwrap().id, &team_id)
+        .one()
+        .await?;
+
     let html = render_with_props(
         console::index::Page,
         console::index::PageProps {
@@ -65,6 +70,7 @@ pub async fn conversation(
             conversation_id,
             chats_with_chunks,
             prompts,
+            prompt,
             history,
             lock_console,
             is_tts_disabled,

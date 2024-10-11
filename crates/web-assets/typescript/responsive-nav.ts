@@ -4,12 +4,13 @@ export const initializeSidebar = () => {
   const sidebar = document.getElementById('sidebar');
 
   if (sidebar) {
-    sidebar.classList.toggle('hidden', sidebarState === 'closed');
+    sidebar.classList.toggle('w-0', sidebarState === 'closed');
+    sidebar.classList.toggle('md:w-64', sidebarState === 'open');
   }
 
   // Attach the toggleSidebar function to the button click
   document.getElementById('toggleButton')?.addEventListener('click', toggleSidebar);
-}
+};
 
 // Function to toggle sidebar and save state to localStorage
 function toggleSidebar() {
@@ -25,6 +26,7 @@ function toggleSidebar() {
   // Add or remove a class from the sidebar based on the new state
   const sidebar = document.getElementById('sidebar');
   if (sidebar) {
-    sidebar.classList.toggle('hidden', newState === 'closed');
+    sidebar.classList.toggle('w-0', newState === 'closed');
+    sidebar.classList.toggle('md:w-64', newState === 'open');
   }
 }

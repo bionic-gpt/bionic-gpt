@@ -5,7 +5,10 @@ use crate::routes;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::queries::{conversations::History, prompts::Prompt};
+use db::queries::{
+    conversations::History,
+    prompts::{Prompt, SinglePrompt},
+};
 use dioxus::prelude::*;
 
 #[component]
@@ -14,6 +17,7 @@ pub fn Page(
     rbac: Rbac,
     chats_with_chunks: Vec<ChatWithChunks>,
     prompts: Vec<Prompt>,
+    prompt: SinglePrompt,
     conversation_id: i64,
     history: Vec<History>,
     lock_console: bool,
@@ -39,12 +43,20 @@ pub fn Page(
             div {
                 id: "console-panel",
                 class: "h-full",
-                ConsolePanel {
-                    team_id: team_id,
-                    chats_with_chunks: chats_with_chunks,
-                    is_tts_disabled: is_tts_disabled,
-                    lock_console: lock_console,
-                },
+                if chats_with_chunks.is_empty() {
+                    crate::prompts::conversation::EmptyStream {
+                        prompt: prompt.clone(),
+                        conversation_id,
+                        team_id
+                    }
+                } else {
+                    ConsolePanel {
+                        team_id: team_id,
+                        chats_with_chunks: chats_with_chunks,
+                        is_tts_disabled: is_tts_disabled,
+                        lock_console: lock_console,
+                    }
+                }
                 Form {
                     team_id: team_id,
                     prompts: prompts,
