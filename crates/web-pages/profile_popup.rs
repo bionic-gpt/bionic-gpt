@@ -32,9 +32,9 @@ pub fn ProfilePopup(email: String, first_name: String, last_name: String, team_i
                 "Dark Theme"
             }
             DropDownLink {
-                href: "#mixed",
+                href: "#system",
                 class: "theme",
-                "Mixed Theme"
+                "System Theme"
             }
             strong {
                 "Profile"

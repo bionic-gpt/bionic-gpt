@@ -38,6 +38,7 @@ pub fn Page(
                             drawer_trigger: "delete-conv-{conversation_id}",
                             button_scheme: ButtonScheme::Default,
                             img {
+                                class: "svg-icon",
                                 src: delete_svg.name
                             }
                         }

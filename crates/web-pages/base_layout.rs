@@ -79,6 +79,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                             img {
                                 height: "16",
                                 width: "16",
+                                class: "svg-icon mr-6",
                                 src: collapse_svg.name
                             }
                         }
