@@ -24,7 +24,7 @@ pub fn Page(
     rsx! {
 
         Layout {
-            section_class: "normal",
+            section_class: "p-4",
             selected_item: SideBar::AuditTrail,
             team_id: team_id,
             rbac: rbac,

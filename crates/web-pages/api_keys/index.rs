@@ -10,7 +10,7 @@ pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt
     rsx! {
         if api_keys.is_empty() {
             Layout {
-                section_class: "normal",
+                section_class: "p-4",
                 selected_item: SideBar::ApiKeys,
                 team_id: team_id,
                 rbac: rbac,
@@ -31,7 +31,7 @@ pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt
             }
         } else {
             Layout {
-                section_class: "normal",
+                section_class: "p-4",
                 selected_item: SideBar::ApiKeys,
                 team_id: team_id,
                 rbac: rbac,

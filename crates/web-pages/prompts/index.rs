@@ -18,7 +18,7 @@ pub fn Page(
 ) -> Element {
     rsx! {
         Layout {
-            section_class: "normal",
+            section_class: "p-4",
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),

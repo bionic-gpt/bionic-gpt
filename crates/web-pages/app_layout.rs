@@ -2,7 +2,7 @@
 use super::logout_form::LogoutForm;
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
-use daisy_rsx::{AppLayout, NavGroup, NavItem};
+use daisy_rsx::{NavGroup, NavItem};
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
@@ -47,7 +47,7 @@ pub fn Layout(props: LayoutProps) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
     rsx! {
-        AppLayout {
+        super::base_layout::BaseLayout {
             title: props.title,
             stylesheets: stylesheets,
             js_href: index_js.name,

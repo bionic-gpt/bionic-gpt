@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>) -> Element {
     rsx! {
         Layout {
-            section_class: "normal",
+            section_class: "p-4",
             selected_item: SideBar::Models,
             team_id: team_id,
             rbac: rbac,

@@ -1,46 +1,5 @@
-// Break points
-// https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862/
-@mixin for-phone-only {
-    @media (max-width: 599px) {
-        @content;
-    }
-}
-
-@mixin for-tablet-portrait-up {
-    @media (min-width: 600px) {
-        @content;
-    }
-}
-
-@mixin for-tablet-landscape-up {
-    @media (min-width: 900px) {
-        @content;
-    }
-}
-
-@mixin for-desktop-up {
-    @media (min-width: 1200px) {
-        @content;
-    }
-}
-
-@mixin for-big-desktop-up {
-    @media (min-width: 1800px) {
-        @content;
-    }
-}
-
 // Our custom SCSS and web components
-@import './layout';
 @import './timeline';
 @import './side-drawer';
 @import '../web-components/snack-bar';
 @import '../node_modules/highlight.js/styles/a11y-dark.css';
-
-// Fix side menu so the z-index takes effect. Otherwise
-// they are hidden behind other items.
-@media (min-width: 544px) {
-    .SelectMenu {
-        position: fixed;
-    }
-}

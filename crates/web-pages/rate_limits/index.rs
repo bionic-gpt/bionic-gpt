@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<Model>) -> Element {
     rsx! {
         Layout {
-            section_class: "normal",
+            section_class: "p-4",
             selected_item: SideBar::RateLimits,
             team_id: team_id,
             rbac: rbac,
