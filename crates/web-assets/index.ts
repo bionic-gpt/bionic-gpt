@@ -9,6 +9,7 @@ import '@github/relative-time-element';
 
 // Misc.
 import { triggers } from './typescript/side-drawer-trigger'
+import { initializeSidebar } from './typescript/responsive-nav'
 import { streamingChat } from './typescript/streaming-chat'
 import { drawers } from './typescript/side-drawer'
 import { formatter } from './typescript/format-json'
@@ -38,6 +39,7 @@ function loadEverything() {
     copyPaste()
     copy()
     readAloud()
+    initializeSidebar()
 }
 
 document.addEventListener('turbo:load', () => {

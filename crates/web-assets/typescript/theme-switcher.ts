@@ -26,7 +26,7 @@ document.addEventListener('turbo:load', () => {
 })
 
 function setTheme() {
-    const theme = localStorage.getItem(themeStorageName)
+    const theme = localStorage.getItem(themeStorageName) || "system"
 
     if (theme) {
 
