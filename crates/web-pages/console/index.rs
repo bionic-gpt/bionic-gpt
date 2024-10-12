@@ -44,7 +44,7 @@ pub fn Page(
                 id: "console-panel",
                 class: "h-full",
                 if chats_with_chunks.is_empty() {
-                    crate::prompts::conversation::EmptyStream {
+                    crate::console::empty_stream::EmptyStream {
                         prompt: prompt.clone(),
                         conversation_id,
                         team_id
