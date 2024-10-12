@@ -75,7 +75,7 @@ pub fn Page(
                     }
                 }
 
-                super::prompt_form::Form {
+                crate::console::prompt_form::Form {
                     team_id: team_id,
                     prompt_id: prompt.id,
                     conversation_id: conversation_id,

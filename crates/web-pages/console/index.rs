@@ -59,7 +59,7 @@ pub fn Page(
                 }
                 super::prompt_form::Form {
                     team_id: team_id,
-                    prompts: prompts,
+                    prompt_id: prompt.id,
                     conversation_id: conversation_id,
                     lock_console: lock_console,
                 }

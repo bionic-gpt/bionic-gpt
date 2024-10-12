@@ -2,16 +2,10 @@
 use crate::routes;
 
 use daisy_rsx::*;
-use db::Prompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Form(
-    team_id: i32,
-    prompts: Vec<Prompt>,
-    conversation_id: i64,
-    lock_console: bool,
-) -> Element {
+pub fn Form(team_id: i32, prompt_id: i32, conversation_id: i64, lock_console: bool) -> Element {
     rsx! {
         div {
             class: "position-relative w-full bottom-0 p-2 border-t color-bg-subtle",
@@ -36,19 +30,16 @@ pub fn Form(
                             class: "my-auto mr-2",
                             "Model"
                         }
-                        input {
-                            "type": "hidden",
-                            name: "conversation_id",
-                            value: "{conversation_id}"
-                        }
-                        Select {
-                            name: "prompt_id",
-                            disabled: lock_console,
-                            for prompt in prompts {
-                                option {
-                                    value: "{prompt.id}",
-                                    "{prompt.name}"
-                                }
+                        div {
+                            input {
+                                "type": "hidden",
+                                name: "conversation_id",
+                                value: "{conversation_id}"
+                            }
+                            input {
+                                "type": "hidden",
+                                name: "prompt_id",
+                                value: "{prompt_id}"
                             }
                         }
                     }
