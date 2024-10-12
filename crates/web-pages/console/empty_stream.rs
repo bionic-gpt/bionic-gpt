@@ -83,6 +83,12 @@ fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: Stri
             button {
                 class: "flex flex-grow h-full flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition",
                 "type": "submit",
+                img {
+                    height: "16",
+                    width: "16",
+                    class: "svg-icon mr-6",
+                    src: ai_svg.name
+                }
                 "{example}"
             }
         }
