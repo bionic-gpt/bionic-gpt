@@ -28,7 +28,7 @@ pub fn ModelPopup(id: i32, value: String, prompts: Vec<Prompt>) -> Element {
                         class: "option p-2 hover:bg-base-200 cursor-pointer",
                         "data-value": "{prompt.id}",
                         span {
-                            class: "",
+                            class: "font-medium",
                             "{prompt.name}"
                         }
                         p {
