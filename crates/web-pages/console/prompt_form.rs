@@ -1,16 +1,23 @@
 #![allow(non_snake_case)]
 use crate::routes;
 
+use assets::files::*;
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Form(team_id: i32, prompt_id: i32, conversation_id: i64, lock_console: bool) -> Element {
+pub fn Form(
+    team_id: i32,
+    prompt_id: i32,
+    conversation_id: i64,
+    lock_console: bool,
+    disclaimer: String,
+) -> Element {
     rsx! {
         div {
-            class: "position-relative w-full bottom-0 p-2 border-t color-bg-subtle",
+            class: "mx-auto md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]",
             form {
-                class: "remember w-full flex max-h-[79px]",
+                class: "remember w-full flex max-h-[79px] bg-base-200 p-2 rounded-lg",
                 method: "post",
                 "data-remember-name": "console-prompt",
                 "data-remember-reset": "false",
@@ -23,33 +30,35 @@ pub fn Form(team_id: i32, prompt_id: i32, conversation_id: i64, lock_console: bo
                     disabled: lock_console
                 }
                 div {
-                    class: "flex flex-col justify-between",
+                    class: "flex items-center justify-center",
                     div {
-                        class: "flex flex-row",
-                        label {
-                            class: "my-auto mr-2",
-                            "Model"
+                        input {
+                            "type": "hidden",
+                            name: "conversation_id",
+                            value: "{conversation_id}"
                         }
-                        div {
-                            input {
-                                "type": "hidden",
-                                name: "conversation_id",
-                                value: "{conversation_id}"
-                            }
-                            input {
-                                "type": "hidden",
-                                name: "prompt_id",
-                                value: "{prompt_id}"
-                            }
+                        input {
+                            "type": "hidden",
+                            name: "prompt_id",
+                            value: "{prompt_id}"
                         }
                     }
-                    Button {
+                    button {
+                        class: "flex h-8 w-8 p-2 items-center bg-primary justify-center rounded-full",
                         disabled: lock_console,
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Send Message"
+                        "type": "submit",
+                        img {
+                            class: "svg-icon",
+                            width: "48",
+                            height: "48",
+                            src: submit_button_svg.name
+                        }
                     }
                 }
+            }
+            p {
+                class: "text-xs text-center",
+                "{disclaimer}"
             }
         }
     }

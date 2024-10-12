@@ -80,6 +80,7 @@ pub fn Page(
                     prompt_id: prompt.id,
                     conversation_id: conversation_id,
                     lock_console: lock_console,
+                    disclaimer: prompt.disclaimer
                 }
             }
         }
