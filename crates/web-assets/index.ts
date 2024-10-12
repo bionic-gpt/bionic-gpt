@@ -15,6 +15,7 @@ import { drawers } from './typescript/side-drawer'
 import { formatter } from './typescript/format-json'
 import { copyPaste } from './typescript/copy-paste'
 import { copy } from './typescript/copy'
+import { selectMenu } from './typescript/select-menu'
 import { readAloud } from './typescript/read-aloud'
 import './typescript/remember-form'
 import './typescript/textarea-submit'
@@ -37,6 +38,7 @@ function loadEverything() {
     formatter()
     streamingChat()
     copyPaste()
+    selectMenu()
     copy()
     readAloud()
     initializeSidebar()

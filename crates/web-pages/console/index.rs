@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use super::ChatWithChunks;
 use crate::app_layout::{Layout, SideBar};
+use crate::console::model_popup::ModelPopup;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -37,6 +38,8 @@ pub fn Page(
                     rbac: rbac.clone(),
                     conversation_id: conversation_id,
                     history: history.clone(),
+                    prompts,
+                    prompt: prompt.clone()
                 }
             ),
             div {
@@ -69,9 +72,21 @@ pub fn Page(
 }
 
 #[component]
-fn Head(team_id: i32, rbac: Rbac, conversation_id: i64, history: Vec<History>) -> Element {
+fn Head(
+    team_id: i32,
+    rbac: Rbac,
+    conversation_id: i64,
+    history: Vec<History>,
+    prompts: Vec<Prompt>,
+    prompt: SinglePrompt,
+) -> Element {
     rsx! {
-        h3 { "AI Chat Console" }
+
+        ModelPopup {
+            id: prompt.id,
+            value: prompt.name,
+            prompts
+        }
         div {
             class: "flex flex-row",
             if rbac.can_delete_chat() {

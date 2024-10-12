@@ -3,6 +3,7 @@ pub mod delete;
 pub mod empty_stream;
 pub mod history_drawer;
 pub mod index;
+pub mod model_popup;
 pub mod prompt_drawer;
 pub mod prompt_form;
 
