@@ -79,8 +79,8 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         button {
                             id: "toggleButton",
                             img {
-                                height: "16",
-                                width: "16",
+                                height: "24",
+                                width: "24",
                                 class: "svg-icon mr-6",
                                 src: collapse_svg.name
                             }
