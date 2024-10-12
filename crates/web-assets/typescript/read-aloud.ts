@@ -88,7 +88,7 @@ function readAloudContent(
                 icon.addEventListener('click', stopListener);
 
                 // Cleanup when the audio ends
-                audio.addEventListener('ended', () => {
+                audio?.addEventListener('ended', () => {
                     URL.revokeObjectURL(url);
                     isPlaying = false;
 
