@@ -5,6 +5,16 @@ export const selectMenu = () => {
         const selectedOption = selectMenu.querySelector('.selected-option') as HTMLElement;
         const options = selectMenu.querySelector('.options') as HTMLElement;
 
+        // Load stored value from localStorage if the element has an ID
+        const menuId = selectMenu.id;
+        if (menuId) {
+            const storedValue = localStorage.getItem(menuId);
+            if (storedValue) {
+                selectedOption.innerHTML = storedValue; // Set the displayed value to the stored value
+                selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
+            }
+        }
+
         selectedOption.addEventListener("click", () => {
             options.classList.toggle("hidden");
         });
@@ -13,18 +23,23 @@ export const selectMenu = () => {
             const target = (event.target as HTMLElement).closest(".option") as HTMLElement;
             if (target) {
                 const value = target.getAttribute("data-value");
-                if(value) {
-                    selectMenu.setAttribute("data-value", value)
-                }
+                if (value) {
+                    selectMenu.setAttribute("data-value", value);
+                    
+                    // Get the first element inside the target option
+                    const firstElement = target.querySelector('span') as HTMLElement; // Assuming the first element is a <span>
+                    if (firstElement) {
+                        selectedOption.innerHTML = firstElement.innerHTML; // Update the displayed value to the first element's content
+                    }
 
-                // Get the first element inside the target option
-                const firstElement = target.querySelector('span') as HTMLElement; // Assuming the first element is a <span>
-                if (firstElement) {
-                    selectedOption.innerHTML = firstElement.innerHTML; // Update the displayed value to the first element's content
+                    // Store the selected value in localStorage if the element has an ID
+                    if (menuId) {
+                        localStorage.setItem(menuId, firstElement.innerHTML); // Store the selected value
+                    }
+
+                    options.classList.add("hidden"); // Hide options
+                    console.log("Selected value:", value); // Log the value if needed
                 }
-                
-                options.classList.add("hidden"); // Hide options
-                console.log("Selected value:", value); // Log the value if needed
             }
         });
 
