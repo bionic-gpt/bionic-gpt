@@ -58,7 +58,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                 class: "flex h-screen",
                 nav {
                     id: "sidebar",
-                    class: "bg-base-200 fixed md:relative h-full md:w-64 w-0 transition-all duration-300 flex flex-col justify-between",
+                    class: "overflow-hidden bg-base-200 fixed md:relative h-full md:w-64 w-0 transition-all duration-300 flex flex-col justify-between",
                     div {
                         class: "flex items-center p-4",
                         {props.sidebar_header}
