@@ -5,6 +5,7 @@ use dioxus::prelude::*;
 pub fn ModelPopup(id: i32, value: String, prompts: Vec<Prompt>) -> Element {
     rsx! {
         div {
+            id: "model-selector",
             class: "select-menu relative inline-block",
             div {
                 class: "selected-option cursor-pointer",

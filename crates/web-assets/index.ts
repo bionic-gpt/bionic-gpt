@@ -17,6 +17,7 @@ import { copyPaste } from './typescript/copy-paste'
 import { copy } from './typescript/copy'
 import { selectMenu } from './typescript/select-menu'
 import { readAloud } from './typescript/read-aloud'
+import { modelChanged } from './typescript/select-menu-changed'
 import './typescript/remember-form'
 import './typescript/textarea-submit'
 import './typescript/update-sidebar'
@@ -39,6 +40,7 @@ function loadEverything() {
     streamingChat()
     copyPaste()
     selectMenu()
+    modelChanged()
     copy()
     readAloud()
     initializeSidebar()
