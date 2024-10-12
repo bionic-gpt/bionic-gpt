@@ -3,6 +3,7 @@ pub mod empty_stream;
 pub mod history_drawer;
 pub mod index;
 pub mod prompt_drawer;
+pub mod prompt_form;
 
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};
 
