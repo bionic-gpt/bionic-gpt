@@ -1,3 +1,4 @@
+use assets::files::button_select_svg;
 use db::Prompt;
 use dioxus::prelude::*;
 
@@ -8,9 +9,17 @@ pub fn ModelPopup(id: i32, value: String, prompts: Vec<Prompt>) -> Element {
             id: "model-selector",
             class: "select-menu relative inline-block",
             div {
-                class: "selected-option cursor-pointer",
+                class: "selected-option cursor-pointer flex flex-row gap-2",
                 "data-value": "{id}",
-                "{value}"
+                span {
+                    "{value}"
+                }
+                img {
+                    width: "16",
+                    height: "16",
+                    class: "svg-icon",
+                    src: button_select_svg.name
+                }
             }
             div {
                 class: "options hidden absolute left-0 bg-base-200 w-64 border rounded mt-1 z-10",
