@@ -121,7 +121,13 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
                 .await?;
             }
             if observability {
-                observability::deploy(client.clone(), bionic_db_pass, &namespace).await?;
+                observability::deploy(
+                    client.clone(),
+                    bionic_db_pass,
+                    bionic.spec.clone(),
+                    &namespace,
+                )
+                .await?;
             }
             if testing {
                 http_mock::deploy(

@@ -11,17 +11,20 @@ data:
 
     [security]
     admin_user = admin
-    admin_password = admin
+    admin_password = $ADMIN_PASSWORD
+
     [auth.generic_oauth]
+    auto_login = true
     enabled = true
     name = Keycloak
     allow_sign_up = true
     client_id = grafana
     client_secret = 3dd84ee3-8c4a-44d6-a617-8f5a8561e585
-    scopes = openid email profile
-    auth_url = http://192.168.178.57/auth/realms/observability/protocol/openid-connect/auth
-    token_url = http://192.168.178.57/auth/realms/observability/protocol/openid-connect/token
-    api_url = http://192.168.178.57/auth/realms/observability/protocol/openid-connect/userinfo
+    scopes = openid email profile roles
+    auth_url = $HOSTNAME_URL/oidc/realms/observability/protocol/openid-connect/auth
+    token_url = $HOSTNAME_URL/oidc/realms/observability/protocol/openid-connect/token
+    api_url = $HOSTNAME_URL/oidc/realms/observability/protocol/openid-connect/userinfo
+  datasources.yaml: |
     apiVersion: 1
     datasources:
       - name: Bionic Database

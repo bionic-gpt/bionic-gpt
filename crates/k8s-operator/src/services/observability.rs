@@ -1,5 +1,5 @@
-use crate::cli::apply;
 use crate::error::Error;
+use crate::{cli::apply, operator::crd::BionicSpec};
 use k8s_openapi::api::{apps::v1::Deployment, core::v1::ConfigMap};
 use kube::{
     api::{DeleteParams, Patch, PatchParams},
@@ -14,6 +14,7 @@ const CONFIG_NAME: &str = "grafana-dashboards";
 pub async fn deploy(
     client: Client,
     password: Option<String>,
+    spec: BionicSpec,
     namespace: &str,
 ) -> Result<(), Error> {
     let config_map = serde_json::json!({
@@ -44,6 +45,8 @@ pub async fn deploy(
     };
 
     let yaml = GRAFANA_YAML.replace("$BIONIC_PASSWORD", &password);
+    let yaml = yaml.replace("$HOSTNAME_URL", &spec.hostname_url);
+    let yaml = yaml.replace("$ADMIN_PASSWORD", &super::database::rand_hex());
 
     apply::apply(&client, &yaml, Some(namespace)).await.unwrap();
 

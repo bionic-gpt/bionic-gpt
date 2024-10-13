@@ -42,7 +42,7 @@ cargo run --bin k8s-operator -- install
 ## Testing the Operator
 
 ```sh
-cargo run --bin k8s-operator -- install --no-operator --testing --hostname-url http://192.168.178.57
+cargo run --bin k8s-operator -- install --no-operator --testing --grafana --hostname-url http://192.168.178.57
 ```
 
 Then
