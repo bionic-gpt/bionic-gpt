@@ -46,17 +46,17 @@ function loadEverything() {
     initializeSidebar()
 }
 
+// Called when the page loads i.e. after a page refresh
 document.addEventListener('turbo:load', () => {
-    console.log('herer')
     loadEverything()
 })
 
+// Called when you click a link in the sidebar and it updates the main content
 document.addEventListener('turbo:frame-load', (event: Event) => {
     const frame = event.target as HTMLIFrameElement | null;
     if (frame?.id === "main-content") {
         const url = new URL(frame.src);
         history.pushState({}, '', url.toString());
-        console.log('URL updated to:', url);
         loadEverything();
     }
 });
