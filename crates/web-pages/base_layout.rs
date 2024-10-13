@@ -72,7 +72,8 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         {props.sidebar_footer}
                     }
                 }
-                div {
+                turbo-frame {
+                    id: "main-content",
                     class: "flex-1 flex flex-col",
                     header {
                         class: "flex items-center p-4",
