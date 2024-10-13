@@ -47,8 +47,19 @@ function loadEverything() {
 }
 
 document.addEventListener('turbo:load', () => {
+    console.log('herer')
     loadEverything()
 })
+
+document.addEventListener('turbo:frame-load', (event: Event) => {
+    const frame = event.target as HTMLIFrameElement | null;
+    if (frame?.id === "main-content") {
+        const url = new URL(frame.src);
+        history.pushState({}, '', url.toString());
+        console.log('URL updated to:', url);
+        loadEverything();
+    }
+});
 
 document.addEventListener('turbo:fetch-request-error', (e) => {
     console.log('turbo:fetch-request-error')

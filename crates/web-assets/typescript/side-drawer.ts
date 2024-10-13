@@ -7,6 +7,8 @@ export const drawers = () => {
         const overlay = drawer.querySelector(".drawer__overlay")
         const panel = drawer.querySelector(".drawer__panel")
 
+        console.log('here')
+
         if(drawerBody && drawerFooter && closeButton && overlay && panel) {
 
             closeButton.addEventListener("click", function(e) {
