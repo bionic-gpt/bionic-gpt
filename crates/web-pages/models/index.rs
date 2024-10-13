@@ -41,6 +41,11 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>) -> Element {
                 rpm_limit: 10_000,
                 api_key: "".to_string(),
                 context_size_bytes: 2048,
+                disclaimer: "LLMs can make mistakes. Check important info.".to_string(),
+                example1: None,
+                example2: None,
+                example3: None,
+                example4: None,
             }
 
             for model in &models {
@@ -55,6 +60,11 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<Model>) -> Element {
                     tpm_limit: model.tpm_limit,
                     rpm_limit: model.rpm_limit,
                     context_size_bytes: model.context_size,
+                    disclaimer: "LLMs can make mistakes. Check important info.".to_string(),
+                    example1: None,
+                    example2: None,
+                    example3: None,
+                    example4: None,
                 }
             }
 
