@@ -4,7 +4,6 @@ import './scss/index.scss'
 import hljs from 'highlight.js';
 
 // Web components
-import { SnackBar } from './web-components/snack-bar'
 import '@github/relative-time-element';
 
 // Misc.
@@ -14,6 +13,7 @@ import { streamingChat } from './typescript/streaming-chat'
 import { drawers } from './typescript/side-drawer'
 import { formatter } from './typescript/format-json'
 import { copyPaste } from './typescript/copy-paste'
+import { snackBar } from './typescript/snackbar'
 import { copy } from './typescript/copy'
 import { selectMenu } from './typescript/select-menu'
 import { readAloud } from './typescript/read-aloud'
@@ -31,14 +31,12 @@ import '@hotwired/turbo'
 // Set everything up
 function loadEverything() {
     hljs.highlightAll()
-    if(customElements.get('snack-bar') === undefined) {
-        customElements.define('snack-bar', SnackBar);
-    }
     triggers()
     drawers()
     formatter()
     streamingChat()
     copyPaste()
+    snackBar()
     selectMenu()
     modelChanged()
     copy()

@@ -17,6 +17,7 @@ pub mod profile;
 pub mod profile_popup;
 pub mod prompts;
 pub mod rate_limits;
+pub mod snackbar;
 pub mod team;
 pub mod teams;
 

@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use super::logout_form::LogoutForm;
+use super::snackbar::Snackbar;
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
 use daisy_rsx::{NavGroup, NavItem};
@@ -187,7 +188,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                 }
             ),
             {props.children}
-            snack-bar {}
+            Snackbar {}
             LogoutForm {}
         }
     }

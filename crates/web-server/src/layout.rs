@@ -1,12 +1,19 @@
 use super::CustomError;
+use axum::http::header::SET_COOKIE;
+use axum::http::HeaderValue;
 use axum::response::{IntoResponse, Redirect};
 use serde::{Deserialize, Deserializer};
 
 pub fn redirect_and_snackbar(
     url: &str,
-    _message: &'static str,
+    message: &'static str,
 ) -> Result<impl IntoResponse, CustomError> {
-    Ok(Redirect::to(url))
+    let mut response = Redirect::to(url).into_response();
+    let cookie_value = format!("flash_aargh={}; Path=/", message);
+    response
+        .headers_mut()
+        .insert(SET_COOKIE, HeaderValue::from_str(&cookie_value).unwrap());
+    Ok(response)
 }
 
 pub fn redirect(url: &str) -> Result<impl IntoResponse, CustomError> {
