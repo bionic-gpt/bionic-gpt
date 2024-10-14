@@ -1,4 +1,4 @@
-document.addEventListener('turbo:load', () => {
+export const textareaSubmit = () => {
     // Persist a form to local storage.
     document.querySelectorAll('textarea.submit-on-enter').forEach((area) => {
         if(area instanceof HTMLTextAreaElement) {
@@ -20,4 +20,4 @@ document.addEventListener('turbo:load', () => {
             });
         }
     })
-})
+}

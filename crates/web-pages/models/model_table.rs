@@ -1,10 +1,10 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
-use db::Model;
+use db::ModelWithPrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ModelTable(models: Vec<Model>, team_id: i32) -> Element {
+pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
     rsx!(
         Box {
             class: "has-data-table",

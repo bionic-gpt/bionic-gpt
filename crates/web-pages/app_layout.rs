@@ -1,8 +1,9 @@
 #![allow(non_snake_case)]
 use super::logout_form::LogoutForm;
+use super::snackbar::Snackbar;
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
-use daisy_rsx::{AppLayout, NavGroup, NavItem};
+use daisy_rsx::{NavGroup, NavItem};
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
@@ -47,7 +48,7 @@ pub fn Layout(props: LayoutProps) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
     rsx! {
-        AppLayout {
+        super::base_layout::BaseLayout {
             title: props.title,
             stylesheets: stylesheets,
             js_href: index_js.name,
@@ -160,31 +161,12 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 icon: nav_audit_svg.name,
                                 title: "Audit Trail"
                             }
-                        )
-                    }
-                    NavGroup {
-                        heading: "Enterprise Trial",
-                        content:  rsx!(
-                            NavItem {
-                                id: SideBar::Licence.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::licence::Index { team_id: props.team_id },
-                                icon: nav_dashboard_svg.name,
-                                title: "Features & Extend Trial"
-                            }
                             NavItem {
                                 id: SideBar::RateLimits.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::rate_limits::Index { team_id: props.team_id },
                                 icon: limits_svg.name,
                                 title: "Rate Limits"
-                            }
-                            NavItem {
-                                id: SideBar::Guardrails.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::guardrails::Index { team_id: props.team_id },
-                                icon: guardrails_svg.name,
-                                title: "Guardrails"
                             }
                         )
                     }
@@ -206,7 +188,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                 }
             ),
             {props.children}
-            snack-bar {}
+            Snackbar {}
             LogoutForm {}
         }
     }

@@ -4,20 +4,20 @@ use dioxus::prelude::{ComponentFunction, VirtualDom};
 pub mod api_keys;
 pub mod app_layout;
 pub mod audit_trail;
+pub mod base_layout;
 pub mod console;
 pub mod datasets;
 pub mod documents;
-pub mod guardrails;
 pub mod history;
-pub mod licence;
 pub mod logout_form;
-pub mod model_form;
+//pub mod model_form;
 pub mod models;
 pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;
 pub mod prompts;
 pub mod rate_limits;
+pub mod snackbar;
 pub mod team;
 pub mod teams;
 
@@ -49,28 +49,6 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/search")]
         pub struct Search {
-            pub team_id: i32,
-        }
-    }
-
-    pub mod licence {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/licence")]
-        pub struct Index {
-            pub team_id: i32,
-        }
-    }
-
-    pub mod guardrails {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/guardrails")]
-        pub struct Index {
             pub team_id: i32,
         }
     }

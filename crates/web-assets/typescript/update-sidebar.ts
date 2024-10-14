@@ -1,5 +1,5 @@
 // When using turbo frames side nav does not get updated.
-document.addEventListener('turbo:load', () => {
+export const updateSidebar = () => {
     // Persist a form to local storage.
     document.querySelectorAll('a[data-turbo-frame="main-content"]').forEach((link) => {
         link.addEventListener("click", function() {
@@ -13,4 +13,4 @@ document.addEventListener('turbo:load', () => {
             link.classList.add('active')
         }, {once : true});
     })
-})
+}

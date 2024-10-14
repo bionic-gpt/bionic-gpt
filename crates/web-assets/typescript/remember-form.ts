@@ -1,4 +1,4 @@
-document.addEventListener('turbo:load', () => {
+export const rememberForm = () => {
     // Persist a form to local storage.
     document.querySelectorAll('form.remember').forEach((form) => {
         const forget = form.getAttribute('data-remember-reset')
@@ -23,4 +23,4 @@ document.addEventListener('turbo:load', () => {
             })
         }
     })
-})
+}

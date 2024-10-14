@@ -16,7 +16,7 @@ pub fn Page(
     rsx! {
         if pipelines.is_empty() {
             Layout {
-                section_class: "normal",
+                section_class: "p-4",
                 selected_item: SideBar::DocumentPipelines,
                 team_id: team_id,
                 rbac: rbac,
@@ -38,7 +38,7 @@ pub fn Page(
             }
         } else {
             Layout {
-                section_class: "normal",
+                section_class: "p-4",
                 selected_item: SideBar::DocumentPipelines,
                 team_id: team_id,
                 rbac: rbac,

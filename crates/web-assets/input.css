@@ -14,10 +14,18 @@
     --bg-color-surface: 3333;
     --default-border-color: #606c79;
 
-    .l_nav_items > .menu {
+    .menu {
         > li > a > img {
             filter: invert(0.6);
         }
+    
+        > li > a.active > img {
+            filter: invert(1);
+        }
+    }
+
+    img.svg-icon {
+        filter: invert(0.6);
     }
 
     .dropdown > label > img {
@@ -34,6 +42,10 @@
     table > thead {
         background-color: #fafbfb;
     }
+
+    .menu > li > a.active > img {
+        filter: invert(1);
+    }
 }
 
 a {
@@ -43,22 +55,6 @@ a {
 /** In the chat the first p has margin, we need to remove it **/
 .response-formatter > p:first-child, #streaming-chat > p:first-child {
     margin-top: 0;
-}
-
-.l_nav_items > .menu {
-    border: 0;
-    margin: 0;
-    padding-bottom: 0;
-    padding-top: 0;
-    
-    /** Invert the svg images, this is the way to handle dark mode **/
-    > li > a.active > img {
-        filter: invert(1);
-    }
-
-    > li > a {
-        text-decoration: none;
-    }
 }
 
 /** Override daisy cards **/

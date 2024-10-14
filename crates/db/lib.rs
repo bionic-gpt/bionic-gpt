@@ -14,7 +14,7 @@ pub use queries::conversations::Conversation;
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
 pub use queries::invitations::{Invitation, InviteSummary};
-pub use queries::models::Model;
+pub use queries::models::{Model, ModelWithPrompt};
 pub use queries::prompts::Prompt;
 pub use queries::rate_limits::RateLimit;
 pub use queries::teams::GetUsers as Member;

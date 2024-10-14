@@ -9,10 +9,8 @@ pub mod datasets;
 pub mod documents;
 pub mod email;
 pub mod errors;
-pub mod guardrails;
 pub mod history;
 pub mod layout;
-pub mod licence;
 pub mod llm_reverse_proxy;
 pub mod metrics;
 pub mod models;
@@ -63,9 +61,7 @@ async fn main() {
         .merge(console::routes())
         .merge(datasets::routes())
         .merge(documents::routes())
-        .merge(guardrails::routes())
         .merge(history::routes())
-        .merge(licence::routes())
         .merge(llm_reverse_proxy::routes())
         .merge(models::routes())
         .merge(pipelines::routes())
