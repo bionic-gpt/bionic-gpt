@@ -1,6 +1,9 @@
 list:
     just --list
 
+aider:
+    aider --no-auto-commits
+
 watch:
     mold -run cargo watch \
         --workdir /workspace/ \
