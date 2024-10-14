@@ -10,7 +10,7 @@ pub mod datasets;
 pub mod documents;
 pub mod history;
 pub mod logout_form;
-pub mod model_form;
+//pub mod model_form;
 pub mod models;
 pub mod pipelines;
 pub mod profile;
