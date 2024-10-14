@@ -61,13 +61,14 @@ pub fn Form(
                                 required: true
                             }
 
-                            Input {
-                                input_type: InputType::Text,
-                                label_class: "mt-4",
+                            TextArea {
+                                class: "mt-3",
                                 name: "description",
+                                rows: "8",
                                 label: "Description",
                                 help_text: "A brief summary about this model.",
-                                value: description,
+                                label_class: "mt-4",
+                                "{description}",
                                 required: true
                             }
 
