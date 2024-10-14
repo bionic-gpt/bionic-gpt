@@ -2,7 +2,7 @@ list:
     just --list
 
 aider:
-    aider --no-auto-commits
+    aider --no-auto-commits --browser
 
 watch:
     mold -run cargo watch \
