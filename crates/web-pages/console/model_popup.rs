@@ -22,7 +22,7 @@ pub fn ModelPopup(id: i32, value: String, prompts: Vec<Prompt>) -> Element {
                 }
             }
             div {
-                class: "options hidden absolute left-0 w-64 border bg-base-100 shadow-md rounded-2xl mt-1 z-10",
+                class: "options hidden absolute left-0 w-96 p-4 border bg-base-100 shadow-lg rounded-2xl mt-1 z-10",
                 for prompt in prompts {
                     div {
                         class: "option p-2 hover:bg-base-200 cursor-pointer",
@@ -32,7 +32,7 @@ pub fn ModelPopup(id: i32, value: String, prompts: Vec<Prompt>) -> Element {
                             "{prompt.name}"
                         }
                         p {
-                            class: "text-sm",
+                            class: "text-sm font-light",
                             "{prompt.description}"
                         }
                     }
