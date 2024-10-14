@@ -18,12 +18,12 @@ import { copy } from './typescript/copy'
 import { selectMenu } from './typescript/select-menu'
 import { readAloud } from './typescript/read-aloud'
 import { modelChanged } from './typescript/select-menu-changed'
-import './typescript/remember-form'
-import './typescript/textarea-submit'
-import './typescript/update-sidebar'
-import './typescript/refresh-frame'
-import './typescript/disable-submit-button'
-import './typescript/theme-switcher'
+import { rememberForm } from './typescript/remember-form'
+import { textareaSubmit } from './typescript/textarea-submit'
+import { updateSidebar } from './typescript/update-sidebar'
+import { refreshFrame } from './typescript/refresh-frame'
+import { disableSubmitButton } from './typescript/disable-submit-button'
+import { themeSwitcher } from './typescript/theme-switcher'
 
 // Hotwired Turbo
 import '@hotwired/turbo'
@@ -42,6 +42,12 @@ function loadEverything() {
     copy()
     readAloud()
     initializeSidebar()
+    rememberForm()
+    textareaSubmit()
+    updateSidebar()
+    refreshFrame()
+    disableSubmitButton()
+    themeSwitcher()
 }
 
 // Called when the page loads i.e. after a page refresh

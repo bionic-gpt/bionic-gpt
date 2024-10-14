@@ -1,4 +1,4 @@
-document.addEventListener('turbo:load', () => {
+export const disableSubmitButton = () => {
     // Persist a form to local storage.
     document.querySelectorAll('button[type="submit"]').forEach((button) => {
         button.addEventListener("click", function() {
@@ -15,4 +15,4 @@ document.addEventListener('turbo:load', () => {
             }
         }, {once : true});
     })
-})
+}

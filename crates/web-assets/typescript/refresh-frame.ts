@@ -2,7 +2,7 @@ import { FrameElement } from "@hotwired/turbo";
 
 // If we have any elements with the class 'processing' then
 // kick off a timer that will refresh the parent turbo frame 
-document.addEventListener('turbo:load', () => {
+export const refreshFrame = () => {
     const itemsCurrentlyProcessing = document.querySelectorAll('.processing')
     if(itemsCurrentlyProcessing.length > 0) {
         const item = itemsCurrentlyProcessing[0]
@@ -20,4 +20,4 @@ document.addEventListener('turbo:load', () => {
             }, 1000);
         }
     }
-})
+}

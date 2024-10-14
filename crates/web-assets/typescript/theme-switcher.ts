@@ -1,6 +1,6 @@
 const themeStorageName = 'ui-theme'
 
-document.addEventListener('turbo:frame-render', () => {
+export const themeSwitcher = () => {
     // We can create a trigger to open drawers
     document.querySelectorAll('a.theme').forEach(async (link) => {
         // Detect when a user clicks a row
@@ -19,11 +19,7 @@ document.addEventListener('turbo:frame-render', () => {
             event.stopImmediatePropagation()
         })
     })
-})
-
-document.addEventListener('turbo:load', () => {
-    setTheme()
-})
+}
 
 function setTheme() {
     const theme = localStorage.getItem(themeStorageName) || "system"
