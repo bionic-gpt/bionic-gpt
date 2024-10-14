@@ -1,5 +1,5 @@
 --: Model(api_key?)
---: ModelWithPrompt(api_key?, display_name?)
+--: ModelWithPrompt(api_key?, prompt_id?)
 
 --! models : Model
 SELECT
@@ -30,7 +30,14 @@ SELECT
     m.context_size,
     m.created_at,
     m.updated_at,
-    p.name AS display_name
+    COALESCE(p.name, '') AS display_name,
+    COALESCE(p.description, '') AS description,
+    COALESCE(p.disclaimer, '') AS disclaimer,
+    p.id AS prompt_id,
+    COALESCE(p.example1, '') AS example1,
+    COALESCE(p.example2, '') AS example2,
+    COALESCE(p.example3, '') AS example3,
+    COALESCE(p.example4, '') AS example4
 FROM 
     models m
 LEFT JOIN 

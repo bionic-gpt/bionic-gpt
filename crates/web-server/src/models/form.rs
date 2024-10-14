@@ -13,8 +13,11 @@ use web_pages::routes::models::New;
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct ModelForm {
     pub id: Option<i32>,
+    pub prompt_id: Option<i32>,
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
+    #[validate(length(min = 1, message = "The display name is mandatory"))]
+    pub display_name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub base_url: String,
     pub model_type: String,
@@ -23,6 +26,12 @@ pub struct ModelForm {
     pub tpm_limit: i32,
     pub rpm_limit: i32,
     pub context_size: i32,
+    pub disclaimer: String,
+    pub description: String,
+    pub example1: String,
+    pub example2: String,
+    pub example3: String,
+    pub example4: String,
 }
 
 pub async fn upsert(
@@ -59,6 +68,33 @@ pub async fn upsert(
                     &id,
                 )
                 .await?;
+
+            let system_prompt: Option<&String> = None;
+
+            if let Some(id) = model_form.prompt_id {
+                queries::prompts::update()
+                    .bind(
+                        &transaction,
+                        &id,
+                        &model_form.display_name,
+                        &db::Visibility::Company,
+                        &system_prompt,
+                        &3,
+                        &10,
+                        &model_form.context_size,
+                        &80,
+                        &0.7,
+                        &model_form.description,
+                        &model_form.disclaimer,
+                        &Some(&model_form.example1),
+                        &Some(&model_form.example2),
+                        &Some(&model_form.example3),
+                        &Some(&model_form.example4),
+                        &db::PromptType::Model,
+                        &id,
+                    )
+                    .await?;
+            }
 
             transaction.commit().await?;
 
@@ -98,7 +134,7 @@ pub async fn upsert(
                         &transaction,
                         &team_id,
                         &model_id,
-                        &model_form.name,
+                        &model_form.display_name,
                         &Visibility::Company,
                         &system_prompt,
                         &3,
@@ -106,12 +142,12 @@ pub async fn upsert(
                         &context_size,
                         &80,
                         &0.7,
-                        &"Please add a description",
-                        &"LLms can make mistakes. Please check.",
-                        &system_prompt,
-                        &system_prompt,
-                        &system_prompt,
-                        &system_prompt,
+                        &model_form.description,
+                        &model_form.disclaimer,
+                        &Some(&model_form.example1),
+                        &Some(&model_form.example2),
+                        &Some(&model_form.example3),
+                        &Some(&model_form.example4),
                         &db::PromptType::Model,
                     )
                     .one()

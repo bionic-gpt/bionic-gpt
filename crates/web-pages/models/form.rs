@@ -6,6 +6,7 @@ use dioxus::prelude::*;
 pub fn Form(
     team_id: i32,
     name: String,
+    display_name: String,
     base_url: String,
     model_type: String,
     trigger_id: String,
@@ -14,16 +15,14 @@ pub fn Form(
     rpm_limit: i32,
     context_size_bytes: i32,
     id: Option<i32>,
+    prompt_id: Option<i32>,
     disclaimer: String,
-    example1: Option<String>,
-    example2: Option<String>,
-    example3: Option<String>,
-    example4: Option<String>,
+    description: String,
+    example1: String,
+    example2: String,
+    example3: String,
+    example4: String,
 ) -> Element {
-    let example1 = example1.unwrap_or("".to_string());
-    let example2 = example2.unwrap_or("".to_string());
-    let example3 = example3.unwrap_or("".to_string());
-    let example4 = example4.unwrap_or("".to_string());
     rsx!(
         Drawer {
             submit_action: crate::routes::models::New{team_id}.to_string(),
@@ -36,7 +35,7 @@ pub fn Form(
                         name: "prompt-tabs",
                         tab_name: "Assistant",
                         div {
-                            class: "flex flex-col",
+                            class: "flex flex-col mt-3",
                             if let Some(id) = id {
                                 input {
                                     "type": "hidden",
@@ -44,13 +43,40 @@ pub fn Form(
                                     name: "id"
                                 }
                             }
+                            if let Some(id) = prompt_id {
+                                input {
+                                    "type": "hidden",
+                                    value: "{id}",
+                                    name: "prompt_id"
+                                }
+                            }
+
+                            Input {
+                                input_type: InputType::Text,
+                                label_class: "mt-4",
+                                name: "display_name",
+                                label: "Display Name",
+                                help_text: "Make the name memorable and imply it's usage.",
+                                value: display_name,
+                                required: true
+                            }
+
+                            Input {
+                                input_type: InputType::Text,
+                                label_class: "mt-4",
+                                name: "description",
+                                label: "Description",
+                                help_text: "A brief summary about this model.",
+                                value: description,
+                                required: true
+                            }
 
                             Input {
                                 input_type: InputType::Text,
                                 label_class: "mt-4",
                                 name: "name",
                                 label: "Model Name",
-                                help_text: "Make the name memorable and imply it's usage.",
+                                help_text: "The model's id as used in the API. i.e. llama3-70b",
                                 value: name,
                                 required: true
                             }
