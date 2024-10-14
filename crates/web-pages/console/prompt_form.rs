@@ -24,7 +24,7 @@ pub fn Form(
                 action: routes::console::SendMessage{team_id}.to_string(),
 
                 TextArea {
-                    class: "submit-on-enter flex-1 mr-2",
+                    class: "submit-on-enter flex-1 mr-2 resize-none",
                     rows: "4",
                     name: "message",
                     disabled: lock_console

@@ -48,7 +48,7 @@ pub fn ConsolePanel(
                                             text: "Read aloud",
                                             class: "mr-2",
                                             img {
-                                                class: "read-aloud mt-0 mb-0",
+                                                class: "read-aloud svg-icon mt-0 mb-0",
                                                 "data-loading-img": loading_svg.name,
                                                 "data-stop-img": stop_svg.name,
                                                 "data-play-img": read_aloud_svg.name,
@@ -61,7 +61,7 @@ pub fn ConsolePanel(
                                     ToolTip {
                                         text: "Copy",
                                         img {
-                                            class: "copy-response mt-0 mb-0",
+                                            class: "copy-response svg-icon mt-0 mb-0",
                                             "clicked-img": tick_copy_svg.name,
                                             src: copy_svg.name,
                                             width: "16",
