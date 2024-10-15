@@ -16,15 +16,18 @@ pub fn Page(rbac: Rbac, team_id: i32) -> Element {
             title: "Chat History",
             header: rsx! {
                 h3 { "Chat History" }
-            },
-            BlankSlate {
-                heading: "Search your chat history",
-                visual: nav_history_svg.name,
-                description: "Click the search button and enter your criteria",
-                primary_action_drawer: Some(("Search History".to_string(), "search-history".to_string()))
+                Button {
+                    prefix_image_src: "{button_plus_svg.name}",
+                    drawer_trigger: "search-history",
+                    button_scheme: ButtonScheme::Primary,
+                    "Search History"
+                }
             },
             super::form::Form {
                 team_id: team_id
+            }
+            super::history_table::HistoryTable {
+
             }
         }
     }
