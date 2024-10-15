@@ -19,7 +19,7 @@ pub fn ConsolePanel(
             class: "flex flex-col-reverse h-[calc(100%-100px)]",
             id: "console-stream",
             div {
-                class: "flex flex-col-reverse h-full overflow-y-auto",
+                class: "flex flex-col-reverse overflow-y-auto",
                 for chat_with_chunks in chats_with_chunks {
                     super::prompt_drawer::PromptDrawer {
                         trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
@@ -27,7 +27,7 @@ pub fn ConsolePanel(
                         chunks: chat_with_chunks.chunks.clone()
                     }
                     div {
-                        class: "min-w-[65ch] max-w-prose m-auto",
+                        class: "flex flex-col-reverse min-w-[65ch] max-w-prose m-auto",
                         TimeLine {
                             if let Some(response) = &chat_with_chunks.chat.response {
                                 // We are generating text
