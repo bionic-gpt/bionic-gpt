@@ -1,12 +1,13 @@
 version: '3.4'
 services:
 
-
   llm-api:
-    image: ghcr.io/bionic-gpt/llama-3.2-3b:1.1.2
+    image: ghcr.io/bionic-gpt/llama-3-8b-chat:1.1.1
+    platform: linux/amd64
 
   embeddings-api:
-    image: ghcr.io/bionic-gpt/embeddings:1.1.2
+    image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
+    platform: linux/amd64
 
   db:
     image: ankane/pgvector:v0.5.1
