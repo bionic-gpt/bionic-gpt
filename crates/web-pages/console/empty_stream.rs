@@ -13,7 +13,7 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
             div {
                 class: "mx-3 mt-12 max-w-3xl gap-4 text-center",
                 h1 {
-                    class: "mb-6 text-2xl font-semibold relative before:absolute before:inset-0 before:animate-typewriter before:bg-white",
+                    class: "mb-8 text-2xl font-semibold relative before:absolute before:inset-0 before:animate-typewriter before:bg-white",
                     "What can I help with?"
                 }
                 div {
