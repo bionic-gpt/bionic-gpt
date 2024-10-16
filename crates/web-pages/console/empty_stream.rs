@@ -60,7 +60,7 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
 fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: String) -> Element {
     rsx! {
         form {
-            class: "flex h-full",
+            class: "w-full",
             method: "post",
             action: routes::console::SendMessage{team_id}.to_string(),
             input {
@@ -79,12 +79,12 @@ fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: Stri
                 value: "{example}"
             }
             button {
-                class: "flex flex-grow h-full flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition",
+                class: "flex flex-col h-full w-full rounded-2xl border p-3 text-start",
                 "type": "submit",
                 img {
                     height: "16",
                     width: "16",
-                    class: "svg-icon mr-6",
+                    class: "svg-icon mb-2",
                     src: ai_svg.name
                 }
                 "{example}"
