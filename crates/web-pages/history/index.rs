@@ -29,9 +29,16 @@ pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
             super::form::Form {
                 team_id: team_id
             }
-            super::history_table::HistoryTable {
-                buckets: buckets.0,
-                total_count: buckets.1
+            if buckets.1 == 0 {
+                BlankSlate {
+                    heading: "Looks like you haven't had any conversations yet",
+                    visual: nav_ccsds_data_svg.name,
+                    description: "When you do a summary will appear on this page"
+                }
+            } else {
+                super::history_table::HistoryTable {
+                    buckets: buckets.0
+                }
             }
         }
     }
