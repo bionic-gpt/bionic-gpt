@@ -59,7 +59,6 @@ pub fn Form(
                     } else {
                         button {
                             class: "flex h-8 w-8 p-2 items-center bg-primary justify-center rounded-full",
-                            disabled: lock_console,
                             "type": "submit",
                             img {
                                 class: "svg-icon",
