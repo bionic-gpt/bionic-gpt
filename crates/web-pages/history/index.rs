@@ -30,7 +30,8 @@ pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
                 team_id: team_id
             }
             super::history_table::HistoryTable {
-                buckets
+                buckets: buckets.0,
+                total_count: buckets.1
             }
         }
     }
@@ -42,7 +43,7 @@ pub struct HistoryBucket {
     pub histories: Vec<History>,
 }
 
-pub fn bucket_history(histories: Vec<History>) -> Vec<HistoryBucket> {
+pub fn bucket_history(histories: Vec<History>) -> (Vec<HistoryBucket>, usize) {
     let now = OffsetDateTime::now_utc();
     let today_start = now.date();
     let yesterday_start = today_start.previous_day().unwrap();
@@ -54,6 +55,8 @@ pub fn bucket_history(histories: Vec<History>) -> Vec<HistoryBucket> {
     let mut last_week = Vec::new();
     let mut last_month = Vec::new();
     let mut monthly = HashMap::new();
+
+    let total_count = histories.len();
 
     for history in histories {
         let created_date = history.created_at.date();
@@ -108,5 +111,5 @@ pub fn bucket_history(histories: Vec<History>) -> Vec<HistoryBucket> {
         });
     }
 
-    buckets
+    (buckets, total_count)
 }

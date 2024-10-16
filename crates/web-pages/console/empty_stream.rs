@@ -12,11 +12,9 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
             class: "flex h-[calc(100%-100px)] overflow-y-auto justify-center items-center",
             div {
                 class: "mx-3 mt-12 max-w-3xl gap-4 text-center",
-                img {
-                    width: "47",
-                    height: "47",
-                    class: "svg-icon mb-8 mx-auto",
-                    src: ai_svg.name
+                h1 {
+                    class: "mb-6 text-2xl font-semibold relative before:absolute before:inset-0 before:animate-typewriter before:bg-white",
+                    "What can I help with?"
                 }
                 div {
                     class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",

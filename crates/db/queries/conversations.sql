@@ -45,6 +45,8 @@ WITH summary AS (
 SELECT 
     c.id, 
     summary.user_request as summary,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(c.created_at)::text) as created_at_iso,
     c.created_at
 FROM 
     conversations c
