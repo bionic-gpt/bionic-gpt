@@ -3,68 +3,40 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn HistoryTable() -> Element {
+pub fn HistoryTable(buckets: Vec<super::index::HistoryBucket>) -> Element {
     rsx!(
-        Box {
-            class: "has-data-table mb-6",
-            BoxHeader {
-                title: "Today"
-            }
-            BoxBody {
-                table {
-                    class: "table table-sm",
-                    thead {
-                        th { "Time" }
-                        th { "Summary" }
+        for bucket in buckets {
+            if ! bucket.histories.is_empty() {
+                Box {
+                    class: "has-data-table mb-6",
+                    BoxHeader {
+                        title: "{bucket.name}"
                     }
-                    tbody {
-                        tr {
-                            td {
-                                strong {
-                                    "5 minutes ago."
-                                }
+                    BoxBody {
+                        table {
+                            class: "table table-sm",
+                            thead {
+                                th { "Time" }
+                                th { "Summary" }
                             }
-                            td {
-                                a {
-                                    href: "#",
-                                    "Dioxus Drawer Component Update"
+                            tbody {
+                                for history in bucket.histories {
+                                    tr {
+                                        td {
+                                            strong {
+                                                "{history.created_at}."
+                                            }
+                                        }
+                                        td {
+                                            a {
+                                                href: "#",
+                                                "{history.summary}"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            }
-        }
-        Box {
-            class: "has-data-table mb-6",
-            BoxHeader {
-                title: "Yesterday"
-            }
-            BoxBody {
-                table {
-                    class: "table table-sm",
-                    thead {
-                        th { "Time" }
-                        th { "Summary" }
-                    }
-                    tbody {
-                    }
-                }
-            }
-        }
-        Box {
-            class: "has-data-table mb-6",
-            BoxHeader {
-                title: "Last Week"
-            }
-            BoxBody {
-                table {
-                    class: "table table-sm",
-                    thead {
-                        th { "Time" }
-                        th { "Summary" }
-                    }
-                    tbody {
                     }
                 }
             }

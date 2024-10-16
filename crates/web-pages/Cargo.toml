@@ -18,3 +18,4 @@ dioxus-ssr = "0.5"
 serde = "1"
 daisy_rsx = "0.1"
 comrak = { version = "0", default-features = false }
+time = "0.3.36"

@@ -3968,6 +3968,7 @@ dependencies = [
  "dioxus",
  "dioxus-ssr",
  "serde",
+ "time",
 ]
 
 [[package]]
