@@ -10,7 +10,7 @@ pub use tokio_postgres::Error as TokioPostgresError;
 pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::{AuditTrail, TopUser};
 pub use queries::chats::Chat;
-pub use queries::conversations::Conversation;
+pub use queries::conversations::{Conversation, History};
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
 pub use queries::invitations::{Invitation, InviteSummary};

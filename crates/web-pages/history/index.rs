@@ -2,11 +2,11 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::authz::Rbac;
+use db::{authz::Rbac, History};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
     rsx! {
         Layout {
             section_class: "p-4",

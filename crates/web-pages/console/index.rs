@@ -5,10 +5,7 @@ use crate::console::model_popup::ModelPopup;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::queries::{
-    conversations::History,
-    prompts::{Prompt, SinglePrompt},
-};
+use db::queries::prompts::{Prompt, SinglePrompt};
 use dioxus::prelude::*;
 
 #[component]
@@ -19,7 +16,6 @@ pub fn Page(
     prompts: Vec<Prompt>,
     prompt: SinglePrompt,
     conversation_id: i64,
-    history: Vec<History>,
     lock_console: bool,
     is_tts_disabled: bool,
 ) -> Element {
@@ -37,7 +33,6 @@ pub fn Page(
                     team_id: team_id,
                     rbac: rbac.clone(),
                     conversation_id: conversation_id,
-                    history: history.clone(),
                     prompts,
                     prompt: prompt.clone()
                 }
@@ -76,7 +71,6 @@ fn Head(
     team_id: i32,
     rbac: Rbac,
     conversation_id: i64,
-    history: Vec<History>,
     prompts: Vec<Prompt>,
     prompt: SinglePrompt,
 ) -> Element {
@@ -114,16 +108,6 @@ fn Head(
                     button_type: ButtonType::Submit,
                     "New Chat"
                 }
-            }
-            Button {
-                drawer_trigger: "history-selector",
-                button_scheme: ButtonScheme::Default,
-                "Recent Chats"
-            }
-            super::history_drawer::HistoryDrawer{
-                trigger_id: "history-selector".to_string(),
-                team_id: team_id,
-                history: history.clone()
             }
         }
     }
