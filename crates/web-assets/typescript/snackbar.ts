@@ -3,13 +3,11 @@ const COOKIE_NAME = 'flash_aargh';
 export const snackBar = () => {
     const snackbar = document.getElementById('snackbar');
     if (!snackbar) {
-        console.warn('Snackbar element not found');
         return;
     }   
     
     const message = getCookie(COOKIE_NAME);
     if (message) {
-        console.log(`Cookie found: ${message}`);
         const messageElement = snackbar.querySelector('p');
         if (messageElement) {
             messageElement.textContent = message;
@@ -21,7 +19,6 @@ export const snackBar = () => {
 
         // Delete the cookie after reading its value
         deleteCookie(COOKIE_NAME);
-        console.log(`Cookie ${COOKIE_NAME} deleted`);
 
         // Automatically hide the snackbar after 4 seconds
         setTimeout(() => {
@@ -29,8 +26,6 @@ export const snackBar = () => {
             snackbar.classList.remove('translate-y-0', 'opacity-100'); // Hide
             snackbar.classList.add('translate-y-full', 'opacity-0'); // Slide up
         }, 4000);
-    } else {
-        console.warn(`Cookie ${COOKIE_NAME} not found or is empty`);
     }
 };
 
@@ -49,7 +44,5 @@ function getCookie(name: string): string | null {
 }
 
 function deleteCookie(name: string) {
-    console.log('Cookies before deletion:', document.cookie);
     document.cookie = `${name}=; Max-Age=0; path=/;`;
-    console.log('Cookies after deletion:', document.cookie);
 }

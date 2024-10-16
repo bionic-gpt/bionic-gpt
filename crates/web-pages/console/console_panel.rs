@@ -51,8 +51,8 @@ pub fn ConsolePanel(
                                                 class: "mr-2",
                                                 img {
                                                     class: "read-aloud svg-icon mt-0 mb-0",
-                                                    "data-loading-img": loading_svg.name,
-                                                    "data-stop-img": stop_svg.name,
+                                                    "data-loading-img": read_aloud_loading_svg.name,
+                                                    "data-stop-img": read_aloud_stop_svg.name,
                                                     "data-play-img": read_aloud_svg.name,
                                                     src: read_aloud_svg.name,
                                                     width: "16",
@@ -119,16 +119,7 @@ pub fn ConsolePanel(
                                     }
                                 }
 
-                                if chat_with_chunks.chat.response.is_none() {
-                                    Label {
-                                        class: "ml-2",
-                                        label_role: LabelRole::Highlight,
-                                        a {
-                                            id: "stop-processing",
-                                            "Stop Processing"
-                                        }
-                                    }
-                                } else {
+                                if chat_with_chunks.chat.response.is_some() {
                                     Label {
                                         class: "ml-2",
                                         a {

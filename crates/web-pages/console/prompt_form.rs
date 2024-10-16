@@ -44,15 +44,29 @@ pub fn Form(
                             value: "{prompt_id}"
                         }
                     }
-                    button {
-                        class: "flex h-8 w-8 p-2 items-center bg-primary justify-center rounded-full",
-                        disabled: lock_console,
-                        "type": "submit",
-                        img {
-                            class: "svg-icon",
-                            width: "48",
-                            height: "48",
-                            src: submit_button_svg.name
+                    if lock_console {
+                        button {
+                            id: "streaming-button",
+                            class: "flex h-8 w-8 p-2 items-center bg-primary justify-center rounded-full",
+                            "type": "submit",
+                            img {
+                                class: "svg-icon",
+                                width: "48",
+                                height: "48",
+                                src: streaming_stop_svg.name
+                            }
+                        }
+                    } else {
+                        button {
+                            class: "flex h-8 w-8 p-2 items-center bg-primary justify-center rounded-full",
+                            disabled: lock_console,
+                            "type": "submit",
+                            img {
+                                class: "svg-icon",
+                                width: "48",
+                                height: "48",
+                                src: submit_button_svg.name
+                            }
                         }
                     }
                 }
