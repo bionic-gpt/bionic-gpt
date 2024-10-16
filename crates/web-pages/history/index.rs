@@ -37,6 +37,7 @@ pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
                 }
             } else {
                 super::history_table::HistoryTable {
+                    team_id,
                     buckets: buckets.0
                 }
             }

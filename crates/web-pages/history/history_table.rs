@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn HistoryTable(buckets: Vec<super::index::HistoryBucket>) -> Element {
+pub fn HistoryTable(team_id: i32, buckets: Vec<super::index::HistoryBucket>) -> Element {
     rsx!(
         for bucket in buckets {
             if ! bucket.histories.is_empty() {
@@ -33,7 +33,7 @@ pub fn HistoryTable(buckets: Vec<super::index::HistoryBucket>) -> Element {
                                         }
                                         td {
                                             a {
-                                                href: "#",
+                                                href: crate::routes::console::Conversation{team_id, conversation_id: history.id}.to_string(),
                                                 "{history.summary}"
                                             }
                                         }
