@@ -41,7 +41,7 @@ pub async fn search(
     .await
     .map_err(|e| CustomError::ExternalApi(e.to_string()));
 
-    let results = if let Ok(embeddings) = embeddings {
+    let history = if let Ok(embeddings) = embeddings {
         let results = db::search_history(&transaction, rbac.user_id, 10, embeddings).await?;
         tracing::info!("Retrieved {} search results", results.len());
         results
@@ -55,7 +55,7 @@ pub async fn search(
         history::results::PageProps {
             team_id,
             rbac,
-            results,
+            history,
         },
     );
 

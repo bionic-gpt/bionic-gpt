@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn HistoryTable(team_id: i32, buckets: Vec<super::index::HistoryBucket>) -> Element {
+pub fn HistoryTable(team_id: i32, buckets: Vec<super::HistoryBucket>) -> Element {
     rsx!(
         for bucket in buckets {
             if ! bucket.histories.is_empty() {
