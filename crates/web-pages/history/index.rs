@@ -32,7 +32,7 @@ pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
             if buckets.1 == 0 {
                 BlankSlate {
                     heading: "Looks like you haven't had any conversations yet",
-                    visual: nav_ccsds_data_svg.name,
+                    visual: nav_history_svg.name,
                     description: "When you do a summary will appear on this page"
                 }
             } else {

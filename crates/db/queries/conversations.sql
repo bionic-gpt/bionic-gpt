@@ -62,7 +62,8 @@ AND
         SELECT team_id 
         FROM team_users 
         WHERE user_id = current_app_user()
-    );
+    )
+LIMIT 100;
 
 --! delete
 DELETE FROM
