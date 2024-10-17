@@ -9,6 +9,9 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
     platform: linux/amd64
 
+  chunking-engine:
+    image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
+
   db:
     image: ankane/pgvector:v0.5.1
     environment:

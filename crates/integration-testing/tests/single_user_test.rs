@@ -229,11 +229,7 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
 }
 
 async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
-    driver
-        .find(By::LinkText("All Chats"))
-        .await?
-        .click()
-        .await?;
+    driver.find(By::LinkText("Chat")).await?.click().await?;
 
     driver
         .query(By::Css("textarea[name='message']"))
@@ -448,7 +444,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Create Dataset']"))
+        .find(By::XPath("//button[text()='Save']"))
         .await?
         .click()
         .await?;

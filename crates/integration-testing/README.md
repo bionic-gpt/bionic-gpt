@@ -2,6 +2,12 @@
 
 From within the dev container
 
+Run the application and the piepline-job
+
+```
+cargo run --bin pipeline-job
+```
+
 ```
 export WEB_DRIVER_URL=http://selenium:4444
 export APPLICATION_URL=http://envoy:7700
