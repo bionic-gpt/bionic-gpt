@@ -2,7 +2,7 @@ version: '3.4'
 services:
 
   llm-api:
-    image: ghcr.io/bionic-gpt/llama-3-8b-chat:1.1.1
+    image: ghcr.io/bionic-gpt/llama-3-8b-chat:1.1.3
     platform: linux/amd64
 
   embeddings-api:
