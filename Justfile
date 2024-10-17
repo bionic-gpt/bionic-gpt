@@ -47,4 +47,4 @@ release:
     #!/usr/bin/env bash
     export LATEST_TAG=$(git describe --tags --abbrev=0)
     echo $LATEST_TAG    
-    sed -i "s/export BIONIC_VERSION=.*/export BIONIC_VERSION=\"$LATEST_TAG\"/" crates/static-website/content/docs/on-premise/install-linux/index.md
+    sed -i "s/export BIONIC_VERSION=.*/export BIONIC_VERSION=$LATEST_TAG/" crates/static-website/content/docs/on-premise/install-linux/index.md
