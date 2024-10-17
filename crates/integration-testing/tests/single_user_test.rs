@@ -185,7 +185,7 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
     let client = reqwest::Client::new();
 
     println!(
-        "curl -X GET 'http://development:7700/v1/models' -H 'Authorization: Bearer {}'",
+        "curl -X GET 'http://localhost:7703/v1/models' -H 'Authorization: Bearer {}'",
         api_key
     );
 
