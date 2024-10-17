@@ -22,6 +22,10 @@ pub async fn post_registration(
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     tracing::debug!("{:?}", authentication);
+    let authentication = Authentication {
+        email: authentication.email.replace("\"", ""),
+        sub: authentication.sub,
+    };
     crate::oidc_endpoint::setup_user(&pool, authentication).await
 }
 
