@@ -23,9 +23,9 @@ pub fn Form(team_id: i32, prompts: Vec<Prompt>) -> Element {
                     }
                     Select {
                         name: "prompt_id",
-                        label: "Please select a prompt",
+                        label: "Please select an Assistant",
                         label_class: "mt-4",
-                        help_text: "All access via this API key will use the above prompt",
+                        help_text: "All access via this API key will use the above assistant",
                         {prompts.iter().map(|prompt| rsx!(
                             SelectOption {
                                 value: "{prompt.id}",

@@ -21,7 +21,7 @@ export const themeSwitcher = () => {
     })
 }
 
-function setTheme() {
+export const setTheme = () => {
     const theme = localStorage.getItem(themeStorageName) || "system"
 
     if (theme) {

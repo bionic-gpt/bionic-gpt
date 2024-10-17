@@ -1,7 +1,7 @@
 use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{chats, chats_chunks, conversations, models, prompts};
+use db::queries::{chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
 use web_pages::console::ChatWithChunks;
@@ -19,8 +19,6 @@ pub async fn conversation(
     let transaction = client.transaction().await?;
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    let history = conversations::history().bind(&transaction).all().await?;
 
     let chats = chats::chats()
         .bind(&transaction, &conversation_id)
@@ -71,7 +69,6 @@ pub async fn conversation(
             chats_with_chunks,
             prompts,
             prompt,
-            history,
             lock_console,
             is_tts_disabled,
         },

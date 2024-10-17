@@ -1,12 +1,14 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use assets::files::nav_history_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::HistoryResult;
+use db::History;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, results: Vec<HistoryResult>) -> Element {
+pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
+    let buckets = super::bucket_history(history);
     rsx! {
         Layout {
             section_class: "p-4",
@@ -22,28 +24,16 @@ pub fn Page(rbac: Rbac, team_id: i32, results: Vec<HistoryResult>) -> Element {
                     "Search Chats"
                 }
             ),
-            h2 {
-                class: "mb-4",
-                "Search Results..."
-            }
-            div {
-                class: "grid md:grid-cols-3 xl:grid-cols-4 sm:grid-cols-1 gap-4",
-                for result in results {
-                    Box {
-                        BoxHeader {
-                            class: "truncate ellipses",
-                            title: "{result.summary}"
-                        }
-                        BoxBody {
-                            a {
-                                href: crate::routes::console::Conversation{team_id, conversation_id: result.conversation_id}.to_string(),
-                                "{result.summary}"
-                            }
-                            code {
-                                "{result.created_at}"
-                            }
-                        }
-                    }
+            if buckets.1 == 0 {
+                BlankSlate {
+                    heading: "We didn't find any results for your search",
+                    visual: nav_history_svg.name,
+                    description: "Please try agian with a different query"
+                }
+            } else {
+                super::history_table::HistoryTable {
+                    team_id,
+                    buckets: buckets.0
                 }
             }
 

@@ -69,7 +69,7 @@ pub fn Page(
                         team_id
                     }
                 } else {
-                    crate::console::console_panel::ConsolePanel {
+                    crate::console::console_stream::ConsoleStream {
                         chats_with_chunks,
                         team_id,
                         is_tts_disabled: is_tts_disabled,

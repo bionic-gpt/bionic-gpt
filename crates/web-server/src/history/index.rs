@@ -2,6 +2,7 @@ use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
+use db::queries::conversations;
 use db::Pool;
 use web_pages::{history, render_with_props, routes::history::Index};
 
@@ -15,13 +16,15 @@ pub async fn index(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    if !rbac.can_use_api_keys() {
-        return Err(CustomError::Authorization);
-    }
+    let history = conversations::history().bind(&transaction).all().await?;
 
     let html = render_with_props(
         history::index::Page,
-        history::index::PageProps { team_id, rbac },
+        history::index::PageProps {
+            team_id,
+            rbac,
+            history,
+        },
     );
 
     Ok(Html(html))

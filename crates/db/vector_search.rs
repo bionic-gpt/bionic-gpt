@@ -1,4 +1,5 @@
 use crate::queries::prompts;
+use crate::History;
 use crate::TokioPostgresError;
 use crate::Transaction;
 
@@ -59,13 +60,6 @@ pub async fn get_related_context(
     Ok(related_context)
 }
 
-#[derive(Clone, PartialEq, Debug)]
-pub struct HistoryResult {
-    pub conversation_id: i64,
-    pub summary: String,
-    pub created_at: String,
-}
-
 // Query the vector database using a similarity search.
 // The prompt decides how we use the datasets
 pub async fn search_history(
@@ -73,7 +67,7 @@ pub async fn search_history(
     user_id: i32,
     limit: i32,
     embeddings: Vec<f32>,
-) -> Result<Vec<HistoryResult>, TokioPostgresError> {
+) -> Result<Vec<History>, TokioPostgresError> {
     // Format the embeddings in PGVector format
     let embedding_data = pgvector::Vector::from(embeddings.clone());
 
@@ -84,7 +78,8 @@ pub async fn search_history(
                 SELECT 
                     conv.id::bigint,
                     LEFT(c.response, 255),
-                    to_char(c.created_at, 'DD Mon YYYY')
+                    trim(both '\"' from to_json(c.created_at)::text) as created_at_iso,
+                    c.created_at
                 FROM 
                     chats c
                 LEFT JOIN
@@ -101,12 +96,13 @@ pub async fn search_history(
         .await?;
 
     // Just get the text from the returned rows
-    let results: Vec<HistoryResult> = responses
+    let results: Vec<History> = responses
         .into_iter()
-        .map(|content| HistoryResult {
-            conversation_id: content.get(0),
+        .map(|content| History {
+            id: content.get(0),
             summary: content.get(1),
-            created_at: content.get(2),
+            created_at_iso: content.get(2),
+            created_at: content.get(3),
         })
         .collect();
 

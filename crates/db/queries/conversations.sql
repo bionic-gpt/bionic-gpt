@@ -44,7 +44,14 @@ WITH summary AS (
 )
 SELECT 
     c.id, 
-    summary.user_request as summary,
+    CASE
+        WHEN LENGTH(summary.user_request) > 150 THEN 
+            LEFT(summary.user_request, 150) || '...'
+        ELSE 
+            summary.user_request
+    END AS summary,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(c.created_at)::text) as created_at_iso,
     c.created_at
 FROM 
     conversations c
@@ -60,7 +67,9 @@ AND
         SELECT team_id 
         FROM team_users 
         WHERE user_id = current_app_user()
-    );
+    )
+ORDER BY c.created_at DESC
+LIMIT 100;
 
 --! delete
 DELETE FROM

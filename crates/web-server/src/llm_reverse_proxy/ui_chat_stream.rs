@@ -46,19 +46,19 @@ pub async fn chat_generate(
                         error_to_chat("You have exceeded your token limit for this model", sender)
                             .await
                     {
-                        eprintln!("Error generating SSE stream: {:?}", e);
+                        tracing::warn!("Limits exceeded: {:?}", e);
                     }
                 } else {
                     // Call your existing function to start generating events
                     if let Err(e) = enriched_chat(request, sender, true).await {
-                        eprintln!("Error generating SSE stream: {:?}", e);
+                        tracing::error!("Error generating SSE stream: {:?}", e);
                     }
                 }
             });
 
+            let sub_arc = Arc::new(current_user.sub.clone());
+            let pool_arc = Arc::new(pool.clone());
             let receiver_stream = ReceiverStream::new(receiver);
-            let pool_arc = Arc::new(pool);
-            let sub_arc = Arc::new(current_user.sub);
 
             let event_stream = receiver_stream.then(move |item| {
                 let pool = Arc::clone(&pool_arc);
@@ -77,9 +77,13 @@ pub async fn chat_generate(
                             }
                         },
                         Err(e) => {
-                            save_results(&pool, &e.to_string(), chat_id, &sub)
-                                .await
-                                .unwrap();
+                            let save = save_results(&pool, &e.to_string(), chat_id, &sub).await;
+                            if let Err(save) = save {
+                                tracing::error!(
+                                    "Error trying to save results from receiver stream: {:?}",
+                                    save
+                                );
+                            }
                             Err(axum::Error::new(e))
                         }
                     }
@@ -89,9 +93,13 @@ pub async fn chat_generate(
             Ok(Sse::new(event_stream))
         }
         Err(err) => {
-            save_results(&pool, &err.to_string(), chat_id, &current_user.sub)
-                .await
-                .unwrap();
+            let save = save_results(&pool, &err.to_string(), chat_id, &current_user.sub).await;
+            if let Err(save) = save {
+                tracing::error!(
+                    "Error trying to save results from create_request: {:?}",
+                    save
+                );
+            }
             Err(CustomError::FaultySetup(err.to_string()))
         }
     }

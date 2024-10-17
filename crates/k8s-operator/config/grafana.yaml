@@ -5,8 +5,8 @@ metadata:
 data:
   grafana.ini: |
     [server]
-    domain = 192.168.178.57
-    root_url = http://192.168.178.57/observability/
+    domain = $HOSTNAME_DOMAIN
+    root_url = $HOSTNAME_URL/observability/
     serve_from_sub_path = true
 
     [security]

@@ -16,52 +16,67 @@ export const streamingChat = () => {
 }
 
 async function streamResult(chatId: string, element: HTMLElement) {
-
-    // Create a new AbortController instance
     const abortController = new AbortController();
     const signal = abortController.signal;
-    const markdown = new Markdown()
-    var result = ''
+    const markdown = new Markdown();
+    let result = '';
 
+    const stopButton = document.getElementById('streaming-button');
+    const stopListener = () => {
+        console.log('Attempting to abort stream.');
+        abortController.abort();
+    };
 
-    const stopButton = document.getElementById('stop-processing')
     if (stopButton) {
-        stopButton.addEventListener('click', () => {
-            if (abortController) {
-                abortController.abort()
-          }
-        })
+        stopButton.addEventListener('click', stopListener);
+    } else {
+        console.error('Debug: did not find stop button');
     }
 
-    fetch(`/completions/${chatId}`, {
+    // We submit a form with the chta_id and the LLM response we have so far.
+    // The response should already have been saved by the LLM streaming proxy code
+    // However in some cases (i.e. abort) this is not the case.
+    // In the back end, if we don't have a response, we'll use this one.
+    const submitResults = () => {
+        console.log('Submitting results...');
+        const form = document.getElementById(`chat-form-${chatId}`);
+        const llmResult = document.getElementById(`chat-result-${chatId}`);
+
+        if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
+            llmResult.value = result;
+            try {
+                form.requestSubmit();
+            } catch(error) {
+                console.error('Error submitting results:', error);
+            }
+        }
+    };
+    
+    const res = await fetch(`/completions/${chatId}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        signal
-    }).then(async (res) => {
-        const stream = Stream.fromSSEResponse(res, abortController)
-        const runner = ChatCompletionStream.fromReadableStream(stream.toReadableStream())
-
-        runner.on('content', (delta, snapshot) => {
-            element.innerHTML = markdown.markdown(snapshot)
-            result = snapshot
-        })
-
-        runner.on('error', (err: OpenAIError) => {
-            element.innerHTML += `${err}`
-            result = result + err
-        })
-
-        runner.on('end', () => {
-            console.log("Finished, Saving the results")
-            const form = document.getElementById(`chat-form-${chatId}`)
-            const llmResult = document.getElementById(`chat-result-${chatId}`)
-
-            if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
-                llmResult.value = result
-                form.requestSubmit()
-            }
-        })
+        signal,
     });
+
+    const stream = Stream.fromSSEResponse(res, abortController);
+    const runner = ChatCompletionStream.fromReadableStream(stream.toReadableStream());
+
+    runner.on('content', (delta, snapshot) => {
+        element.innerHTML = markdown.markdown(snapshot);
+        result = snapshot;
+    });
+
+    runner.on('error', (err: OpenAIError) => {
+        element.innerHTML += `${err}`;
+        result += err.toString();
+    });
+
+    runner.on('end', () => {
+        console.log('Streaming ended.');
+        submitResults();
+    });
+    
 }
+

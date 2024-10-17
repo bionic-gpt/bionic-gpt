@@ -23,7 +23,7 @@ import { textareaSubmit } from './typescript/textarea-submit'
 import { updateSidebar } from './typescript/update-sidebar'
 import { refreshFrame } from './typescript/refresh-frame'
 import { disableSubmitButton } from './typescript/disable-submit-button'
-import { themeSwitcher } from './typescript/theme-switcher'
+import { themeSwitcher, setTheme } from './typescript/theme-switcher'
 
 // Hotwired Turbo
 import '@hotwired/turbo'
@@ -47,6 +47,9 @@ function loadEverything() {
     updateSidebar()
     refreshFrame()
     disableSubmitButton()
+
+    // Apply dark or light mode
+    setTheme()
     themeSwitcher()
 }
 

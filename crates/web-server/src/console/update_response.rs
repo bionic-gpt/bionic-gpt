@@ -3,9 +3,12 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
-use db::queries::{chats, models, prompts};
 use db::Pool;
 use db::{authz, PromptType};
+use db::{
+    queries::{chats, models, prompts},
+    ChatStatus,
+};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::console::UpdateResponse;
@@ -13,6 +16,7 @@ use web_pages::routes::console::UpdateResponse;
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct Chat {
     pub chat_id: i32,
+    pub response: String,
 }
 
 /// When the front end has finished streaming the response from the model
@@ -37,6 +41,7 @@ pub async fn update_response(
         .one()
         .await?;
 
+    // If the streaming LLM proxy saved a response, we'll process it.
     if let Some(response) = chat.response {
         // We generate embeddings so we can search the history.
         let embeddings_model = models::get_system_embedding_model()
@@ -70,6 +75,18 @@ pub async fn update_response(
                 tracing::error!("Problem trying to get embeddings data {}", e);
             }
         }
+    } else {
+        // There's no response from the stremaing proxy. Can we use what
+        // came form the front end?
+        chats::update_chat()
+            .bind(
+                &transaction,
+                &message.response,
+                &100,
+                &ChatStatus::Error,
+                &message.chat_id,
+            )
+            .await?;
     }
 
     let prompt = prompts::prompt()
