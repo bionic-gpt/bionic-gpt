@@ -10,14 +10,21 @@ export const selectMenu = () => {
         if (menuId) {
             const storedValue = localStorage.getItem(menuId);
             if (storedValue) {
-                // Create or find the span for text content
-                let textSpan = selectedOption.querySelector('span') as HTMLElement;
-                if (!textSpan) {
-                    textSpan = document.createElement('span'); // Create a new span if it doesn't exist
-                    selectedOption.appendChild(textSpan); // Append it to selectedOption
+                // Find the corresponding option with the stored value
+                const correspondingOption = options.querySelector(`[data-value="${storedValue}"]`) as HTMLElement;
+
+                // Use the text content of the corresponding option if it exists
+                if (correspondingOption) {
+                    let textSpan = selectedOption.querySelector('span') as HTMLElement;
+                    if (!textSpan) {
+                        textSpan = document.createElement('span'); // Create a new span if it doesn't exist
+                        selectedOption.appendChild(textSpan); // Append it to selectedOption
+                    }// Use the text content of the first <span> inside the corresponding option if it exists
+                    const firstSpan = correspondingOption.querySelector('span');
+                    textSpan.textContent = firstSpan?.textContent?.trim() || storedValue;
+
+                    selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
                 }
-                textSpan.textContent = storedValue; // Set the displayed text
-                selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
             }
         }
 
@@ -31,27 +38,26 @@ export const selectMenu = () => {
                 const value = target.getAttribute("data-value");
                 if (value) {
                     selectMenu.setAttribute("data-value", value);
-                    
-                    // Get the first element inside the target option
-                    const firstElement = target.querySelector('span') as HTMLElement; // Assuming the first element is a <span>
-                    if (firstElement) {
-                        // Create or find the span for text content
-                        let textSpan = selectedOption.querySelector('span') as HTMLElement;
-                        if (!textSpan) {
-                            textSpan = document.createElement('span'); // Create a new span if it doesn't exist
-                            selectedOption.appendChild(textSpan); // Append it to selectedOption
-                        }
-                        // Update the displayed text
-                        textSpan.textContent = firstElement.textContent || ''; // Update the displayed text
 
-                        // Store only the selected text in localStorage if the element has an ID
-                        if (menuId) {
-                            localStorage.setItem(menuId, firstElement.textContent || ''); // Store the selected text
-                        }
+                    // Get the text content from the target option
+                    const optionText = target.textContent?.trim() || value;
+
+                    // Create or find the span for text content
+                    let textSpan = selectedOption.querySelector('span') as HTMLElement;
+                    if (!textSpan) {
+                        textSpan = document.createElement('span'); // Create a new span if it doesn't exist
+                        selectedOption.appendChild(textSpan); // Append it to selectedOption
+                    }
+
+                    // Update the displayed text
+                    textSpan.textContent = optionText;
+
+                    // Store the selected value in localStorage if the element has an ID
+                    if (menuId) {
+                        localStorage.setItem(menuId, value); // Store the selected value
                     }
 
                     options.classList.add("hidden"); // Hide options
-                    console.log("Selected value:", value); // Log the value if needed
                 }
             }
         });

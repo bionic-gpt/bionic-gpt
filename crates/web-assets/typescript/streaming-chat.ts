@@ -33,13 +33,16 @@ async function streamResult(chatId: string, element: HTMLElement) {
         console.error('Debug: did not find stop button');
     }
 
+    // We submit a form with the chta_id and the LLM response we have so far.
+    // The response should already have been saved by the LLM streaming proxy code
+    // However in some cases (i.e. abort) this is not the case.
+    // In the back end, if we don't have a response, we'll use this one.
     const submitResults = () => {
         console.log('Submitting results...');
         const form = document.getElementById(`chat-form-${chatId}`);
         const llmResult = document.getElementById(`chat-result-${chatId}`);
 
         if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
-            result = result || "Result was blank" 
             llmResult.value = result;
             try {
                 form.requestSubmit();
