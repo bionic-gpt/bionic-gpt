@@ -19,7 +19,7 @@ WHERE model_type = :model_type
 ORDER BY updated_at;
 
 --! all_models : ModelWithPrompt
-SELECT
+SELECT DISTINCT
     m.id,
     m.name,
     m.model_type,
@@ -40,8 +40,10 @@ SELECT
     COALESCE(p.example4, '') AS example4
 FROM 
     models m
-LEFT JOIN 
+INNER JOIN 
     prompts p ON m.id = p.model_id
+WHERE
+    p.prompt_type = 'Model'
 ORDER BY 
     m.updated_at;
 

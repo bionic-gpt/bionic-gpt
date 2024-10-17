@@ -133,7 +133,7 @@ jobs:
         ls -la /tmp
 
     # Upload the video of our selenium session
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: integration-testing-screen-recording
