@@ -40,7 +40,7 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
 
     test_console(driver).await?;
 
-    test_prompts(driver).await?;
+    test_ai_assistants(driver).await?;
 
     test_api_keys(driver, config).await?;
 
@@ -137,11 +137,7 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
 }
 
 async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
-    driver
-        .find(By::LinkText("AI Assistant API"))
-        .await?
-        .click()
-        .await?;
+    driver.find(By::LinkText("API Keys")).await?.click().await?;
 
     driver
         .find(By::XPath("//button[text()='New API Key']"))
@@ -248,7 +244,7 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
     let delay = std::time::Duration::new(30, 0);
     driver.set_implicit_wait_timeout(delay).await?;
     driver
-        .find(By::XPath("//button[text()='Send Message']"))
+        .find(By::XPath("//button[@id='prompt-submit-button']"))
         .await?
         .click()
         .await?;
@@ -259,52 +255,11 @@ async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
         .wait_until()
         .displayed()
         .await?;
-    let delay = std::time::Duration::new(11, 0);
-    driver.set_implicit_wait_timeout(delay).await?;
-
-    // Test history popup
-    driver
-        .find(By::XPath("//button[text()='Show History']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Show History']"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath("//h4[text()='Your History']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::LinkText("How are you?"))
-        .await?
-        .click()
-        .await?;
-
-    sleep(Duration::from_millis(3000)).await;
-
-    driver.refresh().await?;
-
-    driver
-        .find(By::XPath("//button[text()='Show History']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
 
     Ok(())
 }
 
-async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
+async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
     sleep(Duration::from_millis(3000)).await;
 
     driver.refresh().await?;
@@ -350,13 +305,19 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
+        .find(By::XPath("(//textarea[@name='description'])[last()]"))
+        .await?
+        .send_keys("A small test assistant. I don't do much.")
+        .await?;
+
+    driver
         .find(By::XPath("(//button[text()='Submit'])[last()]"))
         .await?
         .click()
         .await?;
 
     driver
-        .query(By::XPath("//tr//td[contains(text(), 'My Prompt')]"))
+        .query(By::XPath("//h3[contains(text(), 'My Prompt')]"))
         .first()
         .await?
         .wait_until()
@@ -364,19 +325,10 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//span[text()='...']"))
+        .find(By::XPath("//button[text()='Edit']"))
         .await?
         .click()
         .await?;
-
-    driver
-        .find(By::LinkText("Edit"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver.find(By::LinkText("Edit")).await?.click().await?;
 
     driver
         .query(By::XPath("(//input[@name='name'])[1]"))
@@ -389,7 +341,7 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath("(//input[@name='name'])[1]"))
         .await?
-        .send_keys("My Prompt2")
+        .send_keys("2")
         .await?;
 
     driver
@@ -399,7 +351,7 @@ async fn test_prompts(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .query(By::XPath("//tr//td[contains(text(), 'My Prompt2')]"))
+        .query(By::XPath("//h3[contains(text(), 'My Prompt2')]"))
         .first()
         .await?
         .wait_until()

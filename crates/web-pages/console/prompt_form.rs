@@ -58,6 +58,7 @@ pub fn Form(
                         }
                     } else {
                         button {
+                            id: "prompt-submit-button",
                             class: "flex h-8 w-8 p-2 items-center bg-primary justify-center rounded-full",
                             "type": "submit",
                             img {
