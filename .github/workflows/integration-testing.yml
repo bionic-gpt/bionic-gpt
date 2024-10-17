@@ -123,7 +123,7 @@ jobs:
           -e FILE_NAME=chrome-video.mp4 \
           -v /tmp:/videos selenium/video:ffmpeg-4.3.1-20220208
 
-        cargo test run_multi_user -- --nocapture
+        cargo test -- --nocapture
 
     - name: Video Logs
       if: always()
