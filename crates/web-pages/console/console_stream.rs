@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 use super::ChatWithChunks;
 
 #[component]
-pub fn ConsolePanel(
+pub fn ConsoleStream(
     team_id: i32,
     chats_with_chunks: Vec<ChatWithChunks>,
     is_tts_disabled: bool,

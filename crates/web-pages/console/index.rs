@@ -47,7 +47,7 @@ pub fn Page(
                         team_id
                     }
                 } else {
-                    super::console_panel::ConsolePanel {
+                    super::console_stream::ConsoleStream {
                         team_id: team_id,
                         chats_with_chunks: chats_with_chunks,
                         is_tts_disabled: is_tts_disabled,
