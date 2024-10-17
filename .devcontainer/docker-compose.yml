@@ -77,6 +77,14 @@ services:
       DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
       SIGNOUT_URL: /auth/sign_out
+
+      INVITE_DOMAIN: http://envoy:7700
+      INVITE_FROM_EMAIL_ADDRESS: support@application.com
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+      SMTP_USERNAME: thisisnotused
+      SMTP_PASSWORD: thisisnotused
+      SMTP_TLS_OFF: 'true'
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
