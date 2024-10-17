@@ -11,6 +11,7 @@ pub struct Config {
     // The database
     pub db_pool: Pool,
     pub headless: bool,
+    pub barricade: bool,
     pub mailhog_url: String,
 }
 
@@ -34,6 +35,8 @@ impl Config {
             "http://localhost:8025".into()
         };
 
+        let barricade = env::var("ENABLE_BARRICADE").is_ok();
+
         let headless = env::var("ENABLE_HEADLESS").is_ok();
 
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
@@ -49,6 +52,7 @@ impl Config {
             application_url,
             db_pool,
             headless,
+            barricade,
             mailhog_url,
         }
     }
@@ -91,12 +95,12 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
 
     driver.goto(format!("{}/", &config.application_url)).await?;
 
-    let email = register_random_user(driver).await?;
+    let email = register_random_user(driver, config).await?;
 
     Ok(email)
 }
 
-pub async fn logout(driver: &WebDriver) -> WebDriverResult<()> {
+pub async fn logout(driver: &WebDriver, config: &Config) -> WebDriverResult<()> {
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
@@ -128,74 +132,108 @@ pub async fn logout(driver: &WebDriver) -> WebDriverResult<()> {
         .click()
         .await?;
 
-    driver
-        .find(By::Id("kc-logout"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    if !config.barricade {
+        driver
+            .find(By::Id("kc-logout"))
+            .await?
+            .wait_until()
+            .displayed()
+            .await?;
 
-    driver.find(By::Id("kc-logout")).await?.click().await?;
+        driver.find(By::Id("kc-logout")).await?.click().await?;
 
-    driver
-        .find(By::Id("kc-header-wrapper"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+        driver
+            .find(By::Id("kc-header-wrapper"))
+            .await?
+            .wait_until()
+            .displayed()
+            .await?;
+    }
 
     Ok(())
 }
 
-pub async fn register_random_user(driver: &WebDriver) -> WebDriverResult<String> {
+pub async fn register_random_user(driver: &WebDriver, config: &Config) -> WebDriverResult<String> {
     let email = random_email();
 
     // Register someone
+    if config.barricade {
+        driver.find(By::LinkText("SIGN UP")).await?.click().await?;
 
-    driver.find(By::LinkText("Register")).await?.click().await?;
+        driver
+            .find(By::Id("email"))
+            .await?
+            .send_keys(&email)
+            .await?;
 
-    driver
-        .find(By::Id("firstName"))
-        .await?
-        .send_keys("Test")
-        .await?;
+        driver
+            .find(By::Id("password"))
+            .await?
+            .send_keys(&email)
+            .await?;
+        driver
+            .find(By::Id("confirm_password"))
+            .await?
+            .send_keys(&email)
+            .await?;
+        driver
+            .find(By::Css("button[type='submit']"))
+            .await?
+            .click()
+            .await?;
 
-    driver
-        .find(By::Id("lastName"))
-        .await?
-        .send_keys("User")
-        .await?;
+        driver
+            .find(By::Id("console-panel"))
+            .await?
+            .wait_until()
+            .displayed()
+            .await?;
+    } else {
+        driver.find(By::LinkText("Register")).await?.click().await?;
 
-    driver
-        .find(By::Id("email"))
-        .await?
-        .send_keys(&email)
-        .await?;
+        driver
+            .find(By::Id("firstName"))
+            .await?
+            .send_keys("Test")
+            .await?;
 
-    driver
-        .find(By::Id("password"))
-        .await?
-        .send_keys(&email)
-        .await?;
-    driver
-        .find(By::Id("password-confirm"))
-        .await?
-        .send_keys(&email)
-        .await?;
-    driver
-        .find(By::Css("input[type='submit']"))
-        .await?
-        .click()
-        .await?;
+        driver
+            .find(By::Id("lastName"))
+            .await?
+            .send_keys("User")
+            .await?;
 
-    // OTP Code
-    // Wait for page to load as code might not be in database yet.
-    driver
-        .find(By::Id("console-panel"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+        driver
+            .find(By::Id("email"))
+            .await?
+            .send_keys(&email)
+            .await?;
+
+        driver
+            .find(By::Id("password"))
+            .await?
+            .send_keys(&email)
+            .await?;
+        driver
+            .find(By::Id("password-confirm"))
+            .await?
+            .send_keys(&email)
+            .await?;
+        driver
+            .find(By::Css("input[type='submit']"))
+            .await?
+            .click()
+            .await?;
+
+        // OTP Code
+        // Wait for page to load as code might not be in database yet.
+        driver
+            .find(By::Id("console-panel"))
+            .await?
+            .wait_until()
+            .displayed()
+            .await?;
+    }
 
     Ok(email)
 }
