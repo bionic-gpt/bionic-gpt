@@ -2,7 +2,7 @@ export const selectMenu = () => {
     const selectMenus = document.querySelectorAll('.select-menu'); // Select all elements with class 'select-menu'
 
     selectMenus.forEach(selectMenu => {
-        const selectedOption = selectMenu.querySelector('.selected-option') as HTMLElement;
+        const selectedOption = selectMenu.querySelector('.selected-option span') as HTMLElement;
         const options = selectMenu.querySelector('.options') as HTMLElement;
 
         // Load stored value from localStorage if the element has an ID
@@ -13,18 +13,10 @@ export const selectMenu = () => {
                 // Find the corresponding option with the stored value
                 const correspondingOption = options.querySelector(`[data-value="${storedValue}"]`) as HTMLElement;
 
-                // Use the text content of the corresponding option if it exists
-                if (correspondingOption) {
-                    let textSpan = selectedOption.querySelector('span') as HTMLElement;
-                    if (!textSpan) {
-                        textSpan = document.createElement('span'); // Create a new span if it doesn't exist
-                        selectedOption.appendChild(textSpan); // Append it to selectedOption
-                    }// Use the text content of the first <span> inside the corresponding option if it exists
-                    const firstSpan = correspondingOption.querySelector('span');
-                    textSpan.textContent = firstSpan?.textContent?.trim() || storedValue;
-
-                    selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
-                }
+                // Use the text content of the first <span> inside the corresponding option if it exists
+                const firstSpan = correspondingOption?.querySelector('span');
+                selectedOption.textContent = firstSpan?.textContent?.trim() || storedValue;
+                selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
             }
         }
 
@@ -39,22 +31,13 @@ export const selectMenu = () => {
                 if (value) {
                     selectMenu.setAttribute("data-value", value);
 
-                    // Get the text content from the target option
-                    const optionText = target.textContent?.trim() || value;
-
-                    // Create or find the span for text content
-                    let textSpan = selectedOption.querySelector('span') as HTMLElement;
-                    if (!textSpan) {
-                        textSpan = document.createElement('span'); // Create a new span if it doesn't exist
-                        selectedOption.appendChild(textSpan); // Append it to selectedOption
-                    }
-
-                    // Update the displayed text
-                    textSpan.textContent = optionText;
+                    // Get the text content from the first <span> of the target option
+                    const firstSpan = target.querySelector('span');
+                    selectedOption.textContent = firstSpan?.textContent?.trim() || value;
 
                     // Store the selected value in localStorage if the element has an ID
                     if (menuId) {
-                        localStorage.setItem(menuId, value); // Store the selected value
+                        localStorage.setItem(menuId, value);
                     }
 
                     options.classList.add("hidden"); // Hide options
