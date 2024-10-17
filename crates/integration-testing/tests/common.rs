@@ -100,6 +100,48 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
     Ok(email)
 }
 
+pub async fn sign_in_user(driver: &WebDriver, email: &str, config: &Config) -> WebDriverResult<()> {
+    // Go to sign in page
+    driver.goto(format!("{}/", &config.application_url)).await?;
+
+    // Stop stale element error
+    sleep(Duration::from_millis(1000)).await;
+
+    if config.barricade {
+        // Sign in someone
+        driver.find(By::Id("email")).await?.send_keys(email).await?;
+        driver
+            .find(By::Id("password"))
+            .await?
+            .send_keys(email)
+            .await?;
+        driver
+            .find(By::Css("button[type='submit']"))
+            .await?
+            .click()
+            .await?;
+    } else {
+        // Sign in someone
+        driver
+            .find(By::Id("username"))
+            .await?
+            .send_keys(email)
+            .await?;
+        driver
+            .find(By::Id("password"))
+            .await?
+            .send_keys(email)
+            .await?;
+        driver
+            .find(By::Css("input[type='submit']"))
+            .await?
+            .click()
+            .await?;
+    }
+
+    Ok(())
+}
+
 pub async fn logout(driver: &WebDriver, config: &Config) -> WebDriverResult<()> {
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
