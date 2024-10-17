@@ -46,7 +46,15 @@ pub async fn deploy(
 
     let yaml = GRAFANA_YAML.replace("$BIONIC_PASSWORD", &password);
     let yaml = yaml.replace("$HOSTNAME_URL", &spec.hostname_url);
-    let yaml = yaml.replace("$ADMIN_PASSWORD", &super::database::rand_hex());
+    let mut yaml = yaml.replace("$ADMIN_PASSWORD", &super::database::rand_hex());
+
+    if let Ok(url) = url::Url::parse(&spec.hostname_url) {
+        if let Some(domain) = url.host_str() {
+            yaml = yaml.replace("$HOSTNAME_DOMAIN", domain);
+        } else {
+            yaml = yaml.replace("$HOSTNAME_DOMAIN", "localhost");
+        }
+    }
 
     apply::apply(&client, &yaml, Some(namespace)).await.unwrap();
 
