@@ -67,7 +67,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                             selected_item_id: props.selected_item.to_string(),
                             href: super::routes::console::Index { team_id: props.team_id },
                             icon: nav_service_requests_svg.name,
-                            title: "Chats"
+                            title: "Chat"
                         }
                         NavItem {
                             id: SideBar::History.to_string(),
@@ -110,7 +110,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::api_keys::Index { team_id: props.team_id },
                                 icon: nav_api_keys_svg.name,
-                                title: "Virtual API Keys"
+                                title: "API Keys"
                             }
                             NavItem {
                                 id: SideBar::DocumentPipelines.to_string(),

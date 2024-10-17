@@ -42,7 +42,7 @@ pub async fn create_invite(
         }
         .to_string();
 
-        let url = format!("{}//{}", smtp_config.domain, url);
+        let url = format!("{}{}", smtp_config.domain, url);
 
         let body = format!(
             "
