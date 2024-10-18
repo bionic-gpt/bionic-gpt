@@ -27,6 +27,15 @@ WHERE category_id IS NULL;
 -- Make the category_id column NOT NULL after updating
 ALTER TABLE prompts ALTER COLUMN category_id SET NOT NULL;
 
+
+-- Give access to the application user.
+GRANT SELECT, INSERT, UPDATE, DELETE ON categories TO bionic_application;
+GRANT USAGE, SELECT ON categories_id_seq TO bionic_application;
+
+-- Give access to the readonly user
+GRANT SELECT ON categories TO bionic_readonly;
+GRANT SELECT ON categories_id_seq TO bionic_readonly;
+
 -- migrate:down
 ALTER TABLE prompts DROP COLUMN category_id;
 DROP TABLE categories;

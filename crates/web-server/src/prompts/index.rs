@@ -34,6 +34,11 @@ pub async fn index(
         .all()
         .await?;
 
+    let categories = queries::categories::categories()
+        .bind(&transaction)
+        .all()
+        .await?;
+
     let html = render_with_props(
         prompts::index::Page,
         prompts::index::PageProps {
@@ -42,6 +47,7 @@ pub async fn index(
             prompts,
             datasets,
             models,
+            categories,
             is_saas: config.saas,
         },
     );

@@ -5,8 +5,9 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::Visibility;
-use db::{queries::prompts::Prompt, Dataset, Model};
+use db::{queries::prompts::Prompt, Category, Dataset, Model};
 use dioxus::prelude::*;
+use std::collections::HashMap;
 
 #[component]
 pub fn Page(
@@ -15,8 +16,12 @@ pub fn Page(
     prompts: Vec<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
+    categories: Vec<Category>,
     is_saas: bool,
 ) -> Element {
+    // Get categories with more than one prompt
+    let categories_with_prompts = get_categories_with_prompts(prompts.clone(), categories.clone());
+
     rsx! {
         Layout {
             section_class: "p-4",
@@ -41,87 +46,108 @@ pub fn Page(
             }
 
             div {
-                class: "grid md:grid-cols-3 xl:grid-cols-4 sm:grid-cols-1 gap-4",
-                for prompt in &prompts {
-                    Box {
-                        BoxHeader {
-                            class: "truncate ellipses flex justify-between",
-                            title: "{prompt.name}",
-                            super::visibility::VisLabel {
-                                visibility: prompt.visibility
-                            }
-                        }
-                        BoxBody {
-                            p {
-                                class: "text-sm",
-                                "{prompt.description}"
-                            }
+                class: "mx-auto max-w-3xl overflow-x-clip px-4",
+                TabContainer {
+                    for (index, (category, prompts)) in categories_with_prompts.iter().enumerate()  {
+                        TabPanel {
+                            name: "prompt-tabs",
+                            tab_name: "{category.name}",
+                            checked: index == 0,
+
                             div {
-                                class: "mt-3 flex flex-row justify-between",
-                                a {
-                                    class: "btn btn-primary btn-sm",
-                                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                                    "Chat"
+                                class: "mt-12",
+                                h3 {
+                                    class: "text-xl font-semibold md:text-2xl",
+                                    "{category.name}"
                                 }
-                                if rbac.can_edit_prompt(prompt) {
-                                    div {
-                                        class: "flex gap-1",
-                                        Button {
-                                            drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
-                                            button_scheme: ButtonScheme::Danger,
-                                            "Delete"
+                                h4 {
+                                    class: "mb-8 text-sm md:text-base",
+                                    "{category.description}"
+                                }
+                                for prompt in &prompts {
+                                    Box {
+                                        BoxHeader {
+                                            class: "truncate ellipses flex justify-between",
+                                            title: "{prompt.name}",
+                                            super::visibility::VisLabel {
+                                                visibility: prompt.visibility
+                                            }
                                         }
-                                        Button {
-                                            drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                            "Edit"
+                                        BoxBody {
+                                            p {
+                                                class: "text-sm",
+                                                "{prompt.description}"
+                                            }
+                                            div {
+                                                class: "mt-3 flex flex-row justify-between",
+                                                a {
+                                                    class: "btn btn-primary btn-sm",
+                                                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                                                    "Chat"
+                                                }
+                                                if rbac.can_edit_prompt(prompt) {
+                                                    div {
+                                                        class: "flex gap-1",
+                                                        Button {
+                                                            drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
+                                                            button_scheme: ButtonScheme::Danger,
+                                                            "Delete"
+                                                        }
+                                                        Button {
+                                                            drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                                            "Edit"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            div {
+                                                class: "mt-3 text-xs flex justify-center gap-1",
+                                                "Last update",
+                                                RelativeTime {
+                                                    format: RelativeTimeFormat::Relative,
+                                                    datetime: "{prompt.updated_at}"
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
-                            div {
-                                class: "mt-3 text-xs flex justify-center gap-1",
-                                "Last update",
-                                RelativeTime {
-                                    format: RelativeTimeFormat::Relative,
-                                    datetime: "{prompt.updated_at}"
-                                }
-                            }
                         }
                     }
-                }
 
-                for item in &prompts {
-                    super::delete::DeleteDrawer {
-                        team_id: team_id,
-                        id: item.id,
-                        trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                    for item in &prompts {
+                        super::delete::DeleteDrawer {
+                            team_id: team_id,
+                            id: item.id,
+                            trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                        }
                     }
-                }
 
-                for prompt in prompts {
-                    super::form::Form {
-                        id: prompt.id,
-                        team_id: team_id,
-                        trigger_id: format!("edit-prompt-form-{}", prompt.id),
-                        name: prompt.name.clone(),
-                        system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
-                        datasets: datasets.clone(),
-                        selected_dataset_ids: split_datasets(&prompt.selected_datasets),
-                        visibility: prompt.visibility,
-                        models: models.clone(),
-                        model_id: prompt.model_id,
-                        max_history_items: prompt.max_history_items,
-                        max_chunks: prompt.max_chunks,
-                        max_tokens: prompt.max_tokens,
-                        trim_ratio: prompt.trim_ratio,
-                        temperature: prompt.temperature.unwrap_or(0.7),
-                        description: prompt.description,
-                        disclaimer: prompt.disclaimer,
-                        example1: prompt.example1,
-                        example2: prompt.example2,
-                        example3: prompt.example3,
-                        example4: prompt.example4,
-                        is_saas
+                    for prompt in prompts {
+                        super::form::Form {
+                            id: prompt.id,
+                            team_id: team_id,
+                            trigger_id: format!("edit-prompt-form-{}", prompt.id),
+                            name: prompt.name.clone(),
+                            system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
+                            datasets: datasets.clone(),
+                            selected_dataset_ids: split_datasets(&prompt.selected_datasets),
+                            visibility: prompt.visibility,
+                            models: models.clone(),
+                            model_id: prompt.model_id,
+                            max_history_items: prompt.max_history_items,
+                            max_chunks: prompt.max_chunks,
+                            max_tokens: prompt.max_tokens,
+                            trim_ratio: prompt.trim_ratio,
+                            temperature: prompt.temperature.unwrap_or(0.7),
+                            description: prompt.description,
+                            disclaimer: prompt.disclaimer,
+                            example1: prompt.example1,
+                            example2: prompt.example2,
+                            example3: prompt.example3,
+                            example4: prompt.example4,
+                            is_saas
+                        }
                     }
                 }
             }
@@ -154,7 +180,32 @@ pub fn Page(
     }
 }
 
-// Comma seperated dataset to vec of i32
+// Extracts categories with at least one prompt
+fn get_categories_with_prompts(
+    prompts: Vec<Prompt>,
+    categories: Vec<Category>,
+) -> Vec<(Category, Vec<Prompt>)> {
+    // Group prompts by category ID
+    let mut prompts_by_category: HashMap<i32, Vec<Prompt>> = HashMap::new();
+    for prompt in prompts {
+        prompts_by_category
+            .entry(prompt.category_id)
+            .or_default()
+            .push(prompt);
+    }
+
+    // Filter and return categories that have at least one associated prompt
+    categories
+        .into_iter()
+        .filter_map(|category| {
+            prompts_by_category
+                .get(&category.id)
+                .map(|prompts| (category, prompts.clone()))
+        })
+        .collect()
+}
+
+// Comma separated dataset to vec of i32
 fn split_datasets(datasets: &str) -> Vec<i32> {
     let ids: Vec<i32> = datasets
         .split(',')
