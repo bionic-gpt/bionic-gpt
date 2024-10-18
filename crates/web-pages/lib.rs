@@ -8,6 +8,7 @@ pub mod base_layout;
 pub mod console;
 pub mod datasets;
 pub mod documents;
+pub mod hero;
 pub mod history;
 pub mod logout_form;
 //pub mod model_form;

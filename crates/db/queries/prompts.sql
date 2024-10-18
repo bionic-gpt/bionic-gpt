@@ -10,6 +10,7 @@ SELECT
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
     p.model_id,
+    p.category_id,
     p.name,
     p.visibility,
     p.description,
@@ -82,6 +83,7 @@ SELECT
         (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
         (SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_model,
     p.model_id,
+    p.category_id,
     p.name,
     p.visibility,
     p.description,
@@ -146,6 +148,7 @@ SELECT
     (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
     (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
     p.model_id,
+    p.category_id,
     p.name,
     p.visibility,
     p.description,
@@ -245,6 +248,7 @@ VALUES(
 INSERT INTO prompts (
     team_id, 
     model_id, 
+    category_id, 
     name,
     visibility,
     system_prompt,
@@ -265,6 +269,7 @@ INSERT INTO prompts (
 VALUES(
     :team_id, 
     :model_id,
+    :category_id, 
     :name,
     :visibility,
     :system_prompt,
@@ -289,6 +294,7 @@ UPDATE
     prompts 
 SET 
     model_id = :model_id, 
+    category_id = :category_id, 
     name = :name, 
     visibility = :visibility,
     system_prompt = :system_prompt,

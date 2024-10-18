@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
-use db::{Dataset, Model, Visibility};
+use db::{Category, Dataset, Model, Visibility};
 use dioxus::prelude::*;
 
 #[component]
@@ -12,6 +12,8 @@ pub fn Form(
     datasets: Vec<Dataset>,
     selected_dataset_ids: Vec<i32>,
     models: Vec<Model>,
+    categories: Vec<Category>,
+    category_id: i32,
     model_id: i32,
     visibility: Visibility,
     id: Option<i32>,
@@ -60,6 +62,22 @@ pub fn Form(
                                 help_text: "Make the name memorable and imply it's usage.",
                                 value: name,
                                 required: true
+                            }
+
+                            Select {
+                                name: "category_id",
+                                label: "Select the the category for this assistant",
+                                label_class: "mt-4",
+                                help_text: "Categories help users find assistants.",
+                                value: "{category_id}",
+                                required: true,
+                                for category in categories {
+                                    SelectOption {
+                                        value: "{category.id}",
+                                        selected_value: "{category_id}",
+                                        "{category.name}"
+                                    }
+                                }
                             }
 
                             Select {
@@ -185,7 +203,7 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Disclaimer",
-                                help_text: "Value between 0 and 2.",
+                                help_text: "This is displayed at the bottom of the chat.",
                                 name: "disclaimer",
                                 value: "{disclaimer}"
                             }
@@ -193,7 +211,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 1",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example1",
                                 value: "{example1}"
                             }
@@ -201,7 +220,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 2",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example2",
                                 value: "{example2}"
                             }
@@ -209,7 +229,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 3",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example3",
                                 value: "{example3}"
                             }
@@ -217,7 +238,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 4",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example4",
                                 value: "{example4}"
                             }

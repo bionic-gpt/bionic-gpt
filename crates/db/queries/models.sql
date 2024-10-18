@@ -40,12 +40,11 @@ SELECT DISTINCT
     COALESCE(p.example4, '') AS example4
 FROM 
     models m
-INNER JOIN 
-    prompts p ON m.id = p.model_id
-WHERE
-    p.prompt_type = 'Model'
+LEFT JOIN 
+    prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
 ORDER BY 
     m.updated_at;
+
 
 --! get_system_model : Model
 SELECT

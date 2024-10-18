@@ -177,7 +177,7 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Disclaimer",
-                                help_text: "Value between 0 and 2.",
+                                help_text: "This is displayed at the bottom of the chat.",
                                 name: "disclaimer",
                                 value: "{disclaimer}"
                             }
@@ -185,7 +185,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 1",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example1",
                                 value: "{example1}"
                             }
@@ -193,7 +194,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 2",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example2",
                                 value: "{example2}"
                             }
@@ -201,7 +203,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 3",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example3",
                                 value: "{example3}"
                             }
@@ -209,7 +212,8 @@ pub fn Form(
                             Input {
                                 input_type: InputType::Text,
                                 label: "Example 4",
-                                help_text: "Value between 0 and 2.",
+                                label_class: "mt-4",
+                                help_text: "Give the user an example prompt.",
                                 name: "example4",
                                 value: "{example4}"
                             }

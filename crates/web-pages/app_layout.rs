@@ -80,7 +80,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                 }
                 if props.rbac.can_view_datasets() {
                     NavGroup {
-                        heading: "Enterprise AI Assistants",
+                        heading: "AI Assistants",
                         content:  rsx!(
                             if props.rbac.can_view_prompts() {
                                 NavItem {
@@ -88,7 +88,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     selected_item_id: props.selected_item.to_string(),
                                     href: super::routes::prompts::Index{team_id: props.team_id},
                                     icon: assistant_svg.name,
-                                    title: "AI Assistants"
+                                    title: "Explore Assistants"
                                 }
                             }
                             NavItem {
