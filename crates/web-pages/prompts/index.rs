@@ -202,15 +202,20 @@ fn get_categories_with_prompts(
             .push(prompt);
     }
 
-    // Filter and return categories that have at least one associated prompt
-    categories
+    // Create a vector of categories with their associated prompts
+    let mut result: Vec<(Category, Vec<Prompt>)> = categories
         .into_iter()
         .filter_map(|category| {
             prompts_by_category
                 .get(&category.id)
                 .map(|prompts| (category, prompts.clone()))
         })
-        .collect()
+        .collect();
+
+    // Sort the result by the number of prompts in descending order
+    result.sort_by(|(_, prompts_a), (_, prompts_b)| prompts_b.len().cmp(&prompts_a.len()));
+
+    result
 }
 
 // Comma separated dataset to vec of i32
