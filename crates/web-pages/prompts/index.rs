@@ -64,48 +64,52 @@ pub fn Page(
                                     class: "mb-8 text-sm md:text-base",
                                     "{category.description}"
                                 }
-                                for prompt in &prompts {
-                                    Box {
-                                        BoxHeader {
-                                            class: "truncate ellipses flex justify-between",
-                                            title: "{prompt.name}",
-                                            super::visibility::VisLabel {
-                                                visibility: prompt.visibility
-                                            }
-                                        }
-                                        BoxBody {
-                                            p {
-                                                class: "text-sm",
-                                                "{prompt.description}"
-                                            }
-                                            div {
-                                                class: "mt-3 flex flex-row justify-between",
-                                                a {
-                                                    class: "btn btn-primary btn-sm",
-                                                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                                                    "Chat"
+                                div {
+                                    class: "grid grid-cols-1 gap-x-1.5 gap-y-1 md:gap-x-2 md:gap-y-1.5 lg:grid-cols-2 lg:gap-x-3 lg:gap-y-2.5",
+
+                                    for prompt in &prompts {
+                                        Box {
+                                            BoxHeader {
+                                                class: "truncate ellipses flex justify-between",
+                                                title: "{prompt.name}",
+                                                super::visibility::VisLabel {
+                                                    visibility: prompt.visibility
                                                 }
-                                                if rbac.can_edit_prompt(prompt) {
-                                                    div {
-                                                        class: "flex gap-1",
-                                                        Button {
-                                                            drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
-                                                            button_scheme: ButtonScheme::Danger,
-                                                            "Delete"
-                                                        }
-                                                        Button {
-                                                            drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                            "Edit"
+                                            }
+                                            BoxBody {
+                                                p {
+                                                    class: "text-sm",
+                                                    "{prompt.description}"
+                                                }
+                                                div {
+                                                    class: "mt-3 flex flex-row justify-between",
+                                                    a {
+                                                        class: "btn btn-primary btn-sm",
+                                                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                                                        "Chat"
+                                                    }
+                                                    if rbac.can_edit_prompt(prompt) {
+                                                        div {
+                                                            class: "flex gap-1",
+                                                            Button {
+                                                                drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
+                                                                button_scheme: ButtonScheme::Danger,
+                                                                "Delete"
+                                                            }
+                                                            Button {
+                                                                drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                                                "Edit"
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                            div {
-                                                class: "mt-3 text-xs flex justify-center gap-1",
-                                                "Last update",
-                                                RelativeTime {
-                                                    format: RelativeTimeFormat::Relative,
-                                                    datetime: "{prompt.updated_at}"
+                                                div {
+                                                    class: "mt-3 text-xs flex justify-center gap-1",
+                                                    "Last update",
+                                                    RelativeTime {
+                                                        format: RelativeTimeFormat::Relative,
+                                                        datetime: "{prompt.updated_at}"
+                                                    }
                                                 }
                                             }
                                         }
@@ -134,6 +138,8 @@ pub fn Page(
                             selected_dataset_ids: split_datasets(&prompt.selected_datasets),
                             visibility: prompt.visibility,
                             models: models.clone(),
+                            categories: categories.clone(),
+                            category_id: prompt.category_id,
                             model_id: prompt.model_id,
                             max_history_items: prompt.max_history_items,
                             max_chunks: prompt.max_chunks,
@@ -161,8 +167,10 @@ pub fn Page(
                 datasets: datasets.clone(),
                 selected_dataset_ids: Default::default(),
                 models: models.clone(),
+                categories: categories.clone(),
                 visibility: Visibility::Private,
                 model_id: -1,
+                category_id: -1,
                 max_history_items: 3,
                 max_chunks: 10,
                 max_tokens: 1024,

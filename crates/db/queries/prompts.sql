@@ -248,6 +248,7 @@ VALUES(
 INSERT INTO prompts (
     team_id, 
     model_id, 
+    category_id, 
     name,
     visibility,
     system_prompt,
@@ -268,6 +269,7 @@ INSERT INTO prompts (
 VALUES(
     :team_id, 
     :model_id,
+    :category_id, 
     :name,
     :visibility,
     :system_prompt,
@@ -292,6 +294,7 @@ UPDATE
     prompts 
 SET 
     model_id = :model_id, 
+    category_id = :category_id, 
     name = :name, 
     visibility = :visibility,
     system_prompt = :system_prompt,

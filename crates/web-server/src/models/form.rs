@@ -76,6 +76,7 @@ pub async fn upsert(
                     .bind(
                         &transaction,
                         &id,
+                        &0, // Set category to uncategorized
                         &model_form.display_name,
                         &db::Visibility::Company,
                         &system_prompt,
@@ -134,6 +135,7 @@ pub async fn upsert(
                         &transaction,
                         &team_id,
                         &model_id,
+                        &0, // Set category to uncategorized
                         &model_form.display_name,
                         &Visibility::Company,
                         &system_prompt,

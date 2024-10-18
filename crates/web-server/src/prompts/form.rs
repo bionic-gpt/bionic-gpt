@@ -19,6 +19,7 @@ pub struct NewPromptTemplate {
     pub name: String,
     pub system_prompt: String,
     pub model_id: i32,
+    pub category_id: i32,
     #[serde(default)]
     pub datasets: Vec<i32>,
     pub max_history_items: i32,
@@ -69,6 +70,7 @@ pub async fn upsert(
                 .bind(
                     &transaction,
                     &new_prompt_template.model_id,
+                    &new_prompt_template.category_id,
                     &new_prompt_template.name,
                     &visibility,
                     &system_prompt,
@@ -109,6 +111,7 @@ pub async fn upsert(
                     &transaction,
                     &team_id,
                     &new_prompt_template.model_id,
+                    &new_prompt_template.category_id,
                     &new_prompt_template.name,
                     &visibility,
                     &system_prompt,
