@@ -1,5 +1,8 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::{
+    app_layout::{Layout, SideBar},
+    hero::Hero,
+};
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, History};
@@ -34,6 +37,13 @@ pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
                     description: "When you do a summary will appear on this page"
                 }
             } else {
+
+                Hero {
+                    heading: "Chat History".to_string(),
+                    subheading: "Easily reference past conversations to recall information,
+                        follow up on topics, or continue where you left off.".to_string()
+                }
+
                 super::history_table::HistoryTable {
                     team_id,
                     buckets: buckets.0

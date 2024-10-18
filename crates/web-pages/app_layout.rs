@@ -88,7 +88,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     selected_item_id: props.selected_item.to_string(),
                                     href: super::routes::prompts::Index{team_id: props.team_id},
                                     icon: assistant_svg.name,
-                                    title: "AI Assistants"
+                                    title: "Explore Assistants"
                                 }
                             }
                             NavItem {
