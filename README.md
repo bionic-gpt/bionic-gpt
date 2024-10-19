@@ -57,7 +57,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 - 🗨️ Share Assistants with Team Members: Generate and share assistants seamlessly between users, enhancing collaboration and communication.
 - 📋 RAG Pipelines: Assistants are full scale enterprise ready RAG pipelines that can be launched in minutes.
 - 📑 Any Documents: 80% of enterprise data exists in difficult-to-use formats like HTML, PDF, CSV, PNG, PPTX, and more. We support all of them.
-- 💾 No Code: Configure embeddings engine and chunking lagorithms all through our UI.
+- 💾 No Code: Configure embeddings engine and chunking algorithms all through our UI.
 - 🗨️ System Prompts: Configure system prompts to get the LLM to reply in the way you want.
 
 ### Teams
@@ -66,7 +66,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 - 👫 Invite Team Members: Teams manage themselves in a controlled way.
 - 🙋 Manage Teams: Manage who has access to Bionic with your SSO system.
 - 👬 Virtual Teams: Create teams within teams to 
-- 🚠 Switch Teams: Switch betweens teams whilst still keeping data isolated.
+- 🚠 Switch Teams: Switch between teams whilst still keeping data isolated.
 - 🚓 RBAC: Use your SSO system to configure which features users have access to.
 
 ### Defence in Depth Security
@@ -127,7 +127,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 - 📤 100s of Sources: With our Airbyte integration you can batch upload data from sources such as Sharepoint, NFS, FTP, Kafka and more.
 - 📥 Batching: Run upload once a day or every hour. Set the way you want.
 - 📈 Real time: Capture data in real time to ensure your models are always using the latest data.
-- 🚆 Manual Upload: Users have the ability to manually uplaod data so RAG pipelines can be setup in minutes.
+- 🚆 Manual Upload: Users have the ability to manually upload data so RAG pipelines can be setup in minutes.
 - 🍟 Datasets: Data is stored in datasets and our security ensures data can't leak between users or teams.
 - 📚 OCR: We can process documents using OCR to unlock even more data.
 
