@@ -14,7 +14,7 @@ axum-extra = { version = "0", features = ["form"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 tokio-util = { version = "0" }
 tower = { version = "0.4" }
-tower-http = { version = "0.5", features = ["fs"] }
+tower-http = { version = "0.5", features = ["fs", "cors"] }
 http = "1"
 validator = { version = "0", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }

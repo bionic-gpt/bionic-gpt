@@ -9,6 +9,7 @@ pub mod token_count;
 pub mod ui_chat_stream;
 use axum::Router;
 use axum_extra::routing::RouterExt;
+use tower_http::cors::{Any, CorsLayer};
 
 use axum_extra::routing::TypedPath;
 use serde::Deserialize;
@@ -33,6 +34,11 @@ pub struct Completion {
 }
 
 pub fn routes() -> Router {
+    let cors = CorsLayer::new()
+        .allow_origin(Any) // Allows requests from any origin
+        .allow_methods(Any) // Allows any HTTP method
+        .allow_headers(Any); // Allows any header
+
     Router::new()
         .typed_get(api_chat_stream::chat_generate)
         .typed_post(api_chat_stream::chat_generate)
@@ -41,6 +47,7 @@ pub fn routes() -> Router {
         .typed_post(api_reverse_proxy::handler)
         .typed_post(ui_chat_stream::chat_generate)
         .typed_get(ui_chat_stream::chat_generate)
+        .layer(cors) // Apply the CORS layer
 }
 
 #[derive(TypedPath, Deserialize)]
