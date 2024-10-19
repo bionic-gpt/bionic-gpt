@@ -42,11 +42,11 @@ impl IntoResponse for CustomError {
             CustomError::Authorization => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
         };
 
-        let response = format!("status = {}, message = {}", status, error_message);
+        let response_body = format!("status = {}, message = {}", status, error_message);
 
-        tracing::error!(response);
+        tracing::error!(response_body);
 
-        response.into_response()
+        (status, response_body).into_response()
     }
 }
 
