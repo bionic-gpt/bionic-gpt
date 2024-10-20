@@ -5,6 +5,7 @@ on:
     branches: 
       - main
     paths-ignore:
+      - 'crates/dioxus-poc/**'
       - 'infra-as-code/**'
       - '*.md'
       - '.github/workflows/integration*.yml'
@@ -17,6 +18,7 @@ on:
     branches:
       - main
     paths-ignore:
+      - 'crates/dioxus-poc/**'
       - 'infra-as-code/**'
       - '*.md'
       - '.github/workflows/integration*.yml'
