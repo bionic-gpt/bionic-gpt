@@ -35,11 +35,11 @@ pub fn Form(
     let example3 = example3.unwrap_or("".to_string());
     let example4 = example4.unwrap_or("".to_string());
     rsx!(
-        Drawer {
-            label: "Assistant",
+        Modal {
             submit_action: crate::routes::prompts::Upsert{team_id}.to_string(),
             trigger_id: "{trigger_id}",
-            DrawerBody {
+            ModalBody {
+                class: "w-[64rem] max-w-[64rem] h-full",
                 TabContainer {
                     TabPanel {
                         checked: true,
@@ -122,7 +122,7 @@ pub fn Form(
                             }
 
                             TextArea {
-                                class: "mt-3",
+                                class: "mt-3 resize-none",
                                 name: "description",
                                 rows: "2",
                                 label: "Description",
@@ -130,9 +130,16 @@ pub fn Form(
                                 "{description}",
                                 required: true
                             }
+                        }
+                    }
+                    TabPanel {
+                        name: "prompt-tabs",
+                        tab_name: "System Prompt",
+                        div {
+                            class: "flex flex-col mt-3 h-full",
 
                             TextArea {
-                                class: "mt-3",
+                                class: "mt-3 resize-none h-full",
                                 name: "system_prompt",
                                 rows: "8",
                                 label: "System Prompt",
@@ -328,14 +335,14 @@ pub fn Form(
                     }
                 }
 
-            }
-
-            DrawerFooter {
-                Button {
-                    button_type: ButtonType::Submit,
-                    button_scheme: ButtonScheme::Primary,
-                    "Submit"
+                ModalAction {
+                    Button {
+                        button_type: ButtonType::Submit,
+                        button_scheme: ButtonScheme::Primary,
+                        "Submit"
+                    }
                 }
+
             }
         }
     )
