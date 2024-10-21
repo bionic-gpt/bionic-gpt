@@ -1,6 +1,27 @@
 --: Prompt(temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
 --: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?, example1?, example2?, example3?, example4?)
 
+--! image
+SELECT image_icon FROM prompts p
+WHERE
+    p.id = :prompt_id
+AND
+    (
+        p.visibility='Team' 
+        AND p.model_id IN (
+        SELECT id FROM models WHERE team_id IN(
+            SELECT team_id 
+            FROM team_users 
+            WHERE user_id = current_app_user()
+        )
+        AND team_id = :team_id
+    )
+    OR 
+        (p.visibility='Company')
+    OR 
+        (p.visibility = 'Private' AND created_by = current_app_user()))
+LIMIT 1;
+
 --! prompts : Prompt
 SELECT
     p.id,
@@ -244,12 +265,13 @@ VALUES(
 );
     
 
---! insert(system_prompt?, example1?, example2?, example3?, example4?)
+--! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon?)
 INSERT INTO prompts (
     team_id, 
     model_id, 
     category_id, 
     name,
+    image_icon,
     visibility,
     system_prompt,
     max_history_items,
@@ -271,6 +293,7 @@ VALUES(
     :model_id,
     :category_id, 
     :name,
+    :image_icon,
     :visibility,
     :system_prompt,
     :max_history_items,

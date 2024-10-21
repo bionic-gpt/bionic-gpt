@@ -8,6 +8,7 @@ import '@github/relative-time-element';
 
 // Misc.
 import { triggers } from './typescript/side-drawer-trigger'
+import { modalTriggers } from './typescript/modal-trigger'
 import { initializeSidebar } from './typescript/responsive-nav'
 import { streamingChat } from './typescript/streaming-chat'
 import { drawers } from './typescript/side-drawer'
@@ -32,6 +33,7 @@ import '@hotwired/turbo'
 function loadEverything() {
     hljs.highlightAll()
     triggers()
+    modalTriggers()
     drawers()
     formatter()
     streamingChat()

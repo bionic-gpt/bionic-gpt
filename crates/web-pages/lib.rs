@@ -206,6 +206,13 @@ pub mod routes {
         }
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/prompts/:id/image")]
+        pub struct Image {
+            pub team_id: i32,
+            pub id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/prompts/upsert")]
         pub struct Upsert {
             pub team_id: i32,

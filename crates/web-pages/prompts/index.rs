@@ -33,7 +33,7 @@ pub fn Page(
                 h3 { "Assistants" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "new-prompt-form",
+                    modal_trigger: "new-prompt-form",
                     button_scheme: ButtonScheme::Primary,
                     "New Assistant"
                 }
@@ -97,7 +97,7 @@ pub fn Page(
                                                                 "Delete"
                                                             }
                                                             Button {
-                                                                drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                                                modal_trigger: format!("edit-prompt-form-{}", prompt.id),
                                                                 "Edit"
                                                             }
                                                         }
