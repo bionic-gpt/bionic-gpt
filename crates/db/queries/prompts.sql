@@ -244,12 +244,13 @@ VALUES(
 );
     
 
---! insert(system_prompt?, example1?, example2?, example3?, example4?)
+--! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon?)
 INSERT INTO prompts (
     team_id, 
     model_id, 
     category_id, 
     name,
+    image_icon,
     visibility,
     system_prompt,
     max_history_items,
@@ -271,6 +272,7 @@ VALUES(
     :model_id,
     :category_id, 
     :name,
+    :image_icon,
     :visibility,
     :system_prompt,
     :max_history_items,

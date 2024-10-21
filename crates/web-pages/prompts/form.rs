@@ -39,6 +39,7 @@ pub fn Form(
         form {
             action: crate::routes::prompts::Upsert { team_id }.to_string(),
             enctype: "multipart/form-data",
+            method: "post",
             Modal {
                 trigger_id: "{trigger_id}",
                 ModalBody {
@@ -246,7 +247,7 @@ fn AssistantIconTab() -> Element {
             class: "flex flex-col mt-3",
             input {
                 "type": "file",
-                id: "imageInput",
+                name: "image_icon",
                 accept: "image/*"
             }
         }
