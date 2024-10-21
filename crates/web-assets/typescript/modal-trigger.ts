@@ -8,7 +8,7 @@ export const modalTriggers = () => {
             if(attr) {
                 const modal = document.getElementById(attr)
                 if(modal instanceof HTMLDialogElement) {
-                    modal.show()
+                    modal.showModal()
                 } else {
                     console.log(`The drawer ${attr} not there`)
                 }
