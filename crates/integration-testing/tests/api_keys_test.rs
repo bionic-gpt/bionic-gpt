@@ -203,6 +203,8 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
         .send()
         .await;
 
+    dbg!(&response);
+
     assert!(response.is_ok());
 
     if let Ok(response) = response {
