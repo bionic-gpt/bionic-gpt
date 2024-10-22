@@ -49,7 +49,7 @@ pub fn Page(
             }
 
             Box {
-                class: "has-data-table",
+                class: "has-data-table max-w-[64rem] mx-auto",
                 BoxHeader {
                     title: "My Assistants"
                 }
@@ -57,7 +57,12 @@ pub fn Page(
                     table {
                         class: "table table-sm",
                         thead {
+                            th { "Last Updated" }
                             th { "Name" }
+                            th { "Visibility" }
+                            th {
+                                "Edit"
+                            }
                             th {
                                 class: "text-right",
                                 "Action"
@@ -67,9 +72,28 @@ pub fn Page(
                             for prompt in &prompts {
                                 tr {
                                     td {
+                                        RelativeTime {
+                                            format: RelativeTimeFormat::Relative,
+                                            datetime: "{prompt.updated_at}"
+                                        }
+                                    }
+                                    td {
                                         strong {
                                             "{prompt.name}"
                                         }
+                                    }
+                                    td {
+                                        super::visibility::VisLabel {
+                                            visibility: prompt.visibility
+                                        }
+                                    }
+                                    td {
+                                        Button {
+                                            modal_trigger: format!("edit-prompt-form-{}", prompt.id),
+                                            button_scheme: ButtonScheme::Default,
+                                            "Edit"
+                                        }
+
                                     }
                                     td {
                                         class: "text-right",
