@@ -756,8 +756,8 @@ dependencies = [
 
 [[package]]
 name = "daisy_rsx"
-version = "0.1.5"
-source = "git+https://github.com/bionic-gpt/daisy-rsx#577d0a366b202a5b4f87c269c8c68f2587e1c4bc"
+version = "0.1.6"
+source = "git+https://github.com/bionic-gpt/daisy-rsx#232ee62750f434845a1e943ad97220718b42d4b1"
 dependencies = [
  "dioxus",
  "dioxus-ssr",

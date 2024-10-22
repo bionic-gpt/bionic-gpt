@@ -10,12 +10,24 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
             label: "{prompt.name}",
             trigger_id,
             DrawerBody {
+                h2 {
+                    class: "text-center text-2xl font-semibold",
+                    "{prompt.name}"
+                }
+                p {
+                    class: "mt-6 text-center text-sm text-token-text-tertiary",
+                    "Created by {prompt.created_by}"
+                }
+                p {
+                    class: "mt-6 text-center",
+                    "{prompt.description}"
+                }
             }
             DrawerFooter {
-                Button {
-                    button_type: ButtonType::Submit,
-                    button_scheme: ButtonScheme::Danger,
-                    "Chat"
+                a {
+                    class: "btn btn-primary btn-sm w-full",
+                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                    "Start a Chat"
                 }
             }
         }

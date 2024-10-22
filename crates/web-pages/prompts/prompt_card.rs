@@ -8,7 +8,8 @@ use dioxus::prelude::*;
 pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
     rsx! {
         Box {
-            class: "cursor-pointer hover:bg-base-100",
+            class: "cursor-pointer hover:bg-base-200",
+            drawer_trigger: format!("view-trigger-{}-{}", prompt.id, team_id),
             BoxHeader {
                 class: "truncate ellipses flex justify-between",
                 title: "{prompt.name}",
