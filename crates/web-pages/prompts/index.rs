@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::hero::Hero;
+use crate::prompts::prompt_card::PromptCard;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -31,11 +32,18 @@ pub fn Page(
             title: "Assistants",
             header: rsx!(
                 h3 { "Assistants" }
-                Button {
-                    prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "new-prompt-form",
-                    button_scheme: ButtonScheme::Primary,
-                    "New Assistant"
+                div {
+                    a {
+                        href: crate::routes::prompts::MyPrompts{team_id}.to_string(),
+                        class: "mr-4",
+                        "My Assistants"
+                    }
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        modal_trigger: "new-prompt-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "New Assistant"
+                    }
                 }
             ),
 
@@ -48,111 +56,41 @@ pub fn Page(
             div {
                 class: "mx-auto max-w-3xl overflow-x-clip px-4",
                 TabContainer {
-                    for (index, (category, prompts)) in categories_with_prompts.iter().enumerate()  {
-                        TabPanel {
-                            name: "prompt-tabs",
-                            tab_name: "{category.name}",
-                            checked: index == 0,
-
-                            div {
-                                class: "mt-12",
-                                h3 {
-                                    class: "text-xl font-semibold md:text-2xl",
-                                    "{category.name}"
-                                }
-                                h4 {
-                                    class: "mb-8 text-sm md:text-base",
-                                    "{category.description}"
-                                }
-                                div {
-                                    class: "grid grid-cols-1 gap-x-1.5 gap-y-1 md:gap-x-2 md:gap-y-1.5 lg:grid-cols-2 lg:gap-x-3 lg:gap-y-2.5",
-
-                                    for prompt in &prompts {
-                                        Box {
-                                            BoxHeader {
-                                                class: "truncate ellipses flex justify-between",
-                                                title: "{prompt.name}",
-                                                super::visibility::VisLabel {
-                                                    visibility: prompt.visibility
-                                                }
-                                            }
-                                            BoxBody {
-                                                p {
-                                                    class: "text-sm",
-                                                    "{prompt.description}"
-                                                }
-                                                div {
-                                                    class: "mt-3 flex flex-row justify-between",
-                                                    a {
-                                                        class: "btn btn-primary btn-sm",
-                                                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                                                        "Chat"
-                                                    }
-                                                    if rbac.can_edit_prompt(prompt) {
-                                                        div {
-                                                            class: "flex gap-1",
-                                                            Button {
-                                                                drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
-                                                                button_scheme: ButtonScheme::Danger,
-                                                                "Delete"
-                                                            }
-                                                            Button {
-                                                                drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                                "Edit"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                div {
-                                                    class: "mt-3 text-xs flex justify-center gap-1",
-                                                    "Last update",
-                                                    RelativeTime {
-                                                        format: RelativeTimeFormat::Relative,
-                                                        datetime: "{prompt.updated_at}"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                    if prompts.len() < 20 {
+                        // Create an All tab showing everything
+                        AssistantTab {
+                            checked: true,
+                            category: Category {
+                                id: -1,
+                                name: "All".to_string(),
+                                description: "All assistants".to_string()
+                            },
+                            prompts: prompts.clone(),
+                            rbac: rbac.clone(),
+                            team_id
+                        }
+                    }
+                    for (index, (category, cat_prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
+                        AssistantTab {
+                            checked: prompts.len() >= 20 && index == 0,
+                            category,
+                            prompts: cat_prompts,
+                            rbac: rbac.clone(),
+                            team_id
                         }
                     }
 
-                    for item in &prompts {
+                    for prompt in &prompts {
                         super::delete::DeleteDrawer {
                             team_id: team_id,
-                            id: item.id,
-                            trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
-                        }
-                    }
-
-                    for prompt in prompts {
-                        super::form::Form {
                             id: prompt.id,
+                            trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id)
+                        }
+
+                        super::view_prompt::ViewDrawer {
                             team_id: team_id,
-                            trigger_id: format!("edit-prompt-form-{}", prompt.id),
-                            name: prompt.name.clone(),
-                            system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
-                            datasets: datasets.clone(),
-                            selected_dataset_ids: split_datasets(&prompt.selected_datasets),
-                            visibility: prompt.visibility,
-                            models: models.clone(),
-                            categories: categories.clone(),
-                            category_id: prompt.category_id,
-                            model_id: prompt.model_id,
-                            max_history_items: prompt.max_history_items,
-                            max_chunks: prompt.max_chunks,
-                            max_tokens: prompt.max_tokens,
-                            trim_ratio: prompt.trim_ratio,
-                            temperature: prompt.temperature.unwrap_or(0.7),
-                            description: prompt.description,
-                            disclaimer: prompt.disclaimer,
-                            example1: prompt.example1,
-                            example2: prompt.example2,
-                            example3: prompt.example3,
-                            example4: prompt.example4,
-                            is_saas
+                            prompt: prompt.clone(),
+                            trigger_id: format!("view-trigger-{}-{}", prompt.id, team_id)
                         }
                     }
                 }
@@ -188,6 +126,46 @@ pub fn Page(
     }
 }
 
+#[component]
+fn AssistantTab(
+    category: Category,
+    prompts: Vec<Prompt>,
+    checked: bool,
+    team_id: i32,
+    rbac: Rbac,
+) -> Element {
+    rsx! {
+        TabPanel {
+            name: "prompt-tabs",
+            tab_name: "{category.name}",
+            checked,
+
+            div {
+                class: "mt-12",
+                h3 {
+                    class: "text-xl font-semibold md:text-2xl",
+                    "{category.name}"
+                }
+                h4 {
+                    class: "mb-8 text-sm md:text-base",
+                    "{category.description}"
+                }
+                div {
+                    class: "grid grid-cols-1 gap-x-1.5 gap-y-1 md:gap-x-2 md:gap-y-1.5 lg:grid-cols-2 lg:gap-x-3 lg:gap-y-2.5",
+
+                    for prompt in &prompts {
+                        PromptCard {
+                            team_id,
+                            prompt: prompt.clone(),
+                            rbac: rbac.clone()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Extracts categories with at least one prompt
 fn get_categories_with_prompts(
     prompts: Vec<Prompt>,
@@ -216,14 +194,4 @@ fn get_categories_with_prompts(
     result.sort_by(|(_, prompts_a), (_, prompts_b)| prompts_b.len().cmp(&prompts_a.len()));
 
     result
-}
-
-// Comma separated dataset to vec of i32
-fn split_datasets(datasets: &str) -> Vec<i32> {
-    let ids: Vec<i32> = datasets
-        .split(',')
-        .map(|dataset_id| dataset_id.parse::<i32>().unwrap_or(-1))
-        .filter(|x| x != &-1)
-        .collect();
-    ids
 }

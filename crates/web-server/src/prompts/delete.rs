@@ -20,7 +20,7 @@ pub async fn delete(
     transaction.commit().await?;
 
     super::super::layout::redirect_and_snackbar(
-        &web_pages::routes::prompts::Index { team_id }.to_string(),
+        &web_pages::routes::prompts::MyPrompts { team_id }.to_string(),
         "Document Deleted",
     )
 }

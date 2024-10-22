@@ -122,6 +122,7 @@ pub async fn upsert(
                 .await?;
 
             let system_prompt: Option<String> = None;
+            let image_icon: Option<Vec<u8>> = None;
 
             let context_size = if model_form.context_size != 0 {
                 model_form.context_size / 2
@@ -137,6 +138,7 @@ pub async fn upsert(
                         &model_id,
                         &0, // Set category to uncategorized
                         &model_form.display_name,
+                        &image_icon,
                         &Visibility::Company,
                         &system_prompt,
                         &3,
