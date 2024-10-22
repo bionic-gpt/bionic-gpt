@@ -55,10 +55,15 @@ pub fn Page(
                 }
                 BoxBody {
                     table {
-                        class: "table table-sm",
+                        class: "table table-sm table-layout-fixed",
                         thead {
-                            th { "Last Updated" }
-                            th { "Name" }
+                            th {
+                                "Last Updated"
+                            }
+                            th {
+                                class: "w-full",
+                                "Name"
+                            }
                             th { "Visibility" }
                             th {
                                 "Edit"
