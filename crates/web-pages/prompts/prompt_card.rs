@@ -8,6 +8,7 @@ use dioxus::prelude::*;
 pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
     rsx! {
         Box {
+            class: "cursor-pointer hover:bg-base-100",
             BoxHeader {
                 class: "truncate ellipses flex justify-between",
                 title: "{prompt.name}",

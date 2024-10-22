@@ -5,4 +5,5 @@ pub mod form;
 pub mod index;
 pub mod my_prompts;
 pub mod prompt_card;
+pub mod view_prompt;
 pub mod visibility;

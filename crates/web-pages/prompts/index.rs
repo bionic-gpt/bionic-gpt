@@ -80,11 +80,17 @@ pub fn Page(
                         }
                     }
 
-                    for item in &prompts {
+                    for prompt in &prompts {
                         super::delete::DeleteDrawer {
                             team_id: team_id,
-                            id: item.id,
-                            trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                            id: prompt.id,
+                            trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id)
+                        }
+
+                        super::view_prompt::ViewDrawer {
+                            team_id: team_id,
+                            prompt: prompt.clone(),
+                            trigger_id: format!("view-trigger-{}-{}", prompt.id, team_id)
                         }
                     }
                 }

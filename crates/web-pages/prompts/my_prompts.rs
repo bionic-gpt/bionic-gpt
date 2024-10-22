@@ -106,11 +106,6 @@ pub fn Page(
                                             direction: Direction::Left,
                                             button_text: "...",
                                             DropDownLink {
-                                                href: "#",
-                                                drawer_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                "Edit"
-                                            }
-                                            DropDownLink {
                                                 drawer_trigger: format!("delete-trigger-{}-{}",
                                                     prompt.id, team_id),
                                                 href: "#",
