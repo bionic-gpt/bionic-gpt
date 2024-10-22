@@ -32,11 +32,18 @@ pub fn Page(
             title: "Assistants",
             header: rsx!(
                 h3 { "Assistants" }
-                Button {
-                    prefix_image_src: "{button_plus_svg.name}",
-                    modal_trigger: "new-prompt-form",
-                    button_scheme: ButtonScheme::Primary,
-                    "New Assistant"
+                div {
+                    a {
+                        href: crate::routes::prompts::MyPrompts{team_id}.to_string(),
+                        class: "mr-4",
+                        "My Assistants"
+                    }
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        modal_trigger: "new-prompt-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "New Assistant"
+                    }
                 }
             ),
 
@@ -78,35 +85,6 @@ pub fn Page(
                             team_id: team_id,
                             id: item.id,
                             trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
-                        }
-                    }
-
-                    for prompt in prompts {
-                        super::form::Form {
-                            id: prompt.id,
-                            team_id: team_id,
-                            trigger_id: format!("edit-prompt-form-{}", prompt.id),
-                            name: prompt.name.clone(),
-                            system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
-                            datasets: datasets.clone(),
-                            selected_dataset_ids: split_datasets(&prompt.selected_datasets),
-                            visibility: prompt.visibility,
-                            models: models.clone(),
-                            categories: categories.clone(),
-                            category_id: prompt.category_id,
-                            model_id: prompt.model_id,
-                            max_history_items: prompt.max_history_items,
-                            max_chunks: prompt.max_chunks,
-                            max_tokens: prompt.max_tokens,
-                            trim_ratio: prompt.trim_ratio,
-                            temperature: prompt.temperature.unwrap_or(0.7),
-                            description: prompt.description,
-                            disclaimer: prompt.disclaimer,
-                            example1: prompt.example1,
-                            example2: prompt.example2,
-                            example3: prompt.example3,
-                            example4: prompt.example4,
-                            is_saas
                         }
                     }
                 }
@@ -210,14 +188,4 @@ fn get_categories_with_prompts(
     result.sort_by(|(_, prompts_a), (_, prompts_b)| prompts_b.len().cmp(&prompts_a.len()));
 
     result
-}
-
-// Comma separated dataset to vec of i32
-fn split_datasets(datasets: &str) -> Vec<i32> {
-    let ids: Vec<i32> = datasets
-        .split(',')
-        .map(|dataset_id| dataset_id.parse::<i32>().unwrap_or(-1))
-        .filter(|x| x != &-1)
-        .collect();
-    ids
 }

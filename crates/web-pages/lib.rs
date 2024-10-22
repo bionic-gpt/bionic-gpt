@@ -200,6 +200,12 @@ pub mod routes {
         }
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/:team_id/my_prompts")]
+        pub struct MyPrompts {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/prompts")]
         pub struct Index {
             pub team_id: i32,
