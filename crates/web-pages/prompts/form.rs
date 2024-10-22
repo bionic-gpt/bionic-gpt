@@ -43,7 +43,7 @@ pub fn Form(
             Modal {
                 trigger_id: "{trigger_id}",
                 ModalBody {
-                    class: "w-[64rem] max-w-[64rem] h-full",
+                    class: "flex flex-col justify-between md:w-full max-w-[64rem] h-full",
                     TabContainer {
                         TabPanel {
                             checked: true,
