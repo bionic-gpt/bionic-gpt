@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::hero::Hero;
+use crate::prompts::prompt_card::PromptCard;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -48,74 +49,13 @@ pub fn Page(
             div {
                 class: "mx-auto max-w-3xl overflow-x-clip px-4",
                 TabContainer {
-                    for (index, (category, prompts)) in categories_with_prompts.iter().enumerate()  {
-                        TabPanel {
-                            name: "prompt-tabs",
-                            tab_name: "{category.name}",
-                            checked: index == 0,
-
-                            div {
-                                class: "mt-12",
-                                h3 {
-                                    class: "text-xl font-semibold md:text-2xl",
-                                    "{category.name}"
-                                }
-                                h4 {
-                                    class: "mb-8 text-sm md:text-base",
-                                    "{category.description}"
-                                }
-                                div {
-                                    class: "grid grid-cols-1 gap-x-1.5 gap-y-1 md:gap-x-2 md:gap-y-1.5 lg:grid-cols-2 lg:gap-x-3 lg:gap-y-2.5",
-
-                                    for prompt in &prompts {
-                                        Box {
-                                            BoxHeader {
-                                                class: "truncate ellipses flex justify-between",
-                                                title: "{prompt.name}",
-                                                super::visibility::VisLabel {
-                                                    visibility: prompt.visibility
-                                                }
-                                            }
-                                            BoxBody {
-                                                p {
-                                                    class: "text-sm",
-                                                    "{prompt.description}"
-                                                }
-                                                div {
-                                                    class: "mt-3 flex flex-row justify-between",
-                                                    a {
-                                                        class: "btn btn-primary btn-sm",
-                                                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                                                        "Chat"
-                                                    }
-                                                    if rbac.can_edit_prompt(prompt) {
-                                                        div {
-                                                            class: "flex gap-1",
-                                                            Button {
-                                                                drawer_trigger: format!("delete-trigger-{}-{}", prompt.id, team_id),
-                                                                button_scheme: ButtonScheme::Danger,
-                                                                "Delete"
-                                                            }
-                                                            Button {
-                                                                modal_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                                                "Edit"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                div {
-                                                    class: "mt-3 text-xs flex justify-center gap-1",
-                                                    "Last update",
-                                                    RelativeTime {
-                                                        format: RelativeTimeFormat::Relative,
-                                                        datetime: "{prompt.updated_at}"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                    for (index, (category, prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
+                        AssistantTab {
+                            index,
+                            category,
+                            prompts,
+                            rbac: rbac.clone(),
+                            team_id
                         }
                     }
 
@@ -183,6 +123,46 @@ pub fn Page(
                 example3: None,
                 example4: None,
                 is_saas
+            }
+        }
+    }
+}
+
+#[component]
+fn AssistantTab(
+    category: Category,
+    prompts: Vec<Prompt>,
+    index: usize,
+    team_id: i32,
+    rbac: Rbac,
+) -> Element {
+    rsx! {
+        TabPanel {
+            name: "prompt-tabs",
+            tab_name: "{category.name}",
+            checked: index == 0,
+
+            div {
+                class: "mt-12",
+                h3 {
+                    class: "text-xl font-semibold md:text-2xl",
+                    "{category.name}"
+                }
+                h4 {
+                    class: "mb-8 text-sm md:text-base",
+                    "{category.description}"
+                }
+                div {
+                    class: "grid grid-cols-1 gap-x-1.5 gap-y-1 md:gap-x-2 md:gap-y-1.5 lg:grid-cols-2 lg:gap-x-3 lg:gap-y-2.5",
+
+                    for prompt in &prompts {
+                        PromptCard {
+                            team_id,
+                            prompt: prompt.clone(),
+                            rbac: rbac.clone()
+                        }
+                    }
+                }
             }
         }
     }
