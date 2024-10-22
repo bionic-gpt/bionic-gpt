@@ -49,11 +49,25 @@ pub fn Page(
             div {
                 class: "mx-auto max-w-3xl overflow-x-clip px-4",
                 TabContainer {
-                    for (index, (category, prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
+                    if prompts.len() < 20 {
+                        // Create an All tab showing everything
                         AssistantTab {
-                            index,
+                            checked: true,
+                            category: Category {
+                                id: -1,
+                                name: "All".to_string(),
+                                description: "All assistants".to_string()
+                            },
+                            prompts: prompts.clone(),
+                            rbac: rbac.clone(),
+                            team_id
+                        }
+                    }
+                    for (index, (category, cat_prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
+                        AssistantTab {
+                            checked: prompts.len() >= 20 && index == 0,
                             category,
-                            prompts,
+                            prompts: cat_prompts,
                             rbac: rbac.clone(),
                             team_id
                         }
@@ -132,7 +146,7 @@ pub fn Page(
 fn AssistantTab(
     category: Category,
     prompts: Vec<Prompt>,
-    index: usize,
+    checked: bool,
     team_id: i32,
     rbac: Rbac,
 ) -> Element {
@@ -140,7 +154,7 @@ fn AssistantTab(
         TabPanel {
             name: "prompt-tabs",
             tab_name: "{category.name}",
-            checked: index == 0,
+            checked,
 
             div {
                 class: "mt-12",
