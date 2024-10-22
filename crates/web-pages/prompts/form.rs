@@ -107,6 +107,12 @@ pub fn Form(
 
                     ModalAction {
                         Button {
+                            class: "cancel-modal",
+                            button_type: ButtonType::Reset,
+                            button_scheme: ButtonScheme::Danger,
+                            "Cancel"
+                        }
+                        Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Primary,
                             "Submit"
