@@ -22,6 +22,16 @@ AND
         (p.visibility = 'Private' AND created_by = current_app_user()))
 LIMIT 1;
 
+--! update_image
+UPDATE 
+    prompts 
+SET 
+    image_icon = :image_icon
+WHERE
+    id = :prompt_id
+AND
+    created_by = current_app_user();
+
 --! my_prompts : Prompt
 SELECT
     p.id,
