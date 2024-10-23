@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use crate::routes::prompts::Image;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::prompts::Prompt;
@@ -18,16 +19,32 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                 }
             }
             BoxBody {
-                p {
-                    class: "text-sm",
-                    "{prompt.description}"
-                }
                 div {
-                    class: "mt-3 text-xs flex justify-center gap-1",
-                    "Last update",
-                    RelativeTime {
-                        format: RelativeTimeFormat::Relative,
-                        datetime: "{prompt.updated_at}"
+                    class: "flex w-full",
+                    if prompt.has_image {
+                        crate::avatar::Avatar {
+                            avatar_size: crate::avatar::AvatarSize::Large,
+                            image_src: Image { team_id, id: prompt.id }.to_string()
+                        }
+                    } else {
+                        crate::avatar::Avatar {
+                            avatar_size: crate::avatar::AvatarSize::Large,
+                            avatar_type: crate::avatar::AvatarType::User
+                        }
+                    }
+                    div {
+                        p {
+                            class: "ml-8 text-sm",
+                            "{prompt.description}"
+                        }
+                        div {
+                            class: "ml-8 mt-3 text-xs flex justify-center gap-1",
+                            "Last update",
+                            RelativeTime {
+                                format: RelativeTimeFormat::Relative,
+                                datetime: "{prompt.updated_at}"
+                            }
+                        }
                     }
                 }
             }

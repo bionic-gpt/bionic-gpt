@@ -35,7 +35,7 @@ pub fn Page(
                 div {
                     a {
                         href: crate::routes::prompts::MyPrompts{team_id}.to_string(),
-                        class: "mr-4",
+                        class: "btn btn-ghost btn-sm mr-4",
                         "My Assistants"
                     }
                     Button {
@@ -56,6 +56,7 @@ pub fn Page(
             div {
                 class: "mx-auto max-w-3xl overflow-x-clip px-4",
                 TabContainer {
+                    class: "w-full",
                     if prompts.len() < 20 {
                         // Create an All tab showing everything
                         AssistantTab {
@@ -141,7 +142,7 @@ fn AssistantTab(
             checked,
 
             div {
-                class: "mt-12",
+                class: "mt-12  w-full",
                 h3 {
                     class: "text-xl font-semibold md:text-2xl",
                     "{category.name}"

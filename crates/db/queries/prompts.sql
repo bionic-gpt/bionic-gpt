@@ -22,7 +22,17 @@ AND
         (p.visibility = 'Private' AND created_by = current_app_user()))
 LIMIT 1;
 
---! prompts : Prompt
+--! update_image
+UPDATE 
+    prompts 
+SET 
+    image_icon = :image_icon
+WHERE
+    id = :prompt_id
+AND
+    created_by = current_app_user();
+
+--! my_prompts : Prompt
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
@@ -33,6 +43,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
+    (p.image_icon IS NOT NULL) AS has_image,
     p.visibility,
     p.description,
     p.disclaimer,
@@ -64,7 +75,65 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
-    p.created_by
+    p.created_by,
+    COALESCE((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM users u WHERE id = p.created_by), 
+              (SELECT email FROM users WHERE id = p.created_by)) as author_name
+FROM 
+    prompts p
+WHERE
+    created_by = current_app_user()
+AND 
+    p.prompt_type = :prompt_type
+ORDER BY updated_at;
+
+--! prompts : Prompt
+SELECT
+    p.id,
+    (SELECT name FROM models WHERE id = p.model_id) as model_name, 
+    (SELECT base_url FROM models WHERE id = p.model_id) as base_url, 
+    (SELECT api_key FROM models WHERE id = p.model_id) as api_key, 
+    (SELECT context_size FROM models WHERE id = p.model_id) as model_context_size, 
+    (SELECT team_id FROM models WHERE id = p.model_id) as team_id, 
+    p.model_id,
+    p.category_id,
+    p.name,
+    (p.image_icon IS NOT NULL) AS has_image,
+    p.visibility,
+    p.description,
+    p.disclaimer,
+    p.example1,
+    p.example2,
+    p.example3,
+    p.example4,
+    -- Creata a string showing the datsets connected to this prompt
+    (
+        SELECT 
+            COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
+        FROM 
+            prompt_dataset pd
+        WHERE 
+            pd.prompt_id = p.id
+    ) 
+    as selected_datasets, 
+    (
+        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
+            SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
+        )
+    ) AS datasets,
+    p.system_prompt,
+    p.max_history_items,
+    p.max_chunks,
+    p.max_tokens,
+    p.trim_ratio,
+    p.temperature,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(p.created_at)::text) as created_at,
+    trim(both '"' from to_json(p.updated_at)::text) as updated_at,
+    p.created_by,
+    COALESCE(
+        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM users u WHERE id = p.created_by), ' '),
+        (SELECT email FROM users WHERE id = p.created_by)
+    ) as author_name
 FROM 
     prompts p
 WHERE
@@ -171,6 +240,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
+    (p.image_icon IS NOT NULL) AS has_image,
     p.visibility,
     p.description,
     p.disclaimer,
@@ -202,7 +272,11 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
-    p.created_by
+    p.created_by,
+    COALESCE(
+        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM users u WHERE id = p.created_by), ' '),
+        (SELECT email FROM users WHERE id = p.created_by)
+    ) as author_name
 FROM 
     prompts p
 WHERE

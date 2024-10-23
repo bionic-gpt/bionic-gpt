@@ -142,6 +142,11 @@ async fn update_prompt(
     queries::prompts::delete_prompt_datasets()
         .bind(transaction, &id)
         .await?;
+    if let Some(image) = &new_prompt_template.image_icon {
+        queries::prompts::update_image()
+            .bind(transaction, &image.to_vec(), &id)
+            .await?;
+    }
     Ok(())
 }
 

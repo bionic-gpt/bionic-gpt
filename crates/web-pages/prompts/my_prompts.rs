@@ -30,7 +30,7 @@ pub fn Page(
                 div {
                     a {
                         href: crate::routes::prompts::Index{team_id}.to_string(),
-                        class: "mr-4",
+                        class: "btn btn-ghost btn-sm mr-4",
                         "Explore Assistants"
                     }
                     Button {
