@@ -141,6 +141,7 @@ checksum = "619743e34b5ba4e9703bba34deac3427c72507c7159f5fd030aea8cac0cfe341"
 name = "assets"
 version = "0.1.0"
 dependencies = [
+ "cache-busters",
  "mime",
  "ructe",
 ]
@@ -3834,7 +3835,6 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "axum-extra",
- "cache-busters",
  "dioxus",
  "dioxus-ssr",
  "markdown",

@@ -29,7 +29,7 @@ pub fn generate_static_files_code(out_dir: &Path, asset_dirs: &[PathBuf]) -> std
             /// Get a single `StaticFile` by name, if it exists.
             #[must_use]
             pub fn get(name: &str) -> Option<&'static Self> {
-                if let Ok(pos) = STATICS.binary_search_by_key(&name, |s| s.name) {
+                if let Some(pos) = STATICS.iter().position(|&s| name == s.name) {
                     Some(STATICS[pos])
                 } else {None}
             }

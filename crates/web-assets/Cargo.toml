@@ -13,3 +13,4 @@ mime = "0.3.0"
 
 [build-dependencies]
 ructe = { version="0.15.0", features = ["mime03"] }
+cache-busters = { path = "../cache-busters" }
