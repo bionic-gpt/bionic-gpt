@@ -5,6 +5,7 @@ export const modalTriggers = () => {
             event.stopImmediatePropagation()
             event.preventDefault()
             const attr = row.getAttribute('data-modal-target');
+            console.debug(attr)
             if (attr) {
                 const modal = document.getElementById(attr);
                 if (modal instanceof HTMLDialogElement) {
