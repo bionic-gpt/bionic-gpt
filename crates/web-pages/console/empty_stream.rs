@@ -18,36 +18,44 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
                 }
                 div {
                     class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",
-                    if let Some(example1) = prompt.example1 {
-                        ExampleForm {
-                            conversation_id,
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example1
+                    if let Some(example) = prompt.example1 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
                         }
                     }
-                    if let Some(example2) = prompt.example2 {
-                        ExampleForm {
-                            conversation_id,
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example2
+                    if let Some(example) = prompt.example2 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
                         }
                     }
-                    if let Some(example3) = prompt.example3 {
-                        ExampleForm {
-                            conversation_id,
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example3
+                    if let Some(example) = prompt.example3 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
                         }
                     }
-                    if let Some(example4) = prompt.example4 {
-                        ExampleForm {
-                            conversation_id,
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example4
+                    if let Some(example) = prompt.example4 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
                         }
                     }
                 }
@@ -57,7 +65,7 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
 }
 
 #[component]
-fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: String) -> Element {
+pub fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: String) -> Element {
     rsx! {
         form {
             class: "w-full",

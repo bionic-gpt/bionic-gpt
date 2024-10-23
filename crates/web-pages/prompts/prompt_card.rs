@@ -33,13 +33,12 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                         }
                     }
                     div {
-                        class: "ml-8",
                         p {
-                            class: "text-sm",
+                            class: "ml-8 text-sm",
                             "{prompt.description}"
                         }
                         div {
-                            class: "mt-3 text-xs flex justify-center gap-1",
+                            class: "ml-8 mt-3 text-xs flex justify-center gap-1",
                             "Last update",
                             RelativeTime {
                                 format: RelativeTimeFormat::Relative,

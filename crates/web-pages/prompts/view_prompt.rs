@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::routes::prompts::Image;
+use crate::{console::empty_stream::ExampleForm, routes::prompts::Image};
 use daisy_rsx::*;
 use db::queries::prompts::Prompt;
 use dioxus::prelude::*;
@@ -26,7 +26,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     }
                 }
                 h2 {
-                    class: "text-center text-2xl font-semibold",
+                    class: "text-center text-xl font-semibold",
                     "{prompt.name}"
                 }
                 p {
@@ -36,6 +36,53 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                 p {
                     class: "mt-6 text-center",
                     "{prompt.description}"
+                }
+                h2 {
+                    class: "mt-12 mb-8 text-xl font-semibold",
+                    "Conversation Starters"
+                }
+                div {
+                    class: "flex flex-col gap-4",
+                    if let Some(example) = prompt.example1 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
+                        }
+                    }
+                    if let Some(example) = prompt.example2 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
+                        }
+                    }
+                    if let Some(example) = prompt.example3 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
+                        }
+                    }
+                    if let Some(example) = prompt.example4 {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                conversation_id: 1,
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
+                        }
+                    }
                 }
             }
             DrawerFooter {
