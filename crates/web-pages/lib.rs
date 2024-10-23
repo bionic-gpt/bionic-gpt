@@ -4,6 +4,7 @@ use dioxus::prelude::{ComponentFunction, VirtualDom};
 pub mod api_keys;
 pub mod app_layout;
 pub mod audit_trail;
+pub mod avatar;
 pub mod base_layout;
 pub mod console;
 pub mod datasets;
