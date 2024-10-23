@@ -65,7 +65,9 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
-    p.created_by
+    p.created_by,
+    COALESCE((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM users u WHERE id = p.created_by), 
+              (SELECT email FROM users WHERE id = p.created_by)) as author_name
 FROM 
     prompts p
 WHERE
@@ -117,7 +119,11 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
-    p.created_by
+    p.created_by,
+    COALESCE(
+        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM users u WHERE id = p.created_by), ' '),
+        (SELECT email FROM users WHERE id = p.created_by)
+    ) as author_name
 FROM 
     prompts p
 WHERE
@@ -256,7 +262,11 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
-    p.created_by
+    p.created_by,
+    COALESCE(
+        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM users u WHERE id = p.created_by), ' '),
+        (SELECT email FROM users WHERE id = p.created_by)
+    ) as author_name
 FROM 
     prompts p
 WHERE

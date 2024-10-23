@@ -31,7 +31,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                 }
                 p {
                     class: "mt-6 text-center text-sm text-token-text-tertiary",
-                    "Created by {prompt.created_by}"
+                    "Created by {prompt.author_name}"
                 }
                 p {
                     class: "mt-6 text-center",
