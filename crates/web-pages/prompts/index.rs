@@ -35,7 +35,7 @@ pub fn Page(
                 div {
                     a {
                         href: crate::routes::prompts::MyPrompts{team_id}.to_string(),
-                        class: "mr-4",
+                        class: "btn btn-ghost btn-sm mr-4",
                         "My Assistants"
                     }
                     Button {
