@@ -22,14 +22,14 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                 div {
                     class: "flex w-full",
                     if let Some(object_id) = prompt.image_icon_object_id {
-                        crate::avatar::Avatar {
-                            avatar_size: crate::avatar::AvatarSize::ExtraLarge,
+                        Avatar {
+                            avatar_size: AvatarSize::ExtraLarge,
                             image_src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
-                        crate::avatar::Avatar {
-                            avatar_size: crate::avatar::AvatarSize::ExtraLarge,
-                            avatar_type: crate::avatar::AvatarType::User
+                        Avatar {
+                            avatar_size: AvatarSize::ExtraLarge,
+                            avatar_type: AvatarType::User
                         }
                     }
                     div {
