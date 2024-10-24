@@ -13,10 +13,10 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
             DrawerBody {
                 div {
                     class: "text-center",
-                    if prompt.has_image {
+                    if let Some(object_id) = prompt.image_icon_object_id {
                         crate::avatar::Avatar {
                             avatar_size: crate::avatar::AvatarSize::ExtraLarge,
-                            image_src: Image { team_id, id: prompt.id }.to_string()
+                            image_src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
                         crate::avatar::Avatar {

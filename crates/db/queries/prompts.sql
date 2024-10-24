@@ -1,4 +1,4 @@
---: Prompt(temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
+--: Prompt(image_icon_object_id?, temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
 --: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?, example1?, example2?, example3?, example4?)
 
 --! update_image
@@ -22,7 +22,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
-    (p.image_icon_object_id IS NOT NULL) AS has_image,
+    p.image_icon_object_id,
     p.visibility,
     p.description,
     p.disclaimer,
@@ -76,7 +76,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
-    (p.image_icon_object_id IS NOT NULL) AS has_image,
+    p.image_icon_object_id,
     p.visibility,
     p.description,
     p.disclaimer,
@@ -219,7 +219,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
-    (p.image_icon_object_id IS NOT NULL) AS has_image,
+    p.image_icon_object_id,
     p.visibility,
     p.description,
     p.disclaimer,
