@@ -47,5 +47,5 @@ curl -X 'POST' \
 ## Run the Job
 
 ```sh
-CHUNKING_ENGINE=http://$HOST_IP_ADDRESS:8000 cargo run --bin pipeline-job
+CHUNKING_ENGINE=http://$HOST_IP_ADDRESS:8000 cargo run --bin rag-engine
 ```

@@ -5,7 +5,7 @@ From within the dev container
 Run the application and the piepline-job
 
 ```
-cargo run --bin pipeline-job
+cargo run --bin rag-engine
 ```
 
 ```

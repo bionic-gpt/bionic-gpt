@@ -88,7 +88,7 @@ airbyte-connector-container:
 build-web-server:
     # Copy in all our crates
     COPY --dir crates crates
-    RUN rm -rf crates/airbyte-connector crates/k8s-operator crates/pipeline-job
+    RUN rm -rf crates/airbyte-connector crates/k8s-operator crates/rag-engine
     COPY --dir Cargo.lock Cargo.toml .
     COPY --dir +npm-build/dist $PIPELINE_FOLDER/
 

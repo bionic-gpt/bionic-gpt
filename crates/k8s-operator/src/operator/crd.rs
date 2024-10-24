@@ -26,7 +26,7 @@ pub struct BionicSpec {
     pub hostname_url: String,
     #[serde(rename = "hash-bionicgpt")]
     pub hash_bionicgpt: String,
-    #[serde(rename = "hash-bionicgpt-pipeline-job")]
+    #[serde(rename = "hash-bionicgpt-rag-engine")]
     pub hash_bionicgpt_pipeline_job: String,
     #[serde(rename = "hash-bionicgpt-db-migrations")]
     pub hash_bionicgpt_db_migrations: String,

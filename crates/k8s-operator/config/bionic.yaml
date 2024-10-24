@@ -20,5 +20,5 @@ spec:
 
   # Image hashes to protect against supply chain attacks.
   hash-bionicgpt: sha256:8ce6134f50d329deb053bfa286c1fdd6bce3e8298cfdbe313009793d567e2da0
-  hash-bionicgpt-pipeline-job: sha256:4e043b1fd0128246150250fbb27cea065cf419b1ae134095fc36bc9d80e17f37
+  hash-bionicgpt-rag-engine: sha256:4e043b1fd0128246150250fbb27cea065cf419b1ae134095fc36bc9d80e17f37
   hash-bionicgpt-db-migrations: sha256:4fd67bf2aeaf1feace81b7fc4d8a83177eba4f68b39f875c7443f6a001798659

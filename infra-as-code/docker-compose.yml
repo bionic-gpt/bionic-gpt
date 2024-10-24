@@ -64,8 +64,8 @@ services:
         condition: service_healthy
   
   # Parses documents into chunks and creates embeddings.
-  pipeline-job:
-    image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:1.8.21
+  rag-engine:
+    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.8.21
     platform: linux/amd64
     environment:
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
