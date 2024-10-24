@@ -51,6 +51,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "airbyte-connector"
+version = "0.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "allocator-api2"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2692,6 +2702,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "object-storage"
+version = "0.1.0"
+dependencies = [
+ "db",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2879,21 +2896,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
-name = "pipeline-job"
-version = "0.1.0"
-dependencies = [
- "db",
- "embeddings-api",
- "pgvector",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "postgres"
 version = "0.19.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3044,13 +3046,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a3866219251662ec3b26fc217e3e05bf9c4f84325234dfb96bf0bf840889e49"
 
 [[package]]
-name = "rabbit-mq"
+name = "rag-engine"
 version = "0.1.0"
 dependencies = [
+ "db",
+ "embeddings-api",
+ "pgvector",
  "reqwest",
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
