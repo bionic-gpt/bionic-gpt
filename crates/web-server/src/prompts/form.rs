@@ -81,6 +81,12 @@ pub async fn upsert(
                 id,
             )
             .await?;
+            // Store the image if one was created
+            if let Some(image_object_id) = image_object_id {
+                queries::prompts::update_image()
+                    .bind(&transaction, &image_object_id, &id)
+                    .await?;
+            }
             update_datasets(&transaction, id, new_prompt_template.datasets).await?;
         } else {
             let prompt_id = insert_prompt(
