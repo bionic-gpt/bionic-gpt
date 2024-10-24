@@ -74,7 +74,7 @@ rag-engine-container:
     USER 1001
     COPY --chown=1001:1001 +build/$RAG_ENGINE_EXE_NAME rag-engine
     ENTRYPOINT ["./rag-engine"]
-    SAVE IMAGE --push $PIPELINE_IMAGE_NAME
+    SAVE IMAGE --push $RAG_ENGINE_IMAGE_NAME
      
 
 airbyte-connector-container:
