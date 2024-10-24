@@ -36,9 +36,9 @@ jobs:
         name: Scan for vulnerabilities
         uses: crazy-max/ghaction-container-scan@v3
         with:
-          image: ghcr.io/bionic-gpt/bionicgpt-pipeline-job:latest
+          image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:latest
       -
         name: Scan for vulnerabilities
         uses: crazy-max/ghaction-container-scan@v3
         with:
-          image: ghcr.io/bionic-gpt/bionicgpt-rabbitmq:latest
+          image: ghcr.io/bionic-gpt/bionicgpt-airbyte-connector:latest
