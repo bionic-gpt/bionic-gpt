@@ -2,7 +2,7 @@
 
 From within the dev container
 
-Run the application and the piepline-job
+Run the application and the rag engine
 
 ```
 cargo run --bin rag-engine

@@ -99,7 +99,9 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .query(By::XPath("//h3[contains(text(), 'My Prompt')]"))
+        .query(By::XPath(
+            "//table//td//strong[contains(text(), 'My Prompt')]",
+        ))
         .first()
         .await?
         .wait_until()
@@ -107,7 +109,7 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Edit']"))
+        .find(By::XPath("//table//td[.//button[text()='Edit']][1]"))
         .await?
         .click()
         .await?;
@@ -133,7 +135,9 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .query(By::XPath("//h3[contains(text(), 'My Prompt2')]"))
+        .query(By::XPath(
+            "//table//td//strong[contains(text(), 'My Prompt2')]",
+        ))
         .first()
         .await?
         .wait_until()

@@ -54,16 +54,20 @@ pub async fn upsert(
 
     let image_object_id = if let Some(image_icon) = &new_prompt_template.image_icon {
         if let Some(file_name) = &image_icon.metadata.file_name {
-            let id = object_storage::image_upload(
-                pool.clone(),
-                rbac.user_id,
-                team_id,
-                file_name,
-                &image_icon.contents,
-                Some((80, 80)),
-            )
-            .await?;
-            Some(id)
+            if file_name.is_empty() {
+                None
+            } else {
+                let id = object_storage::image_upload(
+                    pool.clone(),
+                    rbac.user_id,
+                    team_id,
+                    file_name,
+                    &image_icon.contents,
+                    Some((80, 80)),
+                )
+                .await?;
+                Some(id)
+            }
         } else {
             None
         }
