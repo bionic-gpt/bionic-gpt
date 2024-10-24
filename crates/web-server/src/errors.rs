@@ -85,3 +85,9 @@ impl From<db::PoolError> for CustomError {
         CustomError::Database(err.to_string())
     }
 }
+
+impl From<object_storage::StorageError> for CustomError {
+    fn from(err: object_storage::StorageError) -> CustomError {
+        CustomError::Database(err.to_string())
+    }
+}

@@ -1,7 +1,7 @@
 use super::super::{Authentication, CustomError};
 use crate::config::Config;
 use axum::{extract::Extension, response::IntoResponse};
-use axum_typed_multipart::{TryFromMultipart, TypedMultipart};
+use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use db::{authz, queries, Pool, Transaction, Visibility};
 use validator::Validate;
 use web_pages::{routes::prompts::Upsert, string_to_visibility};
@@ -28,7 +28,9 @@ pub struct NewPromptTemplate {
     pub example2: Option<String>,
     pub example3: Option<String>,
     pub example4: Option<String>,
-    pub image_icon: Option<axum::body::Bytes>,
+
+    // The image upload
+    pub image_icon: Option<FieldData<axum::body::Bytes>>,
 }
 
 pub async fn upsert(
@@ -41,7 +43,7 @@ pub async fn upsert(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let visibility = adjust_visibility(
         string_to_visibility(&new_prompt_template.visibility),
@@ -49,10 +51,25 @@ pub async fn upsert(
     );
 
     let system_prompt = non_empty_string(&new_prompt_template.system_prompt);
-    let image_bytes = new_prompt_template
-        .image_icon
-        .clone()
-        .map(|image| image.to_vec());
+
+    let image_object_id = if let Some(image_icon) = &new_prompt_template.image_icon {
+        if let Some(file_name) = &image_icon.metadata.file_name {
+            let id = object_storage::image_upload(
+                pool.clone(),
+                rbac.user_id,
+                team_id,
+                file_name,
+                &image_icon.contents,
+                Some((80, 80)),
+            )
+            .await?;
+            Some(id)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
 
     if new_prompt_template.validate().is_ok() {
         if let Some(id) = new_prompt_template.id {
@@ -64,12 +81,18 @@ pub async fn upsert(
                 id,
             )
             .await?;
+            // Store the image if one was created
+            if let Some(image_object_id) = image_object_id {
+                queries::prompts::update_image()
+                    .bind(&transaction, &image_object_id, &id)
+                    .await?;
+            }
             update_datasets(&transaction, id, new_prompt_template.datasets).await?;
         } else {
             let prompt_id = insert_prompt(
                 &transaction,
                 &new_prompt_template,
-                image_bytes,
+                image_object_id,
                 visibility,
                 system_prompt,
                 team_id,
@@ -142,18 +165,13 @@ async fn update_prompt(
     queries::prompts::delete_prompt_datasets()
         .bind(transaction, &id)
         .await?;
-    if let Some(image) = &new_prompt_template.image_icon {
-        queries::prompts::update_image()
-            .bind(transaction, &image.to_vec(), &id)
-            .await?;
-    }
     Ok(())
 }
 
 async fn insert_prompt(
     transaction: &Transaction<'_>,
     new_prompt_template: &NewPromptTemplate,
-    image_icon: Option<Vec<u8>>,
+    image_icon_object_id: Option<i32>,
     visibility: Visibility,
     system_prompt: Option<&String>,
     team_id: i32,
@@ -165,7 +183,7 @@ async fn insert_prompt(
             &new_prompt_template.model_id,
             &new_prompt_template.category_id,
             &new_prompt_template.name,
-            &image_icon,
+            &image_icon_object_id,
             &visibility,
             &system_prompt,
             &new_prompt_template.max_history_items,

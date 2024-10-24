@@ -1,0 +1,10 @@
+[package]
+name = "object-storage"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+db = { path = "../db" }
+image = "0.25.4"
+md5 = "0.7.0"
+mime_guess = "2.0.5"

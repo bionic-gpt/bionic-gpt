@@ -122,7 +122,7 @@ pub async fn upsert(
                 .await?;
 
             let system_prompt: Option<String> = None;
-            let image_icon: Option<Vec<u8>> = None;
+            let image_icon: Option<i32> = None;
 
             let context_size = if model_form.context_size != 0 {
                 model_form.context_size / 2

@@ -1,32 +1,11 @@
---: Prompt(temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
+--: Prompt(image_icon_object_id?, temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
 --: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?, example1?, example2?, example3?, example4?)
-
---! image
-SELECT image_icon FROM prompts p
-WHERE
-    p.id = :prompt_id
-AND
-    (
-        p.visibility='Team' 
-        AND p.model_id IN (
-        SELECT id FROM models WHERE team_id IN(
-            SELECT team_id 
-            FROM team_users 
-            WHERE user_id = current_app_user()
-        )
-        AND team_id = :team_id
-    )
-    OR 
-        (p.visibility='Company')
-    OR 
-        (p.visibility = 'Private' AND created_by = current_app_user()))
-LIMIT 1;
 
 --! update_image
 UPDATE 
     prompts 
 SET 
-    image_icon = :image_icon
+    image_icon_object_id = :image_icon_object_id
 WHERE
     id = :prompt_id
 AND
@@ -43,7 +22,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
-    (p.image_icon IS NOT NULL) AS has_image,
+    p.image_icon_object_id,
     p.visibility,
     p.description,
     p.disclaimer,
@@ -97,7 +76,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
-    (p.image_icon IS NOT NULL) AS has_image,
+    p.image_icon_object_id,
     p.visibility,
     p.description,
     p.disclaimer,
@@ -240,7 +219,7 @@ SELECT
     p.model_id,
     p.category_id,
     p.name,
-    (p.image_icon IS NOT NULL) AS has_image,
+    p.image_icon_object_id,
     p.visibility,
     p.description,
     p.disclaimer,
@@ -339,13 +318,13 @@ VALUES(
 );
     
 
---! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon?)
+--! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon_object_id?)
 INSERT INTO prompts (
     team_id, 
     model_id, 
     category_id, 
     name,
-    image_icon,
+    image_icon_object_id,
     visibility,
     system_prompt,
     max_history_items,
@@ -367,7 +346,7 @@ VALUES(
     :model_id,
     :category_id, 
     :name,
-    :image_icon,
+    :image_icon_object_id,
     :visibility,
     :system_prompt,
     :max_history_items,

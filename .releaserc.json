@@ -27,11 +27,11 @@
           "skipLogin": true
       }],
       ["@semantic-release-plus/docker", {
-          "name": "ghcr.io/bionic-gpt/bionicgpt-pipeline-job:latest",
+          "name": "ghcr.io/bionic-gpt/bionicgpt-rag-engine:latest",
           "skipLogin": true
       }],
       ["@semantic-release-plus/docker", {
-          "name": "ghcr.io/bionic-gpt/bionicgpt-rabbitmq:latest",
+          "name": "ghcr.io/bionic-gpt/bionicgpt-airbyte-connector:latest",
           "skipLogin": true
       }],
       ["@semantic-release/exec", {

@@ -16,7 +16,7 @@ use crate::services::mailhog;
 use crate::services::oauth2_proxy;
 use crate::services::observability;
 use crate::services::pgadmin;
-use crate::services::pipeline_job;
+use crate::services::rag_engine;
 use crate::services::tgi;
 use k8s_openapi::api::core::v1::Pod;
 use kube::api::ListParams;
@@ -94,7 +94,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
 
             if !development {
                 bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
-                pipeline_job::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+                rag_engine::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
             envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
@@ -169,7 +169,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             mailhog::delete(client.clone(), &namespace).await?;
 
             if !development {
-                pipeline_job::delete(client.clone(), &namespace).await?;
+                rag_engine::delete(client.clone(), &namespace).await?;
                 bionic::delete(client.clone(), &namespace).await?;
             }
             database::delete(client.clone(), &namespace).await?;

@@ -15,11 +15,11 @@ pub mod mailhog;
 pub mod oauth2_proxy;
 pub mod observability;
 pub mod pgadmin;
-pub mod pipeline_job;
+pub mod rag_engine;
 pub mod tgi;
 
 const BIONICGPT_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt";
-const BIONICGPT_PIPELINE_JOB_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-pipeline-job";
+const BIONICGPT_RAG_ENGINE_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-rag-engine";
 const BIONICGPT_DB_MIGRATIONS_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations";
 
 const ENVOYPROXY_IMAGE: &str = "envoyproxy/envoy:v1.28.0";

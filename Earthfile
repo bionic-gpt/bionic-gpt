@@ -4,8 +4,8 @@ FROM purtontech/rust-on-nails-devcontainer:1.3.3
 
 ARG --global APP_EXE_NAME=web-server
 ARG --global OPERATOR_EXE_NAME=k8s-operator
-ARG --global RABBITMQ_EXE_NAME=rabbit-mq
-ARG --global PIPELINE_EXE_NAME=pipeline-job
+ARG --global AIRBYTE_EXE_NAME=airbyte-connector
+ARG --global RAG_ENGINE_EXE_NAME=rag-engine
 ARG --global DBMATE_VERSION=2.2.0
 
 # Folders
@@ -23,9 +23,9 @@ ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
 ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
 ARG --global CE_IMAGE_NAME=bionic-gpt/bionic-ce:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
-ARG --global PIPELINE_IMAGE_NAME=bionic-gpt/bionicgpt-pipeline-job:latest
+ARG --global RAG_ENGINE_IMAGE_NAME=bionic-gpt/bionicgpt-rag-engine:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
-ARG --global RABBITMQ_IMAGE_NAME=bionic-gpt/bionicgpt-rabbitmq:latest
+ARG --global AIRBYTE_IMAGE_NAME=bionic-gpt/bionicgpt-airbyte-connector:latest
 
 WORKDIR /build
 
@@ -42,16 +42,16 @@ pull-request:
     BUILD +app-container
     BUILD +envoy-container
     BUILD +operator-container
-    BUILD +pipeline-job-container
-    BUILD +rabbitmq-container
+    BUILD +rag-engine-container
+    BUILD +airbyte-connector-container
 
 all:
     BUILD +migration-container
     BUILD +app-container
     BUILD +envoy-container
     BUILD +operator-container
-    BUILD +pipeline-job-container
-    BUILD +rabbitmq-container
+    BUILD +rag-engine-container
+    BUILD +airbyte-connector-container
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -68,27 +68,27 @@ npm-build:
     RUN cd $PIPELINE_FOLDER && npm run release
     SAVE ARTIFACT $PIPELINE_FOLDER/dist
 
-pipeline-job-container:
+rag-engine-container:
     FROM scratch
     # Don't run as root 
     USER 1001
-    COPY --chown=1001:1001 +build/$PIPELINE_EXE_NAME pipeline-job
-    ENTRYPOINT ["./pipeline-job"]
+    COPY --chown=1001:1001 +build/$RAG_ENGINE_EXE_NAME rag-engine
+    ENTRYPOINT ["./rag-engine"]
     SAVE IMAGE --push $PIPELINE_IMAGE_NAME
      
 
-rabbitmq-container:
+airbyte-connector-container:
     FROM scratch
     # Don't run as root 
     USER 1001
-    COPY --chown=1001:1001 +build/$RABBITMQ_EXE_NAME rabbit-mq
-    ENTRYPOINT ["./rabbit-mq"]
-    SAVE IMAGE --push $RABBITMQ_IMAGE_NAME
+    COPY --chown=1001:1001 +build/$AIRBYTE_EXE_NAME airbyte-connector
+    ENTRYPOINT ["./airbyte-connector"]
+    SAVE IMAGE --push $AIRBYTE_IMAGE_NAME
 
 build-web-server:
     # Copy in all our crates
     COPY --dir crates crates
-    RUN rm -rf crates/rabbit-mq crates/k8s-operator crates/pipeline-job
+    RUN rm -rf crates/airbyte-connector crates/k8s-operator crates/pipeline-job
     COPY --dir Cargo.lock Cargo.toml .
     COPY --dir +npm-build/dist $PIPELINE_FOLDER/
 
@@ -120,8 +120,8 @@ build:
             && cargo build --release --target x86_64-unknown-linux-musl
     END
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
-    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$PIPELINE_EXE_NAME
-    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RABBITMQ_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RAG_ENGINE_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$AIRBYTE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
 
 migration-container:
@@ -207,49 +207,3 @@ build-cli-windows:
     RUN cd k8s-operator \ 
         && cargo build --release --target x86_64-pc-windows-gnu
     SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
-
-# AWS Deployment
-bionic-cluster-delete:
-    ARG AWS_ACCESS_KEY_ID
-    ARG AWS_SECRET_ACCESS_KEY
-    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
-        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
-        && sudo mv /tmp/eksctl /usr/local/bin
-    RUN eksctl delete cluster -n bionic-gpt -r us-east-2
-
-bionic-cluster-update:
-    ARG AWS_ACCESS_KEY_ID
-    ARG AWS_SECRET_ACCESS_KEY
-    ARG AWS_ACCOUNT_ID
-    RUN sudo apt-get update && sudo apt-get install -y awscli
-    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
-        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
-        && sudo mv /tmp/eksctl /usr/local/bin
-    RUN curl -sLO "https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux" \
-        && sudo mv ./bionic-cli-linux /usr/local/bin/bionic \
-        && sudo chmod +x /usr/local/bin/bionic
-    RUN bionic -V
-    RUN eksctl utils write-kubeconfig --cluster bionic-gpt --region us-east-2
-    RUN kubectl get nodes
-    RUN bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
-
-bionic-cluster-create:
-    ARG AWS_ACCESS_KEY_ID
-    ARG AWS_SECRET_ACCESS_KEY
-    ARG AWS_ACCOUNT_ID
-    ARG TUNNEL_TOKEN
-    RUN sudo apt-get update && sudo apt-get install -y awscli
-    COPY --dir infra-as-code .
-    RUN curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" \
-        && tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp && rm eksctl_Linux_amd64.tar.gz \
-        && sudo mv /tmp/eksctl /usr/local/bin
-    RUN curl -sLO "https://github.com/bionic-gpt/bionic-gpt/releases/latest/download/bionic-cli-linux" \
-        && sudo mv ./bionic-cli-linux /usr/local/bin/bionic \
-        && sudo chmod +x /usr/local/bin/bionic
-    RUN bionic -V
-    RUN sed -i "s/{ACCOUNT_ID}/$AWS_ACCOUNT_ID/g" ./infra-as-code/cluster.yaml
-    RUN cat ./infra-as-code/cluster.yaml
-    RUN eksctl create cluster -f ./infra-as-code/cluster.yaml
-    RUN kubectl get nodes
-    RUN bionic install --pgadmin --hostname-url https://app.bionic-gpt.com
-    RUN bionic cloudflare --token $TUNNEL_TOKEN
