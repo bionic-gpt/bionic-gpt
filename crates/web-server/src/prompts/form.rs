@@ -1,7 +1,7 @@
 use super::super::{Authentication, CustomError};
 use crate::config::Config;
 use axum::{extract::Extension, response::IntoResponse};
-use axum_typed_multipart::{TryFromMultipart, TypedMultipart};
+use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use db::{authz, queries, Pool, Transaction, Visibility};
 use validator::Validate;
 use web_pages::{routes::prompts::Upsert, string_to_visibility};
@@ -28,7 +28,9 @@ pub struct NewPromptTemplate {
     pub example2: Option<String>,
     pub example3: Option<String>,
     pub example4: Option<String>,
-    pub image_icon: Option<axum::body::Bytes>,
+
+    // The image upload
+    pub image_icon: Option<FieldData<axum::body::Bytes>>,
 }
 
 pub async fn upsert(
@@ -41,7 +43,7 @@ pub async fn upsert(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let visibility = adjust_visibility(
         string_to_visibility(&new_prompt_template.visibility),
@@ -49,10 +51,25 @@ pub async fn upsert(
     );
 
     let system_prompt = non_empty_string(&new_prompt_template.system_prompt);
-    let _image_bytes = new_prompt_template
-        .image_icon
-        .clone()
-        .map(|image| image.to_vec());
+
+    let image_object_id = if let Some(image_icon) = &new_prompt_template.image_icon {
+        if let Some(file_name) = &image_icon.metadata.file_name {
+            let id = object_storage::image_upload(
+                pool.clone(),
+                rbac.user_id,
+                team_id,
+                file_name,
+                &image_icon.contents,
+                Some((80, 80)),
+            )
+            .await?;
+            Some(id)
+        } else {
+            None
+        }
+    } else {
+        None
+    };
 
     if new_prompt_template.validate().is_ok() {
         if let Some(id) = new_prompt_template.id {
@@ -69,7 +86,7 @@ pub async fn upsert(
             let prompt_id = insert_prompt(
                 &transaction,
                 &new_prompt_template,
-                None,
+                image_object_id,
                 visibility,
                 system_prompt,
                 team_id,
