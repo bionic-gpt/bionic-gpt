@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 db = { path = "../db" }
+object-storage = { path = "../object-storage" }
 assets = { path = "../web-assets" }
 web-pages = { path = "../web-pages" }
 embeddings-api = { path = "../embeddings-api" }

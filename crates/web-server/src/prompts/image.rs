@@ -5,7 +5,6 @@ use axum::extract::Extension;
 use axum::response::IntoResponse;
 use axum::response::Response;
 use db::authz;
-use db::queries;
 use db::Pool;
 use web_pages::routes::prompts::Image;
 
@@ -19,15 +18,18 @@ pub async fn image(
 
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let image = queries::prompts::image()
-        .bind(&transaction, &id, &team_id)
-        .one()
-        .await?;
-    // Convert stream to axum HTTP body
-    let bytes = Bytes::from(image);
+    let object = object_storage::get(pool, id, team_id).await?;
 
-    Ok(Response::builder()
-        .header("Content-Type", "image/png") // Change this to match your image type
-        .body(Body::from(bytes))
-        .unwrap())
+    if let Some(bytes) = object.object_data {
+        let bytes = Bytes::from(bytes);
+
+        Ok(Response::builder()
+            .header("Content-Type", object.mime_type) // Change this to match your image type
+            .body(Body::from(bytes))
+            .unwrap())
+    } else {
+        Err(CustomError::Database(
+            "No object data in that storage".to_string(),
+        ))
+    }
 }

@@ -1,7 +1,21 @@
 --: ObjectStorage(object_data?)
 
 --! get : ObjectStorage
-SELECT * FROM objects WHERE id = :id;
+SELECT 
+    object_name,
+    team_id,
+    object_data,
+    mime_type,
+    file_name,
+    file_size,
+    file_hash,
+    created_by
+FROM 
+    objects 
+WHERE 
+    id = :id 
+AND team_id = :team_id 
+LIMIT 1;
 
 --! insert
 INSERT INTO objects (
@@ -12,8 +26,7 @@ INSERT INTO objects (
     file_name,
     file_size,
     file_hash,
-    created_at,
-    updated_at
+    created_by
 ) VALUES (
     :object_name,
     :team_id,
@@ -22,9 +35,9 @@ INSERT INTO objects (
     :file_name,
     :file_size,
     :file_hash,
-    :created_at,
-    :updated_at
-);
+    :created_by
+)
+RETURNING id;
 
 --! delete
 DELETE FROM objects WHERE id = :id;
