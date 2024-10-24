@@ -1,6 +1,12 @@
 use db::{ObjectStorage, Pool, TokioPostgresError};
 
-pub fn upload(_pool: Pool, _object: ObjectStorage) -> Result<i32, TokioPostgresError> {
+pub fn upload(
+    _pool: Pool,
+    _user_id: i32,
+    _team_id: i32,
+    _file_name: &str,
+    _bytes: &[u8],
+) -> Result<i32, TokioPostgresError> {
     todo!()
 }
 
