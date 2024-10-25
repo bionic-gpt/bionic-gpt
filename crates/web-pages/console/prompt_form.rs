@@ -41,7 +41,7 @@ pub fn Form(
                         }
                         input {
                             "type": "hidden",
-                            id: "prompt-form-prompt-id",
+                            class: "set-my-prompt-id",
                             name: "prompt_id",
                             value: "{prompt_id}"
                         }

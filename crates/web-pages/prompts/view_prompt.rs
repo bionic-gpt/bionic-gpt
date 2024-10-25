@@ -46,7 +46,6 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     if let Some(example) = prompt.example1 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
@@ -56,7 +55,6 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     if let Some(example) = prompt.example2 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
@@ -66,7 +64,6 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     if let Some(example) = prompt.example3 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
@@ -76,7 +73,6 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     if let Some(example) = prompt.example4 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
