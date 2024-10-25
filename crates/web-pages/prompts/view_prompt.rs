@@ -6,6 +6,10 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
+    let example1 = prompt.example1.unwrap_or("".to_string());
+    let example2 = prompt.example2.unwrap_or("".to_string());
+    let example3 = prompt.example3.unwrap_or("".to_string());
+    let example4 = prompt.example4.unwrap_or("".to_string());
     rsx! {
         Drawer {
             label: "{prompt.name}",
@@ -37,45 +41,39 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     class: "mt-6 text-center",
                     "{prompt.description}"
                 }
-                h2 {
-                    class: "mt-12 mb-8 text-xl font-semibold",
-                    "Conversation Starters"
-                }
-                div {
-                    class: "flex flex-col gap-4",
-                    if let Some(example) = prompt.example1 {
-                        if ! example.is_empty() {
+                if ! example2.is_empty() || ! example2.is_empty()  || ! example3.is_empty() || ! example4.is_empty() {
+                    h2 {
+                        class: "mt-12 mb-8 text-xl font-semibold",
+                        "Conversation Starters"
+                    }
+                    div {
+                        class: "flex flex-col gap-4",
+                        if ! example1.is_empty() {
                             ExampleForm {
                                 team_id,
                                 prompt_id: prompt.id,
-                                example: example
+                                example: example1
                             }
                         }
-                    }
-                    if let Some(example) = prompt.example2 {
-                        if ! example.is_empty() {
+                        if ! example2.is_empty() {
                             ExampleForm {
                                 team_id,
                                 prompt_id: prompt.id,
-                                example: example
+                                example: example2
                             }
                         }
-                    }
-                    if let Some(example) = prompt.example3 {
-                        if ! example.is_empty() {
+                        if ! example3.is_empty() {
                             ExampleForm {
                                 team_id,
                                 prompt_id: prompt.id,
-                                example: example
+                                example: example3
                             }
                         }
-                    }
-                    if let Some(example) = prompt.example4 {
-                        if ! example.is_empty() {
+                        if ! example4.is_empty() {
                             ExampleForm {
                                 team_id,
                                 prompt_id: prompt.id,
-                                example: example
+                                example: example4
                             }
                         }
                     }

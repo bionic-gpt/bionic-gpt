@@ -53,45 +53,47 @@ pub fn Page(
                     extra knowledge, and any combination of skills.".to_string()
             }
 
-            div {
-                class: "mx-auto max-w-3xl overflow-x-clip px-4",
-                TabContainer {
-                    class: "w-full",
-                    if prompts.len() < 20 {
-                        // Create an All tab showing everything
-                        AssistantTab {
-                            checked: true,
-                            category: Category {
-                                id: -1,
-                                name: "All".to_string(),
-                                description: "All assistants".to_string()
-                            },
-                            prompts: prompts.clone(),
-                            rbac: rbac.clone(),
-                            team_id
+            if ! prompts.is_empty() {
+                div {
+                    class: "mx-auto max-w-3xl overflow-x-clip px-4",
+                    TabContainer {
+                        class: "w-full",
+                        if prompts.len() < 20 {
+                            // Create an All tab showing everything
+                            AssistantTab {
+                                checked: true,
+                                category: Category {
+                                    id: -1,
+                                    name: "All".to_string(),
+                                    description: "All assistants".to_string()
+                                },
+                                prompts: prompts.clone(),
+                                rbac: rbac.clone(),
+                                team_id
+                            }
                         }
-                    }
-                    for (index, (category, cat_prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
-                        AssistantTab {
-                            checked: prompts.len() >= 20 && index == 0,
-                            category,
-                            prompts: cat_prompts,
-                            rbac: rbac.clone(),
-                            team_id
-                        }
-                    }
-
-                    for prompt in &prompts {
-                        super::delete::DeleteDrawer {
-                            team_id: team_id,
-                            id: prompt.id,
-                            trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id)
+                        for (index, (category, cat_prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
+                            AssistantTab {
+                                checked: prompts.len() >= 20 && index == 0,
+                                category,
+                                prompts: cat_prompts,
+                                rbac: rbac.clone(),
+                                team_id
+                            }
                         }
 
-                        super::view_prompt::ViewDrawer {
-                            team_id: team_id,
-                            prompt: prompt.clone(),
-                            trigger_id: format!("view-trigger-{}-{}", prompt.id, team_id)
+                        for prompt in &prompts {
+                            super::delete::DeleteDrawer {
+                                team_id: team_id,
+                                id: prompt.id,
+                                trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id)
+                            }
+
+                            super::view_prompt::ViewDrawer {
+                                team_id: team_id,
+                                prompt: prompt.clone(),
+                                trigger_id: format!("view-trigger-{}-{}", prompt.id, team_id)
+                            }
                         }
                     }
                 }
