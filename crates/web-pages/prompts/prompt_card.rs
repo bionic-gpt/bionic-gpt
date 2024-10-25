@@ -9,16 +9,17 @@ use dioxus::prelude::*;
 pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
     rsx! {
         Box {
-            class: "cursor-pointer hover:bg-base-200",
+            class: "cursor-pointer hover:bg-base-200 w-full",
             drawer_trigger: format!("view-trigger-{}-{}", prompt.id, team_id),
             BoxHeader {
-                class: "truncate ellipses flex justify-between",
+                class: "truncate ellipses flex justify-between p-2",
                 title: "{prompt.name}",
                 super::visibility::VisLabel {
                     visibility: prompt.visibility
                 }
             }
             BoxBody {
+                class: "m-0 p-2",
                 div {
                     class: "flex w-full",
                     if let Some(object_id) = prompt.image_icon_object_id {
