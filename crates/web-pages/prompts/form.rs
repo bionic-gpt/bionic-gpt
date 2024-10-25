@@ -29,7 +29,7 @@ pub fn Form(
     example2: Option<String>,
     example3: Option<String>,
     example4: Option<String>,
-    is_saas: bool,
+    can_make_assistant_public: bool,
 ) -> Element {
     let example1 = example1.unwrap_or("".to_string());
     let example2 = example2.unwrap_or("".to_string());
@@ -58,7 +58,7 @@ pub fn Form(
                                 models: models.clone(),
                                 model_id,
                                 description: description.clone(),
-                                is_saas
+                                can_make_assistant_public
                             }
                         }
                         TabPanel {
@@ -135,7 +135,7 @@ fn AssistantTab(
     models: Vec<Model>,
     model_id: i32,
     description: String,
-    is_saas: bool,
+    can_make_assistant_public: bool,
 ) -> Element {
     rsx!(
         div {
@@ -189,7 +189,7 @@ fn AssistantTab(
                     selected_value: "{crate::visibility_to_string(visibility)}",
                     {crate::visibility_to_string(Visibility::Team)}
                 },
-                if !is_saas {
+                if can_make_assistant_public {
                     SelectOption {
                         value: "{crate::visibility_to_string(Visibility::Company)}",
                         selected_value: "{crate::visibility_to_string(visibility)}",

@@ -55,22 +55,35 @@ function loadEverything() {
     themeSwitcher()
 }
 
-// Called when the page loads i.e. after a page refresh
-document.addEventListener('turbo:load', () => {
-    loadEverything()
-})
-
 // Called when you click a link in the sidebar and it updates the main content
 document.addEventListener('turbo:frame-load', (event: Event) => {
+    console.log('turbo:frame-load')
+
+    loadEverything();
+
     const frame = event.target as HTMLIFrameElement | null;
     if (frame?.id === "main-content") {
         const url = new URL(frame.src);
         history.pushState({}, '', url.toString());
-        loadEverything();
     }
 });
 
-document.addEventListener('turbo:fetch-request-error', (e) => {
-    console.log('turbo:fetch-request-error')
-    location.reload()
-})
+// ERROR HANDLING
+document.addEventListener('turbo:before-fetch-response', (event: Event) => {
+    console.log('turbo:before-fetch-response')
+    const customEvent = event as CustomEvent<{ fetchResponse?: { succeeded: boolean; response: Response } }>;
+
+    if (customEvent.detail?.fetchResponse) {
+        const { fetchResponse } = customEvent.detail;
+
+        if (!fetchResponse.succeeded || !fetchResponse.response.ok) {
+            // Extract the response text and display it as an error message
+            fetchResponse.response.text().then(responseText => {
+                alert(responseText || "Failed to load the content. Please try again later.");
+            }).catch(() => {
+                alert("Fetch response failed");
+            });
+        }
+    }
+    event.stopPropagation();
+});

@@ -53,7 +53,7 @@ pub async fn upsert(
     };
 
     match (model_form.validate(), model_form.id) {
-        (Ok(_), Some(id)) => {
+        (Ok(_), Some(model_id)) => {
             // The form is valid save to the database
             queries::models::update()
                 .bind(
@@ -65,17 +65,17 @@ pub async fn upsert(
                     &model_form.tpm_limit,
                     &model_form.rpm_limit,
                     &model_form.context_size,
-                    &id,
+                    &model_id,
                 )
                 .await?;
 
             let system_prompt: Option<&String> = None;
 
-            if let Some(id) = model_form.prompt_id {
+            if let Some(prompt_id) = model_form.prompt_id {
                 queries::prompts::update()
                     .bind(
                         &transaction,
-                        &id,
+                        &model_id,
                         &0, // Set category to uncategorized
                         &model_form.display_name,
                         &db::Visibility::Company,
@@ -92,7 +92,7 @@ pub async fn upsert(
                         &Some(&model_form.example3),
                         &Some(&model_form.example4),
                         &db::PromptType::Model,
-                        &id,
+                        &prompt_id,
                     )
                     .await?;
             }

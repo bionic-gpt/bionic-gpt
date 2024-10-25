@@ -167,12 +167,6 @@ pub mod routes {
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/new_chat")]
-        pub struct NewChat {
-            pub team_id: i32,
-        }
-
-        #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/:team_id/console/delete/:id")]
         pub struct Delete {
             pub team_id: i32,

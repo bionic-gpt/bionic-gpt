@@ -1,4 +1,5 @@
 pub mod console_stream;
+pub mod conversation;
 pub mod delete;
 pub mod empty_stream;
 pub mod history_drawer;

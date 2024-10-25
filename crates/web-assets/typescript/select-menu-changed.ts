@@ -2,31 +2,36 @@ export const modelChanged = () => {
     // Select the target element you want to observe
     const targetElement = document.getElementById('model-selector'); // Replace with your specific selector
 
-    // Helper function to get the 'data-value' from the first child with the 'selected-option' class
+    // Helper function to get the 'data-value' from the target element
     const getSelectedOptionValue = () => {
-        return targetElement?.getAttribute('data-value')
+        return targetElement?.getAttribute('data-value');
     };
 
-    // Set the ID on page load if 'data-value' is present
-    const initialVal = getSelectedOptionValue();
-    const hiddenField = document.getElementById('prompt-form-prompt-id');
-    if (hiddenField instanceof HTMLInputElement && initialVal) {
-        console.log('Setting prompt form value on page load');
-        hiddenField.value = initialVal;
-    }
+    // Reference to all hidden input fields with the class 'set-my-prompt-id'
+    const hiddenFields = document.querySelectorAll<HTMLInputElement>('input.set-my-prompt-id[type="hidden"]');
 
-    // Create a callback function to execute when mutations are observed
+    // Function to update all hidden fields
+    const updateHiddenFields = () => {
+        const val = getSelectedOptionValue();
+        console.log('data-value attribute changed:', val);
+
+        if (val) {
+            console.log('Updating hidden fields');
+            hiddenFields.forEach((field) => {
+                field.value = val;
+            });
+        }
+    };
+
+    // Set the initial value on page load if 'data-value' is present
+    updateHiddenFields();
+
+    // Callback function to execute when mutations are observed
     const callback = (mutationsList: MutationRecord[]) => {
         for (const mutation of mutationsList) {
             // Check if the 'data-value' attribute was modified
             if (mutation.type === 'attributes' && mutation.attributeName === 'data-value') {
-                const val = getSelectedOptionValue();
-                console.log('data-value attribute changed:', val);
-
-                if (hiddenField instanceof HTMLInputElement && val) {
-                    console.log('Updating prompt form');
-                    hiddenField.value = val;
-                }
+                updateHiddenFields();
             }
         }
     };
@@ -36,9 +41,9 @@ export const modelChanged = () => {
 
     // Options for the observer (which mutations to observe)
     const config = {
-        attributes: true, // Observe changes to attributes
+        attributes: true,               // Observe changes to attributes
         attributeFilter: ['data-value'], // Only observe changes to the 'data-value' attribute
-        subtree: true, // Include child elements in the observation
+        subtree: true,                  // Include child elements in the observation
     };
 
     // Start observing the target element for configured mutations

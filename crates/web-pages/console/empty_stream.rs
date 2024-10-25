@@ -6,7 +6,7 @@ use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> Element {
+pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
     rsx! {
         div {
             class: "flex h-[calc(100%-100px)] overflow-y-auto justify-center items-center",
@@ -21,7 +21,6 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
                     if let Some(example) = prompt.example1 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
@@ -31,7 +30,6 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
                     if let Some(example) = prompt.example2 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
@@ -41,7 +39,6 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
                     if let Some(example) = prompt.example3 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
@@ -51,7 +48,6 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
                     if let Some(example) = prompt.example4 {
                         if ! example.is_empty() {
                             ExampleForm {
-                                conversation_id: 1,
                                 team_id,
                                 prompt_id: prompt.id,
                                 example: example
@@ -65,18 +61,14 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> 
 }
 
 #[component]
-pub fn ExampleForm(conversation_id: i64, prompt_id: i32, team_id: i32, example: String) -> Element {
+pub fn ExampleForm(prompt_id: i32, team_id: i32, example: String) -> Element {
     rsx! {
         form {
             class: "w-full",
             method: "post",
             action: routes::console::SendMessage{team_id}.to_string(),
             input {
-                "type": "hidden",
-                name: "conversation_id",
-                value: "{conversation_id}"
-            }
-            input {
+                class: "set-my-prompt-id",
                 "type": "hidden",
                 name: "prompt_id",
                 value: "{prompt_id}"

@@ -1,7 +1,6 @@
 mod conversation;
 mod delete;
 mod index;
-mod new_chat;
 mod send_message;
 mod update_response;
 use axum::Router;
@@ -13,6 +12,5 @@ pub fn routes() -> Router {
         .typed_get(index::index)
         .typed_post(send_message::send_message)
         .typed_post(update_response::update_response)
-        .typed_post(new_chat::new_chat)
         .typed_post(delete::delete)
 }

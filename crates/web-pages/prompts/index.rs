@@ -18,7 +18,6 @@ pub fn Page(
     datasets: Vec<Dataset>,
     models: Vec<Model>,
     categories: Vec<Category>,
-    is_saas: bool,
 ) -> Element {
     // Get categories with more than one prompt
     let categories_with_prompts = get_categories_with_prompts(prompts.clone(), categories.clone());
@@ -35,7 +34,7 @@ pub fn Page(
                 div {
                     a {
                         href: crate::routes::prompts::MyPrompts{team_id}.to_string(),
-                        class: "btn btn-ghost btn-sm mr-4",
+                        class: "btn btn-ghost btn-sm !font-bold mr-4",
                         "My Assistants"
                     }
                     Button {
@@ -53,45 +52,47 @@ pub fn Page(
                     extra knowledge, and any combination of skills.".to_string()
             }
 
-            div {
-                class: "mx-auto max-w-3xl overflow-x-clip px-4",
-                TabContainer {
-                    class: "w-full",
-                    if prompts.len() < 20 {
-                        // Create an All tab showing everything
-                        AssistantTab {
-                            checked: true,
-                            category: Category {
-                                id: -1,
-                                name: "All".to_string(),
-                                description: "All assistants".to_string()
-                            },
-                            prompts: prompts.clone(),
-                            rbac: rbac.clone(),
-                            team_id
+            if ! prompts.is_empty() {
+                div {
+                    class: "mx-auto max-w-3xl overflow-x-clip px-4",
+                    TabContainer {
+                        class: "w-full",
+                        if prompts.len() < 20 {
+                            // Create an All tab showing everything
+                            AssistantTab {
+                                checked: true,
+                                category: Category {
+                                    id: -1,
+                                    name: "All".to_string(),
+                                    description: "All assistants".to_string()
+                                },
+                                prompts: prompts.clone(),
+                                rbac: rbac.clone(),
+                                team_id
+                            }
                         }
-                    }
-                    for (index, (category, cat_prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
-                        AssistantTab {
-                            checked: prompts.len() >= 20 && index == 0,
-                            category,
-                            prompts: cat_prompts,
-                            rbac: rbac.clone(),
-                            team_id
-                        }
-                    }
-
-                    for prompt in &prompts {
-                        super::delete::DeleteDrawer {
-                            team_id: team_id,
-                            id: prompt.id,
-                            trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id)
+                        for (index, (category, cat_prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
+                            AssistantTab {
+                                checked: prompts.len() >= 20 && index == 0,
+                                category,
+                                prompts: cat_prompts,
+                                rbac: rbac.clone(),
+                                team_id
+                            }
                         }
 
-                        super::view_prompt::ViewDrawer {
-                            team_id: team_id,
-                            prompt: prompt.clone(),
-                            trigger_id: format!("view-trigger-{}-{}", prompt.id, team_id)
+                        for prompt in &prompts {
+                            super::delete::DeleteDrawer {
+                                team_id: team_id,
+                                id: prompt.id,
+                                trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id)
+                            }
+
+                            super::view_prompt::ViewDrawer {
+                                team_id: team_id,
+                                prompt: prompt.clone(),
+                                trigger_id: format!("view-trigger-{}-{}", prompt.id, team_id)
+                            }
                         }
                     }
                 }
@@ -121,7 +122,7 @@ pub fn Page(
                 example2: None,
                 example3: None,
                 example4: None,
-                is_saas
+                can_make_assistant_public: rbac.can_make_assistant_public()
             }
         }
     }
