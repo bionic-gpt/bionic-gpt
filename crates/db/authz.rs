@@ -132,6 +132,10 @@ pub struct Rbac {
 }
 
 impl Rbac {
+    pub fn can_make_assistant_public(&self) -> bool {
+        self.permissions.contains(&Permission::MakeAssistantPublic)
+    }
+
     pub fn can_use_api_keys(&self) -> bool {
         self.permissions.contains(&Permission::CreateApiKeys)
     }

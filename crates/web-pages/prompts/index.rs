@@ -18,7 +18,6 @@ pub fn Page(
     datasets: Vec<Dataset>,
     models: Vec<Model>,
     categories: Vec<Category>,
-    is_saas: bool,
 ) -> Element {
     // Get categories with more than one prompt
     let categories_with_prompts = get_categories_with_prompts(prompts.clone(), categories.clone());
@@ -123,7 +122,7 @@ pub fn Page(
                 example2: None,
                 example3: None,
                 example4: None,
-                is_saas
+                can_make_assistant_public: rbac.can_make_assistant_public()
             }
         }
     }

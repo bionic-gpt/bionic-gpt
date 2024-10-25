@@ -155,7 +155,7 @@ pub fn Page(
                     example2: prompt.example2,
                     example3: prompt.example3,
                     example4: prompt.example4,
-                    is_saas
+                    can_make_assistant_public: rbac.can_make_assistant_public()
                 }
             }
 
@@ -183,7 +183,7 @@ pub fn Page(
                 example2: None,
                 example3: None,
                 example4: None,
-                is_saas
+                can_make_assistant_public: rbac.can_make_assistant_public()
             }
         }
     }
