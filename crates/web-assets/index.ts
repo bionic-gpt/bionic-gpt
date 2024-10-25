@@ -57,16 +57,20 @@ function loadEverything() {
 
 // Called when you click a link in the sidebar and it updates the main content
 document.addEventListener('turbo:frame-load', (event: Event) => {
+    console.log('turbo:frame-load')
+
+    loadEverything();
+
     const frame = event.target as HTMLIFrameElement | null;
     if (frame?.id === "main-content") {
         const url = new URL(frame.src);
         history.pushState({}, '', url.toString());
-        loadEverything();
     }
 });
 
 // ERROR HANDLING
 document.addEventListener('turbo:before-fetch-response', (event: Event) => {
+    console.log('turbo:before-fetch-response')
     const customEvent = event as CustomEvent<{ fetchResponse?: { succeeded: boolean; response: Response } }>;
 
     if (customEvent.detail?.fetchResponse) {
