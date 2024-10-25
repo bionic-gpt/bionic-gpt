@@ -99,15 +99,10 @@ fn Head(
                     id: conversation_id
                 }
             }
-            form {
-                method: "post",
-                action: crate::routes::console::NewChat{team_id}.to_string(),
-                Button {
-                    class: "mr-2",
-                    button_scheme: ButtonScheme::Default,
-                    button_type: ButtonType::Submit,
-                    "New Chat"
-                }
+            a {
+                href: crate::routes::console::Index{team_id}.to_string(),
+                class: "btn btn-primary btn-sm mr-4",
+                "New Chat"
             }
         }
     }
