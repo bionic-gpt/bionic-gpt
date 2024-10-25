@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 pub fn Form(
     team_id: i32,
     prompt_id: i32,
-    conversation_id: i64,
+    conversation_id: Option<i64>,
     lock_console: bool,
     disclaimer: String,
 ) -> Element {
@@ -32,10 +32,12 @@ pub fn Form(
                 div {
                     class: "flex items-center justify-center",
                     div {
-                        input {
-                            "type": "hidden",
-                            name: "conversation_id",
-                            value: "{conversation_id}"
+                        if let Some(conversation_id) = conversation_id {
+                            input {
+                                "type": "hidden",
+                                name: "conversation_id",
+                                value: "{conversation_id}"
+                            }
                         }
                         input {
                             "type": "hidden",

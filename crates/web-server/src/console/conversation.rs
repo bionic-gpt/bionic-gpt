@@ -61,8 +61,8 @@ pub async fn conversation(
         .await?;
 
     let html = render_with_props(
-        console::index::Page,
-        console::index::PageProps {
+        console::conversation::Conversation,
+        console::conversation::ConversationProps {
             team_id,
             rbac,
             conversation_id,

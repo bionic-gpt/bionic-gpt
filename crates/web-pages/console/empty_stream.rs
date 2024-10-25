@@ -6,7 +6,7 @@ use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn EmptyStream(prompt: SinglePrompt, conversation_id: i64, team_id: i32) -> Element {
+pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
     rsx! {
         div {
             class: "flex h-[calc(100%-100px)] overflow-y-auto justify-center items-center",

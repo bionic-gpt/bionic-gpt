@@ -1,44 +1,41 @@
 use super::super::{Authentication, CustomError};
 use axum::extract::Extension;
-use axum::response::IntoResponse;
+use axum::response::Html;
 use db::authz;
-use db::queries::conversations;
-use db::{Conversation, Pool};
+use db::queries::prompts;
+use db::Pool;
 use web_pages::routes::console::Index;
+use web_pages::{console, render_with_props};
 
 pub async fn index(
     Index { team_id }: Index,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-) -> Result<impl IntoResponse, CustomError> {
+) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    // Get the latest conversation
-    let conversation: Result<Conversation, db::TokioPostgresError> =
-        conversations::get_latest_conversation()
-            .bind(&transaction)
-            .one()
-            .await;
+    let prompts = prompts::prompts()
+        .bind(&transaction, &team_id, &db::PromptType::Model)
+        .all()
+        .await?;
 
-    let conversation_id = if let Ok(conversation) = conversation {
-        conversation.id
-    } else {
-        conversations::create_conversation()
-            .bind(&transaction, &team_id, &None)
-            .one()
-            .await?
-    };
+    let prompt = prompts::prompt()
+        .bind(&transaction, &prompts.first().unwrap().id, &team_id)
+        .one()
+        .await?;
 
-    transaction.commit().await?;
-
-    super::super::layout::redirect(
-        &web_pages::routes::console::Conversation {
+    let html = render_with_props(
+        console::index::NewConversation,
+        console::index::NewConversationProps {
             team_id,
-            conversation_id,
-        }
-        .to_string(),
-    )
+            rbac,
+            prompt,
+            prompts,
+        },
+    );
+
+    Ok(Html(html))
 }
