@@ -13,10 +13,15 @@ export const selectMenu = () => {
                 // Find the corresponding option with the stored value
                 const correspondingOption = options.querySelector(`[data-value="${storedValue}"]`) as HTMLElement;
 
-                // Use the text content of the first <span> inside the corresponding option if it exists
-                const firstSpan = correspondingOption?.querySelector('span');
-                selectedOption.textContent = firstSpan?.textContent?.trim() || storedValue;
-                selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
+                if (correspondingOption) {
+                    // Use the text content of the first <span> inside the corresponding option if it exists
+                    const firstSpan = correspondingOption.querySelector('span');
+                    selectedOption.textContent = firstSpan?.textContent?.trim() || storedValue;
+                    selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
+                } else {
+                    // If the stored value is no longer present, remove it from localStorage
+                    localStorage.removeItem(menuId);
+                }
             }
         }
 
