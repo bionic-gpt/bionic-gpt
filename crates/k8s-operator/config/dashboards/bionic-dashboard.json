@@ -22,91 +22,28 @@
   "links": [],
   "panels": [
     {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 22,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "# bionicGPT Dashboard\n",
-        "mode": "markdown"
-      },
-      "pluginVersion": "11.2.0",
-      "type": "text"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 2
+        "y": 0
       },
-      "id": 23,
+      "id": 6,
       "panels": [],
-      "title": "Users",
+      "title": "System Usage",
       "type": "row"
     },
     {
       "datasource": {
-        "default": false,
         "type": "grafana-postgresql-datasource",
         "uid": "PFC1A148638D9F5E9"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "continuous-GrYlRd"
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 8,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "fieldMinMax": true,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -125,34 +62,45 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 3
+        "y": 1
       },
-      "id": 5,
+      "id": 24,
       "options": {
+        "displayMode": "lcd",
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "top",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
       },
+      "pluginVersion": "11.3.0",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
+            "uid": "fe0nnk7cevm68c"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('HOUR', created_datetime) AS created_datetime,\n  email AS email,\n  COUNT(*) AS count\nFROM (\n  SELECT\n    chats.created_at  AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('HOUR', created_datetime),\n  email\nORDER BY\n  count DESC\nLIMIT 10000;",
+          "rawSql": "SELECT \n    m.name AS model_name,\n    SUM(c.tokens_sent) AS \"Total Tokens Sent\",\n    SUM(c.tokens_received) AS \"Total Tokens Received\"\nFROM \n    public.chats c\nJOIN \n    public.conversations conv ON c.conversation_id = conv.id\nJOIN \n    public.prompts p ON c.prompt_id = p.id\nJOIN \n    public.models m ON p.model_id = m.id\nWHERE \n    $__timeFilter(c.created_at)\nGROUP BY \n    m.name\nORDER BY \n    m.name;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -173,12 +121,349 @@
           }
         }
       ],
-      "title": "Chats Per User Per Day",
+      "title": "Model Token Totals",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 23,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH user_activity AS (\n    SELECT\n        u.id AS user_id,\n        DATE_TRUNC('month', c.created_at) AS activity_month, -- Truncate the chat activity to month\n        COUNT(DISTINCT DATE(c.created_at)) AS active_days      -- Count distinct active days per user\n    FROM\n        public.users u\n    JOIN \n        public.conversations conv ON u.id = conv.user_id      -- Join users and conversations\n    JOIN \n        public.chats c ON conv.id = c.conversation_id         -- Join conversations and chats\n    WHERE\n        c.created_at > u.created_at                           -- Only count activity after the registration day\n        AND $__timeFilter(c.created_at)                       -- Apply Grafana's time filter for the chats\n    GROUP BY\n        u.id, DATE_TRUNC('month', c.created_at)               -- Group by user and month\n),\nmonthly_active_users AS (\n    SELECT\n        activity_month,                   -- Month of activity\n        COUNT(DISTINCT user_id) AS MAU    -- Count distinct active users for the month\n    FROM\n        user_activity\n    WHERE\n        active_days > 0                   -- Ensure the user was active at least one day different from registration\n    GROUP BY\n        activity_month                    -- Group by the month\n    ORDER BY\n        activity_month                    -- Order by the activity month for time series\n)\nSELECT\n    activity_month,\n    MAU                                    -- Number of active users for each month\nFROM\n    monthly_active_users;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Monthly Active Users",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "description": "Based on Chat table, the number of unique registered users using system in that week",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 22,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 17,
+        "x": 0,
+        "y": 19
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH active_users AS (\n    SELECT\n        users.id AS user_id,                               -- User ID\n        DATE_TRUNC('week', chats.created_at) AS week       -- Truncate the chat creation date to the week\n    FROM\n        users\n    JOIN\n        conversations ON users.id = conversations.user_id  -- Join users with conversations\n    JOIN\n        chats ON chats.conversation_id = conversations.id  -- Join conversations with chats\n    WHERE\n        $__timeFilter(chats.created_at)                    -- Filter based on selected time range in Grafana\n    GROUP BY\n        users.id, week                                     -- Group by user ID and week\n)\nSELECT\n    week,                                                  -- Week\n    COUNT(DISTINCT user_id) AS active_user_count           -- Count of distinct active users per week\nFROM\n    active_users\nGROUP BY\n    week\nORDER BY\n    week;                                                  -- Order by week for time series\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "WITH weekly_registrations AS (\n    -- Count users registered in each week\n    SELECT\n        DATE_TRUNC('week', u.created_at) AS week,   -- Truncate registration date to the week\n        COUNT(u.id) AS weekly_new_registrations     -- Count of users registered in that week\n    FROM\n        public.users u\n    WHERE\n        $__timeFilter(u.created_at)                 -- Apply Grafana's time filter for the selected period\n    GROUP BY\n        week\n),\nactive_users AS (\n    -- Get active users (users who have had chats) in each week\n    SELECT\n        DATE_TRUNC('week', c.created_at) AS week,   -- Truncate chat activity to the week\n        conv.user_id                                -- Get user ID from conversations\n    FROM\n        public.chats c\n    JOIN\n        public.conversations conv ON c.conversation_id = conv.id -- Join chats with conversations to get user_id\n    WHERE\n        $__timeFilter(c.created_at)                 -- Apply Grafana's time filter for the selected period\n    GROUP BY\n        week, conv.user_id                          -- Group by week and user ID to find unique active users per week\n),\nactive_non_new_users AS (\n    -- Find active users who did not register in the same week they were active\n    SELECT DISTINCT\n        au.week,\n        au.user_id\n    FROM\n        active_users au\n    LEFT JOIN\n        public.users u ON au.user_id = u.id\n    WHERE\n        DATE_TRUNC('week', u.created_at) != au.week -- Exclude users who registered the same week they were active\n)\n-- Final output\nSELECT\n    wr.week,                                                   -- Week (starting on Monday)\n    wr.weekly_new_registrations,                               -- New user registrations in the week\n    SUM(wr.weekly_new_registrations) OVER (ORDER BY wr.week) AS running_total_users, -- Running total of registered users\n    COUNT(anu.user_id) AS active_non_new_users                 -- Active users who were not registered that same week\nFROM\n    weekly_registrations wr\nLEFT JOIN\n    active_non_new_users anu ON wr.week = anu.week             -- Join with active users who are not new\nGROUP BY\n    wr.week, wr.weekly_new_registrations\nORDER BY\n    wr.week;",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Active Weekly Users",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "default": false,
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 17,
+        "y": 19
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n    COUNT(DISTINCT users.id) AS active_users_count  -- Count distinct active users\nFROM\n    public.users\nJOIN\n    public.conversations ON users.id = conversations.user_id  -- Join users with conversations\nJOIN\n    public.chats ON chats.conversation_id = conversations.id  -- Join conversations with chats\nWHERE\n    chats.created_at >= DATE_TRUNC('week', CURRENT_DATE)      -- Filter for chats within the current week\n    AND chats.created_at < DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '1 week';\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Active Users for Current Week",
+      "type": "stat"
+    },
+    {
+      "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "PFC1A148638D9F5E9"
       },
@@ -196,8 +481,8 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 58,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -241,9 +526,9 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 27
       },
-      "id": 6,
+      "id": 1,
       "options": {
         "legend": {
           "calcs": [],
@@ -256,17 +541,47 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.3.0",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
+            "uid": "fe0nnk7cevm68c"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('DAY', created_datetime) AS created_datetime,\n  COUNT(id) AS \"Total Prompts\"\nFROM (\n  SELECT\n    chats.created_at AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('DAY', created_datetime)\nORDER BY\n  \"Total Prompts\" DESC\nLIMIT 10000;",
+          "rawSql": "SELECT \n    DATE_TRUNC('day', created_at) AS day,  -- Group by day\n    COUNT(*) AS total_chats_via_frontend               -- Total number of rows for each day\nFROM \n    public.chats\nWHERE \n    $__timeFilter(created_at)            -- Apply Grafana's time filter for the selected time range\nGROUP BY \n    day                                  -- Grouping by day\nORDER BY \n    day;\n",
           "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT \n    DATE_TRUNC('day', created_at) AS day,  -- Group by day\n    COUNT(*) AS total_api_chats               -- Total number of rows for each day\nFROM \n    public.api_chats\nWHERE \n    $__timeFilter(created_at)            -- Apply Grafana's time filter for the selected time range\nGROUP BY \n    day                                  -- Grouping by day\nORDER BY \n    day;",
+          "refId": "B",
           "sql": {
             "columns": [
               {
@@ -291,7 +606,6 @@
     },
     {
       "datasource": {
-        "default": false,
         "type": "grafana-postgresql-datasource",
         "uid": "PFC1A148638D9F5E9"
       },
@@ -303,9 +617,11 @@
           "custom": {
             "align": "auto",
             "cellOptions": {
-              "type": "auto"
+              "type": "auto",
+              "wrapText": false
             },
-            "inspect": false
+            "filterable": true,
+            "inspect": true
           },
           "mappings": [],
           "thresholds": {
@@ -325,35 +641,42 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 11,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 37
       },
-      "id": 7,
+      "id": 21,
       "options": {
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
+          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
           ],
           "show": false
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "updated_at"
+          }
+        ]
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.3.0",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
+            "uid": "fe0nnk7cevm68c"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  created_datetime AS created_datetime,\n  email AS email,\n  first_name AS first_name,\n  last_name AS last_name,\n  user_request AS user_request,\n  response AS response,\n  prompt_name AS prompt_name,\n  model_name AS model_name\nFROM (\n  SELECT\n    chats.created_at AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  created_datetime,\n  email,\n  first_name,\n  last_name,\n  user_request,\n  response,\n  prompt_name,\n  model_name\nORDER BY\n  MAX(created_datetime) DESC\nLIMIT 1000;",
+          "rawSql": "SELECT \n    u.email AS user_email,                   -- Add the user email\n    c.*                                    -- Select all fields from chats table\n    \nFROM \n    public.chats c\nJOIN \n    public.conversations conv ON c.conversation_id = conv.id  -- Join chats to conversations\nJOIN \n    public.users u ON conv.user_id = u.id                     -- Join conversations to users\nWHERE \n    $__timeFilter(c.created_at)     \norder by c.created_at desc                          -- Apply Grafana time filter on chats\nLIMIT 500;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -379,7 +702,289 @@
     },
     {
       "datasource": {
-        "default": false,
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "id": 22,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT *\nFROM api_chats\nWHERE $__timeFilter(created_at) -- assuming you have a 'created_at' column\nLIMIT 500;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "API Chat History",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 18,
+        "x": 0,
+        "y": 57
+      },
+      "id": 2,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 1,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH date_series AS (\n    SELECT \n        generate_series(\n            (SELECT MIN(created_at::date) FROM public.chunks WHERE $__timeFilter(created_at)), \n            (SELECT MAX(created_at::date) FROM public.chunks WHERE $__timeFilter(created_at)), \n            '1 day'::interval\n        )::date AS day\n),\ndaily_totals AS (\n    SELECT \n        created_at::date AS day, \n        COUNT(*) AS total_rows\n    FROM \n        public.chunks\n    WHERE \n        $__timeFilter(created_at)\n    GROUP BY \n        created_at::date\n)\n\nSELECT \n    ds.day,\n    COALESCE(dt.total_rows, 0) AS total_rows  -- Use COALESCE to show 0 for missing days\nFROM \n    date_series ds\nLEFT JOIN \n    daily_totals dt ON ds.day = dt.day\nORDER BY \n    ds.day;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Total Chunks Created (Per Day)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 18,
+        "y": 57
+      },
+      "id": 3,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^percentage_of_average$/",
+          "values": true
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "WITH daily_totals AS (\n    SELECT \n        created_at::date AS day, \n        COUNT(*) AS total_rows\n    FROM \n        public.chunks\n    WHERE \n        $__timeFilter(created_at)  -- Add time filter here\n    GROUP BY \n        day\n),\ntoday_total AS (\n    SELECT \n        COUNT(*)::numeric AS total_today\n    FROM \n        public.chunks\n    WHERE \n        created_at::date = CURRENT_DATE\n        AND $__timeFilter(created_at)  -- Add time filter here\n),\ntotal_days AS (\n    SELECT \n        (CURRENT_DATE - MIN(created_at::date)) + 1 AS days_elapsed\n    FROM \n        public.chunks\n    WHERE \n        $__timeFilter(created_at)  -- Add time filter here\n),\naverage_total AS (\n    SELECT \n        COALESCE(SUM(total_rows) / NULLIF((SELECT days_elapsed FROM total_days), 0), 0)::numeric AS avg_total\n    FROM \n        daily_totals\n)\nSELECT \n    CASE \n        WHEN a.avg_total > 0 THEN (t.total_today / a.avg_total) * 100\n        ELSE 0\n    END AS percentage_of_average\nFROM \n    today_total t, \n    average_total a;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Today's Chunks as % of Average Daily Chunks",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "PFC1A148638D9F5E9"
       },
@@ -414,9 +1019,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
-        "y": 30
+        "y": 66
       },
       "id": 8,
       "options": {
@@ -431,17 +1036,857 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.3.0",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
+            "uid": "fe0nnk7cevm68c"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  email AS email,\n  created_at AS created_at,\n  last_chat_datetime AS last_chat_datetime,\n  team_names AS team_names\nFROM (\n  SELECT\n    users.id AS id,\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.created_at AS created_at,\n    users.updated_at  AS updated_at,\n    MAX(chats.created_at) AS last_chat_datetime,\n    (\n      SELECT\n        COUNT(*)\n      FROM users AS u2\n      WHERE\n        u2.created_at <= users.created_at\n    ) AS total_users,\n    (\n      SELECT\n        STRING_AGG(teams.name, ', ' ORDER BY teams.name)\n      FROM team_users\n      JOIN teams\n        ON team_users.team_id = teams.id\n      WHERE\n        team_users.user_id = users.id\n    ) AS team_names\n  FROM users\n  LEFT JOIN conversations\n    ON users.id = conversations.user_id\n  LEFT JOIN chats\n    ON chats.conversation_id = conversations.id\n  LEFT JOIN team_users\n    ON team_users.user_id = users.id\n  GROUP BY\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.id\n  ORDER BY\n    MAX(chats.created_at) DESC\n) AS virtual_table\nGROUP BY\n  email,\n  created_at,\n  last_chat_datetime,\n  team_names\nLIMIT 1000;",
+          "rawSql": "SELECT \n    u.email AS user_email,\n    COUNT(d.id) AS document_count\nFROM \n    public.users u\nJOIN \n    public.datasets ds ON ds.created_by = u.id  -- Link users to datasets through created_by\nJOIN \n    public.documents d ON d.dataset_id = ds.id  -- Link datasets to documents\nWHERE \n    $__timeFilter(d.created_at)  -- Apply Grafana's time range selection on documents' creation time\nGROUP BY \n    u.email\nORDER BY \n    document_count DESC  -- Order by the number of documents in ascending order\nLIMIT 10;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Top Document Loaders",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 66
+      },
+      "id": 9,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": true,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    u.email AS user_email,\n    COUNT(d.id) AS document_count\nFROM \n    public.users u\nJOIN \n    public.datasets ds ON ds.created_by = u.id  -- Link users to datasets through created_by\nJOIN \n    public.documents d ON d.dataset_id = ds.id  -- Link datasets to documents\nWHERE \n    $__timeFilter(d.created_at)  -- Apply Grafana's time range selection on documents' creation time\nGROUP BY \n    u.email\nORDER BY \n    document_count DESC  -- Order by the number of documents in ascending order\nLIMIT 10;\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Top Document Loaders",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 74
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    u.email AS user_email,\n    SUM(c.tokens_sent) AS total_tokens_sent\nFROM \n    public.users u\nJOIN \n    public.conversations conv ON conv.user_id = u.id  -- Link users to conversations\nJOIN \n    public.chats c ON c.conversation_id = conv.id    -- Link conversations to chats\nWHERE \n    $__timeFilter(c.created_at)  -- Apply Grafana's time filter for the selected time period\nGROUP BY \n    u.email\nORDER BY \n    total_tokens_sent DESC  -- Order by total tokens sent in descending order\nLIMIT 10;  -- You can adjust the limit as needed\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Tokens Sent (Top 10)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 74
+      },
+      "id": 11,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    u.email AS user_email,\n    SUM(c.tokens_sent) AS total_tokens_sent\nFROM \n    public.users u\nJOIN \n    public.conversations conv ON conv.user_id = u.id  -- Link users to conversations\nJOIN \n    public.chats c ON c.conversation_id = conv.id    -- Link conversations to chats\nWHERE \n    $__timeFilter(c.created_at)  -- Apply Grafana's time filter for the selected time period\nGROUP BY \n    u.email\nORDER BY \n    total_tokens_sent DESC  -- Order by total tokens sent in descending order\nLIMIT 10;  -- You can adjust the limit as needed\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Tokens Sent (Top 10)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 82
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    u.email AS user_email,\n    SUM(c.tokens_received) AS total_tokens_received\nFROM \n    public.users u\nJOIN \n    public.conversations conv ON conv.user_id = u.id  -- Link users to conversations\nJOIN \n    public.chats c ON c.conversation_id = conv.id    -- Link conversations to chats\nWHERE \n    $__timeFilter(c.created_at)  -- Apply Grafana's time filter for the selected time period\nGROUP BY \n    u.email\nORDER BY \n    total_tokens_received DESC  -- Order by total tokens received in descending order\nLIMIT 10;  -- You can adjust the limit as needed\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Total Token Received (Top 10)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 82
+      },
+      "id": 13,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    u.email AS user_email,\n    SUM(c.tokens_received) AS total_tokens_received\nFROM \n    public.users u\nJOIN \n    public.conversations conv ON conv.user_id = u.id  -- Link users to conversations\nJOIN \n    public.chats c ON c.conversation_id = conv.id    -- Link conversations to chats\nWHERE \n    $__timeFilter(c.created_at)  -- Apply Grafana's time filter for the selected time period\nGROUP BY \n    u.email\nORDER BY \n    total_tokens_received DESC  -- Order by total tokens received in descending order\nLIMIT 10;  -- You can adjust the limit as needed\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Total Tokens Received (Top 10)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 90
+      },
+      "id": 14,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    u.email AS user_email,                          -- User email for identification\n    COUNT(c.id) AS total_chats                      -- Total number of chats per user\nFROM \n    public.chats c\nJOIN \n    public.conversations conv ON conv.id = c.conversation_id\nJOIN \n    public.users u ON u.id = conv.user_id           -- Join users via conversations\nWHERE \n    $__timeFilter(c.created_at)                     -- Apply Grafana's time filter for selected time range\nGROUP BY \n    u.email                                         -- Group by user email\nORDER BY \n    total_chats DESC                                -- Order by total chats in descending order\nLIMIT 10;                                           -- Limit to top 10 users\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Top Chat Users",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 90
+      },
+      "id": 15,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n    (u.email || ' : ' ||  ak.api_key) as user,                -- API key from the api_keys table\n    COUNT(ac.id) AS total_chats         -- Count of rows in api_chats\nFROM \n    public.api_chats ac\nJOIN \n    public.api_keys ak ON ak.id = ac.api_key_id  -- Join api_chats with api_keys on api_key_id\nJOIN \n    public.users u ON u.id = ak.user_id         -- Join api_keys with users on user_id\nWHERE \n    $__timeFilter(ac.created_at)                -- Apply Grafana's time filter for the selected time range\nGROUP BY \n    u.email, ak.api_key                           -- Group by user email and API key\nORDER BY \n    total_chats DESC                            -- Order by total chats in descending order\nLIMIT 10;                                       -- Limit to top 10 users\n",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Top API Chat Users/Keys",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 98
+      },
+      "id": 7,
+      "panels": [],
+      "title": "Users",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "PFC1A148638D9F5E9"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "email"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 261
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 99
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.3.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "fe0nnk7cevm68c"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  users.email AS email,                             -- User's email\n  users.created_at AS created_at,                   -- User's creation date\n  MAX(chats.created_at) AS last_chat_datetime,      -- The last chat datetime\n  STRING_AGG(teams.name, ', ' ORDER BY teams.name) AS team_names  -- Aggregated team names\nFROM \n  users\nLEFT JOIN \n  conversations ON users.id = conversations.user_id    -- Join conversations to users\nLEFT JOIN \n  chats ON chats.conversation_id = conversations.id    -- Join chats to conversations\nLEFT JOIN \n  team_users ON team_users.user_id = users.id          -- Join team_users to users\nLEFT JOIN \n  teams ON team_users.team_id = teams.id               -- Join teams to team_users\nWHERE\n  $__timeFilter(users.created_at)                      -- Apply Grafana's time filter for user creation\nGROUP BY\n  users.email,                                         -- Group by user email\n  users.created_at                                     -- Group by user creation date\nORDER BY\n  created_at DESC;                             -- Order by last chat datetime in descending order\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -467,731 +1912,10 @@
     },
     {
       "datasource": {
-        "default": false,
         "type": "grafana-postgresql-datasource",
         "uid": "PFC1A148638D9F5E9"
       },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 38
-      },
-      "id": 9,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "11.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  team_name AS team_name,\n  team_owner AS team_owner\nFROM (\n  SELECT\n    CASE WHEN teams.name IS NULL THEN 'Default' ELSE teams.name END AS team_name,\n    users.email AS team_owner\n  FROM teams\n  JOIN users\n    ON teams.created_by_user_id = users.id\n) AS virtual_table\nGROUP BY\n  team_name,\n  team_owner\nLIMIT 1000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Team Names",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 46
-      },
-      "id": 10,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "11.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  email AS email,\n  team_name AS team_name,\n  team_owner AS team_owner\nFROM (\n  SELECT\n    users.id AS id,\n    users.email,\n    users.first_name,\n    users.last_name,\n    users.system_admin,\n    users.created_at AT TIME ZONE 'America/New_York' AS created_at,\n    users.updated_at AT TIME ZONE 'America/New_York' AS updated_at,\n    MAX(chats.created_at AT TIME ZONE 'America/New_York') AS last_chat_datetime,\n    teams.name AS team_name,\n    team_owner.email AS team_owner\n  FROM users\n  LEFT JOIN conversations\n    ON users.id = conversations.user_id\n  LEFT JOIN chats\n    ON chats.conversation_id = conversations.id\n  LEFT JOIN team_users\n    ON team_users.user_id = users.id\n  LEFT JOIN teams\n    ON team_users.team_id = teams.id\n  LEFT JOIN users AS team_owner\n    ON teams.created_by_user_id = team_owner.id\n  GROUP BY\n    users.email,\n    users.first_name,\n    users.last_name,\n    users.system_admin,\n    users.id,\n    teams.name,\n    team_owner.email\n  ORDER BY\n    MAX(chats.created_at) DESC\n) AS virtual_table\nGROUP BY\n  email,\n  team_name,\n  team_owner\nLIMIT 1000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Users Per Team",
-      "type": "table"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 54
-      },
-      "id": 24,
-      "panels": [
-        {
-          "datasource": {
-            "default": false,
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "color-text"
-                },
-                "filterable": true,
-                "inspect": false
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 55
-          },
-          "id": 11,
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "enablePagination": true,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
-            "showHeader": true
-          },
-          "pluginVersion": "11.2.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "grafana-postgresql-datasource",
-                "uid": "PFC1A148638D9F5E9"
-              },
-              "editorMode": "code",
-              "format": "table",
-              "rawQuery": true,
-              "rawSql": "SELECT\n  dataset_name AS dataset_name,\n  visibility AS visibility,\n  team_name AS team_name,\n  created_by AS created_by,\n  created_datetime AS created_datetime\nFROM (\n  SELECT\n    datasets.name AS dataset_name,\n    datasets.visibility,\n    teams.name AS team_name,\n    users.email AS created_by,\n    datasets.created_at AS created_datetime\n  FROM datasets\n  LEFT JOIN teams\n    ON datasets.team_id = teams.id\n  LEFT JOIN users\n    ON datasets.created_by = users.id\n) AS virtual_table\nGROUP BY\n  dataset_name,\n  visibility,\n  team_name,\n  created_by,\n  created_datetime\nLIMIT 1000;",
-              "refId": "A",
-              "sql": {
-                "columns": [
-                  {
-                    "parameters": [],
-                    "type": "function"
-                  }
-                ],
-                "groupBy": [
-                  {
-                    "property": {
-                      "type": "string"
-                    },
-                    "type": "groupBy"
-                  }
-                ],
-                "limit": 50
-              }
-            }
-          ],
-          "title": "Data Sets",
-          "type": "table"
-        },
-        {
-          "datasource": {
-            "default": false,
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "color-text"
-                },
-                "filterable": true,
-                "inspect": false
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 63
-          },
-          "id": 4,
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "enablePagination": true,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
-            "showHeader": true
-          },
-          "pluginVersion": "11.2.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "grafana-postgresql-datasource",
-                "uid": "PFC1A148638D9F5E9"
-              },
-              "editorMode": "code",
-              "format": "table",
-              "rawQuery": true,
-              "rawSql": "SELECT\n  documents.file_name,\n  documents.created_at AS created_datetime,\n  (CASE WHEN documents.content_size < 1000000 THEN\n       \tCONCAT(CEILING(documents.content_size / 1024.0), ' KB')\n  \tWHEN documents.content_size < 1000000000 THEN\n       \tCONCAT(CEILING(documents.content_size / 1048576.0), ' MB')\n  \tELSE\n       \tCONCAT(CEILING(documents.content_size / 1048576000.0), ' GB')\n END) AS content_size,\n datasets.name as dataset_name,\n users.email,\n teams.name as team_name,\n team_owner.email as team_owner\nFROM documents\nLEFT JOIN datasets ON documents.dataset_id = datasets.id\nLEFT JOIN users ON datasets.created_by = users.id\nLEFT JOIN team_users on team_users.user_id = users.id\nLEFT JOIN teams on teams.id = team_users.team_id\nLEFT JOIN users AS team_owner ON teams.created_by_user_id = team_owner.id\n\nUNION ALL\n\nSELECT\n  NULL, NULL, NULL, NULL, NULL, NULL, NULL\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM documents\n)\n",
-              "refId": "A",
-              "sql": {
-                "columns": [
-                  {
-                    "parameters": [],
-                    "type": "function"
-                  }
-                ],
-                "groupBy": [
-                  {
-                    "property": {
-                      "type": "string"
-                    },
-                    "type": "groupBy"
-                  }
-                ],
-                "limit": 50
-              }
-            }
-          ],
-          "title": "Documents",
-          "type": "table"
-        }
-      ],
-      "title": "Datasets & Documents",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 55
-      },
-      "id": 25,
-      "panels": [
-        {
-          "datasource": {
-            "default": false,
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "color-text"
-                },
-                "filterable": true,
-                "inspect": false
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 9,
-            "w": 24,
-            "x": 0,
-            "y": 56
-          },
-          "id": 13,
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "enablePagination": true,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
-            "showHeader": true
-          },
-          "pluginVersion": "11.2.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "grafana-postgresql-datasource",
-                "uid": "PFC1A148638D9F5E9"
-              },
-              "editorMode": "code",
-              "format": "table",
-              "rawQuery": true,
-              "rawSql": "SELECT\n  created_datetime AS created_datetime,\n  name AS name,\n  created_by AS created_by,\n  visibility AS visibility,\n  system_prompt AS system_prompt,\n  model_used AS model_used\nFROM (\n  SELECT\n    prompts.name,\n    prompts.visibility,\n    users.email AS created_by,\n    models.name AS model_used,\n    prompts.created_at AS created_datetime,\n    prompts.system_prompt\n  FROM prompts\n  JOIN models\n    ON prompts.model_id = models.id\n  JOIN users\n    ON prompts.created_by = users.id\n) AS virtual_table\nGROUP BY\n  created_datetime,\n  name,\n  created_by,\n  visibility,\n  system_prompt,\n  model_used\nLIMIT 1000;",
-              "refId": "A",
-              "sql": {
-                "columns": [
-                  {
-                    "parameters": [],
-                    "type": "function"
-                  }
-                ],
-                "groupBy": [
-                  {
-                    "property": {
-                      "type": "string"
-                    },
-                    "type": "groupBy"
-                  }
-                ],
-                "limit": 50
-              }
-            }
-          ],
-          "title": "Assistant List",
-          "type": "table"
-        },
-        {
-          "datasource": {
-            "default": false,
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "color-text"
-                },
-                "filterable": true,
-                "inspect": false
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 65
-          },
-          "id": 12,
-          "options": {
-            "cellHeight": "sm",
-            "footer": {
-              "countRows": false,
-              "enablePagination": true,
-              "fields": "",
-              "reducer": [
-                "sum"
-              ],
-              "show": false
-            },
-            "showHeader": true
-          },
-          "pluginVersion": "11.2.0",
-          "targets": [
-            {
-              "datasource": {
-                "type": "grafana-postgresql-datasource",
-                "uid": "PFC1A148638D9F5E9"
-              },
-              "editorMode": "code",
-              "format": "table",
-              "rawQuery": true,
-              "rawSql": "SELECT\n  file_name AS file_name,\n  content_size AS content_size,\n  dataset_name AS dataset_name,\n  created_datetime AS created_datetime\nFROM (\n  SELECT\n    documents.file_name,\n    documents.created_at  AS created_datetime,\n    (\n      CASE\n        WHEN documents.content_size < 1000000\n        THEN CONCAT(CEIL(documents.content_size / 1024.0), ' KB')\n        WHEN documents.content_size < 1000000000\n        THEN CONCAT(CEIL(documents.content_size / 1048576.0), ' MB')\n        ELSE CONCAT(CEIL(documents.content_size / 1048576000.0), ' GB')\n      END\n    ) AS content_size,\n    datasets.name AS dataset_name\n  FROM documents\n  LEFT JOIN datasets\n    ON documents.dataset_id = datasets.id\n) AS virtual_table\nGROUP BY\n  file_name,\n  content_size,\n  dataset_name,\n  created_datetime\nLIMIT 1000;",
-              "refId": "A",
-              "sql": {
-                "columns": [
-                  {
-                    "parameters": [],
-                    "type": "function"
-                  }
-                ],
-                "groupBy": [
-                  {
-                    "property": {
-                      "type": "string"
-                    },
-                    "type": "groupBy"
-                  }
-                ],
-                "limit": 50
-              }
-            }
-          ],
-          "title": "Document List",
-          "type": "table"
-        }
-      ],
-      "title": "AI Assistant & Model List",
-      "type": "row"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 56
-      },
-      "id": 26,
-      "panels": [],
-      "title": "Other",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": true,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Number of Users",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 5,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 8,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "always",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 0,
-          "fieldMinMax": true,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 57
-      },
-      "id": 15,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.2.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('DAY', created_at) AS created_at,\n  COUNT(email) AS \"Users Created\"\nFROM (\n  SELECT\n    users.id AS id,\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.created_at AS created_at,\n    users.updated_at  AS updated_at,\n    MAX(chats.created_at)  AS last_chat_datetime,\n    (\n      SELECT\n        COUNT(*)\n      FROM users AS u2\n      WHERE\n        u2.created_at <= users.created_at\n    ) AS total_users,\n    (\n      SELECT\n        STRING_AGG(teams.name, ', ' ORDER BY teams.name)\n      FROM team_users\n      JOIN teams\n        ON team_users.team_id = teams.id\n      WHERE\n        team_users.user_id = users.id\n    ) AS team_names\n  FROM users\n  LEFT JOIN conversations\n    ON users.id = conversations.user_id\n  LEFT JOIN chats\n    ON chats.conversation_id = conversations.id\n  LEFT JOIN team_users\n    ON team_users.user_id = users.id\n  GROUP BY\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.id\n  ORDER BY\n    MAX(chats.created_at) DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('DAY', created_at)\nORDER BY\n  \"Users Created\" DESC\nLIMIT 10000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('DAY', created_at) AS created_at,\n  MAX(total_users) AS \"Total Users\"\nFROM (\n  SELECT\n    users.id AS id,\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.created_at  AS created_at,\n    users.updated_at  AS updated_at,\n    MAX(chats.created_at  AS last_chat_datetime,\n    (\n      SELECT\n        COUNT(*)\n      FROM users AS u2\n      WHERE\n        u2.created_at <= users.created_at\n    ) AS total_users,\n    (\n      SELECT\n        STRING_AGG(teams.name, ', ' ORDER BY teams.name)\n      FROM team_users\n      JOIN teams\n        ON team_users.team_id = teams.id\n      WHERE\n        team_users.user_id = users.id\n    ) AS team_names\n  FROM users\n  LEFT JOIN conversations\n    ON users.id = conversations.user_id\n  LEFT JOIN chats\n    ON chats.conversation_id = conversations.id\n  LEFT JOIN team_users\n    ON team_users.user_id = users.id\n  GROUP BY\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.id\n  ORDER BYSELECT\n  DATE_TRUNC('DAY', created_at) AS created_at,\n  MAX(total_users) AS \"Total Users\"\nFROM (\n  SELECT\n    users.id AS id,\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.created_at AS created_at,\n    users.updated_at AS updated_at,\n    MAX(chats.created_at  AS last_chat_datetime,\n    (\n      SELECT\n        COUNT(*)\n      FROM users AS u2\n      WHERE\n        u2.created_at <= users.created_at\n    ) AS total_users,\n    (\n      SELECT\n        STRING_AGG(teams.name, ', ' ORDER BY teams.name)\n      FROM team_users\n      JOIN teams\n        ON team_users.team_id = teams.id\n      WHERE\n        team_users.user_id = users.id\n    ) AS team_names\n  FROM users\n  LEFT JOIN conversations\n    ON users.id = conversations.user_id\n  LEFT JOIN chats\n    ON chats.conversation_id = conversations.id\n  LEFT JOIN team_users\n    ON team_users.user_id = users.id\n  GROUP BY\n    email,\n    first_name,\n    last_name,\n    system_admin,\n    users.id\n  ORDER BY\n    MAX(chats.created_at) DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('DAY', created_at)\nORDER BY\n  \"Total Users\" DESC\nLIMIT 10000;\nGROUP BY\n  DATE_TRUNC('DAY', created_at)\nORDER BY\n  \"Total Users\" DESC\nLIMIT 10000;",
-          "refId": "B",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Total Registered Users",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1203,460 +1927,8 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 65
-      },
-      "id": 21,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('DAY', created_datetime) AS created_datetime,\n  model_name AS model_name,\n  SUM(tokens_received) AS \"SUM(tokens_received)\"\nFROM (\n  SELECT\n    chats.created_at AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('DAY', created_datetime),\n  model_name\nORDER BY\n  \"SUM(tokens_received)\" DESC\nLIMIT 10000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Received Tokens by Model by Date",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 65
-      },
-      "id": 18,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('DAY', created_datetime) AS created_datetime,\n  prompt_name AS prompt_name,\n  SUM(tokens_sent) AS \"SUM(tokens_sent)\"\nFROM (\n  SELECT\n    chats.created_at AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('DAY', created_datetime),\n  prompt_name\nORDER BY\n  \"SUM(tokens_sent)\" DESC\nLIMIT 10000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Sent Tokens Per Assistant",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 73
-      },
-      "id": 20,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('DAY', created_datetime) AS created_datetime,\n  model_name AS model_name,\n  SUM(tokens_sent) AS \"SUM(tokens_sent)\"\nFROM (\n  SELECT\n    chats.created_at  AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('DAY', created_datetime),\n  model_name\nORDER BY\n  \"SUM(tokens_sent)\" DESC\nLIMIT 10000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Sent Tokens By Model by Date",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 73
-      },
-      "id": 19,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_TRUNC('DAY', created_datetime) AS created_datetime,\n  prompt_name AS prompt_name,\n  SUM(tokens_received) AS \"SUM(tokens_received)\"\nFROM (\n  SELECT\n    chats.created_at AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  DATE_TRUNC('DAY', created_datetime),\n  prompt_name\nORDER BY\n  \"SUM(tokens_received)\" DESC\nLIMIT 10000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Received Tokens Per Assistant by Date",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -1665,238 +1937,6 @@
             "lineWidth": 1,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 81
-      },
-      "id": 16,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  email AS email,\n  model_name AS model_name,\n  MAX(tokens_sent) AS \"MAX(tokens_sent)\"\nFROM (\n  SELECT\n    chats.created_at  AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  email,\n  model_name\nORDER BY\n  \"MAX(tokens_sent)\" DESC\nLIMIT 10000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Total Tokens Sent by User",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 81
-      },
-      "id": 17,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  email AS email,\n  model_name AS model_name,\n  MAX(tokens_received) AS \"MAX(tokens_received)\"\nFROM (\n  SELECT\n    chats.created_at  AS created_datetime,\n    chats.id,\n    status,\n    email,\n    last_name,\n    first_name,\n    user_request,\n    response,\n    prompts.name AS prompt_name,\n    models.name AS model_name,\n    tokens_sent,\n    tokens_received,\n    time_taken_ms\n  FROM users\n  JOIN conversations\n    ON users.id = conversations.user_id\n  JOIN chats\n    ON chats.conversation_id = conversations.id\n  JOIN prompts\n    ON prompts.id = chats.prompt_id\n  JOIN models\n    ON models.id = prompts.model_id\n  ORDER BY\n    chats.created_at DESC\n) AS virtual_table\nGROUP BY\n  email,\n  model_name\nORDER BY\n  \"MAX(tokens_received)\" DESC\nLIMIT 10000;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Total Tokens Received by User",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -1921,33 +1961,43 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 89
+        "w": 12,
+        "x": 12,
+        "y": 99
       },
-      "id": 14,
+      "id": 5,
       "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
         "tooltip": {
           "mode": "single",
           "sort": "none"
-        }
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
       },
+      "pluginVersion": "11.3.0",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
+            "uid": "fe0nnk7cevm68c"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  created_datetime AS created_datetime,\n  context_size AS context_size,\n  model_name AS model_name,\n  inference_type AS inference_type\nFROM (\n  SELECT\n    models.name AS model_name,\n    models.model_type,\n    SUM(chats.tokens_sent) AS total_tokens_sent,\n    SUM(chats.tokens_received) AS total_tokens_received,\n    models.created_at  AS created_datetime,\n    models.context_size,\n    models.tpm_limit,\n    models.rpm_limit,\n    STRING_AGG(DISTINCT prompts.name, ', ') AS prompt_list,\n    CASE WHEN models.base_url LIKE '%https%' THEN 'Public' ELSE 'Private' END AS inference_type\n  FROM models\n  JOIN prompts\n    ON models.id = prompts.model_id\n  JOIN chats\n    ON prompts.id = chats.prompt_id\n  WHERE\n    DATE_TRUNC('MONTH', chats.created_at) = DATE_TRUNC('MONTH', CURRENT_DATE)\n  GROUP BY\n    models.name,\n    models.base_url,\n    models.model_type,\n    models.created_at,\n    models.context_size,\n    models.tpm_limit,\n    models.rpm_limit\n  ORDER BY\n    total_tokens_sent DESC\n) AS virtual_table\nGROUP BY\n  created_datetime,\n  context_size,\n  model_name,\n  inference_type\nORDER BY\n  MAX(inference_type) DESC\nLIMIT 1000;",
+          "rawSql": "WITH date_series AS (\n    SELECT \n        generate_series(\n            $__timeFrom()::date, \n            $__timeTo()::date, \n            '1 day'::interval\n        )::date AS day\n),\nuser_creations AS (\n    SELECT \n        users.created_at::date AS day, \n        COUNT(*) AS total_users\n    FROM \n        users\n    WHERE \n        $__timeFilter(users.created_at)  -- Ensure it uses the time range selected in Grafana\n    GROUP BY \n        day\n)\nSELECT \n    ds.day, \n    COALESCE(uc.total_users, 0) AS total_users  -- Replace NULL with 0 for days with no users\nFROM \n    date_series ds\nLEFT JOIN \n    user_creations uc ON ds.day = uc.day\nORDER BY \n    ds.day;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1968,12 +2018,24 @@
           }
         }
       ],
-      "title": "Deployed Models",
-      "type": "timeseries"
+      "title": "Registered Users",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 109
+      },
+      "id": 18,
+      "panels": [],
+      "title": "Documents",
+      "type": "row"
     },
     {
       "datasource": {
-        "default": false,
         "type": "grafana-postgresql-datasource",
         "uid": "PFC1A148638D9F5E9"
       },
@@ -2033,12 +2095,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 24,
+        "h": 8,
+        "w": 12,
         "x": 0,
-        "y": 99
+        "y": 110
       },
-      "id": 3,
+      "id": 19,
       "options": {
         "legend": {
           "calcs": [],
@@ -2051,16 +2113,17 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.3.0",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
+            "uid": "fe0nnk7cevm68c"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT\n  chats.created_at AS created_datetime,\n  chats.id,\n  status,\n  users.email,\n  users.last_name,\n  users.first_name,\n  user_request,\n  response,\n  prompts.name as prompt_name,\n  models.name as model_name,\n  tokens_sent,\n  tokens_received,\n  time_taken_ms,\n  teams.name as team_name,\n  team_owner.email as team_owner\nFROM users\nJOIN conversations ON users.id = conversations.user_id\nJOIN chats ON chats.conversation_id = conversations.id\nJOIN prompts ON prompts.id = chats.prompt_id\nJOIN models ON models.id = prompts.model_id\nJOIN team_users ON team_users.user_id = users.id\nJOIN teams ON teams.id = team_users.team_id\nJOIN users AS team_owner ON teams.created_by_user_id = team_owner.id;\n",
+          "rawSql": "SELECT \n    created_at::date AS upload_date,          -- Extract the date part from the created_at timestamp\n    COUNT(*) AS total_documents               -- Count the number of documents uploaded on each day\nFROM \n    public.documents\nWHERE \n    $__timeFilter(created_at)                 -- Filter by the selected Grafana time period\nGROUP BY \n    upload_date                               -- Group by the upload date\nORDER BY \n    upload_date ASC;                          -- Order by the date in ascending order\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -2081,12 +2144,11 @@
           }
         }
       ],
-      "title": "Chats",
+      "title": "Document Uploads Per Day",
       "type": "timeseries"
     },
     {
       "datasource": {
-        "default": false,
         "type": "grafana-postgresql-datasource",
         "uid": "PFC1A148638D9F5E9"
       },
@@ -2121,11 +2183,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 108
+        "w": 12,
+        "x": 12,
+        "y": 110
       },
-      "id": 2,
+      "id": 20,
       "options": {
         "cellHeight": "sm",
         "footer": {
@@ -2138,17 +2200,17 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.3.0",
       "targets": [
         {
           "datasource": {
             "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
+            "uid": "fe0nnk7cevm68c"
           },
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "WITH filtered_datasets AS (\n  SELECT\n\tdatasets.created_at  AS created_datetime,\n\tdatasets.name as dataset_name,\n\tdatasets.visibility,\n\tusers.email,\n\tteams.name as team_name,\n\tteam_owner.email as team_owner\n  FROM datasets\n  LEFT JOIN teams ON datasets.team_id = teams.id\n  LEFT JOIN users on datasets.created_by = users.id\n  LEFT JOIN users AS team_owner ON teams.created_by_user_id = team_owner.id\n)\nSELECT * FROM filtered_datasets\nUNION ALL\nSELECT NULL, NULL, NULL, NULL, NULL, NULL\nWHERE NOT EXISTS (SELECT 1 FROM filtered_datasets);\n",
+          "rawSql": "SELECT \n    u.email AS user_email,              -- User's email from the users table\n    COUNT(d.id) AS total_documents      -- Count of documents uploaded by the user\nFROM \n    public.documents d\nJOIN \n    public.datasets ds ON ds.id = d.dataset_id     -- Join documents with datasets\nJOIN \n    public.users u ON u.id = ds.created_by         -- Join datasets with users via created_by\nWHERE \n    $__timeFilter(d.created_at)                    -- Apply Grafana's time filter for the selected time range\nGROUP BY \n    u.email                                        -- Group by user email\nORDER BY \n    total_documents DESC                           -- Order by total documents in descending order\nLIMIT 10;                                          -- Limit to top 10 users\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -2169,137 +2231,25 @@
           }
         }
       ],
-      "title": "Users",
+      "title": "Top Document Loaders",
       "type": "table"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "grafana-postgresql-datasource",
-        "uid": "PFC1A148638D9F5E9"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 116
-      },
-      "id": 1,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "PFC1A148638D9F5E9"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  users.id as id,\n  email,\n  first_name,\n  last_name,\n  system_admin,\n  users.created_at  as created_at,\n  users.updated_at  as updated_at,\n  MAX(chats.created_at) AS last_chat_datetime,\n  (select count(*) from users u2 where u2.created_at <= users.created_at) as total_users,\n  (\n\tSELECT string_agg(teams.name, ', ' ORDER BY teams.name)\n\tFROM team_users\n\tJOIN teams ON team_users.team_id = teams.id\n\tWHERE team_users.user_id = users.id\n  ) as team_names\nFROM users\nLEFT JOIN conversations ON users.id = conversations.user_id\nLEFT JOIN chats ON chats.conversation_id = conversations.id\nLEFT JOIN team_users ON team_users.user_id = users.id\nGROUP BY email, first_name, last_name, system_admin, users.id\nORDER BY MAX(chats.created_at) DESC;\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Users",
-      "type": "timeseries"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 39,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "2024-10-03T00:00:00.000Z",
-    "to": "2024-10-04T00:00:00.000Z"
+    "from": "now-6h",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "bionicGPT System Monitoring",
-  "uid": "adzr0udus76dcd",
-  "version": 73,
+  "title": "bionicGPT Default Dashboard",
+  "uid": "ce0nny63mnls0c",
+  "version": 5,
   "weekStart": ""
 }
