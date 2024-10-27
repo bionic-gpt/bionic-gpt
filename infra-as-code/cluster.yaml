@@ -3,23 +3,61 @@ kind: ClusterConfig
 metadata:
   name: bionic-gpt
   region: us-east-2
+
 managedNodeGroups:
-- name: bionic-gpt
-  instanceType: t2.large
-  minSize: 2
-  maxSize: 4
+  - name: bionic-gpt
+    instanceType: t2.large
+    minSize: 2
+    maxSize: 4
+    labels: 
+      role: worker
+      environment: dev
+    taints:
+      - key: special
+        value: workload
+        effect: NoSchedule
+
 iam:
   withOIDC: true
   serviceAccounts:
-  - metadata:
-      name: ebs-csi-controller-sa
-      namespace: kube-system
-    attachPolicyARNs:
-    - "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-    wellKnownPolicies:
-      ebsCSIController: true
-    roleName: eksctl-cluster-ebs-role
-    roleOnly: true
+    - metadata:
+        name: ebs-csi-controller-sa
+        namespace: kube-system
+      attachPolicyARNs:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+      wellKnownPolicies:
+        ebsCSIController: true
+      roleName: eksctl-cluster-ebs-role
+      roleOnly: true
+    - metadata:
+        name: cluster-autoscaler
+        namespace: kube-system
+      attachPolicyARNs:
+        - "arn:aws:iam::aws:policy/AutoScalingFullAccess"
+      wellKnownPolicies:
+        autoScaler: true
+    - metadata:
+        name: s3-access-sa
+        namespace: default
+      attachPolicyARNs:
+        - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
 addons:
-- name: aws-ebs-csi-driver
-  serviceAccountRoleARN: "arn:aws:iam::{ACCOUNT_ID}:role/eksctl-cluster-ebs-role"
+  - name: aws-ebs-csi-driver
+    serviceAccountRoleARN: "arn:aws:iam::{ACCOUNT_ID}:role/eksctl-cluster-ebs-role"
+  - name: coredns
+    version: "v1.8.4-eksbuild.1"
+  - name: kube-proxy
+    version: "v1.20.4-eksbuild.1"
+  - name: cluster-autoscaler
+    version: "v1.21.2"
+    serviceAccountRoleARN: "arn:aws:iam::{ACCOUNT_ID}:role/eksctl-cluster-autoscaler-role"
+
+vpc:
+  securityGroup:
+    withShared: true
+    withLocal: true
