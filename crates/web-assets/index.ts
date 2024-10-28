@@ -8,6 +8,7 @@ import '@github/relative-time-element';
 
 // Misc.
 import { triggers } from './typescript/side-drawer-trigger'
+import { initializeConsoleForm } from './typescript/attach-files'
 import { modalTriggers } from './typescript/modal-trigger'
 import { initializeSidebar } from './typescript/responsive-nav'
 import { streamingChat } from './typescript/streaming-chat'
@@ -32,6 +33,7 @@ import '@hotwired/turbo'
 // Set everything up
 function loadEverything() {
     hljs.highlightAll()
+    initializeConsoleForm()
     triggers()
     modalTriggers()
     drawers()

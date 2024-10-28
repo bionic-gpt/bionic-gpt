@@ -39,27 +39,33 @@ pub fn Conversation(
             ),
             div {
                 id: "console-panel",
-                class: "h-full",
-                if chats_with_chunks.is_empty() {
-                    crate::console::empty_stream::EmptyStream {
-                        prompt: prompt.clone(),
-                        conversation_id,
-                        team_id
-                    }
-                } else {
-                    super::console_stream::ConsoleStream {
-                        team_id: team_id,
-                        chats_with_chunks: chats_with_chunks,
-                        is_tts_disabled: is_tts_disabled,
-                        lock_console: lock_console,
+                class: "h-full flex flex-col",
+                div {
+                    id: "console-stream",
+                    class: "flex-1 overflow-y-auto",
+                    if chats_with_chunks.is_empty() {
+                        crate::console::empty_stream::EmptyStream {
+                            prompt: prompt.clone(),
+                            conversation_id,
+                            team_id
+                        }
+                    } else {
+                        super::console_stream::ConsoleStream {
+                            team_id: team_id,
+                            chats_with_chunks: chats_with_chunks,
+                            is_tts_disabled: is_tts_disabled,
+                            lock_console: lock_console,
+                        }
                     }
                 }
-                super::prompt_form::Form {
-                    team_id: team_id,
-                    prompt_id: prompt.id,
-                    conversation_id: conversation_id,
-                    lock_console: lock_console,
-                    disclaimer: prompt.disclaimer
+                div {
+                    super::prompt_form::Form {
+                        team_id: team_id,
+                        prompt_id: prompt.id,
+                        conversation_id: conversation_id,
+                        lock_console: lock_console,
+                        disclaimer: prompt.disclaimer
+                    }
                 }
             }
         }

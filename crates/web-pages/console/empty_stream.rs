@@ -9,49 +9,46 @@ use dioxus::prelude::*;
 pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
     rsx! {
         div {
-            class: "flex h-[calc(100%-100px)] overflow-y-auto justify-center items-center",
+            class: "mx-auto mt-12 max-w-3xl text-center",
+            h1 {
+                class: "mb-8 text-2xl font-semibold relative before:absolute before:inset-0 before:animate-typewriter before:bg-white",
+                "What can I help with?"
+            }
             div {
-                class: "mx-3 mt-12 max-w-3xl gap-4 text-center",
-                h1 {
-                    class: "mb-8 text-2xl font-semibold relative before:absolute before:inset-0 before:animate-typewriter before:bg-white",
-                    "What can I help with?"
+                class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",
+                if let Some(example) = prompt.example1 {
+                    if ! example.is_empty() {
+                        ExampleForm {
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example
+                        }
+                    }
                 }
-                div {
-                    class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",
-                    if let Some(example) = prompt.example1 {
-                        if ! example.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example
-                            }
+                if let Some(example) = prompt.example2 {
+                    if ! example.is_empty() {
+                        ExampleForm {
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example
                         }
                     }
-                    if let Some(example) = prompt.example2 {
-                        if ! example.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example
-                            }
+                }
+                if let Some(example) = prompt.example3 {
+                    if ! example.is_empty() {
+                        ExampleForm {
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example
                         }
                     }
-                    if let Some(example) = prompt.example3 {
-                        if ! example.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example
-                            }
-                        }
-                    }
-                    if let Some(example) = prompt.example4 {
-                        if ! example.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example
-                            }
+                }
+                if let Some(example) = prompt.example4 {
+                    if ! example.is_empty() {
+                        ExampleForm {
+                            team_id,
+                            prompt_id: prompt.id,
+                            example: example
                         }
                     }
                 }
