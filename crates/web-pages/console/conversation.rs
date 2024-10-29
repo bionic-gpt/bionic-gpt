@@ -29,6 +29,7 @@ pub fn Conversation(
             prompt: prompt.clone(),
             selected_item: SideBar::Console,
             chats_with_chunks,
+            conversation_id,
             lock_console,
             is_tts_disabled,
             header: rsx!(

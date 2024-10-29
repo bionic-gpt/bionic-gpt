@@ -30,6 +30,7 @@ pub fn Page(
             chats_with_chunks: chats_with_chunks.clone(),
             prompt: prompt.clone(),
             lock_console,
+            conversation_id,
             is_tts_disabled,
             header: rsx!(
                 h3 { "{prompt.name}" }
