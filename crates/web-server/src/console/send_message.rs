@@ -13,7 +13,7 @@ pub struct Message {
     pub conversation_id: Option<i64>,
     pub prompt_id: i32,
     // The image upload
-    pub attachments: Option<FieldData<axum::body::Bytes>>,
+    pub attachments: Vec<FieldData<axum::body::Bytes>>,
 }
 
 pub async fn send_message(
@@ -38,8 +38,8 @@ pub async fn send_message(
                 .await?
         };
 
-        if let Some(attachements) = message.attachments {
-            dbg!(&attachements);
+        for file in message.attachments {
+            dbg!("{:?}", file.metadata.file_name);
         }
 
         // Store the prompt, ready for the front end webcomponent to pickup
