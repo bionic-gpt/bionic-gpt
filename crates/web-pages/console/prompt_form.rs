@@ -107,8 +107,10 @@ pub fn Form(
                     value: "{prompt_id}"
                 }
 
-                AttachButton {
+                if std::env::var("FILE_UPLOAD_FEATURE").is_ok() {
+                    AttachButton {
 
+                    }
                 }
 
                 TextArea {

@@ -81,6 +81,8 @@ services:
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@db:5432/postgres?sslmode=disable
       SIGNOUT_URL: /auth/sign_out
 
+      FILE_UPLOAD_FEATURE: 1
+
       INVITE_DOMAIN: http://envoy:7700
       INVITE_FROM_EMAIL_ADDRESS: support@application.com
       SMTP_HOST: smtp
