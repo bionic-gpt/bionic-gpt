@@ -5,6 +5,7 @@ use super::image_hero::ImageHero;
 use crate::components::extra_footer::ExtraFooter;
 use crate::components::footer::Footer;
 use crate::components::image_feature::ImageFeature;
+use crate::components::partners::Partners;
 use crate::components::quad_feature::QuadFeature;
 use crate::components::small_image_feature::SmallImageFeature;
 use crate::layouts::layout::Layout;
@@ -32,12 +33,12 @@ pub async fn generate() {
     file.write_all(html.as_bytes())
         .expect("Unable to write to file");
 
-        let html = crate::render(Partners).await;
+    let html = crate::render(PartnersPage).await;
 
-        fs::create_dir_all("dist/partners").expect("Couyldn't create folder");
-        let mut file = File::create("dist/partners/index.html").expect("Unable to create file");
-        file.write_all(html.as_bytes())
-            .expect("Unable to write to file");
+    fs::create_dir_all("dist/partners").expect("Couyldn't create folder");
+    let mut file = File::create("dist/partners/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
 
     let html = crate::render(ContactPage).await;
 
@@ -197,14 +198,14 @@ pub fn Pricing() -> Element {
 }
 
 #[component]
-pub fn Partners() -> Element {
+pub fn PartnersPage() -> Element {
     rsx! {
         Layout {
             title: "Partners",
             mobile_menu: None,
             description: "Partners",
             section {
-                class: "mt-12 mb-12 flex justify-center px-4", // Add padding to the section
+                class: "mt-12 mb-12 mx-auto prose lg:prose-xl justify-center px-4", // Add padding to the section
                 div {
                     class: "max-w-3xl w-3/4 px-6 sm:px-100 lg:px-200 text-left", // Adjust max width and add padding at multiple screen sizes
                     h1 {
@@ -216,7 +217,7 @@ pub fn Partners() -> Element {
                         alt: "bionicGPT Partnership",
                         class: "mx-auto mt-4 mb-6 w-1/2", // Centers the image and sets it to 50% width of the container
                     }
-                    h2 {
+                    h3 {
                         class: "text-2xl font-bold mt-8",
                         "Unlock Revenue with Secure, Enterprise-Grade AI Solutions"
                     }
@@ -224,7 +225,7 @@ pub fn Partners() -> Element {
                         class: "mt-4 mb-6",
                         "At bionicGPT, we offer a unique opportunity to partner with a secure, enterprise-ready generative AI platform designed for flexibility, compliance, and scalability. Our solution is deployable on-premise or in your private cloud, enabling enterprises to leverage the power of generative AI within the secure confines of their own infrastructure."
                     }
-                    h2 {
+                    h3 {
                         class: "text-2xl font-bold mt-8",
                         "Why Partner with Us?"
                     }
@@ -232,7 +233,7 @@ pub fn Partners() -> Element {
                         class: "mt-4 mb-6",
                         "As a bionicGPT partner, you can tap into a growing market of enterprises seeking safe, private, and powerful AI solutions. Our platform’s features, including no-code RAG pipelines, team-based permissions, full observability, and customizable rate limiting, making it an ideal fit for security-conscious businesses and organisations in highly regulated sectors. And, with your local expertise and support, you can transform these capabilities into tangible value for your clients."
                     }
-                    h2 {
+                    h3 {
                         class: "text-2xl font-bold mt-8",
                         "A Success Story"
                     }
@@ -240,7 +241,7 @@ pub fn Partners() -> Element {
                         class: "mt-4 mb-6",
                         "A US based partner has leveraged bionicGPT to gain access to top-tier firms, meeting the demand for secure on-premise generative AI solutions. By offering private instance deployments and earning from user licensing, this partner has created multiple revenue streams. In addition to licensing, they've built thriving business lines in AI training, consulting, and custom development, allowing them to deliver high-value AI solutions tailored to client needs."
                     }
-                    h2 {
+                    h3 {
                         class: "text-2xl font-bold mt-8",
                         "Partner Benefits"
                     }

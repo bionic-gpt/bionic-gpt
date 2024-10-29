@@ -49,7 +49,7 @@ pub mod routes {
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/partners/")]
-        pub struct Partners {}
+        pub struct PartnersPage {}
     }
 
     pub mod docs {
