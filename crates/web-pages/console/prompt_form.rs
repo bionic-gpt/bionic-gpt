@@ -6,16 +6,6 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-fn FileList() -> Element {
-    rsx! {
-        div {
-            id: "fileList",
-            class: "flex flex-wrap"
-        }
-    }
-}
-
-#[component]
 fn AttachButton() -> Element {
     rsx! {
         div {
@@ -83,10 +73,6 @@ pub fn Form(
         div {
             class: "mx-auto md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]",
 
-            FileList {
-
-            }
-
             form {
                 class: "flex items-center gap-2 remember w-full bg-base-200 p-2 rounded-lg",
                 method: "post",
@@ -109,15 +95,9 @@ pub fn Form(
                     value: "{prompt_id}"
                 }
 
-                if std::env::var("FILE_UPLOAD_FEATURE").is_ok() {
-                    AttachButton {
-
-                    }
-                }
-
                 TextArea {
-                    class: "h-[2rem] submit-on-enter flex-1 resize-none",
-                    rows: "4",
+                    class: "text-sm submit-on-enter flex-1 resize-none",
+                    rows: "1",
                     name: "message",
                     disabled: lock_console
                 }
