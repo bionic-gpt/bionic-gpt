@@ -76,9 +76,6 @@ pub fn Navigation(mobile_menu: Element) -> Element {
                             a { href: blog::Index {}.to_string(), "Blog" }
                         }
                         li {
-                            a { href: marketing::Partners {}.to_string(), "Partners" }
-                        }
-                        li {
                             a { href: marketing::Contact {}.to_string(), "Contact Us" }
                         }
                     }
