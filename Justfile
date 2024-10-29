@@ -34,3 +34,5 @@ schemaspy:
         -u postgres \
         -p testpassword \
         -o tmp
+    cp -r tmp/diagrams/orphans crates/db/diagrams
+    cp -r tmp/diagrams/summary crates/db/diagrams
