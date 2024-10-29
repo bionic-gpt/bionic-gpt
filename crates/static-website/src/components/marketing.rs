@@ -207,7 +207,7 @@ pub fn PartnersPage() -> Element {
             section {
                 class: "mt-12 mb-12 mx-auto prose lg:prose-xl justify-center px-4", // Add padding to the section
                 div {
-                    class: "max-w-3xl w-3/4 px-6 sm:px-100 lg:px-200 text-left", // Adjust max width and add padding at multiple screen sizes
+                    class: "max-w-3xl w-3/4 px-6 text-left", // Adjust max width and add padding at multiple screen sizes
                     h1 {
                         class: "text-4xl font-extrabold mt-4 text-center",
                         "Become a bionicGPT Partner"
