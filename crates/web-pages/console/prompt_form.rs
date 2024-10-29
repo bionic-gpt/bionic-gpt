@@ -19,7 +19,7 @@ fn FileList() -> Element {
 fn AttachButton() -> Element {
     rsx! {
         div {
-            class: "h-8 w-8 p-2 bg-primary rounded-full",
+            class: "h-8 w-8 p-2 bg-secondary rounded-full",
             input {
                 id: "fileInput",
                 "type": "file",
@@ -32,7 +32,7 @@ fn AttachButton() -> Element {
                     class: "svg-icon",
                     width: "48",
                     height: "48",
-                    src: streaming_stop_svg.name
+                    src: attach_svg.name
                 }
             }
         }

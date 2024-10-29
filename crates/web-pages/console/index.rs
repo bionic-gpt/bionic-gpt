@@ -30,16 +30,21 @@ pub fn NewConversation(
             ),
             div {
                 id: "console-panel",
-                class: "h-full",
-                crate::console::empty_stream::EmptyStream {
-                    prompt: prompt.clone(),
-                    team_id
+                class: "h-full flex flex-col",
+                div {
+                    class: "flex-1 flex flex-col justify-center h-full",
+                    crate::console::empty_stream::EmptyStream {
+                        prompt: prompt.clone(),
+                        team_id
+                    }
                 }
-                super::prompt_form::Form {
-                    team_id: team_id,
-                    prompt_id: prompt.id,
-                    lock_console: false,
-                    disclaimer: prompt.disclaimer
+                div {
+                    super::prompt_form::Form {
+                        team_id: team_id,
+                        prompt_id: prompt.id,
+                        lock_console: false,
+                        disclaimer: prompt.disclaimer
+                    }
                 }
             }
         }
