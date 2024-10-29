@@ -16,7 +16,7 @@ pub fn ConsoleStream(
 ) -> Element {
     rsx! {
         div {
-            class: "flex flex-col-reverse overflow-y-auto",
+            class: "flex-1 flex flex-col-reverse overflow-y-auto",
             for chat_with_chunks in chats_with_chunks {
                 super::prompt_drawer::PromptDrawer {
                     trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),

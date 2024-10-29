@@ -28,7 +28,9 @@ pub fn Conversation(
             title: "AI Chat Console",
             prompt: prompt.clone(),
             selected_item: SideBar::Console,
-            chats_with_chunks
+            chats_with_chunks,
+            lock_console,
+            is_tts_disabled,
             header: rsx!(
                 Head {
                     team_id: team_id,

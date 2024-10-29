@@ -17,10 +17,11 @@ pub fn NewConversation(
         super::layout::ConsoleLayout {
             team_id,
             rbac: rbac.clone(),
-            chats_with_chunks: vec![],
             prompt: prompt.clone(),
             title: "AI Chat Console",
             selected_item: SideBar::Console,
+            is_tts_disabled: true,
+            lock_console: false,
             header: rsx!(
                 Head {
                     team_id: team_id,

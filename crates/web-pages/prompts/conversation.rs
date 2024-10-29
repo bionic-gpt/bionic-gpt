@@ -29,6 +29,8 @@ pub fn Page(
             title: "{prompt.name}",
             chats_with_chunks: chats_with_chunks.clone(),
             prompt: prompt.clone(),
+            lock_console,
+            is_tts_disabled,
             header: rsx!(
                 h3 { "{prompt.name}" }
                 if ! chats_with_chunks.is_empty() {
