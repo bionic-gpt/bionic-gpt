@@ -1,27 +1,26 @@
 use super::super::{Authentication, CustomError};
-use axum::{
-    extract::{Extension, Form},
-    response::IntoResponse,
-};
+use axum::{extract::Extension, response::IntoResponse};
+use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use db::queries::{chats, conversations, models, prompts};
 use db::Pool;
 use db::{authz, PromptType};
-use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::console::SendMessage;
 
-#[derive(Deserialize, Validate, Default, Debug)]
+#[derive(TryFromMultipart, Validate, Default, Debug)]
 pub struct Message {
     pub message: String,
     pub conversation_id: Option<i64>,
     pub prompt_id: i32,
+    // The image upload
+    pub attachments: Option<FieldData<axum::body::Bytes>>,
 }
 
 pub async fn send_message(
     SendMessage { team_id }: SendMessage,
     current_user: Authentication,
     Extension(pool): Extension<Pool>,
-    Form(message): Form<Message>,
+    TypedMultipart(message): TypedMultipart<Message>,
 ) -> Result<impl IntoResponse, CustomError> {
     if message.validate().is_ok() {
         let mut client = pool.get().await?;
@@ -38,6 +37,10 @@ pub async fn send_message(
                 .one()
                 .await?
         };
+
+        if let Some(attachements) = message.attachments {
+            dbg!(&attachements);
+        }
 
         // Store the prompt, ready for the front end webcomponent to pickup
         let chat_id = chats::new_chat()

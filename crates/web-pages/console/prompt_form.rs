@@ -23,6 +23,7 @@ fn AttachButton() -> Element {
             input {
                 id: "fileInput",
                 "type": "file",
+                name: "attachments",
                 multiple: "multiple",
                 class: "hidden"
             }
@@ -89,6 +90,7 @@ pub fn Form(
             form {
                 class: "flex items-center gap-2 remember w-full bg-base-200 p-2 rounded-lg",
                 method: "post",
+                enctype: "multipart/form-data",
                 "data-remember-name": "console-prompt",
                 "data-remember-reset": "false",
                 action: routes::console::SendMessage{team_id}.to_string(),
