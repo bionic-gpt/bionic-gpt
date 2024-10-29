@@ -76,7 +76,6 @@ pub fn Form(
             form {
                 class: "flex items-center gap-2 remember w-full bg-base-200 p-2 rounded-lg",
                 method: "post",
-                enctype: "multipart/form-data",
                 "data-remember-name": "console-prompt",
                 "data-remember-reset": "false",
                 action: routes::console::SendMessage{team_id}.to_string(),
@@ -96,8 +95,9 @@ pub fn Form(
                 }
 
                 TextArea {
-                    class: "text-sm submit-on-enter flex-1 resize-none",
+                    class: "pt-3 auto-expand max-h-96 text-sm submit-on-enter flex-1 resize-none",
                     rows: "1",
+                    placeholder: "Ask a question...",
                     name: "message",
                     disabled: lock_console
                 }
