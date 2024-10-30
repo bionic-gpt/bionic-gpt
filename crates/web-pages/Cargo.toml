@@ -16,6 +16,6 @@ axum-extra = { version = "0", features = ["typed-routing"] }
 dioxus = "0.5"
 dioxus-ssr = "0.5"
 serde = "1"
-daisy_rsx = "0.1.8"
+daisy_rsx = "0.1.10"
 comrak = { version = "0", default-features = false }
 time = "0.3.36"

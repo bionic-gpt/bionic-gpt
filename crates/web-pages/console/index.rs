@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::SideBar;
 use crate::console::model_popup::ModelPopup;
 use db::authz::Rbac;
 use db::queries::prompts::{Prompt, SinglePrompt};
@@ -14,12 +14,14 @@ pub fn NewConversation(
 ) -> Element {
     // Rerverse it because that's how we display it.
     rsx! {
-        Layout {
-            section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
-            selected_item: SideBar::Console,
-            team_id: team_id,
+        super::layout::ConsoleLayout {
+            team_id,
             rbac: rbac.clone(),
+            prompt: prompt.clone(),
             title: "AI Chat Console",
+            selected_item: SideBar::Console,
+            is_tts_disabled: true,
+            lock_console: false,
             header: rsx!(
                 Head {
                     team_id: team_id,
@@ -27,21 +29,7 @@ pub fn NewConversation(
                     prompts,
                     prompt: prompt.clone()
                 }
-            ),
-            div {
-                id: "console-panel",
-                class: "h-full",
-                crate::console::empty_stream::EmptyStream {
-                    prompt: prompt.clone(),
-                    team_id
-                }
-                super::prompt_form::Form {
-                    team_id: team_id,
-                    prompt_id: prompt.id,
-                    lock_console: false,
-                    disclaimer: prompt.disclaimer
-                }
-            }
+            )
         }
     }
 }

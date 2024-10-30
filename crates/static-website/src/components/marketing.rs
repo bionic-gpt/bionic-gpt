@@ -268,8 +268,6 @@ pub fn PartnersPage() -> Element {
     }
 }
 
-
-
 #[component]
 pub fn ContactPage() -> Element {
     rsx! {

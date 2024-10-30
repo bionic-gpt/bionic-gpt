@@ -2,7 +2,8 @@ export const selectMenu = () => {
     const selectMenus = document.querySelectorAll('.select-menu'); // Select all elements with class 'select-menu'
 
     selectMenus.forEach(selectMenu => {
-        const selectedOption = selectMenu.querySelector('.selected-option span') as HTMLElement;
+        const selectedOption = selectMenu.querySelector('.selected-option') as HTMLElement;
+        const selectedOptionSpan = selectMenu.querySelector('.selected-option span') as HTMLElement;
         const options = selectMenu.querySelector('.options') as HTMLElement;
 
         // Load stored value from localStorage if the element has an ID
@@ -16,7 +17,7 @@ export const selectMenu = () => {
                 if (correspondingOption) {
                     // Use the text content of the first <span> inside the corresponding option if it exists
                     const firstSpan = correspondingOption.querySelector('span');
-                    selectedOption.textContent = firstSpan?.textContent?.trim() || storedValue;
+                    selectedOptionSpan.textContent = firstSpan?.textContent?.trim() || storedValue;
                     selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
                 } else {
                     // If the stored value is no longer present, remove it from localStorage
@@ -38,7 +39,7 @@ export const selectMenu = () => {
 
                     // Get the text content from the first <span> of the target option
                     const firstSpan = target.querySelector('span');
-                    selectedOption.textContent = firstSpan?.textContent?.trim() || value;
+                    selectedOptionSpan.textContent = firstSpan?.textContent?.trim() || value;
 
                     // Store the selected value in localStorage if the element has an ID
                     if (menuId) {
