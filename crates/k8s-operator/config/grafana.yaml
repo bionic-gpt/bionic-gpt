@@ -24,6 +24,7 @@ data:
     auth_url = $HOSTNAME_URL/oidc/realms/observability/protocol/openid-connect/auth
     token_url = $HOSTNAME_URL/oidc/realms/observability/protocol/openid-connect/token
     api_url = $HOSTNAME_URL/oidc/realms/observability/protocol/openid-connect/userinfo
+    role_attribute_path = contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'
   datasources.yaml: |
     apiVersion: 1
     datasources:

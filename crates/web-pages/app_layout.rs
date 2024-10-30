@@ -172,8 +172,8 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 id: SideBar::Security.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::security::routes::Index { team_id: props.team_id },
-                                icon: limits_svg.name,
-                                title: "Security"
+                                icon: security_svg.name,
+                                title: "Security & Encryption"
                             }
                         )
                     }

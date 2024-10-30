@@ -1,5 +1,10 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::{
+    app_layout::{Layout, SideBar},
+    hero::Hero,
+};
+use assets::files::info_svg;
+use daisy_rsx::{TabContainer, TabPanel};
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
@@ -19,101 +24,136 @@ pub fn SecurityPage(rbac: Rbac, team_id: i32) -> Element {
     rsx! {
         Layout {
             section_class: "p-4",
-            selected_item: SideBar::ApiKeys,
+            selected_item: SideBar::Security,
             team_id: team_id,
             rbac: rbac,
             title: "Encryption and Security",
             header: rsx! {
-                h3 { "Encryption and Security" }
+                h3 { "Security and Encryption" }
             },
-            div { class: "container mx-auto p-4",
-                h1 { class: "text-3xl font-bold mb-6",
-                    "Choose Your Encryption Option"
-                }
 
-                div { class: "alert alert-info mb-6",
-                    svg {
-                        xmlns: "http://www.w3.org/2000/svg",
-                        fill: "none",
-                        view_box: "0 0 24 24",
-                        class: "stroke-current shrink-0 w-6 h-6",
-                        path {
-                            stroke_linecap: "round",
-                            stroke_linejoin: "round",
-                            stroke_width: "2",
-                            d: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        }
+            Hero {
+                heading: "Encryption and Security".to_string(),
+                subheading: "Protecting Sensitive Data in Generative AI and RAG Through Encryption and Security.".to_string()
+            }
+            div {
+                class: "mt-12 mx-auto max-w-3xl overflow-x-clip px-4",
+                TabContainer {
+
+                    TabPanel {
+                        name: "security-tabs",
+                        tab_name: "Encryption at Rest",
+                        checked: true,
+                        EncryptionTab {}
                     }
-                    div {
-                        h3 { class: "font-bold",
-                            "AES-256 and Encryption at Rest"
-                        }
-                        p { class: "text-sm",
-                            "AES-256 is a strong encryption algorithm used for data protection. Encryption at rest ensures your data is secure when stored. These methods are crucial for maintaining data confidentiality and integrity."
-                        }
+
+                    TabPanel {
+                        name: "security-tabs",
+                        tab_name: "Confidential Compute",
+                        ConfidentialTab {}
                     }
                 }
+            }
+        }
+    }
+}
 
-                div { class: "space-y-4",
-                    // Not Encrypted
-                    div { class: "form-control",
-                        label { class: "label cursor-pointer",
-                            input {
-                                r#type: "radio",
-                                name: "encryption-option",
-                                class: "radio radio-primary",
-                                value: "Not Encrypted",
-                                checked: true,
-                            }
-                            span { class: "label-text ml-4 flex-grow",
-                                span { class: "font-bold",
-                                    "Not Encrypted"
-                                }
-                                br {}
-                                "No encryption is being applied to your data. This option provides no additional security for your information."
-                            }
-                        }
-                    }
+#[component]
+fn ConfidentialTab() -> Element {
+    rsx! {
 
-                    // Encrypted with Bionic Keys
-                    div { class: "form-control",
-                        label { class: "label cursor-not-allowed",
-                            input {
-                                r#type: "radio",
-                                name: "encryption-option",
-                                class: "radio radio-primary",
-                                value: "Encrypted with Bionic Keys",
-                                disabled: true
-                            }
-                            span { class: "label-text ml-4 flex-grow opacity-50",
-                                span { class: "font-bold",
-                                    "Encrypted with Bionic Keys"
-                                }
-                                br {}
-                                "Your data is encrypted using our advanced Bionic Keys. This option ensures GDPR compliance and provides robust protection for sensitive information."
-                            }
-                        }
-                    }
+        h1 { class: "text-3xl font-bold mt-12 mb-12",
+            "Encryption of Data in Use"
+        }
+    }
+}
 
-                    // Using Customer Keys
-                    div { class: "form-control",
-                        label { class: "label cursor-not-allowed",
-                            input {
-                                r#type: "radio",
-                                name: "encryption-option",
-                                class: "radio radio-primary",
-                                value: "Using Customer Keys",
-                                disabled: true
-                            }
-                            span { class: "label-text ml-4 flex-grow opacity-50",
-                                span { class: "font-bold",
-                                    "Using Customer Keys (BYOK)"
-                                }
-                                br {}
-                                "Bring Your Own Key (BYOK) for maximum control over your data encryption. Contact support for this advanced option."
-                            }
-                        }
+#[component]
+fn EncryptionTab() -> Element {
+    rsx! {
+
+        h1 { class: "text-3xl font-bold mt-12 mb-12",
+            "Encryption at Rest"
+        }
+
+        div { class: "alert alert-info mb-6",
+            img {
+                class: "svg-icon w-8 h-8",
+                src: info_svg.name,
+            }
+            div {
+                h3 { class: "font-bold",
+                    "AES-256 and Encryption at Rest"
+                }
+                p { class: "text-sm",
+                    "AES-256 is a strong encryption algorithm used for data protection. Encryption at rest ensures your data is secure when stored. These methods are crucial for maintaining data confidentiality and integrity."
+                }
+            }
+        }
+
+        div {
+            class: "space-y-4",
+
+            BigSelectorEnabled {
+                title: "Not Encrypted",
+                message: "No encryption is being applied to your data. This option provides no additional security for your information."
+            }
+
+            BigSelector {
+                title: "Encrypted with Bionic Key",
+                message: "Your data is encrypted using our advanced Bionic Keys. This option ensures GDPR compliance and provides robust protection for sensitive information."
+            }
+
+            BigSelector {
+                title: "Using Customer Keys (BYOK)",
+                message: "Bring Your Own Key (BYOK) for maximum control over your data encryption. Contact support for this advanced option."
+            }
+        }
+    }
+}
+
+#[component]
+fn BigSelectorEnabled(title: String, message: String) -> Element {
+    rsx! {
+        div { class: "form-control",
+            label { class: "label cursor-pointer",
+                input {
+                    r#type: "radio",
+                    name: "encryption-option",
+                    class: "radio radio-primary",
+                    value: "{title}",
+                    checked: true
+                }
+                span { class: "label-text ml-4 flex-grow",
+                    span { class: "font-bold",
+                        "{title}"
                     }
+                    br {}
+                    "{message}"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn BigSelector(title: String, message: String) -> Element {
+    rsx! {
+        div { class: "form-control",
+            label { class: "label cursor-not-allowed",
+                input {
+                    r#type: "radio",
+                    name: "encryption-option",
+                    class: "radio radio-primary",
+                    value: "{title}",
+                    disabled: true
+                }
+                span { class: "label-text ml-4 flex-grow opacity-50",
+                    span { class: "font-bold",
+                        "{title}"
+                    }
+                    br {}
+                    "{message}"
                 }
             }
         }
