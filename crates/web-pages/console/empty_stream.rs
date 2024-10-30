@@ -7,6 +7,12 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
+    let examples: Vec<Option<String>> = vec![
+        prompt.example1,
+        prompt.example2,
+        prompt.example3,
+        prompt.example4,
+    ];
     rsx! {
         div {
             class: "mx-auto mt-12 max-w-3xl text-center",
@@ -16,39 +22,14 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: 
             }
             div {
                 class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",
-                if let Some(example) = prompt.example1 {
-                    if ! example.is_empty() {
-                        ExampleForm {
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example
-                        }
-                    }
-                }
-                if let Some(example) = prompt.example2 {
-                    if ! example.is_empty() {
-                        ExampleForm {
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example
-                        }
-                    }
-                }
-                if let Some(example) = prompt.example3 {
-                    if ! example.is_empty() {
-                        ExampleForm {
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example
-                        }
-                    }
-                }
-                if let Some(example) = prompt.example4 {
-                    if ! example.is_empty() {
-                        ExampleForm {
-                            team_id,
-                            prompt_id: prompt.id,
-                            example: example
+                for example in examples {
+                    if let Some(example) = example {
+                        if ! example.is_empty() {
+                            ExampleForm {
+                                team_id,
+                                prompt_id: prompt.id,
+                                example: example
+                            }
                         }
                     }
                 }
