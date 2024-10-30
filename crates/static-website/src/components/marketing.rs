@@ -33,6 +33,13 @@ pub async fn generate() {
     file.write_all(html.as_bytes())
         .expect("Unable to write to file");
 
+    let html = crate::render(PartnersPage).await;
+
+    fs::create_dir_all("dist/partners").expect("Couyldn't create folder");
+    let mut file = File::create("dist/partners/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
+
     let html = crate::render(ContactPage).await;
 
     fs::create_dir_all("dist/contact").expect("Couyldn't create folder");
@@ -179,11 +186,82 @@ pub fn Pricing() -> Element {
             }
             ExtraFooter {
                 title: "The secure open source Chat-GPT replacement
-                that runs in a trusted execution environment for 
+                that runs in a trusted execution environment for
                 maximum data security and compliance",
                 image: "/landing-page/bionic-console.png",
                 cta: "Find out more",
                 cta_url: crate::routes::marketing::Index {}.to_string()
+            }
+            Footer {}
+        }
+    }
+}
+
+#[component]
+pub fn PartnersPage() -> Element {
+    rsx! {
+        Layout {
+            title: "Partners",
+            mobile_menu: None,
+            description: "Partners",
+            section {
+                class: "mt-12 mb-12 mx-auto prose lg:prose-xl justify-center px-4", // Add padding to the section
+                div {
+                    class: "max-w-3xl w-3/4 px-6 text-left", // Adjust max width and add padding at multiple screen sizes
+                    h1 {
+                        class: "text-4xl font-extrabold mt-4 text-center",
+                        "Become a bionicGPT Partner"
+                    }
+                    img {
+                        src: "/landing-page/partners-bionic.png",
+                        alt: "bionicGPT Partnership",
+                        class: "mx-auto mt-4 mb-6 w-1/2", // Centers the image and sets it to 50% width of the container
+                    }
+                    h3 {
+                        class: "text-2xl font-bold mt-8",
+                        "Unlock Revenue with Secure, Enterprise-Grade AI Solutions"
+                    }
+                    p {
+                        class: "mt-4 mb-6",
+                        "At bionicGPT, we offer a unique opportunity to partner with a secure, enterprise-ready generative AI platform designed for flexibility, compliance, and scalability. Our solution is deployable on-premise or in your private cloud, enabling enterprises to leverage the power of generative AI within the secure confines of their own infrastructure."
+                    }
+                    h3 {
+                        class: "text-2xl font-bold mt-8",
+                        "Why Partner with Us?"
+                    }
+                    p {
+                        class: "mt-4 mb-6",
+                        "As a bionicGPT partner, you can tap into a growing market of enterprises seeking safe, private, and powerful AI solutions. Our platform’s features, including no-code RAG pipelines, team-based permissions, full observability, and customizable rate limiting, making it an ideal fit for security-conscious businesses and organisations in highly regulated sectors. And, with your local expertise and support, you can transform these capabilities into tangible value for your clients."
+                    }
+                    h3 {
+                        class: "text-2xl font-bold mt-8",
+                        "A Success Story"
+                    }
+                    p {
+                        class: "mt-4 mb-6",
+                        "A US based partner has leveraged bionicGPT to gain access to top-tier firms, meeting the demand for secure on-premise generative AI solutions. By offering private instance deployments and earning from user licensing, this partner has created multiple revenue streams. In addition to licensing, they've built thriving business lines in AI training, consulting, and custom development, allowing them to deliver high-value AI solutions tailored to client needs."
+                    }
+                    h3 {
+                        class: "text-2xl font-bold mt-8",
+                        "Partner Benefits"
+                    }
+                    ul {
+                        class: "list-disc list-inside mt-4 mb-6",
+                        li { class: "mt-2", strong { "Revenue Growth:" }, " Earn from licensing new users, support, and upgrades, while also providing AI consulting, training, and development services." }
+                        li { class: "mt-2", strong { "In-Demand Solution:" }, " Our platform’s private, secure deployment model opens doors to businesses prioritising data privacy and compliance." }
+                        li { class: "mt-2", strong { "End-to-End Support:" }, " Get onboarding assistance and ongoing technical support to ensure a seamless experience for you and your clients." }
+                        li { class: "mt-2", strong { "Flexible Deployments:" }, " Offer clients flexible deployment options, including on-premise or private cloud, for total control over data and security." }
+                    }
+                    div {
+                        class: "mt-10 flex flex-col items-center",
+                        hr { class: "w-full mb-4" }
+                        a {
+                            href: "/contact",
+                            class: "btn btn-secondary btn-outline",
+                            "Book a Call"
+                        }
+                    }
+                }
             }
             Footer {}
         }
@@ -223,7 +301,7 @@ pub fn ContactPage() -> Element {
             }
             ExtraFooter {
                 title: "The secure open source Chat-GPT replacement
-                that runs in a trusted execution environment for 
+                that runs in a trusted execution environment for
                 maximum data security and compliance",
                 image: "/landing-page/bionic-console.png",
                 cta: "Find out more",
