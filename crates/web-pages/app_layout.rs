@@ -24,7 +24,7 @@ pub enum SideBar {
     RateLimits,
     Switch,
     Team,
-    Training,
+    Security,
 }
 
 impl std::fmt::Display for SideBar {
@@ -167,6 +167,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::rate_limits::Index { team_id: props.team_id },
                                 icon: limits_svg.name,
                                 title: "Rate Limits"
+                            }
+                            NavItem {
+                                id: SideBar::Security.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::security::routes::Index { team_id: props.team_id },
+                                icon: limits_svg.name,
+                                title: "Security"
                             }
                         )
                     }
