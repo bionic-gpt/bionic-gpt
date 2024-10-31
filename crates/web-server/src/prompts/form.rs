@@ -63,7 +63,7 @@ pub async fn upsert(
                     team_id,
                     file_name,
                     &image_icon.contents,
-                    Some((80, 80)),
+                    Some((96, 96)),
                 )
                 .await?;
                 Some(id)

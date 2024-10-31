@@ -15,7 +15,7 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
     rsx! {
         Box {
             class: "cursor-pointer hover:bg-base-200 w-full",
-            drawer_trigger: format!("view-trigger-{}-{}", prompt.id, team_id),
+            modal_trigger: format!("view-trigger-{}-{}", prompt.id, team_id),
             BoxHeader {
                 class: "truncate ellipses flex justify-between p-2",
                 title: "{prompt.name}",
@@ -28,9 +28,10 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                 div {
                     class: "flex w-full",
                     if let Some(object_id) = prompt.image_icon_object_id {
-                        Avatar {
-                            avatar_size: AvatarSize::Large,
-                            image_src: Image { team_id, id: object_id }.to_string()
+                        img {
+                            width: "96",
+                            height: "96",
+                            src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
                         Avatar {

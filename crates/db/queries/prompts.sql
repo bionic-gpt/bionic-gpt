@@ -135,7 +135,7 @@ WHERE
             (p.visibility = 'Private' AND created_by = current_app_user()) 
     )
     AND p.prompt_type = :prompt_type
-ORDER BY updated_at;
+ORDER BY updated_at DESC;
 
 --! prompt : SinglePrompt
 SELECT
