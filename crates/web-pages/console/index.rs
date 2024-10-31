@@ -20,6 +20,7 @@ pub fn NewConversation(
             prompt: prompt.clone(),
             title: "AI Chat Console",
             selected_item: SideBar::Console,
+            chats_with_chunks: vec![],
             is_tts_disabled: true,
             lock_console: false,
             header: rsx!(

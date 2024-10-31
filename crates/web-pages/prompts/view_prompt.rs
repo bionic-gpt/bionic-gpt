@@ -14,10 +14,9 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
     ];
     let has_some_examples = examples.iter().any(|e| e.is_some());
     rsx! {
-        Drawer {
-            label: "{prompt.name}",
+        Modal {
             trigger_id,
-            DrawerBody {
+            ModalBody {
                 div {
                     class: "text-center",
                     if let Some(object_id) = prompt.image_icon_object_id {
@@ -50,7 +49,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                         "Conversation Starters"
                     }
                     div {
-                        class: "flex flex-col gap-4",
+                        class: "grid grid-cols-2 gap-x-1.5 gap-y-2",
                         for example in examples {
                             if let Some(example) = example {
                                 if ! example.is_empty() {
@@ -64,12 +63,12 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                         }
                     }
                 }
-            }
-            DrawerFooter {
-                a {
-                    class: "btn btn-primary btn-sm w-full",
-                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                    "Start a Chat"
+                ModalAction {
+                    a {
+                        class: "btn btn-primary btn-sm w-full",
+                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                        "Start a Chat"
+                    }
                 }
             }
         }
