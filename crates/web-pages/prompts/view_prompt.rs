@@ -18,11 +18,12 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
             trigger_id,
             ModalBody {
                 div {
-                    class: "text-center",
+                    class: "flex justify-center",
                     if let Some(object_id) = prompt.image_icon_object_id {
-                        Avatar {
-                            avatar_size: AvatarSize::ExtraLarge,
-                            image_src: Image { team_id, id: object_id }.to_string()
+                        img {
+                            width: "96",
+                            height: "96",
+                            src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
                         Avatar {
@@ -32,7 +33,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     }
                 }
                 h2 {
-                    class: "text-center text-xl font-semibold",
+                    class: "mt-2 text-center text-xl font-semibold",
                     "{prompt.name}"
                 }
                 p {
