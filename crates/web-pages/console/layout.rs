@@ -11,7 +11,7 @@ pub fn ConsoleLayout(
     team_id: i32,
     conversation_id: Option<i64>,
     rbac: Rbac,
-    chats_with_chunks: Option<Vec<ChatWithChunks>>,
+    chats_with_chunks: Vec<ChatWithChunks>,
     prompt: SinglePrompt,
     selected_item: SideBar,
     title: String,
@@ -19,7 +19,6 @@ pub fn ConsoleLayout(
     is_tts_disabled: bool,
     lock_console: bool,
 ) -> Element {
-    // Rerverse it because that's how we display it.
     rsx! {
         Layout {
             section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
@@ -31,7 +30,7 @@ pub fn ConsoleLayout(
             div {
                 id: "console-panel",
                 class: "h-full flex flex-col",
-                if let Some(chats_with_chunks) = chats_with_chunks {
+                if ! chats_with_chunks.is_empty() {
                     super::console_stream::ConsoleStream {
                         team_id: team_id,
                         chats_with_chunks: chats_with_chunks,
