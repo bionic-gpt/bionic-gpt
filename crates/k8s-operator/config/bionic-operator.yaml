@@ -50,4 +50,4 @@ spec:
       serviceAccountName: bionic-gpt-operator-service-account
       containers:
       - name: bionic-gpt-operator
-        image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:1.8.28
+        image: ghcr.io/bionic-gpt/bionicgpt-k8s-operator:1.8.29
