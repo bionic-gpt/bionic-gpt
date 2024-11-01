@@ -42,11 +42,11 @@
 
 ### Run Gen AI Locally in Seconds
 
-Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-compose/) installation. Great for running AI locally and small Pilots.
+Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-compose/) installation. Ideal for running AI locally and for small pilots.
 
 ### Familiar Chat Experience
 
-- 🖥️ Intuitive Interface: Our chat interface takes inspiration from ChatGPT, ensuring a user-friendly experience.
+- 🖥️ Intuitive Interface: Our chat interface is inspired by ChatGPT to ensure a user-friendly experience.
 - 🌈 Theme Customization: The theme for Bionic is completely customizable allowing you to brand Bionic as you like.
 - ⚡ Ultra Fast UI: Enjoy fast and responsive performance from our Rust based UI.
 - 📜 Chat History: Effortlessly access and manage your conversation history.
@@ -63,7 +63,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 ### Teams
 
 - 👫 Teams: Your company is made up of Teams of people and Bionic utilises this setup for maximum effect.
-- 👫 Invite Team Members: Teams manage themselves in a controlled way.
+- 👫 Invite Team Members: Teams can self-manage in a controlled environment.
 - 🙋 Manage Teams: Manage who has access to Bionic with your SSO system.
 - 👬 Virtual Teams: Create teams within teams to 
 - 🚠 Switch Teams: Switch between teams whilst still keeping data isolated.
@@ -105,8 +105,8 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 ### Manage Data Governance with GuardRails
 
 - 📁 Batch Guardrails: Apply rules to documents uploaded by our batch data pipeline.
-- 🏅 Streaming Guardrails: LLMs deliver results in streams, we can apply rules in realtime as hte stream flies by.
-- 👾 Prompt injection: We can gusrd against prompt injections attacks as well as many more.
+- 🏅 Streaming Guardrails: LLMs deliver results in streams, we can apply rules in realtime as the stream flies by.
+- 👾 Prompt injection: We can guard against prompt injections attacks as well as many more.
 
 
 ### Local or Remote Large Language Models

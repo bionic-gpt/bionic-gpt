@@ -11,6 +11,7 @@ pub mod documents;
 pub mod hero;
 pub mod history;
 pub mod logout_form;
+pub mod security;
 //pub mod model_form;
 pub mod models;
 pub mod pipelines;

@@ -7,10 +7,15 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
+    let description: String = prompt
+        .description
+        .chars()
+        .filter(|&c| c != '\n' && c != '\t' && c != '\r')
+        .collect();
     rsx! {
         Box {
             class: "cursor-pointer hover:bg-base-200 w-full",
-            drawer_trigger: format!("view-trigger-{}-{}", prompt.id, team_id),
+            modal_trigger: format!("view-trigger-{}-{}", prompt.id, team_id),
             BoxHeader {
                 class: "truncate ellipses flex justify-between p-2",
                 title: "{prompt.name}",
@@ -23,9 +28,10 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                 div {
                     class: "flex w-full",
                     if let Some(object_id) = prompt.image_icon_object_id {
-                        Avatar {
-                            avatar_size: AvatarSize::Large,
-                            image_src: Image { team_id, id: object_id }.to_string()
+                        img {
+                            width: "96",
+                            height: "96",
+                            src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
                         Avatar {
@@ -34,13 +40,14 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                         }
                     }
                     div {
+                        class: "ml-6 flex flex-col space-between",
                         p {
-                            class: "ml-8 text-sm",
-                            "{prompt.description}"
+                            class: "text-sm line-clamp-3",
+                            "{description}"
                         }
                         div {
-                            class: "ml-8 mt-3 text-xs flex justify-center gap-1",
-                            "Last update",
+                            class: "text-xs",
+                            "Last update ",
                             RelativeTime {
                                 format: RelativeTimeFormat::Relative,
                                 datetime: "{prompt.updated_at}"

@@ -6,21 +6,24 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
-    let example1 = prompt.example1.unwrap_or("".to_string());
-    let example2 = prompt.example2.unwrap_or("".to_string());
-    let example3 = prompt.example3.unwrap_or("".to_string());
-    let example4 = prompt.example4.unwrap_or("".to_string());
+    let examples: Vec<Option<String>> = vec![
+        prompt.example1,
+        prompt.example2,
+        prompt.example3,
+        prompt.example4,
+    ];
+    let has_some_examples = examples.iter().any(|e| e.is_some());
     rsx! {
-        Drawer {
-            label: "{prompt.name}",
+        Modal {
             trigger_id,
-            DrawerBody {
+            ModalBody {
                 div {
-                    class: "text-center",
+                    class: "flex justify-center",
                     if let Some(object_id) = prompt.image_icon_object_id {
-                        Avatar {
-                            avatar_size: AvatarSize::ExtraLarge,
-                            image_src: Image { team_id, id: object_id }.to_string()
+                        img {
+                            width: "96",
+                            height: "96",
+                            src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
                         Avatar {
@@ -30,7 +33,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     }
                 }
                 h2 {
-                    class: "text-center text-xl font-semibold",
+                    class: "mt-2 text-center text-xl font-semibold",
                     "{prompt.name}"
                 }
                 p {
@@ -41,49 +44,32 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     class: "mt-6 text-center",
                     "{prompt.description}"
                 }
-                if ! example2.is_empty() || ! example2.is_empty()  || ! example3.is_empty() || ! example4.is_empty() {
+                if has_some_examples {
                     h2 {
                         class: "mt-12 mb-8 text-xl font-semibold",
                         "Conversation Starters"
                     }
                     div {
-                        class: "flex flex-col gap-4",
-                        if ! example1.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example1
-                            }
-                        }
-                        if ! example2.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example2
-                            }
-                        }
-                        if ! example3.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example3
-                            }
-                        }
-                        if ! example4.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example4
+                        class: "grid grid-cols-2 gap-x-1.5 gap-y-2",
+                        for example in examples {
+                            if let Some(example) = example {
+                                if ! example.is_empty() {
+                                    ExampleForm {
+                                        team_id,
+                                        prompt_id: prompt.id,
+                                        example: example
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-            DrawerFooter {
-                a {
-                    class: "btn btn-primary btn-sm w-full",
-                    href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
-                    "Start a Chat"
+                ModalAction {
+                    a {
+                        class: "btn btn-primary btn-sm w-full",
+                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                        "Start a Chat"
+                    }
                 }
             }
         }

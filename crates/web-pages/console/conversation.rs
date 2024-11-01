@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use super::ChatWithChunks;
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::SideBar;
 use crate::console::model_popup::ModelPopup;
 use assets::files::*;
 use daisy_rsx::*;
@@ -22,12 +22,16 @@ pub fn Conversation(
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
     rsx! {
-        Layout {
-            section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
-            selected_item: SideBar::Console,
+        super::layout::ConsoleLayout {
             team_id: team_id,
             rbac: rbac.clone(),
             title: "AI Chat Console",
+            prompt: prompt.clone(),
+            selected_item: SideBar::Console,
+            chats_with_chunks,
+            conversation_id,
+            lock_console,
+            is_tts_disabled,
             header: rsx!(
                 Head {
                     team_id: team_id,
@@ -36,32 +40,7 @@ pub fn Conversation(
                     prompts,
                     prompt: prompt.clone()
                 }
-            ),
-            div {
-                id: "console-panel",
-                class: "h-full",
-                if chats_with_chunks.is_empty() {
-                    crate::console::empty_stream::EmptyStream {
-                        prompt: prompt.clone(),
-                        conversation_id,
-                        team_id
-                    }
-                } else {
-                    super::console_stream::ConsoleStream {
-                        team_id: team_id,
-                        chats_with_chunks: chats_with_chunks,
-                        is_tts_disabled: is_tts_disabled,
-                        lock_console: lock_console,
-                    }
-                }
-                super::prompt_form::Form {
-                    team_id: team_id,
-                    prompt_id: prompt.id,
-                    conversation_id: conversation_id,
-                    lock_console: lock_console,
-                    disclaimer: prompt.disclaimer
-                }
-            }
+            )
         }
     }
 }

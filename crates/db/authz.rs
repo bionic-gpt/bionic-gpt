@@ -33,12 +33,7 @@ pub async fn get_permissions(
         setup_user_if_not_already_registered(transaction, authentication).await?
     };
 
-    transaction
-        .query(
-            &format!("SET LOCAL row_level_security.user_id = {}", user_id),
-            &[],
-        )
-        .await?;
+    set_rls_and_encryption_keys(transaction, user_id).await?;
 
     let permissions = queries::users::get_permissions()
         .bind(transaction, &current_team_id)
@@ -57,6 +52,26 @@ pub async fn get_permissions(
     Ok(rbac)
 }
 
+async fn set_rls_and_encryption_keys(
+    transaction: &Transaction<'_>,
+    user_id: i32,
+) -> Result<(), crate::TokioPostgresError> {
+    transaction
+        .query(
+            &format!("SET LOCAL row_level_security.user_id = {}", user_id),
+            &[],
+        )
+        .await?;
+
+    if let Some(key) = crate::customer_keys::get_customer_key() {
+        transaction
+            .query(&format!("SET LOCAL encryption.root_key = '{}'", key), &[])
+            .await?;
+    }
+
+    Ok(())
+}
+
 pub async fn set_row_level_security_user_id(
     transaction: &Transaction<'_>,
     user_id: String,
@@ -66,12 +81,7 @@ pub async fn set_row_level_security_user_id(
         .one()
         .await?;
 
-    transaction
-        .query(
-            &format!("SET LOCAL row_level_security.user_id = {}", user.id),
-            &[],
-        )
-        .await?;
+    set_rls_and_encryption_keys(transaction, user.id).await?;
 
     Ok(user.id)
 }
@@ -86,12 +96,7 @@ pub async fn setup_user_if_not_already_registered(
         .one()
         .await?;
 
-    transaction
-        .query(
-            &format!("SET LOCAL row_level_security.user_id = {}", user_id),
-            &[],
-        )
-        .await?;
+    set_rls_and_encryption_keys(transaction, user_id).await?;
 
     let inserted_org_id = queries::teams::insert_team()
         .bind(transaction)

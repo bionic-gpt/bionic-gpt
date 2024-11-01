@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::SideBar;
+use crate::console::layout::ConsoleLayout;
 use crate::console::ChatWithChunks;
 use assets::files::*;
 use daisy_rsx::*;
@@ -21,12 +22,16 @@ pub fn Page(
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
     rsx! {
-        Layout {
-            section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
+        ConsoleLayout {
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac,
             title: "{prompt.name}",
+            chats_with_chunks: chats_with_chunks.clone(),
+            prompt: prompt.clone(),
+            lock_console,
+            conversation_id,
+            is_tts_disabled,
             header: rsx!(
                 h3 { "{prompt.name}" }
                 if ! chats_with_chunks.is_empty() {
@@ -58,33 +63,7 @@ pub fn Page(
                         }
                     }
                 }
-            ),
-            div {
-                id: "console-panel",
-                class: "h-full",
-                if chats_with_chunks.is_empty() {
-                    crate::console::empty_stream::EmptyStream {
-                        prompt: prompt.clone(),
-                        conversation_id,
-                        team_id
-                    }
-                } else {
-                    crate::console::console_stream::ConsoleStream {
-                        chats_with_chunks,
-                        team_id,
-                        is_tts_disabled: is_tts_disabled,
-                        lock_console: lock_console,
-                    }
-                }
-
-                crate::console::prompt_form::Form {
-                    team_id: team_id,
-                    prompt_id: prompt.id,
-                    conversation_id: conversation_id,
-                    lock_console: lock_console,
-                    disclaimer: prompt.disclaimer
-                }
-            }
+            )
         }
     }
 }

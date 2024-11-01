@@ -109,14 +109,11 @@ pub fn resize_image(bytes: &[u8], size: Option<(u32, u32)>) -> Result<Vec<u8>, S
     }
 }
 
-pub async fn get(pool: Pool, id: i32, team_id: i32) -> Result<ObjectStorage, StorageError> {
+pub async fn get(pool: Pool, id: i32) -> Result<ObjectStorage, StorageError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let object = object_storage::get()
-        .bind(&transaction, &id, &team_id)
-        .one()
-        .await?;
+    let object = object_storage::get().bind(&transaction, &id).one().await?;
 
     Ok(object)
 }

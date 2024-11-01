@@ -7,45 +7,23 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
+    let examples: Vec<Option<String>> = vec![
+        prompt.example1,
+        prompt.example2,
+        prompt.example3,
+        prompt.example4,
+    ];
     rsx! {
         div {
-            class: "flex h-[calc(100%-100px)] overflow-y-auto justify-center items-center",
+            class: "mx-auto mt-12 max-w-3xl text-center",
+            h1 {
+                class: "mb-8 text-2xl font-semibold relative before:absolute before:inset-0 before:animate-typewriter before:bg-base-100",
+                "What can I help with?"
+            }
             div {
-                class: "mx-3 mt-12 max-w-3xl gap-4 text-center",
-                h1 {
-                    class: "mb-8 text-2xl font-semibold relative before:absolute before:inset-0 before:animate-typewriter before:bg-white",
-                    "What can I help with?"
-                }
-                div {
-                    class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",
-                    if let Some(example) = prompt.example1 {
-                        if ! example.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example
-                            }
-                        }
-                    }
-                    if let Some(example) = prompt.example2 {
-                        if ! example.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example
-                            }
-                        }
-                    }
-                    if let Some(example) = prompt.example3 {
-                        if ! example.is_empty() {
-                            ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
-                                example: example
-                            }
-                        }
-                    }
-                    if let Some(example) = prompt.example4 {
+                class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",
+                for example in examples {
+                    if let Some(example) = example {
                         if ! example.is_empty() {
                             ExampleForm {
                                 team_id,
