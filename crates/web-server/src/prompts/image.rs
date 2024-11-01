@@ -18,7 +18,7 @@ pub async fn image(
 
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let object = object_storage::get(pool, id, team_id).await?;
+    let object = object_storage::get(pool, id).await?;
 
     if let Some(bytes) = object.object_data {
         let bytes = Bytes::from(bytes);
