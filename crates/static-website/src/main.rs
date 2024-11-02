@@ -50,6 +50,11 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/partners/")]
         pub struct PartnersPage {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/services/")]
+        pub struct ServicesPage {}
+
     }
 
     pub mod docs {
