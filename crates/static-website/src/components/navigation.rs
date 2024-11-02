@@ -79,6 +79,9 @@ pub fn Navigation(mobile_menu: Element) -> Element {
                             a { href: marketing::PartnersPage {}.to_string(), "Partners" }
                         }
                         li {
+                            a { href: marketing::ServicesPage {}.to_string(), "Services" }
+                        }
+                        li {
                             a { href: marketing::Contact {}.to_string(), "Contact Us" }
                         }
                     }
