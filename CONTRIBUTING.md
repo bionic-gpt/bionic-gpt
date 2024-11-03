@@ -36,15 +36,129 @@ You'll need to create a cluster and install the necessary services into the clus
 
 If you get a *503 Service Unavailable* wait a little longer for the cluster to be ready.
 
+If you have issues that the cluster is already created run `k3d-del` to delete the cluster.
+
 ## K9s - Visibility into the cluster
 
 We have [k9s](https://k9scli.io/) pre installed which will allow you to see the services in the cluster starting up.
 
 Just type `k9s`.
 
+## The directory structure
+
+```
+|-- CONTRIBUTING.md
+|-- Cargo.lock
+|-- Cargo.toml
+|-- Earthfile
+|-- Justfile
+|-- LICENCE
+|-- README.md
+|-- crates
+|   |-- airbyte-connector
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   `-- src
+|   |-- cache-busters
+|   |   |-- Cargo.toml
+|   |   `-- src
+|   |-- db
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- authz.rs
+|   |   |-- build.rs
+|   |   |-- customer_keys.rs
+|   |   |-- diagrams
+|   |   |-- lib.rs
+|   |   |-- migrations
+|   |   |-- queries
+|   |   |-- seed-data
+|   |   `-- vector_search.rs
+|   |-- embeddings-api
+|   |   |-- Cargo.toml
+|   |   `-- src
+|   |-- integration-testing
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- files
+|   |   `-- tests
+|   |-- k8s-operator
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- config
+|   |   |-- envoy
+|   |   |-- keycloak
+|   |   `-- src
+|   |-- nails-operator
+|   |   |-- Cargo.toml
+|   |   |-- config
+|   |   `-- src
+|   |-- object-storage
+|   |   |-- Cargo.toml
+|   |   `-- src
+|   |-- rag-engine
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   `-- src
+|   |-- static-website
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- assets
+|   |   |-- content
+|   |   |-- dist
+|   |   |-- input.css
+|   |   |-- node_modules
+|   |   |-- package-lock.json
+|   |   |-- package.json
+|   |   |-- src
+|   |   `-- tailwind.config.js
+|   |-- web-assets
+|   |   |-- Cargo.toml
+|   |   |-- build.rs
+|   |   |-- dist
+|   |   |-- images
+|   |   |-- index.ts
+|   |   |-- input.css
+|   |   |-- lib.rs
+|   |   |-- node_modules
+|   |   |-- package-lock.json
+|   |   |-- package.json
+|   |   |-- patches
+|   |   |-- scss
+|   |   |-- tailwind.config.js
+|   |   `-- typescript
+|   |-- web-pages
+|   |   |-- Cargo.toml
+|   |   |-- api_keys
+|   |   |-- app_layout.rs
+|   |   |-- audit_trail
+|   |   |-- base_layout.rs
+|   |   |-- console
+|   |   |-- datasets
+|   |   |-- documents
+|   |   |-- hero.rs
+|   |   |-- history
+|   |   |-- lib.rs
+|   |   |-- logout_form.rs
+|   |   |-- models
+|   |   |-- pipelines
+|   |   |-- profile.rs
+|   |   |-- profile_popup.rs
+|   |   |-- prompts
+|   |   |-- rate_limits
+|   |   |-- security.rs
+|   |   |-- snackbar.rs
+|   |   |-- team
+|   |   `-- teams
+|   `-- web-server
+|       |-- Cargo.toml
+|       |-- README.md
+|       `-- src
+```
+
 ## Running Database Migrations
 
-If you get an error *EOF* when running `dbmate` he database is not yet ready.
+If you get an error *EOF* when running `dbmate` the database is not yet ready.
 
 We use [dbmate](https://github.com/amacneil/dbmate) to manage database migrations.
 
