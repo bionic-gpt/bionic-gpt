@@ -8,3 +8,5 @@ RUN cat bash_aliases >> ~/.bash_aliases && sudo rm bash_aliases
 
 # Enable our git hooks and set the permisisons on docker sock.
 RUN echo 'git config core.hooksPath /workspace/.devcontainer/.githooks' >> ~/.bashrc
+
+RUN curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash

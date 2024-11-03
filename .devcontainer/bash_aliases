@@ -43,11 +43,12 @@ alias ws=watch-static
 alias watch-tailwind-static='cd /workspace/crates/static-website && npx tailwindcss -i ./input.css -o ./dist/tailwind.css --watch'
 alias wts=watch-tailwind-static
 
-# Mirrord
-alias ma='mirrord exec --target deployment/bionic-gpt -n bionic-gpt cargo watch --workdir /workspace/ -w crates/daisy-rsx -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
-
 # Spell check
 alias spell='docker run --rm -ti -v /workspace/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
 
-# Devpod always deletes my website folder
-alias fu-devpod='git checkout -- website'
+# k3d
+alias k3d-create='k3d cluster create --agents 2 -p "30000-30010:30000-30010@agent:0"'
+alias k3d-del='k3d cluster delete'
+alias k3d-postgres='kubectl apply -f /workspace/.devcontainer/kubernetes/postgres.yaml'
+alias k3d-rag-engine='kubectl apply -f /workspace/.devcontainer/kubernetes/rag-engine.yaml'
+alias k3d-smtp='kubectl apply -f /workspace/.devcontainer/kubernetes/smtp.yaml'
