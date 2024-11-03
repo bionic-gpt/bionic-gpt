@@ -5,6 +5,7 @@ mod error;
 mod install;
 mod keycloak;
 mod keycloak_db;
+mod oauth2_proxy;
 mod operators;
 
 use anyhow::Result;
@@ -12,6 +13,7 @@ use clap::{Parser, Subcommand};
 
 // Images we are using
 const KEYCLOAK_IMAGE: &str = "quay.io/keycloak/keycloak:23.0";
+const OAUTH2_PROXY_IMAGE: &str = "quay.io/oauth2-proxy/oauth2-proxy:v7.5.1";
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]

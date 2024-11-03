@@ -27,3 +27,5 @@ tracing-subscriber = { version="0", features = ["env-filter"] }
 
 # So we can create secrets
 rand = "0.8.4"
+base64 = "0.13.0"
+url = "2"

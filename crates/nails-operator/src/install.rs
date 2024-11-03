@@ -1,6 +1,7 @@
 use crate::database::deploy_app_database;
 use crate::keycloak::deploy_keycloak;
 use crate::keycloak_db::deploy_keycloak_database;
+use crate::oauth2_proxy::deploy_oauth2_proxy;
 use crate::operators::install_postgres_operator;
 use anyhow::Result;
 use k8s_openapi::api::core::v1::Namespace;
@@ -12,6 +13,7 @@ use rand::Rng;
 
 const POSTGRES_SERVICE: &str = include_str!("../config/postgres-service.yaml");
 const KEYCLOAK_SERVICE: &str = include_str!("../config/keycloak-service.yaml");
+const OAUTH2PROXY_SERVICE: &str = include_str!("../config/oauth2-proxy-service.yaml");
 
 pub async fn install(installer: &crate::Installer) -> Result<()> {
     println!("🔗 Connecting to the cluster...");
@@ -37,12 +39,16 @@ pub async fn install(installer: &crate::Installer) -> Result<()> {
     deploy_keycloak_database(&client, &installer.namespace).await?;
     println!("🔧 Deploying keycloak");
     deploy_keycloak(&client, installer, &installer.namespace).await?;
+    println!("🔧 Deploying Oauth2 Proxy");
+    deploy_oauth2_proxy(&client, installer, &installer.namespace).await?;
 
     if installer.development {
         println!("🚀 Mapping Postgres to port 30000");
         super::apply::apply(&client, POSTGRES_SERVICE, Some(&installer.namespace)).await?;
         println!("🚀 Mapping Keycloak to port 30001");
         super::apply::apply(&client, KEYCLOAK_SERVICE, Some(&installer.namespace)).await?;
+        println!("🚀 Mapping Oauth2 Proxy to port 30002");
+        super::apply::apply(&client, OAUTH2PROXY_SERVICE, Some(&installer.namespace)).await?;
     }
 
     Ok(())
