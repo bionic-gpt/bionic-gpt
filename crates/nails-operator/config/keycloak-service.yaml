@@ -5,9 +5,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 5432
-      targetPort: 5432
-      nodePort: 30000
+    - port: 7910
+      targetPort: 7910
+      nodePort: 30001
   selector:
-    cnpg.io/cluster: bionic-gpt-db-cluster 
-    role: primary
+    app: keycloak

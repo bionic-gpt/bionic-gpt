@@ -21,16 +21,6 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-              # Sign in and registration
-              - match: { prefix: "/auth" }
-                route: { cluster: ext-authn }
-                typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    disabled: true
 
               # API requests to the LLM (they all start with /v1)
               - match: 
@@ -82,6 +72,17 @@ static_resources:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
                     disabled: true
                     
+              # /oidc Authentication Route - Probable Keycloak
+              - match: { prefix: "/oidc" }
+                route: { cluster: authentication }
+                typed_per_filter_config:
+                  envoy.filters.http.ext_authz:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                    disabled: true
+                  envoy.filters.http.lua:
+                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
+                    disabled: true
+                    
               # Everything else passes in to here. The marketing pages
               - match: { prefix: "/" }
                 route: { cluster: app }
@@ -92,28 +93,8 @@ static_resources:
                   envoy.filters.http.lua:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
                     disabled: true
-     
-          http_filters:
-          # Use Authn Proxy to authenticate routes.  
-          - name: envoy.filters.http.ext_authz
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
-              http_service:
-                server_uri:
-                  uri: auth:9090
-                  cluster: ext-authn
-                  timeout: 0.25s
-                authorization_request:
-                  allowed_headers:
-                    patterns: 
-                      - exact: "cookie"
-                authorization_response:
-                  allowed_upstream_headers_to_append:
-                    patterns: 
-                      - exact: "x-user-id"
-                      - exact: "x-forwarded-user"
-                      - exact: "x-forwarded-email"
 
+          http_filters:
           # Add all the security headers, if an item is already set, it will be left alone.
           - name: envoy.filters.http.lua
             typed_config:
@@ -154,20 +135,6 @@ static_resources:
           - name: envoy.filters.http.router
 
   clusters:
-  # The Barricade authentication service
-  - name: ext-authn
-    connect_timeout: 1.25s
-    type: strict_dns
-    lb_policy: round_robin
-    load_assignment:
-      cluster_name: ext-authn
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: barricade
-                port_value: 9090
 
   # The web application
   - name: app
@@ -184,3 +151,19 @@ static_resources:
               socket_address:
                 address: development
                 port_value: 7703
+
+  # Authentication
+  - name: authentication
+    connect_timeout: 1.25s
+    type: strict_dns
+    lb_policy: round_robin
+    dns_lookup_family: V4_ONLY
+    load_assignment:
+      cluster_name: app
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: development
+                port_value: 30001

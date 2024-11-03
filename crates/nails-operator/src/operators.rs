@@ -56,7 +56,7 @@ const CNPG_YAML: &str = include_str!("../config/postgres-operator.yaml");
 
 // Install Cloud Native Postgres Operator https://cloudnative-pg.io/
 pub async fn install_postgres_operator(client: &Client) -> Result<()> {
-    println!("Installing Cloud Native Postgres Operator (CNPG)");
+    println!("🔧 Installing Cloud Native Postgres Operator (CNPG)");
     super::apply::apply(client, CNPG_YAML, None).await?;
 
     fn is_deployment_available() -> impl Condition<Deployment> {
@@ -72,7 +72,7 @@ pub async fn install_postgres_operator(client: &Client) -> Result<()> {
         }
     }
 
-    println!("Waiting for Cloud Native Postgres Controller Manager");
+    println!("⌛ Waiting for Cloud Native Postgres Controller Manager");
     let deploys: Api<Deployment> = Api::namespaced(client.clone(), "cnpg-system");
     let establish = await_condition(
         deploys,

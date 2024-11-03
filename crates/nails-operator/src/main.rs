@@ -35,7 +35,7 @@ pub struct Installer {
     #[arg(long, default_value_t = 1)]
     replicas: i32,
     /// The hostname we are deploying on. By default use the local ip address
-    #[arg(long, default_value = "http://localhost")]
+    #[arg(long, default_value = "http://localhost:7700")]
     hostname_url: String,
     /// Don't create random db passwords but use this one. NOT FOR PRODUCTION
     #[arg(long)]

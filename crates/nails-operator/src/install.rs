@@ -11,18 +11,19 @@ use kube::{
 use rand::Rng;
 
 const POSTGRES_SERVICE: &str = include_str!("../config/postgres-service.yaml");
+const KEYCLOAK_SERVICE: &str = include_str!("../config/keycloak-service.yaml");
 
 pub async fn install(installer: &crate::Installer) -> Result<()> {
-    println!("Connecting to the cluster...");
+    println!("🔗 Connecting to the cluster...");
     let client = Client::try_default().await?;
-    println!("Connected");
+    println!("🔗 Connected");
 
-    println!("Creating Namespace : {}", &installer.namespace);
+    println!("🔧 Creating Namespace : {}", &installer.namespace);
     create_namespace(&client, &installer.namespace).await?;
 
     install_postgres_operator(&client).await?;
 
-    println!("Deploying application database");
+    println!("⛃ Deploying application database");
     deploy_app_database(
         &client,
         &installer.namespace,
@@ -32,14 +33,16 @@ pub async fn install(installer: &crate::Installer) -> Result<()> {
     )
     .await?;
 
-    println!("Deploying keycloak database");
+    println!("⛃ Deploying keycloak database");
     deploy_keycloak_database(&client, &installer.namespace).await?;
-    println!("Deploying keycloak");
+    println!("🔧 Deploying keycloak");
     deploy_keycloak(&client, installer, &installer.namespace).await?;
 
     if installer.development {
-        println!("Mapping Postgres to port 30000");
+        println!("🚀 Mapping Postgres to port 30000");
         super::apply::apply(&client, POSTGRES_SERVICE, Some(&installer.namespace)).await?;
+        println!("🚀 Mapping Keycloak to port 30001");
+        super::apply::apply(&client, KEYCLOAK_SERVICE, Some(&installer.namespace)).await?;
     }
 
     Ok(())
