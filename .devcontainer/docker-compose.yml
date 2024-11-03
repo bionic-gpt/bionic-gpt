@@ -72,8 +72,8 @@ services:
     environment:
       RUST_LOG: debug
       ENABLE_BARRICADE: 1
-      DATABASE_URL: postgresql://postgres:testpassword@localhost:30000/postgres?sslmode=disable
-      APP_DATABASE_URL: postgresql://bionic_application:testpassword@localhost:30000/postgres?sslmode=disable
+      DATABASE_URL: postgresql://db-owner:testpassword@localhost:30000/bionic-gpt?sslmode=disable
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@localhost:30000/bionic-gpt?sslmode=disable
       SIGNOUT_URL: /auth/sign_out
 
       FILE_UPLOAD_FEATURE: 1
