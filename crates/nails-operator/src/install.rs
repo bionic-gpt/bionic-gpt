@@ -1,4 +1,6 @@
 use crate::database::deploy_app_database;
+use crate::keycloak::deploy_keycloak;
+use crate::keycloak_db::deploy_keycloak_database;
 use crate::operators::install_postgres_operator;
 use anyhow::Result;
 use k8s_openapi::api::core::v1::Namespace;
@@ -6,18 +8,21 @@ use kube::{
     api::{ObjectMeta, PostParams},
     Api, Client, Error,
 };
+use rand::Rng;
 
 const POSTGRES_SERVICE: &str = include_str!("../config/postgres-service.yaml");
 
 pub async fn install(installer: &crate::Installer) -> Result<()> {
-    tracing::info!("Connecting to the cluster...");
+    println!("Connecting to the cluster...");
     let client = Client::try_default().await?;
-    tracing::info!("Connected");
+    println!("Connected");
 
+    println!("Creating Namespace : {}", &installer.namespace);
     create_namespace(&client, &installer.namespace).await?;
 
     install_postgres_operator(&client).await?;
 
+    println!("Deploying application database");
     deploy_app_database(
         &client,
         &installer.namespace,
@@ -27,14 +32,20 @@ pub async fn install(installer: &crate::Installer) -> Result<()> {
     )
     .await?;
 
+    println!("Deploying keycloak database");
+    deploy_keycloak_database(&client, &installer.namespace).await?;
+    println!("Deploying keycloak");
+    deploy_keycloak(&client, installer, &installer.namespace).await?;
+
     if installer.development {
+        println!("Mapping Postgres to port 30000");
         super::apply::apply(&client, POSTGRES_SERVICE, Some(&installer.namespace)).await?;
     }
 
     Ok(())
 }
 
-async fn create_namespace(client: &Client, namespace: &str) -> Result<Namespace> {
+pub async fn create_namespace(client: &Client, namespace: &str) -> Result<Namespace> {
     tracing::info!("Ensuring existence of namespace {}", namespace);
     // Define the API object for Namespace
     let namespaces: Api<Namespace> = Api::all(client.clone());
@@ -71,4 +82,9 @@ async fn create_namespace(client: &Client, namespace: &str) -> Result<Namespace>
             Err(e.into())
         }
     }
+}
+
+pub fn rand_hex() -> String {
+    let mut rng = rand::thread_rng();
+    (0..5).map(|_| rng.gen::<u8>().to_string()).collect()
 }

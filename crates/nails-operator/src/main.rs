@@ -1,11 +1,17 @@
 mod apply;
 mod database;
+mod deployment;
 mod error;
 mod install;
+mod keycloak;
+mod keycloak_db;
 mod operators;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+
+// Images we are using
+const KEYCLOAK_IMAGE: &str = "quay.io/keycloak/keycloak:23.0";
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -29,8 +35,8 @@ pub struct Installer {
     #[arg(long, default_value_t = 1)]
     replicas: i32,
     /// The hostname we are deploying on. By default use the local ip address
-    #[arg(long)]
-    hostname_url: Option<String>,
+    #[arg(long, default_value = "http://localhost")]
+    hostname_url: String,
     /// Don't create random db passwords but use this one. NOT FOR PRODUCTION
     #[arg(long)]
     insecure_override_passwords: Option<String>,

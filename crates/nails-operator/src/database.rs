@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use super::install::rand_hex;
 use crate::error::Error;
 use crate::operators::{BootstrapSpec, Cluster, ClusterSpec, InitDBSpec, SecretSpec, StorageSpec};
 use k8s_openapi::api::core::v1::Secret;
@@ -8,7 +9,6 @@ use kube::{
     api::{Api, PostParams},
     Client,
 };
-use rand::Rng;
 
 pub async fn deploy_app_database(
     client: &Client,
@@ -125,11 +125,6 @@ pub async fn deploy_app_database(
         .await?;
 
     Ok(Some(readonly_database_password))
-}
-
-pub fn rand_hex() -> String {
-    let mut rng = rand::thread_rng();
-    (0..5).map(|_| rng.gen::<u8>().to_string()).collect()
 }
 
 pub async fn _delete(client: Client, namespace: &str, app_name: &str) -> Result<(), Error> {

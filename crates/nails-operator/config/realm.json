@@ -1,0 +1,38 @@
+[{
+    "realm": "bionic-gpt",
+    "registrationAllowed": true,
+    "registrationEmailAsUsername": true,
+    "enabled": "true",
+    "sslRequired": "none",
+    "clients": [
+        {
+            "clientId": "bionic-gpt",
+            "clientAuthenticatorType": "client-secret",
+            "secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
+            "redirectUris": [
+                "http://*",
+                "https://*"
+            ],
+            "protocol": "openid-connect"
+        }
+    ]
+},
+{
+    "realm": "observability",
+    "registrationAllowed": false,
+    "registrationEmailAsUsername": true,
+    "enabled": "true",
+    "sslRequired": "none",
+    "clients": [
+        {
+            "clientId": "grafana",
+            "clientAuthenticatorType": "client-secret",
+            "secret": "3dd84ee3-8c4a-44d6-a617-8f5a8561e585",
+            "redirectUris": [
+                "http://*",
+                "https://*"
+            ],
+            "protocol": "openid-connect"
+        }
+    ]
+}]
