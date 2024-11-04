@@ -7,7 +7,7 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-      nodePort: 30000
+      nodePort: 30001
   selector:
     cnpg.io/cluster: bionic-gpt-db-cluster 
     role: primary
