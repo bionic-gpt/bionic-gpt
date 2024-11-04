@@ -27,9 +27,9 @@ pub async fn deploy_application(
         }),
         json!({
             "name":
-            "PORT",
+            "ECHO_ADDR",
             "value":
-            "7903"
+            ":7903"
         }),
         json!({
             "name":
