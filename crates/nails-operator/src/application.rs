@@ -27,6 +27,12 @@ pub async fn deploy_application(
         }),
         json!({
             "name":
+            "PORT",
+            "value":
+            "7903"
+        }),
+        json!({
+            "name":
             "ECHO_ADDR",
             "value":
             ":7903"
@@ -39,7 +45,7 @@ pub async fn deploy_application(
         }),
     ];
 
-    let image_name = "ghcr.io/aslafy-z/echo-headers:pr-19".to_string();
+    let image_name = "bionic-gpt/bionicgpt:latest".to_string();
 
     // Bionic with the migrations as a sidecar
     deployment::deployment(

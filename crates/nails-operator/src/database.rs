@@ -74,21 +74,21 @@ pub async fn deploy_app_database(
         "migrations-url".to_string(),
         format!(
             "postgres://db-owner:{}@{}-rw:5432/{}?sslmode=disable",
-            app_database_password, &cluster_name, app_name
+            dbowner_password, &cluster_name, app_name
         ),
     );
     secret_data.insert(
         "application-url".to_string(),
         format!(
-            "postgres://application:{}@{}-rw:5432/{}?sslmode=disable",
-            app_database_password, &cluster_name, app_name
+            "postgres://{}application:{}@{}-rw:5432/{}?sslmode=disable",
+            db_user_prefix, app_database_password, &cluster_name, app_name
         ),
     );
     secret_data.insert(
         "readonly-url".to_string(),
         format!(
-            "postgres://readonly:{}@{}-rw:5432/{}?sslmode=disable",
-            app_database_password, &cluster_name, app_name
+            "postgres://{}readonly:{}@{}-rw:5432/{}?sslmode=disable",
+            db_user_prefix, readonly_database_password, &cluster_name, app_name
         ),
     );
 
