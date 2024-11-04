@@ -90,6 +90,9 @@ pub async fn deploy_oauth2_proxy(
                         }
                     }
                 }),
+                // This line sends us the user info in as a JWT (which is base64 encoded)
+                json!({"name": "OAUTH2_PROXY_PASS_ACCESS_TOKEN", "value": "true"}),
+
                 json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL", "value": "true"}),
                 json!({"name": "OAUTH2_PROXY_PROVIDER", "value": "oidc"}),
