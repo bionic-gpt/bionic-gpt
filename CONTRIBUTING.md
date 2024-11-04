@@ -2,21 +2,6 @@
 
 This project is based on the [Rust on Nails](https://rust-on-nails.com/) architecture.
 
-## This project depends on k3s
-
-We use k3s to run the services we depend on i.e. unstructured and various models.
-
-
-```sh
-sudo curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode="644"' sh -
-```
-
-Extract the kubeconfig for use by other K8's tools.
-
-```sh
-mkdir -p ~/.kube && cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-```
-
 ## Setup for Development
 
 This project uses the [Visual Studio Code Remote - Containers](https://code.visualstudio.com/docs/remote/containers) extension so we can define the runtime and development stack with code. The configuration is in the `.devcontainer`.
@@ -38,8 +23,142 @@ You can type the following commands in the Linux command prompt.
 * rustc --version
 * npm -v 
 * psql -V
+* k3d
+
+## We develop and test in Kubernetes
+
+To stay as close as possible to production at all times we develop with a local version of Kubernetes called [k3d](https://k3d.io) installed into the [.devcontainer](https://containers.dev/)
+
+You'll need to create a cluster and install the necessary services into the cluster.
+
+1. `k3d-create` This is a bash alias that calls k3d and creates a cluster and exposes some ports.
+1. `k3d-dev-setup` Another bash alias. This will run the code to create services in the cluster such as authentication and a database.
+
+If you get a *503 Service Unavailable* wait a little longer for the cluster to be ready.
+
+If you have issues that the cluster is already created run `k3d-del` to delete the cluster.
+
+## K9s - Visibility into the cluster
+
+We have [k9s](https://k9scli.io/) pre installed which will allow you to see the services in the cluster starting up.
+
+Just type `k9s`.
+
+## The directory structure
+
+```
+|-- CONTRIBUTING.md
+|-- Cargo.lock
+|-- Cargo.toml
+|-- Earthfile
+|-- Justfile
+|-- LICENCE
+|-- README.md
+|-- crates
+|   |-- airbyte-connector
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   `-- src
+|   |-- cache-busters
+|   |   |-- Cargo.toml
+|   |   `-- src
+|   |-- db
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- authz.rs
+|   |   |-- build.rs
+|   |   |-- customer_keys.rs
+|   |   |-- diagrams
+|   |   |-- lib.rs
+|   |   |-- migrations
+|   |   |-- queries
+|   |   |-- seed-data
+|   |   `-- vector_search.rs
+|   |-- embeddings-api
+|   |   |-- Cargo.toml
+|   |   `-- src
+|   |-- integration-testing
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- files
+|   |   `-- tests
+|   |-- k8s-operator
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- config
+|   |   |-- envoy
+|   |   |-- keycloak
+|   |   `-- src
+|   |-- nails-operator
+|   |   |-- Cargo.toml
+|   |   |-- config
+|   |   `-- src
+|   |-- object-storage
+|   |   |-- Cargo.toml
+|   |   `-- src
+|   |-- rag-engine
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   `-- src
+|   |-- static-website
+|   |   |-- Cargo.toml
+|   |   |-- README.md
+|   |   |-- assets
+|   |   |-- content
+|   |   |-- dist
+|   |   |-- input.css
+|   |   |-- node_modules
+|   |   |-- package-lock.json
+|   |   |-- package.json
+|   |   |-- src
+|   |   `-- tailwind.config.js
+|   |-- web-assets
+|   |   |-- Cargo.toml
+|   |   |-- build.rs
+|   |   |-- dist
+|   |   |-- images
+|   |   |-- index.ts
+|   |   |-- input.css
+|   |   |-- lib.rs
+|   |   |-- node_modules
+|   |   |-- package-lock.json
+|   |   |-- package.json
+|   |   |-- patches
+|   |   |-- scss
+|   |   |-- tailwind.config.js
+|   |   `-- typescript
+|   |-- web-pages
+|   |   |-- Cargo.toml
+|   |   |-- api_keys
+|   |   |-- app_layout.rs
+|   |   |-- audit_trail
+|   |   |-- base_layout.rs
+|   |   |-- console
+|   |   |-- datasets
+|   |   |-- documents
+|   |   |-- hero.rs
+|   |   |-- history
+|   |   |-- lib.rs
+|   |   |-- logout_form.rs
+|   |   |-- models
+|   |   |-- pipelines
+|   |   |-- profile.rs
+|   |   |-- profile_popup.rs
+|   |   |-- prompts
+|   |   |-- rate_limits
+|   |   |-- security.rs
+|   |   |-- snackbar.rs
+|   |   |-- team
+|   |   `-- teams
+|   `-- web-server
+|       |-- Cargo.toml
+|       |-- README.md
+|       `-- src
+```
 
 ## Running Database Migrations
+
+If you get an error *EOF* when running `dbmate` the database is not yet ready.
 
 We use [dbmate](https://github.com/amacneil/dbmate) to manage database migrations.
 
@@ -65,49 +184,6 @@ Create all the database tables with
 
 `dbmate up`
 
-## Expose port on k3s
-
-Run the script in a terminal on the host (i.e. not in the devcontainer). This will open up ports so we can access the services from our devcontainer.
-
-```sh
-cat <<EOF > open-ports.sh
-# Push commands in the background, when the script exits, the commands will exit too
-kubectl -n bionic-gpt port-forward --address 0.0.0.0 pod/bionic-db-cluster-1 5432 & \
-kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/mailhog 8025 & \
-kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/llm-api 11435:11434 & \
-
-echo "Press CTRL-C to stop port forwarding and exit the script"
-wait
-EOF
-chmod +x ./open-ports.sh
-./open-ports.sh
-rm ./open-ports.sh
-```
-
-## Load and Serve a Model
-
-1. `ollama pull llama2`
-1. `ollama run llama2` then `/bye`
-
-Test the above with
-
-```sh
-curl http://localhost:11434/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -d '{
-        "model": "llama2",
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are a helpful assistant."
-            },
-            {
-                "role": "user",
-                "content": "Hello!"
-            }
-        ]
-    }'
-```
 
 ## Starting the services
 

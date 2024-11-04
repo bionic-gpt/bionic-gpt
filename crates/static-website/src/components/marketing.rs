@@ -40,12 +40,12 @@ pub async fn generate() {
     file.write_all(html.as_bytes())
         .expect("Unable to write to file");
 
-        let html = crate::render(ServicesPage).await;
+    let html = crate::render(ServicesPage).await;
 
-        fs::create_dir_all("dist/services").expect("Couyldn't create folder");
-        let mut file = File::create("dist/services/index.html").expect("Unable to create file");
-        file.write_all(html.as_bytes())
-            .expect("Unable to write to file");
+    fs::create_dir_all("dist/services").expect("Couyldn't create folder");
+    let mut file = File::create("dist/services/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
 
     let html = crate::render(ContactPage).await;
 
@@ -275,7 +275,6 @@ pub fn PartnersPage() -> Element {
     }
 }
 
-
 #[component]
 pub fn ServicesPage() -> Element {
     rsx! {
@@ -334,7 +333,6 @@ pub fn ServicesPage() -> Element {
         }
     }
 }
-
 
 #[component]
 pub fn ContactPage() -> Element {

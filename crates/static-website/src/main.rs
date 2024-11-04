@@ -54,7 +54,6 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/services/")]
         pub struct ServicesPage {}
-
     }
 
     pub mod docs {

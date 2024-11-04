@@ -22,23 +22,23 @@ services:
   #    retries: 5
       
   # Handles routing between our containers
-  envoy:
-    build: 
-      context: .
-      dockerfile: Dockerfile.envoy
-    ports:
-      - "7700:7700"
-      - "7701:7701"
+  #envoy:
+  #  build: 
+  #    context: .
+  #    dockerfile: Dockerfile.envoy
+  #  ports:
+  #    - "7700:7700"
+  #    - "7701:7701"
 
   # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
-  barricade:
-    image: purtontech/barricade:1.2.10
-    environment:
-        # This secret key is used to encrypt cookies.
-        SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-        DATABASE_URL: postgresql://postgres:testpassword@db:5432/postgres?sslmode=disable
-        REDIRECT_URL: /app/post_registration
-        USER_TABLE_NAME: 'barricade_users'
+  #barricade:
+  #  image: purtontech/barricade:1.2.10
+  #  environment:
+  #      # This secret key is used to encrypt cookies.
+  #      SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
+  #      DATABASE_URL: postgresql://db-owner:testpassword@localhost:30000/bionic-gpt?sslmode=disable
+  #      REDIRECT_URL: /app/post_registration
+  #      USER_TABLE_NAME: 'barricade_users'
 
   # Integration testing using a headless chrome browser
   selenium:
@@ -72,8 +72,8 @@ services:
     environment:
       RUST_LOG: debug
       ENABLE_BARRICADE: 1
-      DATABASE_URL: postgresql://postgres:testpassword@localhost:30000/postgres?sslmode=disable
-      APP_DATABASE_URL: postgresql://bionic_application:testpassword@localhost:30000/postgres?sslmode=disable
+      DATABASE_URL: postgresql://db-owner:testpassword@localhost:30001/bionic-gpt?sslmode=disable
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@localhost:30001/bionic-gpt?sslmode=disable
       SIGNOUT_URL: /auth/sign_out
 
       FILE_UPLOAD_FEATURE: 1
