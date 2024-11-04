@@ -21,67 +21,6 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-
-              # API requests to the LLM (they all start with /v1)
-              - match: 
-                  prefix: "/v1"
-                route:
-                  cluster: app
-                  # Disable timeout for SSE
-                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
-                  timeout: 0s 
-                typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    disabled: true
-
-              # These are requests coming from the front end typescript
-              - match: 
-                  prefix: "/completions"
-                route:
-                  cluster: app
-                  # Disable timeout for SSE
-                  # https://medium.com/@kaitmore/server-sent-events-http-2-and-envoy-6927c70368bb
-                  timeout: 0s 
-
-              # Web request to our app
-              - match: { prefix: "/app" }
-                route: 
-                  cluster: app
-                  timeout: 60s
-                # We have a function to add security headers as the web app needed to open up
-                # some permissions
-                typed_per_filter_config:
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    name: security_headers.lua
-
-              # Paths that don't need authentication
-
-              # Images JS, and CSS.
-              - match: { prefix: "/static" }
-                route: { cluster: app }
-                typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    disabled: true
-                    
-              # /oidc Authentication Route - Probable Keycloak
-              - match: { prefix: "/oidc" }
-                route: { cluster: authentication }
-                typed_per_filter_config:
-                  envoy.filters.http.ext_authz:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-                    disabled: true
-                  envoy.filters.http.lua:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.LuaPerRoute
-                    disabled: true
                     
               # Everything else passes in to here. The marketing pages
               - match: { prefix: "/" }
@@ -95,42 +34,6 @@ static_resources:
                     disabled: true
 
           http_filters:
-          # Add all the security headers, if an item is already set, it will be left alone.
-          - name: envoy.filters.http.lua
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-
-              source_codes:
-                # Lock everything down
-                security_headers.lua:
-                  inline_string: |
-                    function envoy_on_response(response_handle)
-
-                      response_handle:headers():add("Cache-Control", "none");
-
-                      csp = "media-src blob:; default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; connect-src 'self'";
-                      response_handle:headers():add("Content-Security-Policy", csp);
-                      response_handle:headers():add("X-Frame-Options", "deny");
-                      response_handle:headers():add("X-XSS-Protection", "1; mode=block");
-                      response_handle:headers():add("X-Content-Type-Options", "nosniff");
-                      response_handle:headers():add("Referrer-Policy", "no-referrer");
-                      response_handle:headers():add("X-Download-Options", "noopen");
-                      response_handle:headers():add("X-DNS-Prefetch-Control", "off");
-                      response_handle:headers():add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-                      response_handle:headers():add("Permissions-Policy",
-                                                    "accelerometer=(), "..
-                                                    "camera=(), "..
-                                                    "geolocation=(), "..
-                                                    "gyroscope=(), "..
-                                                    "magnetometer=(), "..
-                                                    "microphone=(), "..
-                                                    "payment=(), "..
-                                                    "usb=()");
-                      response_handle:headers():remove("X-Powered-By");
-                    end
-              inline_code: |
-                function envoy_on_response(response_handle)
-                end
 
           - name: envoy.filters.http.router
 
@@ -150,20 +53,4 @@ static_resources:
             address:
               socket_address:
                 address: development
-                port_value: 7703
-
-  # Authentication
-  - name: authentication
-    connect_timeout: 1.25s
-    type: strict_dns
-    lb_policy: round_robin
-    dns_lookup_family: V4_ONLY
-    load_assignment:
-      cluster_name: app
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: development
-                port_value: 30001
+                port_value: 30003

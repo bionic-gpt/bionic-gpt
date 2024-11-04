@@ -1,3 +1,4 @@
+mod application;
 mod apply;
 mod database;
 mod deployment;
