@@ -4,6 +4,32 @@ list:
 aider:
     aider --no-auto-commits --browser
 
+
+hot-reload:
+    export RESTART_DATE=$(date +%s)
+    echo $RESTART_DATE
+
+    # Create the Dockerfile
+    echo 'FROM debian:12-slim' > Dockerfile
+    echo 'COPY target/debug/web-server axum-server' >> Dockerfile
+    echo 'COPY crates/web-assets/dist /workspace/crates/web-assets/dist/' >> Dockerfile
+    echo 'COPY crates/web-assets/images /workspace/crates/web-assets/images' >> Dockerfile
+    echo 'RUN chmod +x ./axum-server' >> Dockerfile
+    echo 'ENTRYPOINT ["./axum-server"]' >> Dockerfile
+
+    # Build, import, and patch
+    docker build -t "ghcr.io/bionic-gpt/bionic-gpt:${RESTART_DATE}" .
+    k3d image import "ghcr.io/bionic-gpt/bionic-gpt:${RESTART_DATE}"
+    kubectl patch deployment bionic-gpt -n bionic-gpt -p \
+    "{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"bionic-gpt\", \"image\": \"ghcr.io/bionic-gpt/bionic-gpt:${RESTART_DATE}\", \"imagePullPolicy\": \"Never\"}]}}}}"
+
+    # Clean up by deleting the Dockerfile
+    rm Dockerfile
+    # Record the end time and calculate the duration
+    export END_TIME=$(date +%s)
+    export DURATION=$((END_TIME - RESTART_DATE))
+    @echo "Hot reload completed in ${DURATION} seconds."
+
 release-docker:
     #!/usr/bin/env bash
     export COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" -- infra-as-code/docker-compose.yml)

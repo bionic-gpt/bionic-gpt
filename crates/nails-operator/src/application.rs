@@ -33,19 +33,13 @@ pub async fn deploy_application(
         }),
         json!({
             "name":
-            "ECHO_ADDR",
-            "value":
-            ":7903"
-        }),
-        json!({
-            "name":
             "LOGOUT_URL",
             "value":
             "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
         }),
     ];
 
-    let image_name = "bionic-gpt/bionicgpt:latest".to_string();
+    let image_name = "ghcr.io/bionic-gpt/bionicgpt:latest".to_string();
 
     // Bionic with the migrations as a sidecar
     deployment::deployment(
