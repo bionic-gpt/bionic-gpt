@@ -127,6 +127,7 @@ GIS
 116
 2024
 29
+Keycloak
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -338,3 +339,5 @@ Mathstral-7B-v0
  - docs/guides/opensourcemodels/qwen/index.md
 Qwen
 Alibaba
+ - docs/on-premise/backups/index.md
+jq
