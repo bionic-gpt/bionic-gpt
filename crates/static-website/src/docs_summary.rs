@@ -330,6 +330,16 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
+                        title: "Database Backups",
+                        description: "Database Backups",
+                        folder: "docs/on-premise/backups/",
+                        markdown: include_str!("../content/docs/on-premise/backups/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
                         title: "Connecting pgAdmin",
                         description: "Connecting pgAdmin",
                         folder: "docs/on-premise/pgadmin/",
