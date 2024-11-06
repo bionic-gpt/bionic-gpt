@@ -8,7 +8,7 @@ sudo apt install inotify-tools
 ./hot-reload.sh
 ```
 
-## To Build Hot Reload Conatiner
+## To Build Hot Reload Container and Deploy it
 
 ```sh
 docker build -t ghcr.io/bionic-gpt/bionic-gpt:latest .

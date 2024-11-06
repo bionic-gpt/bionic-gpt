@@ -8,6 +8,7 @@ import '@github/relative-time-element';
 
 // Misc.
 import { triggers } from './typescript/side-drawer-trigger'
+import { toggleVisibility } from './typescript/api-keys/toggle-visibility'
 import { autoExpand } from './typescript/auto-expand'
 import { modalTriggers } from './typescript/modal-trigger'
 import { initializeSidebar } from './typescript/responsive-nav'
@@ -34,6 +35,7 @@ import '@hotwired/turbo'
 function loadEverything() {
     hljs.highlightAll()
     triggers()
+    toggleVisibility()
     autoExpand()
     modalTriggers()
     drawers()
