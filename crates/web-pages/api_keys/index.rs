@@ -2,11 +2,17 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::{authz::Rbac, ApiKey, Prompt};
+use db::{authz::Rbac, ApiKey, Prompt, PromptType};
 use dioxus::prelude::*;
 
 #[component]
-pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt>) -> Element {
+pub fn Page(
+    rbac: Rbac,
+    team_id: i32,
+    api_keys: Vec<ApiKey>,
+    assistants: Vec<Prompt>,
+    models: Vec<Prompt>,
+) -> Element {
     rsx! {
         Layout {
             section_class: "p-4",
@@ -24,9 +30,22 @@ pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt
                     description: "API Keys allow you to access our programming interface",
                 }
             },
-            super::form::Form {
+
+            for item in &api_keys {
+                super::delete::DeleteDrawer {
+                    team_id: team_id,
+                    id: item.id,
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                }
+            }
+
+            super::form::AssistantForm {
                 team_id: team_id,
-                prompts: prompts.clone()
+                prompts: assistants.clone()
+            },
+            super::form::ModelForm {
+                team_id: team_id,
+                prompts: models.clone()
             },
 
             if ! api_keys.is_empty() {
@@ -41,8 +60,9 @@ pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt
                             class: "table table-sm",
                             thead {
                                 th { "Name" }
+                                th { "Type" }
                                 th { "API Key" }
-                                th { "Prompt" }
+                                th { "Assistant/Model" }
                                 th {
                                     class: "text-right",
                                     "Action"
@@ -53,6 +73,11 @@ pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt
                                     tr {
                                         td {
                                             "{key.name}"
+                                        }
+                                        td {
+                                            PromptType {
+                                                prompt_type: key.prompt_type
+                                            }
                                         }
                                         td {
                                             div {
@@ -109,6 +134,26 @@ pub fn Page(rbac: Rbac, team_id: i32, api_keys: Vec<ApiKey>, prompts: Vec<Prompt
 }
 
 #[component]
+pub fn PromptType(prompt_type: PromptType) -> Element {
+    match prompt_type {
+        PromptType::Model => rsx!(
+            Label {
+                class: "mr-2 truncate",
+                label_role: LabelRole::Info,
+                "Model"
+            }
+        ),
+        PromptType::Assistant => rsx!(
+            Label {
+                class: "mr-2 truncate",
+                label_role: LabelRole::Highlight,
+                "Assistant"
+            }
+        ),
+    }
+}
+
+#[component]
 fn OpenAICompatibility() -> Element {
     rsx! {
         // OpenAI API Compatibility Card
@@ -116,7 +161,7 @@ fn OpenAICompatibility() -> Element {
             class: "mt-8 mb-8",
             BoxBody {
                 h2 { class: "card-title", "OpenAI API Compatibility" }
-                p { "Our API keys are fully compatible with the OpenAI API, allowing seamless integration with existing projects and tools." }
+                p { "Our API is compatible with the OpenAI completionbs API, allowing seamless integration with existing projects and tools." }
                 ul { class: "list-disc list-inside mt-4",
                     li { "Use the same endpoints and parameters as OpenAI" }
                     li { "Easy migration from OpenAI to our service" }
@@ -131,48 +176,31 @@ fn OpenAICompatibility() -> Element {
 fn CodeExamples() -> Element {
     rsx! {
         Box {
+            BoxHeader {
+                title: "API Usage Example"
+            }
             BoxBody {
-                h2 { class: "card-title", "API Usage Examples" }
-                div { class: "mockup-code mt-4",
+                p {
+                    ""
+                }
+                div { class: "mt-4",
                     pre {
                         code {
                             "// Example: Using the Assistant API
-const response = await fetch('https://api.example.com/v1/assistants', {{
-method: 'POST',
-headers: {{
-'Authorization': 'Bearer YOUR_ASSISTANT_KEY',
-'Content-Type': 'application/json'
-}},
-body: JSON.stringify({{
-model: 'gpt-3.5-turbo',
-messages: [{{ role: 'user', content: 'Hello, how are you?' }}]
-}})
+const response = await fetch('https://app.bionic-gpt.com/v1/chat/completions', {{
+    method: 'POST',
+    headers: {{
+        'Authorization': 'Bearer YOUR_ASSISTANT_KEY',
+        'Content-Type': 'application/json'
+    }},
+    body: JSON.stringify({{
+        model: 'assistant',
+            messages: [{{ role: 'user', content: 'Hello, how are you?' }}]
+    }})
 }});
 
 const data = await response.json();
 console.log(data.choices[0].message.content);"
-                        }
-                    }
-                }
-                div { class: "mockup-code mt-4",
-                    pre {
-                        code {
-                            "// Example: Using the Model API
-const response = await fetch('https://api.example.com/v1/completions', {{
-method: 'POST',
-headers: {{
-'Authorization': 'Bearer YOUR_MODEL_KEY',
-'Content-Type': 'application/json'
-}},
-body: JSON.stringify({{
-model: 'text-davinci-003',
-prompt: 'Translate the following English text to French: \"Hello, world!\"',
-max_tokens: 60
-}})
-}});
-
-const data = await response.json();
-console.log(data.choices[0].text);"
                         }
                     }
                 }
@@ -193,7 +221,7 @@ fn KeySelector() -> Element {
                         class: "card-title",
                         "Assistant Key"
                     }
-                    p { "Choose this option if you want to use our AI assistants with predefined capabilities." }
+                    p { "Turn any of your assistants into an API" }
                     ul { class: "list-disc list-inside mt-4",
                         li { "Access to pre-configured AI assistants" }
                         li { "Simplified integration process" }
@@ -201,8 +229,7 @@ fn KeySelector() -> Element {
                     }
                     div { class: "card-actions justify-end mt-4",
                         Button {
-                            prefix_image_src: "{button_plus_svg.name}",
-                            drawer_trigger: "create-api-key",
+                            drawer_trigger: "create-assistant-key",
                             "Create an Assistant Key"
                         }
                     }
@@ -213,16 +240,15 @@ fn KeySelector() -> Element {
             Box {
                 BoxBody {
                     h2 { class: "card-title", "Model Key" }
-                    p { "Choose this option if you want direct access to our AI models for custom implementations." }
+                    p { "Use existing models for your own projects" }
                     ul { class: "list-disc list-inside mt-4",
                         li { "Full control over AI model parameters" }
                         li { "Flexibility for advanced use-cases" }
-                        li { "Suitable for experienced developers" }
+                        li { "Limits will be applied to ensure fair use" }
                     }
                     div { class: "card-actions justify-end mt-4",
                         Button {
-                            prefix_image_src: "{button_plus_svg.name}",
-                            drawer_trigger: "create-api-key",
+                            drawer_trigger: "create-model-key",
                             "Create a Model Key"
                         }
                     }

@@ -24,8 +24,13 @@ pub async fn index(
         .all()
         .await?;
 
-    let prompts = queries::prompts::prompts()
+    let assistants = queries::prompts::prompts()
         .bind(&transaction, &team_id, &db::PromptType::Assistant)
+        .all()
+        .await?;
+
+    let models = queries::prompts::prompts()
+        .bind(&transaction, &team_id, &db::PromptType::Model)
         .all()
         .await?;
 
@@ -35,7 +40,8 @@ pub async fn index(
             team_id,
             rbac,
             api_keys,
-            prompts,
+            models,
+            assistants,
         },
     );
 
