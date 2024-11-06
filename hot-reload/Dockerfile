@@ -25,7 +25,7 @@ COPY crates/web-assets/images /workspace/crates/web-assets/images
 RUN chmod +x /app/web-server
 
 # Copy the update script into the container
-COPY update_exec.sh /usr/local/bin/update_exec.sh
+COPY hot-reload/update_exec.sh /usr/local/bin/update_exec.sh
 
 # Ensure the script has execution permissions
 RUN chmod +x /usr/local/bin/update_exec.sh
