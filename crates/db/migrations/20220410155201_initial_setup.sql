@@ -60,9 +60,4 @@ $$;
 GRANT SELECT ON schema_migrations TO bionic_readonly;
 
 -- migrate:down
-DROP OWNED BY bionic_application;
-DROP OWNED BY bionic_readonly;
-
-DROP USER bionic_application;
-DROP USER bionic_readonly;
 
