@@ -89,10 +89,6 @@ Just type `k9s`.
 |   |   |-- envoy
 |   |   |-- keycloak
 |   |   `-- src
-|   |-- nails-operator
-|   |   |-- Cargo.toml
-|   |   |-- config
-|   |   `-- src
 |   |-- object-storage
 |   |   |-- Cargo.toml
 |   |   `-- src

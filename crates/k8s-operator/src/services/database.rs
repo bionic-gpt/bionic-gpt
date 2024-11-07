@@ -54,7 +54,11 @@ pub struct ClusterSpec {
     pub storage: StorageSpec,
 }
 
-pub async fn deploy(client: Client, namespace: &str) -> Result<Option<String>, Error> {
+pub async fn deploy(
+    client: Client,
+    namespace: &str,
+    disk_size: i32,
+) -> Result<Option<String>, Error> {
     // If the cluster config exists, then do nothing.
     let cluster_api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
     let cluster = cluster_api.get("bionic-db-cluster").await;
@@ -96,7 +100,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<Option<String>, E
                 },
             },
             storage: StorageSpec {
-                size: "1Gi".to_string(),
+                size: format!("{}Gi", disk_size),
             },
         },
     };
