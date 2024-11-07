@@ -1,12 +1,16 @@
 use serde::{Deserialize, Serialize};
 
+use crate::queries::users::InsertParams;
 use crate::{queries, Dataset, Prompt};
 use crate::{types, Permission, Transaction};
+use cornucopia_async::Params;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
     pub sub: String,
     pub email: String,
+    pub given_name: Option<String>,
+    pub family_name: Option<String>,
 }
 
 // A helper function for setting the RLS user which is used by all the policies.
@@ -92,7 +96,15 @@ pub async fn setup_user_if_not_already_registered(
     authentication: &Authentication,
 ) -> Result<(i32, String, Option<String>, Option<String>, bool), crate::TokioPostgresError> {
     let user_id = queries::users::insert()
-        .bind(transaction, &authentication.sub, &authentication.email)
+        .params(
+            transaction,
+            &InsertParams {
+                openid_sub: &authentication.sub,
+                email: &authentication.email,
+                first_name: authentication.given_name.clone(),
+                last_name: authentication.family_name.clone(),
+            },
+        )
         .one()
         .await?;
 

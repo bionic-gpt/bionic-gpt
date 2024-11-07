@@ -55,15 +55,16 @@ all:
     BUILD +airbyte-connector-container
 
 hot-reload:
+    FROM debian:12-slim
     # Set working directory
     WORKDIR /app
     COPY +build/hot-reload /app/web-server
     # Install necessary packages
-    RUN sudo apt-get update && \
-        sudo apt-get install -y --no-install-recommends inotify-tools && \
-        sudo rm -rf /var/lib/apt/lists/*
+    RUN apt-get update && \
+        apt-get install -y --no-install-recommends inotify-tools && \
+        rm -rf /var/lib/apt/lists/*
     # Create necessary directories
-    RUN mkdir -p /app /var/log
+    RUN mkdir -p /app /var/log /workspace/crates/web-assets
     # Ensure the executable has execution permissions
     RUN chmod +x /app/web-server
     # Copy the update script into the container
