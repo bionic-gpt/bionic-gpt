@@ -5,6 +5,11 @@ members = [
     "crates/*",
 ]
 
+# https://corrode.dev/blog/tips-for-faster-rust-compile-times/#turn-off-debuginfo
+[profile.dev]
+debug = 0
+strip = "debuginfo"
+
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]
 inherits = "release"
