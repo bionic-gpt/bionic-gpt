@@ -253,6 +253,8 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             hash_bionicgpt: "".to_string(),
             hash_bionicgpt_pipeline_job: "".to_string(),
             hash_bionicgpt_db_migrations: "".to_string(),
+            bionic_db_disk_size: installer.bionic_db_disk_size,
+            keycloak_db_disk_size: installer.keycloak_db_disk_size,
         },
     );
     bionic_api

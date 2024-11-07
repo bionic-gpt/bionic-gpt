@@ -22,6 +22,8 @@ pub struct BionicSpec {
     pub observability: Option<bool>,
     pub development: Option<bool>,
     pub testing: Option<bool>,
+    pub bionic_db_disk_size: i32,
+    pub keycloak_db_disk_size: i32,
     #[serde(rename = "hostname-url")]
     pub hostname_url: String,
     #[serde(rename = "hash-bionicgpt")]

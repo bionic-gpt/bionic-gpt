@@ -89,8 +89,15 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             finalizer::add(client.clone(), &name, &namespace).await?;
 
             // The databases
-            let bionic_db_pass = database::deploy(client.clone(), &namespace).await?;
-            let keycloak_db_pass = keycloak_db::deploy(client.clone(), &namespace).await?;
+            let bionic_db_pass =
+                database::deploy(client.clone(), &namespace, bionic.spec.bionic_db_disk_size)
+                    .await?;
+            let keycloak_db_pass = keycloak_db::deploy(
+                client.clone(),
+                &namespace,
+                bionic.spec.keycloak_db_disk_size,
+            )
+            .await?;
 
             if !development {
                 bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;

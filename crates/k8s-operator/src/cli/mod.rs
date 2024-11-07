@@ -61,6 +61,12 @@ pub struct Installer {
     /// The hostname we are deploying on. By default use the local ip address
     #[arg(long)]
     hostname_url: Option<String>,
+    /// Disk size for the Bionic Postgres database (in GB)
+    #[arg(long, default_value_t = 1)]
+    bionic_db_disk_size: i32,
+    /// Disk size for the Keycloak Postgres database (in GB)
+    #[arg(long, default_value_t = 1)]
+    keycloak_db_disk_size: i32,
 }
 
 #[derive(Subcommand)]
