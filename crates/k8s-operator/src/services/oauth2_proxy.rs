@@ -84,7 +84,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
                     }
                 }),
 
-                // This line sends us the user info in as a JWT (which is base64 encoded)
+                // This line sends us the user info in a JWT (which is base64 encoded)
                 json!({"name": "OAUTH2_PROXY_PASS_ACCESS_TOKEN", "value": "true"}),
 
                 json!({"name": "OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION", "value": "true"}),
