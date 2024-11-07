@@ -37,7 +37,6 @@ dev:
 pull-request:
     BUILD +migration-container
     BUILD +app-container
-    BUILD +envoy-container
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
@@ -45,7 +44,6 @@ pull-request:
 all:
     BUILD +migration-container
     BUILD +app-container
-    BUILD +envoy-container
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
