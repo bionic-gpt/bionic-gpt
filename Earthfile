@@ -26,6 +26,7 @@ ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global RAG_ENGINE_IMAGE_NAME=bionic-gpt/bionicgpt-rag-engine:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
 ARG --global AIRBYTE_IMAGE_NAME=bionic-gpt/bionicgpt-airbyte-connector:latest
+ARG --global HOT_RELOAD_IMAGE_NAME=bionic-gpt/bionicgpt-hot-reload:latest
 
 WORKDIR /build
 
@@ -52,6 +53,26 @@ all:
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
+
+hot-reload:
+    # Set working directory
+    WORKDIR /app
+    COPY +build/hot-reload /app/web-server
+    # Install necessary packages
+    RUN sudo apt-get update && \
+        sudo apt-get install -y --no-install-recommends inotify-tools && \
+        sudo rm -rf /var/lib/apt/lists/*
+    # Create necessary directories
+    RUN mkdir -p /app /var/log
+    # Ensure the executable has execution permissions
+    RUN chmod +x /app/web-server
+    # Copy the update script into the container
+    COPY crates/hot-reload/update_exec.sh /usr/local/bin/update_exec.sh
+    # Ensure the script has execution permissions
+    RUN chmod +x /usr/local/bin/update_exec.sh
+    # Set the update script as the entry point
+    ENTRYPOINT ["/usr/local/bin/update_exec.sh"]
+    SAVE IMAGE --push $HOT_RELOAD_IMAGE_NAME
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -85,26 +106,6 @@ airbyte-connector-container:
     ENTRYPOINT ["./airbyte-connector"]
     SAVE IMAGE --push $AIRBYTE_IMAGE_NAME
 
-build-web-server:
-    # Copy in all our crates
-    COPY --dir crates crates
-    RUN rm -rf crates/airbyte-connector crates/k8s-operator crates/rag-engine
-    COPY --dir Cargo.lock Cargo.toml .
-    COPY --dir +npm-build/dist $PIPELINE_FOLDER/
-
-    # We need to run inside docker as we need postgres running for cornucopia
-    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
-    USER root
-    WITH DOCKER \
-        --pull ankane/pgvector
-        RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
-            && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
-            && cargo leptos build --release -vv
-    END
-    SAVE ARTIFACT target/release/$APP_EXE_NAME
-    SAVE ARTIFACT target/site
-
-
 build:
     # Copy in all our crates
     COPY --dir crates crates
@@ -123,6 +124,7 @@ build:
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RAG_ENGINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$AIRBYTE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/hot-reload
 
 migration-container:
     FROM alpine
