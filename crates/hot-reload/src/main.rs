@@ -3,6 +3,8 @@ use axum::{
     response::{Html, IntoResponse},
     Router,
 };
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+use serde_json::Value;
 use std::env;
 use std::net::SocketAddr;
 
@@ -44,6 +46,7 @@ async fn handler(headers: HeaderMap) -> impl IntoResponse {
                     table { border-collapse: collapse; width: 50%; }
                     th, td { border: 1px solid #ddd; padding: 8px; }
                     th { background-color: #f2f2f2; }
+                    pre { background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; }
                 </style>
             </head>
             <body>
@@ -63,11 +66,72 @@ async fn handler(headers: HeaderMap) -> impl IntoResponse {
         ));
     }
 
+    html.push_str("</table>");
+
+    // Check for x-forwarded-access-token header and parse JWT
+    if let Some(token_value) = headers.get("x-forwarded-access-token") {
+        if let Ok(token_str) = token_value.to_str() {
+            html.push_str("<h2>Parsed JWT (x-forwarded-access-token)</h2>");
+            match parse_jwt(token_str) {
+                Ok(parsed_jwt_html) => {
+                    html.push_str(&parsed_jwt_html);
+                }
+                Err(e) => {
+                    html.push_str(&format!(
+                        "<p>Error parsing JWT: {}</p>",
+                        html_escape(&e.to_string())
+                    ));
+                }
+            }
+        }
+    } else {
+        html.push_str("<h2>JWT Not Found</h2>");
+    }
+
     // Close the HTML tags
-    html.push_str("</table></body></html>");
+    html.push_str("</body></html>");
 
     // Return the HTML response
     Html(html)
+}
+
+// Function to parse JWT and return HTML representation
+fn parse_jwt(token: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let parts: Vec<&str> = token.split('.').collect();
+    if parts.len() != 3 {
+        return Err("Invalid JWT format".into());
+    }
+
+    let header_b64 = parts[0];
+    let payload_b64 = parts[1];
+    // The signature is the third part, but we won't decode it in this example
+
+    let header_json = base64_url_decode(header_b64)?;
+    let payload_json = base64_url_decode(payload_b64)?;
+
+    let header_value: Value = serde_json::from_str(&header_json)?;
+    let payload_value: Value = serde_json::from_str(&payload_json)?;
+
+    let mut html = String::new();
+
+    html.push_str("<h3>Header</h3>");
+    html.push_str("<pre>");
+    html.push_str(&html_escape(&serde_json::to_string_pretty(&header_value)?));
+    html.push_str("</pre>");
+
+    html.push_str("<h3>Payload</h3>");
+    html.push_str("<pre>");
+    html.push_str(&html_escape(&serde_json::to_string_pretty(&payload_value)?));
+    html.push_str("</pre>");
+
+    Ok(html)
+}
+
+// Helper function to base64url decode a JWT part
+fn base64_url_decode(input: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let decoded_bytes = URL_SAFE_NO_PAD.decode(input)?;
+    let decoded_str = String::from_utf8(decoded_bytes)?;
+    Ok(decoded_str)
 }
 
 // Helper function to escape HTML special characters

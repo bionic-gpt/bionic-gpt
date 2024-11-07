@@ -10,7 +10,7 @@ run_commands() {
     kubectl exec -it --namespace=bionic-gpt $POD_NAME -- bash -c "rm -rf /workspace/crates/web-assets/images"
     kubectl cp /workspace/crates/web-assets/dist/ bionic-gpt/$POD_NAME:/workspace/crates/web-assets/
     kubectl cp /workspace/crates/web-assets/images bionic-gpt/$POD_NAME:/workspace/crates/web-assets/
-    kubectl cp /workspace/hot-reload/new-server.txt bionic-gpt/$POD_NAME:/app/new-server.txt
+    kubectl cp /workspace/crates/hot-reload/new-server.txt bionic-gpt/$POD_NAME:/app/new-server.txt
     end_time=$(date +%s)
     duration=$((end_time - start_time))
     echo "Deployment completed in ${duration} seconds."
