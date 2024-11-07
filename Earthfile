@@ -12,15 +12,11 @@ ARG --global DBMATE_VERSION=2.2.0
 ARG --global DB_FOLDER=crates/db
 ARG --global PIPELINE_FOLDER=crates/web-assets
 
-# Base images
-ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.17-latest
-
 # Images with models
 ARG --global EMBEDDINGS_IMAGE_NAME=ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
 
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
-ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
 ARG --global CE_IMAGE_NAME=bionic-gpt/bionic-ce:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global RAG_ENGINE_IMAGE_NAME=bionic-gpt/bionicgpt-rag-engine:latest
@@ -159,15 +155,6 @@ operator-container:
     COPY +build/$OPERATOR_EXE_NAME k8s-operator
     ENTRYPOINT ["./k8s-operator", "operator"]
     SAVE IMAGE --push $OPERATOR_IMAGE_NAME
-
-
-# We use this in the docker-compose to integrate with barricade.
-envoy-container:
-    FROM $ENVOY_PROXY
-    COPY .devcontainer/envoy.yaml /etc/envoy/envoy.yaml
-    # The second development entry in our cluster list is the app
-    RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
-    SAVE IMAGE --push $ENVOY_IMAGE_NAME
 
 # Embeddings container - download models from huggungface
 embeddings-container-base:
