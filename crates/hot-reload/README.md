@@ -28,3 +28,8 @@ kubectl patch deployment bionic-gpt -n bionic-gpt -p \
     "{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"bionic-gpt\", \"image\": \"bionic-gpt/bionicgpt-hot-reload:latest\", \"imagePullPolicy\": \"Never\"}]}}}}"
 ```
 
+## Install inotifywait
+
+```sh
+sudo apt-get update && sudo apt-get install -y --no-install-recommends inotify-tools
+```

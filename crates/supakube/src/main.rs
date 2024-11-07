@@ -54,7 +54,7 @@ pub struct Installer {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Install the nails services into Kubernetes
+    /// Install the supakube services into Kubernetes
     Install(Installer),
 }
 
