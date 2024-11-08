@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 const X_FORWARDED_ACCESS_TOKEN: &str = "X-Forwarded-Access-Token";
+const X_FORWARDED_USER: &str = "X-Forwarded-User";
+const X_FORWARDED_EMAIL: &str = "X-Forwarded-Email";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
@@ -40,6 +42,8 @@ where
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         let access_token = parts.headers.get(X_FORWARDED_ACCESS_TOKEN);
+        let forwarded_user = parts.headers.get(X_FORWARDED_USER);
+        let forwarded_email = parts.headers.get(X_FORWARDED_EMAIL);
 
         if let Some(access_token) = access_token {
             if let Ok(token) = access_token.to_str() {
@@ -77,6 +81,20 @@ where
                         }
                     }
                 }
+            }
+        } else if let (Some(user), Some(email)) = (forwarded_user, forwarded_email) {
+            let user = user.to_str();
+            let email = email.to_str();
+
+            if let (Ok(sub), Ok(email)) = (user, email) {
+                let authentication = Authentication {
+                    sub: sub.to_string(),
+                    email: email.to_string(),
+                    given_name: None,
+                    family_name: None,
+                };
+
+                return Ok(authentication);
             }
         }
         Err((
