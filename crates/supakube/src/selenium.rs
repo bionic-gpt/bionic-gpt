@@ -1,12 +1,18 @@
 use crate::deployment;
 use anyhow::Result;
 use kube::Client;
+use serde_json::json;
 
 pub const SELENIUM_NAME: &str = "selenium-standalone-chrome";
 
 // The web user interface
 pub async fn deploy_selenium(client: &Client, namespace: &str) -> Result<()> {
-    let env = vec![];
+    let env = vec![json!({
+        "name":
+        "VNC_NO_PASSWORD",
+        "value":
+        "1"
+    })];
 
     let image_name = "selenium/standalone-chrome:4".to_string();
 
