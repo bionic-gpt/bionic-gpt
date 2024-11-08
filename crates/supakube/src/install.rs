@@ -1,10 +1,10 @@
-use crate::application::deploy_application;
 use crate::database::deploy_app_database;
 use crate::keycloak::deploy_keycloak;
 use crate::keycloak_db::deploy_keycloak_database;
 use crate::nginx::deploy_nginx;
 use crate::oauth2_proxy::deploy_oauth2_proxy;
 use crate::operators::install_postgres_operator;
+use crate::{application::deploy_application, selenium::deploy_selenium};
 use anyhow::Result;
 use k8s_openapi::api::core::v1::Namespace;
 use kube::{
@@ -15,6 +15,7 @@ use rand::Rng;
 
 const POSTGRES_SERVICE: &str = include_str!("../config/postgres-service.yaml");
 const APPLICATION_SERVICE: &str = include_str!("../config/nginx-service.yaml");
+const SELENIUM_SERVICE: &str = include_str!("../config/selenium-service.yaml");
 
 pub async fn install(installer: &crate::Installer) -> Result<()> {
     println!("🔗 Connecting to the cluster...");
@@ -46,12 +47,16 @@ pub async fn install(installer: &crate::Installer) -> Result<()> {
     deploy_application(&client, installer, &installer.namespace).await?;
     println!("🔧 Deploying Nginx");
     deploy_nginx(&client, &installer.namespace).await?;
+    println!("🔧 Deploying Selenium");
+    deploy_selenium(&client, &installer.namespace).await?;
 
     if installer.development {
         println!("🚀 Mapping Postgres to port 30001");
         super::apply::apply(&client, POSTGRES_SERVICE, Some(&installer.namespace)).await?;
         println!("🚀 Mapping Nginx to port 30000");
         super::apply::apply(&client, APPLICATION_SERVICE, Some(&installer.namespace)).await?;
+        println!("🚀 Mapping selenium to port 30002");
+        super::apply::apply(&client, SELENIUM_SERVICE, Some(&installer.namespace)).await?;
     }
 
     Ok(())

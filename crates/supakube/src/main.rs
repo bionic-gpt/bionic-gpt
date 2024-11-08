@@ -9,6 +9,7 @@ mod keycloak_db;
 mod nginx;
 mod oauth2_proxy;
 mod operators;
+mod selenium;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};

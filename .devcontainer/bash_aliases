@@ -45,7 +45,7 @@ alias wts=watch-tailwind-static
 alias spell='docker run --rm -ti -v /workspace/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
 
 # k3d
-alias k3d-create='k3d cluster create --agents 1 -p "30000-30001:30000-30001@agent:0"'
+alias k3d-create='k3d cluster create --agents 1 -p "30000-30002:30000-30002@agent:0"'
 alias k3d-del='k3d cluster delete'
 alias k3d-dev-setup='cargo run --bin supakube -- install --development --namespace bionic-gpt --operator-namespace bionic-system --app-name bionic-gpt --insecure-override-passwords testpassword --db-user-prefix bionic_'
 alias k3d-postgres='kubectl apply -f /workspace/.devcontainer/kubernetes/postgres.yaml'
