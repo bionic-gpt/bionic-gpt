@@ -1654,6 +1654,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "hot-reload"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "base64 0.21.7",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "http"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"

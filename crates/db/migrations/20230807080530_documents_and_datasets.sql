@@ -69,5 +69,4 @@ DROP TABLE chunks;
 DROP TABLE documents;
 DROP TABLE datasets;
 DROP TYPE chunking_strategy;
-DROP EXTENSION vector;
 

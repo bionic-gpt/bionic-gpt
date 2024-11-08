@@ -12,20 +12,17 @@ ARG --global DBMATE_VERSION=2.2.0
 ARG --global DB_FOLDER=crates/db
 ARG --global PIPELINE_FOLDER=crates/web-assets
 
-# Base images
-ARG --global ENVOY_PROXY=envoyproxy/envoy:v1.17-latest
-
 # Images with models
 ARG --global EMBEDDINGS_IMAGE_NAME=ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
 
 # This file builds the following containers
 ARG --global APP_IMAGE_NAME=bionic-gpt/bionicgpt:latest
-ARG --global ENVOY_IMAGE_NAME=bionic-gpt/bionicgpt-envoy:latest
 ARG --global CE_IMAGE_NAME=bionic-gpt/bionic-ce:latest
 ARG --global MIGRATIONS_IMAGE_NAME=bionic-gpt/bionicgpt-db-migrations:latest
 ARG --global RAG_ENGINE_IMAGE_NAME=bionic-gpt/bionicgpt-rag-engine:latest
 ARG --global OPERATOR_IMAGE_NAME=bionic-gpt/bionicgpt-k8s-operator:latest
 ARG --global AIRBYTE_IMAGE_NAME=bionic-gpt/bionicgpt-airbyte-connector:latest
+ARG --global HOT_RELOAD_IMAGE_NAME=bionic-gpt/bionicgpt-hot-reload:latest
 
 WORKDIR /build
 
@@ -40,7 +37,6 @@ dev:
 pull-request:
     BUILD +migration-container
     BUILD +app-container
-    BUILD +envoy-container
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
@@ -48,10 +44,30 @@ pull-request:
 all:
     BUILD +migration-container
     BUILD +app-container
-    BUILD +envoy-container
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
+
+hot-reload:
+    FROM debian:12-slim
+    # Set working directory
+    WORKDIR /app
+    COPY +build/hot-reload /app/web-server
+    # Install necessary packages
+    RUN apt-get update && \
+        apt-get install -y --no-install-recommends inotify-tools && \
+        rm -rf /var/lib/apt/lists/*
+    # Create necessary directories
+    RUN mkdir -p /app /var/log /workspace/crates/web-assets
+    # Ensure the executable has execution permissions
+    RUN chmod +x /app/web-server
+    # Copy the update script into the container
+    COPY crates/hot-reload/update_exec.sh /usr/local/bin/update_exec.sh
+    # Ensure the script has execution permissions
+    RUN chmod +x /usr/local/bin/update_exec.sh
+    # Set the update script as the entry point
+    ENTRYPOINT ["/usr/local/bin/update_exec.sh"]
+    SAVE IMAGE --push $HOT_RELOAD_IMAGE_NAME
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -85,26 +101,6 @@ airbyte-connector-container:
     ENTRYPOINT ["./airbyte-connector"]
     SAVE IMAGE --push $AIRBYTE_IMAGE_NAME
 
-build-web-server:
-    # Copy in all our crates
-    COPY --dir crates crates
-    RUN rm -rf crates/airbyte-connector crates/k8s-operator crates/rag-engine
-    COPY --dir Cargo.lock Cargo.toml .
-    COPY --dir +npm-build/dist $PIPELINE_FOLDER/
-
-    # We need to run inside docker as we need postgres running for cornucopia
-    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
-    USER root
-    WITH DOCKER \
-        --pull ankane/pgvector
-        RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
-            && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
-            && cargo leptos build --release -vv
-    END
-    SAVE ARTIFACT target/release/$APP_EXE_NAME
-    SAVE ARTIFACT target/site
-
-
 build:
     # Copy in all our crates
     COPY --dir crates crates
@@ -123,6 +119,7 @@ build:
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RAG_ENGINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$AIRBYTE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
+    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/hot-reload
 
 migration-container:
     FROM alpine
@@ -156,15 +153,6 @@ operator-container:
     COPY +build/$OPERATOR_EXE_NAME k8s-operator
     ENTRYPOINT ["./k8s-operator", "operator"]
     SAVE IMAGE --push $OPERATOR_IMAGE_NAME
-
-
-# We use this in the docker-compose to integrate with barricade.
-envoy-container:
-    FROM $ENVOY_PROXY
-    COPY .devcontainer/envoy.yaml /etc/envoy/envoy.yaml
-    # The second development entry in our cluster list is the app
-    RUN sed -i '0,/development/{s/development/app/}' /etc/envoy/envoy.yaml
-    SAVE IMAGE --push $ENVOY_IMAGE_NAME
 
 # Embeddings container - download models from huggungface
 embeddings-container-base:

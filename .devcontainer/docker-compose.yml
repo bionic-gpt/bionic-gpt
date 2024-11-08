@@ -1,45 +1,6 @@
 version: '3.4'
 services:
 
-  #llm-api:
-  #  image: ghcr.io/bionic-gpt/llama-3-8b-chat:1.1.3
-  #  platform: linux/amd64
-  #embeddings-api:
-  #  image: ghcr.io/bionic-gpt/bionicgpt-embeddings-api:cpu-0.6
-  #  platform: linux/amd64
-  #chunking-engine:
-  #  image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
-
-  #db:
-  #  image: ankane/pgvector:v0.5.1
-  #  environment:
-  #    POSTGRES_PASSWORD: testpassword
-  #    POSTGRES_USER: postgres
-  #  healthcheck:
-  #    test: ["CMD-SHELL", "pg_isready -U vscode"]
-  #    interval: 10s
-  #    timeout: 5s
-  #    retries: 5
-      
-  # Handles routing between our containers
-  #envoy:
-  #  build: 
-  #    context: .
-  #    dockerfile: Dockerfile.envoy
-  #  ports:
-  #    - "7700:7700"
-  #    - "7701:7701"
-
-  # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
-  #barricade:
-  #  image: purtontech/barricade:1.2.10
-  #  environment:
-  #      # This secret key is used to encrypt cookies.
-  #      SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-  #      DATABASE_URL: postgresql://db-owner:testpassword@localhost:30000/bionic-gpt?sslmode=disable
-  #      REDIRECT_URL: /app/post_registration
-  #      USER_TABLE_NAME: 'barricade_users'
-
   # Integration testing using a headless chrome browser
   selenium:
     image: selenium/standalone-chrome:4
@@ -55,10 +16,6 @@ services:
       # So that we can load examples with the browser testing.
       # However it doesn't seem to work with earthly, you have to docker cp the files
       - ../crates/integration-testing/files:/workspace
-
-  # MailHog is an email testing tool for developers.
-  #smtp:
-  #  image: mailhog/mailhog
 
   development:
     build: 

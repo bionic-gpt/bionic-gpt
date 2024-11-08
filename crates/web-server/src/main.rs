@@ -2,7 +2,6 @@ pub mod api_keys;
 pub mod api_pipeline;
 pub mod audit_trail;
 pub mod auth;
-pub mod barricade_endpoint;
 pub mod config;
 pub mod console;
 pub mod datasets;
@@ -41,21 +40,11 @@ async fn main() {
     let pool = db::create_pool(&config.app_database_url);
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
 
-    // Set up post registration/sign in endpoints
-    // based on whether we use oauth2 proxy or barricade
-    let auth_routes = if config.enable_barricade {
-        Router::new()
-            .typed_get(barricade_endpoint::index)
-            .typed_get(barricade_endpoint::post_registration)
-    } else {
-        Router::new().typed_get(oidc_endpoint::index)
-    };
-
     // build our application with a route
     let app = Router::new()
         .typed_get(static_files::static_path)
         .typed_get(metrics::track_metrics)
-        .merge(auth_routes)
+        .typed_get(oidc_endpoint::index)
         .merge(api_pipeline::routes(&config))
         .merge(api_keys::routes())
         .merge(audit_trail::routes())
