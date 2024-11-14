@@ -63,7 +63,8 @@ alias spell='docker run --rm -ti -v /workspace/crates/static-website/content:/wo
 # k3d
 alias k3d-create='k3d cluster create --agents 1 -p "30000-30001:30000-30001@agent:0"'
 alias k3d-del='k3d cluster delete'
-alias k3d-dev-setup='cargo run --bin k8s-operator -- install --no-operator --testing --development && \
+alias k3d-dev-setup='
+    cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000 && \
     cargo run --bin k8s-operator -- operator'
 alias k3d-postgres='kubectl apply -f /workspace/.devcontainer/kubernetes/postgres.yaml'
 alias k3d-rag-engine='kubectl apply -f /workspace/.devcontainer/kubernetes/rag-engine.yaml'
