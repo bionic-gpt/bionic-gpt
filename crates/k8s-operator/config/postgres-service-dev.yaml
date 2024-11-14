@@ -9,5 +9,5 @@ spec:
       targetPort: 5432
       nodePort: 30001
   selector:
-    cnpg.io/cluster: bionic-gpt-db-cluster 
+    cnpg.io/cluster: bionic-db-cluster 
     role: primary

@@ -12,6 +12,7 @@ pub mod keycloak_db;
 pub mod llm;
 pub mod llm_lite;
 pub mod mailhog;
+pub mod nginx;
 pub mod oauth2_proxy;
 pub mod observability;
 pub mod pgadmin;

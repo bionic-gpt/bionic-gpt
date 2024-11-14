@@ -27,6 +27,8 @@ const BIONIC_OPERATOR_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const CNPG_YAML: &str = include_str!("../../config/cnpg-1.22.1.yaml");
 const NGINX_YAML: &str = include_str!("../../config/nginx-ingress.yaml");
+const POSTGRES_SERVICE: &str = include_str!("../../config/postgres-service-dev.yaml");
+const APPLICATION_SERVICE: &str = include_str!("../../config/bionic-service-dev.yaml");
 
 pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     println!("Connecting to the cluster...");
@@ -44,6 +46,16 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     create_roles(&client, installer).await?;
     if !installer.no_operator {
         create_bionic_operator(&client, &installer.operator_namespace).await?;
+    }
+
+    if installer.development {
+        // Open up the postgres port to the devcontainer
+        println!("🚀 Mapping Postgres to port 30001");
+        super::super::cli::apply::apply(&client, POSTGRES_SERVICE, Some(&installer.namespace))
+            .await
+            .unwrap();
+        println!("🚀 Mapping Nginx to port 30000");
+        super::apply::apply(&client, APPLICATION_SERVICE, Some(&installer.namespace)).await?;
     }
     let my_local_ip = local_ip().unwrap();
     println!("When ready you can access bionic on http://{}", my_local_ip);
