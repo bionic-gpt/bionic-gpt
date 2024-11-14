@@ -88,10 +88,20 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             // of `kube::Error` to the `Error` defined in this crate.
             finalizer::add(client.clone(), &name, &namespace).await?;
 
+            let override_db_password = if development {
+                Some("testpassword".to_string())
+            } else {
+                None
+            };
+
             // The databases
-            let bionic_db_pass =
-                database::deploy(client.clone(), &namespace, bionic.spec.bionic_db_disk_size)
-                    .await?;
+            let bionic_db_pass = database::deploy(
+                client.clone(),
+                &namespace,
+                bionic.spec.bionic_db_disk_size,
+                &override_db_password,
+            )
+            .await?;
             let keycloak_db_pass = keycloak_db::deploy(
                 client.clone(),
                 &namespace,

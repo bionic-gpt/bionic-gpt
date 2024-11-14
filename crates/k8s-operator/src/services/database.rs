@@ -58,6 +58,7 @@ pub async fn deploy(
     client: Client,
     namespace: &str,
     disk_size: i32,
+    insecure_override_passwords: &Option<String>,
 ) -> Result<Option<String>, Error> {
     // If the cluster config exists, then do nothing.
     let cluster_api: Api<Cluster> = Api::namespaced(client.clone(), namespace);
@@ -65,9 +66,10 @@ pub async fn deploy(
     if cluster.is_ok() {
         return Ok(None);
     }
-    let app_database_password: String = rand_hex();
-    let readonly_database_password: String = rand_hex();
-    let dbowner_password: String = rand_hex();
+    let app_database_password: String = insecure_override_passwords.clone().unwrap_or(rand_hex());
+    let readonly_database_password: String =
+        insecure_override_passwords.clone().unwrap_or(rand_hex());
+    let dbowner_password: String = insecure_override_passwords.clone().unwrap_or(rand_hex());
 
     let cluster = Cluster {
         metadata: ObjectMeta {
