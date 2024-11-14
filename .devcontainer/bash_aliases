@@ -33,7 +33,7 @@ alias app_dburl='export APP_DATABASE_URL=$(
 alias dbport='kubectl port-forward -n bionic-gpt bionic-db-cluster-1 5432:5432'
 alias dbmate='dbmate --no-dump-schema --migrations-dir /workspace/crates/db/migrations'
 alias dbdown='while dbmate down; do :; done'
-alias db='sql $DATABASE_URL'
+alias db='psql $DATABASE_URL'
 alias dbapp='psql $APP_DATABASE_URL'
 
 alias p='sudo chmod 777 /var/run/docker.sock'

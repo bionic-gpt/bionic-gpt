@@ -28,7 +28,7 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const CNPG_YAML: &str = include_str!("../../config/cnpg-1.22.1.yaml");
 const NGINX_YAML: &str = include_str!("../../config/nginx-ingress.yaml");
 const POSTGRES_SERVICE: &str = include_str!("../../config/postgres-service-dev.yaml");
-const APPLICATION_SERVICE: &str = include_str!("../../config/nginx-service-dev.yaml");
+const APPLICATION_SERVICE: &str = include_str!("../../config/bionic-service-dev.yaml");
 
 pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     println!("Connecting to the cluster...");

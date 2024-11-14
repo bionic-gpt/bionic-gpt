@@ -13,6 +13,7 @@ use crate::services::keycloak_db;
 use crate::services::llm;
 use crate::services::llm_lite;
 use crate::services::mailhog;
+use crate::services::nginx::deploy_nginx;
 use crate::services::oauth2_proxy;
 use crate::services::observability;
 use crate::services::pgadmin;
@@ -109,16 +110,19 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             )
             .await?;
 
-            if !development {
-                bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
-                rag_engine::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
-            }
+            bionic::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+            rag_engine::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             envoy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             keycloak::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             oauth2_proxy::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
-            if !disable_ingress {
+            if !disable_ingress || development {
                 ingress::deploy(client.clone(), &namespace, pgadmin, observability).await?;
             }
+
+            if development || testing {
+                deploy_nginx(&client, &namespace).await.unwrap();
+            }
+
             mailhog::deploy(client.clone(), &namespace).await?;
             if gpu {
                 tgi::deploy(client.clone(), &namespace).await?;
