@@ -37,8 +37,5 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends inotify-t
 ## Push hotreload exe into hot reload
 
 ```sh
-cargo build --bin hot-reload
-POD_NAME=$(kubectl get pods -n bionic-gpt -l app=bionic-gpt -o jsonpath="{.items[0].metadata.name}")
-kubectl cp /workspace/target/debug/hot-reload bionic-gpt/$POD_NAME:/app/new-server
-kubectl cp /workspace/crates/hot-reload/new-server.txt bionic-gpt/$POD_NAME:/app/new-server.txt
+crates/hot-reload/hot-reload.sh
 ```
