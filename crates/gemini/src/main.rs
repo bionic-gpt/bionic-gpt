@@ -18,7 +18,7 @@ async fn main() -> Result<(), Error> {
         "messages": [
             { "role": "user", "content": "Say hi" }
         ],
-        "model": "gemini-1.5-flash"
+        "model": "gemini-1.5-flash-001"
     });
 
     // Send the request and handle the response
@@ -59,6 +59,36 @@ async fn main() -> Result<(), Error> {
         Err(err) => {
             eprintln!("Request failed: {}", err);
         }
+    }
+
+    // Us enon open ai api
+    let url = format!("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={}", token);
+
+    // Define the JSON payload
+    let payload = json!({
+        "contents": [
+            { "parts": [{
+                    "text": "Say hi"
+            }]}
+        ],
+        "model": "gemini-1.5-flash-001"
+    });
+
+    let response = client
+        .post(url)
+        .header("Content-Type", "application/json")
+        .json(&payload)
+        .send()
+        .await
+        .unwrap();
+
+    if response.status().is_success() {
+        let body: Value = response.json().await?;
+        println!("Response body: {}", body);
+    } else {
+        eprintln!("Failed with status: {}", response.status());
+        let error_body = response.text().await?;
+        eprintln!("Error body: {}", error_body);
     }
 
     Ok(())
