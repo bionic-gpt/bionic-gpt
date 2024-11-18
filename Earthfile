@@ -48,27 +48,6 @@ all:
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
 
-hot-reload:
-    FROM debian:12-slim
-    # Set working directory
-    WORKDIR /app
-    COPY +build/hot-reload /app/web-server
-    # Install necessary packages
-    RUN apt-get update && \
-        apt-get install -y --no-install-recommends inotify-tools && \
-        rm -rf /var/lib/apt/lists/*
-    # Create necessary directories
-    RUN mkdir -p /app /var/log /workspace/crates/web-assets
-    # Ensure the executable has execution permissions
-    RUN chmod +x /app/web-server
-    # Copy the update script into the container
-    COPY crates/hot-reload/update_exec.sh /usr/local/bin/update_exec.sh
-    # Ensure the script has execution permissions
-    RUN chmod +x /usr/local/bin/update_exec.sh
-    # Set the update script as the entry point
-    ENTRYPOINT ["/usr/local/bin/update_exec.sh"]
-    SAVE IMAGE --push $HOT_RELOAD_IMAGE_NAME
-
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
     COPY $PIPELINE_FOLDER/package-lock.json $PIPELINE_FOLDER/package-lock.json
@@ -119,7 +98,6 @@ build:
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RAG_ENGINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$AIRBYTE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
-    SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/hot-reload
 
 migration-container:
     FROM alpine
