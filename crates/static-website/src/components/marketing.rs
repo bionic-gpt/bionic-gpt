@@ -246,8 +246,16 @@ pub fn PartnersPage() -> Element {
                     }
                     p {
                         class: "mt-4 mb-6",
-                        "A US based partner has leveraged bionicGPT to gain access to top-tier firms, meeting the demand for secure on-premise generative AI solutions. By offering private instance deployments and earning from user licensing, this partner has created multiple revenue streams. In addition to licensing, they've built thriving business lines in AI training, consulting, and custom development, allowing them to deliver high-value AI solutions tailored to client needs."
+                        "Based in Washington, D.C., ",
+                        a {
+                            href: "https://gtedge.ai",
+                            target: "_blank",
+                            rel: "noopener noreferrer",
+                            "GTEdge AI"
+                        },
+                        " has been a trusted partner of bionicGPT for over a year, delivering successful installations for multiple clients. By leveraging bionicGPT, GTEdge AI offers a comprehensive turnkey solution deployed directly in their data center. This partnership has enabled GTEdge AI to enhance and expand their AI training and consultancy services."
                     }
+
                     h4 {
                         class: "text-2xl font-bold mt-8",
                         "Partner Benefits"
