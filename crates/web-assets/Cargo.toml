@@ -12,4 +12,4 @@ path = "lib.rs"
 mime = "0.3.0"
 
 [build-dependencies]
-cache-busters = { path = "../cache-busters" }
+cache-busters = "0"

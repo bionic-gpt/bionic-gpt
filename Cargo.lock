@@ -546,6 +546,8 @@ checksum = "514de17de45fdb8dc022b1a7975556c53c86f9f0aa5f534b98977b171857c2c9"
 [[package]]
 name = "cache-busters"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6939d2d8172eb91b75207608819d1d2a9e0ecfe25f68b10cf246475315789d5"
 dependencies = [
  "md5",
 ]
