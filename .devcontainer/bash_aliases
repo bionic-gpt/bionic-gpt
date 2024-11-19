@@ -38,8 +38,6 @@ alias dbapp='psql $APP_DATABASE_URL'
 
 alias p='sudo chmod 777 /var/run/docker.sock'
 
-alias rh='export HOST_IP_ADDRESS=$(grep -oP "(?<=https://)[^:]+(?=:)" ~/.kube/config)'
-
 # Configure the environment for inside k8's
 alias get-env='rh && dburl && app_dburl'
 
@@ -69,6 +67,8 @@ alias k3d-dev-setup='
 alias k3d-full-dev-setup='
     cargo run --bin k8s-operator -- install --no-operator --development --hostname-url http://localhost:30000 && \
     cargo run --bin k8s-operator -- operator'
-alias k3d-postgres='kubectl apply -f /workspace/.devcontainer/kubernetes/postgres.yaml'
-alias k3d-rag-engine='kubectl apply -f /workspace/.devcontainer/kubernetes/rag-engine.yaml'
-alias k3d-smtp='kubectl apply -f /workspace/.devcontainer/kubernetes/smtp.yaml'
+
+# Mirrord
+alias mwa='
+    mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
+'
