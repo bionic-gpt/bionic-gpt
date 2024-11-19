@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -22,7 +22,7 @@ pub async fn delete(
         team_id: _,
         document_id: _,
     }: Delete,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(delete_doc): Form<DeleteDoc>,
 ) -> Result<impl IntoResponse, CustomError> {

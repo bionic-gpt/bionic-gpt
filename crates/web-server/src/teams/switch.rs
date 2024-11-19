@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
@@ -8,7 +8,7 @@ use web_pages::{render_with_props, routes::teams::Switch, teams};
 pub async fn switch(
     Switch { team_id }: Switch,
     Extension(pool): Extension<Pool>,
-    current_user: Authentication,
+    current_user: Jwt,
 ) -> Result<Html<String>, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;

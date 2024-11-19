@@ -32,6 +32,7 @@ services:
       DATABASE_URL: postgresql://db-owner:testpassword@localhost:30001/bionic-gpt?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@localhost:30001/bionic-gpt?sslmode=disable
       SIGNOUT_URL: /auth/sign_out
+      DANGER_JWT_OVERRIDE: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc
 
       FILE_UPLOAD_FEATURE: 1
 

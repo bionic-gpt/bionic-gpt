@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -27,7 +27,7 @@ pub struct Chat {
 /// embeddings for the response that are used by the search feature.
 pub async fn update_response(
     UpdateResponse { team_id }: UpdateResponse,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(message): Form<Chat>,
 ) -> Result<impl IntoResponse, CustomError> {

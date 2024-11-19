@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
@@ -7,7 +7,7 @@ use web_pages::{api_keys, render_with_props, routes::api_keys::Index};
 
 pub async fn index(
     Index { team_id }: Index,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;

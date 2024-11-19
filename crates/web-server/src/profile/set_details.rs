@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form, Path},
     response::IntoResponse,
@@ -19,7 +19,7 @@ pub struct SetDetails {
 
 pub async fn set_details(
     Path(team_id): Path<i32>,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(set_name): Form<SetDetails>,
 ) -> Result<impl IntoResponse, CustomError> {

@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::body::Body;
 use axum::body::Bytes;
 use axum::extract::Extension;
@@ -10,7 +10,7 @@ use web_pages::routes::prompts::Image;
 
 pub async fn image(
     Image { team_id, id }: Image,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;

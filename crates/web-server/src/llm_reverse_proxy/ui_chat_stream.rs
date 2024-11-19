@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
-use crate::auth::Authentication;
+use crate::jwt::Jwt;
 use crate::CustomError;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
@@ -27,7 +27,7 @@ use super::{Completion, Message};
 // Called from the front end to generate a streaming chat with the model
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
     match create_request(&pool, &current_user, chat_id).await {
@@ -132,7 +132,7 @@ async fn save_results(
 // chat completions.
 async fn create_request(
     pool: &Pool,
-    current_user: &Authentication,
+    current_user: &Jwt,
     chat_id: i32,
 ) -> Result<(RequestBuilder, i32, i32), CustomError> {
     let mut db_client = pool.get().await?;

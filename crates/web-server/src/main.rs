@@ -1,7 +1,6 @@
 pub mod api_keys;
 pub mod api_pipeline;
 pub mod audit_trail;
-pub mod auth;
 pub mod config;
 pub mod console;
 pub mod datasets;
@@ -9,6 +8,7 @@ pub mod documents;
 pub mod email;
 pub mod errors;
 pub mod history;
+pub mod jwt;
 pub mod layout;
 pub mod llm_reverse_proxy;
 pub mod metrics;
@@ -23,9 +23,9 @@ pub mod static_files;
 pub mod team;
 pub mod teams;
 
-pub use auth::Authentication;
 use axum_extra::routing::RouterExt;
 pub use errors::CustomError;
+pub use jwt::Jwt;
 
 use axum::{Extension, Router};
 use std::net::SocketAddr;

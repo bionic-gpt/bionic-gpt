@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Path},
     response::Html,
@@ -9,7 +9,7 @@ use db::Pool;
 
 pub async fn index(
     Path(team_id): Path<i32>,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     // Create a transaction and setup RLS

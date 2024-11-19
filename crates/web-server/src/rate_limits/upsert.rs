@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::IntoResponse;
 use axum_extra::extract::Form;
@@ -19,7 +19,7 @@ pub struct RateLimitForm {
 
 pub async fn upsert(
     Upsert { team_id }: Upsert,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(form): Form<RateLimitForm>,
 ) -> Result<impl IntoResponse, CustomError> {
