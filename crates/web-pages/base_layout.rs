@@ -55,10 +55,10 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
         }
         body {
             div {
-                class: "flex h-screen",
+                class: "flex h-screen overflow-hidden",
                 nav {
                     id: "sidebar",
-                    class: "overflow-hidden bg-base-200 fixed md:relative h-full md:w-64 w-0 transition-all duration-300 flex flex-col justify-between",
+                    class: "fixed inset-y-0 left-0 w-64 bg-gray-200 transform -translate-x-full transition-transform duration-200 ease-in-out flex flex-col lg:translate-x-0 lg:static lg:inset-auto lg:transform-none z-20",
                     div {
                         class: "flex items-center p-4",
                         {props.sidebar_header}

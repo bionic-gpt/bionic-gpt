@@ -126,9 +126,9 @@ pub fn Page(
 
             }
 
-            CodeExamples {
+            /***CodeExamples {
 
-            }
+            }**/
         }
     }
 }
