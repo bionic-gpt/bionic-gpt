@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::Extension,
     response::{IntoResponse, Redirect},
@@ -15,7 +15,7 @@ pub async fn invite(
         invite_validator,
     }: AcceptInvite,
     Extension(pool): Extension<Pool>,
-    current_user: Authentication,
+    current_user: Jwt,
 ) -> Result<impl IntoResponse, CustomError> {
     let team_id =
         accept_invitation(&pool, current_user, &invite_selector, &invite_validator).await?;
@@ -27,7 +27,7 @@ pub async fn invite(
 
 pub async fn accept_invitation(
     pool: &Pool,
-    current_user: Authentication,
+    current_user: Jwt,
     invitation_selector: &str,
     invitation_verifier: &str,
 ) -> Result<i32, CustomError> {

@@ -1,6 +1,6 @@
 use crate::config::Config;
 
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -31,7 +31,7 @@ pub async fn upsert(
     Upsert { team_id }: Upsert,
     Extension(pool): Extension<Pool>,
     Extension(config): Extension<Config>,
-    current_user: Authentication,
+    current_user: Jwt,
     Form(new_dataset): Form<NewDataset>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS

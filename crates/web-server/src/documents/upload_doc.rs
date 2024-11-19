@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Multipart},
     response::IntoResponse,
@@ -13,7 +13,7 @@ pub async fn upload(
         team_id,
         dataset_id,
     }: Upload,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     mut files: Multipart,
 ) -> Result<impl IntoResponse, CustomError> {

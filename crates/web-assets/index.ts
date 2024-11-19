@@ -7,26 +7,26 @@ import hljs from 'highlight.js';
 import '@github/relative-time-element';
 
 // Misc.
-import { triggers } from './typescript/side-drawer-trigger'
+import { triggers } from './typescript/components/side-drawer-trigger'
 import { toggleVisibility } from './typescript/api-keys/toggle-visibility'
-import { autoExpand } from './typescript/auto-expand'
-import { modalTriggers } from './typescript/modal-trigger'
-import { initializeSidebar } from './typescript/responsive-nav'
-import { streamingChat } from './typescript/streaming-chat'
-import { drawers } from './typescript/side-drawer'
-import { formatter } from './typescript/format-json'
-import { copyPaste } from './typescript/copy-paste'
-import { snackBar } from './typescript/snackbar'
-import { copy } from './typescript/copy'
-import { selectMenu } from './typescript/select-menu'
-import { readAloud } from './typescript/read-aloud'
-import { modelChanged } from './typescript/select-menu-changed'
+import { autoExpand } from './typescript/console/auto-expand'
+import { modalTriggers } from './typescript/components/modal-trigger'
+import { initializeSidebar } from './typescript/layout/responsive-nav'
+import { streamingChat } from './typescript/console/streaming-chat'
+import { drawers } from './typescript/components/side-drawer'
+import { formatter } from './typescript/console/format-json'
+import { copyPaste } from './typescript/console/copy-paste'
+import { snackBar } from './typescript/layout/snackbar'
+import { copy } from './typescript/console/copy'
+import { selectMenu } from './typescript/components/select-menu'
+import { readAloud } from './typescript/console/read-aloud'
+import { modelChanged } from './typescript/components/select-menu-changed'
 import { rememberForm } from './typescript/remember-form'
 import { textareaSubmit } from './typescript/textarea-submit'
-import { updateSidebar } from './typescript/update-sidebar'
-import { refreshFrame } from './typescript/refresh-frame'
+import { updateSidebar } from './typescript/layout/update-sidebar'
+import { refreshFrame } from './typescript/layout/refresh-frame'
 import { disableSubmitButton } from './typescript/disable-submit-button'
-import { themeSwitcher, setTheme } from './typescript/theme-switcher'
+import { themeSwitcher, setTheme } from './typescript/layout/theme-switcher'
 
 // Hotwired Turbo
 import '@hotwired/turbo'
@@ -69,6 +69,16 @@ document.addEventListener('turbo:frame-load', (event: Event) => {
     if (frame?.id === "main-content") {
         const url = new URL(frame.src);
         history.pushState({}, '', url.toString());
+    }
+
+    // if we are mobile and the sidebar is open, close it.
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        // On mobile screens
+        if (window.innerWidth < 1024) { // Tailwind's lg breakpoint is 1024px
+            console.log("here")
+            sidebar.classList.toggle('-translate-x-full');
+        }
     }
 });
 

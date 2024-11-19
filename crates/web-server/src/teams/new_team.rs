@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -20,7 +20,7 @@ pub struct NewTeam {
 pub async fn new_team(
     New { team_id: _ }: New,
     Extension(pool): Extension<Pool>,
-    current_user: Authentication,
+    current_user: Jwt,
     Form(new_team): Form<NewTeam>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS

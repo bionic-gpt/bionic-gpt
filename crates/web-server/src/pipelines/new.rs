@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -21,7 +21,7 @@ pub struct NewForm {
 
 pub async fn new(
     New { team_id }: New,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(new_pipeline): Form<NewForm>,
 ) -> Result<impl IntoResponse, CustomError> {

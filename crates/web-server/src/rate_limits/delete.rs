@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{extract::Extension, response::IntoResponse};
 use db::authz;
 use db::queries;
@@ -7,7 +7,7 @@ use web_pages::routes::rate_limits::Delete;
 
 pub async fn delete(
     Delete { id, team_id }: Delete,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS

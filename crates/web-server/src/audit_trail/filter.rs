@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::Html,
@@ -56,7 +56,7 @@ impl Filter {
 
 pub async fn filter(
     Index { team_id }: Index,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(filter_form): Form<Filter>,
 ) -> Result<Html<String>, CustomError> {

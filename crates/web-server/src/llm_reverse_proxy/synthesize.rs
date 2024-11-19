@@ -1,4 +1,4 @@
-use crate::auth::Authentication;
+use crate::jwt::Jwt;
 use crate::CustomError;
 use axum::body::Body;
 use axum::extract::Request;
@@ -16,7 +16,7 @@ use super::UISynthesize;
 // Called from the front end to generate text to speech
 pub async fn synthesize(
     UISynthesize {}: UISynthesize,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     req: Request<Body>,
 ) -> Result<Response<Body>, CustomError> {
@@ -50,7 +50,7 @@ pub async fn synthesize(
 // chat completions.
 async fn create_request(
     pool: &Pool,
-    current_user: &Authentication,
+    current_user: &Jwt,
     body: String,
 ) -> Result<RequestBuilder, CustomError> {
     let mut db_client = pool.get().await?;

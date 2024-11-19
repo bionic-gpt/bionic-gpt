@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::Extension,
     response::{IntoResponse, Redirect},
@@ -18,7 +18,7 @@ pub struct AcceptInviteForm {
 
 pub async fn accept_invite(
     AcceptInvite {}: AcceptInvite,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(accept_invite): Form<AcceptInviteForm>,
 ) -> Result<impl IntoResponse, CustomError> {
