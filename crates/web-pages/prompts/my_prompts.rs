@@ -26,7 +26,12 @@ pub fn Page(
             rbac: rbac.clone(),
             title: "My Assistants",
             header: rsx!(
-                h3 { "My Assistants" }
+                h3 {
+                    span {
+                        class: "hidden md:block",
+                        "My Assistants"
+                    }
+                }
                 div {
                     a {
                         href: crate::routes::prompts::Index{team_id}.to_string(),
@@ -58,6 +63,7 @@ pub fn Page(
                         class: "table table-sm table-layout-fixed",
                         thead {
                             th {
+                                class: "hidden md:block",
                                 "Last Updated"
                             }
                             th {
@@ -69,6 +75,7 @@ pub fn Page(
                                 "Edit"
                             }
                             th {
+                                class: "hidden md:block",
                                 class: "text-right",
                                 "Action"
                             }
@@ -77,6 +84,7 @@ pub fn Page(
                             for prompt in &prompts {
                                 tr {
                                     td {
+                                        class: "hidden md:block",
                                         RelativeTime {
                                             format: RelativeTimeFormat::Relative,
                                             datetime: "{prompt.updated_at}"
@@ -101,7 +109,7 @@ pub fn Page(
 
                                     }
                                     td {
-                                        class: "text-right",
+                                        class: "text-right hidden md:block",
                                         DropDown {
                                             direction: Direction::Left,
                                             button_text: "...",
