@@ -76,8 +76,7 @@ document.addEventListener('turbo:frame-load', (event: Event) => {
     if (sidebar) {
         // On mobile screens
         if (window.innerWidth < 1024) { // Tailwind's lg breakpoint is 1024px
-            console.log("here")
-            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.add('-translate-x-full');
         }
     }
 });

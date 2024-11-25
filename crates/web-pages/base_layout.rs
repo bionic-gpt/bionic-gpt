@@ -58,7 +58,24 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                 class: "flex h-screen overflow-hidden",
                 nav {
                     id: "sidebar",
-                    class: "fixed inset-y-0 left-0 w-64 bg-gray-200 transform -translate-x-full transition-transform duration-200 ease-in-out flex flex-col lg:translate-x-0 lg:static lg:inset-auto lg:transform-none z-20",
+                    class: "
+                        fixed
+                        inset-y-0
+                        left-0
+                        w-64
+                        bg-gray-200
+                        transform
+                        -translate-x-full
+                        transition-transform
+                        duration-200
+                        ease-in-out
+                        flex
+                        flex-col
+                        lg:translate-x-0
+                        lg:static
+                        lg:inset-auto
+                        lg:transform-none
+                        z-20",
                     div {
                         class: "flex items-center p-4",
                         {props.sidebar_header}
