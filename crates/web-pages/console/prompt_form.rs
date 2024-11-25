@@ -71,7 +71,7 @@ pub fn Form(
 ) -> Element {
     rsx! {
         div {
-            class: "mx-auto ml-2 mr-2 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]",
+            class: "mx-auto pl-2 pr-2 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]",
 
             form {
                 class: "flex items-center gap-2 remember w-full bg-base-200 p-2 rounded-lg",
