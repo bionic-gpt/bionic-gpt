@@ -24,7 +24,7 @@ pub fn ConsoleStream(
                     chunks: chat_with_chunks.chunks.clone()
                 }
                 div {
-                    class: "flex flex-col-reverse min-w-[65ch] max-w-prose mx-auto",
+                    class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
                     TimeLine {
                         if let Some(response) = &chat_with_chunks.chat.response {
                             // We are generating text

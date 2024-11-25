@@ -30,7 +30,12 @@ pub fn Page(
             rbac: rbac.clone(),
             title: "Assistants",
             header: rsx!(
-                h3 { "Assistants" }
+                h3 {
+                    span {
+                        class: "hidden lg:block",
+                        "Assistants"
+                    }
+                }
                 div {
                     a {
                         href: crate::routes::prompts::MyPrompts{team_id}.to_string(),

@@ -1,3 +1,4 @@
+-- db < crates/db/seed-data/assistants.sql
 -- First, delete any existing prompts with type 'Assistant'
 DELETE FROM prompts WHERE prompt_type = 'Assistant';
 

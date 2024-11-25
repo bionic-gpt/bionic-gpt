@@ -16,11 +16,24 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                     class: "table table-sm",
                     thead {
                         th { "Name" }
-                        th { "Base URL" }
+                        th {
+                            class: "hidden md:block",
+                            "Base URL"
+                        }
                         th { "Model Type" }
-                        th { "TPM Limit" }
-                        th { "RPM Limit" }
-                        th { "Context Length" }
+
+                        th {
+                            class: "hidden md:block",
+                            "TPM Limit"
+                        }
+                        th {
+                            class: "hidden md:block",
+                            "RPM Limit"
+                        }
+                        th {
+                            class: "hidden md:block",
+                            "Context Length"
+                        }
                         th {
                             class: "text-right",
                             "Action"
@@ -36,7 +49,7 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                 }
                                 td {
                                     code {
-                                        class: "[overflow-wrap:anywhere]",
+                                        class: "hidden md:block [overflow-wrap:anywhere]",
                                         "{model.base_url}"
                                     }
                                 }
@@ -46,12 +59,15 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                     }
                                 }
                                 td {
+                                    class: "hidden md:block",
                                     "{model.tpm_limit}"
                                 }
                                 td {
+                                    class: "hidden md:block",
                                     "{model.rpm_limit}"
                                 }
                                 td {
+                                    class: "hidden md:block",
                                     "{model.context_size}"
                                 }
                                 td {
