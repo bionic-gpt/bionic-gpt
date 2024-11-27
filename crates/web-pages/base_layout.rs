@@ -60,10 +60,10 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                     id: "sidebar",
                     class: "
                         fixed
+                        bg-base-200
                         inset-y-0
                         left-0
                         w-64
-                        bg-gray-200
                         transform
                         -translate-x-full
                         transition-transform

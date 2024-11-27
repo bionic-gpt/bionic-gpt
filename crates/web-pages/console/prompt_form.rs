@@ -34,10 +34,9 @@ fn AttachButton() -> Element {
 fn SendMessageButton(lock_console: bool) -> Element {
     rsx! {
         if lock_console {
-            button {
+            a {
                 id: "streaming-button",
                 class: "h-8 w-8 p-2 bg-primary rounded-full",
-                "type": "submit",
                 img {
                     class: "svg-icon",
                     width: "48",

@@ -50,8 +50,14 @@ pub fn Page(
                             thead {
                                 th { "Name" }
                                 th { "Visibility" }
-                                th { "Document Count" }
-                                th { "Chunking Strategy" }
+                                th {
+                                    class: "max-sm:hidden",
+                                    "Document Count"
+                                }
+                                th {
+                                    class: "max-sm:hidden",
+                                    "Chunking Strategy"
+                                }
                                 th {
                                     class: "text-right",
                                     "Action"
@@ -72,8 +78,12 @@ pub fn Page(
                                                 visibility: dataset.visibility
                                             }
                                         }
-                                        td { "{dataset.count}" }
                                         td {
+                                            class: "max-sm:hidden",
+                                            "{dataset.count}"
+                                        }
+                                        td {
+                                            class: "max-sm:hidden",
                                             Label {
                                                 label_role: LabelRole::Highlight,
                                                 "By Title"

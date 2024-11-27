@@ -81,7 +81,10 @@ pub fn Page(
                         thead {
                             th { "Name or Email" }
                             th { "Status" }
-                            th { "Special Privelages" }
+                            th {
+                                class: "max-sm:hidden",
+                                "Special Privelages"
+                            }
                             if rbac.can_make_invitations() {
                                 th {
                                     class: "text-right",
@@ -120,6 +123,7 @@ pub fn Page(
                                         }
                                     }
                                     td {
+                                        class: "max-sm:hidden",
                                         for role in member.roles.clone() {
                                             super::team_role::Role {
                                                 role: role
