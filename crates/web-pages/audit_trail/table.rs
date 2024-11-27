@@ -17,7 +17,10 @@ pub fn AuditTable(audits: Vec<AuditTrail>) -> Element {
                     thead {
                         th { "When" }
                         th { "User" }
-                        th { "Access Type" }
+                        th {
+                            class: "max-sm:hidden",
+                            "Access Type"
+                        }
                         th {
                             class: "text-right",
                             "Action"
@@ -36,6 +39,7 @@ pub fn AuditTable(audits: Vec<AuditTrail>) -> Element {
                                     "{audit.email}"
                                 }
                                 td {
+                                    class: "max-sm:hidden",
                                     Label {
                                         class: "mr-2",
                                         label_role: LabelRole::Neutral,
