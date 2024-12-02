@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -27,9 +27,9 @@ pub struct NewInvite {
 
 pub async fn create_invite(
     CreateInvite { team_id }: CreateInvite,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
-    authentication: Authentication,
+    authentication: Jwt,
     Extension(config): Extension<super::super::config::Config>,
     Form(new_invite): Form<NewInvite>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -81,7 +81,7 @@ pub async fn create_invite(
 
 pub async fn create(
     pool: &Pool,
-    current_user: Authentication,
+    current_user: Jwt,
     new_invite: &NewInvite,
     team_id: i32,
 ) -> Result<(String, String), CustomError> {

@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use crate::config::Config;
 use axum::{extract::Extension, response::IntoResponse};
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
@@ -35,7 +35,7 @@ pub struct NewPromptTemplate {
 
 pub async fn upsert(
     Upsert { team_id }: Upsert,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Extension(config): Extension<Config>,
     TypedMultipart(new_prompt_template): TypedMultipart<NewPromptTemplate>,

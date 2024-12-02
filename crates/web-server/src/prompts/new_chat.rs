@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{extract::Extension, response::IntoResponse};
 use db::authz;
 use db::queries::conversations;
@@ -7,7 +7,7 @@ use web_pages::routes::prompts::NewChat;
 
 pub async fn new_chat(
     NewChat { team_id, prompt_id }: NewChat,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;

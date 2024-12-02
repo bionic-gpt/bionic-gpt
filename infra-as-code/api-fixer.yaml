@@ -1,0 +1,122 @@
+# nginx-config ConfigMap containing the Nginx configuration
+# kubectl apply -n bionic-gpt -f api-fixer.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    worker_processes  1;
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        # Add these chunked transfer settings
+        chunked_transfer_encoding on;
+        proxy_http_version 1.1;
+
+        server {
+            listen       80;
+            server_name  _;
+
+            # For Provider 1 (llm.kindo.ai)
+            location /kindo/ {
+                # Remove '/kindo' prefix before proxying
+                rewrite ^/kindo/(.*)$ /$1 break;
+
+                proxy_pass https://llm.kindo.ai;
+
+                # Remove the original Authorization header
+                proxy_set_header Authorization "";
+
+                # Set the api-key header with the hard-coded API key
+                proxy_set_header api-key '6280bc78-5919-45a2-9ff0-4ba9f71ec0ed-930e22c1daae5ee7';
+
+                # Set the Host header
+                proxy_set_header Host llm.kindo.ai;
+
+                # Proxy settings
+                proxy_ssl_server_name on;
+                proxy_ssl_protocols TLSv1.2 TLSv1.3;
+                proxy_ssl_ciphers HIGH:!aNULL:!MD5;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+            
+            # For Provider 2 (generativelanguage.googleapis.com)
+            location /google/ {
+                # Remove '/google' prefix before proxying
+                rewrite ^/google(/.*)$ /$1 break;
+
+                # Use proxy_pass with a trailing slash to correctly append the rewritten URI
+                proxy_pass https://generativelanguage.googleapis.com;
+
+                # Remove the default host header
+                proxy_set_header Host "generativelanguage.googleapis.com";
+
+                # Streaming-specific settings
+                proxy_buffering off;
+                proxy_cache off;
+                proxy_set_header Connection '';
+                proxy_http_version 1.1;
+
+                # Keep connection alive
+                keepalive_timeout 65;
+                proxy_read_timeout 24h;
+
+                # Proxy settings
+                proxy_ssl_server_name on;
+                proxy_ssl_protocols TLSv1.2 TLSv1.3;
+                proxy_ssl_ciphers HIGH:!aNULL:!MD5;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+        }
+    }
+---
+# Deployment for the Nginx reverse proxy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-proxy
+  template:
+    metadata:
+      labels:
+        app: nginx-proxy
+    spec:
+      containers:
+      - name: nginx
+        image: openresty/openresty:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /usr/local/openresty/nginx/conf/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+---
+# Service to expose the Nginx proxy
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-proxy-service
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx-proxy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

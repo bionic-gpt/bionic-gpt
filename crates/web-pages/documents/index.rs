@@ -52,7 +52,10 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                             class: "table table-sm",
                             thead {
                                 th { "Name" }
-                                th { "No. Chunks" }
+                                th {
+                                    class: "max-sm:hidden",
+                                    "No. Chunks"
+                                }
                                 th { "Content Size (Bytes)" }
                                 th { "Status" }
                                 th {
@@ -122,7 +125,10 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
     rsx!(
         tr {
             td { "{document.file_name}" }
-            td { "{document.batches}" }
+            td {
+                class: "max-sm:hidden",
+                "{document.batches}"
+             }
             td { "{document.content_size}" }
             td {
                 if document.waiting > 0 || document.batches == 0 {

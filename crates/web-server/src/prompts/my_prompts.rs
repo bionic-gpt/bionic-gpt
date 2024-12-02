@@ -1,6 +1,6 @@
 use crate::config::Config;
 
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
@@ -10,7 +10,7 @@ use web_pages::{prompts, render_with_props, routes::prompts::MyPrompts};
 
 pub async fn my_prompts(
     MyPrompts { team_id }: MyPrompts,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Extension(config): Extension<Config>,
 ) -> Result<Html<String>, CustomError> {

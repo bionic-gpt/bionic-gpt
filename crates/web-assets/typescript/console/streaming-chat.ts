@@ -22,9 +22,9 @@ async function streamResult(chatId: string, element: HTMLElement) {
     let result = '';
 
     const stopButton = document.getElementById('streaming-button');
-    const stopListener = () => {
+    const stopListener = (event: Event) => {
         console.log('Attempting to abort stream.');
-        abortController.abort();
+        abortController.abort("User aborted");
     };
 
     if (stopButton) {

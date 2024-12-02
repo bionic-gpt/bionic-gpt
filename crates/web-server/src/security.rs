@@ -1,4 +1,4 @@
-use crate::Authentication;
+use crate::Jwt;
 
 use super::CustomError;
 use axum::extract::Extension;
@@ -15,7 +15,7 @@ pub fn routes() -> Router {
 
 pub async fn loader(
     Index { team_id }: Index,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;

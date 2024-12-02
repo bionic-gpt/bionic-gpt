@@ -8,7 +8,7 @@ use db::{authz, queries, Pool};
 use http::StatusCode;
 use serde::Deserialize;
 
-use super::{Authentication, CustomError};
+use super::{CustomError, Jwt};
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/")]
@@ -16,7 +16,7 @@ pub struct OidcEndpoint {}
 
 pub async fn index(
     OidcEndpoint {}: OidcEndpoint,
-    authentication: Authentication,
+    authentication: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     setup_user(&pool, authentication).await
@@ -24,7 +24,7 @@ pub async fn index(
 
 pub async fn setup_user(
     pool: &Pool,
-    authentication: Authentication,
+    authentication: Jwt,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;

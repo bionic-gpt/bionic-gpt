@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::queries::{chats, chats_chunks, conversations, models, prompts};
@@ -13,7 +13,7 @@ pub async fn conversation(
         conversation_id,
         prompt_id,
     }: Conversation,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;

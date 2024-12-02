@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{extract::Extension, response::IntoResponse};
 use db::authz;
 use db::queries;
@@ -11,7 +11,7 @@ pub async fn delete(
         prompt_id,
         conversation_id,
     }: DeleteConv,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS

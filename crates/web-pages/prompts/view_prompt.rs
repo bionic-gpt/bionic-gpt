@@ -65,10 +65,17 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     }
                 }
                 ModalAction {
+                    class: "flex flex-row",
                     a {
-                        class: "btn btn-primary btn-sm w-full",
+                        class: "basis-3/4 btn btn-primary btn-sm",
                         href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
                         "Start a Chat"
+                    }
+                    Button {
+                        class: "basis-1/4 cancel-modal",
+                        button_type: ButtonType::Reset,
+                        button_scheme: ButtonScheme::Danger,
+                        "Cancel"
                     }
                 }
             }

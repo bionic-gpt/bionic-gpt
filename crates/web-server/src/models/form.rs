@@ -1,5 +1,5 @@
 use super::super::layout::empty_string_is_none;
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::IntoResponse;
 use axum::Form;
@@ -36,7 +36,7 @@ pub struct ModelForm {
 
 pub async fn upsert(
     New { team_id }: New,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(model_form): Form<ModelForm>,
 ) -> Result<impl IntoResponse, CustomError> {

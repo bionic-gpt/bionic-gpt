@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
@@ -8,7 +8,7 @@ use web_pages::{render_with_props, routes::team::Index, team};
 pub async fn index(
     Index { team_id }: Index,
     Extension(pool): Extension<Pool>,
-    current_user: Authentication,
+    current_user: Jwt,
 ) -> Result<Html<String>, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;

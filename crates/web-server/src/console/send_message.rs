@@ -1,4 +1,4 @@
-use super::super::{Authentication, CustomError};
+use super::super::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
@@ -19,7 +19,7 @@ pub struct Message {
 
 pub async fn send_message(
     SendMessage { team_id }: SendMessage,
-    current_user: Authentication,
+    current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(message): Form<Message>,
 ) -> Result<impl IntoResponse, CustomError> {

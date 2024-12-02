@@ -34,8 +34,7 @@ pub fn ConsoleLayout(
                     super::console_stream::ConsoleStream {
                         team_id: team_id,
                         chats_with_chunks: chats_with_chunks,
-                        is_tts_disabled,
-                        lock_console,
+                        is_tts_disabled
                     }
                 } else {
                     div {
@@ -50,7 +49,7 @@ pub fn ConsoleLayout(
                     super::prompt_form::Form {
                         team_id: team_id,
                         prompt_id: prompt.id,
-                        lock_console: false,
+                        lock_console: lock_console,
                         conversation_id,
                         disclaimer: prompt.disclaimer
                     }

@@ -21,7 +21,7 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: 
                 "What can I help with?"
             }
             div {
-                class: "flex flex-nowrap max-w-3xl flex-wrap items-stretch justify-center gap-4",
+                class: "grid grid-cols-2 md:grid-cols-4 pl-2 pr-2 max-w-3xl flex-wrap items-stretch justify-center gap-4",
                 for example in examples {
                     if let Some(example) = example {
                         if ! example.is_empty() {
