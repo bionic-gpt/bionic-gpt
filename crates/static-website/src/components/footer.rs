@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 pub fn Footer() -> Element {
     rsx! {
         footer {
-            class: "footer bg-neutral text-neutral-content p-10",
+            class: "mt-12 flex flex-row justify-around bg-neutral text-neutral-content p-10",
             nav {
                 h6 {
                     class: "footer-title",
@@ -12,12 +12,12 @@ pub fn Footer() -> Element {
                 }
                 a {
                     href: crate::routes::blog::Index {}.to_string(),
-                    class: "link link-hover",
+                    class: "block link-hover",
                     "Blog"
                 }
                 a {
                     href: crate::routes::marketing::Pricing {}.to_string(),
-                    class: "link link-hover",
+                    class: "block link-hover",
                     "Pricing"
                 }
             }
@@ -27,12 +27,12 @@ pub fn Footer() -> Element {
                     "Company"
                 }
                 a {
-                    class: "link link-hover",
+                    class: "block link-hover",
                     "About Us"
                 }
                 a {
                     href: crate::routes::marketing::Contact {}.to_string(),
-                    class: "link link-hover",
+                    class: "block link-hover",
                     "Contact"
                 }
             }
@@ -43,12 +43,12 @@ pub fn Footer() -> Element {
                 }
                 a {
                     href: crate::routes::marketing::Terms {}.to_string(),
-                    class: "link link-hover",
+                    class: "block link-hover",
                     "Terms of Use"
                 }
                 a {
                     href: crate::routes::marketing::Privacy {}.to_string(),
-                    class: "link link-hover",
+                    class: "block link-hover",
                     "Privacy Policy"
                 }
             }

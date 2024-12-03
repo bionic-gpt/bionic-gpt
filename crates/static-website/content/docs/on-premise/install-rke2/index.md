@@ -1,4 +1,4 @@
-## Why RKE2?
+# Why RKE2?
 
 RKE2, also known as RKE Government, is Rancher's next-generation Kubernetes distribution.
 

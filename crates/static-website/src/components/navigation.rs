@@ -1,8 +1,50 @@
 use crate::routes::{blog, docs, marketing, SIGN_IN_UP};
 use dioxus::prelude::*;
 
+#[derive(PartialEq, Clone, Eq, Debug)]
+pub enum Section {
+    None,
+    Home,
+    Enterprise,
+    Partners,
+    Pricing,
+    Blog,
+    Docs,
+    Contact,
+}
+
 #[component]
-pub fn Navigation(mobile_menu: Element) -> Element {
+pub fn NavItem(
+    link: String,
+    name: String,
+    section: Section,
+    current_section: Section,
+    class: Option<String>,
+) -> Element {
+    let mut added_class = "";
+    if section == current_section {
+        added_class = "underline";
+    }
+    let class = if let Some(class) = class {
+        class
+    } else {
+        "".to_string()
+    };
+    let class = format!("{} {}", class, added_class);
+    rsx!(
+        li {
+            a {
+                class: format!("{}", class),
+                "hx-boost": "true",
+                href: link,
+                "{name}"
+            }
+        }
+    )
+}
+
+#[component]
+pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
     rsx! {
         header {
             div {
@@ -29,23 +71,29 @@ pub fn Navigation(mobile_menu: Element) -> Element {
                         }
                         ul {
                             class: "menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52",
-                            li {
-                                a {
-                                    href: blog::Index {}.to_string(),
-                                    "Blog"
-                                }
+                            NavItem {
+                                link: marketing::Pricing {}.to_string(),
+                                name: "Pricing".to_string(),
+                                section: Section::Pricing,
+                                current_section: section.clone(),
                             }
-                            li {
-                                a {
-                                    href: docs::Index {}.to_string(),
-                                    "Documentation"
-                                }
+                            NavItem {
+                                link: blog::Index {}.to_string(),
+                                name: "Blog".to_string(),
+                                section: Section::Blog,
+                                current_section: section.clone(),
                             }
-                            li {
-                                a { href: SIGN_IN_UP, "Sign Up" }
+                            NavItem {
+                                link: docs::Index {}.to_string(),
+                                name: "Documentation".to_string(),
+                                section: Section::Docs,
+                                current_section: section.clone(),
                             }
-                            li {
-                                a { href: SIGN_IN_UP, "Sign In" }
+                            NavItem {
+                                link: marketing::PartnersPage {}.to_string(),
+                                name: "Partners".to_string(),
+                                section: Section::Partners,
+                                current_section: section.clone(),
                             }
                             {mobile_menu}
                         }
@@ -53,41 +101,49 @@ pub fn Navigation(mobile_menu: Element) -> Element {
                     a {
                         href: marketing::Index {}.to_string(),
                         span {
-                            class: "flex flex-row gap-4",
+                            class: "pl-5 flex flex-row gap-2",
                             img {
                                 alt: "Logo",
                                 width: "22",
                                 height: "22",
-                                src: "/bionic-logo.svg"
+                                src: "/logo.svg"
                             }
-                            "Bionic"
+                            strong {
+                                "Bionic-GPT"
+                            }
                         }
                     }
                 }
                 div { class: "navbar-center hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
-                        li {
-                            a { href: marketing::Pricing {}.to_string(), "Pricing" }
+                        NavItem {
+                            link: marketing::Pricing {}.to_string(),
+                            name: "Pricing".to_string(),
+                            section: Section::Pricing,
+                            current_section: section.clone(),
                         }
-                        li {
-                            a { href: docs::Index {}.to_string(), "Documentation" }
+                        NavItem {
+                            link: blog::Index {}.to_string(),
+                            name: "Blog".to_string(),
+                            section: Section::Blog,
+                            current_section: section.clone(),
                         }
-                        li {
-                            a { href: blog::Index {}.to_string(), "Blog" }
+                        NavItem {
+                            link: docs::Index {}.to_string(),
+                            name: "Documentation".to_string(),
+                            section: Section::Docs,
+                            current_section: section.clone(),
                         }
-                        li {
-                            a { href: marketing::PartnersPage {}.to_string(), "Partners" }
-                        }
-                        li {
-                            a { href: marketing::ServicesPage {}.to_string(), "Services" }
-                        }
-                        li {
-                            a { href: marketing::Contact {}.to_string(), "Contact Us" }
+                        NavItem {
+                            link: marketing::PartnersPage {}.to_string(),
+                            name: "Partners".to_string(),
+                            section: Section::Partners,
+                            current_section: section.clone(),
                         }
                     }
                 }
                 div { class: "hidden lg:flex",
-                    ul { class: "menu menu-horizontal px-1",
+                    ul { class: "menu menu-horizontal px-5",
                         li {
                             a {
                                 href: "https://github.com/bionic-gpt/bionic-gpt",
@@ -95,10 +151,14 @@ pub fn Navigation(mobile_menu: Element) -> Element {
                             }
                         }
                         li {
-                            a { href: SIGN_IN_UP, "Sign Up" }
+                            a { href: SIGN_IN_UP, "Sign In/Up" }
                         }
-                        li {
-                            a { href: SIGN_IN_UP, "Sign In" }
+                        NavItem {
+                            class: "btn btn-primary btn-sm",
+                            link: marketing::Contact {}.to_string(),
+                            name: "Book a Demo".to_string(),
+                            section: Section::Contact,
+                            current_section: section.clone(),
                         }
                     }
                 }

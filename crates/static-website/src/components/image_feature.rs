@@ -19,14 +19,18 @@ pub fn ImageFeature(
                 div { class: "mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2",
                     div { class: "lg:pr-8 lg:pt-4",
                         div { class: "lg:max-w-lg",
-                            h2 { class: "badge badge-outline",
+                            h2 {
+                                class: "badge badge-outline",
                                 "{title}"
                             }
                             p {
                                 class: "mt-2 text-3xl font-bold tracking-tight sm:text-4xl text-primary",
                                 "{sub_title}"
                             }
-                            p { class: "mt-6 text-lg leading-8", "{text}" }
+                            p {
+                                class: "mt-6 text-lg leading-8",
+                                "{text}"
+                            }
                             dl { class: "mt-10 max-w-xl space-y-8 text-base leading-7 lg:max-w-none",
                                 div { class: "relative pl-9",
                                     dt { class: "inline font-semibold",

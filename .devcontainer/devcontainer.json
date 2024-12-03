@@ -19,7 +19,12 @@
 				"files.watcherExclude": {
 					"**/target/**": true
 				},
-				"rust-analyzer.checkOnSave.command": "clippy"
+				"rust-analyzer.checkOnSave.command": "clippy",
+				// Stop rust analyzer blocking the main build
+				"rust-analyzer.checkOnSave.extraArgs": [
+				  "--target-dir",
+				  "/tmp/rust-analyzer-check"
+				]
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [

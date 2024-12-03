@@ -3,12 +3,15 @@ pub mod components;
 pub mod docs_summary;
 pub mod generator;
 pub mod layouts;
+pub mod markdown;
+pub mod pages;
 pub mod pages_summary;
 
 use axum::Router;
 use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
 use std::{fs, net::SocketAddr, path::Path};
 use tower_http::services::ServeDir;
+use tower_livereload::LiveReloadLayer;
 
 pub mod routes {
 
@@ -74,6 +77,7 @@ async fn main() {
 
     fs::create_dir_all("dist").expect("Couldn't create dist folder");
     components::marketing::generate().await;
+    pages::home::generate().await;
     generator::generate_docs(docs_summary::summary());
     generator::generate(blog_summary::summary());
     generator::generate_pages(pages_summary::summary()).await;
@@ -86,7 +90,9 @@ async fn main() {
         let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
         // build our application with a route
-        let app = Router::new().nest_service("/", ServeDir::new("dist"));
+        let app = Router::new()
+            .nest_service("/", ServeDir::new("dist"))
+            .layer(LiveReloadLayer::new());
 
         let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
         tracing::info!("listening on http://{}", &addr);

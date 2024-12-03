@@ -1,17 +1,17 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn Partners() -> Element {
+pub fn Customers() -> Element {
     rsx! {
         section {
-            class: "flex flex-col items-center mt-12",
+            class: "flex flex-col items-center mt-24",
             span {
                 class: "badge badge-primary badge-outline",
-                "Sponsors"
+                "Who We've Helped"
             }
             h3 {
                 class: "mt-4 mb-4",
-                "Developed using trusted enclaves provided by our partners"
+                "Trusted by the Best Companies"
             }
             div {
                 class: "flex gap-6 space-between",

@@ -1,4 +1,4 @@
-## K3s Installation
+# K3s Installation
 
 To run Bionic we'll install a very lightweight Kubernetes onto our system using [K3s](https://k3s.io/)
 

@@ -1,8 +1,10 @@
 use dioxus::prelude::*;
-use markdown::{CompileOptions, Options};
 
 use super::layout::Layout;
-use crate::generator::{Category, Page, Summary};
+use crate::{
+    components::navigation::Section,
+    generator::{Category, Page, Summary},
+};
 
 #[component]
 pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
@@ -10,14 +12,15 @@ pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
         Layout {
             title: "{doc.title}",
             description: "{doc.description}",
+            section: Section::Docs,
             mobile_menu: rsx! (MobileMenu {
                 summary: summary.clone()
             }),
-            div {
-                class: "w-full text-sm dark:bg-ideblack",
+            main {
+                class: "flex-1",
 
                 div {
-                    class: "flex flex-row",
+                    class: "flex flex-row h-full relative",
                     LeftNav {
                         summary
                     }
@@ -52,9 +55,9 @@ fn MobileMenu(summary: Summary) -> Element {
 fn LeftNav(summary: Summary) -> Element {
     rsx! {
         div {
-            class: "h-[calc(100vh-68px)] hidden lg:flex",
+            class: "fixed z-40 lg:z-auto w-0 -left-full lg:w-[420px] !lg:left-0 lg:sticky h-screen top-0 bottom-0 flex flex-col ml-0 border-r lg:overflow-y-auto",
             nav {
-                class: "h-[calc(100vh-86px)] overflow-scroll p-3",
+                class: "pt-12 p-5",
                 for category in &summary.categories {
                     p {
                         class: "font-semibold mb-2",
@@ -68,6 +71,7 @@ fn LeftNav(summary: Summary) -> Element {
                                 a {
                                     class: "rounded-md hover:text-sky-500 dark:hover:text-sky-400",
                                     href: "/{page.folder}",
+                                    "hx-boost": "true",
                                     "{page.title}"
                                 }
                             }
@@ -82,24 +86,14 @@ fn LeftNav(summary: Summary) -> Element {
 
 #[component]
 fn Content(doc: Page) -> Element {
-    let content = markdown::to_html_with_options(
-        doc.markdown,
-        &Options {
-            compile: CompileOptions {
-                allow_dangerous_html: true,
-                ..CompileOptions::default()
-            },
-            ..Options::default()
-        },
-    )
-    .expect("Couldn't generate markdown");
+    let content = crate::markdown::markdown_to_html(doc.markdown);
     rsx! {
         section {
-            class: "grow h-[calc(100vh-68px)] p-2",
+            class: "p-5 pt-12 w-full",
             div {
-                class: "bg-slate-100 rounded border border-slate-300 flex justify-center h-[calc(100vh-86px)] overflow-scroll",
+                class: "mb-12",
                 article {
-                    class: "prose",
+                    class: "mx-auto prose",
                     div {
                         dangerous_inner_html: "{content}"
                     }

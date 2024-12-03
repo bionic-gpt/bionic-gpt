@@ -1,4 +1,4 @@
-## Bionic GPT
+# Bionic GPT
 
 **bionicGPT** is a privacy-focused Generative AI system, designed to meet the needs of enterprise users. While its simplest use is as a secure interface for AI interactions, bionicGPT offers much more—bringing a multi-user, enterprise-grade platform to your organization.
 

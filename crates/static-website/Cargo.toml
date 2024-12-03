@@ -15,6 +15,9 @@ tracing = { version = "0.1" }
 tracing-subscriber = { version="0", features = ["env-filter"] }
 dioxus = { version = "0.5" }
 dioxus-ssr = "0.5"
-markdown = { version = "1.0.0-alpha.18" }
 serde = "1"
 tower-http = { version = "0.5.0", features = ["fs", "trace"] }
+
+syntect = "5.0"
+pulldown-cmark = "0.12.2"
+tower-livereload = "0.9.5"

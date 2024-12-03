@@ -1,4 +1,4 @@
-## Ollama
+# Ollama
 
 Ollama is an inference engine for serving models.
 
