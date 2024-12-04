@@ -1,6 +1,6 @@
 use crate::components::benefits::Benefits;
 use crate::components::customer_logos::Customers;
-use crate::components::faq_accordian::Faq;
+use crate::components::faq_accordian::{Faq, FaqText};
 use crate::components::features::{Feature, Features};
 use crate::components::footer::Footer;
 use crate::components::navigation::Section;
@@ -24,33 +24,6 @@ pub async fn generate() {
 
 #[component]
 pub fn HomePage() -> Element {
-    let titles = &[
-        "No Code Rag",
-        "Team-based permissions",
-        "Full Observability",
-        "Rate limiting",
-        "Military Grade Security",
-        "Operations",
-    ];
-
-    let descriptions = &[
-        "Including no-code RAG pipelines",
-        "Data is siloed at the tema level",
-        "Auto-assign tasks, send Slack messages, and much more...",
-        "Audit-proof software built for critical financial...",
-        "Craft beautiful, delightful experiences for both...",
-        "Keep your company’s lights on with customizable...",
-    ];
-
-    let features: Vec<Feature> = titles
-        .iter()
-        .zip(descriptions.iter())
-        .map(|(title, description)| Feature {
-            title: title.to_string(),
-            description: description.to_string(),
-        })
-        .collect();
-
     rsx! {
         Layout {
             title: "Enterprise Generative AI",
@@ -136,7 +109,32 @@ pub fn HomePage() -> Element {
                 Features {
                     title: "Bionic-GPT Features",
                     description: "A fully implemented solution for all your needs",
-                    features
+                    features: vec![
+                        Feature {
+                            title: String::from("No Code Rag"),
+                            description: String::from("Including no-code RAG pipelines"),
+                        },
+                        Feature {
+                            title: String::from("Team-based permissions"),
+                            description: String::from("Data is siloed at the team level"),
+                        },
+                        Feature {
+                            title: String::from("Full Observability"),
+                            description: String::from("Auto-assign tasks, send Slack messages, and much more..."),
+                        },
+                        Feature {
+                            title: String::from("Rate limiting"),
+                            description: String::from("Audit-proof software built for critical financial..."),
+                        },
+                        Feature {
+                            title: String::from("Military Grade Security"),
+                            description: String::from("Craft beautiful, delightful experiences for both..."),
+                        },
+                        Feature {
+                            title: String::from("Operations"),
+                            description: String::from("Keep your company’s lights on with customizable..."),
+                        },
+                    ]
                 }
 
                 Testamonials {
@@ -148,7 +146,34 @@ pub fn HomePage() -> Element {
                     person2: "Patrick O'leary",
                 }
 
-                Faq {}
+                Faq {
+                    questions: vec![
+                        FaqText {
+                            question: String::from("How does Bionic-GPT ensure data privacy?"),
+                            answer: String::from("Bionic-GPT runs entirely within your environment, meaning your data never leaves your control. Unlike traditional AI models, there’s no need to send information to external servers, eliminating the risk of leaks or unauthorized access."),
+                        },
+                        FaqText {
+                            question: String::from("Is Bionic-GPT as powerful as Chat-GPT?"),
+                            answer: String::from("Yes! Bionic-GPT delivers the same advanced AI capabilities as Chat-GPT, with the added advantage of running securely within your infrastructure. You get the full power of GPT without compromising privacy or control."),
+                        },
+                        FaqText {
+                            question: String::from("Can Bionic-GPT be tailored to my specific needs?"),
+                            answer: String::from("Absolutely. Bionic-GPT allows you to customize and fine-tune the AI using your own data, ensuring it provides accurate, context-aware insights and performs tasks specific to your business requirements."),
+                        },
+                        FaqText {
+                            question: String::from("What does “a familiar user interface” mean?"),
+                            answer: String::from("It means your team can hit the ground running. Bionic-GPT replicates the intuitive Chat-GPT interface, so there’s no steep learning curve—your team can adopt it quickly and easily."),
+                        },
+                        FaqText {
+                            question: String::from("How do I monitor and manage usage?"),
+                            answer: String::from("Bionic-GPT includes powerful observability and auditability features. You can track usage, monitor performance, and ensure compliance with detailed logs and insights into how the AI is being used."),
+                        },
+                        FaqText {
+                            question: String::from("Is Bionic-GPT suitable for regulated industries?"),
+                            answer: String::from("Yes. Bionic-GPT is designed with security and compliance in mind, making it ideal for industries with strict data protection requirements. It keeps sensitive information private while meeting regulatory standards."),
+                        },
+                    ]
+                }
 
                 Security {}
             }
