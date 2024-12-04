@@ -8,7 +8,7 @@ use crate::components::problem_solution::ProblemSolution;
 use crate::components::security::Security;
 use crate::components::small_image_feature::SmallImageFeature;
 use crate::components::testamonials::Testamonials;
-use crate::components::video_hero::ImageHero;
+use crate::components::video_hero::VideoHero;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
 use std::fs::File;
@@ -60,7 +60,7 @@ pub fn HomePage() -> Element {
 
             div {
                 class: "p-5 mt-24 flex flex-col items-center",
-                ImageHero {
+                VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
                     title: "The #1 Enterprise Generative AI and Data Privacy Solution.",
                     subtitle: "We are a Chat-GPT replacement focused on data privacy and compliance.",

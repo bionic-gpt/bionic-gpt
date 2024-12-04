@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use crate::routes::marketing;
 
 #[component]
-pub fn ImageHero(title: String, subtitle: String, video: String, claim: String) -> Element {
+pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) -> Element {
     rsx! {
         section {
             class: "md:flex flex-row lg:max-w-5xl gap-8 text-center md:text-left",
