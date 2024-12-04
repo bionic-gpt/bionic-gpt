@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn ProblemSolution(image: String, title: String, subtitle: String) -> Element {
+pub fn ProblemSolution(image: String, title: String, problem: String, solution: String) -> Element {
     rsx! {
         section {
             class: "mt-24 md:flex lg:max-w-5xl gap-8 w-full",
@@ -13,7 +13,11 @@ pub fn ProblemSolution(image: String, title: String, subtitle: String) -> Elemen
                 }
                 p {
                     class: "py-6",
-                    "{subtitle}"
+                    "{problem}"
+                }
+                p {
+                    class: "py-6",
+                    "{solution}"
                 }
             }
             div {

@@ -62,32 +62,35 @@ pub fn HomePage() -> Element {
                 class: "p-5 mt-24 flex flex-col items-center",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
-                    title: "The #1 Enterprise Generative AI and Data Privacy Solution.",
-                    subtitle: "We are a Chat-GPT replacement focused on data privacy and compliance.",
+                    title: "The #1 Private Enterprise Chat-GPT Solution.",
+                    subtitle: "Enjoy the benfits of generative AI and keep data privacy and compliance in check.",
                     claim: "100's of installations globally."
                 }
                 Customers {}
 
                 ProblemSolution {
                     image: "/landing-page/private-deployment.svg",
-                    title: "How do you get the benefits of AI and keep your data private?",
-                    subtitle: "A Chat-GPT Replacement Without The Data Leakage",
+                    title: "How do you get the benefits of Chat-GPT and keep your data private?",
+                    problem: "Chat-GPT offers incredible potential, but sending sensitive data to external servers, exposes you to risks like breaches and unauthorized access.
+                        For businesses handling private or regulated data, this trade-off is simply unacceptable.",
+                    solution: "Bionic-GPT offers a solution. We provide the power of Chat-GPT without the risks of data leakage by running securely within your environment.
+                        Enjoy advanced AI capabilities and keep your data private, compliant, and fully under your control."
                 }
 
                 Benefits {
                     title: "Benefits",
-                    subtitle: "More benefits",
-                    benefit1: "Military grade encryption and data security best practices",
-                    benefit1_desc: "A Chat-GPT Replacement Without The Data Leakage",
-                    benefit2: "Military grade encryption and data security best practices",
-                    benefit2_desc: "A Chat-GPT Replacement Without The Data Leakage",
-                    benefit3: "Military grade encryption and data security best practices",
-                    benefit3_desc: "A Chat-GPT Replacement Without The Data Leakage",
+                    subtitle: "A full Chat-GPT replacement",
+                    benefit1: "Have it Your Way",
+                    benefit1_desc: "Install on your premise, in your private cloud or even our cloud.",
+                    benefit2: "Everything You Need",
+                    benefit2_desc: "A full solution including the full chat experience and AI assistants.",
+                    benefit3: "Secure",
+                    benefit3_desc: "No other soliution offers the same level of security.",
                 }
 
                 SmallImageFeature {
                     title: "Data Governance",
-                    sub_title: "A Chat-GPT Replacement Without The Data Leakage",
+                    sub_title: "A Familiar User Interface",
                     text: "Leverage your existing company knowledge to automate tasks like customer support,
         lead qualification, and RFP processing and much more.",
                     image: "/landing-page/bionic-console.png",
@@ -95,7 +98,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
-                    title: "Data Governance",
+                    title: "Retrieval Augmented Generation",
                     sub_title: "AI Assistants",
                     text: "Leverage your existing company knowledge to automate tasks like customer support,
         lead qualification, and RFP processing and much more.",
@@ -104,8 +107,8 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
-                    title: "Data Governance",
-                    sub_title: "A Chat-GPT Replacement Without The Data Leakage",
+                    title: "Teams",
+                    sub_title: "Sharing is Caring",
                     text: "Leverage your existing company knowledge to automate tasks like customer support,
         lead qualification, and RFP processing and much more.",
                     image: "/landing-page/teams.png",
