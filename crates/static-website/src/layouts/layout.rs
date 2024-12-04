@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::components::navigation::Navigation;
+use crate::components::navigation::{Navigation, Section};
 use dioxus::prelude::*;
 
 // Remember: owned props must implement PartialEq!
@@ -11,6 +11,7 @@ pub struct LayoutProps {
     image: Option<String>,
     children: Element,
     mobile_menu: Element,
+    section: Section,
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
@@ -66,36 +67,18 @@ pub fn Layout(props: LayoutProps) -> Element {
                 src: "/goat-counter.js"
 
             }
-            link {
-                rel: "stylesheet",
-                href: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css",
-                "type": "text/css"
-            }
             script {
-                src: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
-
-            }
-            script {
-                src: "https://unpkg.com/highlightjs-copy/dist/highlightjs-copy.min.js"
-
-            }
-            link {
-                rel: "stylesheet",
-                href: "https://unpkg.com/highlightjs-copy/dist/highlightjs-copy.min.css",
-                "type": "text/css"
-            }
-            script {
-                "hljs.addPlugin(new CopyButtonPlugin());hljs.highlightAll();"
+                "async": "true",
+                src: "https://unpkg.com/htmx.org@2.0.3"
             }
         }
         body {
             //WebinarHeader {}
             Navigation {
-                mobile_menu: props.mobile_menu
+                mobile_menu: props.mobile_menu,
+                section: props.section
             }
-            div {
-                {props.children}
-            }
+            {props.children}
         }
     )
 }

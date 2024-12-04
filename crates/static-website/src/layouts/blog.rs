@@ -1,10 +1,9 @@
 use super::layout::Layout;
 use crate::{
-    components::{extra_footer::ExtraFooter, footer::Footer},
+    components::{extra_footer::ExtraFooter, footer::Footer, navigation::Section},
     generator::{Page, Summary},
 };
 use dioxus::prelude::*;
-use markdown::{CompileOptions, Options};
 
 #[component]
 pub fn BlogPost(post: Page) -> Element {
@@ -13,25 +12,16 @@ pub fn BlogPost(post: Page) -> Element {
     } else {
         ""
     };
-    let content = markdown::to_html_with_options(
-        post.markdown,
-        &Options {
-            compile: CompileOptions {
-                allow_dangerous_html: true,
-                ..CompileOptions::default()
-            },
-            ..Options::default()
-        },
-    )
-    .expect("Couldn't generate markdown");
+    let content = crate::markdown::markdown_to_html(post.markdown);
     rsx! {
         Layout {
             title: "{post.title}",
             description: "{post.description}",
             image: "{image}",
             mobile_menu: None,
+            section: Section::Blog,
             article {
-                class: "mt-12 mx-auto prose lg:prose-xl p-4",
+                class: "mt-24 mx-auto prose lg:prose-xl p-5",
                 h1 {
                     "{post.title}"
                 }
@@ -108,8 +98,9 @@ pub fn BlogList(summary: Summary) -> Element {
             title: "Blog",
             description: "Blog",
             mobile_menu: None,
+            section: Section::Blog,
             section {
-                class: "lg:max-w-5xl mx-auto text-center mb-12 mt-12",
+                class: "lg:max-w-5xl mx-auto text-center mb-12 mt-24",
                 h1 {
                     class: "text-4xl font-extrabold",
                     "Enterprise Generative AI"

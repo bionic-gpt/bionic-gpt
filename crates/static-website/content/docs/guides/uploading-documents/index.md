@@ -20,13 +20,3 @@ curl -X 'POST' \
 Change `YOURDOCUMENT.pdf` to match the name and location of the document you want to upload and `$UPLOAD_API_KEY` to match the API key that was generated in the user interface.
 
 Your document will appear on the datasets screen where you can see it's progress through the pipeline.
-
-### Tools
-
-While you can code directly to this interface many tools exist to allow you to setup automated pipelines without any coding requirement.
-The image below shows an **n8n**  workflow that periodically checks a specific folder on Google Drive for new files, which are then uploaded to a specific dataset using the API call.
-
-
-
-![Alt text](n8n_workflow.jpeg "Document Pipeline")
-
