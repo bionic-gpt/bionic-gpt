@@ -32,7 +32,7 @@ Restriction of processing refers to marking stored personal data to limit its pr
 
 ### e) Profiling
 
-Profiling involves automated processing of personal data to evaluate personal aspects, particularly to analyze or predict aspects such as work performance, health, personal preferences, or behavior.
+Profiling involves automated processing of personal data to evaluate personal aspects, particularly to analyze or predict aspects such as work performance, health, personal preferences, or behaviour.
 
 ### f) Pseudonymization
 

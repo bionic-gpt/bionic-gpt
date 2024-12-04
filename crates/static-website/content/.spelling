@@ -128,6 +128,10 @@ GIS
 2024
 29
 Keycloak
+analyze
+Pseudonymization
+fulfill
+Afterward
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -341,3 +345,5 @@ Qwen
 Alibaba
  - docs/on-premise/backups/index.md
 jq
+ - docs/guides/installation/index.md
+Supakube
