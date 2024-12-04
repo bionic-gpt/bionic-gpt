@@ -124,7 +124,7 @@ pub fn HomePage() -> Element {
 
                 SmallImageFeature {
                     title: "Observability",
-                    sub_title: "Powerful Observability and Auditability Features",
+                    sub_title: "Observability and Auditability",
                     text: "Stay in control with detailed insights into your AI's activity.
                         Bionic-GPT offers robust observability and auditability tools, 
                         allowing you to monitor usage, track interactions, and 

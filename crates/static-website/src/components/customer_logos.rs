@@ -7,7 +7,7 @@ pub fn Customers() -> Element {
             class: "flex flex-col items-center mt-24",
             span {
                 class: "badge badge-primary badge-outline",
-                "Who We've Helped"
+                "Partners"
             }
             h3 {
                 class: "mt-4 mb-4",
