@@ -1,5 +1,11 @@
 use dioxus::prelude::*;
 
+#[derive(Clone, PartialEq)]
+pub struct FaqText {
+    pub question: String,
+    pub answer: String,
+}
+
 #[component]
 pub fn Faq() -> Element {
     rsx! {

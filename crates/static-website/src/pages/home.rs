@@ -62,8 +62,8 @@ pub fn HomePage() -> Element {
                 class: "p-5 mt-24 flex flex-col items-center",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
-                    title: "The #1 Private Enterprise Chat-GPT Solution.",
-                    subtitle: "Enjoy the benfits of generative AI and keep data privacy and compliance in check.",
+                    title: "The #1 Privacy Focused Enterprise Chat-GPT Solution.",
+                    subtitle: "Enjoy the benefits of generative AI and keep data privacy and compliance in check.",
                     claim: "100's of installations globally."
                 }
                 Customers {}
@@ -91,35 +91,44 @@ pub fn HomePage() -> Element {
                 SmallImageFeature {
                     title: "Data Governance",
                     sub_title: "A Familiar User Interface",
-                    text: "Leverage your existing company knowledge to automate tasks like customer support,
-        lead qualification, and RFP processing and much more.",
+                    text: "No learning curve, no confusion—just instant productivity.
+                        Bionic-GPT features an intuitive user interface, 
+                        so your teamscan get started immediately.
+                        Familiarity means faster adoption and a seamless experience for everyone.",
                     image: "/landing-page/bionic-console.png",
                     flip: false
                 }
 
                 SmallImageFeature {
                     title: "Retrieval Augmented Generation",
-                    sub_title: "AI Assistants",
-                    text: "Leverage your existing company knowledge to automate tasks like customer support,
-        lead qualification, and RFP processing and much more.",
+                    sub_title: "Powerful AI Assistants Trained On Your Data",
+                    text: "Transform your data into a competitive advantage by building AI assistants
+                        tailored to your needs. With Bionic-GPT, 
+                        you can train AI on your unique datasets, 
+                        enabling it to provide accurate, context-aware insights and automate 
+                        tasks specific to your business. All of this happens securely within your environment, ensuring your data remains private while unlocking the full potential of AI.",
                     image: "/landing-page/assistants.png",
                     flip: true
                 }
 
                 SmallImageFeature {
                     title: "Teams",
-                    sub_title: "Sharing is Caring",
-                    text: "Leverage your existing company knowledge to automate tasks like customer support,
-        lead qualification, and RFP processing and much more.",
+                    sub_title: "Bring AI to Your Teams, Securely ",
+                    text: "Empower your teams with AI that works where they do. Bionic-GPT integrates
+                        seamlessly into your workflows, providing advanced capabilities without 
+                        sacrificing security. Your data stays private, enabling 
+                        collaboration and innovation you can trust. ",
                     image: "/landing-page/teams.png",
                     flip: false
                 }
 
                 SmallImageFeature {
                     title: "Observability",
-                    sub_title: "Powerful Observability Features",
-                    text: "Leverage your existing company knowledge to automate tasks like customer support,
-        lead qualification, and RFP processing and much more.",
+                    sub_title: "Powerful Observability and Auditability Features",
+                    text: "Stay in control with detailed insights into your AI's activity.
+                        Bionic-GPT offers robust observability and auditability tools, 
+                        allowing you to monitor usage, track interactions, and 
+                        ensure compliance with ease. Transparency and accountability, built right in.",
                     image: "/landing-page/dashboard.png",
                     flip: true
                 }

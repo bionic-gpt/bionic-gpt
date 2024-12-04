@@ -114,7 +114,7 @@ pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
                         }
                     }
                 }
-                div { class: "navbar-center hidden lg:flex",
+                div { class: "hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
                         NavItem {
                             link: marketing::Pricing {}.to_string(),
@@ -151,7 +151,7 @@ pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
                             }
                         }
                         li {
-                            a { href: SIGN_IN_UP, "Sign In/Up" }
+                            a { href: SIGN_IN_UP, "Login" }
                         }
                         NavItem {
                             class: "btn btn-primary btn-sm",
