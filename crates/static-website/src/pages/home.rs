@@ -52,18 +52,18 @@ pub fn HomePage() -> Element {
 
                 Benefits {
                     title: "Benefits",
-                    subtitle: "A full Chat-GPT replacement",
-                    benefit1: "Have it Your Way",
-                    benefit1_desc: "Install on your premise, in your private cloud or even our cloud.",
-                    benefit2: "Everything You Need",
-                    benefit2_desc: "A full solution including the full chat experience and AI assistants.",
-                    benefit3: "Secure",
-                    benefit3_desc: "No other soliution offers the same level of security.",
+                    subtitle: "Rapidly Deploy Generative AI",
+                    benefit1: "Easy to Deploy",
+                    benefit1_desc: "Increase productivity across your whole organisation in a secure way.",
+                    benefit2: "AI Assistants",
+                    benefit2_desc: "Assistants allow you to use your data to get better answers.",
+                    benefit3: "Data Compliance",
+                    benefit3_desc: "All the benefits of Gen AI and security around data governance.",
                 }
 
                 SmallImageFeature {
                     title: "Data Governance",
-                    sub_title: "A Familiar User Interface",
+                    sub_title: "Everything you Need",
                     text: "No learning curve, no confusion—just instant productivity.
                         Bionic-GPT features an intuitive user interface, 
                         so your teamscan get started immediately.
@@ -74,7 +74,7 @@ pub fn HomePage() -> Element {
 
                 SmallImageFeature {
                     title: "Retrieval Augmented Generation",
-                    sub_title: "Powerful AI Assistants Trained On Your Data",
+                    sub_title: "AI Assistants Powered by Your Data",
                     text: "Transform your data into a competitive advantage by building AI assistants
                         tailored to your needs. With Bionic-GPT, 
                         you can train AI on your unique datasets, 
@@ -112,27 +112,27 @@ pub fn HomePage() -> Element {
                     features: vec![
                         Feature {
                             title: String::from("No Code Rag"),
-                            description: String::from("Including no-code RAG pipelines"),
+                            description: String::from("Allow users to create RAG pipelines in minutes"),
                         },
                         Feature {
                             title: String::from("Team-based permissions"),
-                            description: String::from("Data is siloed at the team level"),
+                            description: String::from("Your teams know best which data is suitable for the AI."),
                         },
                         Feature {
                             title: String::from("Full Observability"),
-                            description: String::from("Auto-assign tasks, send Slack messages, and much more..."),
+                            description: String::from("Dashboards that give you insights into usage and compliance."),
                         },
                         Feature {
-                            title: String::from("Rate limiting"),
-                            description: String::from("Audit-proof software built for critical financial..."),
+                            title: String::from("Cost Control"),
+                            description: String::from("Set limits by users and teams and ensure fair usage."),
                         },
                         Feature {
-                            title: String::from("Military Grade Security"),
-                            description: String::from("Craft beautiful, delightful experiences for both..."),
+                            title: String::from("Fully Encrypted"),
+                            description: String::from("Encryption at rest, in transport and at run time."),
                         },
                         Feature {
-                            title: String::from("Operations"),
-                            description: String::from("Keep your company’s lights on with customizable..."),
+                            title: String::from("Scalable"),
+                            description: String::from("Run natively on Kubernetes for maximum scalability."),
                         },
                     ]
                 }
@@ -140,10 +140,10 @@ pub fn HomePage() -> Element {
                 Testamonials {
                     text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic-GPT’s support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
                     job1: "Data Scientist",
-                    person1: "Emma Trident",
+                    person1: "Emmat",
                     text2: "Bionic-GPT’s observability feature, which logs all messages into and out of the models, has been critical for ensuring compliance in our organization. It gives us peace of mind and robust accountability.",
                     job2: "Compliance Officer",
-                    person2: "Patrick O'leary",
+                    person2: "Patrick",
                 }
 
                 Faq {

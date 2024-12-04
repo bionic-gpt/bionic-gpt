@@ -73,11 +73,11 @@ pub fn PartnersPage() -> Element {
                     text1: "The no-code RAG pipeline, combined with the team-based privacy model, has revolutionized
                         how we handle sensitive data and collaboration, making deployment secure and seamless.",
                     job1: "Data Governance Lead",
-                    person1: "Emma Trident",
+                    person1: "Emma",
                     text2: "The new, clean, and intuitive interface has made adopting bionicGPT across teams effortless.
                         It’s a joy to use and has lowered the learning curve significantly.",
                     job2: "Digital Adoption Specialist",
-                    person2: "Patrick O'leary",
+                    person2: "Patrick",
                 }
 
                 section {

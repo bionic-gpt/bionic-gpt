@@ -43,7 +43,9 @@ pub fn Team() -> Element {
                     }
                     p {
                         class: "lg:w-2/3 mx-auto leading-relaxed",
-                        "Whatever cardigan tote bag tumblr hexagon brooklyn asymmetrical gentrify, subway tile poke farm-to-table. Franzen you probably haven't heard of them."
+                        img {
+                            src: "/contact-us/ian-and-dio.jpeg"
+                        }
                     }
                 }
                 div {
