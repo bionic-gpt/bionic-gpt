@@ -161,10 +161,6 @@ pub fn HomePage() -> Element {
                             answer: String::from("Absolutely. Bionic-GPT allows you to customize and fine-tune the AI using your own data, ensuring it provides accurate, context-aware insights and performs tasks specific to your business requirements."),
                         },
                         FaqText {
-                            question: String::from("What does “a familiar user interface” mean?"),
-                            answer: String::from("It means your team can hit the ground running. Bionic-GPT replicates the intuitive Chat-GPT interface, so there’s no steep learning curve—your team can adopt it quickly and easily."),
-                        },
-                        FaqText {
                             question: String::from("How do I monitor and manage usage?"),
                             answer: String::from("Bionic-GPT includes powerful observability and auditability features. You can track usage, monitor performance, and ensure compliance with detailed logs and insights into how the AI is being used."),
                         },

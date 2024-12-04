@@ -9,33 +9,6 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn PartnersPage() -> Element {
-    let titles = &[
-        "No Code Rag",
-        "Team-based permissions",
-        "Full Observability",
-        "Rate limiting",
-        "Military Grade Security",
-        "Operations",
-    ];
-
-    let descriptions = &[
-        "Including no-code RAG pipelines",
-        "Data is siloed at the tema level",
-        "Auto-assign tasks, send Slack messages, and much more...",
-        "Audit-proof software built for critical financial...",
-        "Craft beautiful, delightful experiences for both...",
-        "Keep your company’s lights on with customizable...",
-    ];
-
-    let features: Vec<Feature> = titles
-        .iter()
-        .zip(descriptions.iter())
-        .map(|(title, description)| Feature {
-            title: title.to_string(),
-            description: description.to_string(),
-        })
-        .collect();
-
     rsx! {
         Layout {
             title: "Partners",
@@ -68,7 +41,32 @@ pub fn PartnersPage() -> Element {
                     title: "Bionic-GPT Features",
                     description: "As a bionicGPT partner, you can tap into a growing market of businesses seeking safe,
                         private, and powerful AI solutions.",
-                    features
+                    features: vec![
+                        Feature {
+                            title: String::from("No Code Rag"),
+                            description: String::from("Including no-code RAG pipelines"),
+                        },
+                        Feature {
+                            title: String::from("Team-based permissions"),
+                            description: String::from("Data is siloed at the team level"),
+                        },
+                        Feature {
+                            title: String::from("Full Observability"),
+                            description: String::from("Auto-assign tasks, send Slack messages, and much more..."),
+                        },
+                        Feature {
+                            title: String::from("Rate limiting"),
+                            description: String::from("Audit-proof software built for critical financial..."),
+                        },
+                        Feature {
+                            title: String::from("Military Grade Security"),
+                            description: String::from("Craft beautiful, delightful experiences for both..."),
+                        },
+                        Feature {
+                            title: String::from("Operations"),
+                            description: String::from("Keep your company’s lights on with customizable..."),
+                        },
+                    ]
                 }
 
                 Testamonials {
