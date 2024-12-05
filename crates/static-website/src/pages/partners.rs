@@ -16,7 +16,7 @@ pub fn PartnersPage() -> Element {
             description: "Partners",
             section: Section::Partners,
             div {
-                class: "p-5 mt-24 flex flex-col items-center",
+                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
 
                 Hero {
                     title: "Become a Bionic-GPT Partner",

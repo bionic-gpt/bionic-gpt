@@ -50,7 +50,7 @@ pub fn Security(class: Option<String>) -> Element {
                 class: "flex-1",
                 h2 {
                     class: "text-3xl tracking-tight text-primary mb-4",
-                    "Beyond Enterprise Security"
+                    "Built with Enterprise Security, Privacy, and Compliance at Its Core"
                 }
                 p {
                     class: "text-base mb-4",

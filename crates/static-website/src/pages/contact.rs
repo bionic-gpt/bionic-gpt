@@ -16,9 +16,9 @@ pub fn ContactPage() -> Element {
             section: Section::Contact,
             description: "The Industry Standard For Enterprise Generative AI",
             div {
-                class: "p-5 mt-24 flex flex-col items-center",
+                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
                 section {
-                    class: "p-5 mt-24 text-center mb-12",
+                    class: "p-5 text-center mb-12",
                     h1 {
                         class: "text-4xl font-extrabold mt-4",
                         "Our Team is Waiting to Hear From You"
