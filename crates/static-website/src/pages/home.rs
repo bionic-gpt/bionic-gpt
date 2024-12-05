@@ -32,7 +32,7 @@ pub fn HomePage() -> Element {
             section: Section::Home,
 
             div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
+                class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
                     title: "Experience The Power of Generative AI With Unmatched Data Privacy",
@@ -147,9 +147,11 @@ pub fn HomePage() -> Element {
                     text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic-GPT’s support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
                     job1: "Data Scientist",
                     person1: "Emmat",
+                    img1: "https://dummyimage.com/106x106",
                     text2: "Bionic-GPT’s observability feature, which logs all messages into and out of the models, has been critical for ensuring compliance in our organization. It gives us peace of mind and robust accountability.",
                     job2: "Compliance Officer",
                     person2: "Patrick",
+                    img2: "https://dummyimage.com/106x106"
                 }
 
                 Faq {

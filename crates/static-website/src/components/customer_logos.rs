@@ -18,7 +18,7 @@ pub fn Customers(class: Option<String>) -> Element {
                 svg {
                     xmlns: "http://www.w3.org/2000/svg",
                     view_box: "0 0 120 60",
-                    fill: "#555",
+                    fill: "currentColor",
                     height: "40",
                     width: "auto",
                     path {
@@ -40,7 +40,7 @@ pub fn Customers(class: Option<String>) -> Element {
                 svg {
                     xmlns: "http://www.w3.org/2000/svg",
                     view_box: "35.188 31.512 351.46 258.785",
-                    fill: "#555",
+                    fill: "currentColor",
                     height: "40",
                     width: "auto",
                     path {
@@ -53,7 +53,7 @@ pub fn Customers(class: Option<String>) -> Element {
                 svg {
                     xmlns: "http://www.w3.org/2000/svg",
                     view_box: "123.5 281.88608274 778.8 460.11391726",
-                    fill: "#555",
+                    fill: "currentColor",
                     height: "40",
                     width: "auto",
                     path {

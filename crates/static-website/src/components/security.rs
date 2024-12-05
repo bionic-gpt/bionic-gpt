@@ -8,8 +8,8 @@ pub fn Shield(text: String) -> Element {
             fill: "currentColor",
             stroke: "currentColor",
             xmlns: "http://www.w3.org/2000/svg",
-            width: "70",
-            height: "70",
+            width: "60",
+            height: "60",
             g {
                 id: "SVGRepo_bgCarrier",
                 stroke_width: "0"
@@ -53,11 +53,10 @@ pub fn Security(class: Option<String>) -> Element {
                     "Built with Enterprise Security, Privacy, and Compliance at Its Core"
                 }
                 p {
-                    class: "text-base mb-4",
+                    class: "mb-4",
                     "Bionic-GPT was built with enterprise security, privacy, and compliance in mind from day one."
                 }
                 p {
-                    class: "text-base",
                     "Choose Between On Premise or Private Cloud Deployment and keep your data 100% safe."
                 }
             }

@@ -16,7 +16,7 @@ pub fn PartnersPage() -> Element {
             description: "Partners",
             section: Section::Partners,
             div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
+                class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
 
                 Hero {
                     title: "Become a Bionic-GPT Partner",
@@ -75,12 +75,14 @@ pub fn PartnersPage() -> Element {
                     class: "mt-24",
                     text1: "The no-code RAG pipeline, combined with the team-based privacy model, has revolutionized
                         how we handle sensitive data and collaboration, making deployment secure and seamless.",
-                    job1: "Data Governance Lead",
-                    person1: "Emma",
+                    job1: "CEO GTEdge.ai",
+                    img1: "/partners/tom-bendien.png",
+                    person1: "Tom",
                     text2: "The new, clean, and intuitive interface has made adopting bionicGPT across teams effortless.
                         It’s a joy to use and has lowered the learning curve significantly.",
                     job2: "Digital Adoption Specialist",
                     person2: "Patrick",
+                    img2: "https://dummyimage.com/106x106"
                 }
 
                 section {
