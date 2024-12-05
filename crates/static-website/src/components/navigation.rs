@@ -47,8 +47,9 @@ pub fn NavItem(
 pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
     rsx! {
         header {
+            class: "sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30",
             div {
-                class: "navbar justify-between bg-base-100",
+                class: "navbar justify-between",
                 div {
                     div { class: "dropdown lg:hidden",
                         div {
