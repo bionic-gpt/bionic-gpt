@@ -7,7 +7,7 @@ pub fn Hero(title: String, subtitle: String) -> Element {
     rsx! {
         section {
             div {
-                class: "text-center",
+                class: "flex justify-center text-center",
                 div {
                     class: "max-w-lg",
                     h1 {
