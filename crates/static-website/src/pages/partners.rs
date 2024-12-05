@@ -16,7 +16,7 @@ pub fn PartnersPage() -> Element {
             description: "Partners",
             section: Section::Partners,
             div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
+                class: "lg:max-w-5xl p-5 mt-40 mx-auto",
 
                 Hero {
                     title: "Become a Bionic-GPT Partner",
@@ -24,7 +24,7 @@ pub fn PartnersPage() -> Element {
                 }
 
                 Benefits {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Partners",
                     subtitle: "Why Partner with Us?",
                     benefit1: "Revenue Growth",
@@ -39,7 +39,7 @@ pub fn PartnersPage() -> Element {
                 }
 
                 Features {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Bionic-GPT Features",
                     description: "As a bionicGPT partner, you can tap into a growing market of businesses seeking safe,
                         private, and powerful AI solutions.",
@@ -72,7 +72,7 @@ pub fn PartnersPage() -> Element {
                 }
 
                 Testamonials {
-                    class: "mt-24",
+                    class: "mt-40",
                     text1: "The no-code RAG pipeline, combined with the team-based privacy model, has revolutionized
                         how we handle sensitive data and collaboration, making deployment secure and seamless.",
                     job1: "Data Governance Lead",

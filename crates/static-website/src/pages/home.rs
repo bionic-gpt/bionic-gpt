@@ -32,7 +32,7 @@ pub fn HomePage() -> Element {
             section: Section::Home,
 
             div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
+                class: "lg:max-w-5xl p-5 mt-40 mx-auto",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
                     title: "Experience The Power of Generative AI With Unmatched Data Privacy",
@@ -40,11 +40,11 @@ pub fn HomePage() -> Element {
                     claim: "and join hundreds of global installations!"
                 }
                 Customers {
-                    class: "mt-24"
+                    class: "mt-40"
                 }
 
                 ProblemSolution {
-                    class: "mt-24",
+                    class: "mt-40",
                     image: "/landing-page/private-deployment.svg",
                     title: "Leverage Generative AI Across Your Enterprise",
                     problem: "While Chat-GPT offers incredible potential, sending sensitive data to external servers
@@ -55,7 +55,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Benefits {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Benefits",
                     subtitle: "Rapidly Deploy Generative AI Across Your Organization",
                     benefit1: "Accelerate Generative AI Adoption",
@@ -67,7 +67,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Data Governance",
                     sub_title: "Empower Your Teams with Secure AI",
                     text: "No learning curve, no confusion—just instant productivity.
@@ -79,7 +79,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Retrieval Augmented Generation",
                     sub_title: "Transform Your Data into a Competitive Advantage",
                     text: "Build AI assistants tailored to your needs by training on your unique datasets.
@@ -90,7 +90,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Teams",
                     sub_title: "Seamless Integration for Enhanced Collaboration",
                     text: "Empower your teams with AI that works where they do. Bionic-GPT integrates
@@ -101,7 +101,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Observability and Auditability",
                     sub_title: "Stay in Control with Detailed Insights",
                     text: "Monitor usage, track interactions, and ensure compliance with robust observability and
@@ -111,7 +111,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Features {
-                    class: "mt-24",
+                    class: "mt-40",
                     title: "Bionic-GPT Features",
                     description: "A comprehensive solution for all your AI needs.",
                     features: vec![
@@ -143,7 +143,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Testamonials {
-                    class: "mt-24",
+                    class: "mt-40",
                     text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic-GPT’s support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
                     job1: "Data Scientist",
                     person1: "Emmat",
@@ -153,7 +153,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Faq {
-                    class: "mt-24",
+                    class: "mt-40",
                     questions: vec![
                         FaqText {
                             question: String::from("How does Bionic-GPT ensure data privacy?"),
@@ -179,7 +179,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Security {
-                    class: "mt-24"
+                    class: "mt-40"
                 }
             }
             Footer {}
