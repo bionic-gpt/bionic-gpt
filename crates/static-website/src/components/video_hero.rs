@@ -6,7 +6,7 @@ use crate::routes::marketing;
 pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) -> Element {
     rsx! {
         section {
-            class: "md:flex flex-row lg:max-w-5xl gap-8 text-center md:text-left",
+            class: "md:flex flex-row gap-8 text-center md:text-left",
             div {
                 class: "flex-1",
                 div {
