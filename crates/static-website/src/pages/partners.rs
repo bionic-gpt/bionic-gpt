@@ -39,6 +39,7 @@ pub fn PartnersPage() -> Element {
                 }
 
                 Features {
+                    class: "mt-24",
                     title: "Bionic-GPT Features",
                     description: "As a bionicGPT partner, you can tap into a growing market of businesses seeking safe,
                         private, and powerful AI solutions.",
