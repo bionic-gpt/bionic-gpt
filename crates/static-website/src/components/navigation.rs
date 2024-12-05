@@ -73,6 +73,12 @@ pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
                         ul {
                             class: "menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52",
                             NavItem {
+                                link: marketing::Index {}.to_string(),
+                                name: "Home".to_string(),
+                                section: Section::Home,
+                                current_section: section.clone(),
+                            }
+                            NavItem {
                                 link: marketing::Pricing {}.to_string(),
                                 name: "Pricing".to_string(),
                                 section: Section::Pricing,

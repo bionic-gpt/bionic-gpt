@@ -11,7 +11,7 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
                 class: "flex-1",
                 div {
                     h1 {
-                        class: "text-primary text-5xl font-bold",
+                        class: "text-primary text-2xl md:text-5xl font-bold",
                         "{title}"
                     }
                     p {
@@ -25,7 +25,7 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
                             "Book a Demo"
                         }
                         strong {
-                            class: "ml-4",
+                            class: "hidden md:inline ml-4",
                             "{claim}"
                         }
                     }

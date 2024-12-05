@@ -32,7 +32,7 @@ pub fn HomePage() -> Element {
             section: Section::Home,
 
             div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
+                class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
                     title: "Experience The Power of Generative AI With Unmatched Data Privacy",
