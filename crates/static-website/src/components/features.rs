@@ -43,7 +43,7 @@ pub fn Features(
                 div {
                     class: "mb-8 lg:mb-16",
                     h2 {
-                        class: "mb-4 text-4xl tracking-tight font-extrabold text-primary",
+                        class: "mb-4 text-4xl tracking-tight text-primary",
                         "{title}"
                     }
                     p {

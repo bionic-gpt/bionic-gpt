@@ -14,7 +14,7 @@ pub fn ProblemSolution(
             div {
                 class: "flex-1",
                 h1 {
-                    class: "text-2xl font-bold",
+                    class: "text-primary sm:text-3xl text-2xl font-medium",
                     "{title}"
                 }
                 p {

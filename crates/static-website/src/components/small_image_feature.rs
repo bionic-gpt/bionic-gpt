@@ -20,7 +20,7 @@ pub fn SmallImageFeature(
                     class: "badge badge-outline",
                     "{title}" }
                 p {
-                    class: "mt-2 text-3xl font-bold tracking-tight sm:text-4xl text-primary",
+                    class: "mt-8 text-3xl tracking-tight sm:text-4xl text-primary",
                     "{sub_title}"
                 }
                 p {

@@ -20,7 +20,7 @@ pub fn Benefits(
                 div {
                     class: "flex flex-col text-center w-full mb-20",
                     h2 {
-                        class: "text-xs text-indigo-500 tracking-widest font-medium title-font mb-1",
+                        class: "text-primary tracking-widest font-medium title-font mb-1",
                         "{title}"
                     }
                     h1 {
