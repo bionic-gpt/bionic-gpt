@@ -7,10 +7,11 @@ pub struct FaqText {
 }
 
 #[component]
-pub fn Faq(questions: Vec<FaqText>) -> Element {
+pub fn Faq(questions: Vec<FaqText>, class: Option<String>) -> Element {
+    let class = class.unwrap_or("".to_string());
     rsx! {
         section {
-            class: "lg:max-w-5xl mt-24",
+            class: format!("{class} lg:max-w-5xl"),
             h1 {
                 class: "text-3xl font-medium text-primary title-font mb-12 text-center",
                 "Frequently asked questions"

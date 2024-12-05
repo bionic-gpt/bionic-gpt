@@ -28,16 +28,22 @@ pub struct Feature {
 }
 
 #[component]
-pub fn Features(features: Vec<Feature>, title: String, description: String) -> Element {
+pub fn Features(
+    features: Vec<Feature>,
+    title: String,
+    description: String,
+    class: Option<String>,
+) -> Element {
+    let class = class.unwrap_or("".to_string());
     rsx! {
         section {
-            class: "lg:max-w-5xl body-font mt-24",
+            class: format!("{class} body-font"),
             div {
-                class: "py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6",
+                class: "mx-auto",
                 div {
-                    class: "max-w-screen-md mb-8 lg:mb-16",
+                    class: "mb-8 lg:mb-16",
                     h2 {
-                        class: "mb-4 text-4xl tracking-tight font-extrabold text-primary",
+                        class: "mb-4 text-4xl tracking-tight text-primary",
                         "{title}"
                     }
                     p {

@@ -10,16 +10,17 @@ pub fn Benefits(
     benefit2_desc: String,
     benefit3: String,
     benefit3_desc: String,
+    class: Option<String>,
 ) -> Element {
     rsx! {
         section {
-            class: "lg:max-w-5xl mt-24",
+            class: format!("lg:max-w-5xl {}", class.unwrap_or("".to_string())),
             div {
                 class: "container mx-auto",
                 div {
                     class: "flex flex-col text-center w-full mb-20",
                     h2 {
-                        class: "text-xs text-indigo-500 tracking-widest font-medium title-font mb-1",
+                        class: "text-primary tracking-widest font-medium title-font mb-1",
                         "{title}"
                     }
                     h1 {

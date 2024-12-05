@@ -32,38 +32,44 @@ pub fn HomePage() -> Element {
             section: Section::Home,
 
             div {
-                class: "p-5 mt-24 flex flex-col items-center",
+                class: "lg:max-w-5xl p-5 mt-24 mx-auto",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
-                    title: "The #1 Privacy Focused Enterprise Chat-GPT Solution.",
-                    subtitle: "Enjoy the benefits of generative AI and keep data privacy and compliance in check.",
-                    claim: "100's of installations globally."
+                    title: "Experience The Power of Generative AI With Unmatched Data Privacy",
+                    subtitle: "Unlock the full potential of generative AI while keeping your data secure and compliant.",
+                    claim: "and join hundreds of global installations!"
                 }
-                Customers {}
+                Customers {
+                    class: "mt-24"
+                }
 
                 ProblemSolution {
+                    class: "mt-24",
                     image: "/landing-page/private-deployment.svg",
-                    title: "How do you get the benefits of Chat-GPT and keep your data private?",
-                    problem: "Chat-GPT offers incredible potential, but sending sensitive data to external servers, exposes you to risks like breaches and unauthorized access.
-                        For businesses handling private or regulated data, this trade-off is simply unacceptable.",
-                    solution: "Bionic-GPT offers a solution. We provide the power of Chat-GPT without the risks of data leakage by running securely within your environment.
-                        Enjoy advanced AI capabilities and keep your data private, compliant, and fully under your control."
+                    title: "Leverage Generative AI Across Your Enterprise",
+                    problem: "While Chat-GPT offers incredible potential, sending sensitive data to external servers
+                        poses significant risks like breaches and unauthorized access. For businesses handling private or regulated data, 
+                        this trade-off is unacceptable.",
+                    solution: "Bionic-GPT provides the power of Chat-GPT without the risks of data leakage by running securely within your environment.
+                        Enjoy advanced AI capabilities while keeping your data private, compliant, and fully under your control."
                 }
 
                 Benefits {
+                    class: "mt-24",
                     title: "Benefits",
-                    subtitle: "Rapidly Deploy Generative AI",
-                    benefit1: "Easy to Deploy",
-                    benefit1_desc: "Increase productivity across your whole organisation in a secure way.",
-                    benefit2: "AI Assistants",
-                    benefit2_desc: "Assistants allow you to use your data to get better answers.",
-                    benefit3: "Data Compliance",
-                    benefit3_desc: "All the benefits of Gen AI and security around data governance.",
+                    subtitle: "Rapidly Deploy Generative AI Across Your Organization",
+                    benefit1: "Accelerate Generative AI Adoption",
+                    benefit1_desc: "Boost productivity with a solution that's simple to implement and use securely.",
+                    benefit2: "Custom AI Assistants (RAG)",
+                    benefit2_desc: "Utilize your data to create AI assistants that deliver smarter, tailored responses.",
+                    benefit3: "Data Compliance and Auditability",
+                    benefit3_desc: "Enjoy the advantages of generative AI with robust data governance and compliance.",
                 }
 
                 SmallImageFeature {
+                    class: "mt-24",
                     title: "Data Governance",
-                    sub_title: "Everything you Need",
+                    sub_title: "Empower Your Teams with Secure AI",
                     text: "No learning curve, no confusion—just instant productivity.
                         Bionic-GPT features an intuitive user interface, 
                         so your teamscan get started immediately.
@@ -73,71 +79,71 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
+                    class: "mt-24",
                     title: "Retrieval Augmented Generation",
-                    sub_title: "AI Assistants Powered by Your Data",
-                    text: "Transform your data into a competitive advantage by building AI assistants
-                        tailored to your needs. With Bionic-GPT, 
-                        you can train AI on your unique datasets, 
-                        enabling it to provide accurate, context-aware insights and automate 
-                        tasks specific to your business. All of this happens securely within your environment, ensuring your data remains private while unlocking the full potential of AI.",
+                    sub_title: "Transform Your Data into a Competitive Advantage",
+                    text: "Build AI assistants tailored to your needs by training on your unique datasets.
+                        Bionic-GPT provides accurate, context-aware insights and automates tasks specific to your 
+                        business—all securely within your environment.",
                     image: "/landing-page/assistants.png",
                     flip: true
                 }
 
                 SmallImageFeature {
+                    class: "mt-24",
                     title: "Teams",
-                    sub_title: "Bring AI to Your Teams, Securely ",
+                    sub_title: "Seamless Integration for Enhanced Collaboration",
                     text: "Empower your teams with AI that works where they do. Bionic-GPT integrates
-                        seamlessly into your workflows, providing advanced capabilities without 
-                        sacrificing security. Your data stays private, enabling 
-                        collaboration and innovation you can trust. ",
+                        seamlessly into your workflows, providing advanced capabilities without sacrificing security. 
+                        Your data stays private, enabling trustworthy collaboration and innovation.",
                     image: "/landing-page/teams.png",
                     flip: false
                 }
 
                 SmallImageFeature {
-                    title: "Observability",
-                    sub_title: "Observability and Auditability",
-                    text: "Stay in control with detailed insights into your AI's activity.
-                        Bionic-GPT offers robust observability and auditability tools, 
-                        allowing you to monitor usage, track interactions, and 
-                        ensure compliance with ease. Transparency and accountability, built right in.",
+                    class: "mt-24",
+                    title: "Observability and Auditability",
+                    sub_title: "Stay in Control with Detailed Insights",
+                    text: "Monitor usage, track interactions, and ensure compliance with robust observability and
+                        auditability tools. Transparency and accountability are built right into Bionic-GPT.",
                     image: "/landing-page/dashboard.png",
                     flip: true
                 }
 
                 Features {
+                    class: "mt-24",
                     title: "Bionic-GPT Features",
-                    description: "A fully implemented solution for all your needs",
+                    description: "A comprehensive solution for all your AI needs.",
                     features: vec![
                         Feature {
-                            title: String::from("No Code Rag"),
-                            description: String::from("Allow users to create RAG pipelines in minutes"),
+                            title: String::from("No-Code RAG (Retrieval-Augmented Generation)"),
+                            description: String::from("Create RAG pipelines in minutes without any coding."),
                         },
                         Feature {
-                            title: String::from("Team-based permissions"),
-                            description: String::from("Your teams know best which data is suitable for the AI."),
+                            title: String::from("Team-Based Permissions"),
+                            description: String::from("Control data access and ensure security by allowing teams to manage permissions."),
                         },
                         Feature {
                             title: String::from("Full Observability"),
-                            description: String::from("Dashboards that give you insights into usage and compliance."),
+                            description: String::from("Gain insights into usage and compliance with detailed dashboards and logs."),
                         },
                         Feature {
                             title: String::from("Cost Control"),
-                            description: String::from("Set limits by users and teams and ensure fair usage."),
+                            description: String::from("Set usage limits by user and team to manage costs effectively."),
                         },
                         Feature {
-                            title: String::from("Fully Encrypted"),
-                            description: String::from("Encryption at rest, in transport and at run time."),
+                            title: String::from("Advanced Encryption"),
+                            description: String::from("Ensure data security with encryption at rest, in transit, and during runtime."),
                         },
                         Feature {
-                            title: String::from("Scalable"),
-                            description: String::from("Run natively on Kubernetes for maximum scalability."),
+                            title: String::from("Scalable Architecture"),
+                            description: String::from("Built on Kubernetes for maximum scalability and reliability."),
                         },
                     ]
                 }
 
                 Testamonials {
+                    class: "mt-24",
                     text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic-GPT’s support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
                     job1: "Data Scientist",
                     person1: "Emmat",
@@ -147,6 +153,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Faq {
+                    class: "mt-24",
                     questions: vec![
                         FaqText {
                             question: String::from("How does Bionic-GPT ensure data privacy?"),
@@ -171,7 +178,9 @@ pub fn HomePage() -> Element {
                     ]
                 }
 
-                Security {}
+                Security {
+                    class: "mt-24"
+                }
             }
             Footer {}
         }
