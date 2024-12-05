@@ -11,7 +11,7 @@ pub fn Customers(class: Option<String>) -> Element {
             }
             h3 {
                 class: "mt-4 mb-4",
-                "Join top organizations that rely on Bionic-GPT for secure and powerful AI solutions."
+                "Built with support from our partners"
             }
             div {
                 class: "flex gap-6 space-between",
