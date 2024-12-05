@@ -35,7 +35,7 @@ pub fn HomePage() -> Element {
                 class: "lg:max-w-5xl p-5 mt-24 mx-auto",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
-                    title: "Experience Chat-GPT Power with Unmatched Data Privacy",
+                    title: "Experience The Power of Generative AI With Unmatched Data Privacy",
                     subtitle: "Unlock the full potential of generative AI while keeping your data secure and compliant.",
                     claim: "and join hundreds of global installations!"
                 }
@@ -46,7 +46,7 @@ pub fn HomePage() -> Element {
                 ProblemSolution {
                     class: "mt-24",
                     image: "/landing-page/private-deployment.svg",
-                    title: "Leverage Chat-GPT Without Compromising Data Privacy",
+                    title: "Leverage Generative AI Across Your Enterprise",
                     problem: "While Chat-GPT offers incredible potential, sending sensitive data to external servers
                         poses significant risks like breaches and unauthorized access. For businesses handling private or regulated data, 
                         this trade-off is unacceptable.",
@@ -58,11 +58,11 @@ pub fn HomePage() -> Element {
                     class: "mt-24",
                     title: "Benefits",
                     subtitle: "Rapidly Deploy Generative AI Across Your Organization",
-                    benefit1: "Easy Deployment",
+                    benefit1: "Accelerate Generative AI Adoption",
                     benefit1_desc: "Boost productivity with a solution that's simple to implement and use securely.",
-                    benefit2: "Custom AI Assistants",
+                    benefit2: "Custom AI Assistants (RAG)",
                     benefit2_desc: "Utilize your data to create AI assistants that deliver smarter, tailored responses.",
-                    benefit3: "Data Compliance",
+                    benefit3: "Data Compliance and Auditability",
                     benefit3_desc: "Enjoy the advantages of generative AI with robust data governance and compliance.",
                 }
 
