@@ -18,11 +18,11 @@
 	.st16{fill:#0F0F0F;}
 	.st17{fill:#042523;}
 	.st18{fill:none;stroke:#22B38E;stroke-miterlimit:10;}
-	.st19{fill:none;stroke:#22B38E;stroke-miterlimit:10;stroke-dasharray:3.0471,3.0471;}
-	.st20{fill:none;stroke:#22B38E;stroke-miterlimit:10;stroke-dasharray:2.9703,2.9703;}
-	.st21{fill:none;stroke:#22B38E;stroke-miterlimit:10;stroke-dasharray:2.9948,2.9948;}
-	.st22{fill:none;stroke:#22B38E;stroke-miterlimit:10;stroke-dasharray:3.0092,3.0092;}
-	.st23{fill:none;stroke:#22B38E;stroke-miterlimit:10;stroke-dasharray:3;}
+	.st19 { fill: none; stroke: #FFFFFF; stroke-miterlimit: 10; stroke-dasharray: 3.0471, 3.0471; }
+	.st20 { fill: none; stroke: #FFFFFF; stroke-miterlimit: 10; stroke-dasharray: 2.9703, 2.9703; }
+	.st21 { fill: none; stroke: #FFFFFF; stroke-miterlimit: 10; stroke-dasharray: 2.9948, 2.9948; }
+	.st22 { fill: none; stroke: #FFFFFF; stroke-miterlimit: 10; stroke-dasharray: 3.0092, 3.0092; }
+	.st23 { fill: none; stroke: #FFFFFF; stroke-miterlimit: 10; stroke-dasharray: 3; }
 </style>
 <rect class="st0" width="560" height="325"/>
 <g>
