@@ -1,10 +1,16 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn ProblemSolution(image: String, title: String, problem: String, solution: String) -> Element {
+pub fn ProblemSolution(
+    image: String,
+    title: String,
+    problem: String,
+    solution: String,
+    class: Option<String>,
+) -> Element {
     rsx! {
         section {
-            class: "mt-24 md:flex lg:max-w-5xl gap-8 w-full",
+            class: format!("md:flex lg:max-w-5xl gap-8 w-full {}", class.unwrap_or("".to_string())),
             div {
                 class: "flex-1",
                 h1 {

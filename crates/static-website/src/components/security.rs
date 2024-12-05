@@ -41,10 +41,11 @@ pub fn Shield(text: String) -> Element {
 }
 
 #[component]
-pub fn Security() -> Element {
+pub fn Security(class: Option<String>) -> Element {
+    let class = class.unwrap_or("".to_string());
     rsx! {
         section {
-            class: "lg:max-w-5xl mx-auto md:flex flex-row gap-8 mt-24",
+            class: format!("{class} md:flex flex-row gap-8"),
             div {
                 class: "flex-1",
                 h2 {

@@ -39,9 +39,12 @@ pub fn HomePage() -> Element {
                     subtitle: "Enjoy the benefits of generative AI and keep data privacy and compliance in check.",
                     claim: "100's of installations globally."
                 }
-                Customers {}
+                Customers {
+                    class: "mt-24"
+                }
 
                 ProblemSolution {
+                    class: "mt-24",
                     image: "/landing-page/private-deployment.svg",
                     title: "How do you get the benefits of Chat-GPT and keep your data private?",
                     problem: "Chat-GPT offers incredible potential, but sending sensitive data to external servers, exposes you to risks like breaches and unauthorized access.
@@ -51,6 +54,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Benefits {
+                    class: "mt-24",
                     title: "Benefits",
                     subtitle: "Rapidly Deploy Generative AI",
                     benefit1: "Easy to Deploy",
@@ -62,6 +66,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
+                    class: "mt-24",
                     title: "Data Governance",
                     sub_title: "Everything you Need",
                     text: "No learning curve, no confusion—just instant productivity.
@@ -73,6 +78,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
+                    class: "mt-24",
                     title: "Retrieval Augmented Generation",
                     sub_title: "AI Assistants Powered by Your Data",
                     text: "Transform your data into a competitive advantage by building AI assistants
@@ -85,6 +91,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
+                    class: "mt-24",
                     title: "Teams",
                     sub_title: "Bring AI to Your Teams, Securely ",
                     text: "Empower your teams with AI that works where they do. Bionic-GPT integrates
@@ -96,6 +103,7 @@ pub fn HomePage() -> Element {
                 }
 
                 SmallImageFeature {
+                    class: "mt-24",
                     title: "Observability",
                     sub_title: "Observability and Auditability",
                     text: "Stay in control with detailed insights into your AI's activity.
@@ -107,6 +115,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Features {
+                    class: "mt-24",
                     title: "Bionic-GPT Features",
                     description: "A fully implemented solution for all your needs",
                     features: vec![
@@ -147,6 +156,7 @@ pub fn HomePage() -> Element {
                 }
 
                 Faq {
+                    class: "mt-24",
                     questions: vec![
                         FaqText {
                             question: String::from("How does Bionic-GPT ensure data privacy?"),
@@ -171,7 +181,9 @@ pub fn HomePage() -> Element {
                     ]
                 }
 
-                Security {}
+                Security {
+                    class: "mt-24"
+                }
             }
             Footer {}
         }

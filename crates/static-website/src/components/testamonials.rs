@@ -8,10 +8,12 @@ pub fn Testamonials(
     text2: String,
     job2: String,
     person2: String,
+    class: Option<String>,
 ) -> Element {
+    let class = class.unwrap_or("".to_string());
     rsx! {
         section {
-            class: "mx-auto lg:max-w-5xl mt-24",
+            class: format!("mx-auto lg:max-w-5xl {class}"),
             div {
                 class: "container mx-auto",
                 h1 {

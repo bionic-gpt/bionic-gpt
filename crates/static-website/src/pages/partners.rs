@@ -24,6 +24,7 @@ pub fn PartnersPage() -> Element {
                 }
 
                 Benefits {
+                    class: "mt-24",
                     title: "Partners",
                     subtitle: "Why Partner with Us?",
                     benefit1: "Revenue Growth",
@@ -70,6 +71,7 @@ pub fn PartnersPage() -> Element {
                 }
 
                 Testamonials {
+                    class: "mt-24",
                     text1: "The no-code RAG pipeline, combined with the team-based privacy model, has revolutionized
                         how we handle sensitive data and collaboration, making deployment secure and seamless.",
                     job1: "Data Governance Lead",
