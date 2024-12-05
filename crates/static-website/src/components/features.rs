@@ -56,15 +56,14 @@ pub fn Features(
                     for feature in features {
                         div {
                             div {
-                                class: "flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12",
+                                class: "mb-4 w-10 h-10 lg:h-12 lg:w-12",
                                 GraphSvg {}
                             }
                             h3 {
-                                class: "mb-2 text-xl font-bold dark:text-white",
+                                class: "mb-2 text-primary text-xl font-bold",
                                 "{feature.title}"
                             }
                             p {
-                                class: "text-gray-500 dark:text-gray-400",
                                 "{feature.description}"
                             }
                         }
