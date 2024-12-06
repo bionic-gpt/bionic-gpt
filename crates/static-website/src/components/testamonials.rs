@@ -64,7 +64,7 @@ pub fn Testamonials(
                     "Testimonials"
                 }
                 div {
-                    class: "flex gap-8",
+                    class: "md:flex gap-8",
                     div {
                         class: "md:w-1/2 w-full",
                         Testamonial {
@@ -75,7 +75,7 @@ pub fn Testamonials(
                         }
                     }
                     div {
-                        class: "md:w-1/2 w-full",
+                        class: "mt-5 md:md-0 md:w-1/2 w-full",
                         Testamonial {
                             person: person2,
                             text: text2,
