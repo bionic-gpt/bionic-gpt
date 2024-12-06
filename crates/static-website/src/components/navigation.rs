@@ -108,7 +108,7 @@ pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
                     a {
                         href: marketing::Index {}.to_string(),
                         span {
-                            class: "pl-5 flex flex-row gap-2",
+                            class: "pl-2 flex flex-row gap-2",
                             svg {
                                 view_box: "0 0 48 48",
                                 width: "22",
@@ -159,18 +159,21 @@ pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
                     }
                 }
                 div { class: "hidden lg:flex",
-                    ul { class: "menu menu-horizontal px-5",
+                    ul { class: "menu menu-horizontal pr-2",
                         li {
                             a {
                                 href: "https://github.com/bionic-gpt/bionic-gpt",
                                 img { src: "https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" }
                             }
                         }
-                        li {
-                            a { href: SIGN_IN_UP, "Login" }
+                        NavItem {
+                            link: SIGN_IN_UP,
+                            name: "Login".to_string(),
+                            section: Section::Contact,
+                            current_section: section.clone(),
                         }
                         NavItem {
-                            class: "btn btn-primary btn-sm",
+                            class: "ml-2 btn btn-primary btn-sm",
                             link: marketing::Contact {}.to_string(),
                             name: "Book a Demo".to_string(),
                             section: Section::Contact,
