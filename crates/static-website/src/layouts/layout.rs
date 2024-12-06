@@ -68,8 +68,9 @@ pub fn Layout(props: LayoutProps) -> Element {
 
             }
             script {
-                "async": "true",
-                src: "https://unpkg.com/htmx.org@2.0.3"
+                src: "https://unpkg.com/htmx.org@2.0.3",
+                integrity: "sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq",
+                crossorigin: "anonymous"
             }
         }
         body {
