@@ -106,6 +106,7 @@ pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
                         }
                     }
                     a {
+                        "hx-boost": "true",
                         href: marketing::Index {}.to_string(),
                         span {
                             class: "pl-2 flex flex-row gap-2",

@@ -90,9 +90,9 @@ async fn main() {
         let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
 
         // build our application with a route
-        let app = Router::new()
-            .nest_service("/", ServeDir::new("dist"))
-            .layer(LiveReloadLayer::new());
+        let app = Router::new().nest_service("/", ServeDir::new("dist"));
+
+        let app = app.layer(LiveReloadLayer::new());
 
         let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
         tracing::info!("listening on http://{}", &addr);
