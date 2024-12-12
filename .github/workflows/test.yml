@@ -1,14 +1,11 @@
-name: Debug Auto-Fix Workflow
+name: Debug Workflow
 
 on:
   workflow_dispatch:
 
 jobs:
-  debug-job:
+  debug:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Debug Event Payload
-        run: echo "${{ toJson(github.event) }}"
-      - name: Debug Environment Variables
-        run: env
+      - name: Print Debug Information
+        run: echo "Workflow triggered successfully!"
