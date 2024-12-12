@@ -8,17 +8,15 @@ use db::Visibility;
 use db::{queries::prompts::Prompt, Category, Dataset, Model};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(
+pub fn page(
     team_id: i32,
     rbac: Rbac,
     prompts: Vec<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
     categories: Vec<Category>,
-    is_saas: bool,
-) -> Element {
-    rsx! {
+) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
@@ -194,7 +192,9 @@ pub fn Page(
                 can_make_assistant_public: rbac.can_make_assistant_public()
             }
         }
-    }
+    };
+
+    crate::render(page)
 }
 
 // Comma separated dataset to vec of i32

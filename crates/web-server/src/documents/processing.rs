@@ -4,7 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries::documents;
 use db::Pool;
-use web_pages::{render_with_props, routes::documents::Processing};
+use web_pages::routes::documents::Processing;
 
 pub async fn row(
     Processing {
@@ -24,14 +24,7 @@ pub async fn row(
         .one()
         .await?;
 
-    let html = render_with_props(
-        web_pages::documents::index::Row,
-        web_pages::documents::index::RowProps {
-            team_id,
-            document,
-            first_time: false,
-        },
-    );
+    let html = web_pages::documents::status::status(document, team_id, false);
 
     Ok(Html(html))
 }

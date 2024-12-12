@@ -5,9 +5,8 @@ use daisy_rsx::*;
 use db::queries::teams::Team;
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(teams: Vec<(String, String)>, team: Team) -> Element {
-    if let Some(name) = &team.name.clone() {
+pub fn popup(teams: Vec<(String, String)>, team: Team) -> String {
+    let page = if let Some(name) = &team.name.clone() {
         rsx! {
             turbo-frame {
                 id: "teams-popup",
@@ -44,5 +43,7 @@ pub fn Page(teams: Vec<(String, String)>, team: Team) -> Element {
                 }
             }
         }
-    }
+    };
+
+    dioxus_ssr::render_element(page)
 }

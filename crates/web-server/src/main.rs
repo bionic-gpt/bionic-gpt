@@ -18,7 +18,6 @@ pub mod pipelines;
 pub mod profile;
 pub mod prompts;
 pub mod rate_limits;
-pub mod security;
 pub mod static_files;
 pub mod team;
 pub mod teams;
@@ -60,7 +59,6 @@ async fn main() {
         .merge(rate_limits::routes())
         .merge(team::routes())
         .merge(teams::routes())
-        .merge(security::routes())
         .layer(Extension(config.clone()))
         .layer(Extension(pool.clone()));
 

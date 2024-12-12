@@ -5,7 +5,7 @@ use db::queries::{chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
 use web_pages::console::ChatWithChunks;
-use web_pages::{console, render_with_props, routes::console::Conversation};
+use web_pages::{console, routes::console::Conversation};
 
 pub async fn conversation(
     Conversation {
@@ -60,18 +60,15 @@ pub async fn conversation(
         .one()
         .await?;
 
-    let html = render_with_props(
-        console::conversation::Conversation,
-        console::conversation::ConversationProps {
-            team_id,
-            rbac,
-            conversation_id,
-            chats_with_chunks,
-            prompts,
-            prompt,
-            lock_console,
-            is_tts_disabled,
-        },
+    let html = console::conversation::page(
+        team_id,
+        rbac,
+        chats_with_chunks,
+        prompts,
+        prompt,
+        conversation_id,
+        lock_console,
+        is_tts_disabled,
     );
 
     Ok(Html(html))
