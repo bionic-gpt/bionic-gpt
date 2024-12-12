@@ -35,12 +35,12 @@ pub fn Page(
             // If the user hasn't set their org name or their own name
             // get them to do it.
             if rbac.can_make_invitations() && (user.first_name.is_none() || team.name.is_none()) {
-                Box {
+                Card {
                     class: "mb-3",
-                    BoxHeader {
+                    CardHeader {
                         title: "Before you are able to invite people to your team you will need to do the following"
                     }
-                    BoxBody {
+                    CardBody {
                         if team.name.is_none() {
                             p {
                                 "Please set your "
@@ -64,9 +64,9 @@ pub fn Page(
                 }
             }
 
-            Box {
+            Card {
                 class: "has-data-table",
-                BoxHeader {
+                CardHeader {
                     title: &team_name,
                     Button {
                         class: "ml-2",
@@ -75,7 +75,7 @@ pub fn Page(
                         "Edit Name"
                     }
                 }
-                BoxBody {
+                CardBody {
                     table {
                         class: "table table-sm",
                         thead {

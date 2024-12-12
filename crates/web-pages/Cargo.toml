@@ -13,9 +13,9 @@ db = { path = "../db" }
 assets = { path = "../web-assets" }
 axum = { version = "0.7", default-features = false }
 axum-extra = { version = "0", features = ["typed-routing"] }
-dioxus = "0.5"
-dioxus-ssr = "0.5"
+dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
+dioxus-ssr = { version = "0.6", default-features = false }
 serde = "1"
-daisy_rsx = "0.1.10"
+daisy_rsx = "0.1.14"
 comrak = { version = "0", default-features = false }
 time = "0.3.36"

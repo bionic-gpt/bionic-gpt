@@ -53,12 +53,12 @@ pub fn Page(
                     extra knowledge, and any combination of skills.".to_string()
             }
 
-            Box {
+            Card {
                 class: "has-data-table max-w-[64rem] mx-auto",
-                BoxHeader {
+                CardHeader {
                     title: "My Assistants"
                 }
-                BoxBody {
+                CardBody {
                     table {
                         class: "table table-sm table-layout-fixed",
                         thead {

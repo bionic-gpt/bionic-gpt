@@ -10,7 +10,7 @@ pub struct LayoutProps {
     description: String,
     image: Option<String>,
     children: Element,
-    mobile_menu: Element,
+    mobile_menu: Option<Element>,
     section: Section,
 }
 

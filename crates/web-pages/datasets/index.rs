@@ -39,12 +39,12 @@ pub fn Page(
                     description: "Datasets allow you to organize your documents like folders"
                 }
             } else {
-                Box {
+                Card {
                     class: "has-data-table",
-                    BoxHeader {
+                    CardHeader {
                         title: "Datasets"
                     }
-                    BoxBody {
+                    CardBody {
                         table {
                             class: "table table-sm",
                             thead {

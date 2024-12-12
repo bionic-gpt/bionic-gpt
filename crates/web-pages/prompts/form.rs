@@ -220,8 +220,8 @@ fn AssistantTab(
                 rows: "2",
                 label: "Description",
                 label_class: "mt-4",
+                required: true,
                 "{description}",
-                required: true
             }
         }
     )

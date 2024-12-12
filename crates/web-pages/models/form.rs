@@ -27,7 +27,7 @@ pub fn Form(
         Drawer {
             submit_action: crate::routes::models::New{team_id}.to_string(),
             label: "Add a Model",
-            trigger_id: "{*trigger_id}",
+            trigger_id: "{trigger_id}",
             DrawerBody {
                 TabContainer {
                     TabPanel {
@@ -68,8 +68,8 @@ pub fn Form(
                                 label: "Description",
                                 help_text: "A brief summary about this model.",
                                 label_class: "mt-4",
-                                "{description}",
-                                required: true
+                                required: true,
+                                "{description}"
                             }
 
                             Input {

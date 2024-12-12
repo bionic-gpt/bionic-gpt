@@ -31,11 +31,11 @@ fn Page(
                 description: "Here you can manage your account to personalize the experience",
             }
 
-            Box {
-                BoxHeader {
+            Card {
+                CardHeader {
                     title: "Update Your Details"
                 }
-                BoxBody {
+                CardBody {
                     form {
                         method: "post",
                         "data-turbo-frame": "_top",

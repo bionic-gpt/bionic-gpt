@@ -1,26 +1,26 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
-use db::Role;
+use db::Role as DBRole;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Role(role: Role) -> Element {
+pub fn Role(role: DBRole) -> Element {
     match role {
-        Role::SystemAdministrator => rsx!(
+        DBRole::SystemAdministrator => rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Highlight,
                 "System Administrator"
             }
         ),
-        Role::TeamManager => rsx!(
+        DBRole::TeamManager => rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Neutral,
                 "Team Manager"
             }
         ),
-        Role::Collaborator => rsx!(
+        DBRole::Collaborator => rsx!(
             Label {
                 class: "mr-2",
                 label_role: LabelRole::Neutral,

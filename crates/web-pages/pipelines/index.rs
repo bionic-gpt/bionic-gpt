@@ -51,12 +51,12 @@ pub fn Page(
                         "New Pipeline"
                     }
                 ),
-                Box {
+                Card {
                     class: "has-data-table",
-                    BoxHeader {
+                    CardHeader {
                         title: "Document Pipelines"
                     }
-                    BoxBody {
+                    CardBody {
                         table {
                             class: "table table-sm",
                             thead {

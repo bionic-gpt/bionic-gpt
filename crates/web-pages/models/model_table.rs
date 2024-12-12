@@ -6,12 +6,12 @@ use dioxus::prelude::*;
 #[component]
 pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
     rsx!(
-        Box {
+        Card {
             class: "has-data-table",
-            BoxHeader {
+            CardHeader {
                 title: "Models"
             }
-            BoxBody {
+            CardBody {
                 table {
                     class: "table table-sm",
                     thead {

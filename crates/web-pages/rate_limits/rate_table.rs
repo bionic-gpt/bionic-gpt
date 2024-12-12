@@ -6,12 +6,12 @@ use dioxus::prelude::*;
 #[component]
 pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
     rsx!(
-        Box {
+        Card {
             class: "has-data-table mt-6",
-            BoxHeader {
+            CardHeader {
                 title: "Rate Limits"
             }
-            BoxBody {
+            CardBody {
                 table {
                     class: "table table-sm",
                     thead {

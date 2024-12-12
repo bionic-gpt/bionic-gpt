@@ -6,12 +6,12 @@ use dioxus::prelude::*;
 #[component]
 pub fn AuditTable(audits: Vec<AuditTrail>) -> Element {
     rsx!(
-        Box {
+        Card {
             class: "has-data-table",
-            BoxHeader {
+            CardHeader {
                 title: "Audit Trail"
             }
-            BoxBody {
+            CardBody {
                 table {
                     class: "table",
                     thead {

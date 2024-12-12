@@ -44,7 +44,7 @@ pub fn NavItem(
 }
 
 #[component]
-pub fn Navigation(mobile_menu: Element, section: Section) -> Element {
+pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
     rsx! {
         header {
             class: "sticky top-0 z-50 backdrop-filter backdrop-blur-lg bg-opacity-30",

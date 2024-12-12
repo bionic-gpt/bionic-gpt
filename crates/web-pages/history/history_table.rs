@@ -7,12 +7,12 @@ pub fn HistoryTable(team_id: i32, buckets: Vec<super::HistoryBucket>) -> Element
     rsx!(
         for bucket in buckets {
             if ! bucket.histories.is_empty() {
-                Box {
+                Card {
                     class: "has-data-table mb-6",
-                    BoxHeader {
+                    CardHeader {
                         title: "{bucket.name}"
                     }
-                    BoxBody {
+                    CardBody {
                         table {
                             class: "table table-sm",
                             thead {

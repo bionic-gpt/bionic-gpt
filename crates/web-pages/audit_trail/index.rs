@@ -29,14 +29,14 @@ pub fn Page(
             team_id: team_id,
             rbac: rbac,
             title: "Audit Trail",
-            header: rsx!(
+            header: rsx! {
                 h3 { "Audit Trail" }
                 Button {
                     drawer_trigger: super::filter::DRAW_TRIGGER,
                     button_scheme: ButtonScheme::Default,
                     "Filter"
                 }
-            )
+            },
             super::table::AuditTable {
                 audits: audits
             }

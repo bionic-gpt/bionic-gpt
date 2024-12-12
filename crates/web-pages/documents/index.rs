@@ -41,12 +41,12 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                     upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
                 }
             } else {
-                Box {
+                Card {
                     class: "has-data-table",
-                    BoxHeader {
+                    CardHeader {
                         title: "Documents"
                     }
-                    BoxBody {
+                    CardBody {
                         table {
                             id: "documents",
                             class: "table table-sm",

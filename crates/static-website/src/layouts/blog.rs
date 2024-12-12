@@ -18,7 +18,6 @@ pub fn BlogPost(post: Page) -> Element {
             title: "{post.title}",
             description: "{post.description}",
             image: "{image}",
-            mobile_menu: None,
             section: Section::Blog,
             article {
                 class: "mt-24 mx-auto prose lg:prose-xl p-5",

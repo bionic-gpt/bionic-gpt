@@ -30,12 +30,12 @@ pub fn Page(
                     "Create a New Team"
                 }
             ),
-            Box {
+            Card {
                 class: "has-data-table",
-                BoxHeader {
+                CardHeader {
                     title: "Teams"
                 }
-                BoxBody {
+                CardBody {
                     table {
                         class: "table table-sm",
                         thead {
@@ -144,12 +144,12 @@ pub fn Page(
             }
 
 
-            Box {
+            Card {
                 class: "has-data-table mt-8",
-                BoxHeader {
+                CardHeader {
                     title: "You have invitations to join the following teams"
                 }
-                BoxBody {
+                CardBody {
                     table {
                         class: "table table-sm",
                         thead {

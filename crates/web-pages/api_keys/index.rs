@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use daisy_rsx::*;
-use db::{authz::Rbac, ApiKey, Prompt, PromptType};
+use db::{authz::Rbac, ApiKey, Prompt, PromptType as DBPromptType};
 use dioxus::prelude::*;
 
 #[component]
@@ -50,12 +50,12 @@ pub fn Page(
 
             if ! api_keys.is_empty() {
 
-                Box {
+                Card {
                     class: "has-data-table",
-                    BoxHeader {
+                    CardHeader {
                         title: "API Keys"
                     }
-                    BoxBody {
+                    CardBody {
                         table {
                             class: "table table-sm",
                             thead {
@@ -134,16 +134,16 @@ pub fn Page(
 }
 
 #[component]
-pub fn PromptType(prompt_type: PromptType) -> Element {
+pub fn PromptType(prompt_type: DBPromptType) -> Element {
     match prompt_type {
-        PromptType::Model => rsx!(
+        DBPromptType::Model => rsx!(
             Label {
                 class: "mr-2 truncate",
                 label_role: LabelRole::Info,
                 "Model"
             }
         ),
-        PromptType::Assistant => rsx!(
+        DBPromptType::Assistant => rsx!(
             Label {
                 class: "mr-2 truncate",
                 label_role: LabelRole::Highlight,
@@ -157,9 +157,9 @@ pub fn PromptType(prompt_type: PromptType) -> Element {
 fn OpenAICompatibility() -> Element {
     rsx! {
         // OpenAI API Compatibility Card
-        Box {
+        Card {
             class: "mt-8 mb-8",
-            BoxBody {
+            CardBody {
                 h2 { class: "card-title", "OpenAI API Compatibility" }
                 p { "Our API is compatible with the OpenAI completionbs API, allowing seamless integration with existing projects and tools." }
                 ul { class: "list-disc list-inside mt-4",
@@ -175,11 +175,11 @@ fn OpenAICompatibility() -> Element {
 #[component]
 fn CodeExamples() -> Element {
     rsx! {
-        Box {
-            BoxHeader {
+        Card {
+            CardHeader {
                 title: "API Usage Example"
             }
-            BoxBody {
+            CardBody {
                 p {
                     ""
                 }
@@ -215,8 +215,8 @@ fn KeySelector() -> Element {
         div {
             class: "grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 mt-8",
             // Assistant Key Card
-            Box {
-                BoxBody {
+            Card {
+                CardBody {
                     h2 {
                         class: "card-title",
                         "Assistant Key"
@@ -237,8 +237,8 @@ fn KeySelector() -> Element {
             }
 
             // Model Key Card
-            Box {
-                BoxBody {
+            Card {
+                CardBody {
                     h2 { class: "card-title", "Model Key" }
                     p { "Use existing models for your own projects" }
                     ul { class: "list-disc list-inside mt-4",

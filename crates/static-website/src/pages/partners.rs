@@ -12,7 +12,6 @@ pub fn PartnersPage() -> Element {
     rsx! {
         Layout {
             title: "Partners",
-            mobile_menu: None,
             description: "Partners",
             section: Section::Partners,
             div {

@@ -13,10 +13,10 @@ axum-extra = { version = "0", features = ["typed-routing"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 tracing = { version = "0.1" }
 tracing-subscriber = { version="0", features = ["env-filter"] }
-dioxus = { version = "0.5" }
-dioxus-ssr = "0.5"
+dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
+dioxus-ssr = { version = "0.6", default-features = false }
 serde = "1"
-tower-http = { version = "0.5.0", features = ["fs", "trace"] }
+tower-http = { version = "0.6", features = ["fs", "trace"] }
 
 syntect = "5.0"
 pulldown-cmark = "0.12.2"

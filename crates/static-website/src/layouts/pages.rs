@@ -9,7 +9,6 @@ pub fn MarkdownPage(post: Page) -> Element {
         Layout {
             title: "{post.title}",
             description: "{post.description}",
-            mobile_menu: None,
             section: Section::None,
             article {
                 class: "mx-auto max-w-2xl p-5",
