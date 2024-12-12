@@ -37,6 +37,7 @@ on:
       PAT_USERNAME:
         required: false
 
+  workflow_dispatch: # This enables manual triggering
   issues:
     types: [labeled]
   pull_request:
