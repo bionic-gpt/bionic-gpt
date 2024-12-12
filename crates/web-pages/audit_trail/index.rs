@@ -3,25 +3,19 @@ use daisy_rsx::*;
 use db::{authz::Rbac, AuditTrail, Member};
 use dioxus::prelude::*;
 
-use crate::app_layout::{Layout, SideBar};
+use crate::{
+    app_layout::{Layout, SideBar},
+    render,
+};
 
-#[derive(Props, Clone, PartialEq)]
-pub struct AuditProps {
-    team_users: Vec<Member>,
-    audits: Vec<AuditTrail>,
-    team_id: i32,
-    reset_search: bool,
-}
-
-#[component]
-pub fn Page(
+pub fn page(
     team_users: Vec<Member>,
     audits: Vec<AuditTrail>,
     team_id: i32,
     rbac: Rbac,
     reset_search: bool,
-) -> Element {
-    rsx! {
+) -> String {
+    let page = rsx! {
 
         Layout {
             section_class: "p-4",
@@ -46,5 +40,7 @@ pub fn Page(
                 submit_action: crate::routes::audit_trail::Index {team_id}
             }
         }
-    }
+    };
+
+    render(page)
 }

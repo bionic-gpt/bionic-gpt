@@ -3,7 +3,7 @@ use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::{queries, Pool};
-use web_pages::{api_keys, render_with_props, routes::api_keys::Index};
+use web_pages::{api_keys, routes::api_keys::Index};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -34,16 +34,7 @@ pub async fn index(
         .all()
         .await?;
 
-    let html = render_with_props(
-        api_keys::index::Page,
-        api_keys::index::PageProps {
-            team_id,
-            rbac,
-            api_keys,
-            models,
-            assistants,
-        },
-    );
+    let html = api_keys::index::page(rbac, team_id, api_keys, assistants, models);
 
     Ok(Html(html))
 }

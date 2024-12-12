@@ -1,19 +1,21 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::{
+    app_layout::{Layout, SideBar},
+    render,
+};
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKey, Prompt, PromptType as DBPromptType};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(
+pub fn page(
     rbac: Rbac,
     team_id: i32,
     api_keys: Vec<ApiKey>,
     assistants: Vec<Prompt>,
     models: Vec<Prompt>,
-) -> Element {
-    rsx! {
+) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::ApiKeys,
@@ -130,7 +132,9 @@ pub fn Page(
 
             }**/
         }
-    }
+    };
+
+    render(page)
 }
 
 #[component]

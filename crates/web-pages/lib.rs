@@ -1,5 +1,5 @@
 use db::Visibility;
-use dioxus::prelude::{ComponentFunction, VirtualDom};
+use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
 
 pub mod api_keys;
 pub mod app_layout;
@@ -22,6 +22,11 @@ pub mod rate_limits;
 pub mod snackbar;
 pub mod team;
 pub mod teams;
+
+pub fn render(page: Element) -> String {
+    let html = dioxus_ssr::render_element(page);
+    format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
+}
 
 // Generic function to render a component and its props to a string
 pub fn render_with_props<P: Clone + 'static, M: 'static>(

@@ -32,16 +32,7 @@ pub async fn index(
         .all()
         .await?;
 
-    let html = web_pages::render_with_props(
-        web_pages::audit_trail::index::Page,
-        web_pages::audit_trail::index::PageProps {
-            team_id,
-            rbac,
-            team_users,
-            audits,
-            reset_search: true,
-        },
-    );
+    let html = web_pages::audit_trail::index::page(team_users, audits, team_id, rbac, true);
 
     Ok(Html(html))
 }

@@ -8,9 +8,7 @@ use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use web_pages::{
-    audit_trail,
     audit_trail::{position_to_access_type, position_to_audit_action},
-    render_with_props,
     routes::audit_trail::Index,
 };
 
@@ -82,16 +80,7 @@ pub async fn filter(
         .all()
         .await?;
 
-    let html = render_with_props(
-        audit_trail::index::Page,
-        audit_trail::index::PageProps {
-            team_users,
-            team_id,
-            rbac,
-            audits,
-            reset_search: false,
-        },
-    );
+    let html = web_pages::audit_trail::index::page(team_users, audits, team_id, rbac, false);
 
     Ok(Html(html))
 }
