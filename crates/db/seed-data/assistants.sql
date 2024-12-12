@@ -1,6 +1,6 @@
 -- db < crates/db/seed-data/assistants.sql
 -- First, delete any existing prompts with type 'Assistant'
-DELETE FROM prompts WHERE prompt_type = 'Assistant';
+DELETE FROM prompts WHERE prompt_type = 'Assistant' AND team_id = (SELECT id FROM teams ORDER BY id LIMIT 1);
 
 -- Insert a new object record into the 'objects' table
 INSERT INTO objects (team_id, object_name, object_data, mime_type, file_name, file_size, file_hash, created_by, created_at, updated_at)
