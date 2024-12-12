@@ -29,15 +29,7 @@ pub async fn index(
         .one()
         .await?;
 
-    let html = web_pages::render_with_props(
-        web_pages::documents::index::Page,
-        web_pages::documents::index::PageProps {
-            team_id,
-            rbac,
-            dataset,
-            documents,
-        },
-    );
+    let html = web_pages::documents::index::page(rbac, team_id, dataset, documents);
 
     Ok(Html(html))
 }

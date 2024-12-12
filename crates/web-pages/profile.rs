@@ -87,15 +87,15 @@ pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {
 
     let form_action = crate::routes::profile::SetDetails { team_id }.to_string();
 
-    crate::render_with_props(
-        Page,
-        PageProps {
+    let page = rsx! {
+        Page {
             team_id,
             rbac,
             first_name,
             last_name,
             users_name_or_email,
-            form_action,
-        },
-    )
+            form_action
+        }
+    };
+    crate::render(page)
 }

@@ -6,10 +6,9 @@ use db::authz::Rbac;
 use db::History;
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
+pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
     let buckets = super::bucket_history(history);
-    rsx! {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::History,
@@ -43,5 +42,7 @@ pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
                 team_id: team_id
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

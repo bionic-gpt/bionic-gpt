@@ -6,14 +6,13 @@ use db::authz::Rbac;
 use db::{Dataset, DocumentPipeline};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(
+pub fn page(
     team_id: i32,
     rbac: Rbac,
     pipelines: Vec<DocumentPipeline>,
     datasets: Vec<Dataset>,
-) -> Element {
-    rsx! {
+) -> String {
+    let page = rsx! {
         if pipelines.is_empty() {
             Layout {
                 section_class: "p-4",
@@ -118,5 +117,7 @@ pub fn Page(
                 }
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

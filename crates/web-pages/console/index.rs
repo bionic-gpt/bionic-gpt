@@ -5,15 +5,14 @@ use db::authz::Rbac;
 use db::queries::prompts::{Prompt, SinglePrompt};
 use dioxus::prelude::*;
 
-#[component]
-pub fn NewConversation(
+pub fn new_conversation(
     team_id: i32,
     prompts: Vec<Prompt>,
     prompt: SinglePrompt,
     rbac: Rbac,
-) -> Element {
+) -> String {
     // Rerverse it because that's how we display it.
-    rsx! {
+    crate::render(rsx! {
         super::layout::ConsoleLayout {
             team_id,
             rbac: rbac.clone(),
@@ -32,7 +31,7 @@ pub fn NewConversation(
                 }
             )
         }
-    }
+    })
 }
 
 #[component]

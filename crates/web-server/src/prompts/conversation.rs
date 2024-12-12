@@ -1,11 +1,11 @@
 use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{chats, chats_chunks, conversations, models, prompts};
+use db::queries::{chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
 use web_pages::console::ChatWithChunks;
-use web_pages::{render_with_props, routes::prompts::Conversation};
+use web_pages::routes::prompts::Conversation;
 
 pub async fn conversation(
     Conversation {
@@ -20,8 +20,6 @@ pub async fn conversation(
     let transaction = client.transaction().await?;
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    let history = conversations::history().bind(&transaction).all().await?;
 
     let chats = chats::chats()
         .bind(&transaction, &conversation_id)
@@ -58,18 +56,14 @@ pub async fn conversation(
         .await?
         .is_empty();
 
-    let html = render_with_props(
-        web_pages::prompts::conversation::Page,
-        web_pages::prompts::conversation::PageProps {
-            team_id,
-            rbac,
-            conversation_id,
-            chats_with_chunks,
-            prompt,
-            history,
-            lock_console,
-            is_tts_disabled,
-        },
+    let html = web_pages::prompts::conversation::page(
+        team_id,
+        rbac,
+        chats_with_chunks,
+        prompt,
+        conversation_id,
+        lock_console,
+        is_tts_disabled,
     );
 
     Ok(Html(html))

@@ -1,18 +1,15 @@
-use crate::config::Config;
-
 use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::Pool;
 use db::{queries, ModelType};
-use web_pages::{prompts, render_with_props, routes::prompts::MyPrompts};
+use web_pages::{prompts, routes::prompts::MyPrompts};
 
 pub async fn my_prompts(
     MyPrompts { team_id }: MyPrompts,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
-    Extension(config): Extension<Config>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -39,18 +36,7 @@ pub async fn my_prompts(
         .all()
         .await?;
 
-    let html = render_with_props(
-        prompts::my_prompts::Page,
-        prompts::my_prompts::PageProps {
-            team_id,
-            rbac,
-            prompts,
-            datasets,
-            models,
-            categories,
-            is_saas: config.saas,
-        },
-    );
+    let html = prompts::my_prompts::page(team_id, rbac, prompts, datasets, models, categories);
 
     Ok(Html(html))
 }

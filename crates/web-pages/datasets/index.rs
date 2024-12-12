@@ -7,15 +7,14 @@ use db::authz::Rbac;
 use db::queries::{datasets::Dataset, models::Model};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(
+pub fn page(
     rbac: Rbac,
     team_id: i32,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
     can_set_visibility_to_company: bool,
-) -> Element {
-    rsx! {
+) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
@@ -159,5 +158,7 @@ pub fn Page(
                 can_set_visibility_to_company
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

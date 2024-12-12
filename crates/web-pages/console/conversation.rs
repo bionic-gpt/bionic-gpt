@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![allow(clippy::too_many_arguments)]
 use super::ChatWithChunks;
 use crate::app_layout::SideBar;
 use crate::console::model_popup::ModelPopup;
@@ -8,8 +9,7 @@ use db::authz::Rbac;
 use db::queries::prompts::{Prompt, SinglePrompt};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Conversation(
+pub fn page(
     team_id: i32,
     rbac: Rbac,
     chats_with_chunks: Vec<ChatWithChunks>,
@@ -18,10 +18,10 @@ pub fn Conversation(
     conversation_id: i64,
     lock_console: bool,
     is_tts_disabled: bool,
-) -> Element {
+) -> String {
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
-    rsx! {
+    let page = rsx! {
         super::layout::ConsoleLayout {
             team_id: team_id,
             rbac: rbac.clone(),
@@ -42,7 +42,9 @@ pub fn Conversation(
                 }
             )
         }
-    }
+    };
+
+    crate::render(page)
 }
 
 #[component]

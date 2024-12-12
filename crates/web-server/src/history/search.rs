@@ -7,7 +7,7 @@ use db::queries::models;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::{history, render_with_props, routes::history::Search};
+use web_pages::{history, routes::history::Search};
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct SearchForm {
@@ -50,14 +50,7 @@ pub async fn search(
         Default::default()
     };
 
-    let html = render_with_props(
-        history::results::Page,
-        history::results::PageProps {
-            team_id,
-            rbac,
-            history,
-        },
-    );
+    let html = history::results::page(rbac, team_id, history);
 
     Ok(Html(html))
 }

@@ -1,27 +1,26 @@
 #![allow(non_snake_case)]
+#![allow(clippy::too_many_arguments)]
 use crate::app_layout::SideBar;
 use crate::console::layout::ConsoleLayout;
 use crate::console::ChatWithChunks;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::queries::{conversations::History, prompts::SinglePrompt};
+use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(
+pub fn page(
     team_id: i32,
     rbac: Rbac,
     chats_with_chunks: Vec<ChatWithChunks>,
     prompt: SinglePrompt,
     conversation_id: i64,
-    history: Vec<History>,
     lock_console: bool,
     is_tts_disabled: bool,
-) -> Element {
+) -> String {
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
-    rsx! {
+    let page = rsx! {
         ConsoleLayout {
             selected_item: SideBar::Prompts,
             team_id: team_id,
@@ -65,5 +64,7 @@ pub fn Page(
                 }
             )
         }
-    }
+    };
+
+    crate::render(page)
 }

@@ -18,14 +18,7 @@ pub async fn index(
 
     let models = models::all_models().bind(&transaction).all().await?;
 
-    let html = web_pages::render_with_props(
-        web_pages::models::index::Page,
-        web_pages::models::index::PageProps {
-            team_id,
-            rbac,
-            models,
-        },
-    );
+    let html = web_pages::models::index::page(team_id, rbac, models);
 
     Ok(Html(html))
 }

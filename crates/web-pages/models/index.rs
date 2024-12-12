@@ -6,9 +6,8 @@ use db::authz::Rbac;
 use db::queries::models::ModelWithPrompt;
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(team_id: i32, rbac: Rbac, models: Vec<ModelWithPrompt>) -> Element {
-    rsx! {
+pub fn page(team_id: i32, rbac: Rbac, models: Vec<ModelWithPrompt>) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Models,
@@ -81,5 +80,7 @@ pub fn Page(team_id: i32, rbac: Rbac, models: Vec<ModelWithPrompt>) -> Element {
                 }
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

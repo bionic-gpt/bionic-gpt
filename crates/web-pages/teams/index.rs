@@ -6,15 +6,14 @@ use db::authz::Rbac;
 use db::{InviteSummary, TeamOwner};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(
+pub fn page(
     rbac: Rbac,
     team_id: i32,
     teams: Vec<TeamOwner>,
     invites: Vec<InviteSummary>,
     current_user_email: String,
-) -> Element {
-    rsx! {
+) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Switch,
@@ -234,5 +233,7 @@ pub fn Page(
                 }
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

@@ -4,8 +4,8 @@ use axum::response::Html;
 use db::authz;
 use db::queries::prompts;
 use db::Pool;
+use web_pages::console;
 use web_pages::routes::console::Index;
-use web_pages::{console, render_with_props};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -27,15 +27,7 @@ pub async fn index(
         .one()
         .await?;
 
-    let html = render_with_props(
-        console::index::NewConversation,
-        console::index::NewConversationProps {
-            team_id,
-            rbac,
-            prompt,
-            prompts,
-        },
-    );
+    let html = console::index::new_conversation(team_id, prompts, prompt, rbac);
 
     Ok(Html(html))
 }
