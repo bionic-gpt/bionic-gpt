@@ -10,19 +10,18 @@ use db::{queries::prompts::Prompt, Category, Dataset, Model};
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-#[component]
-pub fn Page(
+pub fn page(
     team_id: i32,
     rbac: Rbac,
     prompts: Vec<Prompt>,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
     categories: Vec<Category>,
-) -> Element {
+) -> String {
     // Get categories with more than one prompt
     let categories_with_prompts = get_categories_with_prompts(prompts.clone(), categories.clone());
 
-    rsx! {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
@@ -130,7 +129,9 @@ pub fn Page(
                 can_make_assistant_public: rbac.can_make_assistant_public()
             }
         }
-    }
+    };
+
+    crate::render(page)
 }
 
 #[component]

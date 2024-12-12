@@ -25,15 +25,12 @@ pub async fn index(
 
     let can_set_visibility_to_company = rbac.is_sys_admin;
 
-    let html = web_pages::render_with_props(
-        web_pages::datasets::index::Page,
-        web_pages::datasets::index::PageProps {
-            team_id,
-            rbac,
-            datasets,
-            models,
-            can_set_visibility_to_company,
-        },
+    let html = web_pages::datasets::index::page(
+        rbac,
+        team_id,
+        datasets,
+        models,
+        can_set_visibility_to_company,
     );
 
     Ok(Html(html))

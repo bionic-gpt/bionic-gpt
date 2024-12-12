@@ -3,7 +3,7 @@ use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
 use db::Pool;
-use web_pages::{render_with_props, routes::team::Index, team};
+use web_pages::{routes::team::Index, team};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -41,17 +41,7 @@ pub async fn index(
         "Team : No Name ".to_string()
     };
 
-    let html = render_with_props(
-        team::members::Page,
-        team::members::PageProps {
-            invites,
-            rbac,
-            members,
-            team,
-            user,
-            team_name,
-        },
-    );
+    let html = team::members::page(rbac, members, invites, team, user, team_name);
 
     Ok(Html(html))
 }

@@ -2,7 +2,7 @@ use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::{authz, queries, ModelType, Pool};
-use web_pages::{rate_limits, render_with_props, routes::rate_limits::Index};
+use web_pages::{rate_limits, routes::rate_limits::Index};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -24,15 +24,7 @@ pub async fn index(
         .all()
         .await?;
 
-    let html = render_with_props(
-        rate_limits::index::Page,
-        rate_limits::index::PageProps {
-            rbac,
-            team_id,
-            rate_limits,
-            models,
-        },
-    );
+    let html = rate_limits::index::page(rbac, team_id, rate_limits, models);
 
     Ok(Html(html))
 }

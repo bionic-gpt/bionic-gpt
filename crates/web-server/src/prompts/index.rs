@@ -4,7 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::Pool;
 use db::{queries, ModelType};
-use web_pages::{prompts, render_with_props, routes::prompts::Index};
+use web_pages::{prompts, routes::prompts::Index};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -36,17 +36,7 @@ pub async fn index(
         .all()
         .await?;
 
-    let html = render_with_props(
-        prompts::index::Page,
-        prompts::index::PageProps {
-            team_id,
-            rbac,
-            prompts,
-            datasets,
-            models,
-            categories,
-        },
-    );
+    let html = prompts::index::page(team_id, rbac, prompts, datasets, models, categories);
 
     Ok(Html(html))
 }

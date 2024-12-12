@@ -6,16 +6,15 @@ use db::authz::Rbac;
 use db::{Invitation, Member, Team, User};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(
+pub fn page(
     rbac: Rbac,
     members: Vec<Member>,
     invites: Vec<Invitation>,
     team: Team,
     user: User,
     team_name: String,
-) -> Element {
-    rsx! {
+) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Team,
@@ -225,5 +224,7 @@ pub fn Page(
                 submit_action: crate::routes::team::SetName{team_id:team.id}.to_string()
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

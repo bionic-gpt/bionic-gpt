@@ -4,7 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries::conversations;
 use db::Pool;
-use web_pages::{history, render_with_props, routes::history::Index};
+use web_pages::{history, routes::history::Index};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -18,14 +18,7 @@ pub async fn index(
 
     let history = conversations::history().bind(&transaction).all().await?;
 
-    let html = render_with_props(
-        history::index::Page,
-        history::index::PageProps {
-            team_id,
-            rbac,
-            history,
-        },
-    );
+    let html = history::index::page(rbac, team_id, history);
 
     Ok(Html(html))
 }

@@ -5,9 +5,8 @@ use daisy_rsx::*;
 use db::{authz::Rbac, Model, RateLimit};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<Model>) -> Element {
-    rsx! {
+pub fn page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<Model>) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::RateLimits,
@@ -45,5 +44,7 @@ pub fn Page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<M
                 models
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

@@ -8,10 +8,9 @@ use daisy_rsx::*;
 use db::{authz::Rbac, History};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
+pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
     let buckets = super::bucket_history(history);
-    rsx! {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::History,
@@ -50,5 +49,7 @@ pub fn Page(rbac: Rbac, team_id: i32, history: Vec<History>) -> Element {
                 }
             }
         }
-    }
+    };
+
+    crate::render(page)
 }

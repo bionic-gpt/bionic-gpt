@@ -3,7 +3,7 @@ use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::{queries, Pool};
-use web_pages::{pipelines, render_with_props, routes::document_pipelines::Index};
+use web_pages::{pipelines, routes::document_pipelines::Index};
 
 pub async fn index(
     Index { team_id }: Index,
@@ -25,15 +25,7 @@ pub async fn index(
         .all()
         .await?;
 
-    let html = render_with_props(
-        pipelines::index::Page,
-        pipelines::index::PageProps {
-            pipelines,
-            datasets,
-            team_id,
-            rbac,
-        },
-    );
+    let html = pipelines::index::page(team_id, rbac, pipelines, datasets);
 
     Ok(Html(html))
 }

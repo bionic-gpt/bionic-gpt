@@ -6,9 +6,8 @@ use db::authz::Rbac;
 use db::queries::{datasets::Dataset, documents::Document};
 use dioxus::prelude::*;
 
-#[component]
-pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>) -> Element {
-    rsx! {
+pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>) -> String {
+    let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
@@ -91,7 +90,9 @@ pub fn Page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                 }
             }
         }
-    }
+    };
+
+    crate::render(page)
 }
 
 #[component]
