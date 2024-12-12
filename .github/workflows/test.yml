@@ -1,0 +1,15 @@
+name: Debug Auto-Fix Workflow
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  debug-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug Event Payload
+        run: echo "${{ toJson(github.event) }}"
+      - name: Debug Environment Variables
+        run: env
