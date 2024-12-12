@@ -1,8 +1,7 @@
 name: Debug Auto-Fix Workflow
 
 on:
-  issues:
-    types: [labeled]
+  workflow_dispatch:
 
 jobs:
   debug-job:
