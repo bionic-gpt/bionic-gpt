@@ -8,7 +8,7 @@ pub mod pages;
 pub mod pages_summary;
 
 use axum::Router;
-use dioxus::prelude::{ComponentFunction, Element, VirtualDom};
+use dioxus::prelude::Element;
 use std::{fs, net::SocketAddr, path::Path};
 use tower_http::services::ServeDir;
 use tower_livereload::LiveReloadLayer;
@@ -76,8 +76,7 @@ async fn main() {
         .init();
 
     fs::create_dir_all("dist").expect("Couldn't create dist folder");
-    components::marketing::generate().await;
-    pages::home::generate().await;
+    generator::generate_marketing().await;
     generator::generate_docs(docs_summary::summary());
     generator::generate(blog_summary::summary());
     generator::generate_pages(pages_summary::summary()).await;
@@ -102,24 +101,7 @@ async fn main() {
     }
 }
 
-// Generic function to render a component and its props to a string
-pub fn render_with_props<P: Clone + 'static, M: 'static>(
-    root: impl ComponentFunction<P, M>,
-    root_props: P,
-) -> String {
-    let mut vdom = VirtualDom::new_with_props(root, root_props);
-    vdom.rebuild_in_place();
-    let html = dioxus_ssr::render(&vdom);
-    format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
-}
-
-async fn render(ele: fn() -> Element) -> String {
-    // create a VirtualDom with the app component
-    let mut vdom = VirtualDom::new(ele);
-    // rebuild the VirtualDom before rendering
-    vdom.rebuild_in_place();
-
-    // render the VirtualDom to HTML
-    let html = dioxus_ssr::render(&vdom);
+pub fn render(page: Element) -> String {
+    let html = dioxus_ssr::render_element(page);
     format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
 }

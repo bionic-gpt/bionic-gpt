@@ -6,7 +6,6 @@ pub mod features;
 pub mod footer;
 pub mod hero;
 pub mod image_feature;
-pub mod marketing;
 pub mod navigation;
 pub mod problem_solution;
 pub mod quad_feature;

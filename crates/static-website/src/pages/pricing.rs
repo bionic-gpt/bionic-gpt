@@ -4,9 +4,8 @@ use crate::components::navigation::Section;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
 
-#[component]
-pub fn Pricing() -> Element {
-    rsx! {
+pub fn pricing() -> String {
+    let page = rsx! {
         Layout {
             title: "Pricing",
             description: "Bionic Pricing",
@@ -149,5 +148,7 @@ pub fn Pricing() -> Element {
             }
             Footer {}
         }
-    }
+    };
+
+    crate::render(page)
 }

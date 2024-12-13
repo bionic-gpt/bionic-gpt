@@ -7,9 +7,8 @@ use crate::components::testamonials::Testamonials;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
 
-#[component]
-pub fn ContactPage() -> Element {
-    rsx! {
+pub fn contact_page() -> String {
+    let page = rsx! {
         Layout {
             title: "Enterprise Generative AI",
             mobile_menu: None,
@@ -72,5 +71,7 @@ pub fn ContactPage() -> Element {
             }
             Footer {}
         }
-    }
+    };
+
+    crate::render(page)
 }

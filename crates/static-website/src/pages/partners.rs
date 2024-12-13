@@ -7,9 +7,8 @@ use crate::components::testamonials::Testamonials;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
 
-#[component]
-pub fn PartnersPage() -> Element {
-    rsx! {
+pub fn partners_page() -> String {
+    let page = rsx! {
         Layout {
             title: "Partners",
             description: "Partners",
@@ -98,5 +97,7 @@ pub fn PartnersPage() -> Element {
             }
         }
         Footer {}
-    }
+    };
+
+    crate::render(page)
 }

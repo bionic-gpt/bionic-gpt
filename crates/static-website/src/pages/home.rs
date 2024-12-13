@@ -11,20 +11,9 @@ use crate::components::testamonials::Testamonials;
 use crate::components::video_hero::VideoHero;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
-use std::fs::File;
-use std::io::Write;
 
-pub async fn generate() {
-    let html = crate::render(HomePage).await;
-
-    let mut file = File::create("dist/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
-}
-
-#[component]
-pub fn HomePage() -> Element {
-    rsx! {
+pub fn home_page() -> String {
+    let page = rsx! {
         Layout {
             title: "Enterprise Generative AI",
             description: "The Industry Standard For Enterprise Generative AI",
@@ -186,5 +175,7 @@ pub fn HomePage() -> Element {
             }
             Footer {}
         }
-    }
+    };
+
+    crate::render(page)
 }
