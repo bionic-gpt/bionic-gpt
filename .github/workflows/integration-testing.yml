@@ -86,7 +86,7 @@ jobs:
         kubectl wait  --timeout=120s --for=condition=ready pod -l app=bionic-gpt -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready pod -l app=keycloak -n bionic-gpt
         kubectl wait  --timeout=120s --for=condition=ready pod -l app=oauth2-proxy -n bionic-gpt
-        kubectl wait  --timeout=120s --for=condition=ready pod -l app=rag-engine -n bionic-gpt
+        kubectl wait  --timeout=120s --for=condition=ready pod -l app=bionic-rag-engine -n bionic-gpt
         kubectl get pods -n bionic-gpt
 
     - name: A little bit more time to settle down
