@@ -1,15 +1,66 @@
-use super::super::layout::empty_string_is_none;
-use super::super::{CustomError, Jwt};
+use super::layout::empty_string_is_none;
+use super::{CustomError, Jwt};
 use axum::extract::Extension;
+use axum::response::Html;
 use axum::response::IntoResponse;
 use axum::Form;
+use axum::Router;
+use axum_extra::routing::RouterExt;
+use db::authz;
+use db::queries;
+use db::queries::models;
+use db::ModelType;
 use db::Pool;
-use db::{authz, Visibility};
-use db::{queries, ModelType};
+use db::Visibility;
 use serde::Deserialize;
 use validator::Validate;
+use web_pages::routes::models::Delete;
+use web_pages::routes::models::Index;
 use web_pages::routes::models::New;
 
+pub fn routes() -> Router {
+    Router::new()
+        .typed_get(loader)
+        .typed_post(upsert_action)
+        .typed_post(delete_action)
+}
+
+pub async fn loader(
+    Index { team_id }: Index,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<Html<String>, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let models = models::all_models().bind(&transaction).all().await?;
+
+    let html = web_pages::models::index::page(team_id, rbac, models);
+
+    Ok(Html(html))
+}
+
+pub async fn delete_action(
+    Delete { id, team_id }: Delete,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    // Create a transaction and setup RLS
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    queries::models::delete().bind(&transaction, &id).await?;
+
+    transaction.commit().await?;
+
+    super::layout::redirect_and_snackbar(
+        &web_pages::routes::models::Index { team_id }.to_string(),
+        "Model Deleted",
+    )
+}
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct ModelForm {
     pub id: Option<i32>,
@@ -34,7 +85,7 @@ pub struct ModelForm {
     pub example4: String,
 }
 
-pub async fn upsert(
+pub async fn upsert_action(
     New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
@@ -99,7 +150,7 @@ pub async fn upsert(
 
             transaction.commit().await?;
 
-            Ok(super::super::layout::redirect_and_snackbar(
+            Ok(super::layout::redirect_and_snackbar(
                 &web_pages::routes::models::Index { team_id }.to_string(),
                 "Model Updated",
             )
@@ -160,13 +211,13 @@ pub async fn upsert(
 
             transaction.commit().await?;
 
-            Ok(super::super::layout::redirect_and_snackbar(
+            Ok(super::layout::redirect_and_snackbar(
                 &web_pages::routes::models::Index { team_id }.to_string(),
                 "Model Created",
             )
             .into_response())
         }
-        (Err(_), _) => Ok(super::super::layout::redirect_and_snackbar(
+        (Err(_), _) => Ok(super::layout::redirect_and_snackbar(
             &web_pages::routes::models::Index { team_id }.to_string(),
             "Problem with Model Validation",
         )
