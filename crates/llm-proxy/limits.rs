@@ -3,7 +3,7 @@ use db::{
     Pool, Transaction,
 };
 
-use crate::CustomError;
+use crate::errors::CustomError;
 
 // Fetch the usage stats so far and compare with the limits
 // if we have gone over the limits return true

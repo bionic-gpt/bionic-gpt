@@ -9,6 +9,7 @@ path = "main.rs"
 
 [dependencies]
 db = { path = "../db" }
+llm-proxy = { path = "../llm-proxy" }
 object-storage = { path = "../object-storage" }
 assets = { path = "../web-assets" }
 web-pages = { path = "../web-pages" }
@@ -31,13 +32,6 @@ tracing-subscriber = { version="0", features = ["env-filter"] }
 # So we can store embeddings
 pgvector = { version = "0.3", features = ["postgres"] }
 
-# Tiktoken counts our token usage for prompts
-tiktoken-rs = { version = "0.5.4" }
-
-# llm_reverse_proxy
-tokio-stream = "0.1"
-reqwest = { version = "0", default-features = false, features = ["stream", "json", "rustls-tls"] }
-reqwest-eventsource = "0"
 serde_json = { version = "1" }
 
 # Generate secure invitations

@@ -1,5 +1,5 @@
+use crate::errors::CustomError;
 use crate::jwt::Jwt;
-use crate::CustomError;
 use axum::body::Body;
 use axum::extract::Request;
 use axum::response::Response;

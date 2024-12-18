@@ -8,8 +8,8 @@ use std::sync::Arc;
 
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
+use crate::errors::CustomError;
 use crate::jwt::Jwt;
-use crate::CustomError;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};

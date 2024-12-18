@@ -10,7 +10,6 @@ pub mod errors;
 pub mod history;
 pub mod jwt;
 pub mod layout;
-pub mod llm_reverse_proxy;
 pub mod metrics;
 pub mod models;
 pub mod oidc_endpoint;
@@ -51,7 +50,7 @@ async fn main() {
         .merge(datasets::routes())
         .merge(documents::routes())
         .merge(history::routes())
-        .merge(llm_reverse_proxy::routes())
+        .merge(llm_proxy::routes())
         .merge(models::routes())
         .merge(pipelines::routes())
         .merge(profile::routes())

@@ -56,6 +56,12 @@ impl From<axum::http::uri::InvalidUri> for CustomError {
     }
 }
 
+impl From<reqwest::Error> for CustomError {
+    fn from(err: reqwest::Error) -> CustomError {
+        CustomError::FaultySetup(err.to_string())
+    }
+}
+
 impl From<http::Error> for CustomError {
     fn from(err: http::Error) -> CustomError {
         CustomError::FaultySetup(err.to_string())
@@ -76,12 +82,6 @@ impl From<db::TokioPostgresError> for CustomError {
 
 impl From<db::PoolError> for CustomError {
     fn from(err: db::PoolError) -> CustomError {
-        CustomError::Database(err.to_string())
-    }
-}
-
-impl From<object_storage::StorageError> for CustomError {
-    fn from(err: object_storage::StorageError) -> CustomError {
         CustomError::Database(err.to_string())
     }
 }

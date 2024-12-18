@@ -3,7 +3,7 @@ use std::sync::Arc;
 use super::limits;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::Completion;
-use crate::CustomError;
+use crate::errors::CustomError;
 use axum::body::Body;
 use axum::extract::Request;
 use axum::response::{sse::Event, Sse};
