@@ -9,6 +9,9 @@ dev-setup:
     cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000
     cargo run --bin k8s-operator -- operator
 
+watch:
+    mold -run cargo watch --workdir /workspace/ -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"
+
 release-docker:
     #!/usr/bin/env bash
     export COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" -- infra-as-code/docker-compose.yml)

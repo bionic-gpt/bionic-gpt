@@ -1,0 +1,29 @@
+[package]
+name = "llm-proxy"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+db = { path = "../db" }
+embeddings-api = { path = "../embeddings-api" }
+
+axum = { version = "0.7", features = ["multipart"] }
+axum-extra = { version = "0", features = ["form"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+http = "1"
+tokio-stream = "0.1"
+reqwest = { version = "0", default-features = false, features = ["stream", "json", "rustls-tls"] }
+reqwest-eventsource = "0"
+serde_json = { version = "1" }
+serde = { version = "1", features = ["derive"] }
+tracing = { version = "0.1" }
+tracing-subscriber = { version="0", features = ["env-filter"] }
+tower-http = { version = "0.5", features = ["fs", "cors"] }
+
+# Tiktoken counts our token usage for prompts
+tiktoken-rs = { version = "0.5.4" }
+base64 = { version = "0.13.1" }
+time = "0.3.36"
