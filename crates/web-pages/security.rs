@@ -13,7 +13,7 @@ pub mod routes {
     use serde::Deserialize;
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/app/team/:team_id/security")]
+    #[typed_path("/app/team/{team_id}/security")]
     pub struct Index {
         pub team_id: i32,
     }

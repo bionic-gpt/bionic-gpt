@@ -37,13 +37,13 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/history")]
+        #[typed_path("/app/team/{team_id}/history")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/search")]
+        #[typed_path("/app/team/{team_id}/search")]
         pub struct Search {
             pub team_id: i32,
         }
@@ -54,19 +54,19 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/rate_limits")]
+        #[typed_path("/app/team/{team_id}/rate_limits")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/rate_limits/upsert")]
+        #[typed_path("/app/team/{team_id}/rate_limits/upsert")]
         pub struct Upsert {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/rate_limits/delete/:id")]
+        #[typed_path("/app/team/{team_id}/rate_limits/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,
@@ -78,19 +78,19 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/api_keys")]
+        #[typed_path("/app/team/{team_id}/api_keys")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/api_keys/new")]
+        #[typed_path("/app/team/{team_id}/api_keys/new")]
         pub struct New {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/api_keys/delete/:id")]
+        #[typed_path("/app/team/{team_id}/api_keys/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,
@@ -102,7 +102,7 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/audit_trail")]
+        #[typed_path("/app/team/{team_id}/audit_trail")]
         pub struct Index {
             pub team_id: i32,
         }
@@ -113,19 +113,19 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/pipelines")]
+        #[typed_path("/app/team/{team_id}/pipelines")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/pipelines/new")]
+        #[typed_path("/app/team/{team_id}/pipelines/new")]
         pub struct New {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/pipelines/delete/:id")]
+        #[typed_path("/app/team/{team_id}/pipelines/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,
@@ -137,32 +137,32 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/console")]
+        #[typed_path("/app/team/{team_id}/console")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/console/:conversation_id")]
+        #[typed_path("/app/team/{team_id}/console/{conversation_id}")]
         pub struct Conversation {
             pub team_id: i32,
             pub conversation_id: i64,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/send_message")]
+        #[typed_path("/app/team/{team_id}/send_message")]
         pub struct SendMessage {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/update_response")]
+        #[typed_path("/app/team/{team_id}/update_response")]
         pub struct UpdateResponse {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/console/delete/:id")]
+        #[typed_path("/app/team/{team_id}/console/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i64,
@@ -174,7 +174,7 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/assistant/:prompt_id/console/:conversation_id")]
+        #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/console/{conversation_id}")]
         pub struct Conversation {
             pub team_id: i32,
             pub prompt_id: i32,
@@ -182,46 +182,46 @@ pub mod routes {
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/new_chat/:prompt_id")]
+        #[typed_path("/app/team/{team_id}/new_chat/{prompt_id}")]
         pub struct NewChat {
             pub team_id: i32,
             pub prompt_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/my_prompts")]
+        #[typed_path("/app/team/{team_id}/my_prompts")]
         pub struct MyPrompts {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/prompts")]
+        #[typed_path("/app/team/{team_id}/prompts")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/prompts/:id/image")]
+        #[typed_path("/app/team/{team_id}/prompts/{id}/image")]
         pub struct Image {
             pub team_id: i32,
             pub id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/prompts/upsert")]
+        #[typed_path("/app/team/{team_id}/prompts/upsert")]
         pub struct Upsert {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/prompts/delete/:id")]
+        #[typed_path("/app/team/{team_id}/prompts/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/prompt/:prompt_id/delete_conv/:conversation_id")]
+        #[typed_path("/app/team/{team_id}/prompt/{prompt_id}/delete_conv/{conversation_id}")]
         pub struct DeleteConv {
             pub team_id: i32,
             pub prompt_id: i32,
@@ -234,19 +234,19 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/models")]
+        #[typed_path("/app/team/{team_id}/models")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/models/new")]
+        #[typed_path("/app/team/{team_id}/models/new")]
         pub struct New {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/models/delete/:id")]
+        #[typed_path("/app/team/{team_id}/models/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,
@@ -258,19 +258,19 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/datasets")]
+        #[typed_path("/app/team/{team_id}/datasets")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/datasets/upsert")]
+        #[typed_path("/app/team/{team_id}/datasets/upsert")]
         pub struct Upsert {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/datasets/delete/:id")]
+        #[typed_path("/app/team/{team_id}/datasets/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,
@@ -282,34 +282,34 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/dataset/:dataset_id/documents")]
+        #[typed_path("/app/team/{team_id}/dataset/{dataset_id}/documents")]
         pub struct Index {
             pub team_id: i32,
             pub dataset_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/bulk_import")]
+        #[typed_path("/app/team/{team_id}/bulk_import")]
         pub struct Bulk {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/dataset/:dataset_id/doc_upload")]
+        #[typed_path("/app/team/{team_id}/dataset/{dataset_id}/doc_upload")]
         pub struct Upload {
             pub team_id: i32,
             pub dataset_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/processing/:document_id")]
+        #[typed_path("/app/team/{team_id}/processing/{document_id}")]
         pub struct Processing {
             pub team_id: i32,
             pub document_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/delete_doc/:document_id")]
+        #[typed_path("/app/team/{team_id}/delete_doc/{document_id}")]
         pub struct Delete {
             pub team_id: i32,
             pub document_id: i32,
@@ -321,19 +321,19 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/delete_team")]
+        #[typed_path("/app/team/{team_id}/delete_team")]
         pub struct Delete {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/switch")]
+        #[typed_path("/app/team/{team_id}/switch")]
         pub struct Switch {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/new")]
+        #[typed_path("/app/team/{team_id}/new")]
         pub struct New {
             pub team_id: i32,
         }
@@ -348,44 +348,44 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id")]
+        #[typed_path("/app/team/{team_id}")]
         pub struct Index {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/teams_popup")]
+        #[typed_path("/app/team/{team_id}/teams_popup")]
         pub struct Popup {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/create_invite")]
+        #[typed_path("/app/team/{team_id}/create_invite")]
         pub struct CreateInvite {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/invite/:invite_selector/:invite_validator")]
+        #[typed_path("/app/invite/{invite_selector}/{invite_validator}")]
         pub struct AcceptInvite {
             pub invite_selector: String,
             pub invite_validator: String,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/delete")]
+        #[typed_path("/app/team/{team_id}/delete")]
         pub struct Delete {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/delete_invite")]
+        #[typed_path("/app/team/{team_id}/delete_invite")]
         pub struct DeleteInvite {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/set_name")]
+        #[typed_path("/app/team/{team_id}/set_name")]
         pub struct SetName {
             pub team_id: i32,
         }
@@ -396,19 +396,19 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/set_details")]
+        #[typed_path("/app/team/{team_id}/set_details")]
         pub struct SetDetails {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/profile")]
+        #[typed_path("/app/team/{team_id}/profile")]
         pub struct Profile {
             pub team_id: i32,
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/:team_id/profile_popup")]
+        #[typed_path("/app/team/{team_id}/profile_popup")]
         pub struct ProfilePopup {
             pub team_id: i32,
         }

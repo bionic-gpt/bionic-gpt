@@ -6,7 +6,7 @@ use db::{authz, queries, Pool, Transaction, Visibility};
 use validator::Validate;
 use web_pages::{routes::prompts::Upsert, string_to_visibility};
 
-#[derive(TryFromMultipart, Validate, Default, Debug)]
+#[derive(Validate, Default, Debug)]
 pub struct NewPromptTemplate {
     pub id: Option<i32>,
     #[validate(length(min = 1, message = "The name is mandatory"))]

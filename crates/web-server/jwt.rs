@@ -1,7 +1,6 @@
 use core::str;
 
 use axum::{
-    async_trait,
     extract::FromRequestParts,
     http::{request::Parts, StatusCode},
 };
@@ -35,7 +34,6 @@ impl From<Jwt> for authz::Authentication {
     }
 }
 
-#[async_trait]
 impl<S> FromRequestParts<S> for Jwt
 where
     S: Send + Sync,

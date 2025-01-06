@@ -53,7 +53,7 @@ pub fn routes() -> Router {
 }
 
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/completions/:chat_id")]
+#[typed_path("/completions/{chat_id}")]
 pub struct UICompletions {
     pub chat_id: i32,
 }
@@ -63,7 +63,7 @@ pub struct UICompletions {
 pub struct UISynthesize {}
 
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/v1/*path")]
+#[typed_path("/v1/{*path}")]
 pub struct LLMHandler {
     pub path: String,
 }
