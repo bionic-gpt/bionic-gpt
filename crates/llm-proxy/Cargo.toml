@@ -10,8 +10,8 @@ path = "lib.rs"
 db = { path = "../db" }
 embeddings-api = { path = "../embeddings-api" }
 
-axum = { version = "0.7", features = ["multipart"] }
-axum-extra = { version = "0", features = ["form"] }
+axum = { version = "0.8", features = ["multipart"] }
+axum-extra = { version = "0.10", features = ["form"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 http = "1"
 tokio-stream = "0.1"

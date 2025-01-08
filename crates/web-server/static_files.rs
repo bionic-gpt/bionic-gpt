@@ -7,7 +7,7 @@ use serde::Deserialize;
 use tokio_util::io::ReaderStream;
 
 #[derive(TypedPath, Deserialize)]
-#[typed_path("/static/*path")]
+#[typed_path("/static/{*path}")]
 pub struct StaticFilePath {
     pub path: String,
 }

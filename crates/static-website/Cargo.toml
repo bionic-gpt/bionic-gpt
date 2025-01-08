@@ -8,8 +8,8 @@ edition = "2021"
 
 
 [dependencies]
-axum = { version = "0.7", features = ["multipart"] }
-axum-extra = { version = "0", features = ["typed-routing"] }
+axum = { version = "0.8", features = ["multipart"] }
+axum-extra = { version = "0.10", features = ["typed-routing"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 tracing = { version = "0.1" }
 tracing-subscriber = { version="0", features = ["env-filter"] }

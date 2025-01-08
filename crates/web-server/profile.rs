@@ -17,8 +17,8 @@ use axum::{
 
 pub fn routes() -> Router {
     Router::new()
-        .route("/app/team/:team_id/profile", get(loader))
-        .route("/app/team/:team_id/set_details", post(set_details_action))
+        .route("/app/team/{team_id}/profile", get(loader))
+        .route("/app/team/{team_id}/set_details", post(set_details_action))
 }
 
 fn index_route(team_id: i32) -> String {
