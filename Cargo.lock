@@ -178,9 +178,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.79"
+version = "0.1.85"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a507401cad91ec6a857ed5513a2073c82a9b9048762b885bb98655b306964681"
+checksum = "3f934833b4b7233644e5848f235df3f57ed8c80f1528a26c3dfa13d2147fa056"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -219,46 +219,11 @@ dependencies = [
 
 [[package]]
 name = "axum"
-version = "0.7.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "edca88bc138befd0323b20752846e6587272d3b03b0343c8ea28a6f819e6e71f"
-dependencies = [
- "async-trait",
- "axum-core 0.4.5",
- "bytes",
- "futures-util",
- "http 1.1.0",
- "http-body 1.0.1",
- "http-body-util",
- "hyper 1.2.0",
- "hyper-util",
- "itoa",
- "matchit 0.7.2",
- "memchr",
- "mime",
- "multer",
- "percent-encoding",
- "pin-project-lite",
- "rustversion",
- "serde",
- "serde_json",
- "serde_path_to_error",
- "serde_urlencoded",
- "sync_wrapper 1.0.0",
- "tokio",
- "tower 0.5.2",
- "tower-layer",
- "tower-service",
- "tracing",
-]
-
-[[package]]
-name = "axum"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6d6fd624c75e18b3b4c6b9caf42b1afe24437daaee904069137d8bab077be8b8"
 dependencies = [
- "axum-core 0.5.0",
+ "axum-core",
  "bytes",
  "form_urlencoded",
  "futures-util",
@@ -268,7 +233,7 @@ dependencies = [
  "hyper 1.2.0",
  "hyper-util",
  "itoa",
- "matchit 0.8.4",
+ "matchit",
  "memchr",
  "mime",
  "multer",
@@ -282,27 +247,6 @@ dependencies = [
  "sync_wrapper 1.0.0",
  "tokio",
  "tower 0.5.2",
- "tower-layer",
- "tower-service",
- "tracing",
-]
-
-[[package]]
-name = "axum-core"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09f2bd6146b97ae3359fa0cc6d6b376d9539582c7b4220f041a33ec24c226199"
-dependencies = [
- "async-trait",
- "bytes",
- "futures-util",
- "http 1.1.0",
- "http-body 1.0.1",
- "http-body-util",
- "mime",
- "pin-project-lite",
- "rustversion",
- "sync_wrapper 1.0.0",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -334,8 +278,8 @@ version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "460fc6f625a1f7705c6cf62d0d070794e94668988b1c38111baeec177c715f7b"
 dependencies = [
- "axum 0.8.1",
- "axum-core 0.5.0",
+ "axum",
+ "axum-core",
  "axum-macros",
  "bytes",
  "form_urlencoded",
@@ -367,12 +311,13 @@ dependencies = [
 
 [[package]]
 name = "axum_typed_multipart"
-version = "0.14.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b29db77b984912b4ee7396b8f425d4e417e72c631c4ca4ee22120b1c5dcd3c2"
+checksum = "760cf4fe5d984ade7a516ef405df575e6c9fcfab49f20dc64589daa9a447b60a"
 dependencies = [
  "anyhow",
- "axum 0.7.9",
+ "async-trait",
+ "axum",
  "axum_typed_multipart_macros",
  "bytes",
  "futures-core",
@@ -382,9 +327,9 @@ dependencies = [
 
 [[package]]
 name = "axum_typed_multipart_macros"
-version = "0.14.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87986247727904b1ac050b1191218f4c433afd06ba0a734c47377c21ae192758"
+checksum = "eeffbb473f8141b23eff5deb5ea76d24b23eddefe1a25c3841cc4a3c373b7b53"
 dependencies = [
  "darling 0.20.3",
  "heck",
@@ -2187,7 +2132,7 @@ checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 name = "llm-proxy"
 version = "0.1.0"
 dependencies = [
- "axum 0.8.1",
+ "axum",
  "axum-extra",
  "base64 0.13.1",
  "db",
@@ -2257,12 +2202,6 @@ checksum = "8263075bb86c5a1b1427b5ae862e8889656f126e9f77c484496e8b47cf5c5558"
 dependencies = [
  "regex-automata 0.1.10",
 ]
-
-[[package]]
-name = "matchit"
-version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed1202b2a6f884ae56f04cff409ab315c5ce26b5e58d7412e484f01fd52f52ef"
 
 [[package]]
 name = "matchit"
@@ -3739,7 +3678,7 @@ dependencies = [
 name = "static-website"
 version = "0.1.0"
 dependencies = [
- "axum 0.8.1",
+ "axum",
  "axum-extra",
  "dioxus",
  "dioxus-ssr",
@@ -4717,7 +4656,7 @@ name = "web-pages"
 version = "0.1.0"
 dependencies = [
  "assets",
- "axum 0.8.1",
+ "axum",
  "axum-extra",
  "comrak",
  "daisy_rsx",
@@ -4733,7 +4672,7 @@ name = "web-server"
 version = "0.1.0"
 dependencies = [
  "assets",
- "axum 0.8.1",
+ "axum",
  "axum-extra",
  "axum_typed_multipart",
  "base64 0.13.1",
