@@ -5,13 +5,13 @@
 INSERT INTO chats 
     (conversation_id, prompt_id, user_request, prompt)
 VALUES
-    (:conversation_id, :prompt_id, :user_request, :prompt)
+    (:conversation_id, :prompt_id, encrypt_text(:user_request), :prompt)
 RETURNING id;
     
 --! update_chat
 UPDATE chats 
 SET 
-    response = :response,
+    response = encrypt_text(:response),
     tokens_received = :tokens_received,
     status = :chat_status
 WHERE
@@ -23,7 +23,7 @@ AND
 --! update_prompt
 UPDATE chats 
 SET 
-    prompt = :prompt,
+    prompt = encrypt_text(:prompt),
     tokens_sent = :tokens_sent
 WHERE
     id = :chat_id
@@ -35,11 +35,11 @@ AND
 SELECT
     id,
     conversation_id,
-    user_request,
-    prompt,
+    decrypt_text(user_request) as user_request,
+    decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
-    response,
+    decrypt_text(response) as response,
     created_at,
     updated_at
 FROM 
@@ -55,11 +55,11 @@ ORDER BY updated_at;
 SELECT
     id,
     conversation_id,
-    user_request,
-    prompt,
+    decrypt_text(user_request) as user_request,
+    decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
-    response,
+    decrypt_text(response) as response,
     created_at,
     updated_at
 FROM 
@@ -78,11 +78,11 @@ LIMIT :limit;
 SELECT
     id,
     conversation_id,
-    user_request,
-    prompt,
+    decrypt_text(user_request) as user_request,
+    decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
-    response,
+    decrypt_text(response) as response,
     created_at,
     updated_at
 FROM 
