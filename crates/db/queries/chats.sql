@@ -5,7 +5,7 @@
 INSERT INTO chats 
     (conversation_id, prompt_id, user_request, prompt)
 VALUES
-    (:conversation_id, :prompt_id, encrypt_text(:user_request), :prompt)
+    (:conversation_id, :prompt_id, encrypt_text(:user_request), encrypt_text(:prompt))
 RETURNING id;
     
 --! update_chat

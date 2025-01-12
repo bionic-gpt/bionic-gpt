@@ -36,6 +36,8 @@ services:
 
       FILE_UPLOAD_FEATURE: 1
 
+      CUSTOMER_KEY: '190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949'
+
       INVITE_DOMAIN: http://envoy:7700
       INVITE_FROM_EMAIL_ADDRESS: support@application.com
       SMTP_HOST: smtp
