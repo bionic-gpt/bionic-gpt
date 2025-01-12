@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 INSERT INTO chunks (
                                     document_id,
                                     page_number,
-                                    text
+                                    encrypt_text(text)
                                 ) 
                                 VALUES 
                                     ($1, $2, $3)",

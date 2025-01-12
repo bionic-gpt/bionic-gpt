@@ -1,7 +1,7 @@
 --! unprocessed_chunks : Chunk(api_key?)
 SELECT
     id,
-    text,
+    decrypt_text(text) as text,
     (SELECT 
         base_url 
     FROM 

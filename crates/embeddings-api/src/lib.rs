@@ -65,13 +65,20 @@ pub async fn get_embeddings(
     //send request
     let response = request.send().await?;
 
-    let result = response.json::<EmbeddingResponse>().await?;
-
-    if let Some(result) = result.data.first() {
-        tracing::info!("Processing {} bytes", result.embedding.len());
-        Ok(result.embedding.clone())
+    if response.status().is_client_error() {
+        tracing::error!("Problem with request: {:?}", response);
+        let response_text = response.text().await?;
+        tracing::error!("{:?}", response_text);
+        Err("Problem with request")?
     } else {
-        tracing::error!("Problem looking at results from API");
-        Err("Problem generating embeddings")?
+        let result = response.json::<EmbeddingResponse>().await?;
+
+        if let Some(result) = result.data.first() {
+            tracing::info!("Processing {} bytes", result.embedding.len());
+            Ok(result.embedding.clone())
+        } else {
+            tracing::error!("Problem looking at results from API");
+            Err("Problem generating embeddings")?
+        }
     }
 }
