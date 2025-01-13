@@ -350,4 +350,6 @@ Supakube
  - docs/guides/uploading-documents/index.md
 n8n
  - docs/guides/encryption-at-rest/index.md
+HSM
+Hashicorp
 env
