@@ -34,7 +34,7 @@ services:
       
   # Handles routing between our containers
   envoy:
-    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.9.0
+    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.9.1
     ports:
       - "3000:7700"
 
@@ -55,7 +55,7 @@ services:
 
   # Sets up our database tables
   migrations:
-    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.9.0
+    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.9.1
     platform: linux/amd64
     environment:
       DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
@@ -65,7 +65,7 @@ services:
   
   # Parses documents into chunks and creates embeddings.
   rag-engine:
-    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.9.0
+    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.9.1
     platform: linux/amd64
     environment:
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
@@ -77,7 +77,7 @@ services:
   
   # Our axum server delivering our user interface
   app:
-    image: ghcr.io/bionic-gpt/bionicgpt:1.9.0
+    image: ghcr.io/bionic-gpt/bionicgpt:1.9.1
     platform: linux/amd64
     environment:
       SIGNOUT_URL: /auth/sign_out
