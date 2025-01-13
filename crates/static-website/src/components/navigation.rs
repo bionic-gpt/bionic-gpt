@@ -108,22 +108,7 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                     a {
                         href: marketing::Index {}.to_string(),
                         span {
-                            class: "pl-5 flex flex-row gap-2",
-                            svg {
-                                view_box: "0 0 48 48",
-                                width: "22",
-                                height: "22",
-                                xmlns: "http://www.w3.org/2000/svg",
-                                fill: "currentColor",
-
-                                g {
-                                    path {
-                                        d: "M4.5,35.48,14.78,24,4.5,12.51h7.09L21.88,24,11.59,35.48Zm35.51,
-                                        0H25.13a3.2,3.2,0,0,1,0-6.38H40a3.2,3.2,0,1,1,
-                                        .57,6.38A5.42,5.42,0,0,1,40,35.48Z",
-                                    }
-                                }
-                            }
+                            class: "pl-3 flex flex-row gap-2",
                             strong {
                                 "Bionic-GPT"
                             }
@@ -159,7 +144,7 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                     }
                 }
                 div { class: "hidden lg:flex",
-                    ul { class: "menu menu-horizontal px-5",
+                    ul { class: "menu menu-horizontal px-3",
                         li {
                             a {
                                 href: "https://github.com/bionic-gpt/bionic-gpt",

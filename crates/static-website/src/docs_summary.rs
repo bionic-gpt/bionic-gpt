@@ -229,6 +229,18 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
+                        title: "Encryption at Rest",
+                        description: "Encryption at Rest",
+                        folder: "docs/guides/encryption-at-rest/",
+                        markdown: include_str!(
+                            "../content/docs/guides/encryption-at-rest/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
                         title: "Automating Document Upload",
                         description: "Automating Document Upload",
                         folder: "docs/guides/uploading-documents/",

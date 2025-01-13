@@ -90,7 +90,7 @@ async fn main() {
 
         // build our application with a route
         let app = Router::new()
-            .nest_service("/", ServeDir::new("dist"))
+            .fallback_service(ServeDir::new("dist"))
             .layer(LiveReloadLayer::new());
 
         let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
