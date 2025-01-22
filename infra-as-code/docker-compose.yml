@@ -34,7 +34,7 @@ services:
       
   # Handles routing between our containers
   envoy:
-    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.9.1
+    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.8.31
     ports:
       - "3000:7700"
 
