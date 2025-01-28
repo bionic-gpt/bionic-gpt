@@ -70,6 +70,7 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 1. Use `k9s` to check the status of the services.
 1. When all the services are loaded you can check by running `db` you should now have access to the database.
 1. `dbmate up` to create the database tables
-1. Run `wp` to run and watch the Typescript/Tailwind pipeline.
+1. Run `wp` to run and watch the Typescript pipeline.
+1. Run `wt` to run and watch the Tailwind pipeline.
 1. Run `wa` to build and watch the Bionic server.
 1. You can now access the front end on `http://localhost:7703`.
