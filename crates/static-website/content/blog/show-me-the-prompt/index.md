@@ -2,7 +2,7 @@
 
 1. Using Helicone to capture requests and responses.
 1. Simple Test
-1. Cline repsons eand request
+1. Cline response and request
 1. Aider response and request
 
 ## Intercepting requests with Helicone
