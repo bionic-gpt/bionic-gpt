@@ -27,6 +27,7 @@ import { updateSidebar } from './typescript/layout/update-sidebar'
 import { refreshFrame } from './typescript/layout/refresh-frame'
 import { disableSubmitButton } from './typescript/disable-submit-button'
 import { themeSwitcher, setTheme } from './typescript/layout/theme-switcher'
+import { speechToText } from './typescript/console/speach-to-text';
 
 // Hotwired Turbo
 import '@hotwired/turbo'
@@ -46,6 +47,7 @@ function loadEverything() {
     selectMenu()
     modelChanged()
     copy()
+    speechToText()
     readAloud()
     initializeSidebar()
     rememberForm()

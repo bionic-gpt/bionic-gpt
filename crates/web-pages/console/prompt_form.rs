@@ -6,6 +6,30 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
+fn SpeechToTextButton(lock_console: bool) -> Element {
+    rsx! {
+        if lock_console {
+            a {
+                id: "speech-to-text-button",
+                class: "h-8 w-8 p-2 bg-primary rounded-full",
+            }
+        } else {
+            button {
+                id: "speech-to-text-button",
+                class: "h-8 w-8 p-2 bg-secondary rounded-full",
+                type: "button",
+                img {
+                    id: "speech-to-text-icon",
+                    width: "48",
+                    height: "48",
+                    src: stt_start_recording_svg.name,
+                }
+            }
+        }
+    }
+}
+
+#[component]
 fn AttachButton() -> Element {
     rsx! {
         div {
@@ -79,6 +103,7 @@ pub fn Form(
                 "data-remember-reset": "false",
                 action: routes::console::SendMessage{team_id}.to_string(),
 
+
                 if let Some(conversation_id) = conversation_id {
                     input {
                         "type": "hidden",
@@ -99,6 +124,10 @@ pub fn Form(
                     placeholder: "Ask a question...",
                     name: "message",
                     disabled: lock_console
+                }
+
+                SpeechToTextButton {
+                    lock_console
                 }
 
                 SendMessageButton {
