@@ -63,6 +63,7 @@ export const speechToText = (): void => {
         if (textArea) {
             textAreaValue = textArea.value;
         }
+        finalTranscript = ''; // Reset finalTranscript
         isListening = true;
         if (button) {
             button.innerHTML = recordingSVG;   
