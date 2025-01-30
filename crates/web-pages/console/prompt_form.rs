@@ -11,18 +11,18 @@ fn SpeechToTextButton(lock_console: bool) -> Element {
         if lock_console {
             a {
                 id: "speech-to-text-button",
-                class: "h-8 w-8 p-2 bg-primary rounded-full",
+                class: "h-12 w-12 p-2 rounded-full hidden",
             }
         } else {
             button {
                 id: "speech-to-text-button",
-                class: "h-8 w-8 p-2 bg-secondary rounded-full",
+                class: "h-12 w-12 p-2 rounded-full hidden",
                 type: "button",
                 img {
                     id: "speech-to-text-icon",
-                    width: "48",
-                    height: "48",
-                    src: stt_start_recording_svg.name,
+                    width: "32",
+                    height: "32",
+                    src: black_microphone_svg.name,
                 }
             }
         }
@@ -118,6 +118,10 @@ pub fn Form(
                     value: "{prompt_id}"
                 }
 
+                SpeechToTextButton {
+                    lock_console
+                }
+
                 TextArea {
                     class: "pt-3 auto-expand max-h-96 text-sm submit-on-enter flex-1 resize-none",
                     rows: "1",
@@ -126,9 +130,6 @@ pub fn Form(
                     disabled: lock_console
                 }
 
-                SpeechToTextButton {
-                    lock_console
-                }
 
                 SendMessageButton {
                     lock_console
