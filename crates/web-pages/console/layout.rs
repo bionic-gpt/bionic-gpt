@@ -42,7 +42,7 @@ pub fn ConsoleLayout(
                         crate::console::empty_stream::EmptyStream {
                             prompt: prompt.clone(),
                             team_id
-                        }
+                        },
                     }
                 }
                 div {
@@ -52,7 +52,7 @@ pub fn ConsoleLayout(
                         lock_console: lock_console,
                         conversation_id,
                         disclaimer: prompt.disclaimer
-                    }
+                    },
                 }
             }
         }
