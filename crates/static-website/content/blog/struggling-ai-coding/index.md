@@ -1,13 +1,13 @@
 ## Overview
 
-1. Don't belive the hype
+1. Don't believe the hype
 1. Where is this coming from?
 1. Frustration
-1. Trying to fix an issue and cretae A PR.
+1. Trying to fix an issue and create A PR.
 1. Full stack buildout (clone a startup)
 1. The Future
 
-## Don't belive the hype
+## Don't believe the hype
 
 
 ![Alt text](a-coding-hype.png "AI Coding Hype")

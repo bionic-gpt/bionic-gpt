@@ -132,6 +132,7 @@ analyze
 Pseudonymization
 fulfill
 Afterward
+startup
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -356,3 +357,7 @@ env
  - blog/show-me-the-prompt/index.md
 Helicone
 MCP
+ - blog/struggling-ai-coding/index.md
+buildout
+dios
+todo
