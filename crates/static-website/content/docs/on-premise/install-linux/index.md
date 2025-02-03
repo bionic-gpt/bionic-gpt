@@ -28,7 +28,7 @@ kubectl get pods
 ## 4. Install the Bionic CLI
 
 ```sh
-export BIONIC_VERSION=v1.8.26
+export BIONIC_VERSION=v1.9.1
 curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/${BIONIC_VERSION}/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
