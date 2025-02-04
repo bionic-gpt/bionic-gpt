@@ -69,6 +69,11 @@ pub fn Layout(props: LayoutProps) -> Element {
             }
             script {
                 "async": "true",
+                src: "/copy-paste.js"
+
+            }
+            script {
+                "async": "true",
                 src: "https://unpkg.com/htmx.org@2.0.3"
             }
         }
