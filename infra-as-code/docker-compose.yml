@@ -31,27 +31,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      
-  # Handles routing between our containers
-  envoy:
-    image: ghcr.io/bionic-gpt/bionicgpt-envoy:1.8.31
-    ports:
-      - "3000:7700"
 
-  # Configure Authn Proxy to listen on port 9090 and reverse proxy nginx on port 80.
-  barricade:
-    image: purtontech/barricade:1.2.10
-    environment:
-        # This secret key is used to encrypt cookies.
-        SECRET_KEY: 190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949
-        DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
-        REDIRECT_URL: /app/post_registration
-        USER_TABLE_NAME: 'barricade_users'
-    depends_on:
-      postgres:
-        condition: service_healthy
-      migrations:
-        condition: service_completed_successfully
 
   # Sets up our database tables
   migrations:
@@ -80,11 +60,12 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt:1.9.2
     platform: linux/amd64
     environment:
-      SIGNOUT_URL: /auth/sign_out
-      ENABLE_BARRICADE: 1
+      DANGER_JWT_OVERRIDE: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
+    ports:
+      - "3000:7703"
