@@ -114,6 +114,18 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
+                        title: "Install with the Bionic Operator",
+                        description: "Using the Operator",
+                        folder: "docs/on-premise/install-operator/",
+                        markdown: include_str!(
+                            "../content/docs/on-premise/install-operator/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
                         title: "Install AWS",
                         description: "Install AWS",
                         folder: "docs/on-premise/aws/",

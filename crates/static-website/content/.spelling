@@ -361,3 +361,9 @@ MCP
 buildout
 dios
 todo
+ - docs/on-premise/install-operator/index.md
+CRD
+CloudNativePG
+Nginx
+CustomResourceDefinition
+struct
