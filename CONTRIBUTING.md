@@ -1,7 +1,7 @@
 # Rules and Guidelines
 
 This is a [Rust on Nails](https://rust-on-nails.com/) project using Rust to build a full stack web application.
-All of the pages are generated server side with a little bit of Htmx or Webassembly on the front end to add interactivity when needed.
+All of the pages are generated server side with a little bit of Typescript on the front end to add interactivity when needed.
 
 ## Tech Stack
 
