@@ -234,9 +234,9 @@ fn SystemPromptTab(system_prompt: String) -> Element {
         div {
             class: "flex flex-col mt-3",
             TextArea {
-                class: "mt-3 resize-none",
+                class: "mt-3 font-mono leading-tight overflow-y-auto",
                 name: "system_prompt",
-                rows: "8",
+                rows: "32",
                 label: "System Prompt",
                 label_class: "mt-4",
                 "{system_prompt}",

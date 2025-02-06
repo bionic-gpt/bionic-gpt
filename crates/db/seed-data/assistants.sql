@@ -159,9 +159,58 @@ WITH prompts_array AS (
          'image0.svg'                                        -- image_icon_object_id
         ),
         -- Prompt 2
-        ('HR Support Assistant',                                       -- name
-         'A specialized AI language model designed to assist with a wide range of human resources tasks and inquiries. Trained on comprehensive HR materials—including employment laws, organizational policies, and best practices.',  -- description
-         'Here are some frequently asked questions.',        -- system_prompt
+        ('Typescript Component Generator',                                       -- name
+         'A Typescript component generator',  -- description
+         '
+## Purpose
+
+You are an experienced Typescript programmer. The user is running an enterprise web application mostly serving pages from the server side.
+
+Occasionally they need a bit of interactivity on the front end.
+
+The user will request a component and you will respond with the component in Typescript.
+
+## Example
+
+Here is an example component so you know how they should look
+
+```typescript
+export const copy = () => {
+    const copyIcons = document.querySelectorAll(''.copy-response'');
+
+    copyIcons.forEach((copyIcon) => {
+
+        copyIcon.addEventListener(''click'', () => {
+
+            const parent = copyIcon.parentElement;
+            const previousElement = parent?.parentElement?.previousElementSibling;
+
+            const clickedImage = copyIcon.getAttribute("clicked-img");
+    
+            if (previousElement && clickedImage && copyIcon instanceof HTMLImageElement) {
+                const previousElementContent = previousElement.innerHTML;
+                copyToClipboard(previousElementContent);
+                const originalImage = copyIcon.src;
+                copyIcon.src = clickedImage;
+
+                setTimeout(() => {
+                    copyIcon.src = originalImage;
+                }, 3000);
+            }
+        });
+    });
+};
+
+function copyToClipboard(text: string): void {
+    const textarea = document.createElement(''textarea'');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand(''copy'');
+    document.body.removeChild(textarea);
+}
+```
+',        -- system_prompt
          ARRAY['What are the legal requirements for handling employee personal data under GDPR?',                 -- example1
                'How do I develop an effective employee performance evaluation system?',                    -- example2
                'Can you guide me through the process of creating a job posting that is inclusive?',                     -- example3
