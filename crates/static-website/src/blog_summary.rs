@@ -8,8 +8,8 @@ pub fn summary() -> Summary {
             pages: vec![
                 Page {
                     date: "2025-02-08",
-                    title: "The future for Junior Developers in the age of AI",
-                    description: "Advice for Junior Developers in the age of AI",
+                    title: "The Future Opportunities for Junior Developers in the Age of AI Coding",
+                    description: "The Future Opportunities for Junior Developers in the Age of AI Coding - An Architects Perspective",
                     folder: "blog/junior-developers/",
                     markdown: include_str!("../content/blog/junior-developers/index.md"),
                     image: Some("/blog/junior-developers/junior-developer.png"),
