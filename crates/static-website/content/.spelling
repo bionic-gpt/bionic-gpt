@@ -133,6 +133,7 @@ Pseudonymization
 fulfill
 Afterward
 startup
+microservices
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -374,4 +375,6 @@ GCP
 DL
 TensorFlow
 PyTorch
+Toolchains
+anymore
 FAANG
