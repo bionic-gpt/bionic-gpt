@@ -8,11 +8,11 @@ pub fn summary() -> Summary {
             pages: vec![
                 Page {
                     date: "2025-02-18",
-                    title: "AI Coding : Building a Production React App From a Mockup",
-                    description: "AI Coding : From Mockup to Production React Application",
+                    title: "AI Coding : Workflow for Creating React Applications",
+                    description: "AI Coding : Workflow for Creating React Applications",
                     folder: "blog/mockup-to-react-app/",
                     markdown: include_str!("../content/blog/mockup-to-react-app/index.md"),
-                    image: Some("/blog/junior-developers/junior-developer.png"),
+                    image: Some("/blog/mockup-to-react-app/react-llama.webp"),
                     author_image: Some("/blog-authors/ian-purton.jpeg"),
                     author: Some("Ian Purton")
                 },

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Application Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+        }
+        #menu {
+            width: 200px;
+            background-color: #f3f4f6;
+            padding: 10px;
+        }
+        #content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <ul>
+            <li><button onclick="showEntity('aircraft')">Aircraft</button></li>
+            <li><button onclick="showEntity('airlines')">Airlines</button></li>
+            <li><button onclick="showEntity('users')">Users</button></li>
+        </ul>
+    </div>
+    <div id="content">
+        <div id="aircraft" class="hidden">
+            <h2>Aircraft</h2>
+            <table id="aircraftTable" class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ID</th>
+                        <th>Airline</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="showForm('aircraft')">Add Aircraft</button>
+        </div>
+        <div id="airlines" class="hidden">
+            <h2>Airlines</h2>
+            <table id="airlinesTable" class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="showForm('airlines')">Add Airline</button>
+        </div>
+        <div id="users" class="hidden">
+            <h2>Users</h2>
+            <table id="usersTable" class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="showForm('users')">Add User</button>
+        </div>
+        <div id="form" class="hidden">
+            <h2 id="formTitle"></h2>
+            <form id="entityForm" onsubmit="submitForm(event)">
+                <div id="formFields"></div>
+                <button type="submit">Submit</button>
+                <button type="button" onclick="cancelForm()">Cancel</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        const data = {
+            aircraft: [],
+            airlines: [],
+            users: []
+        };
+
+        function showEntity(entity) {
+            document.querySelectorAll('#content > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(entity).classList.remove('hidden');
+            renderTable(entity);
+        }
+
+        function renderTable(entity) {
+            const tableBody = document.querySelector(`#${entity}Table tbody`);
+            tableBody.innerHTML = '';
+            data[entity].forEach((item, index) => {
+                const row = document.createElement('tr');
+                Object.values(item).forEach(value => {
+                    const cell = document.createElement('td');
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+                const actionsCell = document.createElement('td');
+                actionsCell.innerHTML = `<button onclick="editEntity('${entity}', ${index})">Edit</button>`;
+                row.appendChild(actionsCell);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function showForm(entity, index = null) {
+            document.querySelectorAll('#content > div').forEach(div => div.classList.add('hidden'));
+            const form = document.getElementById('form');
+            form.classList.remove('hidden');
+            const formTitle = document.getElementById('formTitle');
+            const formFields = document.getElementById('formFields');
+            formFields.innerHTML = '';
+            formTitle.textContent = index === null ? `Add ${entity}` : `Edit ${entity}`;
+            const fields = entity === 'users' ? ['name', 'id', 'email'] : ['name', 'id'];
+            if (entity === 'aircraft') fields.push('airline');
+            fields.forEach(field => {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = field;
+                input.placeholder = field.charAt(0).toUpperCase() + field.slice(1);
+                if (index !== null) input.value = data[entity][index][field];
+                formFields.appendChild(input);
+            });
+            form.dataset.entity = entity;
+            form.dataset.index = index;
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            const form = event.target;
+            const entity = form.dataset.entity;
+            const index = form.dataset.index;
+            const formData = new FormData(form);
+            const newItem = {};
+            formData.forEach((value, key) => {
+                newItem[key] = value;
+            });
+            if (index === 'null') {
+                data[entity].push(newItem);
+            } else {
+                data[entity][index] = newItem;
+            }
+            showEntity(entity);
+        }
+
+        function editEntity(entity, index) {
+            showForm(entity, index);
+        }
+
+        function cancelForm() {
+            const entity = document.getElementById('entityForm').dataset.entity;
+            showEntity(entity);
+        }
+    </script>
+</body>
+</html>

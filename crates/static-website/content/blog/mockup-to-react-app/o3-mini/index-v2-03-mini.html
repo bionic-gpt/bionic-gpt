@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My CRUD Application - Login</title>
+  <link rel="stylesheet" href="css-v2-03-mini.css">
+  <script src="js-v2-03-mini.js" defer></script>
+</head>
+<body>
+  <div id="auth-container">
+    <section id="login">
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for="login-username">Username:</label>
+        <input type="text" id="login-username" name="username" value="demoUser">
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" name="password" value="password123">
+        <button type="submit">Login</button>
+      </form>
+    </section>
+    <section id="register">
+      <h2>Register</h2>
+      <form id="register-form">
+        <label for="register-username">Username:</label>
+        <input type="text" id="register-username" name="username">
+        <label for="register-email">Email:</label>
+        <input type="email" id="register-email" name="email">
+        <label for="register-password">Password:</label>
+        <input type="password" id="register-password" name="password">
+        <button type="submit">Register</button>
+      </form>
+    </section>
+  </div>
+  <div id="app-container" style="display:none;">
+    <header>
+      <div class="logo">
+        <img src="fake-logo.png" alt="Company Logo">
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#landing">Home</a></li>
+          <li><a href="#aircraft">Aircraft</a></li>
+          <li><a href="#pilots">Pilots</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section id="landing">
+        <h1>Welcome to Our Amazing SaaS Application</h1>
+        <p>Experience the future of CRUD operations with our innovative platform.</p>
+      </section>
+      <section id="aircraft">
+        <h2>Aircraft Management</h2>
+        <div id="aircraft-crud">
+          <p>Aircraft CRUD operations placeholder.</p>
+        </div>
+      </section>
+      <section id="pilots">
+        <h2>Pilots Management</h2>
+        <div id="pilots-crud">
+          <p>Pilots CRUD operations placeholder.</p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>&copy; 2025 Company Name. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>

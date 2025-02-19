@@ -35,10 +35,21 @@ Make sure to add demo data for each entity.
 - Use tailwind css from a CDN for styling.
 ```
 
+### The Results
+
+I actually tried a variety of models with varying results.
+
+- [Gemini](./gemini/index-v1-gemini.html)
+- [o3 mini](./o3-mini/index-v1-03-mini.html)
+- [sonnet](./sonnet/index-v1-sonnet.html)
+- [qwen](./qwen/index-v1-qwen.html)
+- [GPT 4o](./gpt-4o/index-v1-gpt4o.html)
+
 ### The Issues
 
 - Different models very different results 
 - API issues
+- Whole day couldn't get things working
 
 ## Extending the Mockup
 
@@ -68,7 +79,25 @@ The files are a HTML,CSS and Javascript mockup of a CRUD application. Using our 
 - Add a landing page and highlight our amazing SaaS application
 ```
 
+### The Results
+
+I actually tried a variety of models with varying results.
+
+- [Gemini](./gemini/index-v2-gemini.html)
+- [o3 mini](./o3-mini/index-v2-03-mini.html)
+- [sonnet](./sonnet/index-v2-sonnet.html)
+- [qwen](./qwen/index-v2-qwen.html)
+- [GPT 4o](./gpt-4o/index-v2-gpt4o.html)
+
 ## CONTRIBUTING.md
+
+[CONTRIBUTING.md](https://gist.github.com/242816/2fd63f5b3a95c4149f7ac02e0be870ca)
+
+## Setting up an application
+
+```sh
+pnpm create t3-app@latest --noGit --CI --drizzle --tailwind --dbProvider sqlite --appRouter
+```
 
 ## Plan our React APP
 

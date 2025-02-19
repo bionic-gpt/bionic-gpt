@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css-v1-qwen.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex">
+        <aside class="w-64 bg-gray-800 text-white">
+            <div class="p-4">
+                <h2 class="text-xl font-bold mb-4">Entities</h2>
+                <ul>
+                    <li class="mb-2">
+                        <a href="#" class="block px-4 py-2 bg-gray-700 rounded hover:bg-gray-600" onclick="showTable('aircraft')">Aircraft</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="block px-4 py-2 bg-gray-700 rounded hover:bg-gray-600" onclick="showTable('airlines')">Airlines</a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" class="block px-4 py-2 bg-gray-700 rounded hover:bg-gray-600" onclick="showTable('users')">Users</a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        <main class="flex-1 p-4">
+            <div id="content" class="mt-4">
+                <!-- Content will be dynamically loaded here -->
+            </div>
+        </main>
+    </div>
+    <script src="js-v1-qwen.js"></script>
+</body>
+</html>

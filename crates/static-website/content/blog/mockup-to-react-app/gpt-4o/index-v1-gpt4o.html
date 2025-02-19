@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Application Prototype</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+        #menu {
+            width: 200px;
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        #menu ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #menu li {
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        #content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <ul>
+            <li onclick="showEntity('aircraft')">Aircraft</li>
+            <li onclick="showEntity('airlines')">Airlines</li>
+            <li onclick="showEntity('users')">Users</li>
+        </ul>
+    </div>
+    <div id="content">
+        <div id="aircraft" class="entity">
+            <h2>Aircraft</h2>
+            <button onclick="showForm('aircraft')">Add/Edit Aircraft</button>
+            <table>
+                <tr><th>ID</th><th>Name</th><th>Airline</th></tr>
+                <!-- Aircraft data rows go here -->
+            </table>
+        </div>
+        <div id="airlines" class="entity">
+            <h2>Airlines</h2>
+            <button onclick="showForm('airlines')">Add/Edit Airline</button>
+            <table>
+                <tr><th>ID</th><th>Name</th></tr>
+                <!-- Airlines data rows go here -->
+            </table>
+        </div>
+        <div id="users" class="entity">
+            <h2>Users</h2>
+            <button onclick="showForm('users')">Add/Edit User</button>
+            <table>
+                <tr><th>ID</th><th>Name</th><th>Email</th></tr>
+                <!-- Users data rows go here -->
+            </table>
+        </div>
+        <div id="form" class="form">
+            <h2>Form</h2>
+            <p>This is a fake form. Press Enter to go back.</p>
+            <button onclick="hideForm()">Enter</button>
+        </div>
+    </div>
+    <script>
+        function showEntity(entity) {
+            document.querySelectorAll('.entity').forEach(el => el.style.display = 'none');
+            document.getElementById(entity).style.display = 'block';
+            document.getElementById('form').style.display = 'none';
+        }
+
+        function showForm(entity) {
+            document.querySelectorAll('.entity').forEach(el => el.style.display = 'none');
+            document.getElementById('form').style.display = 'block';
+        }
+
+        function hideForm() {
+            document.querySelectorAll('.entity').forEach(el => el.style.display = 'none');
+            document.getElementById('form').style.display = 'none';
+        }
+
+        // Initialize by showing the first entity
+        showEntity('aircraft');
+    </script>
+</body>
+</html>

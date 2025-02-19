@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clickable Prototype</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css-v1-gemini.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <div class="w-64 bg-gray-200 p-4">
+            <h2 class="text-2xl font-bold mb-4">Entities</h2>
+            <ul>
+                <li class="mb-2"><a href="#" data-entity="aircraft" class="entity-link block hover:bg-gray-300 p-2 rounded">Aircraft</a></li>
+                <li class="mb-2"><a href="#" data-entity="airlines" class="entity-link block hover:bg-gray-300 p-2 rounded">Airlines</a></li>
+                <li class="mb-2"><a href="#" data-entity="users" class="entity-link block hover:bg-gray-300 p-2 rounded">Users</a></li>
+            </ul>
+        </div>
+        <div class="flex-1 p-4">
+            <div id="entity-table-container">
+                <!-- Table will be dynamically inserted here -->
+            </div>
+            <div id="entity-form-container">
+                <!-- Form will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+    <script src="js-v1-gemini.js"></script>
+</body>
+</html>
