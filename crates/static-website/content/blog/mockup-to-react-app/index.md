@@ -114,6 +114,10 @@ You have access to the following files
 Let's plan the `Aircraft` functionality.
 ```
 
+[aircraft-implementation-plan.md](https://gist.github.com/242816/80ccbd412715ae4f0837288c4b1b1e13)
+
+## Execute the Plan
+
 ## Architecture Drift
 
 ## Battle of the Prompts
