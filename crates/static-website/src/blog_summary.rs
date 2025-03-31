@@ -7,16 +7,6 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
-                    date: "2025-02-18",
-                    title: "AI Coding : Workflow for Creating React Applications",
-                    description: "AI Coding : Workflow for Creating React Applications",
-                    folder: "blog/mockup-to-react-app/",
-                    markdown: include_str!("../content/blog/mockup-to-react-app/index.md"),
-                    image: Some("/blog/mockup-to-react-app/react-llama.webp"),
-                    author_image: Some("/blog-authors/ian-purton.jpeg"),
-                    author: Some("Ian Purton")
-                },
-                Page {
                     date: "2025-02-08",
                     title: "The Future Opportunities for Junior Developers in the Age of AI Coding",
                     description: "The Future Opportunities for Junior Developers in the Age of AI Coding - An Architects Perspective",
