@@ -39,8 +39,15 @@ pub async fn get_permissions(
 
     set_rls_and_encryption_keys(transaction, user_id).await?;
 
-    let permissions = queries::users::get_permissions()
+    // Important, this does the IDOR for all reuquests with a team.
+    // Do not remove
+    let team = queries::teams::team()
         .bind(transaction, &current_team_id)
+        .one()
+        .await?;
+
+    let permissions = queries::users::get_permissions()
+        .bind(transaction, &team.id)
         .all()
         .await?;
 

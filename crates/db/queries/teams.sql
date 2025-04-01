@@ -4,7 +4,12 @@ SELECT
 FROM 
     teams
 WHERE
-    id = :org_id;
+    id = :org_id
+    AND EXISTS (
+        SELECT 1
+        FROM team_users tu
+        WHERE tu.team_id = teams.id AND tu.user_id = current_app_user()
+    );
     
 --! delete
 DELETE FROM teams 
