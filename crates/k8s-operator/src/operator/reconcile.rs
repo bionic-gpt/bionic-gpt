@@ -259,7 +259,8 @@ fn determine_action(bionic: &Bionic, bionic_version: Option<String>) -> BionicAc
         .meta()
         .finalizers
         .as_ref()
-        .is_none_or(|finalizers| finalizers.is_empty())
+        .map(|v| v.is_empty())
+        .unwrap_or(true)
     {
         BionicAction::Create
     } else if bionic.spec.version != bionic_version {
