@@ -82,7 +82,7 @@ jobs:
         npm i -D @semantic-release/exec
         npm i -D @semantic-release-plus/docker
         npm i -D @semantic-release/git
-        npx semantic-release
+        npx semantic-release@20
 
   # We have ro wait for the commit that semantic release makes
   # Or the next tasks all get the wrong release version.
