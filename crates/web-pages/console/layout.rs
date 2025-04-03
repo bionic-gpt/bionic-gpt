@@ -34,7 +34,8 @@ pub fn ConsoleLayout(
                     super::console_stream::ConsoleStream {
                         team_id: team_id,
                         chats_with_chunks: chats_with_chunks,
-                        is_tts_disabled
+                        is_tts_disabled,
+                        rbac: rbac.clone()
                     }
                 } else {
                     div {

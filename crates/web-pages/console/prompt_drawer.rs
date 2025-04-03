@@ -1,19 +1,32 @@
 #![allow(non_snake_case)]
 use super::ChatChunks;
 use daisy_rsx::*;
+use db::authz::Rbac;
 use dioxus::prelude::*;
 
 #[component]
-pub fn PromptDrawer(prompt: String, trigger_id: String, chunks: Vec<ChatChunks>) -> Element {
+pub fn PromptDrawer(
+    prompt: String,
+    trigger_id: String,
+    chunks: Vec<ChatChunks>,
+    rbac: Rbac,
+) -> Element {
     rsx! {
         Drawer {
             label: "Full Prompt",
             trigger_id: &trigger_id,
             DrawerBody {
                 class: "prose prose-sm",
-                pre {
-                    class: "json",
-                    "{prompt}"
+                if rbac.can_view_system_prompt() {
+                    pre {
+                        class: "json",
+                        "{prompt}"
+                    }
+                } else {
+                    div {
+                        class: "alert alert-warning",
+                        "You need permission to view the system prompt"
+                    }
                 }
 
                 if ! chunks.is_empty() {

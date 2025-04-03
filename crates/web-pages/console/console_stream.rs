@@ -3,6 +3,7 @@ use crate::routes;
 
 use assets::files::*;
 use daisy_rsx::*;
+use db::authz::Rbac;
 use dioxus::prelude::*;
 
 use super::ChatWithChunks;
@@ -12,6 +13,7 @@ pub fn ConsoleStream(
     team_id: i32,
     chats_with_chunks: Vec<ChatWithChunks>,
     is_tts_disabled: bool,
+    rbac: Rbac,
 ) -> Element {
     rsx! {
         div {
@@ -20,7 +22,8 @@ pub fn ConsoleStream(
                 super::prompt_drawer::PromptDrawer {
                     trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
                     prompt: chat_with_chunks.chat.prompt.clone(),
-                    chunks: chat_with_chunks.chunks.clone()
+                    chunks: chat_with_chunks.chunks.clone(),
+                    rbac: rbac.clone()
                 }
                 div {
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",

@@ -196,6 +196,10 @@ impl Rbac {
         self.permissions.contains(&Permission::SetupModels)
     }
 
+    pub fn can_view_system_prompt(&self) -> bool {
+        self.permissions.contains(&Permission::ViewSystemPrompt)
+    }
+
     pub fn can_edit_prompt(&self, prompt: &Prompt) -> bool {
         prompt.created_by == self.user_id || self.is_sys_admin
     }
