@@ -1,4 +1,3 @@
-use super::layout::empty_string_is_none;
 use super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
@@ -8,15 +7,12 @@ use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::authz;
 use db::queries;
-use db::queries::models;
-use db::ModelType;
 use db::Pool;
-use db::Visibility;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::models::Delete;
-use web_pages::routes::models::Index;
-use web_pages::routes::models::New;
+use web_pages::routes::integrations::Delete;
+use web_pages::routes::integrations::Index;
+use web_pages::routes::integrations::New;
 
 pub fn routes() -> Router {
     Router::new()
@@ -35,9 +31,12 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let models = models::all_models().bind(&transaction).all().await?;
+    let integrations = queries::integrations::integrations()
+        .bind(&transaction, &db::IntegrationType::MCP_Server)
+        .all()
+        .await?;
 
-    let html = web_pages::models::index::page(team_id, rbac, models);
+    let html = web_pages::integrations::index::page(team_id, rbac, integrations);
 
     Ok(Html(html))
 }
@@ -52,174 +51,88 @@ pub async fn delete_action(
     let transaction = client.transaction().await?;
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    queries::models::delete().bind(&transaction, &id).await?;
+    queries::integrations::delete()
+        .bind(&transaction, &id)
+        .await?;
 
     transaction.commit().await?;
 
     super::layout::redirect_and_snackbar(
-        &web_pages::routes::models::Index { team_id }.to_string(),
-        "Model Deleted",
+        &web_pages::routes::integrations::Index { team_id }.to_string(),
+        "Integration Deleted",
     )
 }
+
 #[derive(Deserialize, Validate, Default, Debug)]
-pub struct ModelForm {
+pub struct IntegrationForm {
     pub id: Option<i32>,
-    pub prompt_id: Option<i32>,
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
-    #[validate(length(min = 1, message = "The display name is mandatory"))]
-    pub display_name: String,
-    #[validate(length(min = 1, message = "The prompt is mandatory"))]
+    pub integration_type: String,
+    #[validate(length(min = 1, message = "The base URL is mandatory"))]
     pub base_url: String,
-    pub model_type: String,
-    #[serde(deserialize_with = "empty_string_is_none")]
-    pub api_key: Option<String>,
-    pub tpm_limit: i32,
-    pub rpm_limit: i32,
-    pub context_size: i32,
-    pub disclaimer: String,
-    pub description: String,
-    pub example1: String,
-    pub example2: String,
-    pub example3: String,
-    pub example4: String,
 }
 
 pub async fn upsert_action(
     New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
-    Form(model_form): Form<ModelForm>,
+    Form(integration_form): Form<IntegrationForm>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let model_type = match model_form.model_type.as_str() {
-        "LLM" => ModelType::LLM,
-        "Image" => ModelType::Image,
-        "TextToSpeech" => ModelType::TextToSpeech,
-        _ => ModelType::Embeddings,
+    let integration_type = match integration_form.integration_type.as_str() {
+        "MCP Server" => db::IntegrationType::MCP_Server,
+        _ => db::IntegrationType::MCP_Server, // Default to MCP_Server
     };
 
-    match (model_form.validate(), model_form.id) {
-        (Ok(_), Some(model_id)) => {
-            // The form is valid save to the database
-            queries::models::update()
+    match (integration_form.validate(), integration_form.id) {
+        (Ok(_), Some(integration_id)) => {
+            // The form is valid, update the integration
+            queries::integrations::update()
                 .bind(
                     &transaction,
-                    &model_form.name,
-                    &model_type,
-                    &model_form.base_url,
-                    &model_form.api_key,
-                    &model_form.tpm_limit,
-                    &model_form.rpm_limit,
-                    &model_form.context_size,
-                    &model_id,
+                    &integration_form.name,
+                    &integration_type,
+                    &integration_form.base_url,
+                    &integration_id,
                 )
                 .await?;
-
-            let system_prompt: Option<&String> = None;
-
-            if let Some(prompt_id) = model_form.prompt_id {
-                queries::prompts::update()
-                    .bind(
-                        &transaction,
-                        &model_id,
-                        &0, // Set category to uncategorized
-                        &model_form.display_name,
-                        &db::Visibility::Company,
-                        &system_prompt,
-                        &3,
-                        &10,
-                        &model_form.context_size,
-                        &80,
-                        &0.7,
-                        &model_form.description,
-                        &model_form.disclaimer,
-                        &Some(&model_form.example1),
-                        &Some(&model_form.example2),
-                        &Some(&model_form.example3),
-                        &Some(&model_form.example4),
-                        &db::PromptType::Model,
-                        &prompt_id,
-                    )
-                    .await?;
-            }
 
             transaction.commit().await?;
 
             Ok(super::layout::redirect_and_snackbar(
-                &web_pages::routes::models::Index { team_id }.to_string(),
-                "Model Updated",
+                &web_pages::routes::integrations::Index { team_id }.to_string(),
+                "Integration Updated",
             )
             .into_response())
         }
         (Ok(_), None) => {
-            // The form is valid save to the database
-            let model_id = queries::models::insert()
+            // The form is valid, create a new integration
+            queries::integrations::insert()
                 .bind(
                     &transaction,
-                    &model_form.name,
-                    &model_type,
-                    &model_form.base_url,
-                    &model_form.api_key,
-                    &model_form.tpm_limit,
-                    &model_form.rpm_limit,
-                    &model_form.context_size,
+                    &integration_form.name,
+                    &integration_type,
+                    &integration_form.base_url,
                 )
                 .one()
                 .await?;
 
-            let system_prompt: Option<String> = None;
-            let image_icon: Option<i32> = None;
-
-            let context_size = if model_form.context_size != 0 {
-                model_form.context_size / 2
-            } else {
-                0
-            };
-
-            if model_type == ModelType::LLM {
-                queries::prompts::insert()
-                    .bind(
-                        &transaction,
-                        &team_id,
-                        &model_id,
-                        &0, // Set category to uncategorized
-                        &model_form.display_name,
-                        &image_icon,
-                        &Visibility::Company,
-                        &system_prompt,
-                        &3,
-                        &10,
-                        &context_size,
-                        &80,
-                        &0.7,
-                        &model_form.description,
-                        &model_form.disclaimer,
-                        &Some(&model_form.example1),
-                        &Some(&model_form.example2),
-                        &Some(&model_form.example3),
-                        &Some(&model_form.example4),
-                        &db::PromptType::Model,
-                    )
-                    .one()
-                    .await?;
-            }
-
             transaction.commit().await?;
 
             Ok(super::layout::redirect_and_snackbar(
-                &web_pages::routes::models::Index { team_id }.to_string(),
-                "Model Created",
+                &web_pages::routes::integrations::Index { team_id }.to_string(),
+                "Integration Created",
             )
             .into_response())
         }
         (Err(_), _) => Ok(super::layout::redirect_and_snackbar(
-            &web_pages::routes::models::Index { team_id }.to_string(),
-            "Problem with Model Validation",
+            &web_pages::routes::integrations::Index { team_id }.to_string(),
+            "Problem with Integration Validation",
         )
         .into_response()),
     }

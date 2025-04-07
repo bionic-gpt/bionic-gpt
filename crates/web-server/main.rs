@@ -8,6 +8,7 @@ pub mod documents;
 pub mod email;
 pub mod errors;
 pub mod history;
+pub mod integrations;
 pub mod jwt;
 pub mod layout;
 pub mod metrics;
@@ -50,6 +51,7 @@ async fn main() {
         .merge(datasets::routes())
         .merge(documents::routes())
         .merge(history::routes())
+        .merge(integrations::routes())
         .merge(llm_proxy::routes())
         .merge(models::routes())
         .merge(pipelines::routes())

@@ -13,7 +13,7 @@ pub fn Form(
 ) -> Element {
     rsx!(
         Drawer {
-            submit_action: crate::routes::models::New{team_id}.to_string(),
+            submit_action: crate::routes::integrations::New{team_id}.to_string(),
             label: "Add an Integration",
             trigger_id: "{trigger_id}",
             DrawerBody {
@@ -39,10 +39,10 @@ pub fn Form(
                     }
 
                     Select {
-                        name: "model_type",
-                        label: "Is this model for LLM or Embeddings",
+                        name: "integration_type",
+                        label: "Is this model for MCP Server",
                         label_class: "mt-4",
-                        help_text: "Some models can do both, in which case enter it twice.",
+                        help_text: "Curently we only support MCP Servers",
                         value: integration_type.clone(),
                         SelectOption {
                             value: "MCP_Server",

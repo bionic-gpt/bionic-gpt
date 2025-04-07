@@ -6,7 +6,7 @@ use dioxus::prelude::*;
 pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
     rsx! {
         Drawer {
-            submit_action: crate::routes::models::Delete{team_id, id}.to_string(),
+            submit_action: crate::routes::integrations::Delete{team_id, id}.to_string(),
             label: "Delete this Integration?",
             trigger_id: trigger_id,
             DrawerBody {

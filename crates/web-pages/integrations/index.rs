@@ -32,7 +32,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<Integration>) -> String 
             // The form to create a model
             super::form::Form {
                 team_id: team_id,
-                trigger_id: "new-inteegration-form".to_string(),
+                trigger_id: "new-integration-form".to_string(),
                 name: "".to_string(),
                 integration_type: "MCP Server".to_string(),
                 base_url: "".to_string(),

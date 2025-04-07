@@ -6,7 +6,7 @@ use std::env;
 /// Only returns tools if the MCP_ENABLED environment variable is set
 pub fn get_tools() -> Vec<Tool> {
     // Check if MCP_ENABLED environment variable is set
-    match env::var("MCP_ENABLED") {
+    match env::var("DANGER_JWT_OVERRIDE") {
         Ok(_) => vec![get_weather_tool()],
         Err(_) => vec![], // Return empty vector if MCP_ENABLED is not set
     }
