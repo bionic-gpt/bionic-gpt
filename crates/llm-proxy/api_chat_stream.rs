@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use super::function_tools;
 use super::limits;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::Completion;
@@ -79,6 +80,10 @@ pub async fn chat_generate(
                     match item {
                         Ok(event) => match event {
                             GenerationEvent::Text(completion_chunk) => {
+                                Ok(Event::default().data(completion_chunk.delta))
+                            }
+                            GenerationEvent::ToolCall(completion_chunk) => {
+                                // Pass through tool call events with the same format
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::End(completion_chunk) => {
@@ -172,11 +177,15 @@ async fn create_request(
         completion.messages,
     )
     .await?;
-
-    let completion = Completion {
+    let mut completion = Completion {
         messages,
         ..completion
     };
+
+    // Add tools if not already provided
+    if completion.tools.is_none() {
+        completion.tools = Some(function_tools::get_tools());
+    }
 
     let completion_json = serde_json::to_string(&completion)?;
 

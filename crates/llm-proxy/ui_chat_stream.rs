@@ -6,6 +6,7 @@
 use db::ChatStatus;
 use std::sync::Arc;
 
+use super::function_tools;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
 use crate::errors::CustomError;
@@ -67,6 +68,10 @@ pub async fn chat_generate(
                     match item {
                         Ok(event) => match event {
                             GenerationEvent::Text(completion_chunk) => {
+                                Ok(Event::default().data(completion_chunk.delta))
+                            }
+                            GenerationEvent::ToolCall(completion_chunk) => {
+                                // Pass through tool call events with the same format
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::End(completion_chunk) => {
@@ -157,6 +162,9 @@ async fn create_request(
     let chat_request = Message {
         role: "user".to_string(),
         content: chat.user_request,
+        tool_call_id: None,
+        tool_calls: None,
+        name: None,
     };
     let messages = super::prompt::execute_prompt(
         &transaction,
@@ -178,6 +186,8 @@ async fn create_request(
         max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
+        tools: Some(function_tools::get_tools()),
+        tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;
     let client = reqwest::Client::new();

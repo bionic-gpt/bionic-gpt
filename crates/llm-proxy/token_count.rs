@@ -24,8 +24,13 @@ pub async fn token_count_from_string(message: &str) -> i32 {
         messages: vec![super::Message {
             role: "".to_string(),
             content: message.to_string(),
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
         }],
         temperature: None,
+        tools: None,
+        tool_choice: None,
     };
 
     token_count(&completion).await
@@ -38,6 +43,8 @@ pub async fn token_count_from_messages(messages: Vec<Message>) -> i32 {
         stream: None,
         messages,
         temperature: None,
+        tools: None,
+        tool_choice: None,
     };
 
     token_count(&completion).await

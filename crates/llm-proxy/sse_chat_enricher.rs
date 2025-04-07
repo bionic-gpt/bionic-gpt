@@ -19,6 +19,7 @@ pub struct CompletionChunk {
 #[derive(Debug)]
 pub enum GenerationEvent {
     Text(CompletionChunk),
+    ToolCall(CompletionChunk),
     End(CompletionChunk),
 }
 
@@ -51,6 +52,27 @@ pub async fn enriched_chat(
                     break;
                 } else {
                     let m: Value = serde_json::from_str(&message.data)?;
+
+                    // Check for tool calls
+                    if let Some(tool_calls) = m["choices"][0]["delta"]["tool_calls"].as_array() {
+                        if !tool_calls.is_empty() {
+                            snapshot.push_str(&message.data);
+                            let chunk = CompletionChunk {
+                                delta: message.data.clone(),
+                                snapshot: snapshot.clone(),
+                            };
+                            if sender
+                                .send(Ok(GenerationEvent::ToolCall(chunk)))
+                                .await
+                                .is_err()
+                            {
+                                break; // Receiver has dropped, stop sending.
+                            }
+                            continue;
+                        }
+                    }
+
+                    // Regular text content
                     if let Some(text) = m["choices"][0]["delta"]["content"].as_str() {
                         snapshot.push_str(text);
                         let chunk = CompletionChunk {

@@ -98,6 +98,9 @@ pub async fn execute_prompt(
         .map(|msg| Message {
             role: msg.role,
             content: msg.content.unwrap_or("".to_string()),
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
         })
         .collect();
 
@@ -274,6 +277,9 @@ mod tests {
             vec![Message {
                 role: "user".to_string(),
                 content: "How are you today?".to_string(),
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
             }],
             Default::default(),
         )
@@ -299,6 +305,9 @@ mod tests {
             vec![Message {
                 role: "user".to_string(),
                 content: "How are you today?".to_string(),
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
             }],
             vec![RelatedContext {
                 chunk_text: "This might help".to_string(),
@@ -327,6 +336,9 @@ mod tests {
             vec![Message {
                 role: "user".to_string(),
                 content: "How are you today?".to_string(),
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
             }],
             vec![
                 RelatedContext {
