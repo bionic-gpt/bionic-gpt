@@ -15,6 +15,7 @@ pub use queries::chats::Chat;
 pub use queries::conversations::{Conversation, History};
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
+pub use queries::integrations::Integration;
 pub use queries::invitations::{Invitation, InviteSummary};
 pub use queries::models::{Model, ModelWithPrompt};
 pub use queries::object_storage::ObjectStorage;
@@ -24,7 +25,8 @@ pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};
 pub use queries::users::User;
 pub use types::public::{
-    AuditAccessType, AuditAction, ChatStatus, ModelType, Permission, PromptType, Role, Visibility,
+    AuditAccessType, AuditAction, ChatStatus, IntegrationType, ModelType, Permission, PromptType,
+    Role, Visibility,
 };
 pub use vector_search::{get_related_context, search_history, RelatedContext};
 

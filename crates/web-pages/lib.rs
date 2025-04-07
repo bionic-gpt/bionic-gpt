@@ -10,6 +10,7 @@ pub mod datasets;
 pub mod documents;
 pub mod hero;
 pub mod history;
+pub mod integrations;
 pub mod logout_form;
 pub mod security;
 //pub mod model_form;
