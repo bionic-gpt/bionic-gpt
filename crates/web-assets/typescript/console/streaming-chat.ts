@@ -69,6 +69,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
     });
 
     runner.on('error', (err: OpenAIError) => {
+        console.log(err)
         element.innerHTML += `${err}`;
         result += err.toString();
     });

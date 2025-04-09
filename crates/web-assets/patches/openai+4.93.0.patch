@@ -1,0 +1,52 @@
+diff --git a/node_modules/openai/lib/ChatCompletionStream.js b/node_modules/openai/lib/ChatCompletionStream.js
+index bc0d36b..5f60908 100644
+--- a/node_modules/openai/lib/ChatCompletionStream.js
++++ b/node_modules/openai/lib/ChatCompletionStream.js
+@@ -414,10 +414,10 @@ function finalizeChatCompletion(snapshot, params) {
+         id,
+         choices: choices.map(({ message, finish_reason, index, logprobs, ...choiceRest }) => {
+             if (!finish_reason) {
+-                throw new error_1.OpenAIError(`missing finish_reason for choice ${index}`);
++                finish_reason=null;
+             }
+             const { content = null, function_call, tool_calls, ...messageRest } = message;
+-            const role = message.role; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
++            const role = (message.role ?? 'assistant'); // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
+             if (!role) {
+                 throw new error_1.OpenAIError(`missing role for choice ${index}`);
+             }
+diff --git a/node_modules/openai/lib/ChatCompletionStream.mjs b/node_modules/openai/lib/ChatCompletionStream.mjs
+index dd86282..d440e96 100644
+--- a/node_modules/openai/lib/ChatCompletionStream.mjs
++++ b/node_modules/openai/lib/ChatCompletionStream.mjs
+@@ -410,10 +410,10 @@ function finalizeChatCompletion(snapshot, params) {
+         id,
+         choices: choices.map(({ message, finish_reason, index, logprobs, ...choiceRest }) => {
+             if (!finish_reason) {
+-                throw new OpenAIError(`missing finish_reason for choice ${index}`);
++                finish_reason=null;
+             }
+             const { content = null, function_call, tool_calls, ...messageRest } = message;
+-            const role = message.role; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
++            const role = (message.role ?? 'assistant'); // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
+             if (!role) {
+                 throw new OpenAIError(`missing role for choice ${index}`);
+             }
+diff --git a/node_modules/openai/src/lib/ChatCompletionStream.ts b/node_modules/openai/src/lib/ChatCompletionStream.ts
+index 35648c2..0120b25 100644
+--- a/node_modules/openai/src/lib/ChatCompletionStream.ts
++++ b/node_modules/openai/src/lib/ChatCompletionStream.ts
+@@ -616,11 +616,11 @@ function finalizeChatCompletion<ParsedT>(
+     choices: choices.map(
+       ({ message, finish_reason, index, logprobs, ...choiceRest }): ChatCompletion.Choice => {
+         if (!finish_reason) {
+-          throw new OpenAIError(`missing finish_reason for choice ${index}`);
++          finish_reason = null;
+         }
+ 
+         const { content = null, function_call, tool_calls, ...messageRest } = message;
+-        const role = message.role as 'assistant'; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
++        const role = (message.role ?? 'assistant') as 'assistant'; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
+         if (!role) {
+           throw new OpenAIError(`missing role for choice ${index}`);
+         }
