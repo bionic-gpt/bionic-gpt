@@ -29,6 +29,10 @@ pub async fn loader(
     let transaction = client.transaction().await?;
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    if !rbac.can_view_audit_trail() {
+        return Err(CustomError::Authorization);
+    }
+
     let team_users = queries::teams::get_users()
         .bind(&transaction, &team_id)
         .all()
@@ -94,6 +98,10 @@ pub async fn filter_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_view_audit_trail() {
+        return Err(CustomError::Authorization);
+    }
 
     let team_users = queries::teams::get_users()
         .bind(&transaction, &team_id)

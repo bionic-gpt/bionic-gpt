@@ -207,4 +207,12 @@ impl Rbac {
     pub fn can_edit_dataset(&self, _dataset: &Dataset) -> bool {
         self.is_sys_admin
     }
+
+    pub fn can_manage_limits(&self) -> bool {
+        self.is_sys_admin
+    }
+
+    pub fn can_manage_integrations(&self) -> bool {
+        self.is_sys_admin
+    }
 }

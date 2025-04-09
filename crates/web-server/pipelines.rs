@@ -36,6 +36,10 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    if !rbac.can_use_api_keys() {
+        return Err(CustomError::Authorization);
+    }
+
     let pipelines = queries::document_pipelines::document_pipelines()
         .bind(&transaction, &team_id)
         .all()
@@ -59,7 +63,11 @@ pub async fn delete_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_use_api_keys() {
+        return Err(CustomError::Authorization);
+    }
 
     queries::document_pipelines::delete()
         .bind(&transaction, &id)
@@ -90,6 +98,10 @@ pub async fn new_action(
     let transaction = client.transaction().await?;
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_use_api_keys() {
+        return Err(CustomError::Authorization);
+    }
 
     if new_pipeline.validate().is_ok() {
         let api_key: String = thread_rng()

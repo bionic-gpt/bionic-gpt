@@ -31,6 +31,10 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    if !rbac.can_manage_limits() {
+        return Err(CustomError::Authorization);
+    }
+
     let rate_limits = queries::rate_limits::rate_limits()
         .bind(&transaction)
         .all()
@@ -54,7 +58,11 @@ pub async fn delete_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_manage_limits() {
+        return Err(CustomError::Authorization);
+    }
 
     queries::rate_limits::delete()
         .bind(&transaction, &id)
@@ -85,7 +93,11 @@ pub async fn upsert_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_manage_limits() {
+        return Err(CustomError::Authorization);
+    }
 
     match (form.validate(), form.id) {
         (Ok(_), Some(_id)) => Ok(super::layout::redirect_and_snackbar(

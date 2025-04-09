@@ -35,6 +35,10 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    if !rbac.can_setup_models() {
+        return Err(CustomError::Authorization);
+    }
+
     let models = models::all_models().bind(&transaction).all().await?;
 
     let html = web_pages::models::index::page(team_id, rbac, models);
@@ -50,7 +54,11 @@ pub async fn delete_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_setup_models() {
+        return Err(CustomError::Authorization);
+    }
 
     queries::models::delete().bind(&transaction, &id).await?;
 
@@ -94,7 +102,11 @@ pub async fn upsert_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_setup_models() {
+        return Err(CustomError::Authorization);
+    }
 
     let model_type = match model_form.model_type.as_str() {
         "LLM" => ModelType::LLM,
