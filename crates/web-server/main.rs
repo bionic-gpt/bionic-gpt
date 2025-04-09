@@ -26,8 +26,10 @@ use axum_extra::routing::RouterExt;
 pub use errors::CustomError;
 pub use jwt::Jwt;
 
+use ::integrations::IntegrationRegistry;
 use axum::{Extension, Router};
 use std::net::SocketAddr;
+use std::sync::Arc;
 
 #[tokio::main]
 async fn main() {
@@ -38,6 +40,10 @@ async fn main() {
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
+
+    // Initialize the integration registry
+    let registry = Some(Arc::new(IntegrationRegistry::new(pool.clone())));
+    tracing::info!("Integration registry initialized successfully");
 
     // build our application with a route
     let app = Router::new()
@@ -52,7 +58,7 @@ async fn main() {
         .merge(documents::routes())
         .merge(history::routes())
         .merge(integrations::routes())
-        .merge(llm_proxy::routes())
+        .merge(llm_proxy::routes(registry.clone()))
         .merge(models::routes())
         .merge(pipelines::routes())
         .merge(profile::routes())

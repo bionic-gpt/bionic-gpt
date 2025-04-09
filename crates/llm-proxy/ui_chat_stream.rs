@@ -6,7 +6,6 @@
 use db::ChatStatus;
 use std::sync::Arc;
 
-use super::function_tools;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
 use crate::errors::CustomError;
@@ -14,6 +13,7 @@ use crate::jwt::Jwt;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
+use integrations::{get_tools, IntegrationRegistry};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -30,8 +30,9 @@ pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Extension(registry): Extension<Option<Arc<IntegrationRegistry>>>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
-    match create_request(&pool, &current_user, chat_id).await {
+    match create_request(&pool, &current_user, chat_id, registry.as_deref()).await {
         Ok((request, model_id, user_id)) => {
             let is_limit_breached =
                 limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await?;
@@ -139,6 +140,7 @@ async fn create_request(
     pool: &Pool,
     current_user: &Jwt,
     chat_id: i32,
+    registry: Option<&IntegrationRegistry>,
 ) -> Result<(RequestBuilder, i32, i32), CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
@@ -186,7 +188,7 @@ async fn create_request(
         max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
-        tools: Some(function_tools::get_tools()),
+        tools: Some(get_tools(registry).await),
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;

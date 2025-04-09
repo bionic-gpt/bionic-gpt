@@ -1,8 +1,6 @@
 pub mod api_chat_stream;
 pub mod api_reverse_proxy;
 mod errors;
-pub mod function_executor;
-pub mod function_tools;
 mod jwt;
 pub mod limits;
 mod prompt;
@@ -12,90 +10,26 @@ pub mod synthesize;
 pub mod token_count;
 pub mod ui_chat_stream;
 use axum::Router;
-use axum_extra::routing::RouterExt;
+use integrations::IntegrationRegistry;
+use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
 use axum_extra::routing::TypedPath;
 use serde::Deserialize;
-use serde::Serialize;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FunctionDefinition {
-    pub name: String,
-    pub description: String,
-    pub parameters: serde_json::Value, // JSON Schema object
-}
+// Re-export the models from the integrations crate
+pub use integrations::models::{
+    Completion, FunctionDefinition, Message, Tool, ToolCall, ToolCallFunction, ToolResult,
+};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Tool {
-    pub r#type: String, // "function"
-    pub function: FunctionDefinition,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ToolCallFunction {
-    pub name: String,
-    pub arguments: String, // JSON string
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ToolCall {
-    pub id: String,
-    pub r#type: String, // "function"
-    pub function: ToolCallFunction,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ToolResult {
-    pub tool_call_id: String,
-    pub role: String, // "tool"
-    pub name: String,
-    pub content: String, // Result as string
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Message {
-    pub role: String,
-    pub content: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_call_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_calls: Option<Vec<ToolCall>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Completion {
-    pub model: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_tokens: Option<i32>,
-    pub messages: Vec<Message>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<Tool>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_choice: Option<serde_json::Value>,
-}
-
-pub fn routes() -> Router {
+pub fn routes(_registry: Option<Arc<IntegrationRegistry>>) -> Router {
     let cors = CorsLayer::new()
         .allow_origin(Any) // Allows requests from any origin
         .allow_methods(Any) // Allows any HTTP method
         .allow_headers(Any); // Allows any header
 
-    Router::new()
-        .typed_get(api_chat_stream::chat_generate)
-        .typed_post(api_chat_stream::chat_generate)
-        .typed_post(synthesize::synthesize)
-        .typed_get(api_reverse_proxy::handler)
-        .typed_post(api_reverse_proxy::handler)
-        .typed_post(ui_chat_stream::chat_generate)
-        .typed_get(ui_chat_stream::chat_generate)
-        .layer(cors) // Apply the CORS layer
+    // Return an empty router for now
+    Router::new().layer(cors)
 }
 
 #[derive(TypedPath, Deserialize)]

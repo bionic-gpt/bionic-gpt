@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use super::function_tools;
 use super::limits;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::Completion;
@@ -13,6 +12,7 @@ use axum::{Extension, RequestExt};
 use db::ChatStatus;
 use db::{queries, Pool, Transaction};
 use http::{HeaderMap, StatusCode};
+use integrations::{get_tools, IntegrationRegistry};
 use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
@@ -26,6 +26,7 @@ use super::ApiChatHandler;
 pub async fn chat_generate(
     ApiChatHandler {}: ApiChatHandler,
     Extension(pool): Extension<Pool>,
+    Extension(registry): Extension<Option<Arc<IntegrationRegistry>>>,
     req: Request<Body>,
 ) -> Result<Response<Body>, CustomError> {
     if let Some(api_key) = req.headers().get("Authorization") {
@@ -41,7 +42,7 @@ pub async fn chat_generate(
         let streaming = completion.stream.unwrap_or(false);
 
         let (api_key, request, api_chat_id) =
-            create_request(&transaction, api_key, completion).await?;
+            create_request(&transaction, api_key, completion, registry.as_deref()).await?;
 
         if limits::is_limit_exceeded(&transaction, api_key.model_id, api_key.user_id).await? {
             return Err(CustomError::Limits(
@@ -145,6 +146,7 @@ async fn create_request(
     transaction: &Transaction<'_>,
     api_key: String,
     completion: Completion,
+    registry: Option<&IntegrationRegistry>,
 ) -> Result<(db::ApiKey, reqwest::RequestBuilder, i32), CustomError> {
     let api_key = queries::api_keys::find_api_key()
         .bind(transaction, &api_key)
@@ -184,7 +186,7 @@ async fn create_request(
 
     // Add tools if not already provided
     if completion.tools.is_none() {
-        completion.tools = Some(function_tools::get_tools());
+        completion.tools = Some(get_tools(registry).await);
     }
 
     let completion_json = serde_json::to_string(&completion)?;
