@@ -45,8 +45,8 @@ WITH summary AS (
 SELECT 
     c.id, 
     CASE
-        WHEN LENGTH(summary.user_request) > 150 THEN 
-            LEFT(summary.user_request, 150) || '...'
+        WHEN LENGTH(decrypt_text(summary.user_request)) > 150 THEN 
+            LEFT(decrypt_text(summary.user_request), 150) || '...'
         ELSE 
             summary.user_request
     END AS summary,

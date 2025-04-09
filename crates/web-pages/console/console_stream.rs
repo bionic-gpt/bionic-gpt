@@ -19,11 +19,13 @@ pub fn ConsoleStream(
         div {
             class: "flex-1 flex flex-col-reverse overflow-y-auto",
             for chat_with_chunks in chats_with_chunks {
-                super::prompt_drawer::PromptDrawer {
-                    trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
-                    prompt: chat_with_chunks.chat.prompt.clone(),
-                    chunks: chat_with_chunks.chunks.clone(),
-                    rbac: rbac.clone()
+                if rbac.can_view_system_prompt() {
+                    super::prompt_drawer::PromptDrawer {
+                        trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
+                        prompt: chat_with_chunks.chat.prompt.clone(),
+                        chunks: chat_with_chunks.chunks.clone(),
+                        rbac: rbac.clone()
+                    }
                 }
                 div {
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
@@ -118,7 +120,7 @@ pub fn ConsoleStream(
                                 }
                             }
 
-                            if chat_with_chunks.chat.response.is_some() {
+                            if chat_with_chunks.chat.response.is_some() && rbac.can_view_system_prompt() {
                                 Label {
                                     class: "ml-2",
                                     a {
