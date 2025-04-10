@@ -78,10 +78,13 @@ pub async fn update_response(
     } else {
         // There's no response from the stremaing proxy. Can we use what
         // came form the front end?
+        let none: Option<String> = None;
         chats::update_chat()
             .bind(
                 &transaction,
                 &message.response,
+                &none,
+                &none,
                 &100,
                 &ChatStatus::Error,
                 &message.chat_id,
