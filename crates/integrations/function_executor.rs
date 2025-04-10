@@ -1,11 +1,11 @@
-use crate::function_tools;
+use crate::weather;
 use openai_api::{Message, ToolCall};
 
 /// Execute a tool call and return a message with the result
 pub fn execute_tool_call(tool_call: &ToolCall) -> Result<Message, String> {
     match tool_call.function.name.as_str() {
         "get_weather" => {
-            let result = function_tools::execute_weather_function(&tool_call.function.arguments)?;
+            let result = weather::execute_weather_function(&tool_call.function.arguments)?;
 
             Ok(Message {
                 role: "tool".to_string(),
