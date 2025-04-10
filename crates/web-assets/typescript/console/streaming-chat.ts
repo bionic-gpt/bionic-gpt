@@ -46,12 +46,12 @@ async function streamResult(chatId: string, element: HTMLElement) {
             llmResult.value = result;
             try {
                 form.requestSubmit();
-            } catch(error) {
+            } catch (error) {
                 console.error('Error submitting results:', error);
             }
         }
     };
-    
+
     const res = await fetch(`/completions/${chatId}`, {
         method: 'POST',
         headers: {
@@ -63,9 +63,34 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const stream = Stream.fromSSEResponse(res, abortController);
     const runner = ChatCompletionStream.fromReadableStream(stream.toReadableStream());
 
-    runner.on('content', (delta, snapshot) => {
-        element.innerHTML = markdown.markdown(snapshot);
-        result = snapshot;
+    let isFunctionCall = false;
+    let functionCall = {
+        name: '',
+        arguments: '',
+    };
+    interface DeltaChunk {
+        content?: string;
+        function_call?: {
+            name?: string;
+            arguments?: string;
+        };
+    }
+
+    runner.on('content', (_delta, snapshot) => {
+        const delta = _delta as DeltaChunk;
+        console.log(delta);
+
+        if (delta.function_call) {
+            console.log('Got a function call')
+            isFunctionCall = true;
+            if (delta.function_call.name) functionCall.name = delta.function_call.name;
+            if (delta.function_call.arguments) functionCall.arguments += delta.function_call.arguments;
+        }
+
+        if (!isFunctionCall && delta.content) {
+            element.innerHTML = markdown.markdown(snapshot);
+            result = snapshot;
+        }
     });
 
     runner.on('error', (err: OpenAIError) => {
@@ -78,6 +103,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
         console.log('Streaming ended.');
         submitResults();
     });
-    
+
 }
 

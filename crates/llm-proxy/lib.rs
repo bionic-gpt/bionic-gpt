@@ -10,6 +10,7 @@ pub mod sse_chat_enricher;
 pub mod sse_chat_error;
 pub mod synthesize;
 pub mod token_count;
+pub mod tool_call_handler;
 pub mod ui_chat_stream;
 use axum::Router;
 use axum_extra::routing::RouterExt;

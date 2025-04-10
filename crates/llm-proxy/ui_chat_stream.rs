@@ -9,6 +9,7 @@ use std::sync::Arc;
 use super::function_tools;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
+use super::tool_call_handler::handle_tool_call;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use axum::response::{sse::Event, Sse};
@@ -71,8 +72,7 @@ pub async fn chat_generate(
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::ToolCall(completion_chunk) => {
-                                // Pass through tool call events with the same format
-                                Ok(Event::default().data(completion_chunk.delta))
+                                handle_tool_call(completion_chunk)
                             }
                             GenerationEvent::End(completion_chunk) => {
                                 save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
