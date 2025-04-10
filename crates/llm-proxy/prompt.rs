@@ -1,7 +1,7 @@
-use super::Message;
 use crate::errors::CustomError;
 use db::queries::{chats, chats_chunks, prompts};
 use db::{Chat, RelatedContext, Transaction};
+use openai_api::Message;
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages

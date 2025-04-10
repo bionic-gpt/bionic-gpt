@@ -9,9 +9,11 @@ path = "lib.rs"
 [dependencies]
 db = { path = "../db" }
 embeddings-api = { path = "../embeddings-api" }
+openai-api = { path = "../openai-api" }
+integrations = { path = "../integrations" }
 
 axum = { version = "0.8", features = ["multipart"] }
-axum-extra = { version = "0.10", features = ["form"] }
+axum-extra = { version = "0.10", features = ["form", "typed-routing"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 http = "1"
 tokio-stream = "0.1"

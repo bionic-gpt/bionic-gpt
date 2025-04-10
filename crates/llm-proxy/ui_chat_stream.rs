@@ -3,27 +3,27 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
-use db::ChatStatus;
-use std::sync::Arc;
-
-use super::function_tools;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
+use db::ChatStatus;
 use db::{queries, Pool};
+use integrations::get_openai_tools;
+use integrations::tool_call_handler::handle_tool_call;
+use openai_api::{Completion, Message};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
 };
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 
 use super::{limits, UICompletions};
-use super::{Completion, Message};
 
 // Called from the front end to generate a streaming chat with the model
 pub async fn chat_generate(
@@ -71,8 +71,7 @@ pub async fn chat_generate(
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::ToolCall(completion_chunk) => {
-                                // Pass through tool call events with the same format
-                                Ok(Event::default().data(completion_chunk.delta))
+                                handle_tool_call(completion_chunk.delta)
                             }
                             GenerationEvent::End(completion_chunk) => {
                                 save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
@@ -186,7 +185,7 @@ async fn create_request(
         max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
-        tools: Some(function_tools::get_tools()),
+        tools: Some(get_openai_tools()),
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;

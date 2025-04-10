@@ -1,19 +1,22 @@
-use crate::{FunctionDefinition, Tool};
+use crate::tool::ToolInterface;
+use openai_api::{FunctionDefinition, Tool};
 use serde_json::{json, Value};
-use std::env;
 
-/// Returns a list of available tools
-/// Only returns tools if the MCP_ENABLED environment variable is set
-pub fn get_tools() -> Vec<Tool> {
-    // Check if MCP_ENABLED environment variable is set
-    match env::var("DANGER_JWT_OVERRIDE") {
-        Ok(_) => vec![get_weather_tool()],
-        Err(_) => vec![], // Return empty vector if MCP_ENABLED is not set
+/// A tool that provides weather information
+pub struct WeatherTool;
+
+impl ToolInterface for WeatherTool {
+    fn get_tool(&self) -> Tool {
+        get_weather_tool()
+    }
+
+    fn execute(&self, arguments: &str) -> Result<String, String> {
+        execute_weather_function(arguments)
     }
 }
 
 /// Returns a Tool definition for the weather function
-fn get_weather_tool() -> Tool {
+pub fn get_weather_tool() -> Tool {
     Tool {
         r#type: "function".to_string(),
         function: FunctionDefinition {

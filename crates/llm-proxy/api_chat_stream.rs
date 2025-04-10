@@ -1,9 +1,5 @@
-use std::sync::Arc;
-
-use super::function_tools;
 use super::limits;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
-use super::Completion;
 use crate::errors::CustomError;
 use axum::body::Body;
 use axum::extract::Request;
@@ -13,7 +9,10 @@ use axum::{Extension, RequestExt};
 use db::ChatStatus;
 use db::{queries, Pool, Transaction};
 use http::{HeaderMap, StatusCode};
+use integrations::get_openai_tools;
+use openai_api::Completion;
 use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
@@ -184,7 +183,7 @@ async fn create_request(
 
     // Add tools if not already provided
     if completion.tools.is_none() {
-        completion.tools = Some(function_tools::get_tools());
+        completion.tools = Some(get_openai_tools());
     }
 
     let completion_json = serde_json::to_string(&completion)?;
