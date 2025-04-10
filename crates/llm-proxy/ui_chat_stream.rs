@@ -11,8 +11,8 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
+use integrations;
 use integrations::get_openai_tools;
-use integrations::tool_call_handler::handle_tool_call;
 use openai_api::{Completion, Message};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -71,7 +71,11 @@ pub async fn chat_generate(
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::ToolCall(completion_chunk) => {
-                                handle_tool_call(completion_chunk.delta)
+                                // Just log trace information, don't call handle_tool_call
+                                tracing::info!("Received tool call: {}", completion_chunk.delta);
+
+                                // Return the original event
+                                Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::End(completion_chunk) => {
                                 save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
@@ -120,8 +124,9 @@ async fn save_results(
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
 
-    let function_call: Option<String> = None;
-    let function_call_result: Option<String> = None;
+    // Call handle_tool_call to check if this is a function call and execute it if it is
+    let (function_call, function_call_result) =
+        integrations::tool_call_handler::handle_tool_call(delta.to_string());
 
     queries::chats::update_chat()
         .bind(
