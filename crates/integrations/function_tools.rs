@@ -1,17 +1,23 @@
 use openai_api::Tool;
 use std::env;
+use std::sync::Arc;
 
-// Import the weather tool functionality from the weather module
-use crate::weather::get_weather_tool;
+// Import the tool trait and weather tool
+use crate::tool::ToolInterface;
+use crate::weather::WeatherTool;
 
 /// Returns a list of available tools
 /// Only returns tools if the MCP_ENABLED environment variable is set
-pub fn get_tools() -> Vec<Tool> {
+pub fn get_tools() -> Vec<Arc<dyn ToolInterface>> {
     // Check if MCP_ENABLED environment variable is set
     match env::var("DANGER_JWT_OVERRIDE") {
-        Ok(_) => vec![get_weather_tool()],
+        Ok(_) => vec![Arc::new(WeatherTool)],
         Err(_) => vec![], // Return empty vector if MCP_ENABLED is not set
     }
 }
 
-// The weather tool functionality has been moved to weather.rs
+/// Returns a list of available OpenAI tool definitions
+/// This is for backward compatibility
+pub fn get_openai_tools() -> Vec<Tool> {
+    get_tools().iter().map(|tool| tool.get_tool()).collect()
+}

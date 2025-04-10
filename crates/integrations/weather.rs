@@ -1,5 +1,19 @@
+use crate::tool::ToolInterface;
 use openai_api::{FunctionDefinition, Tool};
 use serde_json::{json, Value};
+
+/// A tool that provides weather information
+pub struct WeatherTool;
+
+impl ToolInterface for WeatherTool {
+    fn get_tool(&self) -> Tool {
+        get_weather_tool()
+    }
+
+    fn execute(&self, arguments: &str) -> Result<String, String> {
+        execute_weather_function(arguments)
+    }
+}
 
 /// Returns a Tool definition for the weather function
 pub fn get_weather_tool() -> Tool {
