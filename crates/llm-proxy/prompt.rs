@@ -371,6 +371,8 @@ mod tests {
             id: 0,
             conversation_id: 0,
             user_request: question,
+            function_call: None,
+            function_call_results: None,
             prompt: "todo!()".to_string(),
             prompt_id: 0,
             model_name: "ggml".to_string(),

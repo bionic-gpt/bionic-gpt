@@ -1,4 +1,4 @@
---: Chat(response?)
+--: Chat(response?, function_call?, function_call_results?)
 
 
 --! new_chat
@@ -38,6 +38,8 @@ SELECT
     id,
     conversation_id,
     decrypt_text(user_request) as user_request,
+    decrypt_text(function_call) as function_call,
+    decrypt_text(function_call_results) as function_call_results,
     decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
@@ -58,6 +60,8 @@ SELECT
     id,
     conversation_id,
     decrypt_text(user_request) as user_request,
+    decrypt_text(function_call) as function_call,
+    decrypt_text(function_call_results) as function_call_results,
     decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
@@ -81,6 +85,8 @@ SELECT
     id,
     conversation_id,
     decrypt_text(user_request) as user_request,
+    decrypt_text(function_call) as function_call,
+    decrypt_text(function_call_results) as function_call_results,
     decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
