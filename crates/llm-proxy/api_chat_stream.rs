@@ -1,6 +1,3 @@
-use std::sync::Arc;
-
-use super::function_tools;
 use super::limits;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use crate::errors::CustomError;
@@ -12,8 +9,10 @@ use axum::{Extension, RequestExt};
 use db::ChatStatus;
 use db::{queries, Pool, Transaction};
 use http::{HeaderMap, StatusCode};
+use integrations::function_tools;
 use openai_api::Completion;
 use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;

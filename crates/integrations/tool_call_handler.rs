@@ -1,12 +1,11 @@
-use super::sse_chat_enricher::CompletionChunk;
 use axum::response::sse::Event;
 use openai_api::{CompletionResponse, ToolCall, ToolCallFunction};
 
 /// Handles a tool call event by extracting the JSON data into structured types
 /// and logging the information using tracing.
-pub fn handle_tool_call(completion_chunk: CompletionChunk) -> Result<Event, axum::Error> {
+pub fn handle_tool_call(delta: String) -> Result<Event, axum::Error> {
     // Parse the JSON from delta using serde
-    match serde_json::from_str::<CompletionResponse>(&completion_chunk.delta) {
+    match serde_json::from_str::<CompletionResponse>(&delta) {
         Ok(response) => {
             // Process each tool call in the response
             for choice in &response.choices {
@@ -38,5 +37,5 @@ pub fn handle_tool_call(completion_chunk: CompletionChunk) -> Result<Event, axum
     }
 
     // Return the original event
-    Ok(Event::default().data(completion_chunk.delta))
+    Ok(Event::default().data(delta))
 }

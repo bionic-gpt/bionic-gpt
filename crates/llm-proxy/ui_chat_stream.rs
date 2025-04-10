@@ -3,23 +3,22 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
-use db::ChatStatus;
-use std::sync::Arc;
-
-use super::function_tools;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
-use super::tool_call_handler::handle_tool_call;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
+use db::ChatStatus;
 use db::{queries, Pool};
+use integrations::function_tools;
+use integrations::tool_call_handler::handle_tool_call;
 use openai_api::{Completion, Message};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
 };
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
@@ -72,7 +71,7 @@ pub async fn chat_generate(
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::ToolCall(completion_chunk) => {
-                                handle_tool_call(completion_chunk)
+                                handle_tool_call(completion_chunk.delta)
                             }
                             GenerationEvent::End(completion_chunk) => {
                                 save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
