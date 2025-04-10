@@ -109,7 +109,7 @@ pub async fn chat_generate(
     }
 }
 
-// When the chta has completed, store the results in the database.
+// When the chat has completed, store the results in the database.
 async fn save_results(
     pool: &Pool,
     delta: &str,
@@ -119,10 +119,16 @@ async fn save_results(
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
+
+    let function_call: Option<String> = None;
+    let function_call_result: Option<String> = None;
+
     queries::chats::update_chat()
         .bind(
             &transaction,
             &delta,
+            &function_call,
+            &function_call_result,
             &super::token_count::token_count_from_string(delta).await,
             &ChatStatus::Success,
             &chat_id,

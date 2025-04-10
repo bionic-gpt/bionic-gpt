@@ -8,10 +8,12 @@ VALUES
     (:conversation_id, :prompt_id, encrypt_text(:user_request), encrypt_text(:prompt))
 RETURNING id;
     
---! update_chat
+--! update_chat(function_call?, function_call_results?)
 UPDATE chats 
 SET 
     response = encrypt_text(:response),
+    function_call = encrypt_text(:function_call),
+    function_call_results = encrypt_text(:function_call_results),
     tokens_received = :tokens_received,
     status = :chat_status
 WHERE
