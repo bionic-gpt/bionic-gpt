@@ -1,4 +1,4 @@
-use crate::{FunctionDefinition, Tool};
+use openai_api::{FunctionDefinition, Tool};
 use serde_json::{json, Value};
 use std::env;
 

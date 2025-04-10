@@ -1,38 +1,6 @@
 use super::sse_chat_enricher::CompletionChunk;
-use crate::{ToolCall, ToolCallFunction};
 use axum::response::sse::Event;
-use serde::Deserialize;
-
-/// Structs for deserializing the tool call JSON response
-#[derive(Debug, Deserialize)]
-struct ToolCallJson {
-    id: String,
-    #[serde(rename = "type")]
-    call_type: String,
-    function: ToolCallFunctionJson,
-}
-
-#[derive(Debug, Deserialize)]
-struct ToolCallFunctionJson {
-    name: String,
-    arguments: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct DeltaJson {
-    #[serde(default)]
-    tool_calls: Vec<ToolCallJson>,
-}
-
-#[derive(Debug, Deserialize)]
-struct ChoiceJson {
-    delta: DeltaJson,
-}
-
-#[derive(Debug, Deserialize)]
-struct CompletionResponse {
-    choices: Vec<ChoiceJson>,
-}
+use openai_api::{CompletionResponse, ToolCall, ToolCallFunction};
 
 /// Handles a tool call event by extracting the JSON data into structured types
 /// and logging the information using tracing.

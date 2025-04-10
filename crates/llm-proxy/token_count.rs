@@ -1,4 +1,4 @@
-use super::{Completion, Message};
+use openai_api::{Completion, Message};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 pub async fn token_count(completion: &Completion) -> i32 {
@@ -21,7 +21,7 @@ pub async fn token_count_from_string(message: &str) -> i32 {
         model: "".to_string(),
         max_tokens: None,
         stream: None,
-        messages: vec![super::Message {
+        messages: vec![Message {
             role: "".to_string(),
             content: message.to_string(),
             tool_call_id: None,

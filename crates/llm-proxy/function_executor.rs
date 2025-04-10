@@ -1,5 +1,5 @@
 use crate::function_tools;
-use crate::{Message, ToolCall};
+use openai_api::{Message, ToolCall};
 
 /// Execute a tool call and return a message with the result
 pub fn execute_tool_call(tool_call: &ToolCall) -> Result<Message, String> {
@@ -22,7 +22,7 @@ pub fn execute_tool_call(tool_call: &ToolCall) -> Result<Message, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ToolCallFunction;
+    use openai_api::ToolCallFunction;
     use serde_json::json;
 
     #[test]

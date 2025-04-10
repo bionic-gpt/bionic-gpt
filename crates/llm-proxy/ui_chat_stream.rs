@@ -15,6 +15,7 @@ use crate::jwt::Jwt;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
+use openai_api::{Completion, Message};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -24,7 +25,6 @@ use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 
 use super::{limits, UICompletions};
-use super::{Completion, Message};
 
 // Called from the front end to generate a streaming chat with the model
 pub async fn chat_generate(
