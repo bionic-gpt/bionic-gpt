@@ -179,35 +179,13 @@ async fn generate_prompt(
         }
 
         // Expand all the chats we have into the corresponding Messages
-        // 1 Chat might be more than 1 Message and might be a function call.
         if let Some(hist) = history.pop() {
             // Add the history in before the last message
             if let Some(top_message) = messages.pop() {
-                size_so_far = add_message(
-                    &mut messages,
-                    Message {
-                        role: "user".to_string(),
-                        content: hist.user_request,
-                        tool_call_id: None,
-                        tool_calls: None,
-                        name: None,
-                    },
-                    size_so_far,
-                    size_allowed,
-                );
-                if let Some(response) = hist.response {
-                    size_so_far = add_message(
-                        &mut messages,
-                        Message {
-                            role: "assistant".to_string(),
-                            content: response,
-                            tool_call_id: None,
-                            tool_calls: None,
-                            name: None,
-                        },
-                        size_so_far,
-                        size_allowed,
-                    );
+                let chat_messages = convert_chat_to_messages(hist);
+                for message_to_add in chat_messages {
+                    size_so_far +=
+                        add_message(&mut messages, message_to_add, size_so_far, size_allowed);
                 }
                 messages.push(top_message);
             }
@@ -221,6 +199,46 @@ async fn generate_prompt(
     tracing::debug!("{:?}", &messages);
 
     (messages, chunk_ids)
+}
+
+fn convert_chat_to_messages(chat: Chat) -> Vec<Message> {
+    let mut messages: Vec<Message> = Default::default();
+    if let Some(function_call) = chat.function_call {
+        messages.push(Message {
+            role: "function".to_string(),
+            content: function_call,
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
+        });
+        if let Some(results) = chat.function_call_results {
+            messages.push(Message {
+                role: "tool".to_string(),
+                content: results,
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
+            });
+        }
+    } else {
+        messages.push(Message {
+            role: "user".to_string(),
+            content: chat.user_request,
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
+        });
+        if let Some(response) = chat.response {
+            messages.push(Message {
+                role: "assistant".to_string(),
+                content: response,
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
+            });
+        }
+    };
+    messages
 }
 
 fn size_context(context: String) -> usize {
