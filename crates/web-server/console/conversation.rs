@@ -31,7 +31,7 @@ pub async fn conversation(
         .await?
         .is_empty();
 
-    let mut chats_with_chunks = Vec::new();
+    let mut chats_with_chunks: Vec<ChatWithChunks> = Vec::new();
     let mut lock_console = false;
 
     for chat in chats.into_iter() {
@@ -48,6 +48,13 @@ pub async fn conversation(
             chunks: chunks_chats,
         };
         chats_with_chunks.push(chat_with_chunks);
+    }
+
+    // If the last chat with chunks is a function call, lock the console.
+    if let Some(last_chat_with_chunks) = chats_with_chunks.last() {
+        if last_chat_with_chunks.get_function_call_results().is_some() {
+            lock_console = true;
+        }
     }
 
     let prompts = prompts::prompts()

@@ -32,7 +32,7 @@ pub fn ConsoleStream(
                     TimeLine {
                         if let Some(function_call_results) = chat_with_chunks.get_function_call_results() {
                             TimeLineBadge {
-                                image_src: profile_svg.name
+                                image_src: spinner_svg.name
                             }
                             TimeLineBody {
                                 Label {
