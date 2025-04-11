@@ -30,14 +30,17 @@ pub fn ConsoleStream(
                 div {
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
                     TimeLine {
-                        if let Some(function_call_results) = chat_with_chunks.chat.function_call_results {
+                        if let Some(function_call_results) = chat_with_chunks.get_function_call_results() {
                             TimeLineBadge {
                                 image_src: profile_svg.name
                             }
                             TimeLineBody {
-                                span {
-                                    class: "prose",
-                                    "{function_call_results} "
+                                Label {
+                                    "Function Call:"
+                                    strong {
+                                        class: "ml-2",
+                                        "{function_call_results.name}"
+                                    }
                                 }
                             }
                         }
