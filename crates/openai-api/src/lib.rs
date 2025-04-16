@@ -4,7 +4,9 @@
 
 mod json;
 mod models;
+mod tools;
 
 // Re-export all the models
 pub use json::*;
 pub use models::*;
+pub use tools::*;
