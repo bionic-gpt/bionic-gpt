@@ -1,7 +1,7 @@
 use crate::errors::CustomError;
 use db::queries::{chats, chats_chunks, prompts};
 use db::{Chat, RelatedContext, Transaction};
-use openai_api::Message;
+use openai_api::{Message, ToolCall, ToolCallFunction};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -204,21 +204,67 @@ async fn generate_prompt(
 fn convert_chat_to_messages(chat: Chat) -> Vec<Message> {
     let mut messages: Vec<Message> = Default::default();
     if let Some(function_call) = chat.function_call {
-        messages.push(Message {
-            role: "function".to_string(),
-            content: function_call,
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        });
-        if let Some(results) = chat.function_call_results {
+        // Parse the function call JSON to extract necessary information
+        if let Ok(function_call_json) = serde_json::from_str::<serde_json::Value>(&function_call) {
+            let id = function_call_json["id"]
+                .as_str()
+                .unwrap_or("call_id")
+                .to_string();
+            let function_type = function_call_json["type"]
+                .as_str()
+                .unwrap_or("function")
+                .to_string();
+            let function_name = function_call_json["function"]["name"]
+                .as_str()
+                .unwrap_or("")
+                .to_string();
+            let function_arguments = function_call_json["function"]["arguments"].to_string();
+
+            // Create an assistant message with tool_calls
             messages.push(Message {
-                role: "tool".to_string(),
-                content: results,
+                role: "assistant".to_string(),
+                content: "".to_string(),
+                tool_call_id: None,
+                tool_calls: Some(vec![ToolCall {
+                    id: id.clone(),
+                    r#type: function_type,
+                    function: ToolCallFunction {
+                        name: function_name.clone(),
+                        arguments: function_arguments,
+                    },
+                }]),
+                name: None,
+            });
+
+            // Add tool response if results exist
+            if let Some(results) = chat.function_call_results {
+                messages.push(Message {
+                    role: "tool".to_string(),
+                    content: results,
+                    tool_call_id: Some(id),
+                    name: Some(function_name),
+                    tool_calls: None,
+                });
+            }
+        } else {
+            // Fallback if JSON parsing fails
+            messages.push(Message {
+                role: "function".to_string(),
+                content: function_call,
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
             });
+
+            if let Some(results) = chat.function_call_results {
+                messages.push(Message {
+                    role: "tool".to_string(),
+                    content: results,
+                    tool_call_id: None,
+                    tool_calls: None,
+                    name: None,
+                });
+            }
         }
     } else {
         messages.push(Message {
@@ -278,6 +324,94 @@ fn add_message(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn test_convert_chat_to_messages_function_calling() {
+        // Create a Chat struct with function call data similar to the OpenAI example
+        let chat = Chat {
+            id: 0,
+            conversation_id: 0,
+            user_request: "What's the weather like in San Francisco?".to_string(),
+            function_call: Some(
+                json!({
+                    "id": "call_123",
+                    "type": "function",
+                    "function": {
+                        "name": "get_weather",
+                        "arguments": {
+                            "location": "San Francisco, CA",
+                            "unit": "celsius"
+                        }
+                    }
+                })
+                .to_string(),
+            ),
+            function_call_results: Some(
+                json!({
+                    "location": "San Francisco, CA",
+                    "temperature": 22,
+                    "unit": "celsius",
+                    "condition": "sunny",
+                    "forecast": ["sunny", "partly cloudy", "sunny"]
+                })
+                .to_string(),
+            ),
+            prompt: "weather query".to_string(),
+            prompt_id: 0,
+            model_name: "gpt-4".to_string(),
+            response: None,
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            updated_at: time::OffsetDateTime::UNIX_EPOCH,
+        };
+
+        // Call convert_chat_to_messages on this struct
+        let messages = convert_chat_to_messages(chat);
+
+        // Assert the new expected behavior
+        assert_eq!(messages.len(), 2);
+        assert_eq!(messages[0].role, "assistant");
+        assert!(messages[0].tool_calls.is_some());
+        let tool_calls = messages[0].tool_calls.as_ref().unwrap();
+        assert_eq!(tool_calls.len(), 1);
+        assert_eq!(tool_calls[0].id, "call_123");
+        assert_eq!(tool_calls[0].r#type, "function");
+        assert_eq!(tool_calls[0].function.name, "get_weather");
+
+        assert_eq!(messages[1].role, "tool");
+        assert_eq!(messages[1].tool_call_id, Some("call_123".to_string()));
+        assert_eq!(messages[1].name, Some("get_weather".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_convert_chat_to_messages_function_calling_fallback() {
+        // Create a Chat struct with invalid JSON function call data
+        let chat = Chat {
+            id: 0,
+            conversation_id: 0,
+            user_request: "What's the weather like in San Francisco?".to_string(),
+            function_call: Some("invalid json".to_string()),
+            function_call_results: Some("some results".to_string()),
+            prompt: "weather query".to_string(),
+            prompt_id: 0,
+            model_name: "gpt-4".to_string(),
+            response: None,
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            updated_at: time::OffsetDateTime::UNIX_EPOCH,
+        };
+
+        // Call convert_chat_to_messages on this struct
+        let messages = convert_chat_to_messages(chat);
+
+        // Assert the fallback behavior
+        assert_eq!(messages.len(), 2);
+        assert_eq!(messages[0].role, "function");
+        assert_eq!(messages[0].content, "invalid json");
+        assert_eq!(messages[1].role, "tool");
+        assert_eq!(messages[1].content, "some results");
+        assert_eq!(messages[1].tool_call_id, None);
+        assert_eq!(messages[1].name, None);
+    }
 
     #[tokio::test]
     async fn test_generate_prompt() {
