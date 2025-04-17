@@ -37,7 +37,7 @@ pub fn contact_page() -> String {
                     a {
                         class: "btn btn-primary",
                         href: "https://calendly.com/bionicgpt",
-                        "Book a Demo via Calendly"
+                        "Book a Call via Calendly"
                     }
                 }
 

@@ -22,7 +22,7 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
                         a {
                             class: "btn btn-primary",
                             href: marketing::Contact {}.to_string(),
-                            "Book a Demo"
+                            "Book a Call"
                         }
                         strong {
                             class: "hidden md:inline ml-4",

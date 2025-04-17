@@ -23,7 +23,7 @@ pub fn Hero(title: String, subtitle: String) -> Element {
                         a {
                             class: "btn btn-primary",
                             href: marketing::Contact {}.to_string(),
-                            "Book a Demo"
+                            "Book a Call"
                         }
                     }
                 }

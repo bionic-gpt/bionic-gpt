@@ -157,7 +157,7 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                         NavItem {
                             class: "btn btn-primary btn-sm",
                             link: marketing::Contact {}.to_string(),
-                            name: "Book a Demo".to_string(),
+                            name: "Book a Call".to_string(),
                             section: Section::Contact,
                             current_section: section.clone(),
                         }

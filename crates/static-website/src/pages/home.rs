@@ -24,7 +24,7 @@ pub fn home_page() -> String {
                 class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
-                    title: "Experience The Power of Generative AI With Unmatched Data Privacy",
+                    title: "The all-in-one Private Generative AI platform — built for enterprise security, and control.",
                     subtitle: "Unlock the full potential of generative AI while keeping your data secure and compliant.",
                     claim: "and join hundreds of global installations!"
                 }
