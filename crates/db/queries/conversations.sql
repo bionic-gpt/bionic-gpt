@@ -48,7 +48,7 @@ SELECT
         WHEN LENGTH(decrypt_text(summary.user_request)) > 150 THEN 
             LEFT(decrypt_text(summary.user_request), 150) || '...'
         ELSE 
-            summary.user_request
+            decrypt_text(summary.user_request)
     END AS summary,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(c.created_at)::text) as created_at_iso,

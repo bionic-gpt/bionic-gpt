@@ -11,11 +11,13 @@ path = "lib.rs"
 [dependencies]
 db = { path = "../db" }
 assets = { path = "../web-assets" }
+openai-api = { path = "../openai-api" }
 axum = { version = "0.8", default-features = false }
 axum-extra = { version = "0.10", features = ["typed-routing"] }
 dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
 dioxus-ssr = { version = "0.6", default-features = false }
 serde = "1"
+serde_json = { version = "1" }
 daisy_rsx = "0.1.14"
 comrak = { version = "0", default-features = false }
 time = "0.3.36"

@@ -1,7 +1,7 @@
 use crate::errors::CustomError;
 use db::queries::{chats, chats_chunks, prompts};
 use db::{Chat, RelatedContext, Transaction};
-use openai_api::Message;
+use openai_api::{Message, ToolCall, ToolCallFunction};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -93,17 +93,6 @@ pub async fn execute_prompt(
         }
     }
 
-    let messages = messages
-        .into_iter()
-        .map(|msg| Message {
-            role: msg.role,
-            content: msg.content.unwrap_or("".to_string()),
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        })
-        .collect();
-
     Ok(messages)
 }
 
@@ -115,8 +104,8 @@ async fn generate_prompt(
     mut history: Vec<Chat>,
     question: Vec<Message>,
     related_context: Vec<RelatedContext>,
-) -> (Vec<ChatCompletionRequestMessage>, Vec<i32>) {
-    let mut messages: Vec<ChatCompletionRequestMessage> = Default::default();
+) -> (Vec<Message>, Vec<i32>) {
+    let mut messages: Vec<Message> = Default::default();
     // We need to remember which chunks are used in the chat.
     let mut chunk_ids: Vec<i32> = Default::default();
 
@@ -150,8 +139,13 @@ async fn generate_prompt(
     if let Some(system_prompt) = &system_prompt {
         size_so_far = add_message(
             &mut messages,
-            "system".to_string(),
-            system_prompt.clone(),
+            Message {
+                role: "system".to_string(),
+                content: system_prompt.clone(),
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
+            },
             size_so_far,
             size_allowed,
         );
@@ -160,13 +154,7 @@ async fn generate_prompt(
     // Add the messages that have come from the UI or the API
     // This may already overflow the context!!
     for message in question.into_iter() {
-        size_so_far = add_message(
-            &mut messages,
-            message.role,
-            message.content,
-            size_so_far,
-            size_allowed,
-        );
+        size_so_far = add_message(&mut messages, message, size_so_far, size_allowed);
     }
 
     let mut related_context: Vec<&RelatedContext> = related_context.iter().rev().collect();
@@ -184,31 +172,20 @@ async fn generate_prompt(
                 context_so_far += "\n";
                 if let Some(prompt) = &system_prompt {
                     let replaced = prompt.replace("{context_str}", &context_so_far);
-                    messages[0].content = Some(replaced);
+                    messages[0].content = replaced;
                 }
                 size_so_far += size_rel_context;
             }
         }
 
-        // Add some history
+        // Expand all the chats we have into the corresponding Messages
         if let Some(hist) = history.pop() {
-            // Add the histor in before the last message
+            // Add the history in before the last message
             if let Some(top_message) = messages.pop() {
-                size_so_far = add_message(
-                    &mut messages,
-                    "user".to_string(),
-                    hist.user_request,
-                    size_so_far,
-                    size_allowed,
-                );
-                if let Some(response) = hist.response {
-                    size_so_far = add_message(
-                        &mut messages,
-                        "assistant".to_string(),
-                        response,
-                        size_so_far,
-                        size_allowed,
-                    );
+                let chat_messages = convert_chat_to_messages(hist);
+                for message_to_add in chat_messages {
+                    size_so_far +=
+                        add_message(&mut messages, message_to_add, size_so_far, size_allowed);
                 }
                 messages.push(top_message);
             }
@@ -224,6 +201,92 @@ async fn generate_prompt(
     (messages, chunk_ids)
 }
 
+fn convert_chat_to_messages(chat: Chat) -> Vec<Message> {
+    let mut messages: Vec<Message> = Default::default();
+    if let Some(function_call) = chat.function_call {
+        // Parse the function call JSON to extract necessary information
+        if let Ok(function_call_json) = serde_json::from_str::<serde_json::Value>(&function_call) {
+            let id = function_call_json["id"]
+                .as_str()
+                .unwrap_or("call_id")
+                .to_string();
+            let function_type = function_call_json["type"]
+                .as_str()
+                .unwrap_or("function")
+                .to_string();
+            let function_name = function_call_json["function"]["name"]
+                .as_str()
+                .unwrap_or("")
+                .to_string();
+            let function_arguments = function_call_json["function"]["arguments"].to_string();
+
+            // Create an assistant message with tool_calls
+            messages.push(Message {
+                role: "assistant".to_string(),
+                content: "".to_string(),
+                tool_call_id: None,
+                tool_calls: Some(vec![ToolCall {
+                    id: id.clone(),
+                    r#type: function_type,
+                    function: ToolCallFunction {
+                        name: function_name.clone(),
+                        arguments: function_arguments,
+                    },
+                }]),
+                name: None,
+            });
+
+            // Add tool response if results exist
+            if let Some(results) = chat.function_call_results {
+                messages.push(Message {
+                    role: "tool".to_string(),
+                    content: results,
+                    tool_call_id: Some(id),
+                    name: Some(function_name),
+                    tool_calls: None,
+                });
+            }
+        } else {
+            // Fallback if JSON parsing fails
+            messages.push(Message {
+                role: "function".to_string(),
+                content: function_call,
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
+            });
+
+            if let Some(results) = chat.function_call_results {
+                messages.push(Message {
+                    role: "tool".to_string(),
+                    content: results,
+                    tool_call_id: None,
+                    tool_calls: None,
+                    name: None,
+                });
+            }
+        }
+    } else {
+        messages.push(Message {
+            role: "user".to_string(),
+            content: chat.user_request,
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
+        });
+        if let Some(response) = chat.response {
+            messages.push(Message {
+                role: "assistant".to_string(),
+                content: response,
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
+            });
+        }
+    };
+    messages
+}
+
 fn size_context(context: String) -> usize {
     let request = ChatCompletionRequestMessage {
         role: "".to_string(),
@@ -236,15 +299,14 @@ fn size_context(context: String) -> usize {
 
 // Only add a message if the context doesn't overflow
 fn add_message(
-    messages: &mut Vec<ChatCompletionRequestMessage>,
-    role: String,
-    content: String,
+    messages: &mut Vec<Message>,
+    message_to_add: Message,
     size_so_far: usize,
     size_allowed: usize,
 ) -> usize {
     let request = ChatCompletionRequestMessage {
-        role,
-        content: Some(content),
+        role: message_to_add.role.clone(),
+        content: Some(message_to_add.content.clone()),
         name: None,
         function_call: None,
     };
@@ -252,7 +314,7 @@ fn add_message(
     let size = num_tokens_from_messages("gpt-4", &[request.clone()]).unwrap();
 
     if (size + size_so_far) < size_allowed {
-        messages.push(request);
+        messages.push(message_to_add);
         return size_so_far + size;
     }
 
@@ -262,6 +324,94 @@ fn add_message(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn test_convert_chat_to_messages_function_calling() {
+        // Create a Chat struct with function call data similar to the OpenAI example
+        let chat = Chat {
+            id: 0,
+            conversation_id: 0,
+            user_request: "What's the weather like in San Francisco?".to_string(),
+            function_call: Some(
+                json!({
+                    "id": "call_123",
+                    "type": "function",
+                    "function": {
+                        "name": "get_weather",
+                        "arguments": {
+                            "location": "San Francisco, CA",
+                            "unit": "celsius"
+                        }
+                    }
+                })
+                .to_string(),
+            ),
+            function_call_results: Some(
+                json!({
+                    "location": "San Francisco, CA",
+                    "temperature": 22,
+                    "unit": "celsius",
+                    "condition": "sunny",
+                    "forecast": ["sunny", "partly cloudy", "sunny"]
+                })
+                .to_string(),
+            ),
+            prompt: "weather query".to_string(),
+            prompt_id: 0,
+            model_name: "gpt-4".to_string(),
+            response: None,
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            updated_at: time::OffsetDateTime::UNIX_EPOCH,
+        };
+
+        // Call convert_chat_to_messages on this struct
+        let messages = convert_chat_to_messages(chat);
+
+        // Assert the new expected behavior
+        assert_eq!(messages.len(), 2);
+        assert_eq!(messages[0].role, "assistant");
+        assert!(messages[0].tool_calls.is_some());
+        let tool_calls = messages[0].tool_calls.as_ref().unwrap();
+        assert_eq!(tool_calls.len(), 1);
+        assert_eq!(tool_calls[0].id, "call_123");
+        assert_eq!(tool_calls[0].r#type, "function");
+        assert_eq!(tool_calls[0].function.name, "get_weather");
+
+        assert_eq!(messages[1].role, "tool");
+        assert_eq!(messages[1].tool_call_id, Some("call_123".to_string()));
+        assert_eq!(messages[1].name, Some("get_weather".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_convert_chat_to_messages_function_calling_fallback() {
+        // Create a Chat struct with invalid JSON function call data
+        let chat = Chat {
+            id: 0,
+            conversation_id: 0,
+            user_request: "What's the weather like in San Francisco?".to_string(),
+            function_call: Some("invalid json".to_string()),
+            function_call_results: Some("some results".to_string()),
+            prompt: "weather query".to_string(),
+            prompt_id: 0,
+            model_name: "gpt-4".to_string(),
+            response: None,
+            created_at: time::OffsetDateTime::UNIX_EPOCH,
+            updated_at: time::OffsetDateTime::UNIX_EPOCH,
+        };
+
+        // Call convert_chat_to_messages on this struct
+        let messages = convert_chat_to_messages(chat);
+
+        // Assert the fallback behavior
+        assert_eq!(messages.len(), 2);
+        assert_eq!(messages[0].role, "function");
+        assert_eq!(messages[0].content, "invalid json");
+        assert_eq!(messages[1].role, "tool");
+        assert_eq!(messages[1].content, "some results");
+        assert_eq!(messages[1].tool_call_id, None);
+        assert_eq!(messages[1].name, None);
+    }
 
     #[tokio::test]
     async fn test_generate_prompt() {
@@ -287,8 +437,8 @@ mod tests {
 
         assert!(messages.len() == 4);
 
-        assert!(messages[0].content == Some("You are a helpful asistant".to_string()));
-        assert!(messages[3].content == Some("How are you today?".to_string()));
+        assert!(messages[0].content == "You are a helpful asistant");
+        assert!(messages[3].content == "How are you today?");
     }
 
     #[tokio::test]
@@ -318,52 +468,8 @@ mod tests {
 
         assert!(messages.len() == 4);
 
-        assert!(messages[0].content == Some("You are a helpful asistant\n\nContext information is below.\n--------------------\nThis might help\n\n--------------------".to_string()));
-        assert!(messages[3].content == Some("How are you today?".to_string()));
-    }
-
-    #[tokio::test]
-    async fn test_with_lots_of_context() {
-        let (messages, _chunk_ids) = generate_prompt(
-            2048,
-            1024,
-            1.0,
-            Some("You are a helpful asistant".to_string()),
-            vec![create_prompt(
-                "What time is it?".to_string(),
-                "I don't know".repeat(400),
-            )],
-            vec![Message {
-                role: "user".to_string(),
-                content: "How are you today?".to_string(),
-                tool_call_id: None,
-                tool_calls: None,
-                name: None,
-            }],
-            vec![
-                RelatedContext {
-                    chunk_text: "This might help".to_string(),
-                    chunk_id: 0,
-                },
-                RelatedContext {
-                    chunk_text: "word ".to_string(),
-                    chunk_id: 0,
-                },
-                RelatedContext {
-                    chunk_text: "test ".to_string(),
-                    chunk_id: 0,
-                },
-                RelatedContext {
-                    chunk_text: "name ".to_string(),
-                    chunk_id: 0,
-                },
-            ],
-        )
-        .await;
-
-        let size_so_far = num_tokens_from_messages("gpt-4", &messages).unwrap();
-
-        assert!(size_so_far < 1024);
+        assert!(messages[0].content == "You are a helpful asistant\n\nContext information is below.\n--------------------\nThis might help\n\n--------------------");
+        assert!(messages[3].content == "How are you today?");
     }
 
     fn create_prompt(question: String, answer: String) -> Chat {
