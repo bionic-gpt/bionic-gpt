@@ -35,6 +35,7 @@ pub async fn execute_prompt(
             &question,
             &embeddings_base_url,
             &embeddings_model,
+            prompt.model_context_size,
             &prompt.api_key,
         )
         .await
