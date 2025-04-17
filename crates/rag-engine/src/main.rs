@@ -84,6 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     &embedding.text,
                     &embedding.base_url,
                     &embedding.model,
+                    embedding.context_size,
                     &embedding.api_key,
                 )
                 .await;

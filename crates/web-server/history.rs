@@ -63,6 +63,7 @@ pub async fn search_action(
         &search.search,
         &embeddings_model.base_url,
         &embeddings_model.name,
+        embeddings_model.context_size,
         &embeddings_model.api_key,
     )
     .await

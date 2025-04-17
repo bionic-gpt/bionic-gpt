@@ -53,6 +53,7 @@ pub async fn update_response(
             &response,
             &embeddings_model.base_url,
             &embeddings_model.name,
+            embeddings_model.context_size,
             &embeddings_model.api_key,
         )
         .await

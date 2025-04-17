@@ -111,6 +111,7 @@ async fn handle_embeddings(
         message,
         &embeddings_model.base_url,
         &embeddings_model.name,
+        embeddings_model.context_size,
         &embeddings_model.api_key,
     )
     .await

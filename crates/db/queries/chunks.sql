@@ -25,7 +25,15 @@ SELECT
     WHERE 
         id IN (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
         (SELECT dataset_id FROM documents d WHERE d.id = document_id))
-    ) as model
+    ) as model,
+    (SELECT 
+        context_size 
+    FROM 
+        models 
+    WHERE 
+        id IN (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
+        (SELECT dataset_id FROM documents d WHERE d.id = document_id))
+    ) as context_size
 FROM
     chunks
 WHERE
