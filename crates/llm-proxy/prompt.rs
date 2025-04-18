@@ -97,7 +97,7 @@ pub async fn execute_prompt(
     Ok(messages)
 }
 
-async fn generate_prompt(
+pub async fn generate_prompt(
     model_context_size: usize,
     max_tokens: usize,
     trim_ratio: f32,
@@ -202,7 +202,7 @@ async fn generate_prompt(
     (messages, chunk_ids)
 }
 
-fn convert_chat_to_messages(chat: Chat) -> Vec<Message> {
+pub fn convert_chat_to_messages(chat: Chat) -> Vec<Message> {
     let mut messages: Vec<Message> = Default::default();
     if let Some(function_call) = chat.function_call {
         // Parse the function call JSON to extract necessary information
@@ -320,172 +320,4 @@ fn add_message(
     }
 
     size_so_far
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-
-    #[tokio::test]
-    async fn test_convert_chat_to_messages_function_calling() {
-        // Create a Chat struct with function call data similar to the OpenAI example
-        let chat = Chat {
-            id: 0,
-            conversation_id: 0,
-            user_request: "What's the weather like in San Francisco?".to_string(),
-            function_call: Some(
-                json!({
-                    "id": "call_123",
-                    "type": "function",
-                    "function": {
-                        "name": "get_weather",
-                        "arguments": {
-                            "location": "San Francisco, CA",
-                            "unit": "celsius"
-                        }
-                    }
-                })
-                .to_string(),
-            ),
-            function_call_results: Some(
-                json!({
-                    "location": "San Francisco, CA",
-                    "temperature": 22,
-                    "unit": "celsius",
-                    "condition": "sunny",
-                    "forecast": ["sunny", "partly cloudy", "sunny"]
-                })
-                .to_string(),
-            ),
-            prompt: "weather query".to_string(),
-            prompt_id: 0,
-            model_name: "gpt-4".to_string(),
-            response: None,
-            created_at: time::OffsetDateTime::UNIX_EPOCH,
-            updated_at: time::OffsetDateTime::UNIX_EPOCH,
-        };
-
-        // Call convert_chat_to_messages on this struct
-        let messages = convert_chat_to_messages(chat);
-
-        // Assert the new expected behavior
-        assert_eq!(messages.len(), 2);
-        assert_eq!(messages[0].role, "assistant");
-        assert!(messages[0].tool_calls.is_some());
-        let tool_calls = messages[0].tool_calls.as_ref().unwrap();
-        assert_eq!(tool_calls.len(), 1);
-        assert_eq!(tool_calls[0].id, "call_123");
-        assert_eq!(tool_calls[0].r#type, "function");
-        assert_eq!(tool_calls[0].function.name, "get_weather");
-
-        assert_eq!(messages[1].role, "tool");
-        assert_eq!(messages[1].tool_call_id, Some("call_123".to_string()));
-        assert_eq!(messages[1].name, Some("get_weather".to_string()));
-    }
-
-    #[tokio::test]
-    async fn test_convert_chat_to_messages_function_calling_fallback() {
-        // Create a Chat struct with invalid JSON function call data
-        let chat = Chat {
-            id: 0,
-            conversation_id: 0,
-            user_request: "What's the weather like in San Francisco?".to_string(),
-            function_call: Some("invalid json".to_string()),
-            function_call_results: Some("some results".to_string()),
-            prompt: "weather query".to_string(),
-            prompt_id: 0,
-            model_name: "gpt-4".to_string(),
-            response: None,
-            created_at: time::OffsetDateTime::UNIX_EPOCH,
-            updated_at: time::OffsetDateTime::UNIX_EPOCH,
-        };
-
-        // Call convert_chat_to_messages on this struct
-        let messages = convert_chat_to_messages(chat);
-
-        // Assert the fallback behavior
-        assert_eq!(messages.len(), 2);
-        assert_eq!(messages[0].role, "function");
-        assert_eq!(messages[0].content, "invalid json");
-        assert_eq!(messages[1].role, "tool");
-        assert_eq!(messages[1].content, "some results");
-        assert_eq!(messages[1].tool_call_id, None);
-        assert_eq!(messages[1].name, None);
-    }
-
-    #[tokio::test]
-    async fn test_generate_prompt() {
-        let (messages, _chunk_ids) = generate_prompt(
-            2048,
-            1024,
-            1.0,
-            Some("You are a helpful asistant".to_string()),
-            vec![create_prompt(
-                "What time is it?".to_string(),
-                "I don't know".to_string(),
-            )],
-            vec![Message {
-                role: "user".to_string(),
-                content: "How are you today?".to_string(),
-                tool_call_id: None,
-                tool_calls: None,
-                name: None,
-            }],
-            Default::default(),
-        )
-        .await;
-
-        assert!(messages.len() == 4);
-
-        assert!(messages[0].content == "You are a helpful asistant");
-        assert!(messages[3].content == "How are you today?");
-    }
-
-    #[tokio::test]
-    async fn test_generate_prompt_with_context() {
-        let (messages, _chunk_ids) = generate_prompt(
-            2048,
-            1024,
-            1.0,
-            Some("You are a helpful asistant".to_string()),
-            vec![create_prompt(
-                "What time is it?".to_string(),
-                "I don't know".to_string(),
-            )],
-            vec![Message {
-                role: "user".to_string(),
-                content: "How are you today?".to_string(),
-                tool_call_id: None,
-                tool_calls: None,
-                name: None,
-            }],
-            vec![RelatedContext {
-                chunk_text: "This might help".to_string(),
-                chunk_id: 0,
-            }],
-        )
-        .await;
-
-        assert!(messages.len() == 4);
-
-        assert!(messages[0].content == "You are a helpful asistant\n\nContext information is below.\n--------------------\nThis might help\n\n--------------------");
-        assert!(messages[3].content == "How are you today?");
-    }
-
-    fn create_prompt(question: String, answer: String) -> Chat {
-        Chat {
-            id: 0,
-            conversation_id: 0,
-            user_request: question,
-            function_call: None,
-            function_call_results: None,
-            prompt: "todo!()".to_string(),
-            prompt_id: 0,
-            model_name: "ggml".to_string(),
-            response: Some(answer),
-            created_at: time::OffsetDateTime::UNIX_EPOCH,
-            updated_at: time::OffsetDateTime::UNIX_EPOCH,
-        }
-    }
 }
