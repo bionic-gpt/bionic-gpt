@@ -5,6 +5,7 @@
 //! ```
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
+use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use axum::response::{sse::Event, Sse};
@@ -13,7 +14,7 @@ use db::ChatStatus;
 use db::{queries, Pool};
 use integrations;
 use integrations::get_openai_tools;
-use openai_api::{Completion, Message};
+use openai_api::Completion;
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -169,21 +170,27 @@ async fn create_request(
         .bind(&transaction, &chat.prompt_id, &conversation.team_id)
         .one()
         .await?;
-    let chat_request = Message {
-        role: "user".to_string(),
-        content: chat.user_request,
-        tool_call_id: None,
-        tool_calls: None,
-        name: None,
-    };
+    // Get the maximum required amount of chat history
+    let chat_history = queries::chats::chat_history()
+        .bind(
+            &transaction,
+            &conversation.id,
+            &(prompt.max_history_items as i64),
+        )
+        .all()
+        .await?;
+
+    let chat_history = chat_converter::convert_chat_to_messages(chat_history);
+
     let messages = super::prompt::execute_prompt(
         &transaction,
         prompt.id,
         conversation.team_id,
         Some(conversation.id),
-        vec![chat_request],
+        chat_history,
     )
     .await?;
+
     let json_messages = serde_json::to_string(&messages)?;
     let size = super::token_count::token_count_from_messages(messages.clone()).await;
     queries::chats::update_prompt()

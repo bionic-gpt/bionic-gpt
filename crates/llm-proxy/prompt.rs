@@ -1,7 +1,7 @@
 use crate::errors::CustomError;
-use db::queries::{chats, chats_chunks, prompts};
-use db::{Chat, RelatedContext, Transaction};
-use openai_api::{Message, ToolCall, ToolCallFunction};
+use db::queries::{chats_chunks, prompts};
+use db::{RelatedContext, Transaction};
+use openai_api::Message;
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -12,7 +12,7 @@ pub async fn execute_prompt(
     prompt_id: i32,
     team_id: i32,
     conversation_id: Option<i64>,
-    chat: Vec<Message>,
+    chat_history: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     // Get the prompt
     let prompt = prompts::prompt()
@@ -20,7 +20,7 @@ pub async fn execute_prompt(
         .one()
         .await?;
 
-    let question = if let Some(q) = chat.last() {
+    let question = if let Some(q) = chat_history.last() {
         q.content.clone()
     } else {
         "".to_string()
@@ -55,20 +55,6 @@ pub async fn execute_prompt(
         tracing::info!("Retrieved {} chunks", related_context.len());
     }
 
-    // Get the maximum required amount of chat history
-    let chat_history = if let Some(conversation_id) = conversation_id {
-        chats::chat_history()
-            .bind(
-                transaction,
-                &conversation_id,
-                &(prompt.max_history_items as i64),
-            )
-            .all()
-            .await?
-    } else {
-        Default::default()
-    };
-
     tracing::info!("Retrieved {} history items", chat_history.len());
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
@@ -79,7 +65,6 @@ pub async fn execute_prompt(
         trim_ratio,
         prompt.system_prompt,
         chat_history,
-        chat,
         related_context,
     )
     .await;
@@ -102,8 +87,7 @@ pub async fn generate_prompt(
     max_tokens: usize,
     trim_ratio: f32,
     system_prompt: Option<String>,
-    mut history: Vec<Chat>,
-    question: Vec<Message>,
+    mut history: Vec<Message>,
     related_context: Vec<RelatedContext>,
 ) -> (Vec<Message>, Vec<i32>) {
     let mut messages: Vec<Message> = Default::default();
@@ -152,12 +136,6 @@ pub async fn generate_prompt(
         );
     }
 
-    // Add the messages that have come from the UI or the API
-    // This may already overflow the context!!
-    for message in question.into_iter() {
-        size_so_far = add_message(&mut messages, message, size_so_far, size_allowed);
-    }
-
     let mut related_context: Vec<&RelatedContext> = related_context.iter().rev().collect();
     let mut context_so_far: String = Default::default();
 
@@ -181,15 +159,7 @@ pub async fn generate_prompt(
 
         // Expand all the chats we have into the corresponding Messages
         if let Some(hist) = history.pop() {
-            // Add the history in before the last message
-            if let Some(top_message) = messages.pop() {
-                let chat_messages = convert_chat_to_messages(hist);
-                for message_to_add in chat_messages {
-                    size_so_far +=
-                        add_message(&mut messages, message_to_add, size_so_far, size_allowed);
-                }
-                messages.push(top_message);
-            }
+            size_so_far += add_message(&mut messages, hist, size_so_far, size_allowed);
         }
 
         if history.is_empty() && related_context.is_empty() {
@@ -200,92 +170,6 @@ pub async fn generate_prompt(
     tracing::debug!("{:?}", &messages);
 
     (messages, chunk_ids)
-}
-
-pub fn convert_chat_to_messages(chat: Chat) -> Vec<Message> {
-    let mut messages: Vec<Message> = Default::default();
-    if let Some(function_call) = chat.function_call {
-        // Parse the function call JSON to extract necessary information
-        if let Ok(function_call_json) = serde_json::from_str::<serde_json::Value>(&function_call) {
-            let id = function_call_json["id"]
-                .as_str()
-                .unwrap_or("call_id")
-                .to_string();
-            let function_type = function_call_json["type"]
-                .as_str()
-                .unwrap_or("function")
-                .to_string();
-            let function_name = function_call_json["function"]["name"]
-                .as_str()
-                .unwrap_or("")
-                .to_string();
-            let function_arguments = function_call_json["function"]["arguments"].to_string();
-
-            // Create an assistant message with tool_calls
-            messages.push(Message {
-                role: "assistant".to_string(),
-                content: "".to_string(),
-                tool_call_id: None,
-                tool_calls: Some(vec![ToolCall {
-                    id: id.clone(),
-                    r#type: function_type,
-                    function: ToolCallFunction {
-                        name: function_name.clone(),
-                        arguments: function_arguments,
-                    },
-                }]),
-                name: None,
-            });
-
-            // Add tool response if results exist
-            if let Some(results) = chat.function_call_results {
-                messages.push(Message {
-                    role: "tool".to_string(),
-                    content: results,
-                    tool_call_id: Some(id),
-                    name: Some(function_name),
-                    tool_calls: None,
-                });
-            }
-        } else {
-            // Fallback if JSON parsing fails
-            messages.push(Message {
-                role: "function".to_string(),
-                content: function_call,
-                tool_call_id: None,
-                tool_calls: None,
-                name: None,
-            });
-
-            if let Some(results) = chat.function_call_results {
-                messages.push(Message {
-                    role: "tool".to_string(),
-                    content: results,
-                    tool_call_id: None,
-                    tool_calls: None,
-                    name: None,
-                });
-            }
-        }
-    } else {
-        messages.push(Message {
-            role: "user".to_string(),
-            content: chat.user_request,
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        });
-        if let Some(response) = chat.response {
-            messages.push(Message {
-                role: "assistant".to_string(),
-                content: response,
-                tool_call_id: None,
-                tool_calls: None,
-                name: None,
-            });
-        }
-    };
-    messages
 }
 
 fn size_context(context: String) -> usize {

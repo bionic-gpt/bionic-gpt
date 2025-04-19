@@ -1,5 +1,6 @@
 pub mod api_chat_stream;
 pub mod api_reverse_proxy;
+mod chat_converter;
 mod errors;
 mod jwt;
 pub mod limits;

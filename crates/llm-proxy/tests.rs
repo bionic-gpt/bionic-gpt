@@ -1,8 +1,9 @@
-use crate::prompt::{convert_chat_to_messages, generate_prompt};
-use db::{Chat, RelatedContext};
+use db::Chat;
 use openai_api::Message;
 use serde_json::json;
 use time::OffsetDateTime;
+
+use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
 
 #[tokio::test]
 async fn test_convert_chat_to_messages_function_calling() {
@@ -44,7 +45,7 @@ async fn test_convert_chat_to_messages_function_calling() {
     };
 
     // Call convert_chat_to_messages on this struct
-    let messages = convert_chat_to_messages(chat);
+    let messages = convert_chat_to_messages(vec![chat]);
 
     // Assert the new expected behavior
     assert_eq!(messages.len(), 2);
@@ -79,7 +80,7 @@ async fn test_convert_chat_to_messages_function_calling_fallback() {
     };
 
     // Call convert_chat_to_messages on this struct
-    let messages = convert_chat_to_messages(chat);
+    let messages = convert_chat_to_messages(vec![chat]);
 
     // Assert the fallback behavior
     assert_eq!(messages.len(), 2);
@@ -98,10 +99,6 @@ async fn test_generate_prompt() {
         1024,
         1.0,
         Some("You are a helpful asistant".to_string()),
-        vec![create_prompt(
-            "What time is it?".to_string(),
-            "I don't know".to_string(),
-        )],
         vec![Message {
             role: "user".to_string(),
             content: "How are you today?".to_string(),
@@ -117,51 +114,4 @@ async fn test_generate_prompt() {
 
     assert!(messages[0].content == "You are a helpful asistant");
     assert!(messages[3].content == "How are you today?");
-}
-
-#[tokio::test]
-async fn test_generate_prompt_with_context() {
-    let (messages, _chunk_ids) = generate_prompt(
-        2048,
-        1024,
-        1.0,
-        Some("You are a helpful asistant".to_string()),
-        vec![create_prompt(
-            "What time is it?".to_string(),
-            "I don't know".to_string(),
-        )],
-        vec![Message {
-            role: "user".to_string(),
-            content: "How are you today?".to_string(),
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        }],
-        vec![RelatedContext {
-            chunk_text: "This might help".to_string(),
-            chunk_id: 0,
-        }],
-    )
-    .await;
-
-    assert!(messages.len() == 4);
-
-    assert!(messages[0].content == "You are a helpful asistant\n\nContext information is below.\n--------------------\nThis might help\n\n--------------------");
-    assert!(messages[3].content == "How are you today?");
-}
-
-fn create_prompt(question: String, answer: String) -> Chat {
-    Chat {
-        id: 0,
-        conversation_id: 0,
-        user_request: question,
-        function_call: None,
-        function_call_results: None,
-        prompt: "todo!()".to_string(),
-        prompt_id: 0,
-        model_name: "ggml".to_string(),
-        response: Some(answer),
-        created_at: OffsetDateTime::UNIX_EPOCH,
-        updated_at: OffsetDateTime::UNIX_EPOCH,
-    }
 }
