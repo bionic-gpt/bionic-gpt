@@ -5,6 +5,13 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
     let mut messages: Vec<Message> = Default::default();
     for chat in conversation {
         if let Some(function_call) = chat.function_call {
+            messages.push(Message {
+                role: "user".to_string(),
+                content: chat.user_request,
+                tool_call_id: None,
+                tool_calls: None,
+                name: None,
+            });
             // Parse the function call JSON to extract necessary information
             if let Ok(function_call_json) =
                 serde_json::from_str::<serde_json::Value>(&function_call)

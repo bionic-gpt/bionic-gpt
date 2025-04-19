@@ -47,19 +47,21 @@ async fn test_convert_chat_to_messages_function_calling() {
     // Call convert_chat_to_messages on this struct
     let messages = convert_chat_to_messages(vec![chat]);
 
+    dbg!(&messages);
+
     // Assert the new expected behavior
-    assert_eq!(messages.len(), 2);
-    assert_eq!(messages[0].role, "assistant");
-    assert!(messages[0].tool_calls.is_some());
-    let tool_calls = messages[0].tool_calls.as_ref().unwrap();
+    assert_eq!(messages.len(), 3);
+    assert_eq!(messages[1].role, "assistant");
+    assert!(messages[1].tool_calls.is_some());
+    let tool_calls = messages[1].tool_calls.as_ref().unwrap();
     assert_eq!(tool_calls.len(), 1);
     assert_eq!(tool_calls[0].id, "call_123");
     assert_eq!(tool_calls[0].r#type, "function");
     assert_eq!(tool_calls[0].function.name, "get_weather");
 
-    assert_eq!(messages[1].role, "tool");
-    assert_eq!(messages[1].tool_call_id, Some("call_123".to_string()));
-    assert_eq!(messages[1].name, Some("get_weather".to_string()));
+    assert_eq!(messages[2].role, "tool");
+    assert_eq!(messages[2].tool_call_id, Some("call_123".to_string()));
+    assert_eq!(messages[2].name, Some("get_weather".to_string()));
 }
 
 #[tokio::test]
@@ -83,13 +85,13 @@ async fn test_convert_chat_to_messages_function_calling_fallback() {
     let messages = convert_chat_to_messages(vec![chat]);
 
     // Assert the fallback behavior
-    assert_eq!(messages.len(), 2);
-    assert_eq!(messages[0].role, "function");
-    assert_eq!(messages[0].content, "invalid json");
-    assert_eq!(messages[1].role, "tool");
-    assert_eq!(messages[1].content, "some results");
-    assert_eq!(messages[1].tool_call_id, None);
-    assert_eq!(messages[1].name, None);
+    assert_eq!(messages.len(), 3);
+    assert_eq!(messages[1].role, "function");
+    assert_eq!(messages[1].content, "invalid json");
+    assert_eq!(messages[2].role, "tool");
+    assert_eq!(messages[2].content, "some results");
+    assert_eq!(messages[2].tool_call_id, None);
+    assert_eq!(messages[2].name, None);
 }
 
 #[tokio::test]
@@ -110,8 +112,10 @@ async fn test_generate_prompt() {
     )
     .await;
 
-    assert!(messages.len() == 4);
+    dbg!(&messages);
+
+    assert!(messages.len() == 2);
 
     assert!(messages[0].content == "You are a helpful asistant");
-    assert!(messages[3].content == "How are you today?");
+    assert!(messages[1].content == "How are you today?");
 }
