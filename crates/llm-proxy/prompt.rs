@@ -87,7 +87,7 @@ pub async fn generate_prompt(
     max_tokens: usize,
     trim_ratio: f32,
     system_prompt: Option<String>,
-    mut history: Vec<Message>,
+    history: Vec<Message>,
     related_context: Vec<RelatedContext>,
 ) -> (Vec<Message>, Vec<i32>) {
     let mut messages: Vec<Message> = Default::default();
@@ -138,6 +138,10 @@ pub async fn generate_prompt(
 
     let mut related_context: Vec<&RelatedContext> = related_context.iter().rev().collect();
     let mut context_so_far: String = Default::default();
+
+    // We need to reverse the history so that adding it to the messages
+    // Puts them in the correct order
+    let mut history: Vec<Message> = history.into_iter().rev().collect();
 
     // Keep adding history and context until meet the requirements of the prompt
     while size_so_far < size_allowed {
