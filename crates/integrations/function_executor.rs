@@ -28,7 +28,7 @@ pub fn execute_tool_call_with_tools(
 
     Ok(Message {
         role: "tool".to_string(),
-        content: result,
+        content: Some(result),
         tool_call_id: Some(tool_call.id.clone()),
         name: Some(function_name.clone()),
         tool_calls: None,

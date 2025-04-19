@@ -1,5 +1,6 @@
 pub mod api_chat_stream;
 pub mod api_reverse_proxy;
+mod chat_converter;
 mod errors;
 mod jwt;
 pub mod limits;
@@ -7,6 +8,8 @@ mod prompt;
 pub mod sse_chat_enricher;
 pub mod sse_chat_error;
 pub mod synthesize;
+#[cfg(test)]
+mod tests;
 pub mod token_count;
 pub mod ui_chat_stream;
 use axum::Router;

@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // User question
         Message {
             role: "user".to_string(),
-            content: "What's the weather like in San Francisco?".to_string(),
+            content: Some("What's the weather like in San Francisco?".to_string()),
             tool_call_id: None,
             tool_calls: None,
             name: None,
@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // Assistant response with function call
         Message {
             role: "assistant".to_string(),
-            content: "".to_string(),
+            content: None,
             tool_call_id: None,
             tool_calls: Some(vec![ToolCall {
                 id: "call_123".to_string(),
@@ -61,14 +61,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // Tool response
         Message {
             role: "tool".to_string(),
-            content: json!({
-                "location": "San Francisco, CA",
-                "temperature": 22,
-                "unit": "celsius",
-                "condition": "sunny",
-                "forecast": ["sunny", "partly cloudy", "sunny"]
-            })
-            .to_string(),
+            content: Some(
+                json!({
+                    "location": "San Francisco, CA",
+                    "temperature": 22,
+                    "unit": "celsius",
+                    "condition": "sunny",
+                    "forecast": ["sunny", "partly cloudy", "sunny"]
+                })
+                .to_string(),
+            ),
             tool_call_id: Some("call_123".to_string()),
             name: Some("get_weather".to_string()),
             tool_calls: None,
@@ -79,14 +81,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!();
 
     // Print the conversation for demonstration
-    println!("User: {}", messages[0].content);
+    println!("User: {:?}", messages[0].content);
     println!(
         "Assistant: [Function call to get_weather with arguments: {}]",
         messages[1].tool_calls.as_ref().unwrap()[0]
             .function
             .arguments
     );
-    println!("Tool response: {}", messages[2].content);
+    println!("Tool response: {:?}", messages[2].content);
     println!();
 
     // Create a completion request with the complete conversation

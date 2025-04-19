@@ -75,9 +75,7 @@ WHERE
     conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
 AND 
     conversation_id = :conversation_id
-AND 
-    status = 'Success'
-ORDER BY updated_at DESC
+ORDER BY updated_at ASC
 LIMIT :limit;
 
 --! chat : Chat
