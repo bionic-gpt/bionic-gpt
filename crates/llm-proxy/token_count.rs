@@ -7,7 +7,7 @@ pub async fn token_count(completion: &Completion) -> i32 {
         .iter()
         .map(|msg| ChatCompletionRequestMessage {
             role: msg.role.clone(),
-            content: Some(msg.content.clone()),
+            content: msg.content.clone(),
             name: None,
             function_call: None,
         })
@@ -23,7 +23,7 @@ pub async fn token_count_from_string(message: &str) -> i32 {
         stream: None,
         messages: vec![Message {
             role: "".to_string(),
-            content: message.to_string(),
+            content: Some(message.to_string()),
             tool_call_id: None,
             tool_calls: None,
             name: None,

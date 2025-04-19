@@ -7,7 +7,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
         if let Some(function_call) = chat.function_call {
             messages.push(Message {
                 role: "user".to_string(),
-                content: chat.user_request,
+                content: Some(chat.user_request),
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
@@ -33,7 +33,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 // Create an assistant message with tool_calls
                 messages.push(Message {
                     role: "assistant".to_string(),
-                    content: "".to_string(),
+                    content: None,
                     tool_call_id: None,
                     tool_calls: Some(vec![ToolCall {
                         id: id.clone(),
@@ -50,7 +50,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 if let Some(results) = chat.function_call_results {
                     messages.push(Message {
                         role: "tool".to_string(),
-                        content: results,
+                        content: Some(results),
                         tool_call_id: Some(id),
                         name: Some(function_name),
                         tool_calls: None,
@@ -60,7 +60,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 // Fallback if JSON parsing fails
                 messages.push(Message {
                     role: "function".to_string(),
-                    content: function_call,
+                    content: Some(function_call),
                     tool_call_id: None,
                     tool_calls: None,
                     name: None,
@@ -69,7 +69,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 if let Some(results) = chat.function_call_results {
                     messages.push(Message {
                         role: "tool".to_string(),
-                        content: results,
+                        content: Some(results),
                         tool_call_id: None,
                         tool_calls: None,
                         name: None,
@@ -79,7 +79,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
         } else {
             messages.push(Message {
                 role: "user".to_string(),
-                content: chat.user_request,
+                content: Some(chat.user_request),
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
@@ -87,7 +87,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
             if let Some(response) = chat.response {
                 messages.push(Message {
                     role: "assistant".to_string(),
-                    content: response,
+                    content: Some(response),
                     tool_call_id: None,
                     tool_calls: None,
                     name: None,

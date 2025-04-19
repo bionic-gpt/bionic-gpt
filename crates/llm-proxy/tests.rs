@@ -87,9 +87,9 @@ async fn test_convert_chat_to_messages_function_calling_fallback() {
     // Assert the fallback behavior
     assert_eq!(messages.len(), 3);
     assert_eq!(messages[1].role, "function");
-    assert_eq!(messages[1].content, "invalid json");
+    assert_eq!(messages[1].content, Some("invalid json".to_string()));
     assert_eq!(messages[2].role, "tool");
-    assert_eq!(messages[2].content, "some results");
+    assert_eq!(messages[2].content, Some("some results".to_string()));
     assert_eq!(messages[2].tool_call_id, None);
     assert_eq!(messages[2].name, None);
 }
@@ -103,7 +103,7 @@ async fn test_generate_prompt() {
         Some("You are a helpful asistant".to_string()),
         vec![Message {
             role: "user".to_string(),
-            content: "How are you today?".to_string(),
+            content: Some("How are you today?".to_string()),
             tool_call_id: None,
             tool_calls: None,
             name: None,
@@ -116,6 +116,6 @@ async fn test_generate_prompt() {
 
     assert!(messages.len() == 2);
 
-    assert!(messages[0].content == "You are a helpful asistant");
-    assert!(messages[1].content == "How are you today?");
+    assert!(messages[0].content == Some("You are a helpful asistant".to_string()));
+    assert!(messages[1].content == Some("How are you today?".to_string()));
 }

@@ -21,7 +21,7 @@ pub async fn execute_prompt(
         .await?;
 
     let question = if let Some(q) = chat_history.last() {
-        q.content.clone()
+        q.content.clone().unwrap_or("".to_string())
     } else {
         "".to_string()
     };
@@ -126,7 +126,7 @@ pub async fn generate_prompt(
             &mut messages,
             Message {
                 role: "system".to_string(),
-                content: system_prompt.clone(),
+                content: Some(system_prompt.clone()),
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
@@ -155,7 +155,7 @@ pub async fn generate_prompt(
                 context_so_far += "\n";
                 if let Some(prompt) = &system_prompt {
                     let replaced = prompt.replace("{context_str}", &context_so_far);
-                    messages[0].content = replaced;
+                    messages[0].content = Some(replaced);
                 }
                 size_so_far += size_rel_context;
             }
@@ -195,7 +195,7 @@ fn add_message(
 ) -> usize {
     let request = ChatCompletionRequestMessage {
         role: message_to_add.role.clone(),
-        content: Some(message_to_add.content.clone()),
+        content: message_to_add.content.clone(),
         name: None,
         function_call: None,
     };
