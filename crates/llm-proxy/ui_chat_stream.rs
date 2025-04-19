@@ -180,6 +180,8 @@ async fn create_request(
         .all()
         .await?;
 
+    dbg!(&chat_history);
+
     let chat_history = chat_converter::convert_chat_to_messages(chat_history);
 
     let messages = super::prompt::execute_prompt(
