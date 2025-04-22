@@ -1,16 +1,17 @@
 use db::Chat;
-use openai_api::{Message, ToolCall, ToolCallFunction};
+use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole, ToolCall, ToolCallFunction};
 
-pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
-    let mut messages: Vec<Message> = Default::default();
+pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMessage> {
+    let mut messages: Vec<ChatCompletionMessage> = Default::default();
     for chat in conversation {
         if let Some(function_call) = chat.function_call {
-            messages.push(Message {
-                role: "user".to_string(),
+            messages.push(ChatCompletionMessage {
+                role: ChatCompletionMessageRole::User,
                 content: Some(chat.user_request),
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
+                function_call: None,
             });
             // Parse the function call JSON to extract necessary information
             if let Ok(function_call_json) =
@@ -31,8 +32,8 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 let function_arguments = function_call_json["function"]["arguments"].to_string();
 
                 // Create an assistant message with tool_calls
-                messages.push(Message {
-                    role: "assistant".to_string(),
+                messages.push(ChatCompletionMessage {
+                    role: ChatCompletionMessageRole::Assistant,
                     content: None,
                     tool_call_id: None,
                     tool_calls: Some(vec![ToolCall {
@@ -44,53 +45,59 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                         },
                     }]),
                     name: None,
+                    function_call: None,
                 });
 
                 // Add tool response if results exist
                 if let Some(results) = chat.function_call_results {
-                    messages.push(Message {
-                        role: "tool".to_string(),
+                    messages.push(ChatCompletionMessage {
+                        role: ChatCompletionMessageRole::Tool,
                         content: Some(results),
                         tool_call_id: Some(id),
                         name: Some(function_name),
                         tool_calls: None,
+                        function_call: None,
                     });
                 }
             } else {
                 // Fallback if JSON parsing fails
-                messages.push(Message {
-                    role: "function".to_string(),
+                messages.push(ChatCompletionMessage {
+                    role: ChatCompletionMessageRole::Function,
                     content: Some(function_call),
                     tool_call_id: None,
                     tool_calls: None,
                     name: None,
+                    function_call: None,
                 });
 
                 if let Some(results) = chat.function_call_results {
-                    messages.push(Message {
-                        role: "tool".to_string(),
+                    messages.push(ChatCompletionMessage {
+                        role: ChatCompletionMessageRole::Tool,
                         content: Some(results),
                         tool_call_id: None,
                         tool_calls: None,
                         name: None,
+                        function_call: None,
                     });
                 }
             }
         } else {
-            messages.push(Message {
-                role: "user".to_string(),
+            messages.push(ChatCompletionMessage {
+                role: ChatCompletionMessageRole::User,
                 content: Some(chat.user_request),
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
+                function_call: None,
             });
             if let Some(response) = chat.response {
-                messages.push(Message {
-                    role: "assistant".to_string(),
+                messages.push(ChatCompletionMessage {
+                    role: ChatCompletionMessageRole::Assistant,
                     content: Some(response),
                     tool_call_id: None,
                     tool_calls: None,
                     name: None,
+                    function_call: None,
                 });
             }
         };

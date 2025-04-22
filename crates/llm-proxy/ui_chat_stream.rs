@@ -5,16 +5,13 @@
 //! ```
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
-use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
+use crate::{chat_converter, BionicChatCompletionRequest};
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
-use integrations;
-use integrations::get_openai_tools;
-use openai_api::Completion;
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -135,7 +132,7 @@ async fn save_results(
             &delta,
             &function_call,
             &function_call_result,
-            &super::token_count::token_count_from_string(delta).await,
+            &super::token_count::token_count_from_string(delta),
             &ChatStatus::Success,
             &chat_id,
         )
@@ -194,18 +191,19 @@ async fn create_request(
     .await?;
 
     let json_messages = serde_json::to_string(&messages)?;
-    let size = super::token_count::token_count_from_messages(messages.clone()).await;
+    let size = super::token_count::token_count(messages.clone());
     queries::chats::update_prompt()
         .bind(&transaction, &json_messages, &size, &chat_id)
         .await?;
     transaction.commit().await?;
-    let completion = Completion {
+    let completion = BionicChatCompletionRequest {
         model: model.name,
         stream: Some(true),
         max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
-        tools: Some(get_openai_tools()),
+        //tools: Some(get_openai_tools()),
+        tools: None,
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;

@@ -1,6 +1,7 @@
 use super::limits;
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use crate::errors::CustomError;
+use crate::BionicChatCompletionRequest;
 use axum::body::Body;
 use axum::extract::Request;
 use axum::response::{sse::Event, Sse};
@@ -9,8 +10,6 @@ use axum::{Extension, RequestExt};
 use db::ChatStatus;
 use db::{queries, Pool, Transaction};
 use http::{HeaderMap, StatusCode};
-use integrations::get_openai_tools;
-use openai_api::Completion;
 use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -36,7 +35,7 @@ pub async fn chat_generate(
             .extract()
             .await
             .map_err(|_| CustomError::FaultySetup("Error extracting".to_string()))?;
-        let completion: Completion = serde_json::from_str(&body)?;
+        let completion: BionicChatCompletionRequest = serde_json::from_str(&body)?;
         let streaming = completion.stream.unwrap_or(false);
 
         let (api_key, request, api_chat_id) =
@@ -143,7 +142,7 @@ pub async fn chat_generate(
 async fn create_request(
     transaction: &Transaction<'_>,
     api_key: String,
-    completion: Completion,
+    completion: BionicChatCompletionRequest,
 ) -> Result<(db::ApiKey, reqwest::RequestBuilder, i32), CustomError> {
     let api_key = queries::api_keys::find_api_key()
         .bind(transaction, &api_key)
@@ -176,15 +175,10 @@ async fn create_request(
         completion.messages,
     )
     .await?;
-    let mut completion = Completion {
+    let completion = BionicChatCompletionRequest {
         messages,
         ..completion
     };
-
-    // Add tools if not already provided
-    if completion.tools.is_none() {
-        completion.tools = Some(get_openai_tools());
-    }
 
     let completion_json = serde_json::to_string(&completion)?;
 
@@ -214,9 +208,9 @@ async fn log_initial_chat(
     transaction: &Transaction<'_>,
     api_key_id: i32,
     completion_json: &str,
-    completion: &Completion,
+    completion: &BionicChatCompletionRequest,
 ) -> Result<i32, CustomError> {
-    let size = super::token_count::token_count(completion).await;
+    let size = super::token_count::token_count(completion.messages.clone());
 
     // Store the prompt, ready for the front end webcomponent to pickup
     let api_chat_id = queries::api_keys::new_api_chat()
@@ -233,7 +227,7 @@ async fn log_end_of_chat(
     api_key: &str,
     api_chat_id: i32,
 ) -> Result<(), CustomError> {
-    let size = super::token_count::token_count_from_string(snapshot).await;
+    let size = super::token_count::token_count_from_string(snapshot);
     let db_client = pool.get().await.unwrap();
     queries::api_keys::update_api_chat()
         .bind(

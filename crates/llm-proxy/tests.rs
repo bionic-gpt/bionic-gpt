@@ -1,5 +1,5 @@
 use db::Chat;
-use openai_api::Message;
+use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole};
 use serde_json::json;
 use time::OffsetDateTime;
 
@@ -51,7 +51,7 @@ async fn test_convert_chat_to_messages_function_calling() {
 
     // Assert the new expected behavior
     assert_eq!(messages.len(), 3);
-    assert_eq!(messages[1].role, "assistant");
+    assert_eq!(messages[1].role, ChatCompletionMessageRole::Assistant);
     assert!(messages[1].tool_calls.is_some());
     let tool_calls = messages[1].tool_calls.as_ref().unwrap();
     assert_eq!(tool_calls.len(), 1);
@@ -59,7 +59,7 @@ async fn test_convert_chat_to_messages_function_calling() {
     assert_eq!(tool_calls[0].r#type, "function");
     assert_eq!(tool_calls[0].function.name, "get_weather");
 
-    assert_eq!(messages[2].role, "tool");
+    assert_eq!(messages[2].role, ChatCompletionMessageRole::Tool);
     assert_eq!(messages[2].tool_call_id, Some("call_123".to_string()));
     assert_eq!(messages[2].name, Some("get_weather".to_string()));
 }
@@ -86,9 +86,9 @@ async fn test_convert_chat_to_messages_function_calling_fallback() {
 
     // Assert the fallback behavior
     assert_eq!(messages.len(), 3);
-    assert_eq!(messages[1].role, "function");
+    assert_eq!(messages[1].role, ChatCompletionMessageRole::Function);
     assert_eq!(messages[1].content, Some("invalid json".to_string()));
-    assert_eq!(messages[2].role, "tool");
+    assert_eq!(messages[2].role, ChatCompletionMessageRole::Tool);
     assert_eq!(messages[2].content, Some("some results".to_string()));
     assert_eq!(messages[2].tool_call_id, None);
     assert_eq!(messages[2].name, None);
@@ -101,12 +101,13 @@ async fn test_generate_prompt() {
         1024,
         1.0,
         Some("You are a helpful asistant".to_string()),
-        vec![Message {
-            role: "user".to_string(),
+        vec![ChatCompletionMessage {
+            role: ChatCompletionMessageRole::User,
             content: Some("How are you today?".to_string()),
             tool_call_id: None,
             tool_calls: None,
             name: None,
+            function_call: None,
         }],
         Default::default(),
     )

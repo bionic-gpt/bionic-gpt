@@ -2182,7 +2182,7 @@ dependencies = [
  "embeddings-api",
  "http 1.1.0",
  "integrations",
- "openai-api",
+ "openai",
  "reqwest",
  "reqwest-eventsource",
  "serde",

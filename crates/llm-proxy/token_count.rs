@@ -1,12 +1,11 @@
-use openai_api::{Completion, Message};
+use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
-pub async fn token_count(completion: &Completion) -> i32 {
-    let messages: Vec<ChatCompletionRequestMessage> = completion
-        .messages
+pub fn token_count(messages: Vec<ChatCompletionMessage>) -> i32 {
+    let messages: Vec<ChatCompletionRequestMessage> = messages
         .iter()
         .map(|msg| ChatCompletionRequestMessage {
-            role: msg.role.clone(),
+            role: "user".to_string(),
             content: msg.content.clone(),
             name: None,
             function_call: None,
@@ -16,36 +15,13 @@ pub async fn token_count(completion: &Completion) -> i32 {
     num_tokens_from_messages("gpt-4", &messages).unwrap() as i32
 }
 
-pub async fn token_count_from_string(message: &str) -> i32 {
-    let completion = Completion {
-        model: "".to_string(),
-        max_tokens: None,
-        stream: None,
-        messages: vec![Message {
-            role: "".to_string(),
-            content: Some(message.to_string()),
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        }],
-        temperature: None,
-        tools: None,
-        tool_choice: None,
-    };
-
-    token_count(&completion).await
-}
-
-pub async fn token_count_from_messages(messages: Vec<Message>) -> i32 {
-    let completion = Completion {
-        model: "".to_string(),
-        max_tokens: None,
-        stream: None,
-        messages,
-        temperature: None,
-        tools: None,
-        tool_choice: None,
-    };
-
-    token_count(&completion).await
+pub fn token_count_from_string(message: &str) -> i32 {
+    token_count(vec![ChatCompletionMessage {
+        role: ChatCompletionMessageRole::User,
+        content: Some(message.to_string()),
+        tool_call_id: None,
+        tool_calls: None,
+        name: None,
+        function_call: None,
+    }])
 }
