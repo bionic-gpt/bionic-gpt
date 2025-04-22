@@ -122,16 +122,14 @@ async fn save_results(
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
 
-    // Call handle_tool_call to check if this is a function call and execute it if it is
-    let (function_call, function_call_result) =
-        integrations::tool_call_handler::handle_tool_call(delta.to_string());
+    let none: Option<String> = None;
 
     queries::chats::update_chat()
         .bind(
             &transaction,
             &delta,
-            &function_call,
-            &function_call_result,
+            &none,
+            &none,
             &super::token_count::token_count_from_string(delta),
             &ChatStatus::Success,
             &chat_id,

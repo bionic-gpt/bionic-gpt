@@ -1871,17 +1871,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "integrations"
-version = "0.1.0"
-dependencies = [
- "axum",
- "openai-api",
- "serde",
- "serde_json",
- "tracing",
-]
-
-[[package]]
 name = "interpolate_name"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2181,7 +2170,6 @@ dependencies = [
  "db",
  "embeddings-api",
  "http 1.1.0",
- "integrations",
  "openai",
  "reqwest",
  "reqwest-eventsource",
@@ -2542,18 +2530,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
-]
-
-[[package]]
-name = "openai-api"
-version = "0.1.0"
-dependencies = [
- "futures",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -4749,7 +4725,6 @@ dependencies = [
  "db",
  "dioxus",
  "dioxus-ssr",
- "openai-api",
  "serde",
  "serde_json",
  "time",
