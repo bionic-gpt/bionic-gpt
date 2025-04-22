@@ -12,6 +12,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
+use integrations::function_tools::get_openai_tools;
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -200,8 +201,7 @@ async fn create_request(
         max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
-        //tools: Some(get_openai_tools()),
-        tools: None,
+        tools: get_openai_tools(),
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;

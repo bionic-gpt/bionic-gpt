@@ -2181,6 +2181,7 @@ dependencies = [
  "db",
  "embeddings-api",
  "http 1.1.0",
+ "integrations",
  "openai",
  "reqwest",
  "reqwest-eventsource",
