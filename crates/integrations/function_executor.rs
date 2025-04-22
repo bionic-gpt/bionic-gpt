@@ -32,6 +32,7 @@ pub fn execute_tool_call_with_tools(
 
     Ok(ChatCompletionMessage {
         role: ChatCompletionMessageRole::Tool,
+        name: Some(function_name.clone()),
         tool_call_id: Some(tool_call.id.clone()),
         content: Some(result),
         ..Default::default()
