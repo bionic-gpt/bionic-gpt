@@ -1,11 +1,11 @@
-use openai::Credentials;
 use openai::chat::{
     ChatCompletion, ChatCompletionDelta, ChatCompletionFunctionDefinition, ChatCompletionMessage,
     ChatCompletionMessageRole, ToolCall,
 };
+use openai::Credentials;
 use serde_json::json;
-use std::io::{Write, stdin, stdout};
-use tokio::sync::mpsc::{Receiver, error::TryRecvError};
+use std::io::{stdin, stdout, Write};
+use tokio::sync::mpsc::{error::TryRecvError, Receiver};
 
 #[tokio::main]
 async fn main() {
