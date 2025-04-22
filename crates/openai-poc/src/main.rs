@@ -96,11 +96,12 @@ async fn listen_for_tokens(
                 let choice = &delta.choices[0];
 
                 if let Some(content) = &choice.delta.content {
-                    print!("{}", content);
+                    print!(">> {}", content);
                     stdout().flush().unwrap();
                 }
 
                 if let Some(calls) = &choice.delta.tool_calls {
+                    print!(">> {:?}", calls);
                     if let Some(tc) = calls.first() {
                         tool_call = Some(tc.clone());
                     }
@@ -112,9 +113,13 @@ async fn listen_for_tokens(
                 }
             }
             Err(TryRecvError::Empty) => {
+                println!("Empty");
                 tokio::time::sleep(std::time::Duration::from_millis(50)).await;
             }
-            Err(TryRecvError::Disconnected) => break,
+            Err(TryRecvError::Disconnected) => {
+                println!("Disconnect");
+                break;
+            }
         }
     }
 
