@@ -176,7 +176,7 @@ async fn create_request(
         .all()
         .await?;
 
-    dbg!(&chat_history);
+    tracing::debug!("{:?}", &chat_history);
 
     let chat_history = chat_converter::convert_chat_to_messages(chat_history);
 
@@ -205,6 +205,9 @@ async fn create_request(
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;
+
+    tracing::debug!(completion_json);
+
     let client = reqwest::Client::new();
     let request = if let Some(api_key) = model.api_key {
         client
