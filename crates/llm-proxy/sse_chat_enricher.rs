@@ -4,9 +4,9 @@
 //! cargo run -p example-reqwest-response
 //! ```
 use axum::Error;
+use openai::chat::ChatCompletionDelta;
 use reqwest::RequestBuilder;
 use reqwest_eventsource::{Event as ReqwestEvent, EventSource as ReqwestEventSource};
-use serde_json::Value;
 use tokio::sync::mpsc;
 use tokio_stream::StreamExt;
 
@@ -51,10 +51,10 @@ pub async fn enriched_chat(
                     }
                     break;
                 } else {
-                    let m: Value = serde_json::from_str(&message.data)?;
+                    let m: ChatCompletionDelta = serde_json::from_str(&message.data)?;
 
                     // Check for tool calls
-                    if let Some(tool_calls) = m["choices"][0]["delta"]["tool_calls"].as_array() {
+                    if let Some(tool_calls) = &m.choices[0].delta.tool_calls {
                         if !tool_calls.is_empty() {
                             snapshot.push_str(&message.data);
                             let chunk = CompletionChunk {
@@ -73,7 +73,7 @@ pub async fn enriched_chat(
                     }
 
                     // Regular text content
-                    if let Some(text) = m["choices"][0]["delta"]["content"].as_str() {
+                    if let Some(text) = &m.choices[0].delta.content {
                         snapshot.push_str(text);
                         let chunk = CompletionChunk {
                             delta: message.data.clone(),
