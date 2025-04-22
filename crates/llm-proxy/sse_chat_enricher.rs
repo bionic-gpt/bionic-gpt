@@ -51,6 +51,7 @@ pub async fn enriched_chat(
                     }
                     break;
                 } else {
+                    tracing::debug!("{}", &message.data);
                     let m: ChatCompletionDelta = serde_json::from_str(&message.data)?;
 
                     // Check for tool calls
