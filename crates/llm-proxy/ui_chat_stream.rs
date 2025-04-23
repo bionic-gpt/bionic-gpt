@@ -69,13 +69,6 @@ pub async fn chat_generate(
                             GenerationEvent::Text(completion_chunk) => {
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
-                            GenerationEvent::ToolCall(completion_chunk) => {
-                                // Just log trace information, don't call handle_tool_call
-                                tracing::info!("Received tool call: {}", completion_chunk.delta);
-
-                                // Return the original event
-                                Ok(Event::default().data(completion_chunk.delta))
-                            }
                             GenerationEvent::End(completion_chunk) => {
                                 save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
                                     .await

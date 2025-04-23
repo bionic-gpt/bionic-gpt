@@ -80,10 +80,6 @@ pub async fn chat_generate(
                             GenerationEvent::Text(completion_chunk) => {
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
-                            GenerationEvent::ToolCall(completion_chunk) => {
-                                // Pass through tool call events with the same format
-                                Ok(Event::default().data(completion_chunk.delta))
-                            }
                             GenerationEvent::End(completion_chunk) => {
                                 log_end_of_chat(
                                     pool,
