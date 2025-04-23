@@ -8,6 +8,6 @@ pub mod tool;
 pub mod weather;
 
 // Re-export key types for convenience
-pub use function_executor::{execute_tool_call, execute_tool_call_with_tools};
+pub use function_executor::{execute_tool_call_with_tools, execute_tool_calls};
 pub use function_tools::get_tools;
 pub use tool::ToolInterface;

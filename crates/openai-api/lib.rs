@@ -264,6 +264,16 @@ pub struct ToolCall {
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+pub struct ToolCallResult {
+    /// The ID of the tool call we are responding to.
+    pub id: String,
+    /// This will be the response in json format.
+    pub result: String,
+    /// The name of the function that was called.
+    pub name: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub struct ToolCallFunction {
     /// The name of the function to call.
     #[serde(default)]
