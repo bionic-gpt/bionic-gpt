@@ -65,6 +65,27 @@ pub struct ChatCompletionChoiceDelta {
     pub delta: ChatCompletionMessageDelta,
 }
 
+impl ChatCompletionDelta {
+    /// Merges the input delta completion into `self`.
+    pub fn merge(
+        &mut self,
+        other: ChatCompletionDelta,
+    ) -> Result<(), ChatCompletionDeltaMergeError> {
+        if other.id.ne(&self.id) {
+            return Err(ChatCompletionDeltaMergeError::DifferentCompletionIds);
+        }
+        for other_choice in other.choices.iter() {
+            for choice in self.choices.iter_mut() {
+                if choice.index != other_choice.index {
+                    continue;
+                }
+                choice.merge(other_choice)?;
+            }
+        }
+        Ok(())
+    }
+}
+
 impl ChatCompletionChoiceDelta {
     pub fn merge(
         &mut self,
