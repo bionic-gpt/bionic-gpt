@@ -11,7 +11,6 @@ path = "lib.rs"
 [dependencies]
 db = { path = "../db" }
 assets = { path = "../web-assets" }
-openai-api = { path = "../openai-api" }
 axum = { version = "0.8", default-features = false }
 axum-extra = { version = "0.10", features = ["typed-routing"] }
 dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }

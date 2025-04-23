@@ -609,7 +609,7 @@ version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab5681b26a36dc46800a908f7d932672a4e82f74759419dd4018bf40658457d5"
 dependencies = [
- "derive_builder 0.12.0",
+ "derive_builder",
  "entities",
  "memchr",
  "once_cell",
@@ -914,16 +914,7 @@ version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d67778784b508018359cbc8696edb3db78160bab2c2a28ba7f56ef6932997f8"
 dependencies = [
- "derive_builder_macro 0.12.0",
-]
-
-[[package]]
-name = "derive_builder"
-version = "0.20.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "507dfb09ea8b7fa618fcf76e953f4f5e192547945816d5358edffe39f6f94947"
-dependencies = [
- "derive_builder_macro 0.20.2",
+ "derive_builder_macro",
 ]
 
 [[package]]
@@ -939,35 +930,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "derive_builder_core"
-version = "0.20.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d5bcf7b024d6835cfb3d473887cd966994907effbe9227e8c8219824d06c4e8"
-dependencies = [
- "darling 0.20.11",
- "proc-macro2",
- "quote",
- "syn 2.0.95",
-]
-
-[[package]]
 name = "derive_builder_macro"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebcda35c7a396850a55ffeac740804b40ffec779b98fffbb1738f4033f0ee79e"
 dependencies = [
- "derive_builder_core 0.12.0",
+ "derive_builder_core",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "derive_builder_macro"
-version = "0.20.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab63b0e2bf4d5928aff72e83a7dace85d7bba5fe12dcc3c5a572d78caffd3f3c"
-dependencies = [
- "derive_builder_core 0.20.2",
- "syn 2.0.95",
 ]
 
 [[package]]
@@ -2528,43 +2497,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "openai"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85484651a51366092a3752819b5251e7008fa41fb6d2141e4d430a8e53ae3788"
-dependencies = [
- "anyhow",
- "bytes",
- "derive_builder 0.20.2",
- "futures-util",
- "reqwest",
- "reqwest-eventsource",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "openai-api"
 version = "0.1.0"
 dependencies = [
- "futures",
- "reqwest",
  "serde",
  "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "openai-poc"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "openai",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]
@@ -4059,7 +3996,6 @@ dependencies = [
  "bytes",
  "libc",
  "mio",
- "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "socket2 0.5.8",
@@ -4749,7 +4685,6 @@ dependencies = [
  "db",
  "dioxus",
  "dioxus-ssr",
- "openai-api",
  "serde",
  "serde_json",
  "time",

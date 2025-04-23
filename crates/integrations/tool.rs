@@ -2,12 +2,12 @@
 //!
 //! This module defines the ToolInterface trait that all tools must implement.
 
-use openai_api::Tool;
+use openai_api::BionicToolDefinition;
 
 /// Tool interface trait that defines the common functionality for all tools
 pub trait ToolInterface: Send + Sync {
     /// Returns the tool definition
-    fn get_tool(&self) -> Tool;
+    fn get_tool(&self) -> BionicToolDefinition;
 
     /// Executes the tool with the given arguments
     fn execute(&self, arguments: &str) -> Result<String, String>;

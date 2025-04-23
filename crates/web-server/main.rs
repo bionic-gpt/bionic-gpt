@@ -31,9 +31,34 @@ use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .init();
+    // Get log level from environment variable or default to INFO
+    let log_level = std::env::var("LOG_LEVEL")
+        .map(|level| match level.to_uppercase().as_str() {
+            "TRACE" => tracing::Level::TRACE,
+            "DEBUG" => tracing::Level::DEBUG,
+            "INFO" => tracing::Level::INFO,
+            "WARN" => tracing::Level::WARN,
+            "ERROR" => tracing::Level::ERROR,
+            _ => {
+                eprintln!("Unknown log level: {}, defaulting to INFO", level);
+                tracing::Level::INFO
+            }
+        })
+        .unwrap_or(tracing::Level::INFO);
+
+    // Create a filter that only enables your crates and disables others
+    let filter = tracing_subscriber::EnvFilter::new("")
+        // Disable all crates by default
+        .add_directive(tracing_subscriber::filter::LevelFilter::OFF.into())
+        // Enable your crates with the specified log level
+        // Adjust these patterns to match your crate names
+        .add_directive(format!("web_server={}", log_level).parse().unwrap())
+        .add_directive(format!("db={}", log_level).parse().unwrap())
+        .add_directive(format!("llm_proxy={}", log_level).parse().unwrap())
+        // Add more of your crates as needed
+        ;
+
+    tracing_subscriber::fmt().with_env_filter(filter).init();
 
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);

@@ -12,9 +12,9 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
-use integrations;
-use integrations::get_openai_tools;
-use openai_api::Completion;
+use integrations::execute_tool_calls;
+use integrations::function_tools::get_openai_tools;
+use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -71,22 +71,30 @@ pub async fn chat_generate(
                             GenerationEvent::Text(completion_chunk) => {
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
-                            GenerationEvent::ToolCall(completion_chunk) => {
-                                // Just log trace information, don't call handle_tool_call
-                                tracing::info!("Received tool call: {}", completion_chunk.delta);
-
-                                // Return the original event
-                                Ok(Event::default().data(completion_chunk.delta))
-                            }
                             GenerationEvent::End(completion_chunk) => {
-                                save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
-                                    .await
-                                    .unwrap();
+                                let mut tool_calls: Option<Vec<ToolCall>> = None;
+                                if let Some(merged) = completion_chunk.merged {
+                                    if let Some(tcs) = &merged.choices[0].delta.tool_calls {
+                                        tracing::info!("Detected tool calls: {:?}", tcs);
+                                        tool_calls = Some(tcs.clone());
+                                    }
+                                }
+
+                                save_results(
+                                    &pool,
+                                    &completion_chunk.snapshot,
+                                    tool_calls,
+                                    chat_id,
+                                    &sub,
+                                )
+                                .await
+                                .unwrap();
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                         },
                         Err(e) => {
-                            let save = save_results(&pool, &e.to_string(), chat_id, &sub).await;
+                            let save =
+                                save_results(&pool, &e.to_string(), None, chat_id, &sub).await;
                             if let Err(save) = save {
                                 tracing::error!(
                                     "Error trying to save results from receiver stream: {:?}",
@@ -102,7 +110,8 @@ pub async fn chat_generate(
             Ok(Sse::new(event_stream))
         }
         Err(err) => {
-            let save = save_results(&pool, &err.to_string(), chat_id, &current_user.sub).await;
+            let save =
+                save_results(&pool, &err.to_string(), None, chat_id, &current_user.sub).await;
             if let Err(save) = save {
                 tracing::error!(
                     "Error trying to save results from create_request: {:?}",
@@ -117,7 +126,8 @@ pub async fn chat_generate(
 // When the chat has completed, store the results in the database.
 async fn save_results(
     pool: &Pool,
-    delta: &str,
+    snapshot: &str,
+    tool_calls: Option<Vec<ToolCall>>,
     chat_id: i32,
     sub: &str,
 ) -> Result<(), CustomError> {
@@ -125,17 +135,27 @@ async fn save_results(
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
 
-    // Call handle_tool_call to check if this is a function call and execute it if it is
-    let (function_call, function_call_result) =
-        integrations::tool_call_handler::handle_tool_call(delta.to_string());
+    let (function_call, function_call_result) = if let Some(tool_calls) = tool_calls {
+        let tool_call_results = execute_tool_calls(tool_calls.clone());
+        let tool_call_results =
+            serde_json::to_string(&tool_call_results).unwrap_or("{}".to_string());
+        let tool_calls = serde_json::to_string(&tool_calls).unwrap_or("{}".to_string());
+
+        tracing::debug!(tool_calls);
+        tracing::debug!(tool_call_results);
+
+        (Some(tool_calls), Some(tool_call_results))
+    } else {
+        (None, None)
+    };
 
     queries::chats::update_chat()
         .bind(
             &transaction,
-            &delta,
+            &snapshot,
             &function_call,
             &function_call_result,
-            &super::token_count::token_count_from_string(delta).await,
+            &super::token_count::token_count_from_string(snapshot),
             &ChatStatus::Success,
             &chat_id,
         )
@@ -180,7 +200,7 @@ async fn create_request(
         .all()
         .await?;
 
-    dbg!(&chat_history);
+    tracing::debug!("{:?}", &chat_history);
 
     let chat_history = chat_converter::convert_chat_to_messages(chat_history);
 
@@ -194,21 +214,24 @@ async fn create_request(
     .await?;
 
     let json_messages = serde_json::to_string(&messages)?;
-    let size = super::token_count::token_count_from_messages(messages.clone()).await;
+    let size = super::token_count::token_count(messages.clone());
     queries::chats::update_prompt()
         .bind(&transaction, &json_messages, &size, &chat_id)
         .await?;
     transaction.commit().await?;
-    let completion = Completion {
+    let completion = BionicChatCompletionRequest {
         model: model.name,
         stream: Some(true),
         max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
-        tools: Some(get_openai_tools()),
+        tools: get_openai_tools(),
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;
+
+    tracing::debug!(completion_json);
+
     let client = reqwest::Client::new();
     let request = if let Some(api_key) = model.api_key {
         client

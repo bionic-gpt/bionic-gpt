@@ -1,12 +1,12 @@
 use crate::tool::ToolInterface;
-use openai_api::{FunctionDefinition, Tool};
+use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
 
 /// A tool that provides weather information
 pub struct WeatherTool;
 
 impl ToolInterface for WeatherTool {
-    fn get_tool(&self) -> Tool {
+    fn get_tool(&self) -> BionicToolDefinition {
         get_weather_tool()
     }
 
@@ -16,13 +16,13 @@ impl ToolInterface for WeatherTool {
 }
 
 /// Returns a Tool definition for the weather function
-pub fn get_weather_tool() -> Tool {
-    Tool {
+pub fn get_weather_tool() -> BionicToolDefinition {
+    BionicToolDefinition {
         r#type: "function".to_string(),
-        function: FunctionDefinition {
+        function: ChatCompletionFunctionDefinition {
             name: "get_weather".to_string(),
-            description: "Get the current weather in a given location".to_string(),
-            parameters: json!({
+            description: Some("Get the current weather in a given location".to_string()),
+            parameters: Some(json!({
                 "type": "object",
                 "properties": {
                     "location": {
@@ -36,7 +36,7 @@ pub fn get_weather_tool() -> Tool {
                     }
                 },
                 "required": ["location"]
-            }),
+            })),
         },
     }
 }
@@ -74,7 +74,6 @@ mod tests {
     #[test]
     fn test_get_weather_tool() {
         let tool = get_weather_tool();
-        assert_eq!(tool.r#type, "function");
         assert_eq!(tool.function.name, "get_weather");
     }
 

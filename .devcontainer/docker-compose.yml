@@ -28,6 +28,8 @@ services:
 
     environment:
       RUST_LOG: debug
+      # For tracing_subscriber
+      LOG_LEVEL: DEBUG
       ENABLE_BARRICADE: 1
       DATABASE_URL: postgresql://db-owner:testpassword@localhost:30001/bionic-gpt?sslmode=disable
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@localhost:30001/bionic-gpt?sslmode=disable

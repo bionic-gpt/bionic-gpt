@@ -19,11 +19,6 @@ use tower_http::cors::{Any, CorsLayer};
 use axum_extra::routing::TypedPath;
 use serde::Deserialize;
 
-// Re-export the OpenAI API data models from the openai-api crate
-pub use openai_api::{
-    Completion, FunctionDefinition, Message, Tool, ToolCall, ToolCallFunction, ToolResult,
-};
-
 pub fn routes() -> Router {
     let cors = CorsLayer::new()
         .allow_origin(Any) // Allows requests from any origin
