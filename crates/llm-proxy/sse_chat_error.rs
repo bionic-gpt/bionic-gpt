@@ -17,6 +17,7 @@ pub async fn error_to_chat(
     sender
         .send(Ok(GenerationEvent::End(CompletionChunk {
             delta: "[DONE]".to_string(),
+            merged: None,
             snapshot: error.to_string(),
         })))
         .await?;
@@ -67,6 +68,7 @@ pub fn string_to_chunk(content: &str) -> CompletionChunk {
     };
     CompletionChunk {
         delta: serde_json::to_string(&delta).unwrap(),
+        merged: None,
         snapshot: "".to_string(),
     }
 }

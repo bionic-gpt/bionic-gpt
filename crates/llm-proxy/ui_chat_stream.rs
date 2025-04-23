@@ -70,6 +70,12 @@ pub async fn chat_generate(
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::End(completion_chunk) => {
+                                if let Some(merged) = completion_chunk.merged {
+                                    if let Some(tool_calls) = &merged.choices[0].delta.tool_calls {
+                                        tracing::info!("Detected tool calls: {:?}", tool_calls);
+                                    }
+                                }
+
                                 save_results(&pool, &completion_chunk.snapshot, chat_id, &sub)
                                     .await
                                     .unwrap();

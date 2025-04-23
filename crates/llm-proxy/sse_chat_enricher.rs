@@ -13,6 +13,7 @@ use tokio_stream::StreamExt;
 #[derive(Debug)]
 pub struct CompletionChunk {
     pub delta: String,
+    pub merged: Option<ChatCompletionDelta>,
     pub snapshot: String,
 }
 
@@ -33,6 +34,7 @@ pub async fn enriched_chat(
     // Start streaming
     let mut stream = ReqwestEventSource::new(request)?;
     let mut snapshot = String::new();
+    let mut merged: Option<ChatCompletionDelta> = None;
 
     // Handle streaming events
     while let Some(event) = stream.next().await {
@@ -42,6 +44,7 @@ pub async fn enriched_chat(
                 if message.data.trim() == "[DONE]" {
                     let chunk = CompletionChunk {
                         delta: message.data.clone(),
+                        merged: merged.clone(),
                         snapshot: snapshot.clone(),
                     };
                     stream.close();
@@ -51,13 +54,19 @@ pub async fn enriched_chat(
                     break;
                 } else {
                     tracing::debug!("{}", &message.data);
-                    let m: ChatCompletionDelta = serde_json::from_str(&message.data)?;
+                    let delta: ChatCompletionDelta = serde_json::from_str(&message.data)?;
+
+                    match merged.as_mut() {
+                        Some(c) => c.merge(delta.clone()).unwrap(),
+                        None => merged = Some(delta.clone()),
+                    }
 
                     // Regular text content
-                    if let Some(text) = &m.choices[0].delta.content {
+                    if let Some(text) = &delta.choices[0].delta.content {
                         snapshot.push_str(text);
                         let chunk = CompletionChunk {
                             delta: message.data.clone(),
+                            merged: merged.clone(),
                             snapshot: snapshot.clone(),
                         };
                         if sender.send(Ok(GenerationEvent::Text(chunk))).await.is_err() {
@@ -77,6 +86,7 @@ pub async fn enriched_chat(
                     sender
                         .send(Ok(GenerationEvent::End(CompletionChunk {
                             delta: "[DONE]".to_string(),
+                            merged: None,
                             snapshot: snapshot.clone(),
                         })))
                         .await?;
