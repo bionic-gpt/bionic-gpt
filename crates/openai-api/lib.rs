@@ -121,6 +121,64 @@ impl ChatCompletionChoiceDelta {
                 }
             }
         };
+
+        // Merge tool calls.
+        match self.delta.tool_calls.as_mut() {
+            Some(tool_calls) => {
+                if let Some(other_tool_calls) = &other.delta.tool_calls {
+                    // Ensure we have enough tool calls in our vector
+                    while tool_calls.len() < other_tool_calls.len() {
+                        // Add empty tool calls to match the length
+                        tool_calls.push(ToolCall {
+                            id: String::new(),
+                            r#type: "function".to_string(),
+                            function: ToolCallFunction {
+                                name: String::new(),
+                                arguments: String::new(),
+                            },
+                        });
+                    }
+
+                    // Merge tool calls by index
+                    for (i, other_tool_call) in other_tool_calls.iter().enumerate() {
+                        if i < tool_calls.len() {
+                            // If the ID is set in the other tool call but not in ours, copy it
+                            if tool_calls[i].id.is_empty() && !other_tool_call.id.is_empty() {
+                                tool_calls[i].id = other_tool_call.id.clone();
+                            }
+
+                            // If the type is empty in ours but set in the other, copy it
+                            if tool_calls[i].r#type.is_empty() && !other_tool_call.r#type.is_empty()
+                            {
+                                tool_calls[i].r#type = other_tool_call.r#type.clone();
+                            }
+
+                            // If the function name is empty in ours but set in the other, copy it
+                            if tool_calls[i].function.name.is_empty()
+                                && !other_tool_call.function.name.is_empty()
+                            {
+                                tool_calls[i].function.name = other_tool_call.function.name.clone();
+                            }
+
+                            // Merge the arguments
+                            if !other_tool_call.function.arguments.is_empty() {
+                                tool_calls[i]
+                                    .function
+                                    .arguments
+                                    .push_str(&other_tool_call.function.arguments);
+                            }
+                        }
+                    }
+                }
+            }
+            None => {
+                if let Some(other_tool_calls) = &other.delta.tool_calls {
+                    // Set this tool_calls to other tool_calls
+                    self.delta.tool_calls = Some(other_tool_calls.clone());
+                }
+            }
+        };
+
         Ok(())
     }
 }
