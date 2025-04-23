@@ -41,6 +41,7 @@ pub async fn conversation(
         let chat_with_chunks = ChatWithChunks {
             chat,
             chunks: chunks_chats,
+            tool_calls: None,
         };
         chats_with_chunks.push(chat_with_chunks);
     }

@@ -10,9 +10,11 @@ pub mod prompt_drawer;
 pub mod prompt_form;
 
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};
+use openai_api::ToolCall;
 
 #[derive(PartialEq, Clone)]
 pub struct ChatWithChunks {
     pub chat: Chat,
     pub chunks: Vec<ChatChunks>,
+    pub tool_calls: Option<Vec<ToolCall>>,
 }

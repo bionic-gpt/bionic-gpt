@@ -31,16 +31,26 @@ pub fn ConsoleStream(
                 div {
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
 
-                    if let Some(response) = &chat_with_chunks.chat.response {
-                        ResponseTimeline {
-                            response: response.clone(),
-                            is_tts_disabled: is_tts_disabled
+                    if let Some(tool_calls) = &chat_with_chunks.tool_calls {
+                        for tool_call in tool_calls {
+                            FunctionCallTimeline {
+                                name: tool_call.function.name.clone(),
+                                chat_id: chat_with_chunks.chat.id as i64,
+                                team_id
+                            }
                         }
                     } else {
-                        ProcessingTimeline {
-                            chat_id: chat_with_chunks.chat.id as i64,
-                            prompt: chat_with_chunks.chat.prompt.clone(),
-                            team_id: team_id
+                        if let Some(response) = &chat_with_chunks.chat.response {
+                            ResponseTimeline {
+                                response: response.clone(),
+                                is_tts_disabled: is_tts_disabled
+                            }
+                        } else {
+                            ProcessingTimeline {
+                                chat_id: chat_with_chunks.chat.id as i64,
+                                prompt: chat_with_chunks.chat.prompt.clone(),
+                                team_id: team_id
+                            }
                         }
                     }
 
@@ -62,7 +72,7 @@ pub fn ConsoleStream(
 
 // Function Call Timeline Component
 #[component]
-fn FunctionCallTimeline(name: String) -> Element {
+fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32) -> Element {
     rsx! {
         TimeLine {
             TimeLineBadge {
@@ -75,6 +85,10 @@ fn FunctionCallTimeline(name: String) -> Element {
                         class: "ml-2",
                         "{name}"
                     }
+                }
+                ProcessingForm {
+                    chat_id,
+                    team_id
                 }
             }
         }
@@ -149,21 +163,32 @@ fn ProcessingTimeline(chat_id: i64, prompt: String, team_id: i32) -> Element {
                         "Processing prompt"
                     }
                 }
-                form {
-                    method: "post",
-                    id: "chat-form-{chat_id}",
-                    action: routes::console::UpdateResponse{team_id}.to_string(),
-                    input {
-                        name: "response",
-                        id: "chat-result-{chat_id}",
-                        "type": "hidden"
-                    }
-                    input {
-                        name: "chat_id",
-                        value: "{chat_id}",
-                        "type": "hidden"
-                    }
+                ProcessingForm {
+                    chat_id,
+                    team_id
                 }
+            }
+        }
+    }
+}
+
+// Processing Timeline Component
+#[component]
+fn ProcessingForm(chat_id: i64, team_id: i32) -> Element {
+    rsx! {
+        form {
+            method: "post",
+            id: "chat-form-{chat_id}",
+            action: routes::console::UpdateResponse{team_id}.to_string(),
+            input {
+                name: "response",
+                id: "chat-result-{chat_id}",
+                "type": "hidden"
+            }
+            input {
+                name: "chat_id",
+                value: "{chat_id}",
+                "type": "hidden"
             }
         }
     }
