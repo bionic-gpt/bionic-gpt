@@ -14,7 +14,8 @@ pub mod token_count;
 pub mod ui_chat_stream;
 use axum::Router;
 use axum_extra::routing::RouterExt;
-use openai::chat::{ChatCompletionFunctionDefinition, ChatCompletionMessage};
+use integrations::BionicToolDefinition;
+use openai::chat::ChatCompletionMessage;
 use tower_http::cors::{Any, CorsLayer};
 
 use axum_extra::routing::TypedPath;
@@ -31,7 +32,7 @@ pub struct BionicChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<ChatCompletionFunctionDefinition>>,
+    pub tools: Option<Vec<BionicToolDefinition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<serde_json::Value>,
 }

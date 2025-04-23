@@ -1,11 +1,10 @@
 use std::env;
 use std::sync::Arc;
 
-use openai::chat::ChatCompletionFunctionDefinition;
-
 // Import the tool trait and weather tool
 use crate::tool::ToolInterface;
 use crate::weather::WeatherTool;
+use crate::BionicToolDefinition;
 
 /// Returns a list of available tools
 /// Only returns tools if the MCP_ENABLED environment variable is set
@@ -19,7 +18,7 @@ pub fn get_tools() -> Option<Vec<Arc<dyn ToolInterface>>> {
 
 /// Returns a list of available OpenAI tool definitions
 /// This is for backward compatibility
-pub fn get_openai_tools() -> Option<Vec<ChatCompletionFunctionDefinition>> {
+pub fn get_openai_tools() -> Option<Vec<BionicToolDefinition>> {
     if let Some(tools) = get_tools() {
         return Some(tools.iter().map(|tool| tool.get_tool()).collect());
     }

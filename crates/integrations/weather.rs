@@ -1,4 +1,4 @@
-use crate::tool::ToolInterface;
+use crate::{tool::ToolInterface, BionicToolDefinition};
 use openai::chat::ChatCompletionFunctionDefinition;
 use serde_json::{json, Value};
 
@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 pub struct WeatherTool;
 
 impl ToolInterface for WeatherTool {
-    fn get_tool(&self) -> ChatCompletionFunctionDefinition {
+    fn get_tool(&self) -> BionicToolDefinition {
         get_weather_tool()
     }
 
@@ -16,25 +16,28 @@ impl ToolInterface for WeatherTool {
 }
 
 /// Returns a Tool definition for the weather function
-pub fn get_weather_tool() -> ChatCompletionFunctionDefinition {
-    ChatCompletionFunctionDefinition {
-        name: "get_weather".to_string(),
-        description: Some("Get the current weather in a given location".to_string()),
-        parameters: Some(json!({
-            "type": "object",
-            "properties": {
-                "location": {
-                    "type": "string",
-                    "description": "The city and state, e.g. San Francisco, CA"
+pub fn get_weather_tool() -> BionicToolDefinition {
+    BionicToolDefinition {
+        r#type: "function".to_string(),
+        function: ChatCompletionFunctionDefinition {
+            name: "get_weather".to_string(),
+            description: Some("Get the current weather in a given location".to_string()),
+            parameters: Some(json!({
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The city and state, e.g. San Francisco, CA"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "description": "The temperature unit to use"
+                    }
                 },
-                "unit": {
-                    "type": "string",
-                    "enum": ["celsius", "fahrenheit"],
-                    "description": "The temperature unit to use"
-                }
-            },
-            "required": ["location"]
-        })),
+                "required": ["location"]
+            })),
+        },
     }
 }
 
@@ -71,7 +74,7 @@ mod tests {
     #[test]
     fn test_get_weather_tool() {
         let tool = get_weather_tool();
-        assert_eq!(tool.name, "get_weather");
+        assert_eq!(tool.function.name, "get_weather");
     }
 
     #[test]
