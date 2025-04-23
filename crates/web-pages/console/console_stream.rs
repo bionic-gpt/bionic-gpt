@@ -48,7 +48,6 @@ pub fn ConsoleStream(
                         } else {
                             ProcessingTimeline {
                                 chat_id: chat_with_chunks.chat.id as i64,
-                                prompt: chat_with_chunks.chat.prompt.clone(),
                                 team_id: team_id
                             }
                         }
@@ -147,7 +146,7 @@ fn ResponseTimeline(response: String, is_tts_disabled: bool) -> Element {
 
 // Processing Timeline Component
 #[component]
-fn ProcessingTimeline(chat_id: i64, prompt: String, team_id: i32) -> Element {
+fn ProcessingTimeline(chat_id: i64, team_id: i32) -> Element {
     rsx! {
         TimeLine {
             TimeLineBadge {
@@ -155,13 +154,8 @@ fn ProcessingTimeline(chat_id: i64, prompt: String, team_id: i32) -> Element {
             }
             TimeLineBody {
                 class: "prose",
-                div {
-                    id: "streaming-chat",
-                    "data-prompt": "{prompt}",
-                    "data-chatid": "{chat_id}",
-                    span {
-                        "Processing prompt"
-                    }
+                span {
+                    "Processing prompt"
                 }
                 ProcessingForm {
                     chat_id,
@@ -176,6 +170,10 @@ fn ProcessingTimeline(chat_id: i64, prompt: String, team_id: i32) -> Element {
 #[component]
 fn ProcessingForm(chat_id: i64, team_id: i32) -> Element {
     rsx! {
+        div {
+            id: "streaming-chat",
+            "data-chatid": "{chat_id}",
+        }
         form {
             method: "post",
             id: "chat-form-{chat_id}",
