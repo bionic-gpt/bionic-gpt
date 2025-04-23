@@ -1,5 +1,5 @@
 use db::Chat;
-use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole};
+use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use serde_json::json;
 use time::OffsetDateTime;
 
@@ -107,7 +107,6 @@ async fn test_generate_prompt() {
             tool_call_id: None,
             tool_calls: None,
             name: None,
-            function_call: None,
         }],
         Default::default(),
     )

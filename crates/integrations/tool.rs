@@ -2,7 +2,7 @@
 //!
 //! This module defines the ToolInterface trait that all tools must implement.
 
-use crate::BionicToolDefinition;
+use openai_api::BionicToolDefinition;
 
 /// Tool interface trait that defines the common functionality for all tools
 pub trait ToolInterface: Send + Sync {

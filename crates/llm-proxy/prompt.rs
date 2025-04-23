@@ -2,7 +2,7 @@ use crate::errors::CustomError;
 use crate::token_count::{token_count, token_count_from_string};
 use db::queries::{chats_chunks, prompts};
 use db::{RelatedContext, Transaction};
-use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole};
+use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
 // that's why chat is a Vec<Message>
@@ -130,7 +130,6 @@ pub async fn generate_prompt(
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
-                function_call: None,
             },
             size_so_far,
             size_allowed,

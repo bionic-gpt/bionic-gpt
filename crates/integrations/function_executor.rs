@@ -1,6 +1,6 @@
 use crate::function_tools;
 use crate::tool::ToolInterface;
-use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole, ToolCall};
+use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole, ToolCall};
 use std::sync::Arc;
 
 /// Execute a tool call and return a message with the result
@@ -43,7 +43,7 @@ pub fn execute_tool_call_with_tools(
 mod tests {
     use super::*;
     use crate::weather::WeatherTool;
-    use openai::chat::{ToolCall, ToolCallFunction};
+    use openai_api::{ToolCall, ToolCallFunction};
     use serde_json::json;
 
     #[test]

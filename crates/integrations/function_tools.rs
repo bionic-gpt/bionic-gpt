@@ -4,7 +4,7 @@ use std::sync::Arc;
 // Import the tool trait and weather tool
 use crate::tool::ToolInterface;
 use crate::weather::WeatherTool;
-use crate::BionicToolDefinition;
+use openai_api::BionicToolDefinition;
 
 /// Returns a list of available tools
 /// Only returns tools if the MCP_ENABLED environment variable is set

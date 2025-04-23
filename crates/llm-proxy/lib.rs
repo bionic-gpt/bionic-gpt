@@ -14,28 +14,10 @@ pub mod token_count;
 pub mod ui_chat_stream;
 use axum::Router;
 use axum_extra::routing::RouterExt;
-use integrations::BionicToolDefinition;
-use openai::chat::ChatCompletionMessage;
 use tower_http::cors::{Any, CorsLayer};
 
 use axum_extra::routing::TypedPath;
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct BionicChatCompletionRequest {
-    pub model: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_tokens: Option<i32>,
-    pub messages: Vec<ChatCompletionMessage>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<BionicToolDefinition>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_choice: Option<serde_json::Value>,
-}
+use serde::Deserialize;
 
 pub fn routes() -> Router {
     let cors = CorsLayer::new()

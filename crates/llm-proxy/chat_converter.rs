@@ -1,5 +1,5 @@
 use db::Chat;
-use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole, ToolCall, ToolCallFunction};
+use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole, ToolCall, ToolCallFunction};
 
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMessage> {
     let mut messages: Vec<ChatCompletionMessage> = Default::default();
@@ -11,7 +11,6 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
-                function_call: None,
             });
             // Parse the function call JSON to extract necessary information
             if let Ok(function_call_json) =
@@ -45,7 +44,6 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                         },
                     }]),
                     name: None,
-                    function_call: None,
                 });
 
                 // Add tool response if results exist
@@ -56,7 +54,6 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                         tool_call_id: Some(id),
                         name: Some(function_name),
                         tool_calls: None,
-                        function_call: None,
                     });
                 }
             } else {
@@ -67,7 +64,6 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                     tool_call_id: None,
                     tool_calls: None,
                     name: None,
-                    function_call: None,
                 });
 
                 if let Some(results) = chat.function_call_results {
@@ -77,7 +73,6 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                         tool_call_id: None,
                         tool_calls: None,
                         name: None,
-                        function_call: None,
                     });
                 }
             }
@@ -88,7 +83,6 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                 tool_call_id: None,
                 tool_calls: None,
                 name: None,
-                function_call: None,
             });
             if let Some(response) = chat.response {
                 messages.push(ChatCompletionMessage {
@@ -97,7 +91,6 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                     tool_call_id: None,
                     tool_calls: None,
                     name: None,
-                    function_call: None,
                 });
             }
         };

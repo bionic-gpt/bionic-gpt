@@ -4,7 +4,7 @@
 //! cargo run -p example-reqwest-response
 //! ```
 use axum::Error;
-use openai::chat::ChatCompletionDelta;
+use openai_api::ChatCompletionDelta;
 use reqwest::RequestBuilder;
 use reqwest_eventsource::{Event as ReqwestEvent, EventSource as ReqwestEventSource};
 use tokio::sync::mpsc;
@@ -34,7 +34,7 @@ pub async fn enriched_chat(
     // Start streaming
     let mut stream = ReqwestEventSource::new(request)?;
     let mut snapshot = String::new();
-    let mut merged: Option<ChatCompletionDelta> = None;
+    let merged: Option<ChatCompletionDelta> = None;
 
     // Handle streaming events
     while let Some(event) = stream.next().await {
@@ -56,10 +56,10 @@ pub async fn enriched_chat(
                     tracing::debug!("{}", &message.data);
                     let delta: ChatCompletionDelta = serde_json::from_str(&message.data)?;
 
-                    match merged.as_mut() {
-                        Some(c) => c.merge(delta.clone()).unwrap(),
-                        None => merged = Some(delta.clone()),
-                    }
+                    //match merged.as_mut() {
+                    //    Some(c) => c.merge(delta.clone()).unwrap(),
+                    //    None => merged = Some(delta.clone()),
+                    //}
 
                     // Regular text content
                     if let Some(text) = &delta.choices[0].delta.content {

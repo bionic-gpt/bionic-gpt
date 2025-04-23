@@ -1,4 +1,4 @@
-use openai::chat::{ChatCompletionMessage, ChatCompletionMessageRole};
+use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 pub fn token_count(messages: Vec<ChatCompletionMessage>) -> i32 {
@@ -22,6 +22,5 @@ pub fn token_count_from_string(message: &str) -> i32 {
         tool_call_id: None,
         tool_calls: None,
         name: None,
-        function_call: None,
     }])
 }

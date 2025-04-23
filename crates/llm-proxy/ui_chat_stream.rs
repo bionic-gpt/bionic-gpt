@@ -5,14 +5,15 @@
 //! ```
 use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
+use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
-use crate::{chat_converter, BionicChatCompletionRequest};
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
 use integrations::function_tools::get_openai_tools;
+use openai_api::BionicChatCompletionRequest;
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,

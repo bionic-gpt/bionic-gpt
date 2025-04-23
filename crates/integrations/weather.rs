@@ -1,5 +1,5 @@
-use crate::{tool::ToolInterface, BionicToolDefinition};
-use openai::chat::ChatCompletionFunctionDefinition;
+use crate::tool::ToolInterface;
+use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
 
 /// A tool that provides weather information
