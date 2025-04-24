@@ -22,6 +22,10 @@ pub fn Form(
     example2: String,
     example3: String,
     example4: String,
+    // Add new parameters for capabilities
+    has_capability_function_calling: bool,
+    has_capability_vision: bool,
+    has_capability_tool_use: bool,
 ) -> Element {
     rsx!(
         form {
@@ -167,6 +171,59 @@ pub fn Form(
                                     help_text: "How much data can be passed to the prompt",
                                     value: "{context_size_bytes}",
                                     required: true
+                                }
+                            }
+                        }
+                        TabPanel {
+                            name: "prompt-tabs",
+                            tab_name: "Capabilities",
+                            div {
+                                class: "flex flex-col mt-3",
+
+                                if model_type == "LLM" {
+                                    div {
+                                        class: "form-control",
+                                        label {
+                                            class: "label cursor-pointer",
+                                            span { class: "label-text", "Function Calling" }
+                                            input {
+                                                "type": "checkbox",
+                                                name: "capability_function_calling",
+                                                class: "checkbox",
+                                                checked: has_capability_function_calling
+                                            }
+                                        }
+                                    }
+
+                                    div {
+                                        class: "form-control",
+                                        label {
+                                            class: "label cursor-pointer",
+                                            span { class: "label-text", "Vision" }
+                                            input {
+                                                "type": "checkbox",
+                                                name: "capability_vision",
+                                                class: "checkbox",
+                                                checked: has_capability_vision
+                                            }
+                                        }
+                                    }
+
+                                    div {
+                                        class: "form-control",
+                                        label {
+                                            class: "label cursor-pointer",
+                                            span { class: "label-text", "Tool Use" }
+                                            input {
+                                                "type": "checkbox",
+                                                name: "capability_tool_use",
+                                                class: "checkbox",
+                                                checked: has_capability_tool_use
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    p { "Capabilities are only available for LLM models." }
                                 }
                             }
                         }

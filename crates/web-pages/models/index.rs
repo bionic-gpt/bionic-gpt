@@ -6,7 +6,16 @@ use db::authz::Rbac;
 use db::queries::models::ModelWithPrompt;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, models: Vec<ModelWithPrompt>) -> String {
+pub fn page(
+    team_id: i32,
+    rbac: Rbac,
+    models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool)>,
+) -> String {
+    // Extract models for components that don't need capabilities
+    let models: Vec<ModelWithPrompt> = models_with_capabilities
+        .iter()
+        .map(|(model, _, _, _)| model.clone())
+        .collect();
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -47,9 +56,13 @@ pub fn page(team_id: i32, rbac: Rbac, models: Vec<ModelWithPrompt>) -> String {
                 example2: "".to_string(),
                 example3: "".to_string(),
                 example4: "".to_string(),
+                // Default capabilities to false for new models
+                has_capability_function_calling: false,
+                has_capability_vision: false,
+                has_capability_tool_use: false,
             }
 
-            for model in &models {
+            for (model, has_function_calling, has_vision, has_tool_use) in &models_with_capabilities {
                 super::form::Form {
                     id: model.id,
                     prompt_id: model.prompt_id,
@@ -69,10 +82,14 @@ pub fn page(team_id: i32, rbac: Rbac, models: Vec<ModelWithPrompt>) -> String {
                     example2: model.example2.clone(),
                     example3: model.example3.clone(),
                     example4: model.example4.clone(),
+                    // Pass the capabilities
+                    has_capability_function_calling: *has_function_calling,
+                    has_capability_vision: *has_vision,
+                    has_capability_tool_use: *has_tool_use,
                 }
             }
 
-            for item in &models {
+            for (item, _, _, _) in &models_with_capabilities {
                 super::delete::DeleteDrawer {
                     team_id: team_id,
                     id: item.id,

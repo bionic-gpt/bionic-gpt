@@ -25,8 +25,8 @@ pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};
 pub use queries::users::User;
 pub use types::public::{
-    AuditAccessType, AuditAction, ChatStatus, IntegrationStatus, IntegrationType, ModelType,
-    Permission, PromptType, Role, Visibility,
+    AuditAccessType, AuditAction, ChatStatus, IntegrationStatus, IntegrationType, ModelCapability,
+    ModelType, Permission, PromptType, Role, Visibility,
 };
 pub use vector_search::{get_related_context, search_history, RelatedContext};
 

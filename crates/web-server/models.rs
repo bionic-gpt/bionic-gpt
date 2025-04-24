@@ -9,9 +9,12 @@ use axum_extra::routing::RouterExt;
 use db::authz;
 use db::queries;
 use db::queries::models;
+use db::ModelCapability;
 use db::ModelType;
 use db::Pool;
 use db::Visibility;
+// Add capabilities module
+use db::queries::capabilities;
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::models::Delete;
@@ -41,7 +44,28 @@ pub async fn loader(
 
     let models = models::all_models().bind(&transaction).all().await?;
 
-    let html = web_pages::models::index::page(team_id, rbac, models);
+    // For each model, fetch its capabilities
+    let mut models_with_capabilities = Vec::new();
+    for model in models {
+        let capabilities = capabilities::get_model_capabilities()
+            .bind(&transaction, &model.id)
+            .all()
+            .await?;
+
+        let has_function_calling = capabilities
+            .iter()
+            .any(|c| c.capability == ModelCapability::function_calling);
+        let has_vision = capabilities
+            .iter()
+            .any(|c| c.capability == ModelCapability::vision);
+        let has_tool_use = capabilities
+            .iter()
+            .any(|c| c.capability == ModelCapability::tool_use);
+
+        models_with_capabilities.push((model, has_function_calling, has_vision, has_tool_use));
+    }
+
+    let html = web_pages::models::index::page(team_id, rbac, models_with_capabilities);
 
     Ok(Html(html))
 }
@@ -91,6 +115,10 @@ pub struct ModelForm {
     pub example2: String,
     pub example3: String,
     pub example4: String,
+    // Add capability fields
+    pub capability_function_calling: Option<String>,
+    pub capability_vision: Option<String>,
+    pub capability_tool_use: Option<String>,
 }
 
 pub async fn upsert_action(
@@ -160,6 +188,33 @@ pub async fn upsert_action(
                     .await?;
             }
 
+            // Handle capabilities if it's an LLM model
+            if model_type == ModelType::LLM {
+                // First, delete all existing capabilities for this model
+                capabilities::delete_all_model_capabilities()
+                    .bind(&transaction, &model_id)
+                    .await?;
+
+                // Then add the selected capabilities
+                if model_form.capability_function_calling.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::function_calling)
+                        .await?;
+                }
+
+                if model_form.capability_vision.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::vision)
+                        .await?;
+                }
+
+                if model_form.capability_tool_use.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::tool_use)
+                        .await?;
+                }
+            }
+
             transaction.commit().await?;
 
             Ok(super::layout::redirect_and_snackbar(
@@ -219,6 +274,27 @@ pub async fn upsert_action(
                     )
                     .one()
                     .await?;
+            }
+
+            // Handle capabilities if it's an LLM model
+            if model_type == ModelType::LLM {
+                if model_form.capability_function_calling.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::function_calling)
+                        .await?;
+                }
+
+                if model_form.capability_vision.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::vision)
+                        .await?;
+                }
+
+                if model_form.capability_tool_use.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::tool_use)
+                        .await?;
+                }
             }
 
             transaction.commit().await?;
