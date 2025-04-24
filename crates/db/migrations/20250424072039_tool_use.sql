@@ -2,9 +2,6 @@
 ALTER TABLE chats RENAME COLUMN function_call TO tool_calls;
 ALTER TABLE chats RENAME COLUMN function_call_results TO tool_call_results;
 
-
-ALTER TYPE integration_type ADD VALUE IF NOT EXISTS 'BuiltIn';
-
 ALTER TABLE integrations
     DROP COLUMN base_url,
     ADD COLUMN configuration JSONB;
@@ -27,6 +24,8 @@ INSERT INTO integrations(
 -- migrate:down
 ALTER TABLE chats RENAME COLUMN tool_calls TO function_call;
 ALTER TABLE chats RENAME COLUMN tool_call_results TO function_call_results;
+
+DELETE FROM integrations;
 
 ALTER TABLE integrations
     DROP COLUMN configuration,
