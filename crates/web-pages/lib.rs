@@ -144,6 +144,10 @@ pub mod routes {
         }
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/set_prompt")]
+        pub struct SetPrompt {}
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/{team_id}/console/{conversation_id}")]
         pub struct Conversation {
             pub team_id: i32,
