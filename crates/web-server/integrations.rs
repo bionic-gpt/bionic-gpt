@@ -32,7 +32,7 @@ pub async fn loader(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let integrations = queries::integrations::integrations()
-        .bind(&transaction, &db::IntegrationType::MCP_Server)
+        .bind(&transaction)
         .all()
         .await?;
 

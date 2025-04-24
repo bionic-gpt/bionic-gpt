@@ -11,7 +11,6 @@ SELECT
     updated_at
 FROM 
     integrations
-WHERE integration_type = :integration_type
 ORDER BY updated_at;
 
 --! integration : Integration
