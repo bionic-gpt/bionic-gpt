@@ -696,6 +696,8 @@ dependencies = [
  "fallible-iterator",
  "postgres-protocol",
  "postgres-types",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

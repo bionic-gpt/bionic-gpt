@@ -36,10 +36,8 @@ pub fn IntegrationTable(integrations: Vec<Integration>, team_id: i32) -> Element
                                     }
                                 }
                                 td {
-                                    class: "max-sm:hidden",
-                                    code {
-                                        class: "[overflow-wrap:anywhere]",
-                                        "{integration.base_url}"
+                                    super::status_type::Status {
+                                        integration_status: integration.integration_status
                                     }
                                 }
                                 td {

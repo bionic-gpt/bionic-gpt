@@ -69,8 +69,7 @@ pub struct IntegrationForm {
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
     pub integration_type: String,
-    #[validate(length(min = 1, message = "The base URL is mandatory"))]
-    pub base_url: String,
+    pub integration_status: String,
 }
 
 pub async fn upsert_action(
@@ -86,7 +85,12 @@ pub async fn upsert_action(
 
     let integration_type = match integration_form.integration_type.as_str() {
         "MCP Server" => db::IntegrationType::MCP_Server,
-        _ => db::IntegrationType::MCP_Server, // Default to MCP_Server
+        _ => db::IntegrationType::BuiltIn,
+    };
+
+    let integration_status = match integration_form.integration_status.as_str() {
+        "Configured" => db::IntegrationStatus::Configured,
+        _ => db::IntegrationStatus::AwaitingConfiguration,
     };
 
     match (integration_form.validate(), integration_form.id) {
@@ -97,7 +101,7 @@ pub async fn upsert_action(
                     &transaction,
                     &integration_form.name,
                     &integration_type,
-                    &integration_form.base_url,
+                    &integration_status,
                     &integration_id,
                 )
                 .await?;
@@ -117,7 +121,7 @@ pub async fn upsert_action(
                     &transaction,
                     &integration_form.name,
                     &integration_type,
-                    &integration_form.base_url,
+                    &integration_status,
                 )
                 .one()
                 .await?;

@@ -1,11 +1,12 @@
---: Integration()
+--: Integration(configuration?)
 
 --! integrations : Integration
 SELECT
     id,
     name,
     integration_type,
-    base_url,
+    integration_status,
+    configuration,
     created_at,
     updated_at
 FROM 
@@ -18,7 +19,8 @@ SELECT
     id,
     name,
     integration_type,
-    base_url,
+    integration_status,
+    configuration,
     created_at,
     updated_at
 FROM 
@@ -32,12 +34,12 @@ ORDER BY updated_at;
 INSERT INTO integrations (
     name,
     integration_type,
-    base_url
+    integration_status
 )
 VALUES(
     :name,
     :integration_type,
-    :base_url
+    :integration_status
 )
 RETURNING id;
 
@@ -47,7 +49,7 @@ UPDATE
 SET 
     name = :name,
     integration_type = :integration_type,
-    base_url = :base_url
+    integration_status = :integration_status
 WHERE
     id = :id;
 
