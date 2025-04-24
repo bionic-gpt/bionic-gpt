@@ -135,7 +135,7 @@ async fn save_results(
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
 
-    let (function_call, function_call_result) = if let Some(tool_calls) = tool_calls {
+    let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
         let tool_call_results = execute_tool_calls(tool_calls.clone());
         let tool_call_results =
             serde_json::to_string(&tool_call_results).unwrap_or("{}".to_string());
@@ -153,8 +153,8 @@ async fn save_results(
         .bind(
             &transaction,
             &snapshot,
-            &function_call,
-            &function_call_result,
+            &tool_calls,
+            &tool_calls_result,
             &super::token_count::token_count_from_string(snapshot),
             &ChatStatus::Success,
             &chat_id,

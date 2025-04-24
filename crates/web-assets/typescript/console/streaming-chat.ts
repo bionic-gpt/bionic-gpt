@@ -70,7 +70,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
     };
     interface DeltaChunk {
         content?: string;
-        function_call?: {
+        tool_calls?: {
             name?: string;
             arguments?: string;
         };
@@ -80,11 +80,11 @@ async function streamResult(chatId: string, element: HTMLElement) {
         const delta = _delta as DeltaChunk;
         console.log(delta);
 
-        if (delta.function_call) {
+        if (delta.tool_calls) {
             console.log('Got a function call')
             isFunctionCall = true;
-            if (delta.function_call.name) functionCall.name = delta.function_call.name;
-            if (delta.function_call.arguments) functionCall.arguments += delta.function_call.arguments;
+            if (delta.tool_calls.name) functionCall.name = delta.tool_calls.name;
+            if (delta.tool_calls.arguments) functionCall.arguments += delta.tool_calls.arguments;
         }
 
         if (!isFunctionCall && delta.content) {

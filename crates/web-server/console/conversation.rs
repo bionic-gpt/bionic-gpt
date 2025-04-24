@@ -49,10 +49,10 @@ pub async fn conversation(
             .all()
             .await?;
 
-        // Set tool_calls only if this is the last chat and function_call is Some
-        let tool_calls = if index == last_chat_index && chat.function_call.is_some() {
-            // Parse the function_call JSON string into a Vec<ToolCall>
-            match from_str::<Vec<ToolCall>>(&chat.function_call.clone().unwrap()) {
+        // Set tool_calls only if this is the last chat and tool_calls is Some
+        let tool_calls = if index == last_chat_index && chat.tool_calls.is_some() {
+            // Parse the tool_calls JSON string into a Vec<ToolCall>
+            match from_str::<Vec<ToolCall>>(&chat.tool_calls.clone().unwrap()) {
                 Ok(calls) => {
                     lock_console = true;
                     Some(calls)
