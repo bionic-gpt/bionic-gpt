@@ -17,7 +17,7 @@ embeddings-api = { path = "../embeddings-api" }
 openai-api = { path = "../openai-api" }
 
 axum = { version = "0.8", features = ["multipart"] }
-axum-extra = { version = "0.10.0", features = ["form", "typed-routing"] }
+axum-extra = { version = "0.10.0", features = ["form", "typed-routing", "cookie"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 tokio-util = { version = "0" }
 tower = { version = "0.4" }

@@ -282,6 +282,7 @@ dependencies = [
  "axum-core",
  "axum-macros",
  "bytes",
+ "cookie 0.18.1",
  "form_urlencoded",
  "futures-util",
  "http 1.1.0",
@@ -653,6 +654,17 @@ name = "cookie"
 version = "0.16.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e859cd57d0710d9e06c381b550c06e76992472a8c6d527aecd2fc673dcc231fb"
+dependencies = [
+ "percent-encoding",
+ "time",
+ "version_check",
+]
+
+[[package]]
+name = "cookie"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ddef33a339a91ea89fb53151bd0a4689cfce27055c291dfa69945475d22c747"
 dependencies = [
  "percent-encoding",
  "time",
@@ -1244,7 +1256,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65f0fbe245d714b596ba5802b46f937f5ce68dcae0f32f9a70b5c3b04d3c6f64"
 dependencies = [
  "base64 0.13.1",
- "cookie",
+ "cookie 0.16.2",
  "futures-core",
  "futures-util",
  "http 0.2.9",
@@ -3837,7 +3849,7 @@ dependencies = [
  "async-trait",
  "base64 0.13.1",
  "chrono",
- "cookie",
+ "cookie 0.16.2",
  "fantoccini",
  "futures",
  "http 0.2.9",
@@ -4743,7 +4755,7 @@ checksum = "9973cb72c8587d5ad5efdb91e663d36177dc37725e6c90ca86c626b0cc45c93f"
 dependencies = [
  "base64 0.13.1",
  "bytes",
- "cookie",
+ "cookie 0.16.2",
  "http 0.2.9",
  "log",
  "serde",
