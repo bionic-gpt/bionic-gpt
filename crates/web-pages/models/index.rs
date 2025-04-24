@@ -18,7 +18,7 @@ pub fn page(team_id: i32, rbac: Rbac, models: Vec<ModelWithPrompt>) -> String {
                 h3 { "Models" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "new-model-form",
+                    modal_trigger: "new-model-form",
                     button_scheme: ButtonScheme::Primary,
                     "Add Model"
                 }
