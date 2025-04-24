@@ -35,7 +35,6 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<Integration>) -> String 
                 trigger_id: "new-integration-form".to_string(),
                 name: "".to_string(),
                 integration_type: "MCP Server".to_string(),
-                base_url: "".to_string(),
             }
 
             for integration in &integrations {
@@ -44,7 +43,6 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<Integration>) -> String 
                     team_id: team_id,
                     trigger_id: format!("edit-integration-form-{}", integration.id),
                     name: integration.name.clone(),
-                    base_url: integration.base_url.clone(),
                     integration_type: super::integration_type(integration.integration_type),
                 }
             }

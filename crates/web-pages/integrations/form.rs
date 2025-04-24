@@ -8,7 +8,6 @@ pub fn Form(
     team_id: i32,
     name: String,
     trigger_id: String,
-    base_url: String,
     integration_type: String,
 ) -> Element {
     rsx!(
@@ -49,16 +48,6 @@ pub fn Form(
                             selected_value: integration_type.clone(),
                             "MCP Server"
                         }
-                    }
-
-                    Input {
-                        input_type: InputType::Text,
-                        label_class: "mt-4",
-                        name: "base_url",
-                        label: "The Base URL of the integration server",
-                        help_text: "The URL location of the Integration Server API",
-                        value: base_url,
-                        required: true
                     }
                 }
             }

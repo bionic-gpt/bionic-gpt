@@ -4,7 +4,7 @@ use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMessage> {
     let mut messages: Vec<ChatCompletionMessage> = Default::default();
     for chat in conversation {
-        if let Some(tool_calls_json) = chat.function_call {
+        if let Some(tool_calls_json) = chat.tool_calls {
             messages.push(ChatCompletionMessage {
                 role: ChatCompletionMessageRole::User,
                 content: Some(chat.user_request),
@@ -26,7 +26,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                 });
 
                 // Add tool response if results exist
-                if let Some(results) = chat.function_call_results {
+                if let Some(results) = chat.tool_call_results {
                     if let Ok(tool_call_results) =
                         serde_json::from_str::<Vec<openai_api::ToolCallResult>>(&results)
                     {

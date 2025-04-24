@@ -1,23 +1,23 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
-use db::IntegrationType;
+use db::IntegrationStatus;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Integration(integration_type: IntegrationType) -> Element {
-    match integration_type {
-        IntegrationType::MCP_Server => rsx!(
+pub fn Status(integration_status: IntegrationStatus) -> Element {
+    match integration_status {
+        IntegrationStatus::Configured => rsx!(
             Label {
                 class: "truncate",
                 label_role: LabelRole::Info,
-                "MCP Server"
+                "Configured"
             }
         ),
-        IntegrationType::BuiltIn => rsx!(
+        _ => rsx!(
             Label {
                 class: "truncate",
                 label_role: LabelRole::Info,
-                "Built In"
+                "Awaiting Configuration"
             }
         ),
     }

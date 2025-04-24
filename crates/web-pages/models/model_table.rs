@@ -35,6 +35,9 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                             "Context Length"
                         }
                         th {
+                            "Edit"
+                        }
+                        th {
                             class: "text-right",
                             "Action"
                         }
@@ -72,15 +75,17 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                     "{model.context_size}"
                                 }
                                 td {
+                                    Button {
+                                        modal_trigger: format!("edit-model-form-{}", model.id),
+                                        button_scheme: ButtonScheme::Default,
+                                        "Edit"
+                                    }
+                                }
+                                td {
                                     class: "text-right",
                                     DropDown {
                                         direction: Direction::Left,
                                         button_text: "...",
-                                        DropDownLink {
-                                            href: "#",
-                                            drawer_trigger: format!("edit-model-form-{}", model.id),
-                                            "Edit"
-                                        }
                                         DropDownLink {
                                             drawer_trigger: format!("delete-trigger-{}-{}",
                                                 model.id, team_id),

@@ -6,13 +6,13 @@ use time::OffsetDateTime;
 use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
 
 #[tokio::test]
-async fn test_convert_chat_to_messages_function_calling() {
+async fn test_convert_chat_to_messages_tool_callsing() {
     // Create a Chat struct with function call data similar to the OpenAI example
     let chat = Chat {
         id: 0,
         conversation_id: 0,
         user_request: "What's the weather like in San Francisco?".to_string(),
-        function_call: Some(
+        tool_calls: Some(
             json!({
                 "id": "call_123",
                 "type": "function",
@@ -26,7 +26,7 @@ async fn test_convert_chat_to_messages_function_calling() {
             })
             .to_string(),
         ),
-        function_call_results: Some(
+        tool_call_results: Some(
             json!({
                 "location": "San Francisco, CA",
                 "temperature": 22,
@@ -65,14 +65,14 @@ async fn test_convert_chat_to_messages_function_calling() {
 }
 
 #[tokio::test]
-async fn test_convert_chat_to_messages_function_calling_fallback() {
+async fn test_convert_chat_to_messages_tool_callsing_fallback() {
     // Create a Chat struct with invalid JSON function call data
     let chat = Chat {
         id: 0,
         conversation_id: 0,
         user_request: "What's the weather like in San Francisco?".to_string(),
-        function_call: Some("invalid json".to_string()),
-        function_call_results: Some("some results".to_string()),
+        tool_calls: Some("invalid json".to_string()),
+        tool_call_results: Some("some results".to_string()),
         prompt: "weather query".to_string(),
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
