@@ -20,7 +20,6 @@ import { snackBar } from './typescript/layout/snackbar'
 import { copy } from './typescript/console/copy'
 import { selectMenu } from './typescript/components/select-menu'
 import { readAloud } from './typescript/console/read-aloud'
-import { modelChanged } from './typescript/components/select-menu-changed'
 import { rememberForm } from './typescript/remember-form'
 import { textareaSubmit } from './typescript/textarea-submit'
 import { updateSidebar } from './typescript/layout/update-sidebar'
@@ -45,7 +44,6 @@ function loadEverything() {
     copyPaste()
     snackBar()
     selectMenu()
-    modelChanged()
     copy()
     speechToText()
     readAloud()
