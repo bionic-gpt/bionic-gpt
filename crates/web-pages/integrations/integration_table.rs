@@ -18,9 +18,9 @@ pub fn IntegrationTable(integrations: Vec<Integration>, team_id: i32) -> Element
                         th { "Name" }
                         th {
                             class: "max-sm:hidden",
-                            "Base URL"
+                            "Status"
                         }
-                        th { "Model Type" }
+                        th { "Integration Type" }
 
                         th {
                             class: "text-right",

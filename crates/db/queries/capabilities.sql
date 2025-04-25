@@ -1,6 +1,6 @@
---: ModelCapability(value?)
+--: Capability(value?)
 
---! get_model_capabilities : ModelCapability
+--! get_model_capabilities : Capability
 SELECT
     model_id,
     capability,
