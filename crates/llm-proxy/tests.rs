@@ -11,32 +11,35 @@ async fn test_convert_chat_to_messages_tool_callsing() {
     let chat = Chat {
         id: 0,
         conversation_id: 0,
-        user_request: "What's the weather like in San Francisco?".to_string(),
+        user_request: "What's the current time in San Francisco?".to_string(),
         tool_calls: Some(
-            json!({
+            json!([{
                 "id": "call_123",
                 "type": "function",
                 "function": {
-                    "name": "get_weather",
+                    "name": "get_current_time_and_date",
                     "arguments": {
-                        "location": "San Francisco, CA",
-                        "unit": "celsius"
+                        "timezone": "local",
+                        "format": "human_readable"
                     }
                 }
-            })
+            }])
             .to_string(),
         ),
         tool_call_results: Some(
-            json!({
-                "location": "San Francisco, CA",
-                "temperature": 22,
-                "unit": "celsius",
-                "condition": "sunny",
-                "forecast": ["sunny", "partly cloudy", "sunny"]
-            })
+            json!([{
+                "id": "call_123",
+                "name": "get_current_time_and_date",
+                "result": json!({
+                    "current_time": "2025-04-25 09:25:00 PDT",
+                    "timestamp": 1745123100,
+                    "timezone": "local",
+                    "format": "human_readable"
+                }).to_string()
+            }])
             .to_string(),
         ),
-        prompt: "weather query".to_string(),
+        prompt: "time query".to_string(),
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
         response: None,
@@ -57,11 +60,14 @@ async fn test_convert_chat_to_messages_tool_callsing() {
     assert_eq!(tool_calls.len(), 1);
     assert_eq!(tool_calls[0].id, "call_123");
     assert_eq!(tool_calls[0].r#type, "function");
-    assert_eq!(tool_calls[0].function.name, "get_weather");
+    assert_eq!(tool_calls[0].function.name, "get_current_time_and_date");
 
     assert_eq!(messages[2].role, ChatCompletionMessageRole::Tool);
     assert_eq!(messages[2].tool_call_id, Some("call_123".to_string()));
-    assert_eq!(messages[2].name, Some("get_weather".to_string()));
+    assert_eq!(
+        messages[2].name,
+        Some("get_current_time_and_date".to_string())
+    );
 }
 
 #[tokio::test]
@@ -70,10 +76,10 @@ async fn test_convert_chat_to_messages_tool_callsing_fallback() {
     let chat = Chat {
         id: 0,
         conversation_id: 0,
-        user_request: "What's the weather like in San Francisco?".to_string(),
-        tool_calls: Some("invalid json".to_string()),
-        tool_call_results: Some("some results".to_string()),
-        prompt: "weather query".to_string(),
+        user_request: "What's the current time in San Francisco?".to_string(),
+        tool_calls: Some("[invalid json]".to_string()),
+        tool_call_results: Some("[some results]".to_string()),
+        prompt: "time query".to_string(),
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
         response: None,
