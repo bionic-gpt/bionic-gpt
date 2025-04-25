@@ -1,3 +1,5 @@
+use crate::user_config::UserConfig;
+
 use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
@@ -10,6 +12,7 @@ use web_pages::routes::console::Index;
 pub async fn index(
     Index { team_id }: Index,
     current_user: Jwt,
+    user_config: UserConfig,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
@@ -22,8 +25,14 @@ pub async fn index(
         .all()
         .await?;
 
+    let prompt_id = if let Some(default_prompt) = user_config.default_prompt {
+        default_prompt
+    } else {
+        prompts.first().unwrap().id
+    };
+
     let prompt = prompts::prompt()
-        .bind(&transaction, &prompts.first().unwrap().id, &team_id)
+        .bind(&transaction, &prompt_id, &team_id)
         .one()
         .await?;
 

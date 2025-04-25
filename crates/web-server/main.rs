@@ -21,6 +21,7 @@ pub mod rate_limits;
 pub mod static_files;
 pub mod team;
 pub mod teams;
+pub mod user_config;
 
 use axum_extra::routing::RouterExt;
 pub use errors::CustomError;

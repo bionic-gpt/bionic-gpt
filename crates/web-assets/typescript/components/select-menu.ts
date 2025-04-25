@@ -5,26 +5,10 @@ export const selectMenu = () => {
         const selectedOption = selectMenu.querySelector('.selected-option') as HTMLElement;
         const selectedOptionSpan = selectMenu.querySelector('.selected-option span') as HTMLElement;
         const options = selectMenu.querySelector('.options') as HTMLElement;
-
-        // Load stored value from localStorage if the element has an ID
-        const menuId = selectMenu.id;
-        if (menuId) {
-            const storedValue = localStorage.getItem(menuId);
-            if (storedValue) {
-                // Find the corresponding option with the stored value
-                const correspondingOption = options.querySelector(`[data-value="${storedValue}"]`) as HTMLElement;
-
-                if (correspondingOption) {
-                    // Use the text content of the first <span> inside the corresponding option if it exists
-                    const firstSpan = correspondingOption.querySelector('span');
-                    selectedOptionSpan.textContent = firstSpan?.textContent?.trim() || storedValue;
-                    selectMenu.setAttribute("data-value", storedValue); // Set data-value attribute
-                } else {
-                    // If the stored value is no longer present, remove it from localStorage
-                    localStorage.removeItem(menuId);
-                }
-            }
-        }
+        
+        // Find the form that contains this select menu
+        const form = selectMenu.closest('form');
+        const promptIdInput = form?.querySelector('input[name="id"]') as HTMLInputElement;
 
         selectedOption.addEventListener("click", () => {
             options.classList.toggle("hidden");
@@ -40,10 +24,15 @@ export const selectMenu = () => {
                     // Get the text content from the first <span> of the target option
                     const firstSpan = target.querySelector('span');
                     selectedOptionSpan.textContent = firstSpan?.textContent?.trim() || value;
-
-                    // Store the selected value in localStorage if the element has an ID
-                    if (menuId) {
-                        localStorage.setItem(menuId, value);
+                    
+                    // Update the hidden input with the selected prompt ID
+                    if (promptIdInput) {
+                        promptIdInput.value = value;
+                    }
+                    
+                    // Submit the form
+                    if (form) {
+                        form.submit();
                     }
 
                     options.classList.add("hidden"); // Hide options
