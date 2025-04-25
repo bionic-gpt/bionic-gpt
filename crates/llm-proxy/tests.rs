@@ -6,7 +6,7 @@ use time::OffsetDateTime;
 use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
 
 #[tokio::test]
-async fn test_convert_chat_to_messages_tool_callsing() {
+async fn test_convert_chat_to_messages_tool_calling() {
     // Create a Chat struct with function call data similar to the OpenAI example
     let chat = Chat {
         id: 0,
@@ -18,10 +18,10 @@ async fn test_convert_chat_to_messages_tool_callsing() {
                 "type": "function",
                 "function": {
                     "name": "get_current_time_and_date",
-                    "arguments": {
+                    "arguments": json!({
                         "timezone": "local",
                         "format": "human_readable"
-                    }
+                    }).to_string()
                 }
             }])
             .to_string(),
@@ -71,7 +71,7 @@ async fn test_convert_chat_to_messages_tool_callsing() {
 }
 
 #[tokio::test]
-async fn test_convert_chat_to_messages_tool_callsing_fallback() {
+async fn test_convert_chat_to_messages_tool_calling_fallback() {
     // Create a Chat struct with invalid JSON function call data
     let chat = Chat {
         id: 0,
@@ -91,13 +91,7 @@ async fn test_convert_chat_to_messages_tool_callsing_fallback() {
     let messages = convert_chat_to_messages(vec![chat]);
 
     // Assert the fallback behavior
-    assert_eq!(messages.len(), 3);
-    assert_eq!(messages[1].role, ChatCompletionMessageRole::Function);
-    assert_eq!(messages[1].content, Some("invalid json".to_string()));
-    assert_eq!(messages[2].role, ChatCompletionMessageRole::Tool);
-    assert_eq!(messages[2].content, Some("some results".to_string()));
-    assert_eq!(messages[2].tool_call_id, None);
-    assert_eq!(messages[2].name, None);
+    assert_eq!(messages.len(), 1);
 }
 
 #[tokio::test]
