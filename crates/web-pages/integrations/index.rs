@@ -16,11 +16,13 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<Integration>) -> String 
             title: "Integrations",
             header: rsx!(
                 h3 { "Integrations" }
-                Button {
-                    prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "new-integration-form",
-                    button_scheme: ButtonScheme::Primary,
-                    "Add Integration"
+                if std::env::var("DANGER_JWT_OVERRIDE").is_ok() {
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        drawer_trigger: "new-integration-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "Add Integration"
+                    }
                 }
             ),
 

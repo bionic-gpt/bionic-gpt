@@ -155,14 +155,12 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 icon: nav_phonebook_svg.name,
                                 title: "Model Setup"
                             }
-                            if std::env::var("DANGER_JWT_OVERRIDE").is_ok() {
-                                NavItem {
-                                    id: SideBar::Integrations.to_string(),
-                                    selected_item_id: props.selected_item.to_string(),
-                                    href: super::routes::integrations::Index { team_id: props.team_id },
-                                    icon: nav_audit_svg.name,
-                                    title: "Integrations"
-                                }
+                            NavItem {
+                                id: SideBar::Integrations.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::integrations::Index { team_id: props.team_id },
+                                icon: nav_audit_svg.name,
+                                title: "Integrations"
                             }
                             NavItem {
                                 id: SideBar::AuditTrail.to_string(),
