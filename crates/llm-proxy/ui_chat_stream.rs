@@ -178,6 +178,10 @@ async fn create_request(
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+    let capabilities = queries::capabilities::get_model_capabilities()
+        .bind(&transaction, &model.id)
+        .all()
+        .await?;
     let chat = queries::chats::chat()
         .bind(&transaction, &chat_id)
         .one()
@@ -219,13 +223,24 @@ async fn create_request(
         .bind(&transaction, &json_messages, &size, &chat_id)
         .await?;
     transaction.commit().await?;
+
+    // If the capabilities containe tool_calls, then add tools.
+    let tools = if capabilities
+        .iter()
+        .any(|c| c.capability == db::ModelCapability::tool_use)
+    {
+        get_openai_tools()
+    } else {
+        None
+    };
+
     let completion = BionicChatCompletionRequest {
         model: model.name,
         stream: Some(true),
         max_tokens: Some(prompt.max_tokens),
         temperature: prompt.temperature,
         messages,
-        tools: get_openai_tools(),
+        tools,
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;
