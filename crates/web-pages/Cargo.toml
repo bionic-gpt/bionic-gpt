@@ -19,5 +19,5 @@ dioxus-ssr = { version = "0.6", default-features = false }
 serde = "1"
 serde_json = { version = "1" }
 daisy_rsx = "0.1.14"
-comrak = { version = "0", default-features = false }
+comrak = { version = "0.38.0", features = ["shortcodes"] }
 time = "0.3.36"

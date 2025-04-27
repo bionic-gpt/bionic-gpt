@@ -97,6 +97,25 @@ fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32) -> Element {
 // Response Timeline Component
 #[component]
 fn ResponseTimeline(response: String, is_tts_disabled: bool) -> Element {
+    // Set up the markdown with the needed textensions
+    let mut options = comrak::Options::default();
+    options.extension.table = true;
+    options.extension.strikethrough = true;
+    options.extension.tagfilter = true;
+    options.extension.tasklist = true;
+    options.extension.autolink = true;
+    options.extension.superscript = true;
+    options.extension.footnotes = true;
+    options.extension.multiline_block_quotes = true;
+    options.extension.description_lists = true;
+    options.extension.multiline_block_quotes = true;
+    options.extension.math_code = true;
+    options.extension.math_dollars = true;
+    options.extension.shortcodes = true;
+    options.extension.underline = true;
+    options.extension.subscript = true;
+    let response = comrak::markdown_to_html(&response, &options);
+
     rsx! {
         TimeLine {
             TimeLineBadge {
@@ -106,7 +125,7 @@ fn ResponseTimeline(response: String, is_tts_disabled: bool) -> Element {
                 class: "prose",
                 div {
                     class: "response-formatter",
-                    dangerous_inner_html: "{comrak::markdown_to_html(&response, &comrak::Options::default())}"
+                    dangerous_inner_html: "{response}"
                 }
                 div {
                     class: "hidden",
