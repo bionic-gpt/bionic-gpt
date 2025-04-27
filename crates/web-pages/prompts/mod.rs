@@ -1,3 +1,4 @@
+pub mod assistant_console;
 pub mod conversation;
 pub mod delete;
 pub mod delete_conv;

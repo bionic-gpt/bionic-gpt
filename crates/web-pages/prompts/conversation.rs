@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 #![allow(clippy::too_many_arguments)]
+use super::assistant_console::AssistantConsole;
 use crate::app_layout::SideBar;
-use crate::console::layout::ConsoleLayout;
 use crate::console::ChatWithChunks;
 use assets::files::*;
 use daisy_rsx::*;
@@ -21,7 +21,7 @@ pub fn page(
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
     let page = rsx! {
-        ConsoleLayout {
+        AssistantConsole {
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac,

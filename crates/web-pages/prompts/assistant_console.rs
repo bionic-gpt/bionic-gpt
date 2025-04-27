@@ -1,9 +1,66 @@
 #![allow(non_snake_case)]
-use crate::routes;
-
+use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
+use db::authz::Rbac;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
+
+use crate::console::ChatWithChunks;
+use crate::routes;
+
+#[component]
+pub fn AssistantConsole(
+    team_id: i32,
+    conversation_id: Option<i64>,
+    rbac: Rbac,
+    chats_with_chunks: Vec<ChatWithChunks>,
+    prompt: SinglePrompt,
+    selected_item: SideBar,
+    title: String,
+    header: Element,
+    is_tts_disabled: bool,
+    lock_console: bool,
+) -> Element {
+    rsx! {
+        Layout {
+            section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
+            selected_item,
+            team_id: team_id,
+            rbac: rbac.clone(),
+            title,
+            header,
+            div {
+                id: "console-panel",
+                class: "h-full flex flex-col",
+                if ! chats_with_chunks.is_empty() {
+                    crate::console::console_stream::ConsoleStream {
+                        team_id: team_id,
+                        chats_with_chunks: chats_with_chunks,
+                        is_tts_disabled,
+                        rbac: rbac.clone()
+                    }
+                } else {
+                    div {
+                        class: "flex-1 flex flex-col justify-center h-full",
+                        EmptyStream {
+                            prompt: prompt.clone(),
+                            team_id
+                        },
+                    }
+                }
+                div {
+                    crate::console::prompt_form::Form {
+                        team_id: team_id,
+                        prompt_id: prompt.id,
+                        lock_console: lock_console,
+                        conversation_id,
+                        disclaimer: prompt.disclaimer
+                    },
+                }
+            }
+        }
+    }
+}
 
 #[component]
 pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
