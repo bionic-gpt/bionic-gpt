@@ -87,7 +87,7 @@ fn ToolsButton(lock_console: bool) -> Element {
     rsx! {
         Button {
             disabled: lock_console,
-            prefix_image_src: black_microphone_svg.name,
+            prefix_image_src: microphone_svg.name,
             "Tools"
         }
     }
@@ -98,7 +98,7 @@ fn SpeechToTextButton(lock_console: bool) -> Element {
     rsx! {
         Button {
             disabled: lock_console,
-            prefix_image_src: black_microphone_svg.name
+            prefix_image_src: microphone_svg.name
         }
     }
 }
