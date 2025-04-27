@@ -28,7 +28,7 @@ export const speechToText = (): void => {
     `
 
     if (!SpeechRecognition) {
-        console.error('SpeechRecognition is not supported in this browser.');
+        console.log('SpeechRecognition is not supported in this browser.');
         
         return;
     } else {

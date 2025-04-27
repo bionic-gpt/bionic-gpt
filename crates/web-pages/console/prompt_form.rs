@@ -6,85 +6,6 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-fn SpeechToTextButton(lock_console: bool) -> Element {
-    rsx! {
-        if lock_console {
-            a {
-                id: "speech-to-text-button",
-                class: "h-12 w-12 p-2 rounded-full hidden",
-            }
-        } else {
-            button {
-                id: "speech-to-text-button",
-                class: "h-12 w-12 p-2 rounded-full hidden",
-                type: "button",
-                img {
-                    id: "speech-to-text-icon",
-                    width: "32",
-                    height: "32",
-                    src: black_microphone_svg.name,
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn AttachButton() -> Element {
-    rsx! {
-        div {
-            class: "h-8 w-8 p-2 bg-secondary rounded-full",
-            input {
-                id: "fileInput",
-                "type": "file",
-                name: "attachments",
-                multiple: "multiple",
-                class: "hidden"
-            }
-            label {
-                "for": "fileInput",
-                img {
-                    class: "svg-icon",
-                    width: "48",
-                    height: "48",
-                    src: attach_svg.name
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn SendMessageButton(lock_console: bool) -> Element {
-    rsx! {
-        if lock_console {
-            a {
-                id: "streaming-button",
-                class: "h-8 w-8 p-2 bg-primary rounded-full",
-                img {
-                    class: "svg-icon",
-                    width: "48",
-                    height: "48",
-                    src: streaming_stop_svg.name
-                }
-            }
-        } else {
-            button {
-                id: "prompt-submit-button",
-                class: "h-8 w-8 p-2 bg-primary rounded-full",
-                "type": "submit",
-                img {
-                    class: "svg-icon",
-                    width: "48",
-                    height: "48",
-                    src: submit_button_svg.name
-                }
-            }
-        }
-    }
-}
-
-#[component]
 pub fn Form(
     team_id: i32,
     prompt_id: i32,
@@ -96,48 +17,116 @@ pub fn Form(
         div {
             class: "mx-auto pl-2 pr-2 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]",
 
-            form {
-                class: "flex items-center gap-2 remember w-full bg-base-200 p-2 rounded-lg",
-                method: "post",
-                "data-remember-name": "console-prompt",
-                "data-remember-reset": "false",
-                action: routes::console::SendMessage{team_id}.to_string(),
+            div {
+                class: "flex flex-col gap-2 remember w-full p-2 rounded-lg border",
+                form {
+                    method: "post",
+                    "data-remember-name": "console-prompt",
+                    "data-remember-reset": "false",
+                    action: routes::console::SendMessage{team_id}.to_string(),
 
-
-                if let Some(conversation_id) = conversation_id {
+                    if let Some(conversation_id) = conversation_id {
+                        input {
+                            "type": "hidden",
+                            name: "conversation_id",
+                            value: "{conversation_id}"
+                        }
+                    }
                     input {
                         "type": "hidden",
-                        name: "conversation_id",
-                        value: "{conversation_id}"
+                        name: "prompt_id",
+                        value: "{prompt_id}"
                     }
-                }
-                input {
-                    "type": "hidden",
-                    class: "set-my-prompt-id",
-                    name: "prompt_id",
-                    value: "{prompt_id}"
-                }
 
-                SpeechToTextButton {
-                    lock_console
-                }
+                    div {
+                        class: "flex flex-col",
+                        TextArea {
+                            class: "pt-3 auto-expand max-h-96 text-sm submit-on-enter flex-1 resize-none",
+                            rows: "1",
+                            placeholder: "Ask a question...",
+                            name: "message",
+                            disabled: lock_console
+                        }
+                    }
+                    div {
+                        class: "flex flex-row pt-5 justify-between",
 
-                TextArea {
-                    class: "pt-3 auto-expand max-h-96 text-sm submit-on-enter flex-1 resize-none",
-                    rows: "1",
-                    placeholder: "Ask a question...",
-                    name: "message",
-                    disabled: lock_console
-                }
+                        div {
+                            class: "flex flex-row gap-2",
+                            AttachButton {
+                                lock_console
+                            }
+                            ToolsButton {
+                                lock_console
+                            }
+                        }
 
+                        div {
+                            class: "flex flex-row gap-2",
+                            SpeechToTextButton {
+                                lock_console
+                            }
 
-                SendMessageButton {
-                    lock_console
+                            SendMessageButton {
+                                lock_console
+                            }
+                        }
+                    }
                 }
             }
             p {
                 class: "text-xs text-center p-2",
                 "{disclaimer}"
+            }
+        }
+    }
+}
+
+#[component]
+fn ToolsButton(lock_console: bool) -> Element {
+    rsx! {
+        Button {
+            disabled: lock_console,
+            prefix_image_src: black_microphone_svg.name,
+            "Tools"
+        }
+    }
+}
+
+#[component]
+fn SpeechToTextButton(lock_console: bool) -> Element {
+    rsx! {
+        Button {
+            disabled: lock_console,
+            prefix_image_src: black_microphone_svg.name
+        }
+    }
+}
+
+#[component]
+fn AttachButton(lock_console: bool) -> Element {
+    rsx! {
+        Button {
+            disabled: lock_console,
+            prefix_image_src: attach_svg.name
+        }
+    }
+}
+
+#[component]
+fn SendMessageButton(lock_console: bool) -> Element {
+    rsx! {
+        if lock_console {
+            Button {
+                id: "streaming-button",
+                disabled: lock_console,
+                prefix_image_src: streaming_stop_svg.name
+            }
+        } else {
+            Button {
+                id: "prompt-submit-button",
+                disabled: lock_console,
+                prefix_image_src: submit_button_svg.name
             }
         }
     }
