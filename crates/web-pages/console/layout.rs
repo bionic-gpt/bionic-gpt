@@ -37,23 +37,28 @@ pub fn ConsoleLayout(
                         is_tts_disabled,
                         rbac: rbac.clone()
                     }
+                    div {
+                        super::prompt_form::Form {
+                            team_id: team_id,
+                            prompt_id: prompt.id,
+                            lock_console: lock_console,
+                            conversation_id,
+                            disclaimer: prompt.disclaimer
+                        },
+                    }
                 } else {
                     div {
                         class: "flex-1 flex flex-col justify-center h-full",
-                        crate::console::empty_stream::EmptyStream {
-                            prompt: prompt.clone(),
-                            team_id
-                        },
+                        div {
+                            super::prompt_form::Form {
+                                team_id: team_id,
+                                prompt_id: prompt.id,
+                                lock_console: lock_console,
+                                conversation_id,
+                                disclaimer: prompt.disclaimer
+                            },
+                        }
                     }
-                }
-                div {
-                    super::prompt_form::Form {
-                        team_id: team_id,
-                        prompt_id: prompt.id,
-                        lock_console: lock_console,
-                        conversation_id,
-                        disclaimer: prompt.disclaimer
-                    },
                 }
             }
         }
