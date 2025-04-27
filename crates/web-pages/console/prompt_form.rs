@@ -118,12 +118,16 @@ fn SendMessageButton(lock_console: bool) -> Element {
     rsx! {
         if lock_console {
             Button {
+                button_type: ButtonType::Submit,
+                button_scheme: ButtonScheme::Primary,
                 id: "streaming-button",
                 disabled: lock_console,
                 prefix_image_src: streaming_stop_svg.name
             }
         } else {
             Button {
+                button_type: ButtonType::Submit,
+                button_scheme: ButtonScheme::Primary,
                 id: "prompt-submit-button",
                 disabled: lock_console,
                 prefix_image_src: submit_button_svg.name
