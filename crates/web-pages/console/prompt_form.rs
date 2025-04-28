@@ -61,9 +61,9 @@ pub fn Form(
 
                         div {
                             class: "flex flex-row gap-2",
-                            AttachButton {
-                                lock_console
-                            }
+                            //AttachButton {
+                            //    lock_console
+                            //}
                             if has_tool_use {
                                 ToolsButton {
                                     lock_console
@@ -108,6 +108,7 @@ fn ToolsButton(lock_console: bool) -> Element {
 fn SpeechToTextButton(lock_console: bool) -> Element {
     rsx! {
         super::button::Button {
+            class: "hidden",
             button_scheme: super::button::ButtonScheme::Outline,
             button_shape: super::button::ButtonShape::Circle,
             disabled: true,
