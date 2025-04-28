@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use crate::console::tools_modal::ToolsModal;
 use crate::routes;
 
 use assets::files::*;
@@ -89,6 +90,8 @@ pub fn Form(
                 "{disclaimer}"
             }
         }
+
+        ToolsModal {}
     }
 }
 
@@ -99,6 +102,7 @@ fn ToolsButton(lock_console: bool) -> Element {
             button_scheme: super::button::ButtonScheme::Outline,
             disabled: lock_console, // Enable if tool_use capability is present
             prefix_image_src: tools_svg.name,
+            modal_trigger: "tool-modal",
             "Tools"
         }
     }

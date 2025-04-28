@@ -1,6 +1,6 @@
 VERSION 0.8
 
-FROM purtontech/rust-on-nails-devcontainer:1.3.3
+FROM purtontech/rust-on-nails-devcontainer:1.3.17
 
 ARG --global APP_EXE_NAME=web-server
 ARG --global OPERATOR_EXE_NAME=k8s-operator
