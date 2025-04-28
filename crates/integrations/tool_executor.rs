@@ -8,10 +8,8 @@ use std::sync::Arc;
 pub fn execute_tool_calls(tool_calls: Vec<ToolCall>) -> Vec<ToolCallResult> {
     let tools = tool_registry::get_tools();
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
-    if let Some(tools) = tools {
-        for tool_call in tool_calls {
-            tool_results.push(execute_tool_call_with_tools(&tools, &tool_call));
-        }
+    for tool_call in tool_calls {
+        tool_results.push(execute_tool_call_with_tools(&tools, &tool_call));
     }
     tool_results
 }

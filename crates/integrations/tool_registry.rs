@@ -7,15 +7,12 @@ use openai_api::BionicToolDefinition;
 
 /// Returns a list of available tools
 /// Only returns tools if the MCP_ENABLED environment variable is set
-pub fn get_tools() -> Option<Vec<Arc<dyn ToolInterface>>> {
-    Some(vec![Arc::new(TimeDateTool)])
+pub fn get_tools() -> Vec<Arc<dyn ToolInterface>> {
+    vec![Arc::new(TimeDateTool)]
 }
 
 /// Returns a list of available OpenAI tool definitions
 /// This is for backward compatibility
-pub fn get_openai_tools() -> Option<Vec<BionicToolDefinition>> {
-    if let Some(tools) = get_tools() {
-        return Some(tools.iter().map(|tool| tool.get_tool()).collect());
-    }
-    None
+pub fn get_openai_tools() -> Vec<BionicToolDefinition> {
+    get_tools().iter().map(|tool| tool.get_tool()).collect()
 }

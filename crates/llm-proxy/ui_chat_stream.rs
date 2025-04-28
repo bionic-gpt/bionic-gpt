@@ -229,7 +229,7 @@ async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        get_openai_tools()
+        Some(get_openai_tools())
     } else {
         None
     };
