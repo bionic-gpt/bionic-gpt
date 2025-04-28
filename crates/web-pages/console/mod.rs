@@ -1,3 +1,4 @@
+pub mod button;
 pub mod console_stream;
 pub mod conversation;
 pub mod delete;
