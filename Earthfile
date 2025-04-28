@@ -154,7 +154,7 @@ build-cli-linux:
     SAVE ARTIFACT k8s-operator/target/release/k8s-operator AS LOCAL ./bionic-cli-linux
 
 build-cli-osx:
-    FROM joseluisq/rust-linux-darwin-builder:1.81.0
+    FROM joseluisq/rust-linux-darwin-builder:1.86.0
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator \ 
         && CC=o64-clang \
@@ -167,7 +167,7 @@ build-cli-windows:
     RUN sudo apt install -y g++-mingw-w64-x86-64 
     
     RUN rustup target add x86_64-pc-windows-gnu 
-    RUN rustup toolchain install stable-x86_64-pc-windows-gnu 
+    RUN rustup toolchain install x86_64-pc-windows-gnu
 
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator \ 
