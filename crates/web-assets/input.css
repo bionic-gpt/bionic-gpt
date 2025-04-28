@@ -37,6 +37,10 @@
 [data-theme="light"] {
     .btn-primary {
         color: white;
+
+        > img {
+            filter: invert(1);
+        }
     }
     
     table > thead {
