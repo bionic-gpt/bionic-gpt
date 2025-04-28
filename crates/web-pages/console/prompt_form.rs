@@ -108,11 +108,12 @@ fn ToolsButton(lock_console: bool) -> Element {
 fn SpeechToTextButton(lock_console: bool) -> Element {
     rsx! {
         super::button::Button {
+            id: "speech-to-text-button",
             class: "hidden",
             button_scheme: super::button::ButtonScheme::Outline,
             button_shape: super::button::ButtonShape::Circle,
-            disabled: true,
-            prefix_image_src: microphone_svg.name
+            prefix_image_src: microphone_svg.name,
+            suffix_image_src: stop_recording_svg.name,
         }
     }
 }
