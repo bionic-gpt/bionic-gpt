@@ -9,8 +9,14 @@ dev-setup:
     cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000
     cargo run --bin k8s-operator -- operator
 
-watch:
+wa:
     mold -run cargo watch --workdir /workspace/ -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"
+
+wp:
+    npm install --prefix /workspace/crates/web-assets && npm run start --prefix /workspace/crates/web-assets
+
+wt:
+    cd /workspace/crates/web-assets && npx tailwindcss -i ./input.css -o ./dist/output.css --watch
 
 release-docker:
     #!/usr/bin/env bash
