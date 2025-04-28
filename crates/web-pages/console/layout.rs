@@ -20,6 +20,7 @@ pub fn ConsoleLayout(
     is_tts_disabled: bool,
     lock_console: bool,
     capabilities: Vec<Capability>,
+    enabled_tools: Vec<String>,
 ) -> Element {
     rsx! {
         Layout {
@@ -47,6 +48,7 @@ pub fn ConsoleLayout(
                             conversation_id,
                             disclaimer: prompt.disclaimer,
                             capabilities: capabilities.clone(),
+                            enabled_tools,
                         },
                     }
                 } else {
@@ -64,6 +66,7 @@ pub fn ConsoleLayout(
                                 conversation_id,
                                 disclaimer: prompt.disclaimer,
                                 capabilities,
+                                enabled_tools,
                             },
                         }
                     }

@@ -41,7 +41,16 @@ pub async fn index(
         .all()
         .await?;
 
-    let html = console::index::new_conversation(team_id, prompts, prompt, rbac, capabilities);
+    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
+
+    let html = console::index::new_conversation(
+        team_id,
+        prompts,
+        prompt,
+        rbac,
+        capabilities,
+        enabled_tools,
+    );
 
     Ok(Html(html))
 }

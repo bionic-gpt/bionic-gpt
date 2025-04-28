@@ -58,6 +58,7 @@ pub fn AssistantConsole(
                         conversation_id,
                         disclaimer: prompt.disclaimer,
                         capabilities,
+                        enabled_tools: Default::default()
                     },
                 }
             }

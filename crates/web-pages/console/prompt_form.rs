@@ -16,6 +16,7 @@ pub fn Form(
     lock_console: bool,
     disclaimer: String,
     capabilities: Vec<Capability>,
+    enabled_tools: Vec<String>,
 ) -> Element {
     // Check if tool_use capability is present
     let has_tool_use = capabilities
@@ -91,7 +92,10 @@ pub fn Form(
             }
         }
 
-        ToolsModal {}
+        // Extract enabled_tools from user_config
+        ToolsModal {
+            enabled_tools
+        }
     }
 }
 

@@ -94,6 +94,8 @@ pub async fn conversation(
         .all()
         .await?;
 
+    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
+
     let html = console::conversation::page(
         team_id,
         rbac,
@@ -104,6 +106,7 @@ pub async fn conversation(
         lock_console,
         is_tts_disabled,
         capabilities,
+        enabled_tools,
     );
 
     Ok(Html(html))

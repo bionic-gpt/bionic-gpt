@@ -20,6 +20,7 @@ pub fn page(
     lock_console: bool,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
+    enabled_tools: Vec<String>,
 ) -> String {
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
@@ -35,6 +36,7 @@ pub fn page(
             lock_console,
             is_tts_disabled,
             capabilities,
+            enabled_tools,
             header: rsx!(
                 Head {
                     team_id: team_id,
