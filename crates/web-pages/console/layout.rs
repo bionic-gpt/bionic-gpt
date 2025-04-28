@@ -52,6 +52,10 @@ pub fn ConsoleLayout(
                 } else {
                     div {
                         class: "flex-1 flex flex-col justify-center h-full",
+                        h1 {
+                            class: "mx-auto mb-8 text-2xl font-semibold relative",
+                            "What can I help with?"
+                        }
                         div {
                             super::prompt_form::Form {
                                 team_id: team_id,
