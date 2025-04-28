@@ -154,7 +154,7 @@ build-cli-linux:
     SAVE ARTIFACT k8s-operator/target/release/k8s-operator AS LOCAL ./bionic-cli-linux
 
 build-cli-osx:
-    FROM joseluisq/rust-linux-darwin-builder:1.86.0
+    FROM joseluisq/rust-linux-darwin-builder:1.84.1
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator \ 
         && CC=o64-clang \
