@@ -2,7 +2,7 @@ use super::super::{CustomError, Jwt};
 use crate::user_config::UserConfig;
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{chats, chats_chunks, models, prompts};
+use db::queries::{capabilities, chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
 use openai_api::ToolCall;
@@ -89,6 +89,11 @@ pub async fn conversation(
         .one()
         .await?;
 
+    let capabilities = capabilities::get_model_capabilities()
+        .bind(&transaction, &prompt.model_id)
+        .all()
+        .await?;
+
     let html = console::conversation::page(
         team_id,
         rbac,
@@ -98,6 +103,7 @@ pub async fn conversation(
         conversation_id,
         lock_console,
         is_tts_disabled,
+        capabilities,
     );
 
     Ok(Html(html))

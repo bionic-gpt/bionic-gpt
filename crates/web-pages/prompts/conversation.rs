@@ -6,6 +6,7 @@ use crate::console::ChatWithChunks;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
+use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
@@ -17,6 +18,7 @@ pub fn page(
     conversation_id: i64,
     lock_console: bool,
     is_tts_disabled: bool,
+    capabilities: Vec<Capability>,
 ) -> String {
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
@@ -31,6 +33,7 @@ pub fn page(
             lock_console,
             conversation_id,
             is_tts_disabled,
+            capabilities,
             header: rsx!(
                 h3 { "{prompt.name}" }
                 if ! chats_with_chunks.is_empty() {

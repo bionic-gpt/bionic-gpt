@@ -3,6 +3,8 @@ use crate::routes;
 
 use assets::files::*;
 use daisy_rsx::*;
+use db::queries::capabilities::Capability;
+use db::types::public::ModelCapability;
 use dioxus::prelude::*;
 
 #[component]
@@ -12,7 +14,13 @@ pub fn Form(
     conversation_id: Option<i64>,
     lock_console: bool,
     disclaimer: String,
+    capabilities: Vec<Capability>,
 ) -> Element {
+    // Check if tool_use capability is present
+    let has_tool_use = capabilities
+        .iter()
+        .any(|cap| cap.capability == ModelCapability::tool_use);
+
     rsx! {
         div {
             class: "mx-auto pl-2 pr-2 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]",
@@ -56,8 +64,10 @@ pub fn Form(
                             AttachButton {
                                 lock_console
                             }
-                            ToolsButton {
-                                lock_console
+                            if has_tool_use {
+                                ToolsButton {
+                                    lock_console
+                                }
                             }
                         }
 
@@ -87,7 +97,7 @@ fn ToolsButton(lock_console: bool) -> Element {
     rsx! {
         super::button::Button {
             button_scheme: super::button::ButtonScheme::Outline,
-            disabled: true,
+            disabled: lock_console, // Enable if tool_use capability is present
             prefix_image_src: tools_svg.name,
             "Tools"
         }

@@ -2,6 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use assets::files::*;
 use db::authz::Rbac;
+use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
@@ -20,6 +21,7 @@ pub fn AssistantConsole(
     header: Element,
     is_tts_disabled: bool,
     lock_console: bool,
+    capabilities: Vec<Capability>,
 ) -> Element {
     rsx! {
         Layout {
@@ -54,7 +56,8 @@ pub fn AssistantConsole(
                         prompt_id: prompt.id,
                         lock_console: lock_console,
                         conversation_id,
-                        disclaimer: prompt.disclaimer
+                        disclaimer: prompt.disclaimer,
+                        capabilities,
                     },
                 }
             }

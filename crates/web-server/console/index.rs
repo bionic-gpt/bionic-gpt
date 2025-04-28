@@ -4,7 +4,7 @@ use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
-use db::queries::prompts;
+use db::queries::{capabilities, prompts};
 use db::Pool;
 use web_pages::console;
 use web_pages::routes::console::Index;
@@ -36,7 +36,12 @@ pub async fn index(
         .one()
         .await?;
 
-    let html = console::index::new_conversation(team_id, prompts, prompt, rbac);
+    let capabilities = capabilities::get_model_capabilities()
+        .bind(&transaction, &prompt.model_id)
+        .all()
+        .await?;
+
+    let html = console::index::new_conversation(team_id, prompts, prompt, rbac, capabilities);
 
     Ok(Html(html))
 }

@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use db::authz::Rbac;
+use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
@@ -18,6 +19,7 @@ pub fn ConsoleLayout(
     header: Element,
     is_tts_disabled: bool,
     lock_console: bool,
+    capabilities: Vec<Capability>,
 ) -> Element {
     rsx! {
         Layout {
@@ -43,7 +45,8 @@ pub fn ConsoleLayout(
                             prompt_id: prompt.id,
                             lock_console: lock_console,
                             conversation_id,
-                            disclaimer: prompt.disclaimer
+                            disclaimer: prompt.disclaimer,
+                            capabilities: capabilities.clone(),
                         },
                     }
                 } else {
@@ -55,7 +58,8 @@ pub fn ConsoleLayout(
                                 prompt_id: prompt.id,
                                 lock_console: lock_console,
                                 conversation_id,
-                                disclaimer: prompt.disclaimer
+                                disclaimer: prompt.disclaimer,
+                                capabilities,
                             },
                         }
                     }
