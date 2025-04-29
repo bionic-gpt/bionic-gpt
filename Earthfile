@@ -166,8 +166,7 @@ build-cli-windows:
     RUN sudo apt update && sudo apt upgrade -y 
     RUN sudo apt install -y g++-mingw-w64-x86-64 
     
-    RUN rustup target add x86_64-pc-windows-gnu 
-    RUN rustup toolchain install x86_64-pc-windows-gnu
+    RUN rustup target add x86_64-pc-windows-gnu
 
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator \ 
