@@ -9,7 +9,7 @@ index bc0d36b..5f60908 100644
 -                throw new error_1.OpenAIError(`missing finish_reason for choice ${index}`);
 +                finish_reason=null;
              }
-             const { content = null, tool_calls, tool_calls, ...messageRest } = message;
+             const { content = null, function_call, tool_calls, ...messageRest } = message;
 -            const role = message.role; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
 +            const role = (message.role ?? 'assistant'); // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
              if (!role) {
@@ -26,7 +26,7 @@ index dd86282..d440e96 100644
 -                throw new OpenAIError(`missing finish_reason for choice ${index}`);
 +                finish_reason=null;
              }
-             const { content = null, tool_calls, tool_calls, ...messageRest } = message;
+             const { content = null, function_call, tool_calls, ...messageRest } = message;
 -            const role = message.role; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
 +            const role = (message.role ?? 'assistant'); // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
              if (!role) {
@@ -44,7 +44,7 @@ index 35648c2..0120b25 100644
 +          finish_reason = null;
          }
  
-         const { content = null, tool_calls, tool_calls, ...messageRest } = message;
+         const { content = null, function_call, tool_calls, ...messageRest } = message;
 -        const role = message.role as 'assistant'; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
 +        const role = (message.role ?? 'assistant') as 'assistant'; // this is what we expect; in theory it could be different which would make our types a slight lie but would be fine.
          if (!role) {

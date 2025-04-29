@@ -10,6 +10,7 @@ path = "main.rs"
 [dependencies]
 db = { path = "../db" }
 llm-proxy = { path = "../llm-proxy" }
+integrations = { path = "../integrations" }
 object-storage = { path = "../object-storage" }
 assets = { path = "../web-assets" }
 web-pages = { path = "../web-pages" }

@@ -42,7 +42,8 @@ alias p='sudo chmod 777 /var/run/docker.sock'
 alias get-env='rh && dburl && app_dburl'
 
 # Watch
-alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
+#alias watch-app='mold -run cargo watch --workdir /workspace/ -w crates/web-pages -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"'
+alias watch-app='echo "Use just watch instead"'
 alias wa=watch-app
 alias watch-pipeline='npm install --prefix /workspace/crates/web-assets && npm run start --prefix /workspace/crates/web-assets'
 alias wp=watch-pipeline
@@ -57,18 +58,3 @@ alias wts=watch-tailwind-static
 
 # Spell check
 alias spell='docker run --rm -ti -v /workspace/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"'
-
-# k3d
-alias k3d-create='k3d cluster create --agents 1 -p "30000-30001:30000-30001@agent:0"'
-alias k3d-del='k3d cluster delete'
-alias k3d-dev-setup='
-    cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000 && \
-    cargo run --bin k8s-operator -- operator'
-alias k3d-full-dev-setup='
-    cargo run --bin k8s-operator -- install --no-operator --development --hostname-url http://localhost:30000 && \
-    cargo run --bin k8s-operator -- operator'
-
-# Mirrord
-alias mwa='
-    mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
-'

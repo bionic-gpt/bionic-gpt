@@ -4,23 +4,56 @@ use axum::Form;
 use axum_extra::extract::cookie::{Cookie, CookieJar};
 use llm_proxy::user_config::{create_user_config_cookie, UserConfig};
 use serde::Deserialize;
-use web_pages::routes::console::SetPrompt;
+use web_pages::routes::console::SetTools;
 
-#[derive(Deserialize, Default, Debug)]
-pub struct IdForm {
-    id: i32,
+#[derive(Deserialize, Debug)]
+pub struct ToolsForm {
+    #[serde(default)]
+    tools: ToolsData,
 }
 
-pub async fn set_default_prompt(
-    SetPrompt {}: SetPrompt,
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+enum ToolsData {
+    Single(String),
+    Multiple(Vec<String>),
+    None(()),
+}
+
+impl Default for ToolsData {
+    fn default() -> Self {
+        ToolsData::None(())
+    }
+}
+
+impl Default for ToolsForm {
+    fn default() -> Self {
+        ToolsForm {
+            tools: ToolsData::None(()),
+        }
+    }
+}
+
+impl ToolsForm {
+    pub fn get_tools(self) -> Vec<String> {
+        match self.tools {
+            ToolsData::Single(tool) => vec![tool],
+            ToolsData::Multiple(tools) => tools,
+            ToolsData::None(()) => vec![],
+        }
+    }
+}
+
+pub async fn set_tools(
+    SetTools {}: SetTools,
     config: UserConfig,
     jar: CookieJar,
     headers: HeaderMap,
-    Form(form): Form<IdForm>,
+    Form(form): Form<ToolsForm>,
 ) -> (CookieJar, Redirect) {
     let updated_config = UserConfig {
-        default_prompt: Some(form.id),
-        enabled_tools: config.enabled_tools,
+        default_prompt: config.default_prompt,
+        enabled_tools: Some(form.get_tools()),
     };
 
     // Create a cookie with root path so it's accessible from any path

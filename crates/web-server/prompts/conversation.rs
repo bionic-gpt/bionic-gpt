@@ -1,7 +1,7 @@
 use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{chats, chats_chunks, models, prompts};
+use db::queries::{capabilities, chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
 use web_pages::console::ChatWithChunks;
@@ -57,6 +57,11 @@ pub async fn conversation(
         .await?
         .is_empty();
 
+    let capabilities = capabilities::get_model_capabilities()
+        .bind(&transaction, &prompt.model_id)
+        .all()
+        .await?;
+
     let html = web_pages::prompts::conversation::page(
         team_id,
         rbac,
@@ -65,6 +70,7 @@ pub async fn conversation(
         conversation_id,
         lock_console,
         is_tts_disabled,
+        capabilities,
     );
 
     Ok(Html(html))

@@ -1,3 +1,4 @@
+pub mod button;
 pub mod console_stream;
 pub mod conversation;
 pub mod delete;
@@ -8,6 +9,7 @@ pub mod layout;
 pub mod model_popup;
 pub mod prompt_drawer;
 pub mod prompt_form;
+pub mod tools_modal;
 
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};
 use openai_api::ToolCall;

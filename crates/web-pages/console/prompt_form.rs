@@ -1,88 +1,12 @@
 #![allow(non_snake_case)]
+use crate::console::tools_modal::ToolsModal;
 use crate::routes;
 
 use assets::files::*;
 use daisy_rsx::*;
+use db::queries::capabilities::Capability;
+use db::types::public::ModelCapability;
 use dioxus::prelude::*;
-
-#[component]
-fn SpeechToTextButton(lock_console: bool) -> Element {
-    rsx! {
-        if lock_console {
-            a {
-                id: "speech-to-text-button",
-                class: "h-12 w-12 p-2 rounded-full hidden",
-            }
-        } else {
-            button {
-                id: "speech-to-text-button",
-                class: "h-12 w-12 p-2 rounded-full hidden",
-                type: "button",
-                img {
-                    id: "speech-to-text-icon",
-                    width: "32",
-                    height: "32",
-                    src: black_microphone_svg.name,
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn AttachButton() -> Element {
-    rsx! {
-        div {
-            class: "h-8 w-8 p-2 bg-secondary rounded-full",
-            input {
-                id: "fileInput",
-                "type": "file",
-                name: "attachments",
-                multiple: "multiple",
-                class: "hidden"
-            }
-            label {
-                "for": "fileInput",
-                img {
-                    class: "svg-icon",
-                    width: "48",
-                    height: "48",
-                    src: attach_svg.name
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn SendMessageButton(lock_console: bool) -> Element {
-    rsx! {
-        if lock_console {
-            a {
-                id: "streaming-button",
-                class: "h-8 w-8 p-2 bg-primary rounded-full",
-                img {
-                    class: "svg-icon",
-                    width: "48",
-                    height: "48",
-                    src: streaming_stop_svg.name
-                }
-            }
-        } else {
-            button {
-                id: "prompt-submit-button",
-                class: "h-8 w-8 p-2 bg-primary rounded-full",
-                "type": "submit",
-                img {
-                    class: "svg-icon",
-                    width: "48",
-                    height: "48",
-                    src: submit_button_svg.name
-                }
-            }
-        }
-    }
-}
 
 #[component]
 pub fn Form(
@@ -91,53 +15,151 @@ pub fn Form(
     conversation_id: Option<i64>,
     lock_console: bool,
     disclaimer: String,
+    capabilities: Vec<Capability>,
+    enabled_tools: Vec<String>,
+    available_tools: Vec<(String, String)>,
 ) -> Element {
+    // Check if tool_use capability is present
+    let has_tool_use = capabilities
+        .iter()
+        .any(|cap| cap.capability == ModelCapability::tool_use);
+
     rsx! {
         div {
             class: "mx-auto pl-2 pr-2 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]",
 
-            form {
-                class: "flex items-center gap-2 remember w-full bg-base-200 p-2 rounded-lg",
-                method: "post",
-                "data-remember-name": "console-prompt",
-                "data-remember-reset": "false",
-                action: routes::console::SendMessage{team_id}.to_string(),
+            div {
+                class: "flex flex-col gap-2 remember w-full p-2 rounded-lg border",
+                form {
+                    method: "post",
+                    "data-remember-name": "console-prompt",
+                    "data-remember-reset": "false",
+                    action: routes::console::SendMessage{team_id}.to_string(),
 
-
-                if let Some(conversation_id) = conversation_id {
+                    if let Some(conversation_id) = conversation_id {
+                        input {
+                            "type": "hidden",
+                            name: "conversation_id",
+                            value: "{conversation_id}"
+                        }
+                    }
                     input {
                         "type": "hidden",
-                        name: "conversation_id",
-                        value: "{conversation_id}"
+                        name: "prompt_id",
+                        value: "{prompt_id}"
                     }
-                }
-                input {
-                    "type": "hidden",
-                    class: "set-my-prompt-id",
-                    name: "prompt_id",
-                    value: "{prompt_id}"
-                }
 
-                SpeechToTextButton {
-                    lock_console
-                }
+                    div {
+                        class: "flex flex-col",
+                        TextArea {
+                            class: "pt-3 auto-expand max-h-96 text-sm submit-on-enter resize-none",
+                            rows: "1",
+                            placeholder: "Ask a question...",
+                            name: "message",
+                            disabled: lock_console
+                        }
+                    }
+                    div {
+                        class: "flex flex-row pt-5 justify-between",
 
-                TextArea {
-                    class: "pt-3 auto-expand max-h-96 text-sm submit-on-enter flex-1 resize-none",
-                    rows: "1",
-                    placeholder: "Ask a question...",
-                    name: "message",
-                    disabled: lock_console
-                }
+                        div {
+                            class: "flex flex-row gap-2",
+                            //AttachButton {
+                            //    lock_console
+                            //}
+                            if has_tool_use {
+                                ToolsButton {
+                                    lock_console
+                                }
+                            }
+                        }
 
+                        div {
+                            class: "flex flex-row gap-2",
+                            SpeechToTextButton {
+                                lock_console
+                            }
 
-                SendMessageButton {
-                    lock_console
+                            SendMessageButton {
+                                lock_console
+                            }
+                        }
+                    }
                 }
             }
             p {
                 class: "text-xs text-center p-2",
                 "{disclaimer}"
+            }
+        }
+
+        // Pass both enabled_tools and available_tools to ToolsModal
+        ToolsModal {
+            enabled_tools,
+            available_tools
+        }
+    }
+}
+
+#[component]
+fn ToolsButton(lock_console: bool) -> Element {
+    rsx! {
+        super::button::Button {
+            button_scheme: super::button::ButtonScheme::Outline,
+            disabled: lock_console, // Enable if tool_use capability is present
+            prefix_image_src: tools_svg.name,
+            modal_trigger: "tool-modal",
+            "Tools"
+        }
+    }
+}
+
+#[component]
+fn SpeechToTextButton(lock_console: bool) -> Element {
+    rsx! {
+        super::button::Button {
+            id: "speech-to-text-button",
+            class: "hidden",
+            button_scheme: super::button::ButtonScheme::Outline,
+            button_shape: super::button::ButtonShape::Circle,
+            prefix_image_src: microphone_svg.name,
+            suffix_image_src: stop_recording_svg.name,
+        }
+    }
+}
+
+#[component]
+fn AttachButton(lock_console: bool) -> Element {
+    rsx! {
+        super::button::Button {
+            button_scheme: super::button::ButtonScheme::Outline,
+            button_shape: super::button::ButtonShape::Circle,
+            disabled: true,
+            prefix_image_src: attach_svg.name
+        }
+    }
+}
+
+#[component]
+fn SendMessageButton(lock_console: bool) -> Element {
+    rsx! {
+        if lock_console {
+            super::button::Button {
+                button_type: super::button::ButtonType::Submit,
+                button_scheme: super::button::ButtonScheme::Primary,
+                button_shape: super::button::ButtonShape::Circle,
+                id: "streaming-button",
+                disabled: lock_console,
+                prefix_image_src: streaming_stop_svg.name
+            }
+        } else {
+            super::button::Button {
+                button_type: super::button::ButtonType::Submit,
+                button_scheme: super::button::ButtonScheme::Primary,
+                button_shape: super::button::ButtonShape::Circle,
+                id: "prompt-submit-button",
+                disabled: lock_console,
+                prefix_image_src: submit_button_svg.name
             }
         }
     }

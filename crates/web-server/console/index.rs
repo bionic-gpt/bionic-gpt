@@ -1,11 +1,12 @@
-use crate::user_config::UserConfig;
+use llm_proxy::user_config::UserConfig;
 
 use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
-use db::queries::prompts;
+use db::queries::{capabilities, prompts};
 use db::Pool;
+use integrations;
 use web_pages::console;
 use web_pages::routes::console::Index;
 
@@ -36,7 +37,34 @@ pub async fn index(
         .one()
         .await?;
 
-    let html = console::index::new_conversation(team_id, prompts, prompt, rbac);
+    let capabilities = capabilities::get_model_capabilities()
+        .bind(&transaction, &prompt.model_id)
+        .all()
+        .await?;
+    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
+
+    // Get available tools from the integrations crate
+    let available_tools: Vec<(String, String)> = integrations::get_tools()
+        .iter()
+        .map(|tool| {
+            let tool_def = tool.get_tool();
+            let tool_id = tool_def.function.name.clone();
+
+            // Use the tool ID as the display name
+            // This keeps the display name in one place only
+            (tool_id.clone(), tool_id)
+        })
+        .collect();
+
+    let html = console::index::new_conversation(
+        team_id,
+        prompts,
+        prompt,
+        rbac,
+        capabilities,
+        enabled_tools,
+        available_tools,
+    );
 
     Ok(Html(html))
 }

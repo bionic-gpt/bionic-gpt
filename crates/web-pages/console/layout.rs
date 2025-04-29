@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use db::authz::Rbac;
+use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
@@ -18,6 +19,9 @@ pub fn ConsoleLayout(
     header: Element,
     is_tts_disabled: bool,
     lock_console: bool,
+    capabilities: Vec<Capability>,
+    enabled_tools: Vec<String>,
+    available_tools: Vec<(String, String)>,
 ) -> Element {
     rsx! {
         Layout {
@@ -37,23 +41,38 @@ pub fn ConsoleLayout(
                         is_tts_disabled,
                         rbac: rbac.clone()
                     }
+                    div {
+                        super::prompt_form::Form {
+                            team_id: team_id,
+                            prompt_id: prompt.id,
+                            lock_console: lock_console,
+                            conversation_id,
+                            disclaimer: prompt.disclaimer,
+                            capabilities: capabilities.clone(),
+                            enabled_tools,
+                            available_tools: available_tools.clone(),
+                        },
+                    }
                 } else {
                     div {
                         class: "flex-1 flex flex-col justify-center h-full",
-                        crate::console::empty_stream::EmptyStream {
-                            prompt: prompt.clone(),
-                            team_id
-                        },
+                        h1 {
+                            class: "mx-auto mb-8 text-2xl font-semibold relative",
+                            "What can I help with?"
+                        }
+                        div {
+                            super::prompt_form::Form {
+                                team_id: team_id,
+                                prompt_id: prompt.id,
+                                lock_console: lock_console,
+                                conversation_id,
+                                disclaimer: prompt.disclaimer,
+                                capabilities,
+                                enabled_tools,
+                                available_tools,
+                            },
+                        }
                     }
-                }
-                div {
-                    super::prompt_form::Form {
-                        team_id: team_id,
-                        prompt_id: prompt.id,
-                        lock_console: lock_console,
-                        conversation_id,
-                        disclaimer: prompt.disclaimer
-                    },
                 }
             }
         }

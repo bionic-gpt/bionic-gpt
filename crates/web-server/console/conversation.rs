@@ -1,10 +1,11 @@
 use super::super::{CustomError, Jwt};
-use crate::user_config::UserConfig;
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{chats, chats_chunks, models, prompts};
+use db::queries::{capabilities, chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
+use integrations;
+use llm_proxy::user_config::UserConfig;
 use openai_api::ToolCall;
 use serde_json::from_str;
 use web_pages::console::ChatWithChunks;
@@ -89,6 +90,25 @@ pub async fn conversation(
         .one()
         .await?;
 
+    let capabilities = capabilities::get_model_capabilities()
+        .bind(&transaction, &prompt.model_id)
+        .all()
+        .await?;
+    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
+
+    // Get available tools from the integrations crate
+    let available_tools: Vec<(String, String)> = integrations::get_tools()
+        .iter()
+        .map(|tool| {
+            let tool_def = tool.get_tool();
+            let tool_id = tool_def.function.name.clone();
+
+            // Use the tool ID as the display name
+            // This keeps the display name in one place only
+            (tool_id.clone(), tool_id)
+        })
+        .collect();
+
     let html = console::conversation::page(
         team_id,
         rbac,
@@ -98,6 +118,9 @@ pub async fn conversation(
         conversation_id,
         lock_console,
         is_tts_disabled,
+        capabilities,
+        enabled_tools,
+        available_tools,
     );
 
     Ok(Html(html))
