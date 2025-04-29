@@ -227,6 +227,8 @@ async fn create_request(
         .await?;
     transaction.commit().await?;
 
+    tracing::debug!("{:?}", &user_config);
+
     // If the capabilities contain tool_calls, then add tools.
     let tools = if capabilities
         .iter()

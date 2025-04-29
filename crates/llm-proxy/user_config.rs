@@ -39,3 +39,15 @@ where
         })
     }
 }
+
+/// Helper function to create a user_config cookie that's accessible from any path
+pub fn create_user_config_cookie(
+    config: &UserConfig,
+) -> Result<Cookie<'static>, serde_json::Error> {
+    let json = serde_json::to_string(config)?;
+    let mut cookie = Cookie::new("user_config", json);
+    cookie.set_path("/"); // Set the cookie path to root so it's accessible from any path
+    cookie.set_http_only(true);
+    cookie.set_same_site(axum_extra::extract::cookie::SameSite::Strict);
+    Ok(cookie)
+}
