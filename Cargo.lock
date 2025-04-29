@@ -4760,6 +4760,7 @@ dependencies = [
  "db",
  "embeddings-api",
  "http 1.1.0",
+ "integrations",
  "lettre",
  "llm-proxy",
  "object-storage",

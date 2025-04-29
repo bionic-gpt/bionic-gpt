@@ -13,6 +13,7 @@ pub fn new_conversation(
     rbac: Rbac,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
+    available_tools: Vec<(String, String)>,
 ) -> String {
     // Rerverse it because that's how we display it.
     crate::render(rsx! {
@@ -27,6 +28,7 @@ pub fn new_conversation(
             lock_console: false,
             capabilities,
             enabled_tools,
+            available_tools,
             header: rsx!(
                 Head {
                     team_id: team_id,

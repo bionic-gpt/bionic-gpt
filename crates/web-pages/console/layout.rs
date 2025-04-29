@@ -21,6 +21,7 @@ pub fn ConsoleLayout(
     lock_console: bool,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
+    available_tools: Vec<(String, String)>,
 ) -> Element {
     rsx! {
         Layout {
@@ -49,6 +50,7 @@ pub fn ConsoleLayout(
                             disclaimer: prompt.disclaimer,
                             capabilities: capabilities.clone(),
                             enabled_tools,
+                            available_tools: available_tools.clone(),
                         },
                     }
                 } else {
@@ -67,6 +69,7 @@ pub fn ConsoleLayout(
                                 disclaimer: prompt.disclaimer,
                                 capabilities,
                                 enabled_tools,
+                                available_tools,
                             },
                         }
                     }

@@ -21,6 +21,7 @@ pub fn page(
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
+    available_tools: Vec<(String, String)>,
 ) -> String {
     // Rerverse it because that's how we display it.
     let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
@@ -37,6 +38,7 @@ pub fn page(
             is_tts_disabled,
             capabilities,
             enabled_tools,
+            available_tools,
             header: rsx!(
                 Head {
                     team_id: team_id,

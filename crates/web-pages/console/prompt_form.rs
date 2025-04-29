@@ -17,6 +17,7 @@ pub fn Form(
     disclaimer: String,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
+    available_tools: Vec<(String, String)>,
 ) -> Element {
     // Check if tool_use capability is present
     let has_tool_use = capabilities
@@ -92,9 +93,10 @@ pub fn Form(
             }
         }
 
-        // Extract enabled_tools from user_config
+        // Pass both enabled_tools and available_tools to ToolsModal
         ToolsModal {
-            enabled_tools
+            enabled_tools,
+            available_tools
         }
     }
 }

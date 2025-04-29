@@ -6,6 +6,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries::{capabilities, prompts};
 use db::Pool;
+use integrations;
 use web_pages::console;
 use web_pages::routes::console::Index;
 
@@ -40,8 +41,20 @@ pub async fn index(
         .bind(&transaction, &prompt.model_id)
         .all()
         .await?;
-
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
+
+    // Get available tools from the integrations crate
+    let available_tools: Vec<(String, String)> = integrations::get_tools()
+        .iter()
+        .map(|tool| {
+            let tool_def = tool.get_tool();
+            let tool_id = tool_def.function.name.clone();
+
+            // Use the tool ID as the display name
+            // This keeps the display name in one place only
+            (tool_id.clone(), tool_id)
+        })
+        .collect();
 
     let html = console::index::new_conversation(
         team_id,
@@ -50,6 +63,7 @@ pub async fn index(
         rbac,
         capabilities,
         enabled_tools,
+        available_tools,
     );
 
     Ok(Html(html))

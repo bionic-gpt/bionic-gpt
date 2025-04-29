@@ -4,14 +4,22 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ToolsModal(enabled_tools: Vec<String>) -> Element {
+pub fn ToolsModal(enabled_tools: Vec<String>, available_tools: Vec<(String, String)>) -> Element {
     // Get the list of available tools
     // In a real implementation, we would get this from the integrations crate
     // For now, we'll use a hardcoded list of tools
-    let available_tools = vec![
-        ("get_weather", "Weather Tool"),
-        ("get_current_time_and_date", "Time & Date Tool"),
-    ];
+    let available_tools = if available_tools.is_empty() {
+        // Fallback to hardcoded tools if none are provided
+        vec![
+            ("get_weather".to_string(), "Weather Tool".to_string()),
+            (
+                "get_current_time_and_date".to_string(),
+                "Time & Date Tool".to_string(),
+            ),
+        ]
+    } else {
+        available_tools
+    };
 
     rsx!(
         form {
@@ -26,7 +34,7 @@ pub fn ToolsModal(enabled_tools: Vec<String>) -> Element {
                     }
                     div {
                         class: "form-control",
-                        for (tool_id, tool_name) in available_tools {
+                        for (tool_id, tool_name) in &available_tools {
                             div {
                                 class: "flex items-center mb-2",
                                 input {
@@ -34,7 +42,7 @@ pub fn ToolsModal(enabled_tools: Vec<String>) -> Element {
                                     name: "tools",
                                     value: "{tool_id}",
                                     class: "checkbox checkbox-primary mr-2",
-                                    checked: enabled_tools.contains(&tool_id.to_string()),
+                                    checked: enabled_tools.contains(tool_id),
                                 }
                                 label {
                                     class: "cursor-pointer label",
