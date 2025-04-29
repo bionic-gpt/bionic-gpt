@@ -1,11 +1,11 @@
 use super::super::{CustomError, Jwt};
-use crate::user_config::UserConfig;
 use axum::extract::Extension;
 use axum::response::Html;
 use db::queries::{capabilities, chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
 use integrations;
+use llm_proxy::user_config::UserConfig;
 use openai_api::ToolCall;
 use serde_json::from_str;
 use web_pages::console::ChatWithChunks;

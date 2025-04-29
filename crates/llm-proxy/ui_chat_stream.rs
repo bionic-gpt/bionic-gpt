@@ -8,6 +8,7 @@ use super::sse_chat_error::error_to_chat;
 use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
+use crate::user_config::UserConfig;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
@@ -30,9 +31,10 @@ use super::{limits, UICompletions};
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
     current_user: Jwt,
+    user_config: UserConfig,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
-    match create_request(&pool, &current_user, chat_id).await {
+    match create_request(&pool, &current_user, chat_id, &user_config).await {
         Ok((request, model_id, user_id)) => {
             let is_limit_breached =
                 limits::is_limit_exceeded_from_pool(&pool, model_id, user_id).await?;
@@ -170,6 +172,7 @@ async fn create_request(
     pool: &Pool,
     current_user: &Jwt,
     chat_id: i32,
+    user_config: &UserConfig,
 ) -> Result<(RequestBuilder, i32, i32), CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
@@ -224,12 +227,12 @@ async fn create_request(
         .await?;
     transaction.commit().await?;
 
-    // If the capabilities containe tool_calls, then add tools.
+    // If the capabilities contain tool_calls, then add tools.
     let tools = if capabilities
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        Some(get_openai_tools())
+        Some(get_openai_tools(user_config.enabled_tools.as_ref()))
     } else {
         None
     };

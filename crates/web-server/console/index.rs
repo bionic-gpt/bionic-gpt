@@ -1,4 +1,4 @@
-use crate::user_config::UserConfig;
+use llm_proxy::user_config::UserConfig;
 
 use super::super::{CustomError, Jwt};
 use axum::extract::Extension;

@@ -12,12 +12,15 @@ pub mod synthesize;
 mod tests;
 pub mod token_count;
 pub mod ui_chat_stream;
+pub mod user_config;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use tower_http::cors::{Any, CorsLayer};
 
 use axum_extra::routing::TypedPath;
 use serde::Deserialize;
+
+pub use user_config::UserConfig;
 
 pub fn routes() -> Router {
     let cors = CorsLayer::new()
