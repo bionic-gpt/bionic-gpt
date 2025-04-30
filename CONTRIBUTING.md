@@ -16,10 +16,13 @@ All of the pages are generated server side with a little bit of Typescript on th
 
 ## Folder: db
 
-- All of the dbmate migrations are stored in the `migrations` folder.
+- All of the `dbmate` migrations are stored in the `migrations` folder.
+- To create a new migration run `dbmate new migration-name` where migration name somehow represents the work you are doing.
 - All of the `.sql` files are in a folder called `queries`.
 - The `sql` files are named after the main tables use. i.e. `users.sql` for the `users` table.
 - All the database CRUD operation are in these files.
+- When you update the file a code generator runs and creates rust code from the sql. (cornucopia).
+- We export these functions ans structs in `crates/db/lib.rs`
 
 ## Folder: static-website
 

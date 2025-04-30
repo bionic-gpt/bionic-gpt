@@ -4,6 +4,7 @@ use crate::routes;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
+use db::ChatStatus;
 use dioxus::prelude::*;
 
 use super::ChatWithChunks;
@@ -40,15 +41,19 @@ pub fn ConsoleStream(
                             }
                         }
                     } else {
-                        if let Some(response) = &chat_with_chunks.chat.response {
-                            ResponseTimeline {
-                                response: response.clone(),
-                                is_tts_disabled: is_tts_disabled
-                            }
-                        } else {
+                        // IMPORTANT - This is what trigger the js in the front end to trigger
+                        // a streaming call to the server. When this happens the chat status
+                        // is immediately set to InProgress.
+                        // So hopefully we don't get chats ina loop.
+                        if chat_with_chunks.chat.status == ChatStatus::Pending {
                             ProcessingTimeline {
                                 chat_id: chat_with_chunks.chat.id as i64,
                                 team_id: team_id
+                            }
+                        } else {
+                            ResponseTimeline {
+                                response: chat_with_chunks.chat.response.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
+                                is_tts_disabled: is_tts_disabled
                             }
                         }
                     }

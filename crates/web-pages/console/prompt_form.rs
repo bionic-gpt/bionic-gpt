@@ -32,8 +32,6 @@ pub fn Form(
                 class: "flex flex-col gap-2 remember w-full p-2 rounded-lg border",
                 form {
                     method: "post",
-                    "data-remember-name": "console-prompt",
-                    "data-remember-reset": "false",
                     action: routes::console::SendMessage{team_id}.to_string(),
 
                     if let Some(conversation_id) = conversation_id {
@@ -145,11 +143,9 @@ fn SendMessageButton(lock_console: bool) -> Element {
     rsx! {
         if lock_console {
             super::button::Button {
-                button_type: super::button::ButtonType::Submit,
                 button_scheme: super::button::ButtonScheme::Primary,
                 button_shape: super::button::ButtonShape::Circle,
                 id: "streaming-button",
-                disabled: lock_console,
                 prefix_image_src: streaming_stop_svg.name
             }
         } else {

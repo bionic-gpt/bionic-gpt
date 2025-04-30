@@ -44,6 +44,7 @@ SELECT
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
+    status,
     created_at,
     updated_at
 FROM 
@@ -66,6 +67,7 @@ SELECT
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
+    status,
     created_at,
     updated_at
 FROM 
@@ -89,6 +91,7 @@ SELECT
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
+    status,
     created_at,
     updated_at
 FROM 
@@ -99,3 +102,13 @@ WHERE
 AND
     id = :chat_id
 ORDER BY updated_at;
+
+--! set_chat_status
+UPDATE chats
+SET
+    status = :chat_status
+WHERE
+    id = :chat_id
+AND
+    -- Make sure the chat belongs to the user
+    conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user());
