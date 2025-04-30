@@ -18,6 +18,9 @@ wp:
 wt:
     cd /workspace/crates/web-assets && npx tailwindcss -i ./input.css -o ./dist/output.css --watch
 
+md:
+    mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
+
 release-docker:
     #!/usr/bin/env bash
     export COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" -- infra-as-code/docker-compose.yml)
