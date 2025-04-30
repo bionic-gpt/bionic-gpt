@@ -87,7 +87,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
             if (delta.tool_calls.arguments) functionCall.arguments += delta.tool_calls.arguments;
         }
 
-        if (!isFunctionCall && delta.content) {
+        if (!isFunctionCall) {
             element.innerHTML = markdown.markdown(snapshot);
             result = snapshot;
         }
