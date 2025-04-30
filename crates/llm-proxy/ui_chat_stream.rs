@@ -89,6 +89,7 @@ pub async fn chat_generate(
                                     tool_calls,
                                     chat_id,
                                     &sub,
+                                    ChatStatus::Success,
                                 )
                                 .await
                                 .unwrap();
@@ -96,8 +97,15 @@ pub async fn chat_generate(
                             }
                         },
                         Err(e) => {
-                            let save =
-                                save_results(&pool, &e.to_string(), None, chat_id, &sub).await;
+                            let save = save_results(
+                                &pool,
+                                &e.to_string(),
+                                None,
+                                chat_id,
+                                &sub,
+                                ChatStatus::Error,
+                            )
+                            .await;
                             if let Err(save) = save {
                                 tracing::error!(
                                     "Error trying to save results from receiver stream: {:?}",
@@ -113,8 +121,15 @@ pub async fn chat_generate(
             Ok(Sse::new(event_stream))
         }
         Err(err) => {
-            let save =
-                save_results(&pool, &err.to_string(), None, chat_id, &current_user.sub).await;
+            let save = save_results(
+                &pool,
+                &err.to_string(),
+                None,
+                chat_id,
+                &current_user.sub,
+                ChatStatus::Error,
+            )
+            .await;
             if let Err(save) = save {
                 tracing::error!(
                     "Error trying to save results from create_request: {:?}",
@@ -133,6 +148,7 @@ async fn save_results(
     tool_calls: Option<Vec<ToolCall>>,
     chat_id: i32,
     sub: &str,
+    status: ChatStatus, // New parameter
 ) -> Result<(), CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
@@ -159,7 +175,7 @@ async fn save_results(
             &tool_calls,
             &tool_calls_result,
             &super::token_count::token_count_from_string(snapshot),
-            &ChatStatus::Success,
+            &status,
             &chat_id,
         )
         .await?;
@@ -226,6 +242,12 @@ async fn create_request(
     queries::chats::update_prompt()
         .bind(&transaction, &json_messages, &size, &chat_id)
         .await?;
+
+    // Set the chat status to InProgress
+    queries::chats::set_chat_status()
+        .bind(&transaction, &ChatStatus::InProgress, &chat_id)
+        .await?;
+
     transaction.commit().await?;
 
     tracing::debug!("{:?}", &user_config);
