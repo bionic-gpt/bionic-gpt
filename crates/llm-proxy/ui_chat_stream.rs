@@ -82,6 +82,7 @@ pub async fn chat_generate(
                                     }
                                 }
 
+                                tracing::debug!("End of stream saving data");
                                 save_results(
                                     &pool,
                                     &completion_chunk.snapshot,
