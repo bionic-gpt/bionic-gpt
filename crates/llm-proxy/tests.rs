@@ -1,4 +1,4 @@
-use db::Chat;
+use db::{Chat, ChatStatus};
 use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use serde_json::json;
 use time::OffsetDateTime;
@@ -43,6 +43,7 @@ async fn test_convert_chat_to_messages_tool_calling() {
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
         response: None,
+        status: ChatStatus::Pending,
         created_at: OffsetDateTime::UNIX_EPOCH,
         updated_at: OffsetDateTime::UNIX_EPOCH,
     };
@@ -83,6 +84,7 @@ async fn test_convert_chat_to_messages_tool_calling_fallback() {
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
         response: None,
+        status: ChatStatus::Pending,
         created_at: OffsetDateTime::UNIX_EPOCH,
         updated_at: OffsetDateTime::UNIX_EPOCH,
     };

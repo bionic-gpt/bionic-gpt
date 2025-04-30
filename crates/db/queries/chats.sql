@@ -44,6 +44,7 @@ SELECT
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
+    status,
     created_at,
     updated_at
 FROM 
@@ -66,6 +67,7 @@ SELECT
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
+    status,
     created_at,
     updated_at
 FROM 
@@ -89,6 +91,7 @@ SELECT
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
+    status,
     created_at,
     updated_at
 FROM 
