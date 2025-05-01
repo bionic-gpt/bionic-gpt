@@ -91,13 +91,12 @@ pub async fn chat_generate(
                                     &sub,
                                     ChatStatus::Success,
                                 )
-                                .await
-                                .unwrap();
+                                .await;
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                         },
                         Err(e) => {
-                            let save = save_results(
+                            save_results(
                                 &pool,
                                 &e.to_string(),
                                 None,
@@ -106,12 +105,6 @@ pub async fn chat_generate(
                                 ChatStatus::Error,
                             )
                             .await;
-                            if let Err(save) = save {
-                                tracing::error!(
-                                    "Error trying to save results from receiver stream: {:?}",
-                                    save
-                                );
-                            }
                             Err(axum::Error::new(e))
                         }
                     }
@@ -121,7 +114,7 @@ pub async fn chat_generate(
             Ok(Sse::new(event_stream))
         }
         Err(err) => {
-            let save = save_results(
+            save_results(
                 &pool,
                 &err.to_string(),
                 None,
@@ -130,12 +123,6 @@ pub async fn chat_generate(
                 ChatStatus::Error,
             )
             .await;
-            if let Err(save) = save {
-                tracing::error!(
-                    "Error trying to save results from create_request: {:?}",
-                    save
-                );
-            }
             Err(CustomError::FaultySetup(err.to_string()))
         }
     }
@@ -149,10 +136,27 @@ async fn save_results(
     chat_id: i32,
     sub: &str,
     status: ChatStatus, // New parameter
-) -> Result<(), CustomError> {
-    let mut db_client = pool.get().await?;
-    let transaction = db_client.transaction().await?;
-    db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await?;
+) {
+    let mut db_client = match pool.get().await {
+        Ok(client) => client,
+        Err(e) => {
+            tracing::error!("Error getting database client: {:?}", e);
+            return;
+        }
+    };
+
+    let transaction = match db_client.transaction().await {
+        Ok(tx) => tx,
+        Err(e) => {
+            tracing::error!("Error starting transaction: {:?}", e);
+            return;
+        }
+    };
+
+    if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await {
+        tracing::error!("Error setting row level security: {:?}", e);
+        return;
+    }
 
     let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
         let tool_call_results = execute_tool_calls(tool_calls.clone());
@@ -168,7 +172,7 @@ async fn save_results(
         (None, None)
     };
 
-    queries::chats::update_chat()
+    if let Err(e) = queries::chats::update_chat()
         .bind(
             &transaction,
             &snapshot,
@@ -178,9 +182,15 @@ async fn save_results(
             &status,
             &chat_id,
         )
-        .await?;
-    transaction.commit().await?;
-    Ok(())
+        .await
+    {
+        tracing::error!("Error updating chat: {:?}", e);
+        return;
+    }
+
+    if let Err(e) = transaction.commit().await {
+        tracing::error!("Error committing transaction: {:?}", e);
+    }
 }
 
 // Create the request that we'll send to reqwest to create an SSE stream of incoming
