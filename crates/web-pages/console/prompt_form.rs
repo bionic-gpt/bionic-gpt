@@ -118,6 +118,7 @@ fn SpeechToTextButton(lock_console: bool) -> Element {
         super::button::Button {
             id: "speech-to-text-button",
             class: "hidden",
+            disabled: lock_console,
             button_scheme: super::button::ButtonScheme::Outline,
             button_shape: super::button::ButtonShape::Circle,
             prefix_image_src: microphone_svg.name,
