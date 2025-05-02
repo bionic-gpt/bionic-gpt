@@ -2602,7 +2602,10 @@ dependencies = [
 name = "mcp-servers"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "rmcp",
+ "schemars",
+ "serde",
  "tokio",
  "tracing",
  "tracing-subscriber",
