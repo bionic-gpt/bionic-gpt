@@ -288,6 +288,6 @@ pub fn hex_to_bytes(hex: &str) -> Result<Vec<u8>, std::num::ParseIntError> {
 }
 
 pub fn random_email() -> String {
-    let mut rng = rand::thread_rng();
-    format!("{}@test.com", rng.gen::<u32>())
+    let mut rng = rand::rng();
+    format!("{}@test.com", rng.random::<u32>())
 }

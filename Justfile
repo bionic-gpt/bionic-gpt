@@ -10,7 +10,11 @@ dev-setup:
     cargo run --bin k8s-operator -- operator
 
 wa:
-    mold -run cargo watch --workdir /workspace/ -w crates/web-pages -w crates/llm-proxy -w crates/integrations -w crates/web-server -w crates/db -w crates/web-assets/dist -w crates/web-assets/images --no-gitignore -x "run --bin web-server"
+    mold -run cargo watch --workdir /workspace/ \
+        -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
+        -w crates/web-server -w crates/db -w crates/web-assets/dist \
+        -w crates/web-assets/images -w crates/mcp-servers \
+        --no-gitignore -x "run --bin web-server"
 
 wp:
     npm install --prefix /workspace/crates/web-assets && npm run start --prefix /workspace/crates/web-assets

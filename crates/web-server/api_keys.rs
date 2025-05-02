@@ -6,8 +6,8 @@ use axum_extra::extract::Form;
 use axum_extra::routing::RouterExt;
 use db::authz;
 use db::{queries, Pool};
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::distr::Alphanumeric;
+use rand::{rng, Rng};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::api_keys::{Delete, New};
@@ -73,7 +73,7 @@ pub async fn new_api_key_action(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     if new_api_key.validate().is_ok() {
-        let api_key: String = thread_rng()
+        let api_key: String = rng()
             .sample_iter(&Alphanumeric)
             .take(30)
             .map(char::from)
