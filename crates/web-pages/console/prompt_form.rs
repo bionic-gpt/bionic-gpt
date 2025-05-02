@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::console::tools_modal::ToolsModal;
 use crate::routes;
+use std::env;
 
 use assets::files::*;
 use daisy_rsx::*;
@@ -23,6 +24,9 @@ pub fn Form(
     let has_tool_use = capabilities
         .iter()
         .any(|cap| cap.capability == ModelCapability::tool_use);
+
+    // Check if DANGER_JWT_OVERRIDE is set
+    let show_attach_button = env::var("DANGER_JWT_OVERRIDE").is_ok();
 
     rsx! {
         div {
@@ -62,9 +66,12 @@ pub fn Form(
 
                         div {
                             class: "flex flex-row gap-2",
-                            //AttachButton {
-                            //    lock_console
-                            //}
+                            if show_attach_button {
+                                AttachButton {
+                                    lock_console,
+                                    id: "attach-button"
+                                }
+                            }
                             if has_tool_use {
                                 ToolsButton {
                                     lock_console
@@ -128,12 +135,13 @@ fn SpeechToTextButton(lock_console: bool) -> Element {
 }
 
 #[component]
-fn AttachButton(lock_console: bool) -> Element {
+fn AttachButton(lock_console: bool, id: &'static str) -> Element {
     rsx! {
         super::button::Button {
+            id: id,
             button_scheme: super::button::ButtonScheme::Outline,
             button_shape: super::button::ButtonShape::Circle,
-            disabled: true,
+            disabled: lock_console,
             prefix_image_src: attach_svg.name
         }
     }
