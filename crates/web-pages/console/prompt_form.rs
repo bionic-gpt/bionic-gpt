@@ -37,6 +37,7 @@ pub fn Form(
                 form {
                     method: "post",
                     action: routes::console::SendMessage{team_id}.to_string(),
+                    enctype: "multipart/form-data",
 
                     if let Some(conversation_id) = conversation_id {
                         input {

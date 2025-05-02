@@ -4773,6 +4773,7 @@ dependencies = [
  "integrations",
  "lettre",
  "llm-proxy",
+ "mime",
  "object-storage",
  "openai-api",
  "pgvector",

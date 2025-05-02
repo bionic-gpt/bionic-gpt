@@ -1,6 +1,6 @@
 use super::super::{CustomError, Jwt};
 use axum::{
-    extract::{Extension, Form},
+    extract::{Extension, Multipart},
     response::IntoResponse,
 };
 use db::queries::{chats, conversations, models, prompts};
@@ -21,8 +21,78 @@ pub async fn send_message(
     SendMessage { team_id }: SendMessage,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
-    Form(message): Form<Message>,
+    mut multipart: Multipart,
 ) -> Result<impl IntoResponse, CustomError> {
+    // Initialize variables to store form data
+    let mut message_text = String::new();
+    let mut conversation_id: Option<i64> = None;
+    let mut prompt_id: Option<i32> = None;
+    let mut files_info = Vec::new();
+
+    // Process multipart form
+    while let Some(field) = multipart.next_field().await? {
+        let name = field.name().unwrap_or("").to_string();
+
+        match name.as_str() {
+            "message" => {
+                message_text = field.text().await?;
+            }
+            "conversation_id" => {
+                if let Ok(text) = field.text().await {
+                    if !text.is_empty() {
+                        conversation_id = Some(text.parse::<i64>().unwrap_or_default());
+                    }
+                }
+            }
+            "prompt_id" => {
+                if let Ok(text) = field.text().await {
+                    prompt_id = Some(text.parse::<i32>().unwrap_or_default());
+                }
+            }
+            "attachments" => {
+                if let Some(file_name) = field.file_name() {
+                    // Clone the file_name to avoid borrowing issues
+                    let file_name = file_name.to_string();
+                    let content_type = field
+                        .content_type()
+                        .unwrap_or("application/octet-stream")
+                        .to_string();
+                    let data = field.bytes().await?;
+                    let size = data.len();
+
+                    // Log file information
+                    tracing::info!(
+                        "Received file: name={}, type={}, size={}",
+                        file_name,
+                        content_type,
+                        size
+                    );
+
+                    // Store file info for potential future use
+                    files_info.push((file_name, content_type, size));
+                }
+            }
+            _ => {
+                // Ignore unknown fields
+            }
+        }
+    }
+
+    // Validate required fields
+    if message_text.is_empty() || prompt_id.is_none() {
+        return super::super::layout::redirect(
+            &web_pages::routes::console::Index { team_id }.to_string(),
+        );
+    }
+
+    // Create a Message struct for compatibility with existing code
+    let message = Message {
+        message: message_text,
+        conversation_id,
+        prompt_id: prompt_id.unwrap(),
+    };
+
+    // Validate the message
     if message.validate().is_ok() {
         let mut client = pool.get().await?;
         let transaction = client.transaction().await?;

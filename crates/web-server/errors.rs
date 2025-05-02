@@ -1,4 +1,5 @@
 use axum::{
+    extract::multipart::MultipartError,
     http::StatusCode,
     response::{IntoResponse, Response},
 };
@@ -64,6 +65,12 @@ impl From<http::Error> for CustomError {
 
 impl From<serde_json::Error> for CustomError {
     fn from(err: serde_json::Error) -> CustomError {
+        CustomError::FaultySetup(err.to_string())
+    }
+}
+
+impl From<MultipartError> for CustomError {
+    fn from(err: MultipartError) -> CustomError {
         CustomError::FaultySetup(err.to_string())
     }
 }

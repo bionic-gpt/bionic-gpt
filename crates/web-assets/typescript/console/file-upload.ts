@@ -156,27 +156,38 @@ export function fileUpload() {
       // Add each file to the FormData
       selectedFiles.forEach((file, key) => {
         console.log(`Adding file to FormData: ${file.name} (${formatFileSize(file.size)})`);
-        formData.append('files', file);
+        formData.append('attachments', file);
       });
       
-      // For now, since we're just logging and discarding files on the backend,
-      // we'll simulate a successful upload with progress
       try {
-        // Simulate upload progress
-        await simulateUploadProgress(updateProgress);
+        // Show progress bars
+        fileListContainer.querySelectorAll('.w-full.h-1.bg-gray-200').forEach(el => {
+          (el as HTMLElement).style.display = 'block';
+        });
         
-        console.log('Files would be uploaded here in a real implementation');
+        console.log('Submitting form with files');
         
+        // Submit the form with files using fetch API
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          // No need to set Content-Type header, it will be set automatically with boundary
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         // Clear the file list
         selectedFiles.clear();
         fileListContainer.innerHTML = '';
         fileListContainer.style.display = 'none';
-        
-        // Submit the form normally
-        console.log('Submitting form normally');
-        form.submit();
+
+        // Handle the response - redirect to the URL returned by the server
+        const redirectUrl = response.url;
+        window.location.href = redirectUrl;
       } catch (error) {
-        console.error('Upload simulation failed:', error);
+        console.error('Upload failed:', error);
         alert('File upload failed. Please try again.');
       }
     }
