@@ -88,7 +88,8 @@ impl TimeServer {
 }
 
 impl ServerHandler for TimeServer {
-    tool_box!(@derive);
+    // We'll need the blow for a remote MCP server
+    //tool_box!(@derive);
 
     fn get_info(&self) -> ServerInfo {
         ServerInfo {
@@ -106,8 +107,7 @@ async fn main() {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    info!("Time Server: Starting up...");
+    let tool_box = TimeServer::tool_box();
 
-    // Create the time server
-    let _time_server = TimeServer;
+    info!("{:?}", tool_box.list());
 }
