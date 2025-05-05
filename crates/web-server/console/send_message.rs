@@ -3,9 +3,10 @@ use axum::{
     extract::{Extension, Multipart},
     response::IntoResponse,
 };
-use db::queries::{chats, conversations, models, prompts};
+use db::queries::{attachments, chats, conversations, models, prompts};
 use db::Pool;
 use db::{authz, PromptType};
+use object_storage;
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::console::SendMessage;
@@ -27,7 +28,8 @@ pub async fn send_message(
     let mut message_text = String::new();
     let mut conversation_id: Option<i64> = None;
     let mut prompt_id: Option<i32> = None;
-    let mut files_info = Vec::new();
+    // Store file information and data for later processing
+    let mut files_info: Vec<(String, String, Vec<u8>, usize)> = Vec::new();
 
     // Process multipart form
     while let Some(field) = multipart.next_field().await? {
@@ -68,8 +70,8 @@ pub async fn send_message(
                         size
                     );
 
-                    // Store file info for potential future use
-                    files_info.push((file_name, content_type, size));
+                    // Store file info and data for later processing
+                    files_info.push((file_name, content_type, data.to_vec(), size));
                 }
             }
             _ => {
@@ -97,8 +99,7 @@ pub async fn send_message(
         let mut client = pool.get().await?;
         let transaction = client.transaction().await?;
 
-        let _permissions =
-            authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+        let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
         let conversation_id = if let Some(conversation_id) = message.conversation_id {
             conversation_id
@@ -123,6 +124,17 @@ pub async fn send_message(
 
         // Handle embeddings
         handle_embeddings(&transaction, &message.message, &chat_id).await?;
+
+        // Handle attachments if any
+        handle_attachments(
+            &transaction,
+            pool.clone(),
+            &chat_id,
+            team_id,
+            rbac.user_id,
+            &files_info,
+        )
+        .await?;
 
         let prompt = prompts::prompt()
             .bind(&transaction, &message.prompt_id, &team_id)
@@ -199,6 +211,61 @@ async fn handle_embeddings(
         )
         .await
         .map_err(|e| CustomError::Database(e.to_string()))?;
+
+    Ok(())
+}
+
+/// Handles the processing and storage of file attachments.
+///
+/// # Arguments
+///
+/// * `transaction` - A reference to the current database transaction.
+/// * `pool` - The database connection pool.
+/// * `chat_id` - The ID of the chat to link attachments to.
+/// * `team_id` - The ID of the team the attachments belong to.
+/// * `user_id` - The ID of the user uploading the attachments.
+/// * `files_info` - A vector of tuples containing file information (name, content_type, data, size).
+///
+/// # Returns
+///
+/// * `Result<(), CustomError>` - Returns `Ok` if successful, or a `CustomError` otherwise.
+async fn handle_attachments(
+    transaction: &db::Transaction<'_>,
+    pool: Pool,
+    chat_id: &i32,
+    team_id: i32,
+    user_id: i32,
+    files_info: &[(String, String, Vec<u8>, usize)],
+) -> Result<(), CustomError> {
+    for (file_name, _content_type, file_data, _size) in files_info {
+        // Upload the file to object storage
+        match object_storage::upload(pool.clone(), user_id, team_id, file_name, file_data).await {
+            Ok(object_id) => {
+                // Link the object to the chat
+                attachments::insert()
+                    .bind(transaction, chat_id, &object_id)
+                    .await
+                    .map_err(|e| {
+                        tracing::error!("Failed to link attachment: {}", e);
+                        CustomError::Database(e.to_string())
+                    })?;
+
+                tracing::info!(
+                    "Attachment stored: file={}, object_id={}, chat_id={}",
+                    file_name,
+                    object_id,
+                    chat_id
+                );
+            }
+            Err(e) => {
+                tracing::error!("Failed to upload attachment: {}", e);
+                return Err(CustomError::ExternalApi(format!(
+                    "Failed to upload attachment: {}",
+                    e
+                )));
+            }
+        }
+    }
 
     Ok(())
 }
