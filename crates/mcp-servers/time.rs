@@ -1,10 +1,12 @@
 use chrono::{TimeZone, Utc};
+use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use rmcp::{
     model::{ServerCapabilities, ServerInfo},
     tool, tool_box, ServerHandler,
 };
 use schemars::JsonSchema;
 use serde::Deserialize;
+use serde_json::Value;
 use tracing::info;
 
 // Define request structs for our tools
@@ -80,6 +82,76 @@ impl TimeServer {
         }
     }
 
+    /// Returns a list of tools in BionicToolDefinition format
+    pub fn get_bionic_tools(&self) -> Vec<BionicToolDefinition> {
+        let tool_box = Self::tool_box();
+        let tools = tool_box.list();
+
+        tools
+            .iter()
+            .map(|tool_info| BionicToolDefinition {
+                r#type: "function".to_string(),
+                function: ChatCompletionFunctionDefinition {
+                    name: tool_info.name.to_string(),
+                    description: Some(tool_info.description.to_string()),
+                    parameters: Some(
+                        serde_json::to_value(tool_info.input_schema.clone())
+                            .unwrap_or(serde_json::Value::Null),
+                    ),
+                },
+            })
+            .collect()
+    }
+
+    /// Executes a tool by name with the given arguments
+    pub fn execute_tool(&self, name: &str, arguments: &str) -> Result<String, String> {
+        let tool_box = Self::tool_box();
+
+        // Find the tool by name
+        let _tool = tool_box
+            .map
+            .get(name)
+            .ok_or_else(|| format!("Unknown tool: {}", name))?;
+
+        // Parse the arguments as JSON
+        let args: Value = serde_json::from_str(arguments)
+            .map_err(|e| format!("Failed to parse arguments: {}", e))?;
+
+        // Execute the tool
+        match name {
+            "current_time" => Ok(self.current_time()),
+            "format_time" => {
+                let timestamp = args["timestamp"]
+                    .as_i64()
+                    .ok_or_else(|| "Missing or invalid timestamp".to_string())?;
+
+                let format = args["format"]
+                    .as_str()
+                    .ok_or_else(|| "Missing or invalid format".to_string())?
+                    .to_string();
+
+                let request = FormatTimeRequest { timestamp, format };
+                Ok(self.format_time(request))
+            }
+            "time_difference" => {
+                let timestamp1 = args["timestamp1"]
+                    .as_i64()
+                    .ok_or_else(|| "Missing or invalid timestamp1".to_string())?;
+
+                let timestamp2 = args["timestamp2"]
+                    .as_i64()
+                    .ok_or_else(|| "Missing or invalid timestamp2".to_string())?;
+
+                let request = TimeDifferenceRequest {
+                    timestamp1,
+                    timestamp2,
+                };
+                Ok(self.time_difference(request))
+            }
+            _ => Err(format!("Unknown tool: {}", name)),
+        }
+    }
+
     tool_box!(TimeServer {
         current_time,
         format_time,
@@ -107,7 +179,117 @@ async fn main() {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    let tool_box = TimeServer::tool_box();
+    let time_server = TimeServer;
 
-    info!("{:?}", tool_box.list());
+    // Get and print the list of tools in BionicToolDefinition format
+    let bionic_tools = time_server.get_bionic_tools();
+    info!("Bionic Tools: {:#?}", bionic_tools);
+
+    // Execute a tool and print the result
+    let args = r#"{"timestamp": 1620000000, "format": "%Y-%m-%d %H:%M:%S"}"#;
+    match time_server.execute_tool("format_time", args) {
+        Ok(result) => info!("Tool execution result: {}", result),
+        Err(err) => info!("Tool execution error: {}", err),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn test_get_bionic_tools() {
+        let server = TimeServer;
+        let tools = server.get_bionic_tools();
+
+        // Check that we have the expected number of tools
+        assert_eq!(tools.len(), 3);
+
+        // Check that the tools have the expected names
+        let tool_names: Vec<String> = tools.iter().map(|t| t.function.name.clone()).collect();
+
+        assert!(tool_names.contains(&"current_time".to_string()));
+        assert!(tool_names.contains(&"format_time".to_string()));
+        assert!(tool_names.contains(&"time_difference".to_string()));
+
+        // Check that all tools have descriptions
+        for tool in &tools {
+            assert!(tool.function.description.is_some());
+        }
+    }
+
+    #[test]
+    fn test_execute_tool_current_time() {
+        let server = TimeServer;
+        let result = server.execute_tool("current_time", "{}");
+
+        assert!(result.is_ok());
+        let output = result.unwrap();
+        assert!(output.contains("Current UTC time:"));
+    }
+
+    #[test]
+    fn test_execute_tool_format_time() {
+        let server = TimeServer;
+        let args = json!({
+            "timestamp": 1620000000,
+            "format": "%Y-%m-%d %H:%M:%S"
+        })
+        .to_string();
+
+        let result = server.execute_tool("format_time", &args);
+
+        assert!(result.is_ok());
+        let output = result.unwrap();
+        assert!(output.contains("Formatted time:"));
+        assert!(output.contains("2021-05-03"));
+    }
+
+    #[test]
+    fn test_execute_tool_time_difference() {
+        let server = TimeServer;
+        let args = json!({
+            "timestamp1": 1620000000,
+            "timestamp2": 1620086400
+        })
+        .to_string();
+
+        let result = server.execute_tool("time_difference", &args);
+
+        assert!(result.is_ok());
+        let output = result.unwrap();
+        assert!(output.contains("Time difference:"));
+        assert!(output.contains("1 days"));
+    }
+
+    #[test]
+    fn test_execute_tool_unknown_tool() {
+        let server = TimeServer;
+        let result = server.execute_tool("unknown_tool", "{}");
+
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert!(error.contains("Unknown tool:"));
+    }
+
+    #[test]
+    fn test_execute_tool_invalid_arguments() {
+        let server = TimeServer;
+        let result = server.execute_tool("format_time", "invalid json");
+
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert!(error.contains("Failed to parse arguments:"));
+    }
+
+    #[test]
+    fn test_execute_tool_missing_required_arguments() {
+        let server = TimeServer;
+        let result = server.execute_tool("format_time", "{}");
+
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+        assert!(error.contains("Missing or invalid"));
+    }
 }

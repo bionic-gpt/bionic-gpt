@@ -2603,9 +2603,11 @@ name = "mcp-servers"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "openai-api",
  "rmcp",
  "schemars",
  "serde",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",
