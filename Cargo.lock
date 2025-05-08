@@ -2286,7 +2286,7 @@ dependencies = [
 
 [[package]]
 name = "k8s-operator"
-version = "1.9.20"
+version = "1.9.21"
 dependencies = [
  "anyhow",
  "base64 0.13.1",
