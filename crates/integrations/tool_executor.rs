@@ -1,17 +1,33 @@
+use crate::attachments::AttachmentsTool;
+use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
-use crate::tool_registry;
+use db::Pool;
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
 use std::sync::Arc;
 
 /// Execute a tool call and return a message with the result
-pub fn execute_tool_calls(tool_calls: Vec<ToolCall>) -> Vec<ToolCallResult> {
-    let tools = tool_registry::get_tools();
+pub fn execute_tool_calls(tool_calls: Vec<ToolCall>, pool: Option<&Pool>) -> Vec<ToolCallResult> {
+    // Get tool instances with the pool for execution
+    let tools = get_tools(pool);
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
     for tool_call in tool_calls {
         tool_results.push(execute_tool_call_with_tools(&tools, &tool_call));
     }
     tool_results
+}
+
+/// Returns a list of available tool instances
+/// This requires a pool for tools that need database access
+pub fn get_tools(pool: Option<&Pool>) -> Vec<Arc<dyn ToolInterface>> {
+    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(TimeDateTool)];
+
+    // Add the AttachmentsTool if a pool is provided
+    if let Some(pool) = pool {
+        tools.push(Arc::new(AttachmentsTool::new(pool.clone())));
+    }
+
+    tools
 }
 
 /// Execute a tool call with a specific set of tools
@@ -29,6 +45,8 @@ pub fn execute_tool_call_with_tools(
 
     if let Ok(tool) = tool {
         // Execute the tool
+        // Note: This is a synchronous execution, which might not work for async tools
+        // In a real implementation, we would need to handle async execution
         let result = tool.execute(&tool_call.function.arguments);
 
         if let Ok(result) = result {

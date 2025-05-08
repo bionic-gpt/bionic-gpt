@@ -13,8 +13,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
-use integrations::execute_tool_calls;
-use integrations::tool_registry::get_openai_tools;
+use integrations::{execute_tool_calls, get_enabled_tools};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -92,6 +91,7 @@ pub async fn chat_generate(
                                     ChatStatus::Success,
                                 )
                                 .await;
+
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                         },
@@ -145,6 +145,8 @@ async fn save_results(
         }
     };
 
+    tracing::debug!("Got a client from the pool");
+
     let transaction = match db_client.transaction().await {
         Ok(tx) => tx,
         Err(e) => {
@@ -153,13 +155,17 @@ async fn save_results(
         }
     };
 
+    tracing::debug!("Starting the transaction");
+
     if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await {
         tracing::error!("Error setting row level security: {:?}", e);
         return;
     }
 
+    tracing::debug!("Setting RLS ID");
+
     let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
-        let tool_call_results = execute_tool_calls(tool_calls.clone());
+        let tool_call_results = execute_tool_calls(tool_calls.clone(), Some(pool));
         let tool_call_results =
             serde_json::to_string(&tool_call_results).unwrap_or("{}".to_string());
         let tool_calls = serde_json::to_string(&tool_calls).unwrap_or("{}".to_string());
@@ -171,6 +177,8 @@ async fn save_results(
     } else {
         (None, None)
     };
+
+    tracing::debug!("About to update chat");
 
     if let Err(e) = queries::chats::update_chat()
         .bind(
@@ -191,6 +199,8 @@ async fn save_results(
     if let Err(e) = transaction.commit().await {
         tracing::error!("Error committing transaction: {:?}", e);
     }
+
+    tracing::debug!("Successfully completed save_results");
 }
 
 // Create the request that we'll send to reqwest to create an SSE stream of incoming
@@ -267,7 +277,7 @@ async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        Some(get_openai_tools(user_config.enabled_tools.as_ref()))
+        Some(get_enabled_tools(user_config.enabled_tools.as_ref()))
     } else {
         None
     };

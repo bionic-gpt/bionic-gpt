@@ -2182,9 +2182,11 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "chrono",
+ "db",
  "openai-api",
  "serde",
  "serde_json",
+ "tokio",
  "tracing",
 ]
 
