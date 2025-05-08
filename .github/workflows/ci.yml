@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches:
+    branches: 
       - main
     paths-ignore:
       - 'crates/dioxus-poc/**'
@@ -29,6 +29,7 @@ on:
       - Justfile
 
 jobs:
+
   security_audit:
     runs-on: ubuntu-latest
     steps:
@@ -44,32 +45,150 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       FORCE_COLOR: 1
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    - name: Put back the git branch into git (Earthly uses it for tagging)
+      run: |
+        branch=""
+        if [ -n "$GITHUB_HEAD_REF" ]; then
+          branch="$GITHUB_HEAD_REF"
+        else
+          branch="${GITHUB_REF##*/}"
+        fi
+        git checkout -b "$branch" || true
 
-      - name: Setup Git branch
-        run: |
-          branch="${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}"
-          git checkout -b "$branch" || true
+    - name: Download latest earthly
+      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
-      - name: Install Earthly
-        run: |
-          sudo wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly
-          sudo chmod +x /usr/local/bin/earthly
+    - name: Earthly version
+      run: earthly --version 
+         
+    - name: Log in to the Github Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Earthly version
-        run: earthly --version
+    - name: Run build
+      if: github.ref != 'refs/heads/main'
+      run: earthly --allow-privileged --output --ci +pull-request
+      
+    - name: Run build and Deploy Containers
+      if: github.ref == 'refs/heads/main'
+      run: earthly --allow-privileged --output --ci +all
+        
+    - name: Semantic Release
+      run: | 
+        npm i -D @semantic-release/exec
+        npm i -D @semantic-release-plus/docker
+        npm i -D @semantic-release/git
+        npx semantic-release@20
 
-      - name: Docker login
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  # We have ro wait for the commit that semantic release makes
+  # Or the next tasks all get the wrong release version.
+  wait-for-release:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - name: Wait...
+      run: sleep 60s  
+  
+  build-cli-linux:
+    needs: wait-for-release
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - uses: actions/checkout@v4
 
-      - name: Build for PR
-        if: github.event_name == 'pull_request'
-        run: earthly --allow-privileged --output --ci +pull-request
+    - name: Download latest earthly
+      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
 
-      - name: Build for main (no release)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: earthly --allow-privileged --output --ci +all
+    - name: Get latest release info
+      id: get_latest_release
+      run: |
+        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
+        echo "::set-output name=latest_release::$latest_release"
+
+    - name: Set versions
+      run: |
+        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
+        cd ../..
+        cat crates/k8s-operator/Cargo.toml
+
+    - name: Run build
+      run: earthly --allow-privileged --output --ci +build-cli-linux
+
+    - name: Upload executable to release
+      if: github.ref == 'refs/heads/main'
+      run: |
+        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-linux --clobber
+
+  build-osx-cli:
+    needs: wait-for-release
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download latest earthly
+      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+    - name: Get latest release info
+      id: get_latest_release
+      run: |
+        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
+        echo "::set-output name=latest_release::$latest_release"
+
+    - name: Set versions
+      run: |
+        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
+        cd ../..
+        cat crates/k8s-operator/Cargo.toml
+
+    - name: Run build
+      run: earthly --allow-privileged --output --ci +build-cli-osx
+
+
+    - name: Upload executable to release
+      if: github.ref == 'refs/heads/main'
+      run: |
+        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-darwin --clobber
+
+  build-windows-cli:
+    needs: wait-for-release
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download latest earthly
+      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+
+    - name: Get latest release info
+      id: get_latest_release
+      run: |
+        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
+        echo "::set-output name=latest_release::$latest_release"
+        
+    - name: Set versions
+      run: |
+        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
+        cd ../..
+        cat crates/k8s-operator/Cargo.toml
+
+    - name: Run build
+      run: earthly --allow-privileged --output --ci +build-cli-windows
+
+    - name: Upload executable to release
+      if: github.ref == 'refs/heads/main'
+      run: |
+        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-windows.exe --clobber
