@@ -1,21 +1,30 @@
 use std::sync::Arc;
 
-// Import the tool trait and time date tool
+// Import the tool trait and tools
+use crate::attachments::AttachmentsTool;
 use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
+use db::Pool;
 use openai_api::BionicToolDefinition;
 
 /// Returns a list of available tools
-pub fn get_tools() -> Vec<Arc<dyn ToolInterface>> {
-    vec![Arc::new(TimeDateTool)]
+pub fn get_tools(pool: Option<&Pool>) -> Vec<Arc<dyn ToolInterface>> {
+    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(TimeDateTool)];
+    
+    // Add the AttachmentsTool if a pool is provided
+    if let Some(pool) = pool {
+        tools.push(Arc::new(AttachmentsTool::new(pool.clone())));
+    }
+    
+    tools
 }
 
 /// Returns a list of available OpenAI tool definitions
 /// This is for backward compatibility
 ///
 /// If enabled_tools is provided, only returns tools with names in that list
-pub fn get_openai_tools(enabled_tools: Option<&Vec<String>>) -> Vec<BionicToolDefinition> {
-    let all_tools = get_tools();
+pub fn get_openai_tools(enabled_tools: Option<&Vec<String>>, pool: Option<&Pool>) -> Vec<BionicToolDefinition> {
+    let all_tools = get_tools(pool);
 
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tools
@@ -38,7 +47,7 @@ mod tests {
     #[test]
     fn test_get_openai_tools_none() {
         // When enabled_tools is None, it should return no tools
-        let tools = get_openai_tools(None);
+        let tools = get_openai_tools(None, None);
         assert!(
             tools.is_empty(),
             "Expected empty tools list when enabled_tools is None"
@@ -49,7 +58,7 @@ mod tests {
     fn test_get_openai_tools_empty() {
         // When enabled_tools is Some but empty, it should return no tools
         let empty_vec = vec![];
-        let tools = get_openai_tools(Some(&empty_vec));
+        let tools = get_openai_tools(Some(&empty_vec), None);
         assert!(
             tools.is_empty(),
             "Expected empty tools list when enabled_tools is empty"
@@ -64,7 +73,7 @@ mod tests {
 
         // When enabled_tools contains valid tool names, it should return only those tools
         let valid_names = vec![time_date_tool_name];
-        let tools = get_openai_tools(Some(&valid_names));
+        let tools = get_openai_tools(Some(&valid_names), None);
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
         assert_eq!(tools[0].function.name, "get_current_time_and_date");
@@ -74,7 +83,7 @@ mod tests {
     fn test_get_openai_tools_with_invalid_names() {
         // When enabled_tools contains non-existent tool names, it should return no tools
         let invalid_names = vec!["non_existent_tool".to_string()];
-        let tools = get_openai_tools(Some(&invalid_names));
+        let tools = get_openai_tools(Some(&invalid_names), None);
         assert!(
             tools.is_empty(),
             "Expected empty tools list for non-existent tool names"
@@ -90,7 +99,7 @@ mod tests {
         // When enabled_tools contains both valid and invalid tool names,
         // it should return only the valid ones
         let mixed_names = vec![time_date_tool_name, "non_existent_tool".to_string()];
-        let tools = get_openai_tools(Some(&mixed_names));
+        let tools = get_openai_tools(Some(&mixed_names), None);
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
         assert_eq!(tools[0].function.name, "get_current_time_and_date");

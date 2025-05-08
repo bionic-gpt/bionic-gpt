@@ -1,12 +1,13 @@
 use crate::tool::ToolInterface;
 use crate::tool_registry;
+use db::Pool;
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
 use std::sync::Arc;
 
 /// Execute a tool call and return a message with the result
-pub fn execute_tool_calls(tool_calls: Vec<ToolCall>) -> Vec<ToolCallResult> {
-    let tools = tool_registry::get_tools();
+pub fn execute_tool_calls(tool_calls: Vec<ToolCall>, pool: Option<&Pool>) -> Vec<ToolCallResult> {
+    let tools = tool_registry::get_tools(pool);
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
     for tool_call in tool_calls {
         tool_results.push(execute_tool_call_with_tools(&tools, &tool_call));
@@ -29,6 +30,8 @@ pub fn execute_tool_call_with_tools(
 
     if let Ok(tool) = tool {
         // Execute the tool
+        // Note: This is a synchronous execution, which might not work for async tools
+        // In a real implementation, we would need to handle async execution
         let result = tool.execute(&tool_call.function.arguments);
 
         if let Ok(result) = result {

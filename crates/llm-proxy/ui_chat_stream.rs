@@ -159,7 +159,7 @@ async fn save_results(
     }
 
     let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
-        let tool_call_results = execute_tool_calls(tool_calls.clone());
+        let tool_call_results = execute_tool_calls(tool_calls.clone(), Some(pool));
         let tool_call_results =
             serde_json::to_string(&tool_call_results).unwrap_or("{}".to_string());
         let tool_calls = serde_json::to_string(&tool_calls).unwrap_or("{}".to_string());
@@ -267,7 +267,7 @@ async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        Some(get_openai_tools(user_config.enabled_tools.as_ref()))
+        Some(get_openai_tools(user_config.enabled_tools.as_ref(), Some(pool)))
     } else {
         None
     };
