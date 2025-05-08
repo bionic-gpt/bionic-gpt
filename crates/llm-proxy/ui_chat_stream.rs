@@ -267,10 +267,7 @@ async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        Some(get_openai_tools(
-            user_config.enabled_tools.as_ref(),
-            Some(pool),
-        ))
+        Some(get_openai_tools(user_config.enabled_tools.as_ref()))
     } else {
         None
     };

@@ -2,7 +2,6 @@ use crate::tool::ToolInterface;
 use db::Pool;
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
-use std::sync::Arc;
 
 /// A tool that provides access to file attachments
 pub struct AttachmentsTool {
@@ -17,6 +16,9 @@ impl AttachmentsTool {
 
 impl ToolInterface for AttachmentsTool {
     fn get_tool(&self) -> BionicToolDefinition {
+        // Return the list_attachments tool definition
+        // Note: This means each AttachmentsTool instance only handles one tool
+        // In a real implementation, we might want to handle multiple tools
         get_list_attachments_tool()
     }
 
@@ -92,10 +94,12 @@ pub async fn execute_attachments_tool(arguments: &str, pool: &Pool) -> Result<St
     let args: Value =
         serde_json::from_str(arguments).map_err(|e| format!("Failed to parse arguments: {}", e))?;
 
-    // Determine which function to call based on the tool name
-    let tool_name = args["name"].as_str().unwrap_or("");
+    // Determine which function to call based on the function name in the arguments
+    // In a real implementation, we would get this from the tool call
+    // For now, we'll try to extract it from the arguments
+    let function_name = args["name"].as_str().unwrap_or("");
 
-    match tool_name {
+    match function_name {
         "list_attachments" => list_attachments(pool).await,
         "read_attachment" => {
             let file_id = args["file_id"]
@@ -111,14 +115,14 @@ pub async fn execute_attachments_tool(arguments: &str, pool: &Pool) -> Result<St
 
             read_attachment(pool, file_id, offset, max_bytes).await
         }
-        _ => Err(format!("Unknown tool: {}", tool_name)),
+        _ => Err(format!("Unknown function: {}", function_name)),
     }
 }
 
 /// List all attachments
 async fn list_attachments(pool: &Pool) -> Result<String, String> {
     // Get a client from the pool
-    let mut client = pool
+    let client = pool
         .get()
         .await
         .map_err(|e| format!("Failed to get client: {}", e))?;
@@ -129,7 +133,7 @@ async fn list_attachments(pool: &Pool) -> Result<String, String> {
 
     // Get all attachments
     let attachments = db::queries::attachments::get_by_chat()
-        .bind(&mut client, &chat_id)
+        .bind(&client, &chat_id)
         .all()
         .await
         .map_err(|e| format!("Failed to get attachments: {}", e))?;
@@ -157,14 +161,14 @@ async fn read_attachment(
     max_bytes: Option<u64>,
 ) -> Result<String, String> {
     // Get a client from the pool
-    let mut client = pool
+    let client = pool
         .get()
         .await
         .map_err(|e| format!("Failed to get client: {}", e))?;
 
     // Get attachment content
     let content = db::queries::attachments::get_content()
-        .bind(&mut client, &id)
+        .bind(&client, &id)
         .one()
         .await
         .map_err(|e| format!("Failed to get attachment content: {}", e))?;

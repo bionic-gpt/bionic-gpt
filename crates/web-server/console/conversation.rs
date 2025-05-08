@@ -97,7 +97,7 @@ pub async fn conversation(
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
     // Get available tools from the integrations crate
-    let available_tools: Vec<(String, String)> = integrations::get_tools()
+    let available_tools: Vec<(String, String)> = integrations::get_tools(None)
         .iter()
         .map(|tool| {
             let tool_def = tool.get_tool();

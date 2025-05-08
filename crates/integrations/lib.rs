@@ -11,4 +11,4 @@ pub mod tool_registry;
 // Re-export key types for convenience
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};
-pub use tool_registry::get_tools;
+pub use tool_registry::{get_tool_definitions, get_tools};

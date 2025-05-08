@@ -7,6 +7,7 @@ use std::sync::Arc;
 
 /// Execute a tool call and return a message with the result
 pub fn execute_tool_calls(tool_calls: Vec<ToolCall>, pool: Option<&Pool>) -> Vec<ToolCallResult> {
+    // Get tool instances with the pool for execution
     let tools = tool_registry::get_tools(pool);
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
     for tool_call in tool_calls {
