@@ -91,6 +91,7 @@ pub async fn chat_generate(
                                     ChatStatus::Success,
                                 )
                                 .await;
+
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                         },
@@ -144,6 +145,8 @@ async fn save_results(
         }
     };
 
+    tracing::debug!("Got a client from the pool");
+
     let transaction = match db_client.transaction().await {
         Ok(tx) => tx,
         Err(e) => {
@@ -152,10 +155,14 @@ async fn save_results(
         }
     };
 
+    tracing::debug!("Starting the transaction");
+
     if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.to_string()).await {
         tracing::error!("Error setting row level security: {:?}", e);
         return;
     }
+
+    tracing::debug!("Setting RLS ID");
 
     let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
         let tool_call_results = execute_tool_calls(tool_calls.clone(), Some(pool));
@@ -170,6 +177,8 @@ async fn save_results(
     } else {
         (None, None)
     };
+
+    tracing::debug!("About to update chat");
 
     if let Err(e) = queries::chats::update_chat()
         .bind(
@@ -190,6 +199,8 @@ async fn save_results(
     if let Err(e) = transaction.commit().await {
         tracing::error!("Error committing transaction: {:?}", e);
     }
+
+    tracing::debug!("Successfully completed save_results");
 }
 
 // Create the request that we'll send to reqwest to create an SSE stream of incoming
