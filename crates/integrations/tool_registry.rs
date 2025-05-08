@@ -10,12 +10,12 @@ use openai_api::BionicToolDefinition;
 /// Returns a list of available tools
 pub fn get_tools(pool: Option<&Pool>) -> Vec<Arc<dyn ToolInterface>> {
     let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(TimeDateTool)];
-    
+
     // Add the AttachmentsTool if a pool is provided
     if let Some(pool) = pool {
         tools.push(Arc::new(AttachmentsTool::new(pool.clone())));
     }
-    
+
     tools
 }
 
@@ -23,7 +23,10 @@ pub fn get_tools(pool: Option<&Pool>) -> Vec<Arc<dyn ToolInterface>> {
 /// This is for backward compatibility
 ///
 /// If enabled_tools is provided, only returns tools with names in that list
-pub fn get_openai_tools(enabled_tools: Option<&Vec<String>>, pool: Option<&Pool>) -> Vec<BionicToolDefinition> {
+pub fn get_openai_tools(
+    enabled_tools: Option<&Vec<String>>,
+    pool: Option<&Pool>,
+) -> Vec<BionicToolDefinition> {
     let all_tools = get_tools(pool);
 
     match enabled_tools {
