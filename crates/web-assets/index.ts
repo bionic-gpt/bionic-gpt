@@ -27,6 +27,7 @@ import { refreshFrame } from './typescript/layout/refresh-frame'
 import { disableSubmitButton } from './typescript/disable-submit-button'
 import { themeSwitcher, setTheme } from './typescript/layout/theme-switcher'
 import { speechToText } from './typescript/console/speach-to-text';
+import { fileUpload } from './typescript/console/file-upload';
 
 // Hotwired Turbo
 import '@hotwired/turbo'
@@ -53,6 +54,7 @@ function loadEverything() {
     updateSidebar()
     refreshFrame()
     disableSubmitButton()
+    fileUpload()
 
     // Apply dark or light mode
     setTheme()

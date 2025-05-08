@@ -1,4 +1,4 @@
---: Chat(response?, tool_calls?, tool_call_results?)
+--: Chat(response?, tool_calls?, tool_call_results?, attachments?)
 
 
 --! new_chat
@@ -45,6 +45,16 @@ SELECT
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
     status,
+    (
+        SELECT json_agg(json_build_object(
+            'name', o.file_name,
+            'type', o.mime_type,
+            'size', o.file_size
+        ))
+        FROM chats_attachments ca
+        JOIN objects o ON ca.object_id = o.id
+        WHERE ca.chat_id = chats.id
+    ) as attachments,
     created_at,
     updated_at
 FROM 
@@ -68,6 +78,16 @@ SELECT
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
     status,
+    (
+        SELECT json_agg(json_build_object(
+            'name', o.file_name,
+            'type', o.mime_type,
+            'size', o.file_size
+        ))
+        FROM chats_attachments ca
+        JOIN objects o ON ca.object_id = o.id
+        WHERE ca.chat_id = chats.id
+    ) as attachments,
     created_at,
     updated_at
 FROM 
@@ -92,6 +112,16 @@ SELECT
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     decrypt_text(response) as response,
     status,
+    (
+        SELECT json_agg(json_build_object(
+            'name', o.file_name,
+            'type', o.mime_type,
+            'size', o.file_size
+        ))
+        FROM chats_attachments ca
+        JOIN objects o ON ca.object_id = o.id
+        WHERE ca.chat_id = chats.id
+    ) as attachments,
     created_at,
     updated_at
 FROM 

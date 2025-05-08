@@ -50,6 +50,18 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
                 tool_calls: None,
                 name: None,
             });
+            if let Some(attachments) = chat.attachments {
+                messages.push(ChatCompletionMessage {
+                    role: ChatCompletionMessageRole::Developer,
+                    content: Some(format!(
+                        "The user has uploaded the following attachments {}",
+                        attachments
+                    )),
+                    tool_call_id: None,
+                    tool_calls: None,
+                    name: None,
+                });
+            }
             if let Some(response) = chat.response {
                 messages.push(ChatCompletionMessage {
                     role: ChatCompletionMessageRole::Assistant,

@@ -17,7 +17,7 @@ use validator::Validate;
 use web_pages::routes::document_pipelines::Delete;
 use web_pages::routes::document_pipelines::New;
 
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use rand::{distr::Alphanumeric, rng, Rng};
 
 pub fn routes() -> Router {
     Router::new()
@@ -104,7 +104,7 @@ pub async fn new_action(
     }
 
     if new_pipeline.validate().is_ok() {
-        let api_key: String = thread_rng()
+        let api_key: String = rng()
             .sample_iter(&Alphanumeric)
             .take(30)
             .map(char::from)
