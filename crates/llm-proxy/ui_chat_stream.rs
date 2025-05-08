@@ -13,8 +13,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
-use integrations::execute_tool_calls;
-use integrations::tool_registry::get_openai_tools;
+use integrations::{execute_tool_calls, get_enabled_tools};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -267,7 +266,7 @@ async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        Some(get_openai_tools(user_config.enabled_tools.as_ref()))
+        Some(get_enabled_tools(user_config.enabled_tools.as_ref()))
     } else {
         None
     };

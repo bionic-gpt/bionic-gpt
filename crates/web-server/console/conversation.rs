@@ -97,15 +97,15 @@ pub async fn conversation(
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
     // Get available tools from the integrations crate
-    let available_tools: Vec<(String, String)> = integrations::get_tools(None)
+    let available_tools: Vec<(String, String)> = integrations::get_user_selectable_tools()
         .iter()
         .map(|tool| {
-            let tool_def = tool.get_tool();
-            let tool_id = tool_def.function.name.clone();
+            let tool_def = tool.function.description.clone().unwrap_or("".to_string());
+            let tool_id = tool.function.name.clone();
 
             // Use the tool ID as the display name
             // This keeps the display name in one place only
-            (tool_id.clone(), tool_id)
+            (tool_id, tool_def)
         })
         .collect();
 
