@@ -18,7 +18,7 @@ pub fn get_user_selectable_tools_for_chat_ui() -> Vec<(String, String)> {
 }
 
 /// The full list of tools a user can select for the chat.
-pub fn get_user_selectable_tools_for_chat() -> Vec<BionicToolDefinition> {
+fn get_user_selectable_tools_for_chat() -> Vec<BionicToolDefinition> {
     vec![get_time_date_tool()]
 }
 
