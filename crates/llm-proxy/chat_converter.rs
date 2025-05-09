@@ -52,7 +52,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<ChatCompletionMe
             });
             if let Some(attachments) = chat.attachments {
                 messages.push(ChatCompletionMessage {
-                    role: ChatCompletionMessageRole::Developer,
+                    role: ChatCompletionMessageRole::Assistant,
                     content: Some(format!(
                         "The user has uploaded the following attachments {}",
                         attachments
