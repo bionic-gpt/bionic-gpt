@@ -5,10 +5,9 @@ use db::Pool;
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
 use std::sync::Arc;
-use tracing::{debug, error, info, instrument, trace, warn};
+use tracing::{debug, error, info, trace, warn};
 
 /// Execute a tool call and return a message with the result
-#[instrument(skip(tool_calls, pool), fields(num_tools = tool_calls.len(), sub = ?sub, conversation_id = ?conversation_id))]
 pub async fn execute_tool_calls(
     tool_calls: Vec<ToolCall>,
     pool: Option<&Pool>,
@@ -39,7 +38,6 @@ pub async fn execute_tool_calls(
 
 /// Returns a list of available tool instances
 /// This requires a pool for tools that need database access
-#[instrument(skip(pool), fields(sub = ?sub, conversation_id = ?conversation_id))]
 pub fn get_tools(
     pool: Option<&Pool>,
     sub: Option<String>,
@@ -67,7 +65,6 @@ pub fn get_tools(
 }
 
 /// Execute a tool call with a specific set of tools
-#[instrument(skip(tools, tool_call), fields(tool_name = %tool_call.function.name, tool_id = %tool_call.id))]
 pub async fn execute_tool_call_with_tools(
     tools: &[Arc<dyn ToolInterface>],
     tool_call: &ToolCall,
