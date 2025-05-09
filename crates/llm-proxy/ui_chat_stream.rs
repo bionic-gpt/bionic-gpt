@@ -13,7 +13,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
-use integrations::{execute_tool_calls, get_chat_tools_user_selected};
+use integrations::{execute_tool_calls, get_chat_tools_user_selected, get_tools_for_attachments};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -230,6 +230,10 @@ async fn create_request(
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+    let attachment_count = queries::conversations::count_attachments()
+        .bind(&transaction, &conversation.id)
+        .one()
+        .await?;
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &chat.prompt_id, &conversation.team_id)
         .one()
@@ -272,14 +276,34 @@ async fn create_request(
 
     tracing::debug!("{:?}", &user_config);
 
-    // If the capabilities contain tool_calls, then add tools.
+    let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
+
+    // Check if the chat has attachments
+    if let Some(attachments) = &chat.attachments {
+        if !attachments.is_null() && !attachments.as_array().unwrap_or(&vec![]).is_empty() {
+            // Add attachment tools
+            all_tools.extend(get_tools_for_attachments());
+        }
+    }
+
+    // Are we tool aware? If so let's add tools to this conversation
     let tools = if capabilities
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        Some(get_chat_tools_user_selected(
-            user_config.enabled_tools.as_ref(),
-        ))
+        // Get the base tools selected by the user
+        let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
+
+        // Check if the chat has attachments
+        if attachment_count > 0 {
+            all_tools.extend(get_tools_for_attachments());
+        }
+
+        if all_tools.is_empty() {
+            None
+        } else {
+            Some(all_tools)
+        }
     } else {
         None
     };
