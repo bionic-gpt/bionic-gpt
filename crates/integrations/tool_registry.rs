@@ -3,7 +3,7 @@ use crate::time_date::get_time_date_tool;
 use openai_api::BionicToolDefinition;
 
 /// The full list of tools a user can select for the chat.
-pub fn get_all_available_tools_for_chat() -> Vec<BionicToolDefinition> {
+pub fn get_user_selectable_tools_for_chat() -> Vec<BionicToolDefinition> {
     vec![get_time_date_tool()]
 }
 
@@ -14,7 +14,7 @@ pub fn get_all_available_tools_for_chat() -> Vec<BionicToolDefinition> {
 pub fn get_chat_tools_user_selected(
     enabled_tools: Option<&Vec<String>>,
 ) -> Vec<BionicToolDefinition> {
-    let all_tool_definitions = get_all_available_tools_for_chat();
+    let all_tool_definitions = get_user_selectable_tools_for_chat();
 
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
