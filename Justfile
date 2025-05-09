@@ -25,6 +25,9 @@ wt:
 md:
     mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
 
+test:
+    cargo test --workspace --exclude integration-testing --exclude rag-engine
+
 release-docker:
     #!/usr/bin/env bash
     export COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" -- infra-as-code/docker-compose.yml)
