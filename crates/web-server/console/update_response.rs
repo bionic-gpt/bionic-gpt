@@ -3,12 +3,9 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
+use db::queries::{chats, models, prompts};
 use db::Pool;
 use db::{authz, PromptType};
-use db::{
-    queries::{chats, models, prompts},
-    ChatStatus,
-};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::console::UpdateResponse;
@@ -16,7 +13,6 @@ use web_pages::routes::console::UpdateResponse;
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct Chat {
     pub chat_id: i32,
-    pub response: String,
 }
 
 /// When the front end has finished streaming the response from the model
@@ -92,22 +88,6 @@ pub async fn update_response(
         } else {
             tracing::debug!("History search disabled, skipping embeddings generation.")
         }
-    } else {
-        tracing::debug!("We DON'T have an existing repsonse in the database");
-        // There's no response from the stremaing proxy. Can we use what
-        // came form the front end?
-        let none: Option<String> = None;
-        chats::update_chat()
-            .bind(
-                &transaction,
-                &message.response,
-                &none,
-                &none,
-                &100,
-                &ChatStatus::Error,
-                &message.chat_id,
-            )
-            .await?;
     }
 
     let prompt = prompts::prompt()
