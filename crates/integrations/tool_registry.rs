@@ -1,9 +1,29 @@
 // Import the tool trait and time date tool
+use crate::attachments::{get_list_attachments_tool, get_read_attachment_tool};
 use crate::time_date::get_time_date_tool;
 use openai_api::BionicToolDefinition;
 
+pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
+    vec![get_list_attachments_tool(), get_read_attachment_tool()]
+}
+
+/// The name and descriptions of the tools the user can select from
+pub fn get_user_selectable_tools_for_chat_ui() -> Vec<(String, String)> {
+    get_user_selectable_tools_for_chat()
+        .iter()
+        .map(|tool| {
+            let tool_def = tool.function.description.clone().unwrap_or("".to_string());
+            let tool_id = tool.function.name.clone();
+
+            // Use the tool ID as the display name
+            // This keeps the display name in one place only
+            (tool_id, tool_def)
+        })
+        .collect()
+}
+
 /// The full list of tools a user can select for the chat.
-pub fn get_user_selectable_tools_for_chat() -> Vec<BionicToolDefinition> {
+fn get_user_selectable_tools_for_chat() -> Vec<BionicToolDefinition> {
     vec![get_time_date_tool()]
 }
 

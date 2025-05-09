@@ -78,3 +78,17 @@ WHERE
     id = :id
 AND
     user_id = current_app_user();
+
+--! count_attachments
+SELECT 
+    COUNT(ca.object_id) as count
+FROM 
+    conversations c
+JOIN 
+    chats ch ON c.id = ch.conversation_id
+LEFT JOIN 
+    chats_attachments ca ON ch.id = ca.chat_id
+WHERE 
+    c.id = :conversation_id
+AND
+    c.user_id = current_app_user();

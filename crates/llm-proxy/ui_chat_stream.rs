@@ -13,7 +13,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::ChatStatus;
 use db::{queries, Pool};
-use integrations::{execute_tool_calls, get_chat_tools_user_selected};
+use integrations::{execute_tool_calls, get_chat_tools_user_selected, get_tools_for_attachments};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -165,7 +165,27 @@ async fn save_results(
     tracing::debug!("Setting RLS ID");
 
     let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
-        let tool_call_results = execute_tool_calls(tool_calls.clone(), Some(pool));
+        // Get conversation_id from chat_id
+        let conversation = match queries::conversations::get_conversation_from_chat()
+            .bind(&transaction, &chat_id)
+            .one()
+            .await
+        {
+            Ok(conv) => conv,
+            Err(e) => {
+                tracing::error!("Error getting conversation: {:?}", e);
+                return;
+            }
+        };
+
+        let tool_call_results = execute_tool_calls(
+            tool_calls.clone(),
+            Some(pool),
+            Some(sub.to_string()),
+            Some(conversation.id),
+        )
+        .await;
+
         let tool_call_results =
             serde_json::to_string(&tool_call_results).unwrap_or("{}".to_string());
         let tool_calls = serde_json::to_string(&tool_calls).unwrap_or("{}".to_string());
@@ -230,6 +250,10 @@ async fn create_request(
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+    let attachment_count = queries::conversations::count_attachments()
+        .bind(&transaction, &conversation.id)
+        .one()
+        .await?;
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &chat.prompt_id, &conversation.team_id)
         .one()
@@ -272,14 +296,34 @@ async fn create_request(
 
     tracing::debug!("{:?}", &user_config);
 
-    // If the capabilities contain tool_calls, then add tools.
+    let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
+
+    // Check if the chat has attachments
+    if let Some(attachments) = &chat.attachments {
+        if !attachments.is_null() && !attachments.as_array().unwrap_or(&vec![]).is_empty() {
+            // Add attachment tools
+            all_tools.extend(get_tools_for_attachments());
+        }
+    }
+
+    // Are we tool aware? If so let's add tools to this conversation
     let tools = if capabilities
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        Some(get_chat_tools_user_selected(
-            user_config.enabled_tools.as_ref(),
-        ))
+        // Get the base tools selected by the user
+        let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
+
+        // Check if the chat has attachments
+        if attachment_count > 0 {
+            all_tools.extend(get_tools_for_attachments());
+        }
+
+        if all_tools.is_empty() {
+            None
+        } else {
+            Some(all_tools)
+        }
     } else {
         None
     };
