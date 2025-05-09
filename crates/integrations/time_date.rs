@@ -1,4 +1,5 @@
 use crate::tool::ToolInterface;
+use async_trait::async_trait;
 use chrono::{Local, Utc};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
@@ -6,12 +7,15 @@ use serde_json::{json, Value};
 /// A tool that provides current time and date information
 pub struct TimeDateTool;
 
+#[async_trait]
 impl ToolInterface for TimeDateTool {
     fn get_tool(&self) -> BionicToolDefinition {
         get_time_date_tool()
     }
 
-    fn execute(&self, arguments: &str) -> Result<String, String> {
+    async fn execute(&self, arguments: &str) -> Result<String, String> {
+        // Since execute_time_date_tool is synchronous, we can just call it
+        // It will be automatically wrapped in a future
         execute_time_date_tool(arguments)
     }
 }

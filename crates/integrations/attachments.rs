@@ -1,4 +1,5 @@
 use crate::tool::ToolInterface;
+use async_trait::async_trait;
 use db::Pool;
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
@@ -14,6 +15,7 @@ impl AttachmentsTool {
     }
 }
 
+#[async_trait]
 impl ToolInterface for AttachmentsTool {
     fn get_tool(&self) -> BionicToolDefinition {
         // Return the list_attachments tool definition
@@ -22,17 +24,9 @@ impl ToolInterface for AttachmentsTool {
         get_list_attachments_tool()
     }
 
-    fn execute(&self, arguments: &str) -> Result<String, String> {
-        // This is a synchronous method, but we need to call async functions
-        // In a real implementation, we would use a runtime to block on the async calls
-        // For now, we'll create a simple runtime to execute the async function
-
-        // Create a new runtime
-        let rt = tokio::runtime::Runtime::new()
-            .map_err(|e| format!("Failed to create runtime: {}", e))?;
-
-        // Execute the async function
-        rt.block_on(execute_attachments_tool(arguments, &self.pool))
+    async fn execute(&self, arguments: &str) -> Result<String, String> {
+        // Direct async call - no need for runtime creation
+        execute_attachments_tool(arguments, &self.pool).await
     }
 }
 
@@ -88,8 +82,6 @@ pub fn get_read_attachment_tool() -> BionicToolDefinition {
 }
 
 /// Execute the attachments tool with the given arguments
-/// This is an async function, but the ToolInterface::execute method is synchronous
-/// In a real implementation, we would need to handle this mismatch
 pub async fn execute_attachments_tool(arguments: &str, pool: &Pool) -> Result<String, String> {
     let args: Value =
         serde_json::from_str(arguments).map_err(|e| format!("Failed to parse arguments: {}", e))?;

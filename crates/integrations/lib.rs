@@ -8,6 +8,9 @@ pub mod tool;
 pub mod tool_executor;
 pub mod tool_registry;
 
+#[cfg(test)]
+mod test_async;
+
 // Re-export key types for convenience
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};

@@ -7,12 +7,15 @@ use serde_json::json;
 use std::sync::Arc;
 
 /// Execute a tool call and return a message with the result
-pub fn execute_tool_calls(tool_calls: Vec<ToolCall>, pool: Option<&Pool>) -> Vec<ToolCallResult> {
+pub async fn execute_tool_calls(
+    tool_calls: Vec<ToolCall>,
+    pool: Option<&Pool>,
+) -> Vec<ToolCallResult> {
     // Get tool instances with the pool for execution
     let tools = get_tools(pool);
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
     for tool_call in tool_calls {
-        tool_results.push(execute_tool_call_with_tools(&tools, &tool_call));
+        tool_results.push(execute_tool_call_with_tools(&tools, &tool_call).await);
     }
     tool_results
 }
@@ -31,7 +34,7 @@ pub fn get_tools(pool: Option<&Pool>) -> Vec<Arc<dyn ToolInterface>> {
 }
 
 /// Execute a tool call with a specific set of tools
-pub fn execute_tool_call_with_tools(
+pub async fn execute_tool_call_with_tools(
     tools: &[Arc<dyn ToolInterface>],
     tool_call: &ToolCall,
 ) -> ToolCallResult {
@@ -44,10 +47,8 @@ pub fn execute_tool_call_with_tools(
         .ok_or_else(|| format!("Unknown tool: {}", tool_name));
 
     if let Ok(tool) = tool {
-        // Execute the tool
-        // Note: This is a synchronous execution, which might not work for async tools
-        // In a real implementation, we would need to handle async execution
-        let result = tool.execute(&tool_call.function.arguments);
+        // Execute the tool asynchronously
+        let result = tool.execute(&tool_call.function.arguments).await;
 
         if let Ok(result) = result {
             return ToolCallResult {
@@ -72,8 +73,8 @@ mod tests {
     use openai_api::{ToolCall, ToolCallFunction};
     use serde_json::json;
 
-    #[test]
-    fn test_execute_tool_call_time_date() {
+    #[tokio::test]
+    async fn test_execute_tool_call_time_date() {
         let time_date_tool: Arc<dyn ToolInterface> = Arc::new(TimeDateTool);
         let tools: Vec<Arc<dyn ToolInterface>> = vec![time_date_tool];
 
@@ -86,7 +87,7 @@ mod tests {
             },
         };
 
-        let result = execute_tool_call_with_tools(&tools, &tool_call);
+        let result = execute_tool_call_with_tools(&tools, &tool_call).await;
         assert_eq!(result.id, "call_123".to_string());
         assert_eq!(result.name, "get_current_time_and_date".to_string());
     }
