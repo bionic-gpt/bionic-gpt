@@ -11,4 +11,4 @@ pub mod tool_registry;
 // Re-export key types for convenience
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};
-pub use tool_registry::{get_chat_tools_user_selected, get_user_selectable_tools_for_chat};
+pub use tool_registry::{get_chat_tools_user_selected, get_user_selectable_tools_for_chat_ui};
