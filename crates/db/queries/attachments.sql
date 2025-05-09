@@ -10,7 +10,7 @@ INSERT INTO chats_attachments (
     :object_id
 );
 
---! get_by_chat : AttachmentObject
+--! get_by_conversation : AttachmentObject
 SELECT
     o.id,
     o.object_name,
@@ -24,8 +24,10 @@ FROM
     objects o
 JOIN
     chats_attachments ca ON o.id = ca.object_id
+JOIN
+    chats c ON ca.chat_id = c.id
 WHERE
-    ca.chat_id = :chat_id;
+    c.conversation_id = :conversation_id;
 
 --! get_content : AttachmentData
 SELECT

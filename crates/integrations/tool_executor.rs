@@ -10,9 +10,11 @@ use std::sync::Arc;
 pub async fn execute_tool_calls(
     tool_calls: Vec<ToolCall>,
     pool: Option<&Pool>,
+    sub: Option<String>,
+    conversation_id: Option<i64>,
 ) -> Vec<ToolCallResult> {
     // Get tool instances with the pool for execution
-    let tools = get_tools(pool);
+    let tools = get_tools(pool, sub, conversation_id);
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
     for tool_call in tool_calls {
         tool_results.push(execute_tool_call_with_tools(&tools, &tool_call).await);
@@ -22,12 +24,20 @@ pub async fn execute_tool_calls(
 
 /// Returns a list of available tool instances
 /// This requires a pool for tools that need database access
-pub fn get_tools(pool: Option<&Pool>) -> Vec<Arc<dyn ToolInterface>> {
+pub fn get_tools(
+    pool: Option<&Pool>,
+    sub: Option<String>,
+    conversation_id: Option<i64>,
+) -> Vec<Arc<dyn ToolInterface>> {
     let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(TimeDateTool)];
 
     // Add the AttachmentsTool if a pool is provided
     if let Some(pool) = pool {
-        tools.push(Arc::new(AttachmentsTool::new(pool.clone())));
+        tools.push(Arc::new(AttachmentsTool::new(
+            pool.clone(),
+            sub,
+            conversation_id,
+        )));
     }
 
     tools

@@ -165,7 +165,27 @@ async fn save_results(
     tracing::debug!("Setting RLS ID");
 
     let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
-        let tool_call_results = execute_tool_calls(tool_calls.clone(), Some(pool)).await;
+        // Get conversation_id from chat_id
+        let conversation = match queries::conversations::get_conversation_from_chat()
+            .bind(&transaction, &chat_id)
+            .one()
+            .await
+        {
+            Ok(conv) => conv,
+            Err(e) => {
+                tracing::error!("Error getting conversation: {:?}", e);
+                return;
+            }
+        };
+
+        let tool_call_results = execute_tool_calls(
+            tool_calls.clone(),
+            Some(pool),
+            Some(sub.to_string()),
+            Some(conversation.id),
+        )
+        .await;
+
         let tool_call_results =
             serde_json::to_string(&tool_call_results).unwrap_or("{}".to_string());
         let tool_calls = serde_json::to_string(&tool_calls).unwrap_or("{}".to_string());

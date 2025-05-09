@@ -1,17 +1,23 @@
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
-use db::Pool;
+use db::{Pool, Transaction};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
 
 /// A tool that provides access to file attachments
 pub struct AttachmentsTool {
     pool: Pool,
+    sub: Option<String>,
+    conversation_id: Option<i64>,
 }
 
 impl AttachmentsTool {
-    pub fn new(pool: Pool) -> Self {
-        Self { pool }
+    pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
+        Self {
+            pool,
+            sub,
+            conversation_id,
+        }
     }
 }
 
@@ -25,8 +31,14 @@ impl ToolInterface for AttachmentsTool {
     }
 
     async fn execute(&self, arguments: &str) -> Result<String, String> {
-        // Direct async call - no need for runtime creation
-        execute_attachments_tool(arguments, &self.pool).await
+        // Pass sub and conversation_id to execute_attachments_tool
+        execute_attachments_tool(
+            arguments,
+            &self.pool,
+            self.sub.clone(),
+            self.conversation_id,
+        )
+        .await
     }
 }
 
@@ -82,17 +94,46 @@ pub fn get_read_attachment_tool() -> BionicToolDefinition {
 }
 
 /// Execute the attachments tool with the given arguments
-pub async fn execute_attachments_tool(arguments: &str, pool: &Pool) -> Result<String, String> {
+pub async fn execute_attachments_tool(
+    arguments: &str,
+    pool: &Pool,
+    sub: Option<String>,
+    conversation_id: Option<i64>,
+) -> Result<String, String> {
     let args: Value =
         serde_json::from_str(arguments).map_err(|e| format!("Failed to parse arguments: {}", e))?;
 
     // Determine which function to call based on the function name in the arguments
-    // In a real implementation, we would get this from the tool call
-    // For now, we'll try to extract it from the arguments
     let function_name = args["name"].as_str().unwrap_or("");
 
-    match function_name {
-        "list_attachments" => list_attachments(pool).await,
+    // Create transaction
+    let mut client = pool
+        .get()
+        .await
+        .map_err(|e| format!("Failed to get client: {}", e))?;
+
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| format!("Failed to create transaction: {}", e))?;
+
+    // Set row-level security if sub is provided
+    if let Some(sub) = sub {
+        db::authz::set_row_level_security_user_id(&transaction, sub)
+            .await
+            .map_err(|e| format!("Failed to set row level security: {}", e))?;
+    }
+
+    // Execute the appropriate function
+    let result = match function_name {
+        "list_attachments" => {
+            // Use the provided conversation_id
+            if let Some(conv_id) = conversation_id {
+                list_attachments(&transaction, conv_id).await
+            } else {
+                Err("Missing conversation_id".to_string())
+            }
+        }
         "read_attachment" => {
             let file_id = args["file_id"]
                 .as_str()
@@ -105,27 +146,28 @@ pub async fn execute_attachments_tool(arguments: &str, pool: &Pool) -> Result<St
             let offset = args["offset"].as_u64().unwrap_or(0) as usize;
             let max_bytes = args["max_bytes"].as_u64();
 
-            read_attachment(pool, file_id, offset, max_bytes).await
+            read_attachment(&transaction, file_id, offset, max_bytes).await
         }
         _ => Err(format!("Unknown function: {}", function_name)),
-    }
+    };
+
+    // Commit transaction
+    transaction
+        .commit()
+        .await
+        .map_err(|e| format!("Failed to commit transaction: {}", e))?;
+
+    result
 }
 
 /// List all attachments
-async fn list_attachments(pool: &Pool) -> Result<String, String> {
-    // Get a client from the pool
-    let client = pool
-        .get()
-        .await
-        .map_err(|e| format!("Failed to get client: {}", e))?;
-
-    // TODO: We need to get the chat_id from somewhere
-    // For now, we'll just use a placeholder
-    let chat_id = 1; // This should be replaced with the actual chat_id
-
+async fn list_attachments(
+    transaction: &Transaction<'_>,
+    conversation_id: i64,
+) -> Result<String, String> {
     // Get all attachments
-    let attachments = db::queries::attachments::get_by_chat()
-        .bind(&client, &chat_id)
+    let attachments = db::queries::attachments::get_by_conversation()
+        .bind(transaction, &conversation_id)
         .all()
         .await
         .map_err(|e| format!("Failed to get attachments: {}", e))?;
@@ -147,20 +189,14 @@ async fn list_attachments(pool: &Pool) -> Result<String, String> {
 
 /// Read attachment content
 async fn read_attachment(
-    pool: &Pool,
+    transaction: &Transaction<'_>,
     id: i32,
     offset: usize,
     max_bytes: Option<u64>,
 ) -> Result<String, String> {
-    // Get a client from the pool
-    let client = pool
-        .get()
-        .await
-        .map_err(|e| format!("Failed to get client: {}", e))?;
-
     // Get attachment content
     let content = db::queries::attachments::get_content()
-        .bind(&client, &id)
+        .bind(transaction, &id)
         .one()
         .await
         .map_err(|e| format!("Failed to get attachment content: {}", e))?;
