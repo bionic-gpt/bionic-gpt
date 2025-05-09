@@ -55,6 +55,8 @@ async fn main() {
         .add_directive(format!("web_server={}", log_level).parse().unwrap())
         .add_directive(format!("db={}", log_level).parse().unwrap())
         .add_directive(format!("llm_proxy={}", log_level).parse().unwrap())
+        .add_directive(format!("integrations={}", log_level).parse().unwrap())
+        .add_directive(format!("embeddings_api={}", log_level).parse().unwrap())
         // Add more of your crates as needed
         ;
 
