@@ -1,6 +1,11 @@
 // Import the tool trait and time date tool
+use crate::attachments::{get_list_attachments_tool, get_read_attachment_tool};
 use crate::time_date::get_time_date_tool;
 use openai_api::BionicToolDefinition;
+
+pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
+    vec![get_list_attachments_tool(), get_read_attachment_tool()]
+}
 
 /// The name and descriptions of the tools the user can select from
 pub fn get_user_selectable_tools_for_chat_ui() -> Vec<(String, String)> {
