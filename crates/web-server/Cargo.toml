@@ -3,6 +3,11 @@ name = "web-server"
 version = "0.1.0"
 edition = "2021"
 
+# Enable backtrace feature for panic hook
+[features]
+default = ["backtrace"]
+backtrace = []
+
 [[bin]]
 name = "web-server"
 path = "main.rs"

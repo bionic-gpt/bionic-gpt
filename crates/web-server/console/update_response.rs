@@ -31,6 +31,7 @@ pub async fn update_response(
     Extension(pool): Extension<Pool>,
     Form(message): Form<Chat>,
 ) -> Result<impl IntoResponse, CustomError> {
+    tracing::debug!("Receiving end of stream update from the front end");
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
@@ -43,11 +44,17 @@ pub async fn update_response(
 
     // If the streaming LLM proxy saved a response, we'll process it.
     if let Some(response) = chat.response {
+        tracing::debug!("We have an existing repsonse in the database");
         // We generate embeddings so we can search the history.
         let embeddings_model = models::get_system_embedding_model()
             .bind(&transaction)
             .one()
             .await?;
+
+        tracing::debug!(
+            "Converting response to embeddings using {}",
+            embeddings_model.name
+        );
 
         let embeddings = embeddings_api::get_embeddings(
             &response,
@@ -71,12 +78,15 @@ pub async fn update_response(
                         &[&embedding_data, &chat.id],
                     )
                     .await?;
+
+                tracing::debug!("Succesfully stored embeddings in chat");
             }
             Err(e) => {
                 tracing::error!("Problem trying to get embeddings data {}", e);
             }
         }
     } else {
+        tracing::debug!("We DON'T have an existing repsonse in the database");
         // There's no response from the stremaing proxy. Can we use what
         // came form the front end?
         let none: Option<String> = None;
@@ -99,6 +109,8 @@ pub async fn update_response(
         .await?;
 
     transaction.commit().await?;
+
+    tracing::debug!("DB Transaction committed");
 
     if prompt.prompt_type == PromptType::Assistant {
         super::super::layout::redirect(
