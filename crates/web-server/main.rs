@@ -60,6 +60,33 @@ async fn main() {
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
 
+    // Set up panic hook with logging
+    std::panic::set_hook(Box::new(|panic_info| {
+        // Extract panic information
+        let backtrace = std::backtrace::Backtrace::capture();
+
+        let location = panic_info
+            .location()
+            .map(|loc| format!("{}:{}", loc.file(), loc.line()))
+            .unwrap_or_else(|| "unknown location".to_string());
+
+        let message = match panic_info.payload().downcast_ref::<&str>() {
+            Some(s) => *s,
+            None => match panic_info.payload().downcast_ref::<String>() {
+                Some(s) => s.as_str(),
+                None => "Unknown panic message",
+            },
+        };
+
+        // Log the panic information
+        tracing::error!(
+            message = %message,
+            location = %location,
+            backtrace = %backtrace,
+            "PANIC OCCURRED"
+        );
+    }));
+
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
