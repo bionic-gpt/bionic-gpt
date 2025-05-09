@@ -22,7 +22,6 @@ reqwest-eventsource = "0"
 serde_json = { version = "1" }
 serde = { version = "1", features = ["derive"] }
 tracing = { version = "0.1" }
-tracing-subscriber = { version="0", features = ["env-filter"] }
 tower-http = { version = "0.5", features = ["fs", "cors"] }
 
 # Tiktoken counts our token usage for prompts
