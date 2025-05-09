@@ -8,7 +8,12 @@ use daisy_rsx::*;
 use db::{authz::Rbac, History};
 use dioxus::prelude::*;
 
-pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
+pub fn page(
+    rbac: Rbac,
+    team_id: i32,
+    history: Vec<History>,
+    history_search_enabled: bool,
+) -> String {
     let buckets = super::bucket_history(history);
     let page = rsx! {
         Layout {
@@ -19,11 +24,13 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
             title: "Chat History",
             header: rsx! {
                 h3 { "Chat History" }
-                Button {
-                    prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "search-history",
-                    button_scheme: ButtonScheme::Primary,
-                    "Search History"
+                if history_search_enabled {
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        drawer_trigger: "search-history",
+                        button_scheme: ButtonScheme::Primary,
+                        "Search History"
+                    }
                 }
             },
             super::form::Form {

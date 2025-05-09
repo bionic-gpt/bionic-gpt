@@ -53,6 +53,8 @@ pub struct Config {
     pub version: String,
     // Are we a Saas
     pub saas: bool,
+    // Are we a Saas
+    pub enable_history_search: bool,
     // Are we using barricade?
     pub enable_barricade: bool,
 }
@@ -90,6 +92,8 @@ impl Config {
 
         let enable_barricade = env::var("ENABLE_BARRICADE").is_ok();
 
+        let enable_history_search = env::var("ENABLE_HISTORY_SEARCH").is_ok();
+
         let app_database_url = env::var("APP_DATABASE_URL").expect("APP_DATABASE_URL not set");
 
         Config {
@@ -99,6 +103,7 @@ impl Config {
             smtp_config: SmtpConfig::new(),
             version,
             saas,
+            enable_history_search,
             enable_barricade,
         }
     }
