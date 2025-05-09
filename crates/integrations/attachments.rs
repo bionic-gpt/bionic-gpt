@@ -5,17 +5,39 @@ use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
 use tracing;
 
-/// A tool that provides access to file attachments
-pub struct AttachmentsTool {
+/// A tool that provides access to list file attachments
+pub struct ListAttachmentsTool {
     pool: Pool,
     sub: Option<String>,
     conversation_id: Option<i64>,
 }
 
-impl AttachmentsTool {
+impl ListAttachmentsTool {
     pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
         tracing::debug!(
-            "Creating new AttachmentsTool with sub: {:?}, conversation_id: {:?}",
+            "Creating new ListAttachmentsTool with sub: {:?}, conversation_id: {:?}",
+            sub,
+            conversation_id
+        );
+        Self {
+            pool,
+            sub,
+            conversation_id,
+        }
+    }
+}
+
+/// A tool that provides access to read file attachments
+pub struct ReadAttachmentsTool {
+    pool: Pool,
+    sub: Option<String>,
+    conversation_id: Option<i64>,
+}
+
+impl ReadAttachmentsTool {
+    pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
+        tracing::debug!(
+            "Creating new ReadAttachmentsTool with sub: {:?}, conversation_id: {:?}",
             sub,
             conversation_id
         );
@@ -28,30 +50,186 @@ impl AttachmentsTool {
 }
 
 #[async_trait]
-impl ToolInterface for AttachmentsTool {
+impl ToolInterface for ListAttachmentsTool {
     fn get_tool(&self) -> BionicToolDefinition {
-        tracing::debug!("Getting tool definition for AttachmentsTool");
-        // Return the list_attachments tool definition
-        // Note: This means each AttachmentsTool instance only handles one tool
-        // In a real implementation, we might want to handle multiple tools
+        tracing::debug!("Getting tool definition for ListAttachmentsTool");
         get_list_attachments_tool()
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
     async fn execute(&self, arguments: &str) -> Result<String, String> {
-        tracing::info!("Executing attachment tool with arguments: {}", arguments);
-        // Pass sub and conversation_id to execute_attachments_tool
-        let result = execute_attachments_tool(
-            arguments,
-            &self.pool,
-            self.sub.clone(),
-            self.conversation_id,
-        )
-        .await;
+        tracing::info!(
+            "Executing list_attachments tool with arguments: {}",
+            arguments
+        );
+
+        // Create transaction
+        tracing::debug!("Getting database client");
+        let mut client = match self.pool.get().await {
+            Ok(client) => {
+                tracing::debug!("Successfully got database client");
+                client
+            }
+            Err(e) => {
+                tracing::error!("Failed to get database client: {}", e);
+                return Err(format!("Failed to get client: {}", e));
+            }
+        };
+
+        tracing::debug!("Creating transaction");
+        let transaction = match client.transaction().await {
+            Ok(transaction) => {
+                tracing::debug!("Successfully created transaction");
+                transaction
+            }
+            Err(e) => {
+                tracing::error!("Failed to create transaction: {}", e);
+                return Err(format!("Failed to create transaction: {}", e));
+            }
+        };
+
+        // Set row-level security if sub is provided
+        if let Some(sub) = &self.sub {
+            tracing::debug!("Setting row-level security for user: {}", sub);
+            if let Err(e) =
+                db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await
+            {
+                tracing::error!("Failed to set row level security: {}", e);
+                return Err(format!("Failed to set row level security: {}", e));
+            }
+        }
+
+        // Use the provided conversation_id
+        let result = if let Some(conv_id) = self.conversation_id {
+            tracing::debug!("Listing attachments for conversation: {}", conv_id);
+            list_attachments(&transaction, conv_id).await
+        } else {
+            tracing::warn!("Missing conversation_id for list_attachments");
+            Err("Missing conversation_id".to_string())
+        };
+
+        // Commit transaction
+        tracing::debug!("Committing transaction");
+        match transaction.commit().await {
+            Ok(_) => tracing::debug!("Successfully committed transaction"),
+            Err(e) => {
+                tracing::error!("Failed to commit transaction: {}", e);
+                return Err(format!("Failed to commit transaction: {}", e));
+            }
+        }
 
         match &result {
-            Ok(_) => tracing::debug!("Attachment tool execution successful"),
-            Err(e) => tracing::error!("Attachment tool execution failed: {}", e),
+            Ok(_r) => tracing::info!("List attachments tool execution completed successfully"),
+            Err(e) => tracing::warn!("List attachments tool execution failed: {}", e),
+        }
+
+        result
+    }
+}
+
+#[async_trait]
+impl ToolInterface for ReadAttachmentsTool {
+    fn get_tool(&self) -> BionicToolDefinition {
+        tracing::debug!("Getting tool definition for ReadAttachmentsTool");
+        get_read_attachment_tool()
+    }
+
+    #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
+    async fn execute(&self, arguments: &str) -> Result<String, String> {
+        tracing::info!(
+            "Executing read_attachment tool with arguments: {}",
+            arguments
+        );
+
+        let args: Value = match serde_json::from_str(arguments) {
+            Ok(v) => {
+                tracing::debug!("Successfully parsed arguments");
+                v
+            }
+            Err(e) => {
+                tracing::error!("Failed to parse arguments: {}", e);
+                return Err(format!("Failed to parse arguments: {}", e));
+            }
+        };
+
+        // Create transaction
+        tracing::debug!("Getting database client");
+        let mut client = match self.pool.get().await {
+            Ok(client) => {
+                tracing::debug!("Successfully got database client");
+                client
+            }
+            Err(e) => {
+                tracing::error!("Failed to get database client: {}", e);
+                return Err(format!("Failed to get client: {}", e));
+            }
+        };
+
+        tracing::debug!("Creating transaction");
+        let transaction = match client.transaction().await {
+            Ok(transaction) => {
+                tracing::debug!("Successfully created transaction");
+                transaction
+            }
+            Err(e) => {
+                tracing::error!("Failed to create transaction: {}", e);
+                return Err(format!("Failed to create transaction: {}", e));
+            }
+        };
+
+        // Set row-level security if sub is provided
+        if let Some(sub) = &self.sub {
+            tracing::debug!("Setting row-level security for user: {}", sub);
+            if let Err(e) =
+                db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await
+            {
+                tracing::error!("Failed to set row level security: {}", e);
+                return Err(format!("Failed to set row level security: {}", e));
+            }
+        }
+
+        let file_id = match args["file_id"].as_str() {
+            Some(id) => {
+                tracing::debug!("Reading attachment with file_id: {}", id);
+                id
+            }
+            None => {
+                tracing::warn!("Missing file_id parameter");
+                return Err("Missing file_id parameter".to_string());
+            }
+        };
+
+        let file_id = match file_id.parse::<i32>() {
+            Ok(id) => id,
+            Err(e) => {
+                tracing::warn!("Invalid file_id: {}", e);
+                return Err(format!("Invalid file_id: {}", e));
+            }
+        };
+
+        let offset = args["offset"].as_u64().unwrap_or(0) as usize;
+        let max_bytes = args["max_bytes"].as_u64();
+        tracing::debug!(
+            "Reading attachment with offset: {}, max_bytes: {:?}",
+            offset,
+            max_bytes
+        );
+
+        let result = read_attachment(&transaction, file_id, offset, max_bytes).await;
+
+        // Commit transaction
+        tracing::debug!("Committing transaction");
+        match transaction.commit().await {
+            Ok(_) => tracing::debug!("Successfully committed transaction"),
+            Err(e) => {
+                tracing::error!("Failed to commit transaction: {}", e);
+                return Err(format!("Failed to commit transaction: {}", e));
+            }
+        }
+
+        match &result {
+            Ok(_r) => tracing::info!("Read attachment tool execution completed successfully"),
+            Err(e) => tracing::warn!("Read attachment tool execution failed: {}", e),
         }
 
         result
@@ -109,131 +287,6 @@ pub fn get_read_attachment_tool() -> BionicToolDefinition {
             })),
         },
     }
-}
-
-/// Execute the attachments tool with the given arguments
-pub async fn execute_attachments_tool(
-    arguments: &str,
-    pool: &Pool,
-    sub: Option<String>,
-    conversation_id: Option<i64>,
-) -> Result<String, String> {
-    tracing::info!("Executing attachment tool with arguments: {}", arguments);
-
-    let args: Value = match serde_json::from_str(arguments) {
-        Ok(v) => {
-            tracing::debug!("Successfully parsed arguments");
-            v
-        }
-        Err(e) => {
-            tracing::error!("Failed to parse arguments: {}", e);
-            return Err(format!("Failed to parse arguments: {}", e));
-        }
-    };
-
-    // Determine which function to call based on the function name in the arguments
-    let function_name = args["name"].as_str().unwrap_or("");
-    tracing::debug!("Function name: {}", function_name);
-
-    // Create transaction
-    tracing::debug!("Getting database client");
-    let mut client = match pool.get().await {
-        Ok(client) => {
-            tracing::debug!("Successfully got database client");
-            client
-        }
-        Err(e) => {
-            tracing::error!("Failed to get database client: {}", e);
-            return Err(format!("Failed to get client: {}", e));
-        }
-    };
-
-    tracing::debug!("Creating transaction");
-    let transaction = match client.transaction().await {
-        Ok(transaction) => {
-            tracing::debug!("Successfully created transaction");
-            transaction
-        }
-        Err(e) => {
-            tracing::error!("Failed to create transaction: {}", e);
-            return Err(format!("Failed to create transaction: {}", e));
-        }
-    };
-
-    // Set row-level security if sub is provided
-    if let Some(sub) = &sub {
-        tracing::debug!("Setting row-level security for user: {}", sub);
-        if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await {
-            tracing::error!("Failed to set row level security: {}", e);
-            return Err(format!("Failed to set row level security: {}", e));
-        }
-    }
-
-    // Execute the appropriate function
-    tracing::debug!("Executing function: {}", function_name);
-    let result = match function_name {
-        "list_attachments" => {
-            // Use the provided conversation_id
-            if let Some(conv_id) = conversation_id {
-                tracing::debug!("Listing attachments for conversation: {}", conv_id);
-                list_attachments(&transaction, conv_id).await
-            } else {
-                tracing::warn!("Missing conversation_id for list_attachments");
-                Err("Missing conversation_id".to_string())
-            }
-        }
-        "read_attachment" => {
-            let file_id = match args["file_id"].as_str() {
-                Some(id) => {
-                    tracing::debug!("Reading attachment with file_id: {}", id);
-                    id
-                }
-                None => {
-                    tracing::warn!("Missing file_id parameter");
-                    return Err("Missing file_id parameter".to_string());
-                }
-            };
-
-            let file_id = match file_id.parse::<i32>() {
-                Ok(id) => id,
-                Err(e) => {
-                    tracing::warn!("Invalid file_id: {}", e);
-                    return Err(format!("Invalid file_id: {}", e));
-                }
-            };
-
-            let offset = args["offset"].as_u64().unwrap_or(0) as usize;
-            let max_bytes = args["max_bytes"].as_u64();
-            tracing::debug!(
-                "Reading attachment with offset: {}, max_bytes: {:?}",
-                offset,
-                max_bytes
-            );
-
-            read_attachment(&transaction, file_id, offset, max_bytes).await
-        }
-        _ => {
-            tracing::warn!("Unknown function: {}", function_name);
-            Err(format!("Unknown function: {}", function_name))
-        }
-    };
-
-    // Commit transaction
-    tracing::debug!("Committing transaction");
-    match transaction.commit().await {
-        Ok(_) => tracing::debug!("Successfully committed transaction"),
-        Err(e) => {
-            tracing::error!("Failed to commit transaction: {}", e);
-            return Err(format!("Failed to commit transaction: {}", e));
-        }
-    }
-
-    match &result {
-        Ok(_r) => tracing::info!("Attachment tool execution completed successfully"),
-        Err(e) => tracing::warn!("Attachment tool execution failed: {}", e),
-    }
-
-    result
 }
 
 /// List all attachments

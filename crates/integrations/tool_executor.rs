@@ -1,4 +1,4 @@
-use crate::attachments::AttachmentsTool;
+use crate::attachments::{ListAttachmentsTool, ReadAttachmentsTool};
 use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
 use db::Pool;
@@ -48,16 +48,21 @@ pub fn get_tools(
     let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(TimeDateTool)];
     debug!("Added TimeDateTool");
 
-    // Add the AttachmentsTool if a pool is provided
+    // Add the attachment tools if a pool is provided
     if let Some(pool) = pool {
-        debug!("Adding AttachmentsTool with database pool");
-        tools.push(Arc::new(AttachmentsTool::new(
+        debug!("Adding attachment tools with database pool");
+        tools.push(Arc::new(ListAttachmentsTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        )));
+        tools.push(Arc::new(ReadAttachmentsTool::new(
             pool.clone(),
             sub,
             conversation_id,
         )));
     } else {
-        debug!("Skipping AttachmentsTool (no database pool provided)");
+        debug!("Skipping attachment tools (no database pool provided)");
     }
 
     info!("Returning {} tool instances", tools.len());
