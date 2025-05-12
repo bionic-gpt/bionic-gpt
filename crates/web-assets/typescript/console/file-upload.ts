@@ -169,11 +169,6 @@ export function fileUpload() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Clear the file list
-        selectedFiles.clear();
-        fileListContainer.innerHTML = '';
-        fileListContainer.style.display = 'none';
-
         // Handle the response - redirect to the URL returned by the server
         const redirectUrl = response.url;
         window.location.href = redirectUrl;
