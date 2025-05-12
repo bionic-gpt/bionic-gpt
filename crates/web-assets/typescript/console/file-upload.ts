@@ -142,11 +142,6 @@ export function fileUpload() {
       
       console.log('Form submission with files detected');
       
-      // Show progress bars
-      fileListContainer.querySelectorAll('.w-full.h-1.bg-gray-200').forEach(el => {
-        (el as HTMLElement).style.display = 'block';
-      });
-      
       // Create FormData from the form
       const formData = new FormData(form);
       
@@ -160,10 +155,6 @@ export function fileUpload() {
       });
       
       try {
-        // Show progress bars
-        fileListContainer.querySelectorAll('.w-full.h-1.bg-gray-200').forEach(el => {
-          (el as HTMLElement).style.display = 'block';
-        });
         
         console.log('Submitting form with files');
         
@@ -192,35 +183,4 @@ export function fileUpload() {
       }
     }
   });
-
-  // Simulate upload progress
-  async function simulateUploadProgress(progressCallback: (key: string, percent: number) => void): Promise<void> {
-    return new Promise((resolve) => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 10;
-        
-        // Update progress for all files
-        selectedFiles.forEach((_, key) => {
-          progressCallback(key, progress);
-        });
-        
-        if (progress >= 100) {
-          clearInterval(interval);
-          resolve();
-        }
-      }, 200); // Update every 200ms
-    });
-  }
-
-  // Update progress for a specific file
-  function updateProgress(key: string, percent: number) {
-    const fileItem = fileListContainer.querySelector(`[data-key="${key}"]`);
-    if (fileItem) {
-      const progressBar = fileItem.querySelector('.h-1.bg-blue-500') as HTMLElement;
-      if (progressBar) {
-        progressBar.style.width = `${percent}%`;
-      }
-    }
-  }
 }
