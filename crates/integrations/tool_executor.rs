@@ -1,4 +1,5 @@
-use crate::attachments::{ListAttachmentsTool, ReadAttachmentsTool};
+use crate::attachments_list::ListAttachmentsTool;
+use crate::attachments_read::ReadAttachmentsTool;
 use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
 use db::Pool;

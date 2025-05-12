@@ -22,6 +22,8 @@ pub fn AssistantConsole(
     is_tts_disabled: bool,
     lock_console: bool,
     capabilities: Vec<Capability>,
+    enabled_tools: Vec<String>,
+    available_tools: Vec<(String, String)>,
 ) -> Element {
     rsx! {
         Layout {
@@ -58,8 +60,8 @@ pub fn AssistantConsole(
                         conversation_id,
                         disclaimer: prompt.disclaimer,
                         capabilities,
-                        enabled_tools: Default::default(),
-                        available_tools: Default::default(),
+                        enabled_tools,
+                        available_tools,
                     },
                 }
             }

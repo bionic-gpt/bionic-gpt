@@ -32,7 +32,7 @@ pub struct Unstructured {
  * new_after_n_chars Cuts off new sections once they reach a length of "n" characters.
  * Unstructured Defaults to 1500.
  */
-pub async fn call_unstructured_api(
+pub async fn document_to_chunks(
     file: Vec<u8>,
     file_name: &str,
     combine_under_n_chars: u32,
@@ -70,6 +70,32 @@ pub async fn call_unstructured_api(
     }
 }
 
+#[allow(dead_code)]
+pub async fn document_to_markdown(
+    file: Vec<u8>,
+    file_name: &str,
+) -> Result<String, Box<dyn Error>> {
+    let client = Client::new();
+    let config = crate::config::Config::new();
+    let url = format!("{}/general/v0/general", config.unstructured_endpoint);
+
+    // Make form part of file
+    let some_file = multipart::Part::bytes(file).file_name(file_name.to_string());
+    let output_format = multipart::Part::text("markdown");
+
+    // Create the multipart form
+    let form = multipart::Form::new()
+        .part("files", some_file)
+        .part("output_format", output_format);
+
+    // Send request
+    let response = client.post(url).multipart(form).send().await?;
+    let text_result = response.text().await?;
+
+    // Since we're expecting markdown text directly, we just return the text
+    Ok(text_result)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -77,7 +103,7 @@ mod tests {
     #[tokio::test]
     async fn test_post_form_file() {
         let file = "Hello World\nline1".as_bytes().to_vec();
-        let get_json = call_unstructured_api(
+        let get_json = document_to_chunks(
             file,
             "hello.txt",
             500,
