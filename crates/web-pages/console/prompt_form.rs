@@ -25,8 +25,8 @@ pub fn Form(
         .iter()
         .any(|cap| cap.capability == ModelCapability::tool_use);
 
-    // Check if DANGER_JWT_OVERRIDE is set
-    let show_attach_button = env::var("DANGER_JWT_OVERRIDE").is_ok();
+    let show_tools_button = env::var("TOOL_INTEGRATIONS_FEATURE").is_ok();
+    let show_attach_button = has_tool_use;
 
     rsx! {
         div {
@@ -73,7 +73,7 @@ pub fn Form(
                                     id: "attach-button"
                                 }
                             }
-                            if has_tool_use {
+                            if has_tool_use && show_tools_button {
                                 ToolsButton {
                                     lock_console
                                 }

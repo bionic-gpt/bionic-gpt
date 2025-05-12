@@ -48,6 +48,8 @@ pub struct LayoutProps {
 pub fn Layout(props: LayoutProps) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
+    let show_integrations_menu = std::env::var("TOOL_INTEGRATIONS_FEATURE").is_ok();
+
     rsx! {
         super::base_layout::BaseLayout {
             title: props.title,
@@ -155,12 +157,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 icon: nav_phonebook_svg.name,
                                 title: "Model Setup"
                             }
-                            NavItem {
-                                id: SideBar::Integrations.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::integrations::Index { team_id: props.team_id },
-                                icon: nav_audit_svg.name,
-                                title: "Integrations"
+                            if show_integrations_menu {
+                                NavItem {
+                                    id: SideBar::Integrations.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::integrations::Index { team_id: props.team_id },
+                                    icon: nav_audit_svg.name,
+                                    title: "Integrations"
+                                }
                             }
                             NavItem {
                                 id: SideBar::AuditTrail.to_string(),
@@ -176,13 +180,6 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 icon: limits_svg.name,
                                 title: "Rate Limits"
                             }
-                            /***NavItem {
-                                id: SideBar::Security.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::security::routes::Index { team_id: props.team_id },
-                                icon: security_svg.name,
-                                title: "Security & Encryption"
-                            }**/
                         )
                     }
                 }
