@@ -4,6 +4,7 @@ use axum::response::Html;
 use db::queries::{capabilities, chats, chats_chunks, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
+use llm_proxy::UserConfig;
 use web_pages::console::ChatWithChunks;
 use web_pages::routes::prompts::Conversation;
 
@@ -14,6 +15,7 @@ pub async fn conversation(
         prompt_id,
     }: Conversation,
     current_user: Jwt,
+    user_config: UserConfig,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
@@ -61,6 +63,10 @@ pub async fn conversation(
         .bind(&transaction, &prompt.model_id)
         .all()
         .await?;
+    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
+
+    let available_tools: Vec<(String, String)> =
+        integrations::get_user_selectable_tools_for_chat_ui();
 
     let html = web_pages::prompts::conversation::page(
         team_id,
@@ -71,6 +77,8 @@ pub async fn conversation(
         lock_console,
         is_tts_disabled,
         capabilities,
+        enabled_tools,
+        available_tools,
     );
 
     Ok(Html(html))
