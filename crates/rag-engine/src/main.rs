@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .one()
                 .await?;
 
-            let structured_data = crate::unstructured::call_unstructured_api(
+            let structured_data = crate::unstructured::document_to_chunks(
                 document.content,
                 &document.file_name,
                 dataset.combine_under_n_chars as u32,

@@ -2842,6 +2842,7 @@ dependencies = [
  "image",
  "md5",
  "mime_guess",
+ "rag-engine",
 ]
 
 [[package]]
