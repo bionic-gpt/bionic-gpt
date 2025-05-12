@@ -2,7 +2,8 @@
 //!
 //! This crate provides integration with external services and tools.
 
-pub mod attachments;
+pub mod attachments_list;
+pub mod attachments_read;
 pub mod time_date;
 pub mod tool;
 pub mod tool_executor;

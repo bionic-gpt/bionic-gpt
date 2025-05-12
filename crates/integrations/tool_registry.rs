@@ -1,5 +1,6 @@
 // Import the tool trait and time date tool
-use crate::attachments::{get_list_attachments_tool, get_read_attachment_tool};
+use crate::attachments_list::get_list_attachments_tool;
+use crate::attachments_read::get_read_attachment_tool;
 use crate::time_date::get_time_date_tool;
 use openai_api::BionicToolDefinition;
 
