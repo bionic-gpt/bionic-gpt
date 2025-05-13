@@ -8,8 +8,8 @@ use axum_extra::routing::RouterExt;
 use db::authz;
 use db::queries;
 use db::Pool;
-use serde::Deserialize;
 use validator::Validate;
+use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::{Delete, Index, Upsert};
 
 pub fn routes() -> Router {
@@ -50,7 +50,9 @@ pub async fn new_edit_action(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let html = web_pages::integrations::upsert::page(team_id, rbac, None);
+    let integration_form = IntegrationForm::default();
+
+    let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
 
     Ok(Html(html))
 }
@@ -75,12 +77,6 @@ pub async fn delete_action(
         &web_pages::routes::integrations::Index { team_id }.to_string(),
         "Integration Deleted",
     )
-}
-
-#[derive(Deserialize, Validate, Default, Debug)]
-pub struct IntegrationForm {
-    pub id: Option<i32>,
-    pub name: String,
 }
 
 pub async fn upsert_action(
