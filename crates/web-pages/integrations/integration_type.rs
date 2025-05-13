@@ -20,5 +20,12 @@ pub fn Integration(integration_type: IntegrationType) -> Element {
                 "Built In"
             }
         ),
+        IntegrationType::OpenAPI => rsx!(
+            Label {
+                class: "truncate",
+                label_role: LabelRole::Info,
+                "Open API"
+            }
+        ),
     }
 }

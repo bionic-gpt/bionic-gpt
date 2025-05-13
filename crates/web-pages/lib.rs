@@ -5,6 +5,7 @@ pub mod api_keys;
 pub mod app_layout;
 pub mod audit_trail;
 pub mod base_layout;
+pub mod button;
 pub mod console;
 pub mod datasets;
 pub mod documents;
@@ -271,8 +272,8 @@ pub mod routes {
         }
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/app/team/{team_id}/integrations/new")]
-        pub struct New {
+        #[typed_path("/app/team/{team_id}/integrations/upsert")]
+        pub struct Upsert {
             pub team_id: i32,
         }
 

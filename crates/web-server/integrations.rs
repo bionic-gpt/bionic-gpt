@@ -5,18 +5,52 @@ use axum::response::IntoResponse;
 use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
-use db::authz;
-use db::queries;
-use db::Pool;
-use serde::Deserialize;
+use db::{authz, queries, Json, Pool};
 use validator::Validate;
-use web_pages::routes::integrations::Delete;
-use web_pages::routes::integrations::Index;
-use web_pages::routes::integrations::New;
+use web_pages::integrations::upsert::IntegrationForm;
+use web_pages::routes::integrations::{Delete, Index, Upsert};
+
+/// Fetches and parses an OpenAPI specification from a URL.
+///
+/// This function will:
+/// 1. Fetch the content from the provided URL
+/// 2. Parse it as JSON using the oas3 crate
+/// 3. Return the parsed specification as JSON or an error
+async fn fetch_and_parse_openapi(base_url: &str) -> Result<Json<String>, String> {
+    // Fetch the content from the base_url
+    let response = match reqwest::get(base_url).await {
+        Ok(resp) => resp,
+        Err(e) => return Err(format!("Failed to fetch OpenAPI spec: {}", e)),
+    };
+
+    dbg!(&response);
+
+    if !response.status().is_success() {
+        return Err(format!(
+            "Failed to fetch OpenAPI spec: HTTP {}",
+            response.status()
+        ));
+    }
+
+    let content = match response.text().await {
+        Ok(text) => text,
+        Err(e) => return Err(format!("Failed to read response: {}", e)),
+    };
+
+    // Parse as JSON
+    match oas3::from_json(&content) {
+        Ok(_spec) => {
+            // Successfully parsed as JSON
+            Ok(Json(content))
+        }
+        Err(e) => Err(format!("Invalid OpenAPI JSON: {}", e)),
+    }
+}
 
 pub fn routes() -> Router {
     Router::new()
         .typed_get(loader)
+        .typed_get(new_edit_action)
         .typed_post(upsert_action)
         .typed_post(delete_action)
 }
@@ -37,6 +71,23 @@ pub async fn loader(
         .await?;
 
     let html = web_pages::integrations::index::page(team_id, rbac, integrations);
+
+    Ok(Html(html))
+}
+
+pub async fn new_edit_action(
+    Upsert { team_id }: Upsert,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let integration_form = IntegrationForm::default();
+
+    let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
 
     Ok(Html(html))
 }
@@ -63,35 +114,33 @@ pub async fn delete_action(
     )
 }
 
-#[derive(Deserialize, Validate, Default, Debug)]
-pub struct IntegrationForm {
-    pub id: Option<i32>,
-    #[validate(length(min = 1, message = "The name is mandatory"))]
-    pub name: String,
-    pub integration_type: String,
-    pub integration_status: String,
-}
-
 pub async fn upsert_action(
-    New { team_id }: New,
+    Upsert { team_id }: Upsert,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
-    Form(integration_form): Form<IntegrationForm>,
+    Form(mut integration_form): Form<IntegrationForm>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let integration_type = match integration_form.integration_type.as_str() {
-        "MCP Server" => db::IntegrationType::MCP_Server,
-        _ => db::IntegrationType::BuiltIn,
-    };
+    let integration_type = db::IntegrationType::OpenAPI;
 
-    let integration_status = match integration_form.integration_status.as_str() {
-        "Configured" => db::IntegrationStatus::Configured,
-        _ => db::IntegrationStatus::AwaitingConfiguration,
-    };
+    // Fetch and parse the OpenAPI specification
+    let (definition, integration_status) =
+        match fetch_and_parse_openapi(&integration_form.base_url).await {
+            Ok(spec) => (Some(spec), db::IntegrationStatus::Configured),
+            Err(error) => {
+                // If there's an error, return to the form with the error message
+                integration_form.error = Some(error);
+                let html =
+                    web_pages::integrations::upsert::page(team_id, permissions, integration_form);
+                return Ok(Html(html).into_response());
+            }
+        };
+
+    let none: Option<Json<String>> = None;
 
     match (integration_form.validate(), integration_form.id) {
         (Ok(_), Some(integration_id)) => {
@@ -100,6 +149,8 @@ pub async fn upsert_action(
                 .bind(
                     &transaction,
                     &integration_form.name,
+                    &none,       // configuration
+                    &definition, // definition
                     &integration_type,
                     &integration_status,
                     &integration_id,
@@ -120,6 +171,8 @@ pub async fn upsert_action(
                 .bind(
                     &transaction,
                     &integration_form.name,
+                    &none,       // configuration
+                    &definition, // definition
                     &integration_type,
                     &integration_status,
                 )

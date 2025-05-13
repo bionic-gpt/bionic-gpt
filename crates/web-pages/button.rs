@@ -25,6 +25,7 @@ impl ButtonScheme {
 pub enum ButtonType {
     Submit,
     Reset,
+    Link,
     #[default]
     Button,
 }
@@ -35,6 +36,7 @@ impl ButtonType {
             ButtonType::Submit => "submit",
             ButtonType::Reset => "reset",
             ButtonType::Button => "button",
+            ButtonType::Link => "button",
         }
     }
 }
@@ -85,6 +87,7 @@ pub struct ButtonProps {
     id: Option<String>,
     disabled: Option<bool>,
     class: Option<String>,
+    href: Option<String>,
     prefix_image_src: Option<String>,
     suffix_image_src: Option<String>,
     button_type: Option<ButtonType>,
@@ -147,28 +150,51 @@ pub fn Button(props: ButtonProps) -> Element {
         button_shape.to_string()
     );
 
-    rsx!(
-        button {
-            class: "{class}",
-            id: props.id,
-            disabled: disabled,
-            "data-drawer-target": props.drawer_trigger,
-            "data-modal-target": props.modal_trigger,
-            "type": "{button_type}",
-            "data-disabled-text": props.disabled_text,
-            if let Some(img_src) = props.prefix_image_src {
-                    img {
-                        src: "{img_src}",
-                        class: "h-5 w-5",
-                    }
-            },
-            {props.children},
-            if let Some(img_src) = props.suffix_image_src {
-                    img {
-                        src: "{img_src}",
-                        class: "h-5 w-5",
-                    }
+    if props.button_type == Some(ButtonType::Link) {
+        rsx!(
+            a {
+                class: "{class}",
+                id: props.id,
+                href: props.href,
+                if let Some(img_src) = props.prefix_image_src {
+                        img {
+                            src: "{img_src}",
+                            class: "h-5 w-5",
+                        }
+                },
+                {props.children},
+                if let Some(img_src) = props.suffix_image_src {
+                        img {
+                            src: "{img_src}",
+                            class: "h-5 w-5",
+                        }
+                }
             }
-        }
-    )
+        )
+    } else {
+        rsx!(
+            button {
+                class: "{class}",
+                id: props.id,
+                disabled: disabled,
+                "data-drawer-target": props.drawer_trigger,
+                "data-modal-target": props.modal_trigger,
+                "type": "{button_type}",
+                "data-disabled-text": props.disabled_text,
+                if let Some(img_src) = props.prefix_image_src {
+                        img {
+                            src: "{img_src}",
+                            class: "h-5 w-5",
+                        }
+                },
+                {props.children},
+                if let Some(img_src) = props.suffix_image_src {
+                        img {
+                            src: "{img_src}",
+                            class: "h-5 w-5",
+                        }
+                }
+            }
+        )
+    }
 }

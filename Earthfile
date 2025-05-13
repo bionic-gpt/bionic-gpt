@@ -172,3 +172,14 @@ build-cli-windows:
     RUN cd k8s-operator \ 
         && cargo build --release --target x86_64-pc-windows-gnu
     SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
+
+# docker run -p 8000:8000 bionic-gpt/openapi-time:latest
+openapi-time:
+    FROM mcp/time:latest
+
+    RUN pip install mcpo uv
+
+    # Default command to run the Python proxy
+    ENTRYPOINT ["uvx", "mcpo", "--host", "0.0.0.0", "--port", "8000", "--", "mcp-server-time","--local-timezone=America/New_York"]
+
+    SAVE IMAGE --push bionic-gpt/openapi-time:latest

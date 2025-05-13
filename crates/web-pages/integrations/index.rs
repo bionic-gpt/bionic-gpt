@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::routes;
 use assets::files::*;
-use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::integrations::Integration;
 use dioxus::prelude::*;
@@ -16,37 +16,18 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<Integration>) -> String 
             title: "Integrations",
             header: rsx!(
                 h3 { "Integrations" }
-                if std::env::var("DANGER_JWT_OVERRIDE").is_ok() {
-                    Button {
-                        prefix_image_src: "{button_plus_svg.name}",
-                        drawer_trigger: "new-integration-form",
-                        button_scheme: ButtonScheme::Primary,
-                        "Add Integration"
-                    }
+                crate::button::Button {
+                    button_type: crate::button::ButtonType::Link,
+                    prefix_image_src: "{button_plus_svg.name}",
+                    href: routes::integrations::Upsert{team_id}.to_string(),
+                    button_scheme: crate::button::ButtonScheme::Primary,
+                    "Add Integration"
                 }
             ),
 
             super::integration_table::IntegrationTable {
                 integrations: integrations.clone(),
                 team_id: team_id
-            }
-
-            // The form to create a model
-            super::form::Form {
-                team_id: team_id,
-                trigger_id: "new-integration-form".to_string(),
-                name: "".to_string(),
-                integration_type: "MCP Server".to_string(),
-            }
-
-            for integration in &integrations {
-                super::form::Form {
-                    id: integration.id,
-                    team_id: team_id,
-                    trigger_id: format!("edit-integration-form-{}", integration.id),
-                    name: integration.name.clone(),
-                    integration_type: super::integration_type(integration.integration_type),
-                }
             }
 
             for item in &integrations {
