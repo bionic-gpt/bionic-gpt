@@ -31,24 +31,30 @@ WHERE
 ORDER BY updated_at;
 
 
---! insert
+--! insert(configuration?, definition?)
 INSERT INTO integrations (
     name,
+    configuration,
+    definition,
     integration_type,
     integration_status
 )
 VALUES(
     :name,
+    :configuration,
+    :definition,
     :integration_type,
     :integration_status
 )
 RETURNING id;
 
---! update
+--! update(configuration?, definition?)
 UPDATE 
     integrations 
 SET 
     name = :name,
+    configuration = :configuration,
+    definition = :definition,
     integration_type = :integration_type,
     integration_status = :integration_status
 WHERE

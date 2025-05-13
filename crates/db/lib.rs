@@ -6,8 +6,6 @@ use std::str::FromStr;
 
 pub use cornucopia_async::Params;
 pub use deadpool_postgres::{Pool, PoolError, Transaction};
-pub use tokio_postgres::Error as TokioPostgresError;
-
 pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::{AuditTrail, TopUser};
 pub use queries::categories::Category;
@@ -24,6 +22,8 @@ pub use queries::rate_limits::RateLimit;
 pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};
 pub use queries::users::User;
+pub use tokio_postgres::types::Json;
+pub use tokio_postgres::Error as TokioPostgresError;
 pub use types::public::{
     AuditAccessType, AuditAction, ChatStatus, IntegrationStatus, IntegrationType, ModelCapability,
     ModelType, Permission, PromptType, Role, Visibility,

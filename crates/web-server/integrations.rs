@@ -5,9 +5,7 @@ use axum::response::IntoResponse;
 use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
-use db::authz;
-use db::queries;
-use db::Pool;
+use db::{authz, queries, Json, Pool};
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::{Delete, Index, Upsert};
@@ -94,6 +92,8 @@ pub async fn upsert_action(
 
     let integration_status = db::IntegrationStatus::AwaitingConfiguration;
 
+    let none: Option<Json<String>> = None;
+
     match (integration_form.validate(), integration_form.id) {
         (Ok(_), Some(integration_id)) => {
             // The form is valid, update the integration
@@ -101,6 +101,8 @@ pub async fn upsert_action(
                 .bind(
                     &transaction,
                     &integration_form.name,
+                    &none,
+                    &none,
                     &integration_type,
                     &integration_status,
                     &integration_id,
@@ -121,6 +123,8 @@ pub async fn upsert_action(
                 .bind(
                     &transaction,
                     &integration_form.name,
+                    &none,
+                    &none,
                     &integration_type,
                     &integration_status,
                 )
