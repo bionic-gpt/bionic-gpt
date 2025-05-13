@@ -11,6 +11,8 @@ pub struct IntegrationForm {
     pub id: Option<i32>,
     pub base_url: String,
     pub name: String,
+    #[serde(skip)]
+    pub error: Option<String>,
 }
 
 pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
@@ -32,6 +34,14 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
                         "type": "hidden",
                         value: "{id}",
                         name: "id"
+                    }
+                }
+
+                // Display error if present
+                if let Some(error) = &integration.error {
+                    div {
+                        class: "alert alert-error",
+                        "{error}"
                     }
                 }
 

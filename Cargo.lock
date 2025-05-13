@@ -5236,6 +5236,7 @@ dependencies = [
  "openai-api",
  "pgvector 0.4.0",
  "rand 0.9.1",
+ "reqwest",
  "serde",
  "serde_json",
  "sha2",
