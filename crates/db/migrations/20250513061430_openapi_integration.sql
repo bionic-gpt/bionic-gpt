@@ -1,11 +1,9 @@
 -- migrate:up
 
 ALTER TABLE integrations
-    ADD COLUMN definition JSONB,
-    ADD COLUMN api_key VARCHAR;
+    ADD COLUMN definition JSONB;
 
 -- migrate:down
 
 ALTER TABLE integrations
-DROP COLUMN definition,
-DROP COLUMN api_key;
+DROP COLUMN definition;

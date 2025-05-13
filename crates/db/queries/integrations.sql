@@ -1,4 +1,4 @@
---: Integration(configuration?)
+--: Integration(configuration?, definition?)
 
 --! integrations : Integration
 SELECT
@@ -7,6 +7,7 @@ SELECT
     integration_type,
     integration_status,
     configuration,
+    definition,
     created_at,
     updated_at
 FROM 
@@ -20,6 +21,7 @@ SELECT
     integration_type,
     integration_status,
     configuration,
+    definition,
     created_at,
     updated_at
 FROM 

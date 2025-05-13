@@ -110,8 +110,8 @@ pub fn Form(
 #[component]
 fn ToolsButton(lock_console: bool) -> Element {
     rsx! {
-        super::button::Button {
-            button_scheme: super::button::ButtonScheme::Outline,
+        crate::button::Button {
+            button_scheme: crate::button::ButtonScheme::Outline,
             disabled: lock_console, // Enable if tool_use capability is present
             prefix_image_src: tools_svg.name,
             modal_trigger: "tool-modal",
@@ -123,12 +123,12 @@ fn ToolsButton(lock_console: bool) -> Element {
 #[component]
 fn SpeechToTextButton(lock_console: bool) -> Element {
     rsx! {
-        super::button::Button {
+        crate::button::Button {
             id: "speech-to-text-button",
             class: "hidden",
             disabled: lock_console,
-            button_scheme: super::button::ButtonScheme::Outline,
-            button_shape: super::button::ButtonShape::Circle,
+            button_scheme: crate::button::ButtonScheme::Outline,
+            button_shape: crate::button::ButtonShape::Circle,
             prefix_image_src: microphone_svg.name,
             suffix_image_src: stop_recording_svg.name,
         }
@@ -138,10 +138,10 @@ fn SpeechToTextButton(lock_console: bool) -> Element {
 #[component]
 fn AttachButton(lock_console: bool, id: &'static str) -> Element {
     rsx! {
-        super::button::Button {
+        crate::button::Button {
             id: id,
-            button_scheme: super::button::ButtonScheme::Outline,
-            button_shape: super::button::ButtonShape::Circle,
+            button_scheme: crate::button::ButtonScheme::Outline,
+            button_shape: crate::button::ButtonShape::Circle,
             disabled: lock_console,
             prefix_image_src: attach_svg.name
         }
@@ -152,17 +152,17 @@ fn AttachButton(lock_console: bool, id: &'static str) -> Element {
 fn SendMessageButton(lock_console: bool) -> Element {
     rsx! {
         if lock_console {
-            super::button::Button {
-                button_scheme: super::button::ButtonScheme::Primary,
-                button_shape: super::button::ButtonShape::Circle,
+            crate::button::Button {
+                button_scheme: crate::button::ButtonScheme::Primary,
+                button_shape: crate::button::ButtonShape::Circle,
                 id: "streaming-button",
                 prefix_image_src: streaming_stop_svg.name
             }
         } else {
-            super::button::Button {
-                button_type: super::button::ButtonType::Submit,
-                button_scheme: super::button::ButtonScheme::Primary,
-                button_shape: super::button::ButtonShape::Circle,
+            crate::button::Button {
+                button_type: crate::button::ButtonType::Submit,
+                button_scheme: crate::button::ButtonScheme::Primary,
+                button_shape: crate::button::ButtonShape::Circle,
                 id: "prompt-submit-button",
                 disabled: lock_console,
                 prefix_image_src: submit_button_svg.name

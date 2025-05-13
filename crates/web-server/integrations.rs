@@ -10,13 +10,12 @@ use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::integrations::Delete;
-use web_pages::routes::integrations::Index;
-use web_pages::routes::integrations::New;
+use web_pages::routes::integrations::{Delete, Index, Upsert};
 
 pub fn routes() -> Router {
     Router::new()
         .typed_get(loader)
+        .typed_get(new_edit_action)
         .typed_post(upsert_action)
         .typed_post(delete_action)
 }
@@ -37,6 +36,21 @@ pub async fn loader(
         .await?;
 
     let html = web_pages::integrations::index::page(team_id, rbac, integrations);
+
+    Ok(Html(html))
+}
+
+pub async fn new_edit_action(
+    Upsert { team_id }: Upsert,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let html = web_pages::integrations::upsert::page(team_id, rbac, None);
 
     Ok(Html(html))
 }
@@ -73,7 +87,7 @@ pub struct IntegrationForm {
 }
 
 pub async fn upsert_action(
-    New { team_id }: New,
+    Upsert { team_id }: Upsert,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(integration_form): Form<IntegrationForm>,
