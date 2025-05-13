@@ -80,10 +80,7 @@ pub async fn delete_action(
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct IntegrationForm {
     pub id: Option<i32>,
-    #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
-    pub integration_type: String,
-    pub integration_status: String,
 }
 
 pub async fn upsert_action(
@@ -97,15 +94,9 @@ pub async fn upsert_action(
     let transaction = client.transaction().await?;
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let integration_type = match integration_form.integration_type.as_str() {
-        "MCP Server" => db::IntegrationType::MCP_Server,
-        _ => db::IntegrationType::BuiltIn,
-    };
+    let integration_type = db::IntegrationType::OpenAPI;
 
-    let integration_status = match integration_form.integration_status.as_str() {
-        "Configured" => db::IntegrationStatus::Configured,
-        _ => db::IntegrationStatus::AwaitingConfiguration,
-    };
+    let integration_status = db::IntegrationStatus::AwaitingConfiguration;
 
     match (integration_form.validate(), integration_form.id) {
         (Ok(_), Some(integration_id)) => {
