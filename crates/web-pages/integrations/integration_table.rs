@@ -2,9 +2,14 @@
 use daisy_rsx::*;
 use db::Integration;
 use dioxus::prelude::*;
+use integrations::IntegrationTool;
 
 #[component]
-pub fn IntegrationTable(integrations: Vec<Integration>, team_id: i32) -> Element {
+pub fn IntegrationTable(
+    integrations: Vec<Integration>,
+    tool_integrations: Vec<IntegrationTool>,
+    team_id: i32,
+) -> Element {
     rsx!(
         Card {
             class: "has-data-table",
@@ -28,6 +33,22 @@ pub fn IntegrationTable(integrations: Vec<Integration>, team_id: i32) -> Element
                         }
                     }
                     tbody {
+                        for integration in &tool_integrations {
+                            tr {
+                                td {
+                                    strong {
+                                        "{integration.title}"
+                                    }
+                                }
+                                td {
+
+                                }
+                                td {
+                                }
+                                td {
+                                }
+                            }
+                        }
                         for integration in &integrations {
                             tr {
                                 td {

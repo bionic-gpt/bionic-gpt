@@ -5,8 +5,14 @@ use assets::files::*;
 use db::authz::Rbac;
 use db::queries::integrations::Integration;
 use dioxus::prelude::*;
+use integrations::IntegrationTool;
 
-pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<Integration>) -> String {
+pub fn page(
+    team_id: i32,
+    rbac: Rbac,
+    integrations: Vec<Integration>,
+    tool_integrations: Vec<IntegrationTool>,
+) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -27,6 +33,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<Integration>) -> String 
 
             super::integration_table::IntegrationTable {
                 integrations: integrations.clone(),
+                tool_integrations,
                 team_id: team_id
             }
 

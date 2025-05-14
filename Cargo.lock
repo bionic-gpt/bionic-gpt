@@ -5207,6 +5207,7 @@ dependencies = [
  "db",
  "dioxus",
  "dioxus-ssr",
+ "integrations",
  "openai-api",
  "serde",
  "serde_json",

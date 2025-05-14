@@ -6,6 +6,7 @@ use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Json, Pool};
+use integrations;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::{Delete, Index, Upsert};
@@ -65,12 +66,14 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    let tool_integrations = integrations::get_all_integrations();
+
     let integrations = queries::integrations::integrations()
         .bind(&transaction)
         .all()
         .await?;
 
-    let html = web_pages::integrations::index::page(team_id, rbac, integrations);
+    let html = web_pages::integrations::index::page(team_id, rbac, integrations, tool_integrations);
 
     Ok(Html(html))
 }
