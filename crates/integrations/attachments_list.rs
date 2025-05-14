@@ -153,7 +153,7 @@ async fn list_attachments(
         "attachments": attachments.iter().map(|a| {
             tracing::debug!("Processing attachment: id={}, name={}, size={}", a.id, a.file_name, a.file_size);
             json!({
-                "id": a.id,
+                "file_id": a.id,
                 "name": a.file_name,
                 "size": a.file_size,
                 "mime_type": a.mime_type

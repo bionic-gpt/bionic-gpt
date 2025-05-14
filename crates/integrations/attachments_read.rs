@@ -88,22 +88,14 @@ impl ToolInterface for ReadAttachmentsTool {
             }
         }
 
-        let file_id = match args["file_id"].as_str() {
+        let file_id = match args["file_id"].as_i64() {
             Some(id) => {
                 tracing::debug!("Reading attachment with file_id: {}", id);
-                id
+                id as i32
             }
             None => {
                 tracing::warn!("Missing file_id parameter");
                 return Err("Missing file_id parameter".to_string());
-            }
-        };
-
-        let file_id = match file_id.parse::<i32>() {
-            Ok(id) => id,
-            Err(e) => {
-                tracing::warn!("Invalid file_id: {}", e);
-                return Err(format!("Invalid file_id: {}", e));
             }
         };
 
@@ -153,7 +145,7 @@ pub fn get_read_attachment_tool() -> BionicToolDefinition {
                 "properties": {
                     "file_id": {
                         "type": "integer",
-                        "description": "ID of the attachment to read"
+                        "description": "ID of the attachment to read this is the file_id in the results of a call to list_attachments"
                     },
                     "offset": {
                         "type": "integer",
