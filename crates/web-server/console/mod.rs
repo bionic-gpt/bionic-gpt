@@ -5,8 +5,11 @@ mod send_message;
 mod set_default_prompt;
 mod set_tools;
 mod update_response;
+mod utils;
+
 use axum::{extract::DefaultBodyLimit, Router};
 use axum_extra::routing::RouterExt;
+pub use utils::process_chats;
 
 pub fn routes() -> Router {
     Router::new()

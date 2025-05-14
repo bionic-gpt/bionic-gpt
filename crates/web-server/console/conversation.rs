@@ -1,14 +1,11 @@
 use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{capabilities, chats, chats_chunks, models, prompts};
+use db::queries::{capabilities, chats, models, prompts};
+use db::Pool;
 use db::{authz, ModelType};
-use db::{Chat, Pool};
 use integrations;
 use llm_proxy::user_config::UserConfig;
-use openai_api::ToolCall;
-use serde_json::from_str;
-use web_pages::console::ChatWithChunks;
 use web_pages::{console, routes::console::Conversation};
 
 pub async fn conversation(
@@ -36,34 +33,8 @@ pub async fn conversation(
         .await?
         .is_empty();
 
-    let mut chat_history: Vec<ChatWithChunks> = Vec::new();
-    let pending_chat: Option<Chat> = None;
-
-    // Get the last chat index for comparison
-    let last_chat_index = chats.len().saturating_sub(1);
-
-    for (index, chat) in chats.into_iter().enumerate() {
-        // Get all chunks for each chat
-        let chunks_chats = chats_chunks::chunks_chats()
-            .bind(&transaction, &chat.id)
-            .all()
-            .await?;
-
-        // Set tool_calls only if this is the last chat and tool_calls is Some
-        let tool_calls = if index == last_chat_index && chat.tool_calls.is_some() {
-            // Parse the tool_calls JSON string into a Vec<ToolCall>
-            from_str::<Vec<ToolCall>>(&chat.tool_calls.clone().unwrap()).ok()
-        } else {
-            None
-        };
-
-        let chat_with_chunks = ChatWithChunks {
-            chat,
-            chunks: chunks_chats,
-            tool_calls,
-        };
-        chat_history.push(chat_with_chunks);
-    }
+    // Process chats to get chat_history and pending_chat
+    let (chat_history, pending_chat) = super::utils::process_chats(&transaction, chats).await?;
 
     let prompts = prompts::prompts()
         .bind(&transaction, &team_id, &db::PromptType::Model)
