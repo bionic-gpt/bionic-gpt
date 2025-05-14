@@ -3,6 +3,35 @@ use crate::attachments_list::get_list_attachments_tool;
 use crate::attachments_read::get_read_attachment_tool;
 use crate::time_date::get_time_date_tool;
 use openai_api::BionicToolDefinition;
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+pub enum ToolScope {
+    UserSelectable,
+    DocumentIntelligence,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+pub struct IntegrationTool {
+    pub title: String,
+    pub scope: ToolScope,
+    pub definitions: Vec<BionicToolDefinition>,
+}
+
+pub fn get_all_integrations() -> Vec<IntegrationTool> {
+    vec![
+        IntegrationTool {
+            scope: ToolScope::UserSelectable,
+            title: "Date and time tools".into(),
+            definitions: vec![get_time_date_tool()],
+        },
+        IntegrationTool {
+            scope: ToolScope::DocumentIntelligence,
+            title: "Tools to retrieve documents and read their contents.".into(),
+            definitions: vec![get_list_attachments_tool(), get_read_attachment_tool()],
+        },
+    ]
+}
 
 pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
     vec![get_list_attachments_tool(), get_read_attachment_tool()]

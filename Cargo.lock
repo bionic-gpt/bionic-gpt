@@ -1219,7 +1219,6 @@ version = "0.1.0"
 dependencies = [
  "reqwest",
  "serde",
- "tiktoken-rs",
  "tokio",
  "tracing",
 ]
@@ -5208,6 +5207,7 @@ dependencies = [
  "db",
  "dioxus",
  "dioxus-ssr",
+ "integrations",
  "openai-api",
  "serde",
  "serde_json",

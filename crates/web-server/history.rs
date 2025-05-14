@@ -17,7 +17,6 @@ pub async fn loader(
     Index { team_id }: Index,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
-    Extension(config): Extension<crate::config::Config>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -26,7 +25,7 @@ pub async fn loader(
 
     let history = conversations::history().bind(&transaction).all().await?;
 
-    let html = history::index::page(rbac, team_id, history, config.enable_history_search);
+    let html = history::index::page(rbac, team_id, history);
 
     Ok(Html(html))
 }

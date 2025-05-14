@@ -2,7 +2,6 @@ use reqwest::header::AUTHORIZATION;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use tiktoken_rs::{num_tokens_from_messages, ChatCompletionRequestMessage};
 
 #[derive(Debug, Deserialize)]
 pub struct EmbeddingData {
@@ -41,6 +40,9 @@ pub struct Embedding {
 
 /// Trims the input text to fit within the specified context length.
 /// If context_length is zero or negative, a default value will be used.
+/// Trims the input text to fit within the specified context length.
+/// If context_length is zero or negative, a default value will be used.
+/// Uses a simple 1:1 character-to-token ratio for efficiency.
 fn trim_to_context_length(input: &str, context_length: i32, _model: &str) -> String {
     // Handle empty input
     if input.is_empty() {
@@ -54,87 +56,35 @@ fn trim_to_context_length(input: &str, context_length: i32, _model: &str) -> Str
         context_length
     };
 
-    // Create a ChatCompletionRequestMessage to count tokens
-    let request = ChatCompletionRequestMessage {
-        role: "user".to_string(),
-        content: Some(input.to_string()),
-        name: None,
-        function_call: None,
-    };
+    // Get the character count
+    let char_count = input.chars().count() as i32;
 
-    // Count tokens using num_tokens_from_messages
-    let token_count = num_tokens_from_messages("gpt-4", &[request.clone()]).unwrap() as i32;
-
-    // If token count is within context length, return the original input
-    if token_count <= effective_context_length {
+    // If character count is within context length, return the original input
+    if char_count <= effective_context_length {
         tracing::info!(
-            "Input has {} tokens, which is within context length {}",
-            token_count,
+            "Input has {} characters, which is within context length {}",
+            char_count,
             effective_context_length
         );
         return input.to_string();
     }
 
-    // If we need to trim, we'll use a binary search approach to find the right cutoff point
+    // If we need to trim, simply truncate the string
     tracing::info!(
-        "Input has {} tokens, trimming to context length {}",
-        token_count,
+        "Input has {} characters, trimming to context length {}",
+        char_count,
         effective_context_length
     );
 
-    // We'll use a different approach to handle Unicode characters correctly
-    // Start with a small chunk and gradually increase it until we hit the token limit
-    let chars: Vec<char> = input.chars().collect();
-    let mut result = String::new();
-    let mut current_token_count = 0;
-
-    // Start with a small chunk size and increase it gradually
-    let mut chunk_size = 1;
-    while chunk_size <= chars.len() {
-        let chunk: String = chars[0..chunk_size].iter().collect();
-
-        let request = ChatCompletionRequestMessage {
-            role: "user".to_string(),
-            content: Some(chunk.clone()),
-            name: None,
-            function_call: None,
-        };
-
-        let chunk_token_count = num_tokens_from_messages("gpt-4", &[request]).unwrap() as i32;
-
-        if chunk_token_count <= effective_context_length {
-            // This chunk fits, save it and try a larger one
-            result = chunk;
-            current_token_count = chunk_token_count;
-            chunk_size = (chunk_size * 3) / 2; // Increase by 50%
-
-            // Make sure we don't go out of bounds
-            if chunk_size > chars.len() {
-                chunk_size = chars.len();
-            }
-        } else {
-            // This chunk is too large, try a smaller one
-            // If we're already at the smallest size, we can't do anything more
-            if chunk_size <= 1 {
-                break;
-            }
-
-            // Try a smaller chunk size
-            chunk_size = (chunk_size * 2) / 3; // Decrease by 33%
-            if chunk_size < 1 {
-                chunk_size = 1;
-            }
-        }
-
-        // If we've processed all characters, we're done
-        if chunk_size == chars.len() && current_token_count <= effective_context_length {
-            break;
-        }
-    }
+    // Collect characters up to the effective_context_length
+    let result: String = input
+        .chars()
+        .take(effective_context_length as usize)
+        .collect();
 
     tracing::info!(
-        "Trimmed input from {} to approximately {} tokens",
-        token_count,
+        "Trimmed input from {} to {} characters",
+        char_count,
         effective_context_length
     );
     result
