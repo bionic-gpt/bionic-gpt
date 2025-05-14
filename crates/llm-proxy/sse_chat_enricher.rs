@@ -57,7 +57,13 @@ pub async fn enriched_chat(
                     let delta: ChatCompletionDelta = serde_json::from_str(&message.data)?;
 
                     match merged.as_mut() {
-                        Some(c) => c.merge(delta.clone()).unwrap(),
+                        Some(c) => {
+                            if let Err(err) = c.merge(delta.clone()) {
+                                // Log the error but continue with the new delta
+                                tracing::warn!("Error merging delta: {:?}, using new delta", err);
+                                *c = delta.clone();
+                            }
+                        }
                         None => merged = Some(delta.clone()),
                     }
 
