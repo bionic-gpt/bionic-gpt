@@ -8,23 +8,24 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::{Prompt, SinglePrompt};
+use db::Chat;
 use dioxus::prelude::*;
 
 pub fn page(
     team_id: i32,
     rbac: Rbac,
-    chats_with_chunks: Vec<ChatWithChunks>,
+    chat_history: Vec<ChatWithChunks>,
+    pending_chat: Option<Chat>,
     prompts: Vec<Prompt>,
     prompt: SinglePrompt,
     conversation_id: i64,
-    lock_console: bool,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
     available_tools: Vec<(String, String)>,
 ) -> String {
     // Rerverse it because that's how we display it.
-    let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
+    let chat_history: Vec<ChatWithChunks> = chat_history.into_iter().rev().collect();
     let page = rsx! {
         super::layout::ConsoleLayout {
             team_id: team_id,
@@ -32,9 +33,9 @@ pub fn page(
             title: "AI Chat Console",
             prompt: prompt.clone(),
             selected_item: SideBar::Console,
-            chats_with_chunks,
+            chat_history,
+            pending_chat,
             conversation_id,
-            lock_console,
             is_tts_disabled,
             capabilities,
             enabled_tools,
