@@ -1219,7 +1219,6 @@ version = "0.1.0"
 dependencies = [
  "reqwest",
  "serde",
- "tiktoken-rs",
  "tokio",
  "tracing",
 ]
