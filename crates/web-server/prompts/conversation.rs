@@ -1,11 +1,11 @@
 use super::super::{CustomError, Jwt};
+use crate::console::process_chats;
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{capabilities, chats, chats_chunks, models, prompts};
+use db::queries::{capabilities, chats, models, prompts};
 use db::Pool;
 use db::{authz, ModelType};
 use llm_proxy::UserConfig;
-use web_pages::console::ChatWithChunks;
 use web_pages::routes::prompts::Conversation;
 
 pub async fn conversation(
@@ -28,25 +28,8 @@ pub async fn conversation(
         .all()
         .await?;
 
-    let mut chats_with_chunks = Vec::new();
-    let mut lock_console = false;
-
-    for chat in chats.into_iter() {
-        // If any chat has not had a response yet, lock the console
-        lock_console = chat.response.is_none();
-
-        // Get all chunks for each chat
-        let chunks_chats = chats_chunks::chunks_chats()
-            .bind(&transaction, &chat.id)
-            .all()
-            .await?;
-        let chat_with_chunks = ChatWithChunks {
-            chat,
-            chunks: chunks_chats,
-            tool_calls: None,
-        };
-        chats_with_chunks.push(chat_with_chunks);
-    }
+    // Process chats to get chat_history and pending_chat
+    let (chat_history, pending_chat) = process_chats(&transaction, chats).await?;
 
     let prompt = prompts::prompt()
         .bind(&transaction, &prompt_id, &team_id)
@@ -71,10 +54,10 @@ pub async fn conversation(
     let html = web_pages::prompts::conversation::page(
         team_id,
         rbac,
-        chats_with_chunks,
+        chat_history,
+        pending_chat,
         prompt,
         conversation_id,
-        lock_console,
         is_tts_disabled,
         capabilities,
         enabled_tools,

@@ -4,23 +4,56 @@ use crate::routes;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::ChatStatus;
 use dioxus::prelude::*;
 
-use super::ChatWithChunks;
+use super::{ChatWithChunks, PendingChat};
 
 // Main ConsoleStream Component
 #[component]
 pub fn ConsoleStream(
     team_id: i32,
-    chats_with_chunks: Vec<ChatWithChunks>,
+    chat_history: Vec<ChatWithChunks>,
+    pending_chat: Option<PendingChat>,
     is_tts_disabled: bool,
     rbac: Rbac,
 ) -> Element {
     rsx! {
         div {
             class: "flex-1 flex flex-col-reverse overflow-y-auto",
-            for chat_with_chunks in chats_with_chunks {
+
+            // If we are waiting for the model, then deal with it here.
+            if let Some(pending_chat) = pending_chat {
+                div {
+                    class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
+                    // Are we sending the result of tool calls to the model?
+                    if let Some(tool_calls) = pending_chat.tool_calls {
+                        for tool_call in tool_calls {
+                            FunctionCallTimeline {
+                                name: tool_call.function.name.clone(),
+                                chat_id: pending_chat.chat.id as i64,
+                                team_id
+                            }
+                        }
+                        // This component has an id of 'streaming-chat' which
+                        // get picked up by the javascript and call the chat stream
+                        // At this stage we are sending the model results of the function calls
+                        ProcessingTimeline {
+                            chat_id: pending_chat.chat.id as i64,
+                            team_id: team_id
+                        }
+                    } else {
+                        // This component has an id of 'streaming-chat' which
+                        // get picked up by the javascript and call the chat stream
+                        ProcessingTimeline {
+                            chat_id: pending_chat.chat.id as i64,
+                            team_id: team_id
+                        }
+                    }
+                }
+            }
+
+            // Show any chat history, these should all have been processed.
+            for chat_with_chunks in chat_history {
                 if rbac.can_view_system_prompt() {
                     super::prompt_drawer::PromptDrawer {
                         trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
@@ -32,30 +65,9 @@ pub fn ConsoleStream(
                 div {
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
 
-                    if let Some(tool_calls) = &chat_with_chunks.tool_calls {
-                        for tool_call in tool_calls {
-                            FunctionCallTimeline {
-                                name: tool_call.function.name.clone(),
-                                chat_id: chat_with_chunks.chat.id as i64,
-                                team_id
-                            }
-                        }
-                    } else {
-                        // IMPORTANT - This is what trigger the js in the front end to trigger
-                        // a streaming call to the server. When this happens the chat status
-                        // is immediately set to InProgress.
-                        // So hopefully we don't get chats ina loop.
-                        if chat_with_chunks.chat.status == ChatStatus::Pending {
-                            ProcessingTimeline {
-                                chat_id: chat_with_chunks.chat.id as i64,
-                                team_id: team_id
-                            }
-                        } else {
-                            ResponseTimeline {
-                                response: chat_with_chunks.chat.response.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
-                                is_tts_disabled: is_tts_disabled
-                            }
-                        }
+                    ResponseTimeline {
+                        response: chat_with_chunks.chat.response.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
+                        is_tts_disabled: is_tts_disabled
                     }
 
                     ModelInfoTimeline {
@@ -89,10 +101,6 @@ fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32) -> Element {
                         class: "ml-2",
                         "{name}"
                     }
-                }
-                ProcessingForm {
-                    chat_id,
-                    team_id
                 }
             }
         }

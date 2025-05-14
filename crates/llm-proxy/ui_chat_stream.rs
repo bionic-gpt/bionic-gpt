@@ -164,7 +164,7 @@ async fn save_results(
 
     tracing::debug!("Setting RLS ID");
 
-    let (tool_calls, tool_calls_result) = if let Some(tool_calls) = tool_calls {
+    let (tool_calls, tool_calls_result, status) = if let Some(tool_calls) = tool_calls {
         // Get conversation_id from chat_id
         let conversation = match queries::conversations::get_conversation_from_chat()
             .bind(&transaction, &chat_id)
@@ -193,9 +193,13 @@ async fn save_results(
         tracing::debug!(tool_calls);
         tracing::debug!(tool_call_results);
 
-        (Some(tool_calls), Some(tool_call_results))
+        (
+            Some(tool_calls),
+            Some(tool_call_results),
+            ChatStatus::Pending,
+        )
     } else {
-        (None, None)
+        (None, None, status)
     };
 
     tracing::debug!("About to update chat");

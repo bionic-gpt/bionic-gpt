@@ -2,7 +2,7 @@
 #![allow(clippy::too_many_arguments)]
 use super::assistant_console::AssistantConsole;
 use crate::app_layout::SideBar;
-use crate::console::ChatWithChunks;
+use crate::console::{ChatWithChunks, PendingChat};
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -13,26 +13,26 @@ use dioxus::prelude::*;
 pub fn page(
     team_id: i32,
     rbac: Rbac,
-    chats_with_chunks: Vec<ChatWithChunks>,
+    chat_history: Vec<ChatWithChunks>,
+    pending_chat: Option<PendingChat>,
     prompt: SinglePrompt,
     conversation_id: i64,
-    lock_console: bool,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
     available_tools: Vec<(String, String)>,
 ) -> String {
     // Rerverse it because that's how we display it.
-    let chats_with_chunks: Vec<ChatWithChunks> = chats_with_chunks.into_iter().rev().collect();
+    let chat_history: Vec<ChatWithChunks> = chat_history.into_iter().rev().collect();
     let page = rsx! {
         AssistantConsole {
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac,
             title: "{prompt.name}",
-            chats_with_chunks: chats_with_chunks.clone(),
+            chat_history: chat_history.clone(),
+            pending_chat,
             prompt: prompt.clone(),
-            lock_console,
             conversation_id,
             is_tts_disabled,
             capabilities,
@@ -40,7 +40,7 @@ pub fn page(
             available_tools,
             header: rsx!(
                 h3 { "{prompt.name}" }
-                if ! chats_with_chunks.is_empty() {
+                if ! chat_history.is_empty() {
                     div {
                         class: "flex flex-row",
                         Button {

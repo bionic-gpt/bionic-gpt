@@ -17,5 +17,10 @@ use openai_api::ToolCall;
 pub struct ChatWithChunks {
     pub chat: Chat,
     pub chunks: Vec<ChatChunks>,
+}
+
+#[derive(PartialEq, Clone)]
+pub struct PendingChat {
+    pub chat: Chat,
     pub tool_calls: Option<Vec<ToolCall>>,
 }
