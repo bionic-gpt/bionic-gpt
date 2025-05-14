@@ -33,8 +33,16 @@ pub fn page(
 
             super::integration_table::IntegrationTable {
                 integrations: integrations.clone(),
-                tool_integrations,
+                tool_integrations: tool_integrations.clone(),
                 team_id: team_id
+            }
+
+            // Add details modals for tool integrations
+            for (index, tool) in tool_integrations.iter().enumerate() {
+                super::details::DetailsModal {
+                    integration: tool.clone(),
+                    trigger_id: format!("show-integration-details-{}", index)
+                }
             }
 
             for item in &integrations {

@@ -8,8 +8,18 @@ export const triggers = () => {
             if(attr) {
                 const drawer = document.getElementById(attr)
                 if(drawer) {
-                    drawer.classList.remove('drawer--open')
-                    drawer.classList.add('drawer--open')
+                    if (drawer instanceof HTMLDialogElement) {
+                        drawer.showModal();
+                        // Handle cancel-modal button click
+                        drawer.querySelectorAll('.cancel-modal').forEach((cancelBtn) => {
+                            cancelBtn.addEventListener('click', () => {
+                                drawer.close(); // Close the modal when the cancel button is clicked
+                            });
+                        });
+                    } else {
+                        drawer.classList.remove('drawer--open')
+                        drawer.classList.add('drawer--open')
+                    }
                 } else {
                     console.log(`The drawer ${attr} not there`)
                 }

@@ -33,7 +33,7 @@ pub fn IntegrationTable(
                         }
                     }
                     tbody {
-                        for integration in &tool_integrations {
+                        for (index, integration) in tool_integrations.iter().enumerate() {
                             tr {
                                 td {
                                     strong {
@@ -46,6 +46,16 @@ pub fn IntegrationTable(
                                 td {
                                 }
                                 td {
+                                    class: "text-right",
+                                    DropDown {
+                                        direction: Direction::Left,
+                                        button_text: "...",
+                                        DropDownLink {
+                                            href: "#",
+                                            drawer_trigger: format!("show-integration-details-{}", index),
+                                            "Show Details"
+                                        }
+                                    }
                                 }
                             }
                         }
