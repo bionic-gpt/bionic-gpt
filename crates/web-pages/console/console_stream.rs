@@ -40,6 +40,12 @@ pub fn ConsoleStream(
                                 team_id
                             }
                         }
+                        // IMPORTANT - This is what triggers the js in the front end to trigger
+                        // a streaming call to the server.
+                        ProcessingTimeline {
+                            chat_id: chat_with_chunks.chat.id as i64,
+                            team_id: team_id
+                        }
                     } else {
                         // IMPORTANT - This is what trigger the js in the front end to trigger
                         // a streaming call to the server. When this happens the chat status

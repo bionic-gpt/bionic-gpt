@@ -152,7 +152,7 @@ pub fn get_read_attachment_tool() -> BionicToolDefinition {
                 "type": "object",
                 "properties": {
                     "file_id": {
-                        "type": "string",
+                        "type": "integer",
                         "description": "ID of the attachment to read"
                     },
                     "offset": {
