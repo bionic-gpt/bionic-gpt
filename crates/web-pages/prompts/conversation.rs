@@ -2,20 +2,19 @@
 #![allow(clippy::too_many_arguments)]
 use super::assistant_console::AssistantConsole;
 use crate::app_layout::SideBar;
-use crate::console::ChatWithChunks;
+use crate::console::{ChatWithChunks, PendingChat};
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
-use db::Chat;
 use dioxus::prelude::*;
 
 pub fn page(
     team_id: i32,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<Chat>,
+    pending_chat: Option<PendingChat>,
     prompt: SinglePrompt,
     conversation_id: i64,
     is_tts_disabled: bool,

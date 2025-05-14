@@ -4,10 +4,9 @@ use assets::files::*;
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
-use db::Chat;
 use dioxus::prelude::*;
 
-use crate::console::ChatWithChunks;
+use crate::console::{ChatWithChunks, PendingChat};
 use crate::routes;
 
 #[component]
@@ -16,7 +15,7 @@ pub fn AssistantConsole(
     conversation_id: Option<i64>,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<Chat>,
+    pending_chat: Option<PendingChat>,
     prompt: SinglePrompt,
     selected_item: SideBar,
     title: String,

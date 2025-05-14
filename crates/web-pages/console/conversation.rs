@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(clippy::too_many_arguments)]
-use super::ChatWithChunks;
+use super::{ChatWithChunks, PendingChat};
 use crate::app_layout::SideBar;
 use crate::console::model_popup::ModelPopup;
 use assets::files::*;
@@ -8,14 +8,13 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::{Prompt, SinglePrompt};
-use db::Chat;
 use dioxus::prelude::*;
 
 pub fn page(
     team_id: i32,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<Chat>,
+    pending_chat: Option<PendingChat>,
     prompts: Vec<Prompt>,
     prompt: SinglePrompt,
     conversation_id: i64,

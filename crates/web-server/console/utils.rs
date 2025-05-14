@@ -3,7 +3,7 @@ use db::queries::{chats::Chat, chats_chunks};
 use db::{ChatStatus, Transaction};
 use openai_api::ToolCall;
 use serde_json::from_str;
-use web_pages::console::ChatWithChunks;
+use web_pages::console::{ChatWithChunks, PendingChat};
 
 /// Process a list of chats to create chat history and identify pending chats.
 ///
@@ -23,9 +23,9 @@ use web_pages::console::ChatWithChunks;
 pub async fn process_chats(
     transaction: &Transaction<'_>,
     chats: Vec<Chat>,
-) -> Result<(Vec<ChatWithChunks>, Option<Chat>), CustomError> {
+) -> Result<(Vec<ChatWithChunks>, Option<PendingChat>), CustomError> {
     let mut chat_history: Vec<ChatWithChunks> = Vec::new();
-    let mut pending_chat: Option<Chat> = None;
+    let mut pending_chat: Option<PendingChat> = None;
 
     // If there are no chats, return empty results
     if chats.is_empty() {
@@ -39,7 +39,17 @@ pub async fn process_chats(
     // Process all chats except possibly the last one if it's pending
     let chats_to_process = if is_last_chat_pending {
         // Set the last chat as pending_chat
-        pending_chat = Some(last_chat.clone());
+        let tool_calls = if last_chat.tool_calls.is_some() {
+            // Parse the tool_calls JSON string into a Vec<ToolCall>
+            from_str::<Vec<ToolCall>>(&last_chat.tool_calls.clone().unwrap()).ok()
+        } else {
+            None
+        };
+
+        pending_chat = Some(PendingChat {
+            chat: last_chat.clone(),
+            tool_calls,
+        });
         // Process all chats except the last one
         &chats[0..chats.len() - 1]
     } else {
@@ -48,25 +58,16 @@ pub async fn process_chats(
     };
 
     // Process the chats for chat_history
-    for (index, chat) in chats_to_process.iter().enumerate() {
+    for chat in chats_to_process.iter() {
         // Get all chunks for each chat
         let chunks_chats = chats_chunks::chunks_chats()
             .bind(transaction, &chat.id)
             .all()
             .await?;
 
-        // Set tool_calls only if this is the last chat in the history and tool_calls is Some
-        let tool_calls = if index == chats_to_process.len() - 1 && chat.tool_calls.is_some() {
-            // Parse the tool_calls JSON string into a Vec<ToolCall>
-            from_str::<Vec<ToolCall>>(&chat.tool_calls.clone().unwrap()).ok()
-        } else {
-            None
-        };
-
         let chat_with_chunks = ChatWithChunks {
             chat: chat.clone(),
             chunks: chunks_chats,
-            tool_calls,
         };
         chat_history.push(chat_with_chunks);
     }

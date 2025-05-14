@@ -3,10 +3,9 @@ use crate::app_layout::{Layout, SideBar};
 use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
-use db::Chat;
 use dioxus::prelude::*;
 
-use super::ChatWithChunks;
+use super::{ChatWithChunks, PendingChat};
 
 #[component]
 pub fn ConsoleLayout(
@@ -14,7 +13,7 @@ pub fn ConsoleLayout(
     conversation_id: Option<i64>,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<Chat>,
+    pending_chat: Option<PendingChat>,
     prompt: SinglePrompt,
     selected_item: SideBar,
     title: String,

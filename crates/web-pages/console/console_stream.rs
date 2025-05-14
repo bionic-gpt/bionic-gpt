@@ -4,23 +4,33 @@ use crate::routes;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::{Chat, ChatStatus};
 use dioxus::prelude::*;
 
-use super::ChatWithChunks;
+use super::{ChatWithChunks, PendingChat};
 
 // Main ConsoleStream Component
 #[component]
 pub fn ConsoleStream(
     team_id: i32,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<Chat>,
+    pending_chat: Option<PendingChat>,
     is_tts_disabled: bool,
     rbac: Rbac,
 ) -> Element {
     rsx! {
         div {
             class: "flex-1 flex flex-col-reverse overflow-y-auto",
+
+            if let Some(pending_chat) = pending_chat {
+                div {
+                    class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
+                    ProcessingTimeline {
+                        chat_id: pending_chat.chat.id as i64,
+                        team_id: team_id
+                    }
+                }
+            }
+
             for chat_with_chunks in chat_history {
                 if rbac.can_view_system_prompt() {
                     super::prompt_drawer::PromptDrawer {
@@ -47,15 +57,6 @@ pub fn ConsoleStream(
 
                     UserRequestTimeline {
                         user_request: chat_with_chunks.chat.user_request.clone()
-                    }
-                }
-            }
-
-            if let Some(pending_chat) = pending_chat {
-                if pending_chat.status == ChatStatus::Pending {
-                    ProcessingTimeline {
-                        chat_id: pending_chat.id as i64,
-                        team_id: team_id
                     }
                 }
             }
