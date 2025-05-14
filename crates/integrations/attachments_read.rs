@@ -2,8 +2,21 @@ use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use db::{Pool, Transaction};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
-use serde_json::{json, Value};
+use serde::Deserialize;
+use serde_json::json;
 use tracing;
+
+/// Parameters for the read_attachment tool
+#[derive(Debug, Deserialize)]
+struct ReadAttachmentParams {
+    /// ID of the attachment to read
+    file_id: i32,
+    /// Byte offset at which to start reading (default 0)
+    #[serde(default)]
+    offset: usize,
+    /// Maximum number of bytes to return
+    max_bytes: Option<u64>,
+}
 
 /// A tool that provides access to read file attachments
 pub struct ReadAttachmentsTool {
@@ -41,10 +54,11 @@ impl ToolInterface for ReadAttachmentsTool {
             arguments
         );
 
-        let args: Value = match serde_json::from_str(arguments) {
-            Ok(v) => {
-                tracing::debug!("Successfully parsed arguments");
-                v
+        // Deserialize directly to our struct
+        let params: ReadAttachmentParams = match serde_json::from_str(arguments) {
+            Ok(p) => {
+                tracing::debug!("Successfully parsed arguments: {:?}", p);
+                p
             }
             Err(e) => {
                 tracing::error!("Failed to parse arguments: {}", e);
@@ -88,26 +102,20 @@ impl ToolInterface for ReadAttachmentsTool {
             }
         }
 
-        let file_id = match args["file_id"].as_i64() {
-            Some(id) => {
-                tracing::debug!("Reading attachment with file_id: {}", id);
-                id as i32
-            }
-            None => {
-                tracing::warn!("Missing file_id parameter");
-                return Err("Missing file_id parameter".to_string());
-            }
-        };
-
-        let offset = args["offset"].as_u64().unwrap_or(0) as usize;
-        let max_bytes = args["max_bytes"].as_u64();
         tracing::debug!(
-            "Reading attachment with offset: {}, max_bytes: {:?}",
-            offset,
-            max_bytes
+            "Reading attachment with file_id: {}, offset: {}, max_bytes: {:?}",
+            params.file_id,
+            params.offset,
+            params.max_bytes
         );
 
-        let result = read_attachment(&transaction, file_id, offset, max_bytes).await;
+        let result = read_attachment(
+            &transaction,
+            params.file_id,
+            params.offset,
+            params.max_bytes,
+        )
+        .await;
 
         // Commit transaction
         tracing::debug!("Committing transaction");
