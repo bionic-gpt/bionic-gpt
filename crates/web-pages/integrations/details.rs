@@ -52,8 +52,9 @@ pub fn DetailsModal(integration: IntegrationTool, trigger_id: String) -> Element
 
                 ModalAction {
                     Button {
+                        class: "cancel-modal",
                         button_type: ButtonType::Button,
-                        button_scheme: ButtonScheme::Primary,
+                        button_scheme: ButtonScheme::Danger,
                         "Close"
                     }
                 }
