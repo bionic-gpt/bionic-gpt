@@ -2204,6 +2204,7 @@ dependencies = [
  "axum",
  "chrono",
  "db",
+ "oas3",
  "openai-api",
  "serde",
  "serde_json",
