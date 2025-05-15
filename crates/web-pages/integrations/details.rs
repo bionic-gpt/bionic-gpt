@@ -40,6 +40,14 @@ pub fn DetailsModal(integration: IntegrationTool, trigger_id: String) -> Element
                             }
                         }
                     }
+
+                    div {
+                        class: "mt-4 prose prose-sm",
+                        pre {
+                            class: "json",
+                            "{integration.definitions_json}"
+                        }
+                    }
                 }
 
                 ModalAction {

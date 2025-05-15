@@ -4,6 +4,7 @@ use crate::attachments_read::get_read_attachment_tool;
 use crate::time_date::get_time_date_tool;
 use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
+use serde_json;
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub enum ToolScope {
@@ -16,6 +17,7 @@ pub struct IntegrationTool {
     pub title: String,
     pub scope: ToolScope,
     pub definitions: Vec<BionicToolDefinition>,
+    pub definitions_json: String,
 }
 
 pub fn get_all_integrations() -> Vec<IntegrationTool> {
@@ -24,11 +26,18 @@ pub fn get_all_integrations() -> Vec<IntegrationTool> {
             scope: ToolScope::UserSelectable,
             title: "Date and time tools".into(),
             definitions: vec![get_time_date_tool()],
+            definitions_json: serde_json::to_string_pretty(&vec![get_time_date_tool()])
+                .expect("Failed to serialize time_date_tool to JSON"),
         },
         IntegrationTool {
             scope: ToolScope::DocumentIntelligence,
             title: "Tools to retrieve documents and read their contents.".into(),
             definitions: vec![get_list_attachments_tool(), get_read_attachment_tool()],
+            definitions_json: serde_json::to_string_pretty(&vec![
+                get_list_attachments_tool(),
+                get_read_attachment_tool(),
+            ])
+            .expect("Failed to serialize attachment tools to JSON"),
         },
     ]
 }
@@ -79,6 +88,7 @@ pub fn get_chat_tools_user_selected(
 mod tests {
     use super::*;
     use crate::time_date::get_time_date_tool;
+    use serde_json;
 
     #[test]
     fn test_get_openai_tools_none() {
@@ -139,5 +149,35 @@ mod tests {
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
         assert_eq!(tools[0].function.name, "get_current_time_and_date");
+    }
+
+    #[test]
+    fn test_integration_tool_definitions_json() {
+        // Get all integrations
+        let integrations = get_all_integrations();
+
+        // Verify that there's at least one integration
+        assert!(
+            !integrations.is_empty(),
+            "Expected at least one integration"
+        );
+
+        // Check the first integration
+        let first_integration = &integrations[0];
+
+        // Verify that definitions_json is not empty
+        assert!(
+            !first_integration.definitions_json.is_empty(),
+            "Expected non-empty definitions_json"
+        );
+
+        // Verify that definitions_json is a valid JSON representation of definitions
+        let expected_json = serde_json::to_string_pretty(&first_integration.definitions)
+            .expect("Failed to serialize definitions to JSON");
+
+        assert_eq!(
+            first_integration.definitions_json, expected_json,
+            "definitions_json does not match the expected JSON representation"
+        );
     }
 }
