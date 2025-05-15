@@ -5,13 +5,13 @@ use assets::files::*;
 use db::authz::Rbac;
 use db::queries::integrations::Integration;
 use dioxus::prelude::*;
-use integrations::IntegrationTool;
+use integrations::{IntegrationTool, ToolScope};
 
 pub fn page(
     team_id: i32,
     rbac: Rbac,
     integrations: Vec<Integration>,
-    tool_integrations: Vec<IntegrationTool>,
+    builtin_integrations: Vec<IntegrationTool>,
 ) -> String {
     let page = rsx! {
         Layout {
@@ -33,15 +33,27 @@ pub fn page(
 
             super::integration_table::IntegrationTable {
                 integrations: integrations.clone(),
-                tool_integrations: tool_integrations.clone(),
+                tool_integrations: builtin_integrations.clone(),
                 team_id: team_id
             }
 
             // Add details modals for tool integrations
-            for (index, tool) in tool_integrations.iter().enumerate() {
+            for (index, tool) in builtin_integrations.iter().enumerate() {
                 super::details::DetailsModal {
                     integration: tool.clone(),
-                    trigger_id: format!("show-integration-details-{}", index)
+                    trigger_id: format!("show-builtin-integration-details-{}", index)
+                }
+            }
+
+            for item in &integrations {
+                super::details::DetailsModal {
+                    integration: IntegrationTool {
+                        title: "".into(),
+                        scope: ToolScope::UserSelectable,
+                        definitions: vec![],
+                        definitions_json: "".into()
+                    },
+                    trigger_id: format!("show-integration-details-{}", item.id)
                 }
             }
 

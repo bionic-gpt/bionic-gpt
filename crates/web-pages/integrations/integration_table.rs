@@ -52,7 +52,7 @@ pub fn IntegrationTable(
                                         button_text: "...",
                                         DropDownLink {
                                             href: "#",
-                                            drawer_trigger: format!("show-integration-details-{}", index),
+                                            drawer_trigger: format!("show-builtin-integration-details-{}", index),
                                             "Show Details"
                                         }
                                     }
@@ -81,6 +81,11 @@ pub fn IntegrationTable(
                                     DropDown {
                                         direction: Direction::Left,
                                         button_text: "...",
+                                        DropDownLink {
+                                            href: "#",
+                                            drawer_trigger: format!("show-integration-details-{}", integration.id),
+                                            "Show Details"
+                                        }
                                         DropDownLink {
                                             href: "#",
                                             drawer_trigger: format!("edit-integration-form-{}", integration.id),
