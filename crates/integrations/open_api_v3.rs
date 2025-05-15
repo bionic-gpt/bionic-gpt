@@ -4,11 +4,11 @@ use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 pub fn open_api_to_definition(oas3: oas3::OpenApiV3Spec) -> Vec<BionicToolDefinition> {
     let mut definitions: Vec<BionicToolDefinition> = vec![];
 
-    for (name, _method, operation) in oas3.operations() {
+    for (_name, _method, operation) in oas3.operations() {
         definitions.push(BionicToolDefinition {
-            r#type: "".to_string(),
+            r#type: "function".to_string(),
             function: ChatCompletionFunctionDefinition {
-                name,
+                name: operation.operation_id.clone().unwrap_or("Error".into()),
                 description: operation.description.clone(),
                 parameters: None,
             },
@@ -54,6 +54,6 @@ mod tests {
 
         // Currently, the function returns an empty vector, so we just check that
         // In a real implementation, we would add more assertions to verify the tool definitions
-        assert_eq!(tool_definitions.len(), 0);
+        assert_eq!(tool_definitions.len(), 1);
     }
 }
