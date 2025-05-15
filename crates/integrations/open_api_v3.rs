@@ -1,8 +1,21 @@
 use oas3;
-use openai_api::BionicToolDefinition;
+use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 
-pub fn open_api_to_definition(_oas3: oas3::OpenApiV3Spec) -> Vec<BionicToolDefinition> {
-    vec![]
+pub fn open_api_to_definition(oas3: oas3::OpenApiV3Spec) -> Vec<BionicToolDefinition> {
+    let mut definitions: Vec<BionicToolDefinition> = vec![];
+
+    for (name, _method, operation) in oas3.operations() {
+        definitions.push(BionicToolDefinition {
+            r#type: "".to_string(),
+            function: ChatCompletionFunctionDefinition {
+                name,
+                description: operation.description.clone(),
+                parameters: None,
+            },
+        });
+    }
+    dbg!(&definitions);
+    definitions
 }
 
 #[cfg(test)]
