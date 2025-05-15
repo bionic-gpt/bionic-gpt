@@ -51,7 +51,7 @@ pub fn page(
                         title: "".into(),
                         scope: ToolScope::UserSelectable,
                         definitions: vec![],
-                        definitions_json: "".into()
+                        definitions_json: item.definition.clone().unwrap_or("".into()).to_string()
                     },
                     trigger_id: format!("show-integration-details-{}", item.id)
                 }
