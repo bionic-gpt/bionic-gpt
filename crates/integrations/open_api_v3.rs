@@ -14,7 +14,6 @@ pub fn open_api_to_definition(oas3: oas3::OpenApiV3Spec) -> Vec<BionicToolDefini
             },
         });
     }
-    dbg!(&definitions);
     definitions
 }
 
