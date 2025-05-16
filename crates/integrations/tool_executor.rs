@@ -1,5 +1,5 @@
+use crate::attachment_to_markdown::AttachmentToMarkdownTool;
 use crate::attachments_list::ListAttachmentsTool;
-use crate::attachments_read::ReadAttachmentsTool;
 use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
 use db::Pool;
@@ -57,7 +57,7 @@ pub fn get_tools(
             sub.clone(),
             conversation_id,
         )));
-        tools.push(Arc::new(ReadAttachmentsTool::new(
+        tools.push(Arc::new(AttachmentToMarkdownTool::new(
             pool.clone(),
             sub,
             conversation_id,

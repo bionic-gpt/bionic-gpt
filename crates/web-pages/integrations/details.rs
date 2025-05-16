@@ -40,12 +40,21 @@ pub fn DetailsModal(integration: IntegrationTool, trigger_id: String) -> Element
                             }
                         }
                     }
+
+                    div {
+                        class: "mt-4 prose",
+                        pre {
+                            class: "json",
+                            "{integration.definitions_json}"
+                        }
+                    }
                 }
 
                 ModalAction {
                     Button {
+                        class: "cancel-modal",
                         button_type: ButtonType::Button,
-                        button_scheme: ButtonScheme::Primary,
+                        button_scheme: ButtonScheme::Danger,
                         "Close"
                     }
                 }

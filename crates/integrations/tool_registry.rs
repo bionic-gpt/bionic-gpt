@@ -1,9 +1,13 @@
 // Import the tool trait and time date tool
+use crate::attachment_as_text::get_attachment_as_text_tool;
+use crate::attachment_to_markdown::get_attachment_to_markdown_tool;
 use crate::attachments_list::get_list_attachments_tool;
-use crate::attachments_read::get_read_attachment_tool;
+use crate::open_api_v3::open_api_to_definition;
 use crate::time_date::get_time_date_tool;
+use db::Integration;
 use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
+use serde_json;
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub enum ToolScope {
@@ -16,6 +20,43 @@ pub struct IntegrationTool {
     pub title: String,
     pub scope: ToolScope,
     pub definitions: Vec<BionicToolDefinition>,
+    pub definitions_json: String,
+}
+
+// Convert integrations from the DB into IntegrationTool
+pub fn get_external_integrations(integrations: Vec<Integration>) -> Vec<IntegrationTool> {
+    integrations
+        .iter()
+        .filter_map(|integration| {
+            if let Some(definition) = &integration.definition {
+                let oas3 = oas3::from_json(definition.to_string());
+                if let Ok(oas3) = oas3 {
+                    let openai_definitions = open_api_to_definition(oas3.clone());
+                    let definitions_json = serde_json::to_string_pretty(&openai_definitions);
+                    if let Ok(definitions_json) = definitions_json {
+                        Some(IntegrationTool {
+                            scope: ToolScope::UserSelectable,
+                            title: integration.name.clone(),
+                            definitions: openai_definitions.clone(),
+                            definitions_json,
+                        })
+                    } else {
+                        tracing::error!("Failed to convert definitions to JSON");
+                        None
+                    }
+                } else {
+                    tracing::error!(
+                        "Failed to convert JSON in DB to oas3 for integration {}",
+                        integration.id
+                    );
+                    None
+                }
+            } else {
+                tracing::error!("This integration foesn't have a definition");
+                None
+            }
+        })
+        .collect()
 }
 
 pub fn get_all_integrations() -> Vec<IntegrationTool> {
@@ -24,17 +65,33 @@ pub fn get_all_integrations() -> Vec<IntegrationTool> {
             scope: ToolScope::UserSelectable,
             title: "Date and time tools".into(),
             definitions: vec![get_time_date_tool()],
+            definitions_json: serde_json::to_string_pretty(&vec![get_time_date_tool()])
+                .expect("Failed to serialize time_date_tool to JSON"),
         },
         IntegrationTool {
             scope: ToolScope::DocumentIntelligence,
             title: "Tools to retrieve documents and read their contents.".into(),
-            definitions: vec![get_list_attachments_tool(), get_read_attachment_tool()],
+            definitions: vec![
+                get_list_attachments_tool(),
+                get_attachment_to_markdown_tool(),
+                get_attachment_as_text_tool(),
+            ],
+            definitions_json: serde_json::to_string_pretty(&vec![
+                get_list_attachments_tool(),
+                get_attachment_to_markdown_tool(),
+                get_attachment_as_text_tool(),
+            ])
+            .expect("Failed to serialize attachment tools to JSON"),
         },
     ]
 }
 
 pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
-    vec![get_list_attachments_tool(), get_read_attachment_tool()]
+    vec![
+        get_list_attachments_tool(),
+        get_attachment_to_markdown_tool(),
+        get_attachment_as_text_tool(),
+    ]
 }
 
 /// The name and descriptions of the tools the user can select from
@@ -79,6 +136,7 @@ pub fn get_chat_tools_user_selected(
 mod tests {
     use super::*;
     use crate::time_date::get_time_date_tool;
+    use serde_json;
 
     #[test]
     fn test_get_openai_tools_none() {
@@ -139,5 +197,35 @@ mod tests {
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
         assert_eq!(tools[0].function.name, "get_current_time_and_date");
+    }
+
+    #[test]
+    fn test_integration_tool_definitions_json() {
+        // Get all integrations
+        let integrations = get_all_integrations();
+
+        // Verify that there's at least one integration
+        assert!(
+            !integrations.is_empty(),
+            "Expected at least one integration"
+        );
+
+        // Check the first integration
+        let first_integration = &integrations[0];
+
+        // Verify that definitions_json is not empty
+        assert!(
+            !first_integration.definitions_json.is_empty(),
+            "Expected non-empty definitions_json"
+        );
+
+        // Verify that definitions_json is a valid JSON representation of definitions
+        let expected_json = serde_json::to_string_pretty(&first_integration.definitions)
+            .expect("Failed to serialize definitions to JSON");
+
+        assert_eq!(
+            first_integration.definitions_json, expected_json,
+            "definitions_json does not match the expected JSON representation"
+        );
     }
 }
