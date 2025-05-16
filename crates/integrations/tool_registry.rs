@@ -31,19 +31,27 @@ pub fn get_external_integrations(integrations: Vec<Integration>) -> Vec<Integrat
                 let oas3 = oas3::from_json(definition.to_string());
                 if let Ok(oas3) = oas3 {
                     let openai_definitions = open_api_to_definition(oas3.clone());
-                    Some(IntegrationTool {
-                        scope: ToolScope::UserSelectable,
-                        title: integration.name.clone(),
-                        definitions: openai_definitions,
-                        definitions_json: serde_json::to_string_pretty(&open_api_to_definition(
-                            oas3,
-                        ))
-                        .expect("Failed to serialize time_date_tool to JSON"),
-                    })
+                    let definitions_json = serde_json::to_string_pretty(&openai_definitions);
+                    if let Ok(definitions_json) = definitions_json {
+                        Some(IntegrationTool {
+                            scope: ToolScope::UserSelectable,
+                            title: integration.name.clone(),
+                            definitions: openai_definitions.clone(),
+                            definitions_json,
+                        })
+                    } else {
+                        tracing::error!("Failed to convert definitions to JSON");
+                        None
+                    }
                 } else {
+                    tracing::error!(
+                        "Failed to convert JSON in DB to oas3 for integration {}",
+                        integration.id
+                    );
                     None
                 }
             } else {
+                tracing::error!("This integration foesn't have a definition");
                 None
             }
         })

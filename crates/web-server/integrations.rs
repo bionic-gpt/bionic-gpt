@@ -17,7 +17,7 @@ use web_pages::routes::integrations::{Delete, Index, Upsert};
 /// 1. Fetch the content from the provided URL
 /// 2. Parse it as JSON using the oas3 crate
 /// 3. Return the parsed specification as JSON or an error
-async fn fetch_and_parse_openapi(base_url: &str) -> Result<Json<String>, String> {
+async fn fetch_and_parse_openapi(base_url: &str) -> Result<Json<oas3::OpenApiV3Spec>, String> {
     // Fetch the content from the base_url
     let response = match reqwest::get(base_url).await {
         Ok(resp) => resp,
@@ -40,9 +40,9 @@ async fn fetch_and_parse_openapi(base_url: &str) -> Result<Json<String>, String>
 
     // Parse as JSON
     match oas3::from_json(&content) {
-        Ok(_spec) => {
+        Ok(spec) => {
             // Successfully parsed as JSON
-            Ok(Json(content))
+            Ok(Json(spec))
         }
         Err(e) => Err(format!("Invalid OpenAPI JSON: {}", e)),
     }
