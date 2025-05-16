@@ -48,7 +48,7 @@ pub fn get_integrations(external_integrations: Vec<Integration>) -> Vec<Integrat
         },
     ];
 
-    let mut external_integrations = get_external_integrations(external_integrations);
+    let mut external_integrations = convert_to_integration_tools(external_integrations);
 
     internal_integrations.append(&mut external_integrations);
 
@@ -56,7 +56,7 @@ pub fn get_integrations(external_integrations: Vec<Integration>) -> Vec<Integrat
 }
 
 // Convert integrations from the DB into IntegrationTool
-fn get_external_integrations(integrations: Vec<Integration>) -> Vec<IntegrationTool> {
+fn convert_to_integration_tools(integrations: Vec<Integration>) -> Vec<IntegrationTool> {
     integrations
         .iter()
         .filter_map(|integration| {
