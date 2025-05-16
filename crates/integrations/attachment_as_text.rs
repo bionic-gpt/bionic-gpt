@@ -44,7 +44,7 @@ impl AttachmentAsTextTool {
 impl ToolInterface for AttachmentAsTextTool {
     fn get_tool(&self) -> BionicToolDefinition {
         tracing::debug!("Getting tool definition for AttachmentAsTextTool");
-        get_read_attachment_tool()
+        get_attachment_as_text_tool()
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
@@ -137,7 +137,7 @@ impl ToolInterface for AttachmentAsTextTool {
 }
 
 /// Returns a Tool definition for the read_attachment tool
-pub fn get_read_attachment_tool() -> BionicToolDefinition {
+pub fn get_attachment_as_text_tool() -> BionicToolDefinition {
     tracing::trace!("Creating attachment_as_text tool definition");
     BionicToolDefinition {
         r#type: "function".to_string(),
@@ -259,7 +259,7 @@ mod tests {
 
     #[test]
     fn test_get_read_attachment_tool() {
-        let tool = get_read_attachment_tool();
+        let tool = get_attachment_as_text_tool();
         assert_eq!(tool.function.name, "read_attachment");
     }
 }

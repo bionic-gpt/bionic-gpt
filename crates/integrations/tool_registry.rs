@@ -1,6 +1,7 @@
 // Import the tool trait and time date tool
+use crate::attachment_as_text::get_attachment_as_text_tool;
+use crate::attachment_to_markdown::get_attachment_to_markdown_tool;
 use crate::attachments_list::get_list_attachments_tool;
-use crate::attachments_to_markdown::get_attachment_to_markdown_tool;
 use crate::open_api_v3::open_api_to_definition;
 use crate::time_date::get_time_date_tool;
 use db::Integration;
@@ -73,6 +74,7 @@ pub fn get_all_integrations() -> Vec<IntegrationTool> {
             definitions: vec![
                 get_list_attachments_tool(),
                 get_attachment_to_markdown_tool(),
+                get_attachment_as_text_tool(),
             ],
             definitions_json: serde_json::to_string_pretty(&vec![
                 get_list_attachments_tool(),
@@ -87,6 +89,7 @@ pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
     vec![
         get_list_attachments_tool(),
         get_attachment_to_markdown_tool(),
+        get_attachment_as_text_tool(),
     ]
 }
 
