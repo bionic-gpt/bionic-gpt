@@ -18,3 +18,7 @@ tokio = { version = "1", features = ["rt", "rt-multi-thread"] }
 async-trait = { version = "0.1" }
 oas3 = "0.16.1"
 rag-engine = { path = "../rag-engine" }
+reqwest = { version = "0", default-features = false, features = ["json", "rustls-tls"] }
+
+[dev-dependencies]
+mockito = "1.2.0"

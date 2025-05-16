@@ -3,9 +3,11 @@ use crate::attachment_to_markdown::AttachmentToMarkdownTool;
 use crate::attachments_list::ListAttachmentsTool;
 use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
+use crate::tool_registry::create_external_integration_tools;
 use db::Pool;
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
+use std::collections::HashSet;
 use std::sync::Arc;
 use tracing::{debug, error, info, trace, warn};
 
@@ -20,7 +22,7 @@ pub async fn execute_tool_calls(
 
     // Get tool instances with the pool for execution
     debug!("Getting tool instances");
-    let tools = get_tools(pool, sub.clone(), conversation_id);
+    let tools = get_tools(pool, sub.clone(), conversation_id).await;
     debug!("Got {} tool instances", tools.len());
 
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
@@ -40,36 +42,70 @@ pub async fn execute_tool_calls(
 
 /// Returns a list of available tool instances
 /// This requires a pool for tools that need database access
-pub fn get_tools(
+pub async fn get_tools(
     pool: Option<&Pool>,
     sub: Option<String>,
     conversation_id: Option<i64>,
 ) -> Vec<Arc<dyn ToolInterface>> {
     trace!("Getting available tool instances");
 
+    // Start with internal tools
     let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(TimeDateTool)];
     debug!("Added TimeDateTool");
 
     // Add the attachment tools if a pool is provided
-    if let Some(pool) = pool {
+    if let (Some(pool), Some(sub)) = (pool, sub) {
         debug!("Adding attachment tools with database pool");
         tools.push(Arc::new(ListAttachmentsTool::new(
             pool.clone(),
-            sub.clone(),
+            Some(sub.clone()),
             conversation_id,
         )));
         tools.push(Arc::new(AttachmentAsTextTool::new(
             pool.clone(),
-            sub.clone(),
+            Some(sub.clone()),
             conversation_id,
         )));
         tools.push(Arc::new(AttachmentToMarkdownTool::new(
             pool.clone(),
-            sub,
+            Some(sub.clone()),
             conversation_id,
         )));
+
+        // Get external integration tools
+        debug!("Getting external integration tools");
+        let external_tools = create_external_integration_tools(pool, sub).await;
+
+        if !external_tools.is_empty() {
+            debug!("Found {} external integration tools", external_tools.len());
+
+            // Check for name conflicts and override internal tools
+            let mut tool_names = HashSet::new();
+            for tool in &tools {
+                tool_names.insert(tool.name());
+            }
+
+            for external_tool in external_tools {
+                let name = external_tool.name();
+                if tool_names.contains(&name) {
+                    debug!(
+                        "External tool {} overrides internal tool with the same name",
+                        name
+                    );
+                    // Remove the internal tool with the same name
+                    tools.retain(|t| t.name() != name);
+                }
+                tools.push(external_tool);
+                tool_names.insert(name);
+            }
+
+            debug!(
+                "Added external integration tools, total tools: {}",
+                tools.len()
+            );
+        }
     } else {
-        debug!("Skipping attachment tools (no database pool provided)");
+        debug!("Skipping attachment tools and external integrations (no database pool provided)");
     }
 
     info!("Returning {} tool instances", tools.len());
@@ -143,5 +179,15 @@ mod tests {
         let result = execute_tool_call_with_tools(&tools, &tool_call).await;
         assert_eq!(result.id, "call_123".to_string());
         assert_eq!(result.name, "get_current_time_and_date".to_string());
+    }
+
+    #[tokio::test]
+    async fn test_get_tools_no_pool() {
+        // Test get_tools without a pool
+        let tools = get_tools(None, None, None).await;
+
+        // Should only have the TimeDateTool
+        assert_eq!(tools.len(), 1);
+        assert_eq!(tools[0].name(), "get_current_time_and_date");
     }
 }

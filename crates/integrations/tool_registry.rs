@@ -2,12 +2,14 @@
 use crate::attachment_as_text::get_attachment_as_text_tool;
 use crate::attachment_to_markdown::get_attachment_to_markdown_tool;
 use crate::attachments_list::get_list_attachments_tool;
-use crate::open_api_v3::open_api_to_definition;
+use crate::external_integration::ExternalIntegrationTool;
+use crate::open_api_v3::{open_api_to_definition, open_api_to_definition_legacy};
 use crate::time_date::get_time_date_tool;
-use db::Integration;
+use crate::tool::ToolInterface;
+use db::{Integration, Pool};
 use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
-use serde_json;
+use std::sync::Arc;
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub enum ToolScope {
@@ -31,7 +33,7 @@ pub fn get_external_integrations(integrations: Vec<Integration>) -> Vec<Integrat
             if let Some(definition) = &integration.definition {
                 let oas3 = oas3::from_json(definition.to_string());
                 if let Ok(oas3) = oas3 {
-                    let openai_definitions = open_api_to_definition(oas3.clone());
+                    let openai_definitions = open_api_to_definition_legacy(oas3.clone());
                     let definitions_json = serde_json::to_string_pretty(&openai_definitions);
                     if let Ok(definitions_json) = definitions_json {
                         Some(IntegrationTool {
@@ -52,11 +54,106 @@ pub fn get_external_integrations(integrations: Vec<Integration>) -> Vec<Integrat
                     None
                 }
             } else {
-                tracing::error!("This integration foesn't have a definition");
+                tracing::error!("This integration doesn't have a definition");
                 None
             }
         })
         .collect()
+}
+
+/// Create external integration tools from database integrations
+pub async fn create_external_integration_tools(
+    pool: &Pool,
+    sub: String,
+) -> Vec<Arc<dyn ToolInterface>> {
+    let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+
+    // Get external integrations from the database
+    tracing::debug!("Getting external integrations from database");
+
+    let mut client = match pool.get().await {
+        Ok(client) => {
+            tracing::debug!("Successfully got database client");
+            client
+        }
+        Err(e) => {
+            tracing::error!("Failed to get database client: {}", e);
+            return vec![];
+        }
+    };
+
+    tracing::debug!("Creating transaction");
+    let transaction = match client.transaction().await {
+        Ok(transaction) => {
+            tracing::debug!("Successfully created transaction");
+            transaction
+        }
+        Err(e) => {
+            tracing::error!("Failed to create transaction: {}", e);
+            return vec![];
+        }
+    };
+
+    // Set row-level security if sub is provided
+    tracing::debug!("Setting row-level security for user: {}", sub);
+    if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await {
+        tracing::error!("Failed to set row level security: {}", e);
+        return vec![];
+    }
+    let external_integrations = match db::queries::integrations::integrations()
+        .bind(&transaction)
+        .all()
+        .await
+    {
+        Ok(integrations) => {
+            tracing::debug!("Found {} external integrations", integrations.len());
+            integrations
+        }
+        Err(e) => {
+            tracing::error!("Failed to get external integrations: {}", e);
+            return vec![];
+        }
+    };
+
+    for integration in external_integrations {
+        if let Some(definition) = &integration.definition {
+            let oas3 = oas3::from_json(definition.to_string());
+            if let Ok(oas3) = oas3 {
+                // Get base URL from configuration or use a default
+                let base_url = if let Some(config) = &integration.configuration {
+                    config["base_url"]
+                        .as_str()
+                        .unwrap_or("http://localhost")
+                        .to_string()
+                } else {
+                    "http://localhost".to_string()
+                };
+
+                // Create tools for each operation in the OpenAPI spec
+                let operations = open_api_to_definition(oas3);
+                for operation in operations {
+                    let tool = ExternalIntegrationTool::new(
+                        operation.definition,
+                        base_url.clone(),
+                        operation.path,
+                        operation.method,
+                    );
+
+                    tools.push(Arc::new(tool));
+                }
+            } else {
+                tracing::error!(
+                    "Failed to convert JSON in DB to oas3 for integration {}",
+                    integration.id
+                );
+            }
+        } else {
+            tracing::error!("This integration doesn't have a definition");
+        }
+    }
+
+    tracing::debug!("Created {} external integration tools", tools.len());
+    tools
 }
 
 pub fn get_all_integrations() -> Vec<IntegrationTool> {
