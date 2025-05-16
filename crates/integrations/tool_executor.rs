@@ -1,9 +1,9 @@
 use crate::attachment_as_text::AttachmentAsTextTool;
 use crate::attachment_to_markdown::AttachmentToMarkdownTool;
 use crate::attachments_list::ListAttachmentsTool;
+use crate::external_integration::create_external_integration_tools;
 use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
-use crate::tool_registry::create_external_integration_tools;
 use db::Pool;
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
