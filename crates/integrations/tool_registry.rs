@@ -79,6 +79,7 @@ pub fn get_all_integrations() -> Vec<IntegrationTool> {
             definitions_json: serde_json::to_string_pretty(&vec![
                 get_list_attachments_tool(),
                 get_attachment_to_markdown_tool(),
+                get_attachment_as_text_tool(),
             ])
             .expect("Failed to serialize attachment tools to JSON"),
         },
