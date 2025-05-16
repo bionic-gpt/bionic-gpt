@@ -143,7 +143,25 @@ pub async fn upsert_action(
             }
         };
 
-    let none: Option<Json<String>> = None;
+    // Extract just the base part of the URL (scheme, host, port) without any paths
+    let base_url = {
+        if let Ok(parsed_url) = reqwest::Url::parse(&integration_form.base_url) {
+            format!(
+                "{}://{}{}",
+                parsed_url.scheme(),
+                parsed_url.host_str().unwrap_or("localhost"),
+                parsed_url
+                    .port()
+                    .map_or(String::new(), |p| format!(":{}", p))
+            )
+        } else {
+            integration_form.base_url.clone()
+        }
+    };
+
+    let none: Option<Json<serde_json::Value>> = Some(Json(serde_json::json!({
+        "base_url": base_url
+    })));
 
     match (integration_form.validate(), integration_form.id) {
         (Ok(_), Some(integration_id)) => {
