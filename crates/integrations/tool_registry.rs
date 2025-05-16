@@ -22,7 +22,10 @@ pub struct IntegrationTool {
     pub definitions_json: String,
 }
 
-pub fn get_integrations(external_integrations: Vec<Integration>) -> Vec<IntegrationTool> {
+pub fn get_integrations(
+    external_integrations: Vec<Integration>,
+    scope: Option<ToolScope>,
+) -> Vec<IntegrationTool> {
     let mut internal_integrations = vec![
         IntegrationTool {
             scope: ToolScope::UserSelectable,
@@ -51,6 +54,11 @@ pub fn get_integrations(external_integrations: Vec<Integration>) -> Vec<Integrat
     let mut external_integrations = convert_to_integration_tools(external_integrations);
 
     internal_integrations.append(&mut external_integrations);
+
+    // Filter by scope if provided
+    if let Some(filter_scope) = scope {
+        internal_integrations.retain(|integration| integration.scope == filter_scope);
+    }
 
     internal_integrations
 }
@@ -207,7 +215,7 @@ mod tests {
     #[test]
     fn test_integration_tool_definitions_json() {
         // Get all integrations
-        let integrations = get_integrations(vec![]);
+        let integrations = get_integrations(vec![], None);
 
         // Verify that there's at least one integration
         assert!(
@@ -231,6 +239,36 @@ mod tests {
         assert_eq!(
             first_integration.definitions_json, expected_json,
             "definitions_json does not match the expected JSON representation"
+        );
+    }
+
+    #[test]
+    fn test_get_integrations_with_scope_filter() {
+        // Test filtering by UserSelectable scope
+        let user_selectable = get_integrations(vec![], Some(ToolScope::UserSelectable));
+        assert!(
+            !user_selectable.is_empty(),
+            "Expected at least one UserSelectable integration"
+        );
+        for integration in &user_selectable {
+            assert_eq!(integration.scope, ToolScope::UserSelectable);
+        }
+
+        // Test filtering by DocumentIntelligence scope
+        let doc_intelligence = get_integrations(vec![], Some(ToolScope::DocumentIntelligence));
+        assert!(
+            !doc_intelligence.is_empty(),
+            "Expected at least one DocumentIntelligence integration"
+        );
+        for integration in &doc_intelligence {
+            assert_eq!(integration.scope, ToolScope::DocumentIntelligence);
+        }
+
+        // Verify that filtering returns different results
+        assert_ne!(
+            user_selectable.len(),
+            doc_intelligence.len(),
+            "Expected different number of integrations for different scopes"
         );
     }
 }

@@ -71,7 +71,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let integrations = integrations::get_integrations(external_integrations);
+    let integrations = integrations::get_integrations(external_integrations, None);
 
     let html = web_pages::integrations::index::page(team_id, rbac, integrations);
 
