@@ -1,3 +1,4 @@
+use crate::attachment_as_text::AttachmentAsTextTool;
 use crate::attachment_to_markdown::AttachmentToMarkdownTool;
 use crate::attachments_list::ListAttachmentsTool;
 use crate::time_date::TimeDateTool;
@@ -53,6 +54,11 @@ pub fn get_tools(
     if let Some(pool) = pool {
         debug!("Adding attachment tools with database pool");
         tools.push(Arc::new(ListAttachmentsTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        )));
+        tools.push(Arc::new(AttachmentAsTextTool::new(
             pool.clone(),
             sub.clone(),
             conversation_id,
