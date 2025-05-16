@@ -2,6 +2,7 @@ use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use db::{Pool, Transaction};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
+use rag_engine::unstructured::document_to_markdown;
 use serde::Deserialize;
 use serde_json::json;
 use tracing;
@@ -133,9 +134,9 @@ impl ToolInterface for AttachmentToMarkdownTool {
     }
 }
 
-/// Returns a Tool definition for the read_attachment tool
+/// Returns a Tool definition for the attachment_to_markdown tool
 pub fn get_attachment_to_markdown_tool() -> BionicToolDefinition {
-    tracing::trace!("Creating read_attachment tool definition");
+    tracing::trace!("Creating attachment_to_markdown tool definition");
     BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
@@ -160,7 +161,7 @@ pub fn get_attachment_to_markdown_tool() -> BionicToolDefinition {
                     "max_bytes": {
                         "type": "integer",
                         "minimum": 1,
-                        "description": "Maximum number of UTF-8 charactera to return"
+                        "description": "Maximum number of UTF-8 characters to return"
                     }
                 },
                 "required": ["file_id"]
@@ -169,7 +170,22 @@ pub fn get_attachment_to_markdown_tool() -> BionicToolDefinition {
     }
 }
 
-/// Read attachment content
+/// Helper function to convert mime type to file extension
+fn mime_type_to_extension(mime_type: &str) -> String {
+    match mime_type {
+        "application/pdf" => "pdf",
+        "text/plain" => "txt",
+        "text/markdown" => "md",
+        "text/html" => "html",
+        "application/msword" => "doc",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "docx",
+        // Add more mime types as needed
+        _ => "bin",
+    }
+    .to_string()
+}
+
+/// Read attachment content and convert to markdown
 #[tracing::instrument(skip(transaction))]
 async fn read_attachment(
     transaction: &Transaction<'_>,
@@ -221,33 +237,38 @@ async fn read_attachment(
 
     let slice = &bytes[start..end];
 
-    // Try to convert to UTF-8 text
-    let text = match String::from_utf8(slice.to_vec()) {
-        Ok(text) => {
-            tracing::debug!("Successfully converted bytes to UTF-8 text");
-            text
+    // Extract filename from mime_type or use a default
+    let file_name = format!(
+        "attachment_{}.{}",
+        id,
+        mime_type_to_extension(&content.mime_type)
+    );
+
+    // Convert to markdown using document_to_markdown
+    tracing::debug!("Converting attachment to markdown");
+    match document_to_markdown(slice.to_vec(), &file_name).await {
+        Ok(markdown) => {
+            tracing::info!("Successfully converted attachment to markdown");
+            Ok(markdown)
         }
-        Err(_) => {
-            tracing::debug!("Could not convert bytes to UTF-8, treating as binary data");
-            format!("Binary data: {} bytes", slice.len())
+        Err(e) => {
+            tracing::error!("Failed to convert attachment to markdown: {}", e);
+
+            // Fallback to original text conversion if markdown conversion fails
+            let text = match String::from_utf8(slice.to_vec()) {
+                Ok(text) => {
+                    tracing::debug!("Falling back to UTF-8 text conversion");
+                    text
+                }
+                Err(_) => {
+                    tracing::debug!("Could not convert bytes to UTF-8, treating as binary data");
+                    format!("Binary data: {} bytes", slice.len())
+                }
+            };
+
+            Ok(text)
         }
-    };
-
-    // Return as JSON
-    let is_binary = text.starts_with("Binary data:");
-    tracing::debug!("Attachment is binary: {}", is_binary);
-
-    let result = json!({
-        "content": text,
-        "mime_type": content.mime_type,
-        "is_binary": is_binary,
-        "total_size": bytes.len(),
-        "offset": start,
-        "length": end - start
-    });
-
-    tracing::info!("Successfully read attachment: {} bytes", end - start);
-    Ok(result.to_string())
+    }
 }
 
 #[cfg(test)]
@@ -255,8 +276,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_read_attachment_tool() {
+    fn test_get_attachment_to_markdown_tool() {
         let tool = get_attachment_to_markdown_tool();
-        assert_eq!(tool.function.name, "read_attachment");
+        assert_eq!(tool.function.name, "attachment_to_markdown");
     }
 }

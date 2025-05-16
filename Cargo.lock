@@ -2206,6 +2206,7 @@ dependencies = [
  "db",
  "oas3",
  "openai-api",
+ "rag-engine",
  "serde",
  "serde_json",
  "tokio",
