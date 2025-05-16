@@ -4,7 +4,7 @@ use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
-use db::queries::{capabilities, prompts};
+use db::queries;
 use db::Pool;
 use integrations;
 use web_pages::console;
@@ -21,7 +21,7 @@ pub async fn index(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let prompts = prompts::prompts()
+    let prompts = queries::prompts::prompts()
         .bind(&transaction, &team_id, &db::PromptType::Model)
         .all()
         .await?;
@@ -32,20 +32,25 @@ pub async fn index(
         prompts.first().unwrap().id
     };
 
-    let prompt = prompts::prompt()
+    let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id, &team_id)
         .one()
         .await?;
 
-    let capabilities = capabilities::get_model_capabilities()
+    let capabilities = queries::capabilities::get_model_capabilities()
         .bind(&transaction, &prompt.model_id)
         .all()
         .await?;
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
+    let external_integrations = queries::integrations::integrations()
+        .bind(&transaction)
+        .all()
+        .await?;
+
     // Get available tools from the integrations crate
     let available_tools: Vec<(String, String)> =
-        integrations::get_user_selectable_tools_for_chat_ui();
+        integrations::get_user_selectable_tools_for_chat_ui(external_integrations);
 
     let html = console::index::new_conversation(
         team_id,
