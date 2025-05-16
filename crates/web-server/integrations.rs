@@ -77,7 +77,7 @@ pub async fn loader(
 
     internal_integrations.append(&mut integrations);
 
-    let html = web_pages::integrations::index::page(team_id, rbac, integrations);
+    let html = web_pages::integrations::index::page(team_id, rbac, internal_integrations);
 
     Ok(Html(html))
 }

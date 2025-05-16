@@ -28,15 +28,21 @@ pub fn get_external_integrations(integrations: Vec<Integration>) -> Vec<Integrat
         .iter()
         .filter_map(|integration| {
             if let Some(definition) = &integration.definition {
-                let oas3: oas3::OpenApiV3Spec = oas3::from_json(definition.to_string()).unwrap();
-                let openai_definitions = open_api_to_definition(oas3.clone());
-                Some(IntegrationTool {
-                    scope: ToolScope::UserSelectable,
-                    title: integration.name.clone(),
-                    definitions: openai_definitions,
-                    definitions_json: serde_json::to_string_pretty(&open_api_to_definition(oas3))
+                let oas3 = oas3::from_json(definition.to_string());
+                if let Ok(oas3) = oas3 {
+                    let openai_definitions = open_api_to_definition(oas3.clone());
+                    Some(IntegrationTool {
+                        scope: ToolScope::UserSelectable,
+                        title: integration.name.clone(),
+                        definitions: openai_definitions,
+                        definitions_json: serde_json::to_string_pretty(&open_api_to_definition(
+                            oas3,
+                        ))
                         .expect("Failed to serialize time_date_tool to JSON"),
-                })
+                    })
+                } else {
+                    None
+                }
             } else {
                 None
             }
