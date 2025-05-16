@@ -2,7 +2,7 @@ use super::super::{CustomError, Jwt};
 use crate::console::process_chats;
 use axum::extract::Extension;
 use axum::response::Html;
-use db::queries::{capabilities, chats, models, prompts};
+use db::queries;
 use db::Pool;
 use db::{authz, ModelType};
 use llm_proxy::UserConfig;
@@ -23,7 +23,7 @@ pub async fn conversation(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let chats = chats::chats()
+    let chats = queries::chats::chats()
         .bind(&transaction, &conversation_id)
         .all()
         .await?;
@@ -31,25 +31,30 @@ pub async fn conversation(
     // Process chats to get chat_history and pending_chat
     let (chat_history, pending_chat) = process_chats(&transaction, chats).await?;
 
-    let prompt = prompts::prompt()
+    let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id, &team_id)
         .one()
         .await?;
 
-    let is_tts_disabled = models::models()
+    let is_tts_disabled = queries::models::models()
         .bind(&transaction, &ModelType::TextToSpeech)
         .all()
         .await?
         .is_empty();
 
-    let capabilities = capabilities::get_model_capabilities()
+    let capabilities = queries::capabilities::get_model_capabilities()
         .bind(&transaction, &prompt.model_id)
         .all()
         .await?;
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
+    let external_integrations = queries::integrations::integrations()
+        .bind(&transaction)
+        .all()
+        .await?;
+
     let available_tools: Vec<(String, String)> =
-        integrations::get_user_selectable_tools_for_chat_ui();
+        integrations::get_user_selectable_tools_for_chat_ui(external_integrations);
 
     let html = web_pages::prompts::conversation::page(
         team_id,

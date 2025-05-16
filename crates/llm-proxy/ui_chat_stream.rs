@@ -272,6 +272,11 @@ async fn create_request(
         .all()
         .await?;
 
+    let external_integrations = queries::integrations::integrations()
+        .bind(&transaction)
+        .all()
+        .await?;
+
     tracing::debug!("{:?}", &chat_history);
 
     let chat_history = chat_converter::convert_chat_to_messages(chat_history);
@@ -300,23 +305,14 @@ async fn create_request(
 
     tracing::debug!("{:?}", &user_config);
 
-    let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
-
-    // Check if the chat has attachments
-    if let Some(attachments) = &chat.attachments {
-        if !attachments.is_null() && !attachments.as_array().unwrap_or(&vec![]).is_empty() {
-            // Add attachment tools
-            all_tools.extend(get_tools_for_attachments());
-        }
-    }
-
     // Are we tool aware? If so let's add tools to this conversation
     let tools = if capabilities
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
         // Get the base tools selected by the user
-        let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
+        let mut all_tools =
+            get_chat_tools_user_selected(external_integrations, user_config.enabled_tools.as_ref());
 
         // Check if the chat has attachments
         if attachment_count > 0 {
