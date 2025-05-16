@@ -3,16 +3,10 @@ use crate::app_layout::{Layout, SideBar};
 use crate::routes;
 use assets::files::*;
 use db::authz::Rbac;
-use db::queries::integrations::Integration;
 use dioxus::prelude::*;
-use integrations::{IntegrationTool, ToolScope};
+use integrations::IntegrationTool;
 
-pub fn page(
-    team_id: i32,
-    rbac: Rbac,
-    integrations: Vec<Integration>,
-    builtin_integrations: Vec<IntegrationTool>,
-) -> String {
+pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationTool>) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -33,35 +27,14 @@ pub fn page(
 
             super::integration_table::IntegrationTable {
                 integrations: integrations.clone(),
-                tool_integrations: builtin_integrations.clone(),
                 team_id: team_id
             }
 
             // Add details modals for tool integrations
-            for (index, tool) in builtin_integrations.iter().enumerate() {
+            for (index, tool) in integrations.iter().enumerate() {
                 super::details::DetailsModal {
                     integration: tool.clone(),
-                    trigger_id: format!("show-builtin-integration-details-{}", index)
-                }
-            }
-
-            for item in &integrations {
-                super::details::DetailsModal {
-                    integration: IntegrationTool {
-                        title: "".into(),
-                        scope: ToolScope::UserSelectable,
-                        definitions: vec![],
-                        definitions_json: item.definition.clone().unwrap_or("".into()).to_string()
-                    },
-                    trigger_id: format!("show-integration-details-{}", item.id)
-                }
-            }
-
-            for item in &integrations {
-                super::delete::DeleteDrawer {
-                    team_id: team_id,
-                    id: item.id,
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                    trigger_id: format!("show-integration-details-{}", index)
                 }
             }
         }

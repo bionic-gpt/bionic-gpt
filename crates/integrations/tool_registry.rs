@@ -1,7 +1,9 @@
 // Import the tool trait and time date tool
 use crate::attachments_list::get_list_attachments_tool;
 use crate::attachments_read::get_read_attachment_tool;
+use crate::open_api_v3::open_api_to_definition;
 use crate::time_date::get_time_date_tool;
+use db::Integration;
 use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -18,6 +20,28 @@ pub struct IntegrationTool {
     pub scope: ToolScope,
     pub definitions: Vec<BionicToolDefinition>,
     pub definitions_json: String,
+}
+
+// Convert integrations from the DB into IntegrationTool
+pub fn get_external_integrations(integrations: Vec<Integration>) -> Vec<IntegrationTool> {
+    integrations
+        .iter()
+        .filter_map(|integration| {
+            if let Some(definition) = &integration.definition {
+                let oas3: oas3::OpenApiV3Spec = oas3::from_json(definition.to_string()).unwrap();
+                let openai_definitions = open_api_to_definition(oas3.clone());
+                Some(IntegrationTool {
+                    scope: ToolScope::UserSelectable,
+                    title: integration.name.clone(),
+                    definitions: openai_definitions,
+                    definitions_json: serde_json::to_string_pretty(&open_api_to_definition(oas3))
+                        .expect("Failed to serialize time_date_tool to JSON"),
+                })
+            } else {
+                None
+            }
+        })
+        .collect()
 }
 
 pub fn get_all_integrations() -> Vec<IntegrationTool> {
