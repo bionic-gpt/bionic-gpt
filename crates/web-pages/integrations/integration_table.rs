@@ -47,7 +47,7 @@ pub fn IntegrationTable(integrations: Vec<IntegrationTool>, team_id: i32) -> Ele
                                         button_text: "...",
                                         DropDownLink {
                                             href: "#",
-                                            drawer_trigger: format!("show-builtin-integration-details-{}", index),
+                                            drawer_trigger: format!("show-integration-details-{}", index),
                                             "Show Details"
                                         }
                                     }
