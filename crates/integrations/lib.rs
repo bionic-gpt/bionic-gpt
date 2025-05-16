@@ -2,8 +2,9 @@
 //!
 //! This crate provides integration with external services and tools.
 
+pub mod attachments_as_text;
 pub mod attachments_list;
-pub mod attachments_read;
+pub mod attachments_to_markdown;
 pub mod open_api_v3;
 pub mod time_date;
 pub mod tool;

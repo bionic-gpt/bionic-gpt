@@ -1,6 +1,6 @@
 // Import the tool trait and time date tool
 use crate::attachments_list::get_list_attachments_tool;
-use crate::attachments_read::get_read_attachment_tool;
+use crate::attachments_to_markdown::get_attachment_to_markdown_tool;
 use crate::open_api_v3::open_api_to_definition;
 use crate::time_date::get_time_date_tool;
 use db::Integration;
@@ -70,10 +70,13 @@ pub fn get_all_integrations() -> Vec<IntegrationTool> {
         IntegrationTool {
             scope: ToolScope::DocumentIntelligence,
             title: "Tools to retrieve documents and read their contents.".into(),
-            definitions: vec![get_list_attachments_tool(), get_read_attachment_tool()],
+            definitions: vec![
+                get_list_attachments_tool(),
+                get_attachment_to_markdown_tool(),
+            ],
             definitions_json: serde_json::to_string_pretty(&vec![
                 get_list_attachments_tool(),
-                get_read_attachment_tool(),
+                get_attachment_to_markdown_tool(),
             ])
             .expect("Failed to serialize attachment tools to JSON"),
         },
@@ -81,7 +84,10 @@ pub fn get_all_integrations() -> Vec<IntegrationTool> {
 }
 
 pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
-    vec![get_list_attachments_tool(), get_read_attachment_tool()]
+    vec![
+        get_list_attachments_tool(),
+        get_attachment_to_markdown_tool(),
+    ]
 }
 
 /// The name and descriptions of the tools the user can select from

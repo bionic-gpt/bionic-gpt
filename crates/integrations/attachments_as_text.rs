@@ -8,7 +8,7 @@ use tracing;
 
 /// Parameters for the read_attachment tool
 #[derive(Debug, Deserialize)]
-struct ReadAttachmentParams {
+struct AttachmentAsTextParams {
     /// ID of the attachment to read
     file_id: i32,
     /// Byte offset at which to start reading (default 0)
@@ -19,16 +19,16 @@ struct ReadAttachmentParams {
 }
 
 /// A tool that provides access to read file attachments
-pub struct ReadAttachmentsTool {
+pub struct AttachmentAsTextTool {
     pool: Pool,
     sub: Option<String>,
     conversation_id: Option<i64>,
 }
 
-impl ReadAttachmentsTool {
+impl AttachmentAsTextTool {
     pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
         tracing::debug!(
-            "Creating new ReadAttachmentsTool with sub: {:?}, conversation_id: {:?}",
+            "Creating new AttachmentAsTextTool with sub: {:?}, conversation_id: {:?}",
             sub,
             conversation_id
         );
@@ -41,21 +41,21 @@ impl ReadAttachmentsTool {
 }
 
 #[async_trait]
-impl ToolInterface for ReadAttachmentsTool {
+impl ToolInterface for AttachmentAsTextTool {
     fn get_tool(&self) -> BionicToolDefinition {
-        tracing::debug!("Getting tool definition for ReadAttachmentsTool");
+        tracing::debug!("Getting tool definition for AttachmentAsTextTool");
         get_read_attachment_tool()
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
     async fn execute(&self, arguments: &str) -> Result<String, String> {
         tracing::info!(
-            "Executing read_attachment tool with arguments: {}",
+            "Executing attachment_as_text tool with arguments: {}",
             arguments
         );
 
         // Deserialize directly to our struct
-        let params: ReadAttachmentParams = match serde_json::from_str(arguments) {
+        let params: AttachmentAsTextParams = match serde_json::from_str(arguments) {
             Ok(p) => {
                 tracing::debug!("Successfully parsed arguments: {:?}", p);
                 p
@@ -128,8 +128,8 @@ impl ToolInterface for ReadAttachmentsTool {
         }
 
         match &result {
-            Ok(_r) => tracing::info!("Read attachment tool execution completed successfully"),
-            Err(e) => tracing::warn!("Read attachment tool execution failed: {}", e),
+            Ok(_r) => tracing::info!("Attachment as text tool execution completed successfully"),
+            Err(e) => tracing::warn!("Attachment as text tool execution failed: {}", e),
         }
 
         result
@@ -138,13 +138,13 @@ impl ToolInterface for ReadAttachmentsTool {
 
 /// Returns a Tool definition for the read_attachment tool
 pub fn get_read_attachment_tool() -> BionicToolDefinition {
-    tracing::trace!("Creating read_attachment tool definition");
+    tracing::trace!("Creating attachment_as_text tool definition");
     BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
-            name: "read_attachment".to_string(),
+            name: "attachment_as_text".to_string(),
             description: Some(
-                "Return raw bytes (UTF-8 text if decodable) from an attachment. \
+                "Return the text of an attachment, works well with text based attachments such as source code or .txt. \
                 Use offset + max_bytes to limit the response and stay within context."
                     .to_string(),
             ),
