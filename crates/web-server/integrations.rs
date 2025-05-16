@@ -66,18 +66,14 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let mut internal_integrations = integrations::get_all_integrations();
-
     let external_integrations = queries::integrations::integrations()
         .bind(&transaction)
         .all()
         .await?;
 
-    let mut integrations = integrations::get_external_integrations(external_integrations);
+    let integrations = integrations::get_integrations(external_integrations);
 
-    internal_integrations.append(&mut integrations);
-
-    let html = web_pages::integrations::index::page(team_id, rbac, internal_integrations);
+    let html = web_pages::integrations::index::page(team_id, rbac, integrations);
 
     Ok(Html(html))
 }

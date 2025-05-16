@@ -25,8 +25,41 @@ pub struct IntegrationTool {
     pub definitions_json: String,
 }
 
+pub fn get_integrations(external_integrations: Vec<Integration>) -> Vec<IntegrationTool> {
+    let mut internal_integrations = vec![
+        IntegrationTool {
+            scope: ToolScope::UserSelectable,
+            title: "Date and time tools".into(),
+            definitions: vec![get_time_date_tool()],
+            definitions_json: serde_json::to_string_pretty(&vec![get_time_date_tool()])
+                .expect("Failed to serialize time_date_tool to JSON"),
+        },
+        IntegrationTool {
+            scope: ToolScope::DocumentIntelligence,
+            title: "Tools to retrieve documents and read their contents.".into(),
+            definitions: vec![
+                get_list_attachments_tool(),
+                get_attachment_to_markdown_tool(),
+                get_attachment_as_text_tool(),
+            ],
+            definitions_json: serde_json::to_string_pretty(&vec![
+                get_list_attachments_tool(),
+                get_attachment_to_markdown_tool(),
+                get_attachment_as_text_tool(),
+            ])
+            .expect("Failed to serialize attachment tools to JSON"),
+        },
+    ];
+
+    let mut external_integrations = get_external_integrations(external_integrations);
+
+    internal_integrations.append(&mut external_integrations);
+
+    internal_integrations
+}
+
 // Convert integrations from the DB into IntegrationTool
-pub fn get_external_integrations(integrations: Vec<Integration>) -> Vec<IntegrationTool> {
+fn get_external_integrations(integrations: Vec<Integration>) -> Vec<IntegrationTool> {
     integrations
         .iter()
         .filter_map(|integration| {
@@ -156,33 +189,6 @@ pub async fn create_external_integration_tools(
     tools
 }
 
-pub fn get_all_integrations() -> Vec<IntegrationTool> {
-    vec![
-        IntegrationTool {
-            scope: ToolScope::UserSelectable,
-            title: "Date and time tools".into(),
-            definitions: vec![get_time_date_tool()],
-            definitions_json: serde_json::to_string_pretty(&vec![get_time_date_tool()])
-                .expect("Failed to serialize time_date_tool to JSON"),
-        },
-        IntegrationTool {
-            scope: ToolScope::DocumentIntelligence,
-            title: "Tools to retrieve documents and read their contents.".into(),
-            definitions: vec![
-                get_list_attachments_tool(),
-                get_attachment_to_markdown_tool(),
-                get_attachment_as_text_tool(),
-            ],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                get_list_attachments_tool(),
-                get_attachment_to_markdown_tool(),
-                get_attachment_as_text_tool(),
-            ])
-            .expect("Failed to serialize attachment tools to JSON"),
-        },
-    ]
-}
-
 pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
     vec![
         get_list_attachments_tool(),
@@ -299,7 +305,7 @@ mod tests {
     #[test]
     fn test_integration_tool_definitions_json() {
         // Get all integrations
-        let integrations = get_all_integrations();
+        let integrations = get_integrations(vec![]);
 
         // Verify that there's at least one integration
         assert!(
