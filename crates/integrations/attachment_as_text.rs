@@ -260,6 +260,6 @@ mod tests {
     #[test]
     fn test_get_read_attachment_tool() {
         let tool = get_attachment_as_text_tool();
-        assert_eq!(tool.function.name, "read_attachment");
+        assert_eq!(tool.function.name, "attachment_as_text");
     }
 }

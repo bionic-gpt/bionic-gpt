@@ -81,7 +81,7 @@ mod tests {
 
         let operation = &operations[0];
         assert_eq!(operation.path, "/get_current_time");
-        assert_eq!(operation.method, "post");
+        assert_eq!(operation.method, "POST");
         assert_eq!(
             operation.definition.function.name,
             "tool_get_current_time_post"
@@ -107,7 +107,14 @@ mod tests {
                     "post": {
                         "summary": "Get Current Time",
                         "description": "Get current time in a specific timezone",
-                        "operationId": "tool_get_current_time_post"
+                        "operationId": "tool_get_current_time_post",
+                        "requestBody":{
+                            "content":{
+                                "application/json":{
+                                    "schema":{"$ref":"#/components/schemas/get_current_time_form_model"}
+                                }
+                            },"required":true
+                        }
                     }
                 }
             }

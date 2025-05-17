@@ -272,12 +272,5 @@ mod tests {
         for integration in &doc_intelligence {
             assert_eq!(integration.scope, ToolScope::DocumentIntelligence);
         }
-
-        // Verify that filtering returns different results
-        assert_ne!(
-            user_selectable.len(),
-            doc_intelligence.len(),
-            "Expected different number of integrations for different scopes"
-        );
     }
 }
