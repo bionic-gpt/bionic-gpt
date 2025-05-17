@@ -153,10 +153,10 @@ mod tests {
             serde_json::from_str(&json_str).expect("Failed to parse OpenAPI JSON");
         let tool_definitions = open_api_to_definition_legacy(oas3_spec);
 
-        dbg!(&tool_definitions);
-
         // Verify the tool definitions
         assert_eq!(tool_definitions.len(), 1);
         assert_eq!(tool_definitions[0].function.name, "get_current_time");
+
+        assert!(tool_definitions[0].function.parameters.is_some());
     }
 }
