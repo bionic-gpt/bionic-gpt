@@ -13,13 +13,25 @@ pub fn open_api_to_definition(oas3: oas3::OpenApiV3Spec) -> Vec<OpenApiOperation
     let mut operations: Vec<OpenApiOperation> = vec![];
 
     for (path, method, operation) in oas3.operations() {
-        if let Some(operation_id) = &operation.operation_id {
+        if let Some(_operation_id) = &operation.operation_id {
+            let mut parameters = None;
+            let function_name = path.replace('/', "");
+            let schema_key = format!("{}_form_model", function_name);
+
+            if let Some(components) = &oas3.components {
+                let schema = components.schemas.get(&schema_key);
+                if let Some(schema) = schema {
+                    let params = serde_json::to_value(schema).unwrap_or_default();
+                    parameters = Some(params);
+                }
+            }
+
             let definition = BionicToolDefinition {
                 r#type: "function".to_string(),
                 function: ChatCompletionFunctionDefinition {
-                    name: operation_id.clone(),
+                    name: function_name,
                     description: operation.description.clone(),
-                    parameters: None, // In a real implementation, we'd extract parameters from the OpenAPI spec
+                    parameters,
                 },
             };
 
@@ -81,11 +93,8 @@ mod tests {
 
         let operation = &operations[0];
         assert_eq!(operation.path, "/get_current_time");
-        assert_eq!(operation.method, "post");
-        assert_eq!(
-            operation.definition.function.name,
-            "tool_get_current_time_post"
-        );
+        assert_eq!(operation.method, "POST");
+        assert_eq!(operation.definition.function.name, "get_current_time");
         assert_eq!(
             operation.definition.function.description,
             Some("Get current time in a specific timezone".to_string())
@@ -107,7 +116,32 @@ mod tests {
                     "post": {
                         "summary": "Get Current Time",
                         "description": "Get current time in a specific timezone",
-                        "operationId": "tool_get_current_time_post"
+                        "operationId": "tool_get_current_time_post",
+                        "requestBody":{
+                            "content":{
+                                "application/json":{
+                                    "schema":{"$ref":"#/components/schemas/get_current_time_form_model"}
+                                }
+                            },"required":true
+                        }
+                    }
+                }
+            },
+            "components": {
+                "schemas": {
+                    "get_current_time_form_model": {
+                        "type": "object",
+                        "title": "get_current_time_form_model",
+                        "properties": {
+                            "timezone": {
+                                "type": "string",
+                                "title": "Timezone",
+                                "description": "IANA timezone name (e.g., 'America/New_York', 'Europe/London'). Use 'America/New_York' as local timezone if no timezone provided by the user."
+                            }
+                        },
+                        "required": [
+                            "timezone"
+                        ]
                     }
                 }
             }
@@ -117,15 +151,12 @@ mod tests {
         let json_str = serde_json::to_string(&json).expect("Failed to convert JSON to string");
         let oas3_spec: oas3::OpenApiV3Spec =
             serde_json::from_str(&json_str).expect("Failed to parse OpenAPI JSON");
-
-        // Call the legacy function
         let tool_definitions = open_api_to_definition_legacy(oas3_spec);
 
         // Verify the tool definitions
         assert_eq!(tool_definitions.len(), 1);
-        assert_eq!(
-            tool_definitions[0].function.name,
-            "tool_get_current_time_post"
-        );
+        assert_eq!(tool_definitions[0].function.name, "get_current_time");
+
+        assert!(tool_definitions[0].function.parameters.is_some());
     }
 }

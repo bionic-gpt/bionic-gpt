@@ -156,10 +156,7 @@ build-cli-linux:
 build-cli-osx:
     FROM joseluisq/rust-linux-darwin-builder:1.84.1
     COPY --dir crates/k8s-operator .
-    RUN cd k8s-operator \ 
-        && CC=o64-clang \
-        CXX=o64-clang++ \
-        cargo build --release --target x86_64-apple-darwin
+    RUN cd k8s-operator && CC=o64-clang CXX=o64-clang++ cargo build --release --target x86_64-apple-darwin
     SAVE ARTIFACT k8s-operator/target/x86_64-apple-darwin/release/k8s-operator AS LOCAL ./bionic-cli-darwin
 
 build-cli-windows:
@@ -169,8 +166,7 @@ build-cli-windows:
     RUN rustup target add x86_64-pc-windows-gnu
 
     COPY --dir crates/k8s-operator .
-    RUN cd k8s-operator \ 
-        && cargo build --release --target x86_64-pc-windows-gnu
+    RUN cd k8s-operator && cargo build --release --target x86_64-pc-windows-gnu
     SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
 
 # docker run -p 8000:8000 bionic-gpt/openapi-time:latest

@@ -32,7 +32,8 @@
 				"mutantdino.resourcemonitor",
 				"rust-lang.rust-analyzer",
 				"tamasfe.even-better-toml",
-				"fill-labs.dependi"
+				"fill-labs.dependi",
+				"glehmann.earthlyls"
 			]
 		}
 	},
