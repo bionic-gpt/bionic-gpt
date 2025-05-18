@@ -9,6 +9,16 @@ dev-setup:
     cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000
     cargo run --bin k8s-operator -- operator
 
+# Upgrade the testing chunking engine to the real one
+chunking-engine-setup:
+    kubectl set image deployment/chunking-engine \
+        chunking-engine=downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc \
+        -n bionic-gpt
+
+# Retrieve the cluster kube config - so kubectl and k9s work.
+get-config:
+    k3d kubeconfig write k3s-default --kubeconfig-merge-default
+
 wa:
     TOOL_INTEGRATIONS_FEATURE=1 \
     mold -run cargo watch --workdir /workspace/ \
