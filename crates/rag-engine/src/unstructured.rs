@@ -70,32 +70,6 @@ pub async fn document_to_chunks(
     }
 }
 
-#[allow(dead_code)]
-pub async fn document_to_markdown(
-    file: Vec<u8>,
-    file_name: &str,
-) -> Result<String, Box<dyn Error>> {
-    let client = Client::new();
-    let config = crate::config::Config::new();
-    let url = format!("{}/general/v0/general", config.unstructured_endpoint);
-
-    // Make form part of file
-    let some_file = multipart::Part::bytes(file).file_name(file_name.to_string());
-    let output_format = multipart::Part::text("markdown");
-
-    // Create the multipart form
-    let form = multipart::Form::new()
-        .part("files", some_file)
-        .part("output_format", output_format);
-
-    // Send request
-    let response = client.post(url).multipart(form).send().await?;
-    let text_result = response.text().await?;
-
-    // Since we're expecting markdown text directly, we just return the text
-    Ok(text_result)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

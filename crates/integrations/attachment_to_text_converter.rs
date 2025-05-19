@@ -2,14 +2,14 @@ use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use db::{Pool, Transaction};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
-use rag_engine::unstructured::document_to_markdown;
+use rag_engine::unstructured::document_to_chunks;
 use serde::Deserialize;
 use serde_json::json;
 use tracing;
 
 /// Parameters for the read_attachment tool
 #[derive(Debug, Deserialize)]
-struct AttachmentToMarkdownParams {
+struct AttachmentToTextConverterParams {
     /// ID of the attachment to read
     file_id: i32,
     /// Byte offset at which to start reading (default 0)
@@ -19,17 +19,17 @@ struct AttachmentToMarkdownParams {
     max_bytes: Option<u64>,
 }
 
-/// A tool that provides access to read file attachments
-pub struct AttachmentToMarkdownTool {
+/// A tool that provides access to read file attachments and convert them to text
+pub struct AttachmentToTextConverterTool {
     pool: Pool,
     sub: Option<String>,
     conversation_id: Option<i64>,
 }
 
-impl AttachmentToMarkdownTool {
+impl AttachmentToTextConverterTool {
     pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
         tracing::debug!(
-            "Creating new AttachmentToMarkdownTool with sub: {:?}, conversation_id: {:?}",
+            "Creating new AttachmentToTextConverterTool with sub: {:?}, conversation_id: {:?}",
             sub,
             conversation_id
         );
@@ -42,10 +42,10 @@ impl AttachmentToMarkdownTool {
 }
 
 #[async_trait]
-impl ToolInterface for AttachmentToMarkdownTool {
+impl ToolInterface for AttachmentToTextConverterTool {
     fn get_tool(&self) -> BionicToolDefinition {
-        tracing::debug!("Getting tool definition for AttachmentToMarkdown Tool");
-        get_attachment_to_markdown_tool()
+        tracing::debug!("Getting tool definition for AttachmentToTextConverter Tool");
+        get_attachment_to_text_converter_tool()
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
@@ -53,7 +53,7 @@ impl ToolInterface for AttachmentToMarkdownTool {
         tracing::info!("Executing tool with arguments: {}", arguments);
 
         // Deserialize directly to our struct
-        let params: AttachmentToMarkdownParams = match serde_json::from_str(arguments) {
+        let params: AttachmentToTextConverterParams = match serde_json::from_str(arguments) {
             Ok(p) => {
                 tracing::debug!("Successfully parsed arguments: {:?}", p);
                 p
@@ -134,15 +134,17 @@ impl ToolInterface for AttachmentToMarkdownTool {
     }
 }
 
-/// Returns a Tool definition for the attachment_to_markdown tool
-pub fn get_attachment_to_markdown_tool() -> BionicToolDefinition {
-    tracing::trace!("Creating attachment_to_markdown tool definition");
+/// Returns a Tool definition for the attachment_to_text_converter tool
+pub fn get_attachment_to_text_converter_tool() -> BionicToolDefinition {
+    tracing::trace!("Creating attachment_to_text_converter tool definition");
     BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
-            name: "attachment_to_markdown".to_string(),
+            name: "attachment_to_text_converter".to_string(),
             description: Some(
-                "Converts an attachment to markdown, works with PDF's and other documents. \
+                "Converts document attachments to readable text format. \
+                Supports various file types including PDF, DOCX, TXT, HTML, and more. \
+                Documents are intelligently chunked for better readability. \
                 Use offset + max_bytes to limit the response and stay within context."
                     .to_string(),
             ),
@@ -185,7 +187,7 @@ fn mime_type_to_extension(mime_type: &str) -> String {
     .to_string()
 }
 
-/// Read attachment content and convert to markdown
+/// Read attachment content and convert to text
 #[tracing::instrument(skip(transaction))]
 async fn read_attachment(
     transaction: &Transaction<'_>,
@@ -244,17 +246,37 @@ async fn read_attachment(
         mime_type_to_extension(&content.mime_type)
     );
 
-    // Convert to markdown using document_to_markdown
-    tracing::debug!("Converting attachment to markdown");
-    match document_to_markdown(slice.to_vec(), &file_name).await {
-        Ok(markdown) => {
-            tracing::info!("Successfully converted attachment to markdown");
-            Ok(markdown)
+    // Get config for unstructured endpoint
+    let config = rag_engine::config::Config::new();
+
+    // Convert to text using document_to_chunks
+    tracing::debug!("Converting attachment to text using document_to_chunks");
+    match document_to_chunks(
+        slice.to_vec(),
+        &file_name,
+        500,  // default combine_under_n_chars
+        1500, // default new_after_n_chars
+        true, // default multipage_sections
+        &config.unstructured_endpoint,
+    )
+    .await
+    {
+        Ok(chunks) => {
+            tracing::info!("Successfully converted attachment to text chunks");
+
+            // Combine all chunks into a single text
+            let text = chunks
+                .iter()
+                .map(|chunk| chunk.text.clone())
+                .collect::<Vec<String>>()
+                .join("\n\n");
+
+            Ok(text)
         }
         Err(e) => {
-            tracing::error!("Failed to convert attachment to markdown: {}", e);
+            tracing::error!("Failed to convert attachment to text: {}", e);
 
-            // Fallback to original text conversion if markdown conversion fails
+            // Fallback to original text conversion if text conversion fails
             let text = match String::from_utf8(slice.to_vec()) {
                 Ok(text) => {
                     tracing::debug!("Falling back to UTF-8 text conversion");
@@ -276,8 +298,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_attachment_to_markdown_tool() {
-        let tool = get_attachment_to_markdown_tool();
-        assert_eq!(tool.function.name, "attachment_to_markdown");
+    fn test_get_attachment_to_text_converter_tool() {
+        let tool = get_attachment_to_text_converter_tool();
+        assert_eq!(tool.function.name, "attachment_to_text_converter");
     }
 }
