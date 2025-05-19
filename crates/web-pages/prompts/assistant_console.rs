@@ -36,7 +36,7 @@ pub fn AssistantConsole(
             div {
                 id: "console-panel",
                 class: "h-full flex flex-col",
-                if ! chat_history.is_empty() {
+                if ! chat_history.is_empty() || pending_chat.is_some() {
                     crate::console::console_stream::ConsoleStream {
                         team_id: team_id,
                         chat_history,

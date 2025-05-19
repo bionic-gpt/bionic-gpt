@@ -179,3 +179,28 @@ openapi-time:
     ENTRYPOINT ["uvx", "mcpo", "--host", "0.0.0.0", "--port", "8000", "--", "mcp-server-time","--local-timezone=America/New_York"]
 
     SAVE IMAGE --push bionic-gpt/openapi-time:latest
+
+# docker run -p 8000:8000 --add-host=host.docker.internal:host-gateway bionic-gpt/openapi-postgres:latest postgresql://db-owner:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable
+# curl localhost:8000/openapi.json
+# curl -X POST http://localhost:8000/query -H 'Content-Type: application/json' -d '{"sql": "SELECT * FROM users"}'
+
+openapi-postgres:
+    FROM mcp/postgres:latest
+
+    # install python3 and the venv tool
+    RUN apk add --no-cache python3 py3-virtualenv
+
+    # make and activate a venv, install your packages there
+    RUN python3 -m venv /opt/venv \
+     && /opt/venv/bin/pip install --upgrade pip mcpo uv
+
+    # ensure our venv's pip/python are on PATH
+    ENV PATH="/opt/venv/bin:${PATH}"
+
+    # now uvx & mcpo will be picked up from that venv
+    ENTRYPOINT ["uvx", "mcpo", \
+                "--host", "0.0.0.0", \
+                "--port", "8000", \
+                "--", "node", "dist/index.js"]
+
+    SAVE IMAGE --push bionic-gpt/openapi-postgres:latest

@@ -49,6 +49,7 @@ axum_typed_multipart = { version = "0.16.0", default-features = false }
 mime = "0.3"
 oas3 = "0.16.1"
 reqwest = { version = "0", default-features = false, features = ["json", "rustls-tls"] }
+serde_urlencoded = "0.7.1"
 
 [dev-dependencies]
 time = "0.3.36"

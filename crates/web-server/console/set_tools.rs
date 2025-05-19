@@ -1,59 +1,31 @@
+use axum::body::Bytes;
 use axum::http::HeaderMap;
 use axum::response::Redirect;
-use axum::Form;
 use axum_extra::extract::cookie::{Cookie, CookieJar};
 use llm_proxy::user_config::{create_user_config_cookie, UserConfig};
-use serde::Deserialize;
 use web_pages::routes::console::SetTools;
-
-#[derive(Deserialize, Debug)]
-pub struct ToolsForm {
-    #[serde(default)]
-    tools: ToolsData,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(untagged)]
-enum ToolsData {
-    Single(String),
-    Multiple(Vec<String>),
-    None(()),
-}
-
-impl Default for ToolsData {
-    fn default() -> Self {
-        ToolsData::None(())
-    }
-}
-
-impl Default for ToolsForm {
-    fn default() -> Self {
-        ToolsForm {
-            tools: ToolsData::None(()),
-        }
-    }
-}
-
-impl ToolsForm {
-    pub fn get_tools(self) -> Vec<String> {
-        match self.tools {
-            ToolsData::Single(tool) => vec![tool],
-            ToolsData::Multiple(tools) => tools,
-            ToolsData::None(()) => vec![],
-        }
-    }
-}
 
 pub async fn set_tools(
     SetTools {}: SetTools,
     config: UserConfig,
     jar: CookieJar,
     headers: HeaderMap,
-    Form(form): Form<ToolsForm>,
+    body: Bytes,
 ) -> (CookieJar, Redirect) {
+    // parse into a Vec of (key, value) pairs
+    let pairs: Vec<(String, String)> =
+        serde_urlencoded::from_bytes(&body).expect("invalid form data");
+
+    // collect all the "tools" values into a Vec<String>
+    let tools: Vec<String> = pairs
+        .into_iter()
+        .filter(|(k, _)| k == "tools")
+        .map(|(_, v)| v)
+        .collect();
+
     let updated_config = UserConfig {
         default_prompt: config.default_prompt,
-        enabled_tools: Some(form.get_tools()),
+        enabled_tools: Some(tools),
     };
 
     // Create a cookie with root path so it's accessible from any path

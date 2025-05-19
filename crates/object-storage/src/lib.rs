@@ -1,6 +1,5 @@
 use db::{queries::object_storage, ObjectStorage, Pool, TokioPostgresError};
 use image::imageops::FilterType;
-use rag_engine::unstructured::document_to_markdown;
 
 #[derive(Debug)]
 pub enum StorageError {
@@ -108,37 +107,6 @@ pub fn resize_image(bytes: &[u8], size: Option<(u32, u32)>) -> Result<Vec<u8>, S
     } else {
         Ok(bytes.to_vec()) // Return original bytes if no size is specified
     }
-}
-
-pub async fn upload_document(
-    pool: Pool,
-    user_id: i32,
-    team_id: i32,
-    file_name: &str,
-    bytes: &[u8],
-) -> Result<i32, StorageError> {
-    if file_name.is_empty() || bytes.is_empty() {
-        return Err(StorageError::InvalidInput(
-            "File name and bytes cannot be empty".into(),
-        ));
-    }
-
-    // Convert document to markdown
-    let markdown_text = match document_to_markdown(bytes.to_vec(), file_name).await {
-        Ok(text) => text,
-        Err(e) => {
-            return Err(StorageError::InvalidInput(format!(
-                "Failed to convert document to text: {}",
-                e
-            )))
-        }
-    };
-
-    // Upload the markdown text
-    let markdown_bytes = markdown_text.as_bytes();
-    let markdown_file_name = format!("{}.md", file_name);
-
-    upload(pool, user_id, team_id, &markdown_file_name, markdown_bytes).await
 }
 
 pub async fn get(pool: Pool, id: i32) -> Result<ObjectStorage, StorageError> {

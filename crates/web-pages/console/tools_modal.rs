@@ -5,22 +5,6 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn ToolsModal(enabled_tools: Vec<String>, available_tools: Vec<(String, String)>) -> Element {
-    // Get the list of available tools
-    // In a real implementation, we would get this from the integrations crate
-    // For now, we'll use a hardcoded list of tools
-    let available_tools = if available_tools.is_empty() {
-        // Fallback to hardcoded tools if none are provided
-        vec![
-            ("get_weather".to_string(), "Weather Tool".to_string()),
-            (
-                "get_current_time_and_date".to_string(),
-                "Time & Date Tool".to_string(),
-            ),
-        ]
-    } else {
-        available_tools
-    };
-
     rsx!(
         form {
             action: routes::console::SetTools{}.to_string(),

@@ -35,7 +35,17 @@ pub async fn index(
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id, &team_id)
         .one()
-        .await?;
+        .await;
+
+    let prompt = if let Ok(prompt) = prompt {
+        prompt
+    } else {
+        let id = prompts.first().unwrap().id;
+        queries::prompts::prompt()
+            .bind(&transaction, &id, &team_id)
+            .one()
+            .await?
+    };
 
     let capabilities = queries::capabilities::get_model_capabilities()
         .bind(&transaction, &prompt.model_id)

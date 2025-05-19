@@ -31,6 +31,12 @@ pub async fn conversation(
     // Process chats to get chat_history and pending_chat
     let (chat_history, pending_chat) = process_chats(&transaction, chats).await?;
 
+    tracing::debug!(
+        "History items = {} and pending chat? {}",
+        chat_history.len(),
+        pending_chat.is_some()
+    );
+
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id, &team_id)
         .one()

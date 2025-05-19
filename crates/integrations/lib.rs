@@ -3,7 +3,7 @@
 //! This crate provides integration with external services and tools.
 
 pub mod attachment_as_text;
-pub mod attachment_to_markdown;
+pub mod attachment_to_text_converter;
 pub mod attachments_list;
 pub mod external_integration;
 pub mod open_api_v3;
