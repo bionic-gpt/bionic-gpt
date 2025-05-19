@@ -180,7 +180,7 @@ openapi-time:
 
     SAVE IMAGE --push bionic-gpt/openapi-time:latest
 
-# docker run -p 8000:8000 bionic-gpt/openapi-postgres:latest
+# docker run -p 8000:8000 --add-host=host.docker.internal:host-gateway bionic-gpt/openapi-postgres:latest postgresql://db-owner:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable
 # curl localhost:8000/openapi.json
 # curl -X POST http://localhost:8000/query -H 'Content-Type: application/json' -d '{"sql": "SELECT * FROM users"}'
 
