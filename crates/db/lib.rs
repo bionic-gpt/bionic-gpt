@@ -10,9 +10,10 @@ pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::{AuditTrail, TopUser};
 pub use queries::categories::Category;
 pub use queries::chats::Chat;
-pub use queries::conversations::{Conversation, History};
+pub use queries::conversations::Conversation;
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
+pub use queries::history::History;
 pub use queries::integrations::Integration;
 pub use queries::invitations::{Invitation, InviteSummary};
 pub use queries::models::{Model, ModelWithPrompt};
@@ -28,7 +29,7 @@ pub use types::public::{
     AuditAccessType, AuditAction, ChatStatus, IntegrationStatus, IntegrationType, ModelCapability,
     ModelType, Permission, PromptType, Role, Visibility,
 };
-pub use vector_search::{get_related_context, search_history, RelatedContext};
+pub use vector_search::{get_related_context, RelatedContext};
 
 pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {
     let config = tokio_postgres::Config::from_str(database_url).unwrap();

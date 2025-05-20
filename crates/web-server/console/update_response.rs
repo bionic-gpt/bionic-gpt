@@ -3,7 +3,7 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
-use db::queries::{chats, models, prompts};
+use db::queries::{chats, prompts};
 use db::Pool;
 use db::{authz, PromptType};
 use serde::Deserialize;
@@ -37,53 +37,6 @@ pub async fn update_response(
         .bind(&transaction, &message.chat_id)
         .one()
         .await?;
-
-    // If the streaming LLM proxy saved a response, we'll process it.
-    if let Some(response) = chat.response {
-        tracing::debug!("We have an existing repsonse in the database");
-        // We generate embeddings so we can search the history.
-        let embeddings_model = models::get_system_embedding_model()
-            .bind(&transaction)
-            .one()
-            .await?;
-
-        tracing::debug!(
-            "Converting response to embeddings using {}",
-            embeddings_model.name
-        );
-
-        let embeddings = embeddings_api::get_embeddings(
-            &response,
-            &embeddings_model.base_url,
-            &embeddings_model.name,
-            embeddings_model.context_size,
-            &embeddings_model.api_key,
-        )
-        .await
-        .map_err(|e| CustomError::ExternalApi(e.to_string()));
-
-        match embeddings {
-            Ok(embeddings) => {
-                tracing::debug!("Convert embeddings to pgvector");
-                let embedding_data = pgvector::Vector::from(embeddings);
-                tracing::debug!("Updating chat with embeddings");
-                transaction
-                    .execute(
-                        "
-                        UPDATE chats SET response_embeddings = $1
-                        WHERE id = $2
-                        ",
-                        &[&embedding_data, &chat.id],
-                    )
-                    .await?;
-
-                tracing::debug!("Succesfully stored embeddings in chat");
-            }
-            Err(e) => {
-                tracing::error!("Problem trying to get embeddings data {}", e);
-            }
-        }
-    }
 
     let prompt = prompts::prompt()
         .bind(&transaction, &chat.prompt_id, &team_id)
