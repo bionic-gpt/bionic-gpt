@@ -32,7 +32,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationTool>) -> Str
 
             // Add details modals for tool integrations
             for (index, tool) in integrations.iter().enumerate() {
-                super::details::DetailsModal {
+                super::details_modal::DetailsModal {
                     integration: tool.clone(),
                     trigger_id: format!("show-integration-details-{}", index)
                 }
