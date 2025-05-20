@@ -1,5 +1,4 @@
 use crate::queries::prompts;
-use crate::History;
 use crate::TokioPostgresError;
 use crate::Transaction;
 
@@ -58,53 +57,4 @@ pub async fn get_related_context(
         .collect();
 
     Ok(related_context)
-}
-
-// Query the vector database using a similarity search.
-// The prompt decides how we use the datasets
-pub async fn search_history(
-    transaction: &Transaction<'_>,
-    user_id: i32,
-    limit: i32,
-    embeddings: Vec<f32>,
-) -> Result<Vec<History>, TokioPostgresError> {
-    // Format the embeddings in PGVector format
-    let embedding_data = pgvector::Vector::from(embeddings.clone());
-
-    // Find sections of documents that are related to the users question
-    let responses = transaction
-        .query(
-            "
-                SELECT 
-                    conv.id::bigint,
-                    LEFT(c.response, 255),
-                    trim(both '\"' from to_json(c.created_at)::text) as created_at_iso,
-                    c.created_at
-                FROM 
-                    chats c
-                LEFT JOIN
-                    conversations conv
-                ON conv.id = c.conversation_id
-                WHERE
-                    conv.user_id = $1
-                ORDER BY 
-                    request_embeddings <-> $2 
-                LIMIT $3;
-            ",
-            &[&user_id, &embedding_data, &(limit as i64)],
-        )
-        .await?;
-
-    // Just get the text from the returned rows
-    let results: Vec<History> = responses
-        .into_iter()
-        .map(|content| History {
-            id: content.get(0),
-            summary: content.get(1),
-            created_at_iso: content.get(2),
-            created_at: content.get(3),
-        })
-        .collect();
-
-    Ok(results)
 }

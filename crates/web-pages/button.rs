@@ -159,14 +159,16 @@ pub fn Button(props: ButtonProps) -> Element {
                 if let Some(img_src) = props.prefix_image_src {
                         img {
                             src: "{img_src}",
-                            class: "h-5 w-5",
+                            class: "mr-2",
+                            width: "12"
                         }
                 },
                 {props.children},
                 if let Some(img_src) = props.suffix_image_src {
                         img {
                             src: "{img_src}",
-                            class: "h-5 w-5",
+                            class: "mr-2",
+                            width: "12"
                         }
                 }
             }

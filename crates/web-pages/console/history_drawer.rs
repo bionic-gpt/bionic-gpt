@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
-use db::queries::conversations::History;
+use db::History;
 use dioxus::prelude::*;
 
 #[component]

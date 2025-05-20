@@ -19,9 +19,8 @@
 				"files.watcherExclude": {
 					"**/target/**": true
 				},
-				"rust-analyzer.checkOnSave.command": "clippy",
 				// Stop rust analyzer blocking the main build
-				"rust-analyzer.checkOnSave.extraArgs": [
+				"rust-analyzer.check.extraArgs": [
 				  "--target-dir",
 				  "/tmp/rust-analyzer-check"
 				]

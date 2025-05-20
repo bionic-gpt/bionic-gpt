@@ -3,7 +3,7 @@ use axum::{
     extract::{Extension, Multipart},
     response::IntoResponse,
 };
-use db::queries::{attachments, chats, conversations, models, prompts};
+use db::queries::{attachments, chats, conversations, prompts};
 use db::Pool;
 use db::{authz, PromptType};
 use object_storage;
@@ -122,9 +122,6 @@ pub async fn send_message(
             .one()
             .await?;
 
-        // Handle embeddings
-        handle_embeddings(&transaction, &message.message, &chat_id).await?;
-
         // Handle attachments if any
         handle_attachments(
             &transaction,
@@ -164,55 +161,6 @@ pub async fn send_message(
     } else {
         super::super::layout::redirect(&web_pages::routes::console::Index { team_id }.to_string())
     }
-}
-
-/// Handles the generation of embeddings and updates the database.
-///
-/// # Arguments
-///
-/// * `transaction` - A reference to the current database transaction.
-/// * `message` - The message string to generate embeddings for.
-/// * `chat_id` - The ID of the chat to update with the embeddings.
-///
-/// # Returns
-///
-/// * `Result<(), CustomError>` - Returns `Ok` if successful, or a `CustomError` otherwise.
-async fn handle_embeddings(
-    transaction: &db::Transaction<'_>,
-    message: &str,
-    chat_id: &i32,
-) -> Result<(), CustomError> {
-    // Fetch the embeddings model
-    let embeddings_model = models::get_system_embedding_model()
-        .bind(transaction)
-        .one()
-        .await?;
-
-    // Generate embeddings using the external API
-    let embeddings = embeddings_api::get_embeddings(
-        message,
-        &embeddings_model.base_url,
-        &embeddings_model.name,
-        embeddings_model.context_size,
-        &embeddings_model.api_key,
-    )
-    .await
-    .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
-
-    // Convert embeddings to pgvector and update the database
-    let embedding_data = pgvector::Vector::from(embeddings);
-    transaction
-        .execute(
-            "
-            UPDATE chats SET request_embeddings = $1
-            WHERE id = $2
-            ",
-            &[&embedding_data, chat_id],
-        )
-        .await
-        .map_err(|e| CustomError::Database(e.to_string()))?;
-
-    Ok(())
 }
 
 /// Handles the processing and storage of file attachments.
