@@ -19,7 +19,7 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
-            selected_item: SideBar::Models,
+            selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac,
             title: "Integrations",
