@@ -77,3 +77,9 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 1. Run `wt` to run and watch the Tailwind pipeline.
 1. Run `wa` to build and watch the Bionic server.
 1. You can now access the front end on `http://localhost:7703`.
+
+## Running the integration tests
+
+Selenium is configured as part of our `devcontainer` and is accessible via `http://localhost:7706/`
+
+1. Run `just integration-testing` and watch the tests run via the VNC connection in `http://localhost:7706/`
