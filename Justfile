@@ -45,7 +45,7 @@ test:
 # Look at CONTRIBUTING.md to see how integration testing works
 integration-testing:
     export WEB_DRIVER_URL=http://selenium:4444 && \
-    export APPLICATION_URL=http://development:7703 && \
+    export APPLICATION_URL=http://development:30000 && \
     cargo test --workspace --exclude rag-engine
 
 release-docker:
