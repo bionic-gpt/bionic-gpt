@@ -30,7 +30,10 @@ pub fn open_api_to_definition(oas3: oas3::OpenApiV3Spec) -> Vec<OpenApiOperation
                 r#type: "function".to_string(),
                 function: ChatCompletionFunctionDefinition {
                     name: function_name,
-                    description: operation.description.clone(),
+                    description: operation
+                        .description
+                        .clone()
+                        .or_else(|| operation.summary.clone()),
                     parameters,
                 },
             };
@@ -158,5 +161,48 @@ mod tests {
         assert_eq!(tool_definitions[0].function.name, "get_current_time");
 
         assert!(tool_definitions[0].function.parameters.is_some());
+    }
+
+    #[test]
+    fn test_open_api_to_definition_summary_fallback() {
+        // Create a simplified OpenAPI spec with only summary (no description)
+        let json = serde_json::json!({
+            "openapi": "3.1.0",
+            "info": {
+                "title": "Blockchain API",
+                "description": "Blockchain API Server",
+                "version": "1.0.0"
+            },
+            "paths": {
+                "/ticker": {
+                    "get": {
+                        "summary": "Get Bitcoin prices by currency",
+                        "operationId": "getTicker"
+                    }
+                }
+            }
+        });
+
+        // Convert to string and parse as oas3::OpenApiV3Spec
+        let json_str = serde_json::to_string(&json).expect("Failed to convert JSON to string");
+        let oas3_spec: oas3::OpenApiV3Spec =
+            serde_json::from_str(&json_str).expect("Failed to parse OpenAPI JSON");
+
+        // Call the function being tested
+        let operations = open_api_to_definition(oas3_spec);
+
+        // Verify the operations
+        assert_eq!(operations.len(), 1);
+
+        let operation = &operations[0];
+        assert_eq!(operation.path, "/ticker");
+        assert_eq!(operation.method, "GET");
+        assert_eq!(operation.definition.function.name, "ticker");
+
+        // Verify that the summary is used as fallback for description
+        assert_eq!(
+            operation.definition.function.description,
+            Some("Get Bitcoin prices by currency".to_string())
+        );
     }
 }
