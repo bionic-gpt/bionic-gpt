@@ -94,6 +94,15 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     title: "Explore Assistants"
                                 }
                             }
+                            if show_integrations_menu {
+                                NavItem {
+                                    id: SideBar::Integrations.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::integrations::Index { team_id: props.team_id },
+                                    icon: nav_audit_svg.name,
+                                    title: "Integrations"
+                                }
+                            }
                             NavItem {
                                 id: SideBar::Datasets.to_string(),
                                 selected_item_id: props.selected_item.to_string(),
@@ -120,7 +129,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::document_pipelines::Index { team_id: props.team_id },
                                 icon: nav_ccsds_data_svg.name,
-                                title: "Data Integrations"
+                                title: "Bulk Data Upload"
                             }
                         )
                     }
@@ -156,15 +165,6 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::models::Index{team_id: props.team_id},
                                 icon: nav_phonebook_svg.name,
                                 title: "Model Setup"
-                            }
-                            if show_integrations_menu {
-                                NavItem {
-                                    id: SideBar::Integrations.to_string(),
-                                    selected_item_id: props.selected_item.to_string(),
-                                    href: super::routes::integrations::Index { team_id: props.team_id },
-                                    icon: nav_audit_svg.name,
-                                    title: "Integrations"
-                                }
                             }
                             NavItem {
                                 id: SideBar::AuditTrail.to_string(),
