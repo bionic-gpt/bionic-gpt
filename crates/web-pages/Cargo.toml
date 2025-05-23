@@ -23,3 +23,4 @@ daisy_rsx = "0.1.14"
 comrak = { version = "0.39.0", features = ["shortcodes"] }
 time = "0.3.36"
 validator = { version = "0.20.0", features = ["derive"] }
+oas3 = "0.16.1"

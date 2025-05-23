@@ -4,12 +4,11 @@ use crate::routes;
 use assets::files::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
-use integrations::IntegrationTool;
 
-pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationTool>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<oas3::Spec>) -> String {
     let page = rsx! {
         Layout {
-            section_class: "p-4",
+            section_class: "p-4 max-w-3xl w-full mx-auto",
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac,
@@ -31,12 +30,12 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationTool>) -> Str
             }
 
             // Add details modals for tool integrations
-            for (index, tool) in integrations.iter().enumerate() {
-                super::details_modal::DetailsModal {
-                    integration: tool.clone(),
-                    trigger_id: format!("show-integration-details-{}", index)
-                }
-            }
+            //for (index, tool) in integrations.iter().enumerate() {
+            //    super::details_modal::DetailsModal {
+            //        integration: tool.clone(),
+            //        trigger_id: format!("show-integration-details-{}", index)
+            //    }
+            //}
         }
     };
 
