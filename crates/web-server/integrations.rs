@@ -6,7 +6,6 @@ use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Json, Pool};
-use integrations;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::{Delete, Index, Upsert};
@@ -66,12 +65,23 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let external_integrations = queries::integrations::integrations()
+    let integrations = queries::integrations::integrations()
         .bind(&transaction)
         .all()
         .await?;
 
-    let integrations = integrations::get_integrations(external_integrations, None);
+    // Get the Open API Spec
+    let integrations: Vec<oas3::Spec> = integrations
+        .iter()
+        .filter_map(|integration| {
+            if let Some(definition) = &integration.definition {
+                oas3::from_json(definition.to_string()).ok()
+            } else {
+                tracing::error!("This integration doesn't have a definition");
+                None
+            }
+        })
+        .collect();
 
     let html = web_pages::integrations::index::page(team_id, rbac, integrations);
 
