@@ -8,6 +8,8 @@ use axum_extra::routing::RouterExt;
 use db::{authz, queries, Json, Pool};
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
+use web_pages::integrations::IntegrationOas3;
+use web_pages::routes::integrations::View;
 use web_pages::routes::integrations::{Delete, Index, Upsert};
 
 /// Fetches and parses an OpenAPI specification from a URL.
@@ -50,6 +52,7 @@ async fn fetch_and_parse_openapi(base_url: &str) -> Result<Json<oas3::OpenApiV3S
 pub fn routes() -> Router {
     Router::new()
         .typed_get(loader)
+        .typed_get(view)
         .typed_get(new_edit_action)
         .typed_post(upsert_action)
         .typed_post(delete_action)
@@ -71,11 +74,18 @@ pub async fn loader(
         .await?;
 
     // Get the Open API Spec
-    let integrations: Vec<oas3::Spec> = integrations
+    let integrations: Vec<IntegrationOas3> = integrations
         .iter()
         .filter_map(|integration| {
             if let Some(definition) = &integration.definition {
-                oas3::from_json(definition.to_string()).ok()
+                if let Ok(spec) = oas3::from_json(definition.to_string()) {
+                    Some(IntegrationOas3 {
+                        spec,
+                        integration: integration.clone(),
+                    })
+                } else {
+                    None
+                }
             } else {
                 tracing::error!("This integration doesn't have a definition");
                 None
@@ -84,6 +94,26 @@ pub async fn loader(
         .collect();
 
     let html = web_pages::integrations::index::page(team_id, rbac, integrations);
+
+    Ok(Html(html))
+}
+
+pub async fn view(
+    View { team_id, id }: View,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<Html<String>, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let integration = db::queries::integrations::integration()
+        .bind(&transaction, &id)
+        .one()
+        .await?;
+
+    let html = web_pages::integrations::view::view(team_id, rbac, integration);
 
     Ok(Html(html))
 }
