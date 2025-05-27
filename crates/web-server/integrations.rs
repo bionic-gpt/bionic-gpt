@@ -113,6 +113,19 @@ pub async fn view(
         .one()
         .await?;
 
+    let integration = if let Some(definition) = &integration.definition {
+        if let Ok(spec) = oas3::from_json(definition.to_string()) {
+            Some(IntegrationOas3 {
+                spec,
+                integration: integration.clone(),
+            })
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     let html = web_pages::integrations::view::view(team_id, rbac, integration);
 
     Ok(Html(html))
