@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 pub fn page(rbac: Rbac, team_id: i32) -> String {
     let page = rsx! {
         Layout {
-            section_class: "p-4",
+            section_class: "p-4 max-w-3xl w-full mx-auto",
             selected_item: SideBar::Workflows,
             team_id: team_id,
             rbac: rbac,
@@ -23,96 +23,9 @@ pub fn page(rbac: Rbac, team_id: i32) -> String {
                 }
             },
 
-            // Mockup table for workflows
-            Card {
-                class: "has-data-table",
-                CardHeader {
-                    title: "Workflows"
-                }
-                table {
-                    class: "table table-sm",
-                    thead {
-                        th { "Name" }
-                        th { "Status" }
-                        th { "Trigger" }
-                        th { "Last Run" }
-                        th { "Actions" }
-                    }
-                    tbody {
-                        tr {
-                            td { "Document Processing Workflow" }
-                            td {
-                                span {
-                                    class: "badge badge-success",
-                                    "Active"
-                                }
-                            }
-                            td { "File Upload" }
-                            td { "2 hours ago" }
-                            td {
-                                div {
-                                    class: "flex gap-2",
-                                    button {
-                                        class: "btn btn-sm btn-outline",
-                                        "Edit"
-                                    }
-                                    button {
-                                        class: "btn btn-sm btn-error",
-                                        "Delete"
-                                    }
-                                }
-                            }
-                        }
-                        tr {
-                            td { "Email Notification Workflow" }
-                            td {
-                                span {
-                                    class: "badge badge-warning",
-                                    "Paused"
-                                }
-                            }
-                            td { "API Call" }
-                            td { "1 day ago" }
-                            td {
-                                div {
-                                    class: "flex gap-2",
-                                    button {
-                                        class: "btn btn-sm btn-outline",
-                                        "Edit"
-                                    }
-                                    button {
-                                        class: "btn btn-sm btn-error",
-                                        "Delete"
-                                    }
-                                }
-                            }
-                        }
-                        tr {
-                            td { "Data Sync Workflow" }
-                            td {
-                                span {
-                                    class: "badge badge-success",
-                                    "Active"
-                                }
-                            }
-                            td { "Schedule" }
-                            td { "30 minutes ago" }
-                            td {
-                                div {
-                                    class: "flex gap-2",
-                                    button {
-                                        class: "btn btn-sm btn-outline",
-                                        "Edit"
-                                    }
-                                    button {
-                                        class: "btn btn-sm btn-error",
-                                        "Delete"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            super::workflow_cards::WorkflowCards {
+                workflows: super::workflow_cards::get_sample_workflows(),
+                team_id: team_id
             }
 
             // Create workflow drawer
