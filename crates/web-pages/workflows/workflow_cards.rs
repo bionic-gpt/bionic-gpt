@@ -65,16 +65,16 @@ pub fn WorkflowCards(workflows: Vec<Workflow>, team_id: i32) -> Element {
             "Workflows"
         }
         p {
-            "Automate your sales and lead development processes with powerful workflows."
+            "Automate your anything with powerful workflows."
         }
         div {
-            class: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5",
+            class: "",
             for workflow in workflows.iter() {
                 a {
                     href: crate::routes::workflows::View {team_id, id: workflow.id }.to_string(),
                     class: "no-underline",
                     Card {
-                        class: "p-4 flex flex-col clickable hover:shadow-lg transition-shadow relative",
+                        class: "mt-5 p-4 flex flex-col clickable hover:shadow-lg transition-shadow relative",
                         div {
                             class: "absolute top-3 right-3",
                             span {
@@ -126,7 +126,7 @@ pub fn get_sample_workflows() -> Vec<Workflow> {
     vec![
         Workflow {
             id: 1,
-            name: "Social Media Lead Generation".to_string(),
+            name: "Generate new leads from LinkedIn".to_string(),
             description: "Automatically capture and qualify leads from social media interactions and mentions".to_string(),
             status: WorkflowStatus::Active,
             trigger_type: "Social Media Engagement".to_string(),
@@ -135,7 +135,7 @@ pub fn get_sample_workflows() -> Vec<Workflow> {
         },
         Workflow {
             id: 2,
-            name: "Webinar Attendee Follow-up".to_string(),
+            name: "Triage incoming support emails".to_string(),
             description: "Send personalized follow-up sequences to webinar attendees based on their engagement level".to_string(),
             status: WorkflowStatus::Active,
             trigger_type: "Webinar Completion".to_string(),
@@ -144,7 +144,7 @@ pub fn get_sample_workflows() -> Vec<Workflow> {
         },
         Workflow {
             id: 3,
-            name: "Sales Call Scheduling".to_string(),
+            name: "Transfer incoming leads to the CRM".to_string(),
             description: "Automate calendar booking and send preparation materials to qualified prospects".to_string(),
             status: WorkflowStatus::Active,
             trigger_type: "Lead Qualification Score".to_string(),
@@ -153,7 +153,7 @@ pub fn get_sample_workflows() -> Vec<Workflow> {
         },
         Workflow {
             id: 4,
-            name: "Proposal Generation".to_string(),
+            name: "Auto respond to RFP's".to_string(),
             description: "Generate customized proposals based on prospect data and specific requirements".to_string(),
             status: WorkflowStatus::Draft,
             trigger_type: "Opportunity Stage Change".to_string(),
