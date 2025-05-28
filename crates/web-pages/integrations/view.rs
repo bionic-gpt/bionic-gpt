@@ -2,8 +2,22 @@
 use crate::app_layout::{Layout, SideBar};
 use db::authz::Rbac;
 use dioxus::prelude::*;
+use oas3::spec::PathItem;
 
 use super::IntegrationOas3;
+
+fn extract_summaries_and_descriptions(item: &PathItem) -> Vec<(String, String, String)> {
+    [&item.get, &item.put, &item.post, &item.delete]
+        .iter()
+        .filter_map(|op| op.as_ref())
+        .map(|op| {
+            let summary = op.summary.clone().unwrap_or_default();
+            let description = op.description.clone().unwrap_or_default();
+            let operationId = op.operation_id.clone().unwrap_or_default();
+            (summary, description, operationId)
+        })
+        .collect()
+}
 
 pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> String {
     let page = rsx! {
@@ -55,7 +69,7 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                                 div {
                                     class: "flex",
                                     div {
-                                        class: "pt-3",
+                                        class: "",
                                         img {
                                             class: "border rounded p-1",
                                             src: super::get_logo_url(&integration.spec.info.extensions),
@@ -65,27 +79,13 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                                     }
                                     div {
                                         class: "ml-4",
-                                        h2 {
-                                            class: "font-semibold",
-                                            if let Some(summary) = &item.summary {
-                                                "{summary}"
+                                        for (summary, description, operationId) in extract_summaries_and_descriptions(&item) {
+                                            h2 {
+                                                class: "font-semibold",
+                                                "{operationId}"
                                             }
-
-                                            if let Some(get) = &item.get {
-                                                if let Some(summary) = &get.summary {
-                                                    "{summary}"
-                                                }
-                                            }
-
-                                            if let Some(put) = &item.put {
-                                                if let Some(summary) = &put.summary {
-                                                    "{summary}"
-                                                }
-                                            }
-                                        }
-                                        p {
-                                            if let Some(description) = integration.spec.info.description.clone() {
-                                                "{description}"
+                                            p {
+                                                "{description}{summary}"
                                             }
                                         }
                                     }
