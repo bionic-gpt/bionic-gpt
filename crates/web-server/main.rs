@@ -21,6 +21,7 @@ pub mod rate_limits;
 pub mod static_files;
 pub mod team;
 pub mod teams;
+pub mod workflows;
 
 use axum_extra::routing::RouterExt;
 pub use errors::CustomError;
@@ -114,6 +115,7 @@ async fn main() {
         .merge(rate_limits::routes())
         .merge(team::routes())
         .merge(teams::routes())
+        .merge(workflows::routes())
         .layer(Extension(config.clone()))
         .layer(Extension(pool.clone()));
 

@@ -22,6 +22,7 @@ pub mod rate_limits;
 pub mod snackbar;
 pub mod team;
 pub mod teams;
+pub mod workflows;
 
 pub fn render(page: Element) -> String {
     let html = dioxus_ssr::render_element(page);
@@ -286,6 +287,37 @@ pub mod routes {
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/app/team/{team_id}/integrations/delete/{id}")]
+        pub struct Delete {
+            pub team_id: i32,
+            pub id: i32,
+        }
+    }
+
+    pub mod workflows {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/{team_id}/workflows")]
+        pub struct Index {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/{team_id}/workflow/{id}")]
+        pub struct View {
+            pub team_id: i32,
+            pub id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/{team_id}/workflows/upsert")]
+        pub struct Upsert {
+            pub team_id: i32,
+        }
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/app/team/{team_id}/workflows/delete/{id}")]
         pub struct Delete {
             pub team_id: i32,
             pub id: i32,

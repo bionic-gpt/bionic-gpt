@@ -1,0 +1,197 @@
+#![allow(non_snake_case)]
+use crate::app_layout::{Layout, SideBar};
+use assets::files::*;
+use daisy_rsx::*;
+use db::authz::Rbac;
+use dioxus::prelude::*;
+
+pub fn page(rbac: Rbac, team_id: i32) -> String {
+    let page = rsx! {
+        Layout {
+            section_class: "p-4",
+            selected_item: SideBar::Workflows,
+            team_id: team_id,
+            rbac: rbac,
+            title: "Workflows",
+            header: rsx! {
+                h3 { "Workflows" }
+                Button {
+                    prefix_image_src: "{button_plus_svg.name}",
+                    drawer_trigger: "create-workflow-form",
+                    button_scheme: ButtonScheme::Primary,
+                    "New Workflow"
+                }
+            },
+
+            // Mockup table for workflows
+            Card {
+                class: "has-data-table",
+                CardHeader {
+                    title: "Workflows"
+                }
+                table {
+                    class: "table table-sm",
+                    thead {
+                        th { "Name" }
+                        th { "Status" }
+                        th { "Trigger" }
+                        th { "Last Run" }
+                        th { "Actions" }
+                    }
+                    tbody {
+                        tr {
+                            td { "Document Processing Workflow" }
+                            td {
+                                span {
+                                    class: "badge badge-success",
+                                    "Active"
+                                }
+                            }
+                            td { "File Upload" }
+                            td { "2 hours ago" }
+                            td {
+                                div {
+                                    class: "flex gap-2",
+                                    button {
+                                        class: "btn btn-sm btn-outline",
+                                        "Edit"
+                                    }
+                                    button {
+                                        class: "btn btn-sm btn-error",
+                                        "Delete"
+                                    }
+                                }
+                            }
+                        }
+                        tr {
+                            td { "Email Notification Workflow" }
+                            td {
+                                span {
+                                    class: "badge badge-warning",
+                                    "Paused"
+                                }
+                            }
+                            td { "API Call" }
+                            td { "1 day ago" }
+                            td {
+                                div {
+                                    class: "flex gap-2",
+                                    button {
+                                        class: "btn btn-sm btn-outline",
+                                        "Edit"
+                                    }
+                                    button {
+                                        class: "btn btn-sm btn-error",
+                                        "Delete"
+                                    }
+                                }
+                            }
+                        }
+                        tr {
+                            td { "Data Sync Workflow" }
+                            td {
+                                span {
+                                    class: "badge badge-success",
+                                    "Active"
+                                }
+                            }
+                            td { "Schedule" }
+                            td { "30 minutes ago" }
+                            td {
+                                div {
+                                    class: "flex gap-2",
+                                    button {
+                                        class: "btn btn-sm btn-outline",
+                                        "Edit"
+                                    }
+                                    button {
+                                        class: "btn btn-sm btn-error",
+                                        "Delete"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Create workflow drawer
+            Drawer {
+                label: "Create New Workflow",
+                trigger_id: "create-workflow-form",
+                DrawerBody {
+                    div {
+                        class: "flex flex-col gap-4",
+                        form {
+                            method: "post",
+                            action: crate::routes::workflows::Upsert { team_id }.to_string(),
+                            div {
+                                class: "form-group",
+                                label {
+                                    class: "label",
+                                    "for": "name",
+                                    "Workflow Name"
+                                }
+                                input {
+                                    "type": "text",
+                                    class: "input",
+                                    id: "name",
+                                    name: "name",
+                                    placeholder: "Enter workflow name",
+                                    required: true
+                                }
+                            }
+                            div {
+                                class: "form-group",
+                                label {
+                                    class: "label",
+                                    "for": "description",
+                                    "Description"
+                                }
+                                textarea {
+                                    class: "textarea",
+                                    id: "description",
+                                    name: "description",
+                                    placeholder: "Enter workflow description",
+                                    rows: "3"
+                                }
+                            }
+                            div {
+                                class: "form-group",
+                                label {
+                                    class: "label",
+                                    "for": "trigger_type",
+                                    "Trigger Type"
+                                }
+                                select {
+                                    class: "select",
+                                    id: "trigger_type",
+                                    name: "trigger_type",
+                                    option { value: "file_upload", "File Upload" }
+                                    option { value: "api_call", "API Call" }
+                                    option { value: "schedule", "Schedule" }
+                                    option { value: "webhook", "Webhook" }
+                                }
+                            }
+                            div {
+                                class: "flex gap-2 mt-4",
+                                Button {
+                                    button_type: ButtonType::Submit,
+                                    button_scheme: ButtonScheme::Primary,
+                                    "Create Workflow"
+                                }
+                                button {
+                                    "type": "button",
+                                    class: "btn btn-outline",
+                                    "Cancel"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    crate::render(page)
+}

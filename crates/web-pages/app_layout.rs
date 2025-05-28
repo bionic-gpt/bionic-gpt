@@ -26,6 +26,7 @@ pub enum SideBar {
     Switch,
     Team,
     Security,
+    Workflows,
 }
 
 impl std::fmt::Display for SideBar {
@@ -123,6 +124,15 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::api_keys::Index { team_id: props.team_id },
                                 icon: nav_api_keys_svg.name,
                                 title: "API Keys"
+                            }
+                            if show_integrations_menu {
+                                NavItem {
+                                    id: SideBar::Workflows.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::workflows::Index { team_id: props.team_id },
+                                    icon: nav_audit_svg.name,
+                                    title: "Workflows"
+                                }
                             }
                             NavItem {
                                 id: SideBar::DocumentPipelines.to_string(),
