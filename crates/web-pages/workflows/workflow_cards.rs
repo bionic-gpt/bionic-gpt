@@ -86,7 +86,7 @@ pub fn WorkflowCards(workflows: Vec<Workflow>, team_id: i32) -> Element {
                             class: "flex items-start gap-4",
                             img {
                                 class: "border rounded p-2 flex-shrink-0",
-                                src: get_workflow_icon(&workflow.name),
+                                src: get_workflow_icon("Social Media"),
                                 width: "48",
                                 height: "48",
                                 alt: "Workflow icon"
@@ -98,19 +98,8 @@ pub fn WorkflowCards(workflows: Vec<Workflow>, team_id: i32) -> Element {
                                     "{workflow.name}"
                                 }
                                 p {
-                                    class: "text-sm text-gray-600 mb-3",
+                                    class: "text-sm text-gray-600",
                                     "{workflow.description}"
-                                }
-                                div {
-                                    class: "flex items-center gap-2 text-xs text-gray-500",
-                                    span {
-                                        class: "bg-gray-100 px-2 py-1 rounded",
-                                        "Trigger: {workflow.trigger_type}"
-                                    }
-                                    span {
-                                        class: "bg-blue-100 text-blue-800 px-2 py-1 rounded",
-                                        "{workflow.category}"
-                                    }
                                 }
                             }
                         }

@@ -53,40 +53,6 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                         class: "mb-6"
                     }
 
-                    // Workflow Details Section
-                    div {
-                        class: "mb-8",
-                        h3 {
-                            class: "text-lg font-semibold mb-4",
-                            "Workflow Details"
-                        }
-                        div {
-                            class: "grid grid-cols-1 md:grid-cols-2 gap-4",
-                            div {
-                                class: "bg-gray-50 p-4 rounded-lg",
-                                h4 {
-                                    class: "font-medium text-gray-700 mb-2",
-                                    "Trigger Type"
-                                }
-                                p {
-                                    class: "text-gray-900",
-                                    "{workflow.trigger_type}"
-                                }
-                            }
-                            div {
-                                class: "bg-gray-50 p-4 rounded-lg",
-                                h4 {
-                                    class: "font-medium text-gray-700 mb-2",
-                                    "Category"
-                                }
-                                p {
-                                    class: "text-gray-900",
-                                    "{workflow.category}"
-                                }
-                            }
-                        }
-                    }
-
                     // Instructions Section
                     div {
                         class: "mb-8",
@@ -132,7 +98,7 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                                             "LinkedIn Search"
                                         }
                                         p {
-                                            "Search LinkedIn profiles for AI-related job changes"
+                                            "Search LinkedIn based on the query provided"
                                         }
                                     }
                                 }
@@ -160,15 +126,49 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                                         class: "ml-4",
                                         h2 {
                                             class: "font-semibold",
-                                            "Gmail Outreach"
+                                            "Gmail Send Email"
                                         }
                                         p {
-                                            "Send personalized outreach emails to identified prospects"
+                                            "Create and send an email with the gmail API"
                                         }
                                     }
                                 }
                             }
                             "Composes and sends personalized emails to the LinkedIn prospects found in the previous step"
+                        }
+                    }
+
+                    // Workflow Details Section
+                    div {
+                        class: "mb-8",
+                        h3 {
+                            class: "text-lg font-semibold mb-4",
+                            "Workflow Details"
+                        }
+                        div {
+                            class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+                            div {
+                                class: "bg-gray-50 p-4 rounded-lg",
+                                h4 {
+                                    class: "font-medium text-gray-700 mb-2",
+                                    "Trigger Type"
+                                }
+                                p {
+                                    class: "text-gray-900",
+                                    "{workflow.trigger_type}"
+                                }
+                            }
+                            div {
+                                class: "bg-gray-50 p-4 rounded-lg",
+                                h4 {
+                                    class: "font-medium text-gray-700 mb-2",
+                                    "Category"
+                                }
+                                p {
+                                    class: "text-gray-900",
+                                    "{workflow.category}"
+                                }
+                            }
                         }
                     }
 
