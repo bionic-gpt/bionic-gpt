@@ -5,37 +5,6 @@ use dioxus::prelude::*;
 
 use super::workflow_cards::{get_workflow_icon, Workflow};
 
-/// Generate workflow-specific example prompts based on workflow name/category
-fn get_workflow_example_prompts(workflow: &Workflow) -> Vec<String> {
-    match workflow.name.as_str() {
-        name if name.contains("LinkedIn") => vec![
-            "Generate leads from LinkedIn using this profile data: [profile_url]".to_string(),
-            "Analyze LinkedIn engagement and identify potential leads: [post_data]".to_string(),
-            "Extract contact information from LinkedIn profiles: [search_criteria]".to_string(),
-        ],
-        name if name.contains("support emails") || name.contains("Triage") => vec![
-            "Triage this support email and categorize by priority: [email_content]".to_string(),
-            "Route this customer inquiry to the appropriate team: [inquiry_details]".to_string(),
-            "Generate automated response for common support issues: [issue_type]".to_string(),
-        ],
-        name if name.contains("CRM") || name.contains("leads") => vec![
-            "Transfer this lead to CRM with qualification score: [lead_data]".to_string(),
-            "Update lead status and assign to sales rep: [lead_info]".to_string(),
-            "Generate lead scoring based on engagement: [interaction_data]".to_string(),
-        ],
-        name if name.contains("RFP") || name.contains("Proposal") => vec![
-            "Generate a proposal response for this RFP: [rfp_requirements]".to_string(),
-            "Create customized proposal sections: [client_needs]".to_string(),
-            "Auto-populate proposal templates with client data: [client_profile]".to_string(),
-        ],
-        _ => vec![
-            "Execute this workflow with the provided data: [input_data]".to_string(),
-            "Run workflow step by step with these parameters: [parameters]".to_string(),
-            "Trigger workflow automation for: [trigger_event]".to_string(),
-        ],
-    }
-}
-
 pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
     let page = rsx! {
         Layout {
@@ -118,37 +87,88 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                         }
                     }
 
-                    // Instructions Section with Example Prompts
+                    // Instructions Section
                     div {
+                        class: "mb-8",
                         h3 {
                             class: "text-lg font-semibold mb-4",
-                            "Example Prompts"
+                            "Instructions"
                         }
-                        p {
-                            class: "text-gray-600 mb-4",
-                            "Use these example prompts to interact with this workflow:"
+                        textarea {
+                            class: "w-full h-32 p-4 border border-gray-300 rounded-lg resize-none bg-gray-50",
+                            readonly: true,
+                            "Connect to linked in and get anyone who has set their job to an AI related field in the last few days"
                         }
-                        div {
-                            class: "space-y-3",
-                            for (index, prompt) in get_workflow_example_prompts(&workflow).iter().enumerate() {
+                    }
+
+                    // Actions Section
+                    div {
+                        class: "mb-8",
+                        h3 {
+                            class: "text-lg font-semibold mb-4",
+                            "Actions"
+                        }
+
+                        // LinkedIn Action
+                        details {
+                            class: "card mt-5",
+                            summary {
+                                class: "cursor-pointer px-4 py-3 flex items-center justify-between",
                                 div {
-                                    class: "bg-gray-50 border border-gray-200 rounded-lg p-4",
+                                    class: "flex",
                                     div {
-                                        class: "flex items-start justify-between",
-                                        div {
-                                            class: "flex-1",
-                                            h4 {
-                                                class: "font-medium text-gray-700 mb-2",
-                                                "Example {index + 1}"
-                                            }
-                                            code {
-                                                class: "text-sm text-gray-800 bg-white px-2 py-1 rounded border",
-                                                "{prompt}"
-                                            }
+                                        class: "",
+                                        img {
+                                            class: "border rounded p-1",
+                                            src: "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjIwMHB4IiB3aWR0aD0iMjAwcHgiIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAzODIgMzgyIiB4bWw6c3BhY2U9InByZXNlcnZlIiBmaWxsPSIjMDAwMDAwIj48ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCI+PC9nPjxnIGlkPSJTVkdSZXBvX3RyYWNlckNhcnJpZXIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PC9nPjxnIGlkPSJTVkdSZXBvX2ljb25DYXJyaWVyIj4gPHBhdGggc3R5bGU9ImZpbGw6IzAwNzdCNzsiIGQ9Ik0zNDcuNDQ1LDBIMzQuNTU1QzE1LjQ3MSwwLDAsMTUuNDcxLDAsMzQuNTU1djMxMi44ODlDMCwzNjYuNTI5LDE1LjQ3MSwzODIsMzQuNTU1LDM4MmgzMTIuODg5IEMzNjYuNTI5LDM4MiwzODIsMzY2LjUyOSwzODIsMzQ3LjQ0NFYzNC41NTVDMzgyLDE1LjQ3MSwzNjYuNTI5LDAsMzQ3LjQ0NSwweiBNMTE4LjIwNywzMjkuODQ0YzAsNS41NTQtNC41MDIsMTAuMDU2LTEwLjA1NiwxMC4wNTYgSDY1LjM0NWMtNS41NTQsMC0xMC4wNTYtNC41MDItMTAuMDU2LTEwLjA1NlYxNTAuNDAzYzAtNS41NTQsNC41MDItMTAuMDU2LDEwLjA1Ni0xMC4wNTZoNDIuODA2IGM1LjU1NCwwLDEwLjA1Niw0LjUwMiwxMC4wNTYsMTAuMDU2VjMyOS44NDR6IE04Ni43NDgsMTIzLjQzMmMtMjIuNDU5LDAtNDAuNjY2LTE4LjIwNy00MC42NjYtNDAuNjY2UzY0LjI4OSw0Mi4xLDg2Ljc0OCw0Mi4xIHM0MC42NjYsMTguMjA3LDQwLjY2Niw0MC42NjZTMTA5LjIwOCwxMjMuNDMyLDg2Ljc0OCwxMjMuNDMyeiBNMzQxLjkxLDMzMC42NTRjMCw1LjEwNi00LjE0LDkuMjQ2LTkuMjQ2LDkuMjQ2SDI4Ni43MyBjLTUuMTA2LDAtOS4yNDYtNC4xNC05LjI0Ni05LjI0NnYtODQuMTY4YzAtMTIuNTU2LDMuNjgzLTU1LjAyMS0zMi44MTMtNTUuMDIxYy0yOC4zMDksMC0zNC4wNTEsMjkuMDY2LTM1LjIwNCw0Mi4xMXY5Ny4wNzkgYzAsNS4xMDYtNC4xMzksOS4yNDYtOS4yNDYsOS4yNDZoLTQ0LjQyNmMtNS4xMDYsMC05LjI0Ni00LjE0LTkuMjQ2LTkuMjQ2VjE0OS41OTNjMC01LjEwNiw0LjE0LTkuMjQ2LDkuMjQ2LTkuMjQ2aDQ0LjQyNiBjNS4xMDYsMCw5LjI0Niw0LjE0LDkuMjQ2LDkuMjQ2djE1LjY1NWMxMC40OTctMTUuNzUzLDI2LjA5Ny0yNy45MTIsNTkuMzEyLTI3LjkxMmM3My41NTIsMCw3My4xMzEsNjguNzE2LDczLjEzMSwxMDYuNDcyIEwzNDEuOTEsMzMwLjY1NEwzNDEuOTEsMzMwLjY1NHoiPjwvcGF0aD4gPC9nPjwvc3ZnPg==",
+                                            width: "24",
+                                            height: "24"
+                                        }
+                                    }
+                                    div {
+                                        class: "ml-4",
+                                        h2 {
+                                            class: "font-semibold",
+                                            "LinkedIn Search"
+                                        }
+                                        p {
+                                            "Search LinkedIn profiles for AI-related job changes"
                                         }
                                     }
                                 }
                             }
+                            "Searches LinkedIn for professionals who have recently updated their job titles to AI-related positions"
+                        }
+
+                        // Gmail Action
+                        details {
+                            class: "card mt-5",
+                            summary {
+                                class: "cursor-pointer px-4 py-3 flex items-center justify-between",
+                                div {
+                                    class: "flex",
+                                    div {
+                                        class: "",
+                                        img {
+                                            class: "border rounded p-1",
+                                            src: "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiPjwvZz48ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz48ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+IDxwYXRoIGQ9Ik0yIDExLjk1NTZDMiA4LjQ3MDc4IDIgNi43Mjg0IDIuNjc4MTggNS4zOTczOUMzLjI3NDczIDQuMjI2NjEgNC4yMjY2MSAzLjI3NDczIDUuMzk3MzkgMi42NzgxOEM2LjcyODQgMiA4LjQ3MDc4IDIgMTEuOTU1NiAySDIwLjA0NDRDMjMuNTI5MiAyIDI1LjI3MTYgMiAyNi42MDI2IDIuNjc4MThDMjcuNzczNCAzLjI3NDczIDI4LjcyNTMgNC4yMjY2MSAyOS4zMjE4IDUuMzk3MzlDMzAgNi43Mjg0IDMwIDguNDcwNzggMzAgMTEuOTU1NlYyMC4wNDQ0QzMwIDIzLjUyOTIgMzAgMjUuMjcxNiAyOS4zMjE4IDI2LjYwMjZDMjguNzI1MyAyNy43NzM0IDI3Ljc3MzQgMjguNzI1MyAyNi42MDI2IDI5LjMyMThDMjUuMjcxNiAzMCAyMy41MjkyIDMwIDIwLjA0NDQgMzBIMTEuOTU1NkM4LjQ3MDc4IDMwIDYuNzI4NCAzMCA1LjM5NzM5IDI5LjMyMThDNC4yMjY2MSAyOC43MjUzIDMuMjc0NzMgMjcuNzczNCAyLjY3ODE4IDI2LjYwMjZDMiAyNS4yNzE2IDIgMjMuNTI5MiAyIDIwLjA0NDRWMTEuOTU1NloiIGZpbGw9IndoaXRlIj48L3BhdGg+IDxwYXRoIGQ9Ik0yMi4wNTE1IDguNTIyOTVMMTYuMDY0NCAxMy4xOTU0TDkuOTQwNDMgOC41MjI5NVY4LjUyNDIxTDkuOTQ3ODMgOC41MzA1M1YxNS4wNzMyTDE1Ljk5NTQgMTkuODQ2NkwyMi4wNTE1IDE1LjI1NzVWOC41MjI5NVoiIGZpbGw9IiNFQTQzMzUiPjwvcGF0aD4gPHBhdGggZD0iTTIzLjYyMzEgNy4zODYzOUwyMi4wNTA4IDguNTIyOTJWMTUuMjU3NUwyNi45OTgzIDExLjQ1OVY5LjE3MDc0QzI2Ljk5ODMgOS4xNzA3NCAyNi4zOTc4IDUuOTAyNTggMjMuNjIzMSA3LjM4NjM5WiIgZmlsbD0iI0ZCQkMwNSI+PC9wYXRoPiA8cGF0aCBkPSJNMjIuMDUwOCAxNS4yNTc1VjIzLjk5MjRIMjUuODQyOEMyNS44NDI4IDIzLjk5MjQgMjYuOTIxOSAyMy44ODEzIDI2Ljk5OTUgMjIuNjUxM1YxMS40NTlMMjIuMDUwOCAxNS4yNTc1WiIgZmlsbD0iIzM0QTg1MyI+PC9wYXRoPiA8cGF0aCBkPSJNOS45NDgxMSAyNC4wMDAxVjE1LjA3MzJMOS45NDA0MyAxNS4wNjY5TDkuOTQ4MTEgMjQuMDAwMVoiIGZpbGw9IiNDNTIyMUYiPjwvcGF0aD4gPHBhdGggZD0iTTkuOTQwMTQgOC41MjQwNEw4LjM3NjQ2IDcuMzkzODJDNS42MDE3OSA1LjkxMDAxIDUgOS4xNzY5MiA1IDkuMTc2OTJWMTEuNDY1MUw5Ljk0MDE0IDE1LjA2NjdWOC41MjQwNFoiIGZpbGw9IiNDNTIyMUYiPjwvcGF0aD4gPHBhdGggZD0iTTkuOTQwNDMgOC41MjQ0MVYxNS4wNjcxTDkuOTQ4MTEgMTUuMDczNFY4LjUzMDczTDkuOTQwNDMgOC41MjQ0MVoiIGZpbGw9IiNDNTIyMUYiPjwvcGF0aD4gPHBhdGggZD0iTTUgMTEuNDY2OFYyMi42NTkxQzUuMDc2NDYgMjMuODkwNCA2LjE1NjczIDI0LjAwMDMgNi4xNTY3MyAyNC4wMDAzSDkuOTQ4NzdMOS45NDAxNCAxNS4wNjcxTDUgMTEuNDY2OFoiIGZpbGw9IiM0Mjg1RjQiPjwvcGF0aD4gPC9nPjwvc3ZnPg==",
+                                            width: "24",
+                                            height: "24"
+                                        }
+                                    }
+                                    div {
+                                        class: "ml-4",
+                                        h2 {
+                                            class: "font-semibold",
+                                            "Gmail Outreach"
+                                        }
+                                        p {
+                                            "Send personalized outreach emails to identified prospects"
+                                        }
+                                    }
+                                }
+                            }
+                            "Composes and sends personalized emails to the LinkedIn prospects found in the previous step"
                         }
                     }
 
