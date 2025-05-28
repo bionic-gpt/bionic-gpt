@@ -36,7 +36,7 @@ pub async fn loader(
 }
 
 pub async fn view(
-    View { team_id, id: _id }: View,
+    View { team_id, id }: View,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -45,8 +45,11 @@ pub async fn view(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    // For now, just redirect to the index page since we don't have workflow details yet
-    let html = web_pages::workflows::index::page(rbac, team_id);
+    // Get sample workflows and find the one with matching ID
+    let workflows = web_pages::workflows::workflow_cards::get_sample_workflows();
+    let workflow = workflows.into_iter().find(|w| w.id == id);
+
+    let html = web_pages::workflows::view::view(team_id, rbac, workflow);
 
     Ok(Html(html))
 }
