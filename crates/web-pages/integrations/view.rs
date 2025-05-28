@@ -46,6 +46,55 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                     class: "font-semibold",
                     "Actions"
                 }
+                if let Some(map) = integration.spec.paths {
+                    for (_path, item) in map {
+
+                        details { class: "card mt-5",
+                            summary {
+                                class: "cursor-pointer px-4 py-3 flex items-center justify-between",
+                                div {
+                                    class: "flex",
+                                    div {
+                                        class: "pt-3",
+                                        img {
+                                            class: "border rounded p-1",
+                                            src: super::get_logo_url(&integration.spec.info.extensions),
+                                            width: "24",
+                                            height: "24"
+                                        }
+                                    }
+                                    div {
+                                        class: "ml-4",
+                                        h2 {
+                                            class: "font-semibold",
+                                            if let Some(summary) = &item.summary {
+                                                "{summary}"
+                                            }
+
+                                            if let Some(get) = &item.get {
+                                                if let Some(summary) = &get.summary {
+                                                    "{summary}"
+                                                }
+                                            }
+
+                                            if let Some(put) = &item.put {
+                                                if let Some(summary) = &put.summary {
+                                                    "{summary}"
+                                                }
+                                            }
+                                        }
+                                        p {
+                                            if let Some(description) = integration.spec.info.description.clone() {
+                                                "{description}"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            "Creates a new record in a table"
+                        }
+                    }
+                }
             }
         }
     };
