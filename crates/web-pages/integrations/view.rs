@@ -18,21 +18,33 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
             ),
 
             if let Some(integration) = integration {
-                img {
-                    src: super::get_logo_url(&integration.spec.info.extensions),
-                    width: "48",
-                    height: "48"
-                }
                 div {
-                    class: "ml-4",
-                    h2 {
-                        "{integration.spec.info.title.clone()}"
+                    class: "flex",
+                    img {
+                        class: "border rounded p-2",
+                        src: super::get_logo_url(&integration.spec.info.extensions),
+                        width: "48",
+                        height: "48"
                     }
-                    p {
-                        if let Some(description) = integration.spec.info.description.clone() {
-                            "{description}"
+                    div {
+                        class: "ml-4",
+                        h2 {
+                            class: "text-xl font-semibold",
+                            "{integration.spec.info.title.clone()}"
+                        }
+                        p {
+                            if let Some(description) = integration.spec.info.description.clone() {
+                                "{description}"
+                            }
                         }
                     }
+                }
+                hr {
+                    class: "mt-5 mb-5"
+                }
+                h2 {
+                    class: "font-semibold",
+                    "Actions"
                 }
             }
         }

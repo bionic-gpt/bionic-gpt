@@ -7,6 +7,7 @@ use dioxus::prelude::*;
 pub fn IntegrationCards(integrations: Vec<IntegrationOas3>, team_id: i32) -> Element {
     rsx!(
         h1 {
+            class: "text-xl font-semibold",
             "Integrations"
         }
         p {
@@ -19,6 +20,7 @@ pub fn IntegrationCards(integrations: Vec<IntegrationOas3>, team_id: i32) -> Ele
                 Card {
                     class: "p-3 mt-5 flex flex-row clickable",
                     img {
+                        class: "border rounded p-2",
                         src: super::get_logo_url(&integration.spec.info.extensions),
                         width: "48",
                         height: "48"
@@ -26,6 +28,7 @@ pub fn IntegrationCards(integrations: Vec<IntegrationOas3>, team_id: i32) -> Ele
                     div {
                         class: "ml-4",
                         h2 {
+                            class: "font-semibold",
                             "{integration.spec.info.title.clone()}"
                         }
                         p {
