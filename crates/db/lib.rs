@@ -18,7 +18,7 @@ pub use queries::integrations::Integration;
 pub use queries::invitations::{Invitation, InviteSummary};
 pub use queries::models::{Model, ModelWithPrompt};
 pub use queries::object_storage::ObjectStorage;
-pub use queries::prompts::Prompt;
+pub use queries::prompts::{Prompt, PromptIntegration};
 pub use queries::rate_limits::RateLimit;
 pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};

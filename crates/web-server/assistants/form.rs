@@ -15,6 +15,7 @@ pub struct NewPromptTemplate {
     pub model_id: i32,
     pub category_id: i32,
     pub datasets: Vec<i32>,
+    pub integrations: Vec<i32>,
     pub max_history_items: i32,
     pub max_chunks: i32,
     pub max_tokens: i32,
@@ -92,6 +93,7 @@ pub async fn upsert(
                     .await?;
             }
             update_datasets(&transaction, id, new_prompt_template.datasets).await?;
+            update_integrations(&transaction, id, new_prompt_template.integrations).await?;
         } else {
             let prompt_id = insert_prompt(
                 &transaction,
@@ -103,6 +105,7 @@ pub async fn upsert(
             )
             .await?;
             update_datasets(&transaction, prompt_id, new_prompt_template.datasets).await?;
+            update_integrations(&transaction, prompt_id, new_prompt_template.integrations).await?;
         }
 
         transaction.commit().await?;
@@ -169,6 +172,9 @@ async fn update_prompt(
     queries::prompts::delete_prompt_datasets()
         .bind(transaction, &id)
         .await?;
+    queries::prompts::delete_prompt_integrations()
+        .bind(transaction, &id)
+        .await?;
     Ok(())
 }
 
@@ -216,6 +222,19 @@ async fn update_datasets(
     for dataset in datasets {
         queries::prompts::insert_prompt_dataset()
             .bind(transaction, &prompt_id, &dataset)
+            .await?;
+    }
+    Ok(())
+}
+
+async fn update_integrations(
+    transaction: &Transaction<'_>,
+    prompt_id: i32,
+    integrations: Vec<i32>,
+) -> Result<(), CustomError> {
+    for integration in integrations {
+        queries::prompts::insert_prompt_integration()
+            .bind(transaction, &prompt_id, &integration)
             .await?;
     }
     Ok(())

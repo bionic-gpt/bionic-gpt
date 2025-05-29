@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::{Category, Dataset, Model, Visibility};
+use db::{Category, Dataset, Integration, Model, Visibility};
 use dioxus::prelude::*;
 use serde::Deserialize;
 use validator::Validate;
@@ -11,6 +11,7 @@ use validator::Validate;
 pub struct PromptForm {
     pub id: Option<i32>,
     pub selected_dataset_ids: Vec<i32>,
+    pub selected_integration_ids: Vec<i32>,
     pub name: String,
     pub system_prompt: String,
     pub category_id: i32,
@@ -31,6 +32,8 @@ pub struct PromptForm {
     pub error: Option<String>,
     #[serde(skip)]
     pub datasets: Vec<Dataset>,
+    #[serde(skip)]
+    pub integrations: Vec<Integration>,
     #[serde(skip)]
     pub categories: Vec<Category>,
     #[serde(skip)]
@@ -248,6 +251,67 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                 div {
                                     class: "text-gray-500 italic",
                                     "No datasets available"
+                                }
+                            }
+                        }
+
+                        // Integrations Section
+                        div {
+                            class: "flex flex-col space-y-4",
+                            h4 { class: "text-lg font-semibold text-gray-900", "Integrations" }
+
+                            Alert {
+                                class: "mb-4",
+                                "Select which integrations this assistant can use"
+                            }
+
+                            if !prompt.integrations.is_empty() {
+                                table {
+                                    class: "table table-sm w-full",
+                                    thead {
+                                        tr {
+                                            th { "Integration" }
+                                            th { "Type" }
+                                            th { "Status" }
+                                            th { "Add?" }
+                                        }
+                                    }
+                                    tbody {
+                                        for integration in &prompt.integrations {
+                                            tr {
+                                                td { "{integration.name}" }
+                                                td { "{integration.integration_type:?}" }
+                                                td {
+                                                    span {
+                                                        class: match integration.integration_status {
+                                                            db::IntegrationStatus::Configured => "badge badge-success",
+                                                            _ => "badge badge-warning"
+                                                        },
+                                                        "{integration.integration_status:?}"
+                                                    }
+                                                }
+                                                td {
+                                                    if prompt.selected_integration_ids.contains(&integration.id) {
+                                                        CheckBox {
+                                                            checked: true,
+                                                            name: "integrations",
+                                                            value: "{integration.id}"
+                                                        }
+                                                    } else {
+                                                        CheckBox {
+                                                            name: "integrations",
+                                                            value: "{integration.id}"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                div {
+                                    class: "text-gray-500 italic",
+                                    "No integrations available"
                                 }
                             }
                         }
