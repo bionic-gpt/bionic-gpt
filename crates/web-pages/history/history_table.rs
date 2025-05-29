@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
+use db::PromptType;
 use dioxus::prelude::*;
 
 #[component]
@@ -32,9 +33,20 @@ pub fn HistoryTable(team_id: i32, buckets: Vec<super::HistoryBucket>) -> Element
                                             }
                                         }
                                         td {
-                                            a {
-                                                href: crate::routes::console::Conversation{team_id, conversation_id: history.id}.to_string(),
-                                                "{history.summary}"
+                                            if history.prompt_type == PromptType::Model {
+                                                a {
+                                                    href: crate::routes::console::Conversation{team_id, conversation_id: history.id}.to_string(),
+                                                    "{history.summary}"
+                                                }
+                                            } else {
+                                                if let Some(prompt_id) = history.prompt_id {
+                                                    a {
+                                                        href: crate::routes::prompts::Conversation{team_id, prompt_id, conversation_id: history.id }.to_string(),
+                                                        "{history.summary}"
+                                                    }
+                                                } else {
+                                                    "Prompt ID not found"
+                                                }
                                             }
                                         }
                                     }
