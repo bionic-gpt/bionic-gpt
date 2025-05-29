@@ -1,5 +1,6 @@
 pub mod api_keys;
 pub mod api_pipeline;
+pub mod assistants;
 pub mod audit_trail;
 pub mod config;
 pub mod console;
@@ -16,7 +17,6 @@ pub mod models;
 pub mod oidc_endpoint;
 pub mod pipelines;
 pub mod profile;
-pub mod prompts;
 pub mod rate_limits;
 pub mod static_files;
 pub mod team;
@@ -111,7 +111,7 @@ async fn main() {
         .merge(models::routes())
         .merge(pipelines::routes())
         .merge(profile::routes())
-        .merge(prompts::routes())
+        .merge(assistants::routes())
         .merge(rate_limits::routes())
         .merge(team::routes())
         .merge(teams::routes())

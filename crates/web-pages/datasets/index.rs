@@ -73,7 +73,7 @@ pub fn page(
                                             }
                                         }
                                         td {
-                                            crate::prompts::visibility::VisLabel {
+                                            crate::assistants::visibility::VisLabel {
                                                 visibility: dataset.visibility
                                             }
                                         }

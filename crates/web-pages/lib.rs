@@ -3,6 +3,7 @@ use dioxus::prelude::Element;
 
 pub mod api_keys;
 pub mod app_layout;
+pub mod assistants;
 pub mod audit_trail;
 pub mod base_layout;
 pub mod button;
@@ -17,7 +18,6 @@ pub mod models;
 pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;
-pub mod prompts;
 pub mod rate_limits;
 pub mod snackbar;
 pub mod team;

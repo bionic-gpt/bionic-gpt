@@ -57,7 +57,7 @@ pub async fn conversation(
     let available_tools: Vec<(String, String)> =
         integrations::get_user_selectable_tools_for_chat_ui();
 
-    let html = web_pages::prompts::conversation::page(
+    let html = web_pages::assistants::conversation::page(
         team_id,
         rbac,
         chat_history,

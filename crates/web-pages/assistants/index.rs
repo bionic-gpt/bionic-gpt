@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::assistants::prompt_card::PromptCard;
 use crate::hero::Hero;
-use crate::prompts::prompt_card::PromptCard;
 use crate::routes;
 use assets::files::*;
 use daisy_rsx::*;

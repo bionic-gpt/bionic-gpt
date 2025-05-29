@@ -4,7 +4,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries;
 use db::Pool;
-use web_pages::{prompts, routes::prompts::MyPrompts};
+use web_pages::{assistants, routes::prompts::MyPrompts};
 
 pub async fn my_prompts(
     MyPrompts { team_id }: MyPrompts,
@@ -21,7 +21,7 @@ pub async fn my_prompts(
         .all()
         .await?;
 
-    let html = prompts::my_prompts::page(team_id, rbac, prompts);
+    let html = assistants::my_prompts::page(team_id, rbac, prompts);
 
     Ok(Html(html))
 }
