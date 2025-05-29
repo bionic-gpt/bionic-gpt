@@ -2,22 +2,16 @@
 use crate::app_layout::{Layout, SideBar};
 use crate::hero::Hero;
 use crate::prompts::prompt_card::PromptCard;
+use crate::routes;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::Visibility;
-use db::{queries::prompts::Prompt, Category, Dataset, Model};
+
+use db::{queries::prompts::Prompt, Category};
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-pub fn page(
-    team_id: i32,
-    rbac: Rbac,
-    prompts: Vec<Prompt>,
-    datasets: Vec<Dataset>,
-    models: Vec<Model>,
-    categories: Vec<Category>,
-) -> String {
+pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Category>) -> String {
     // Get categories with more than one prompt
     let categories_with_prompts = get_categories_with_prompts(prompts.clone(), categories.clone());
 
@@ -41,10 +35,11 @@ pub fn page(
                         class: "btn btn-ghost btn-sm !font-bold mr-4",
                         "My Assistants"
                     }
-                    Button {
+                    crate::button::Button {
+                        button_type: crate::button::ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        modal_trigger: "new-prompt-form",
-                        button_scheme: ButtonScheme::Primary,
+                        href: routes::prompts::New{team_id}.to_string(),
+                        button_scheme: crate::button::ButtonScheme::Primary,
                         "New Assistant"
                     }
                 }
@@ -102,32 +97,7 @@ pub fn page(
                 }
             }
 
-            // The form to create a model
-            super::form::Form {
-                team_id: team_id,
-                trigger_id: "new-prompt-form".to_string(),
-                name: "".to_string(),
-                system_prompt: "".to_string(),
-                datasets: datasets.clone(),
-                selected_dataset_ids: Default::default(),
-                models: models.clone(),
-                categories: categories.clone(),
-                visibility: Visibility::Private,
-                model_id: -1,
-                category_id: -1,
-                max_history_items: 3,
-                max_chunks: 10,
-                max_tokens: 1024,
-                trim_ratio: 80,
-                temperature: 0.7,
-                description: "".to_string(),
-                disclaimer: "LLMs can make mistakes. Check important info.".to_string(),
-                example1: None,
-                example2: None,
-                example3: None,
-                example4: None,
-                can_make_assistant_public: rbac.can_make_assistant_public()
-            }
+
         }
     };
 

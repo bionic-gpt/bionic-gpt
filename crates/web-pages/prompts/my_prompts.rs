@@ -1,21 +1,14 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::hero::Hero;
+use crate::routes;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::Visibility;
-use db::{queries::prompts::Prompt, Category, Dataset, Model};
+use db::queries::prompts::Prompt;
 use dioxus::prelude::*;
 
-pub fn page(
-    team_id: i32,
-    rbac: Rbac,
-    prompts: Vec<Prompt>,
-    datasets: Vec<Dataset>,
-    models: Vec<Model>,
-    categories: Vec<Category>,
-) -> String {
+pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -36,10 +29,11 @@ pub fn page(
                         class: "btn btn-ghost btn-sm !font-bold mr-4",
                         "Explore Assistants"
                     }
-                    Button {
+                    crate::button::Button {
+                        button_type: crate::button::ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        modal_trigger: "new-prompt-form",
-                        button_scheme: ButtonScheme::Primary,
+                        href: routes::prompts::Upsert{team_id}.to_string(),
+                        button_scheme: crate::button::ButtonScheme::Primary,
                         "New Assistant"
                     }
                 }
@@ -99,9 +93,10 @@ pub fn page(
                                         }
                                     }
                                     td {
-                                        Button {
-                                            modal_trigger: format!("edit-prompt-form-{}", prompt.id),
-                                            button_scheme: ButtonScheme::Default,
+                                        crate::button::Button {
+                                            button_type: crate::button::ButtonType::Link,
+                                            button_scheme: crate::button::ButtonScheme::Default,
+                                            href: routes::prompts::Edit{team_id, prompt_id: prompt.id}.to_string(),
                                             "Edit"
                                         }
 
@@ -136,61 +131,9 @@ pub fn page(
                 }
             }
 
-            for prompt in prompts {
-                super::form::Form {
-                    id: prompt.id,
-                    team_id: team_id,
-                    trigger_id: format!("edit-prompt-form-{}", prompt.id),
-                    name: prompt.name.clone(),
-                    system_prompt: prompt.system_prompt.clone().unwrap_or("".to_string()),
-                    datasets: datasets.clone(),
-                    selected_dataset_ids: split_datasets(&prompt.selected_datasets),
-                    visibility: prompt.visibility,
-                    models: models.clone(),
-                    categories: categories.clone(),
-                    category_id: prompt.category_id,
-                    model_id: prompt.model_id,
-                    max_history_items: prompt.max_history_items,
-                    max_chunks: prompt.max_chunks,
-                    max_tokens: prompt.max_tokens,
-                    trim_ratio: prompt.trim_ratio,
-                    temperature: prompt.temperature.unwrap_or(0.7),
-                    description: prompt.description,
-                    disclaimer: prompt.disclaimer,
-                    example1: prompt.example1,
-                    example2: prompt.example2,
-                    example3: prompt.example3,
-                    example4: prompt.example4,
-                    can_make_assistant_public: rbac.can_make_assistant_public()
-                }
-            }
 
-            // The form to create a model
-            super::form::Form {
-                team_id: team_id,
-                trigger_id: "new-prompt-form".to_string(),
-                name: "".to_string(),
-                system_prompt: "".to_string(),
-                datasets: datasets.clone(),
-                selected_dataset_ids: Default::default(),
-                models: models.clone(),
-                categories: categories.clone(),
-                visibility: Visibility::Private,
-                model_id: -1,
-                category_id: -1,
-                max_history_items: 3,
-                max_chunks: 10,
-                max_tokens: 1024,
-                trim_ratio: 80,
-                temperature: 0.7,
-                description: "".to_string(),
-                disclaimer: "LLMs can make mistakes. Check important info.".to_string(),
-                example1: None,
-                example2: None,
-                example3: None,
-                example4: None,
-                can_make_assistant_public: rbac.can_make_assistant_public()
-            }
+
+
         }
     };
 
@@ -198,7 +141,7 @@ pub fn page(
 }
 
 // Comma separated dataset to vec of i32
-fn split_datasets(datasets: &str) -> Vec<i32> {
+fn _split_datasets(datasets: &str) -> Vec<i32> {
     let ids: Vec<i32> = datasets
         .split(',')
         .map(|dataset_id| dataset_id.parse::<i32>().unwrap_or(-1))
