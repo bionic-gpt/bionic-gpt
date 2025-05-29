@@ -5,7 +5,7 @@ use assets::files::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<oas3::Spec>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4 max-w-3xl w-full mx-auto",
@@ -24,7 +24,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<oas3::Spec>) -> String {
                 }
             ),
 
-            super::integration_table::IntegrationTable {
+            super::integration_cards::IntegrationCards {
                 integrations: integrations.clone(),
                 team_id: team_id
             }

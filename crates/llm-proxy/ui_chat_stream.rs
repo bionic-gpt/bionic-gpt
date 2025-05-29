@@ -272,11 +272,6 @@ async fn create_request(
         .all()
         .await?;
 
-    let external_integrations = queries::integrations::integrations()
-        .bind(&transaction)
-        .all()
-        .await?;
-
     tracing::debug!("{:?}", &chat_history);
 
     let chat_history = chat_converter::convert_chat_to_messages(chat_history);
@@ -311,8 +306,7 @@ async fn create_request(
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
         // Get the base tools selected by the user
-        let mut all_tools =
-            get_chat_tools_user_selected(external_integrations, user_config.enabled_tools.as_ref());
+        let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
 
         // Check if the chat has attachments
         if attachment_count > 0 {

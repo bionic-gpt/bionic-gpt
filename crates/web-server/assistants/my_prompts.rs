@@ -2,9 +2,9 @@ use super::super::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
+use db::queries;
 use db::Pool;
-use db::{queries, ModelType};
-use web_pages::{prompts, routes::prompts::MyPrompts};
+use web_pages::{assistants, routes::prompts::MyPrompts};
 
 pub async fn my_prompts(
     MyPrompts { team_id }: MyPrompts,
@@ -21,22 +21,7 @@ pub async fn my_prompts(
         .all()
         .await?;
 
-    let datasets = queries::datasets::datasets()
-        .bind(&transaction)
-        .all()
-        .await?;
-
-    let models = queries::models::models()
-        .bind(&transaction, &ModelType::LLM)
-        .all()
-        .await?;
-
-    let categories = queries::categories::categories()
-        .bind(&transaction)
-        .all()
-        .await?;
-
-    let html = prompts::my_prompts::page(team_id, rbac, prompts, datasets, models, categories);
+    let html = assistants::my_prompts::page(team_id, rbac, prompts);
 
     Ok(Html(html))
 }
