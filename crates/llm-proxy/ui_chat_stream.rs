@@ -278,8 +278,7 @@ async fn create_request(
 
     let messages = super::prompt::execute_prompt(
         &transaction,
-        prompt.id,
-        conversation.team_id,
+        prompt.clone(),
         Some(conversation.id),
         chat_history,
     )
@@ -296,8 +295,6 @@ async fn create_request(
         .bind(&transaction, &ChatStatus::InProgress, &chat_id)
         .await?;
 
-    transaction.commit().await?;
-
     tracing::debug!("{:?}", &user_config);
 
     // Are we tool aware? If so let's add tools to this conversation
@@ -313,6 +310,24 @@ async fn create_request(
             all_tools.extend(get_tools_for_attachments());
         }
 
+        // Add integration tools from the prompt
+        match super::prompt::get_prompt_integration_tools(
+            &transaction,
+            prompt.id,
+            pool,
+            current_user.sub.clone(),
+        )
+        .await
+        {
+            Ok(integration_tools) => {
+                tracing::info!("Adding {} integration tools", integration_tools.len());
+                all_tools.extend(integration_tools);
+            }
+            Err(e) => {
+                tracing::warn!("Failed to get integration tools: {}", e);
+            }
+        }
+
         if all_tools.is_empty() {
             None
         } else {
@@ -321,6 +336,8 @@ async fn create_request(
     } else {
         None
     };
+
+    transaction.commit().await?;
 
     let completion = BionicChatCompletionRequest {
         model: model.name,

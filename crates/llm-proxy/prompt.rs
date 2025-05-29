@@ -1,25 +1,18 @@
 use crate::errors::CustomError;
 use crate::token_count::{token_count, token_count_from_string};
 use db::queries::{chats_chunks, prompts};
-use db::{RelatedContext, Transaction};
-use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
+use db::{Pool, RelatedContext, Transaction};
+use openai_api::{BionicToolDefinition, ChatCompletionMessage, ChatCompletionMessageRole};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
 // that's why chat is a Vec<Message>
 // For the UI they'll be just one.
 pub async fn execute_prompt(
     transaction: &Transaction<'_>,
-    prompt_id: i32,
-    team_id: i32,
+    prompt: prompts::SinglePrompt,
     conversation_id: Option<i64>,
     chat_history: Vec<ChatCompletionMessage>,
 ) -> Result<Vec<ChatCompletionMessage>, CustomError> {
-    // Get the prompt
-    let prompt = prompts::prompt()
-        .bind(transaction, &prompt_id, &team_id)
-        .one()
-        .await?;
-
     let question = if let Some(q) = chat_history.last() {
         q.content.clone().unwrap_or("".to_string())
     } else {
@@ -51,7 +44,7 @@ pub async fn execute_prompt(
         tracing::info!(prompt.name);
         // Get related context
         related_context =
-            db::get_related_context(transaction, prompt_id, prompt.max_chunks, embeddings).await?;
+            db::get_related_context(transaction, prompt.id, prompt.max_chunks, embeddings).await?;
         tracing::info!("Retrieved {} chunks", related_context.len());
     }
 
@@ -80,6 +73,54 @@ pub async fn execute_prompt(
     }
 
     Ok(messages)
+}
+
+/// Get integration tools for a specific prompt
+pub async fn get_prompt_integration_tools(
+    transaction: &Transaction<'_>,
+    prompt_id: i32,
+    pool: &Pool,
+    sub: String,
+) -> Result<Vec<BionicToolDefinition>, CustomError> {
+    // Get integrations for this prompt
+    let prompt_integrations = prompts::prompt_integrations()
+        .bind(transaction, &prompt_id)
+        .all()
+        .await?;
+
+    if prompt_integrations.is_empty() {
+        return Ok(vec![]);
+    }
+
+    // Create a new transaction for the integrations crate
+    let mut db_client = pool.get().await?;
+    let integration_transaction = db_client.transaction().await?;
+
+    // Set row-level security
+    db::authz::set_row_level_security_user_id(&integration_transaction, sub.clone()).await?;
+
+    // Get external integration tools
+    let external_tools = integrations::create_external_integration_tools(pool, sub).await;
+
+    // For now, we'll get all external tools
+    // In a more sophisticated implementation, we could filter by specific integration IDs
+    // from the prompt_integrations
+    let mut filtered_tools = Vec::new();
+    for tool in external_tools {
+        // Since we can't easily map tools back to integration IDs with the current structure,
+        // we'll include all external tools for now
+        // This could be improved by modifying the external integration tools creation
+        filtered_tools.push(tool.get_tool());
+    }
+
+    integration_transaction.commit().await?;
+
+    tracing::info!(
+        "Retrieved {} integration tools for prompt {}",
+        filtered_tools.len(),
+        prompt_id
+    );
+    Ok(filtered_tools)
 }
 
 pub async fn generate_prompt(

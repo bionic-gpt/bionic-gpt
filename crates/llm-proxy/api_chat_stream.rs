@@ -154,8 +154,15 @@ async fn create_request(
         )
         .await?;
 
-    let prompt = queries::prompts::prompt_by_api_key()
+    // First get the prompt ID from the API key
+    let prompt_info = queries::prompts::prompt_by_api_key()
         .bind(transaction, &api_key.api_key)
+        .one()
+        .await?;
+
+    // Then get the full prompt details using the SinglePrompt query
+    let prompt = queries::prompts::prompt()
+        .bind(transaction, &prompt_info.id, &prompt_info.team_id)
         .one()
         .await?;
     let model = queries::models::model()
@@ -163,14 +170,9 @@ async fn create_request(
         .one()
         .await?;
 
-    let messages = super::prompt::execute_prompt(
-        transaction,
-        prompt.id,
-        prompt.team_id,
-        None,
-        completion.messages,
-    )
-    .await?;
+    let messages =
+        super::prompt::execute_prompt(transaction, prompt.clone(), None, completion.messages)
+            .await?;
     let completion = BionicChatCompletionRequest {
         messages,
         ..completion
