@@ -121,7 +121,7 @@ pub async fn edit_assistant_loader(
         .await?;
 
     let form = assistants::upsert::PromptForm {
-        id: None,
+        id: Some(prompt.id),
         name: prompt.name,
         system_prompt: prompt.system_prompt.unwrap_or_default(),
         datasets: datasets.clone(),
