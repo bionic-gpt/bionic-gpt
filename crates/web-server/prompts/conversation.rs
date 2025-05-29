@@ -54,13 +54,8 @@ pub async fn conversation(
         .await?;
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
-    let external_integrations = queries::integrations::integrations()
-        .bind(&transaction)
-        .all()
-        .await?;
-
     let available_tools: Vec<(String, String)> =
-        integrations::get_user_selectable_tools_for_chat_ui(external_integrations);
+        integrations::get_user_selectable_tools_for_chat_ui();
 
     let html = web_pages::prompts::conversation::page(
         team_id,

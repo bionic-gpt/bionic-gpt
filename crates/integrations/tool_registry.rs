@@ -2,9 +2,7 @@
 use crate::attachment_as_text::get_attachment_as_text_tool;
 use crate::attachment_to_text_converter::get_attachment_to_text_converter_tool;
 use crate::attachments_list::get_list_attachments_tool;
-use crate::open_api_v3::open_api_to_definition_legacy;
 use crate::time_date::get_time_date_tool;
-use db::Integration;
 use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
 
@@ -22,10 +20,7 @@ pub struct IntegrationTool {
     pub definitions_json: String,
 }
 
-pub fn get_integrations(
-    external_integrations: Vec<Integration>,
-    scope: Option<ToolScope>,
-) -> Vec<IntegrationTool> {
+pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
     let mut internal_integrations = vec![
         IntegrationTool {
             scope: ToolScope::UserSelectable,
@@ -51,10 +46,6 @@ pub fn get_integrations(
         },
     ];
 
-    let mut external_integrations = convert_to_integration_tools(external_integrations);
-
-    internal_integrations.append(&mut external_integrations);
-
     // Filter by scope if provided
     if let Some(filter_scope) = scope {
         internal_integrations.retain(|integration| integration.scope == filter_scope);
@@ -63,54 +54,16 @@ pub fn get_integrations(
     internal_integrations
 }
 
-// Convert integrations from the DB into IntegrationTool
-fn convert_to_integration_tools(integrations: Vec<Integration>) -> Vec<IntegrationTool> {
-    integrations
-        .iter()
-        .filter_map(|integration| {
-            if let Some(definition) = &integration.definition {
-                let oas3 = oas3::from_json(definition.to_string());
-                if let Ok(oas3) = oas3 {
-                    let openai_definitions = open_api_to_definition_legacy(oas3.clone());
-                    let definitions_json = serde_json::to_string_pretty(&openai_definitions);
-                    if let Ok(definitions_json) = definitions_json {
-                        Some(IntegrationTool {
-                            scope: ToolScope::UserSelectable,
-                            title: integration.name.clone(),
-                            definitions: openai_definitions.clone(),
-                            definitions_json,
-                        })
-                    } else {
-                        tracing::error!("Failed to convert definitions to JSON");
-                        None
-                    }
-                } else {
-                    tracing::error!(
-                        "Failed to convert JSON in DB to oas3 for integration {}",
-                        integration.id
-                    );
-                    None
-                }
-            } else {
-                tracing::error!("This integration doesn't have a definition");
-                None
-            }
-        })
-        .collect()
-}
-
 pub fn get_tools_for_attachments() -> Vec<BionicToolDefinition> {
-    get_integrations(vec![], Some(ToolScope::DocumentIntelligence))
+    get_integrations(Some(ToolScope::DocumentIntelligence))
         .into_iter()
         .flat_map(|integration| integration.definitions)
         .collect()
 }
 
 /// The name and descriptions of the tools the user can select from
-pub fn get_user_selectable_tools_for_chat_ui(
-    external_integrations: Vec<Integration>,
-) -> Vec<(String, String)> {
-    get_integrations(external_integrations, Some(ToolScope::UserSelectable))
+pub fn get_user_selectable_tools_for_chat_ui() -> Vec<(String, String)> {
+    get_integrations(Some(ToolScope::UserSelectable))
         .iter()
         .flat_map(|integration| {
             integration.definitions.iter().map(|tool| {
@@ -126,10 +79,8 @@ pub fn get_user_selectable_tools_for_chat_ui(
 }
 
 /// The full list of tools a user can select for the chat.
-fn get_user_selectable_tools_for_chat(
-    external_integrations: Vec<Integration>,
-) -> Vec<BionicToolDefinition> {
-    get_integrations(external_integrations, Some(ToolScope::UserSelectable))
+fn get_user_selectable_tools_for_chat() -> Vec<BionicToolDefinition> {
+    get_integrations(Some(ToolScope::UserSelectable))
         .into_iter()
         .flat_map(|integration| integration.definitions)
         .collect()
@@ -140,10 +91,9 @@ fn get_user_selectable_tools_for_chat(
 ///
 /// If enabled_tools is provided, only returns tools with names in that list
 pub fn get_chat_tools_user_selected(
-    external_integrations: Vec<Integration>,
     enabled_tools: Option<&Vec<String>>,
 ) -> Vec<BionicToolDefinition> {
-    let all_tool_definitions = get_user_selectable_tools_for_chat(external_integrations);
+    let all_tool_definitions = get_user_selectable_tools_for_chat();
 
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
@@ -163,7 +113,7 @@ mod tests {
     #[test]
     fn test_get_openai_tools_none() {
         // When enabled_tools is None, it should return no tools
-        let tools = get_chat_tools_user_selected(vec![], None);
+        let tools = get_chat_tools_user_selected(None);
         assert!(
             tools.is_empty(),
             "Expected empty tools list when enabled_tools is None"
@@ -174,7 +124,7 @@ mod tests {
     fn test_get_openai_tools_empty() {
         // When enabled_tools is Some but empty, it should return no tools
         let empty_vec = vec![];
-        let tools = get_chat_tools_user_selected(vec![], Some(&empty_vec));
+        let tools = get_chat_tools_user_selected(Some(&empty_vec));
         assert!(
             tools.is_empty(),
             "Expected empty tools list when enabled_tools is empty"
@@ -189,7 +139,7 @@ mod tests {
 
         // When enabled_tools contains valid tool names, it should return only those tools
         let valid_names = vec![time_date_tool_name];
-        let tools = get_chat_tools_user_selected(vec![], Some(&valid_names));
+        let tools = get_chat_tools_user_selected(Some(&valid_names));
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
         assert_eq!(tools[0].function.name, "get_current_time_and_date");
@@ -199,7 +149,7 @@ mod tests {
     fn test_get_openai_tools_with_invalid_names() {
         // When enabled_tools contains non-existent tool names, it should return no tools
         let invalid_names = vec!["non_existent_tool".to_string()];
-        let tools = get_chat_tools_user_selected(vec![], Some(&invalid_names));
+        let tools = get_chat_tools_user_selected(Some(&invalid_names));
         assert!(
             tools.is_empty(),
             "Expected empty tools list for non-existent tool names"
@@ -215,7 +165,7 @@ mod tests {
         // When enabled_tools contains both valid and invalid tool names,
         // it should return only the valid ones
         let mixed_names = vec![time_date_tool_name, "non_existent_tool".to_string()];
-        let tools = get_chat_tools_user_selected(vec![], Some(&mixed_names));
+        let tools = get_chat_tools_user_selected(Some(&mixed_names));
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
         assert_eq!(tools[0].function.name, "get_current_time_and_date");
@@ -224,7 +174,7 @@ mod tests {
     #[test]
     fn test_integration_tool_definitions_json() {
         // Get all integrations
-        let integrations = get_integrations(vec![], None);
+        let integrations = get_integrations(None);
 
         // Verify that there's at least one integration
         assert!(
@@ -254,7 +204,7 @@ mod tests {
     #[test]
     fn test_get_integrations_with_scope_filter() {
         // Test filtering by UserSelectable scope
-        let user_selectable = get_integrations(vec![], Some(ToolScope::UserSelectable));
+        let user_selectable = get_integrations(Some(ToolScope::UserSelectable));
         assert!(
             !user_selectable.is_empty(),
             "Expected at least one UserSelectable integration"
@@ -264,7 +214,7 @@ mod tests {
         }
 
         // Test filtering by DocumentIntelligence scope
-        let doc_intelligence = get_integrations(vec![], Some(ToolScope::DocumentIntelligence));
+        let doc_intelligence = get_integrations(Some(ToolScope::DocumentIntelligence));
         assert!(
             !doc_intelligence.is_empty(),
             "Expected at least one DocumentIntelligence integration"

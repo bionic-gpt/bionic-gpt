@@ -53,14 +53,9 @@ pub async fn index(
         .await?;
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
-    let external_integrations = queries::integrations::integrations()
-        .bind(&transaction)
-        .all()
-        .await?;
-
     // Get available tools from the integrations crate
     let available_tools: Vec<(String, String)> =
-        integrations::get_user_selectable_tools_for_chat_ui(external_integrations);
+        integrations::get_user_selectable_tools_for_chat_ui();
 
     let html = console::index::new_conversation(
         team_id,
