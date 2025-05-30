@@ -6,8 +6,7 @@ WITH search_results AS (
         c.conversation_id,
         c.prompt_id,
         c.created_at,
-        decrypt_text(c.user_request) as user_request,
-        decrypt_text(c.response) as response,
+        decrypt_text(c.content) as content,
         p.prompt_type
     FROM
         chats c
@@ -17,16 +16,12 @@ WITH search_results AS (
         prompts p ON c.prompt_id = p.id
     WHERE
         conv.user_id = :user_id
-    AND (
-        LOWER(decrypt_text(c.user_request)) LIKE LOWER('%' || :search_term || '%')
-        OR
-        LOWER(decrypt_text(c.response)) LIKE LOWER('%' || :search_term || '%')
-    )
+    AND LOWER(decrypt_text(c.content)) LIKE LOWER('%' || :search_term || '%')
 )
 SELECT
     sr.conversation_id as id,
     sr.prompt_id as prompt_id,
-    LEFT(COALESCE(sr.user_request, sr.response), 255) as summary,
+    LEFT(COALESCE(sr.content), 255) as summary,
     trim(both '"' from to_json(sr.created_at)::text) as created_at_iso,
     sr.created_at,
     sr.prompt_type
@@ -46,10 +41,10 @@ SELECT
     c.id,
     c.prompt_id,
     CASE
-        WHEN LENGTH(decrypt_text(summary.user_request)) > 150 THEN
-            LEFT(decrypt_text(summary.user_request), 150) || '...'
+        WHEN LENGTH(decrypt_text(summary.content)) > 150 THEN
+            LEFT(decrypt_text(summary.content), 150) || '...'
         ELSE
-            decrypt_text(summary.user_request)
+            decrypt_text(summary.content)
     END AS summary,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(c.created_at)::text) as created_at_iso,

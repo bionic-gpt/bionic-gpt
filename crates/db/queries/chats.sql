@@ -1,17 +1,17 @@
---: Chat(response?, tool_calls?, tool_call_results?, attachments?)
+--: Chat(content?, tool_calls?, tool_call_id?, tool_call_results?, attachments?)
 
 
---! new_chat
-INSERT INTO chats 
-    (conversation_id, prompt_id, user_request, prompt)
+--! new_chat(tool_call_id?)
+INSERT INTO chats
+    (conversation_id, prompt_id, tool_call_id, content, prompt, role)
 VALUES
-    (:conversation_id, :prompt_id, encrypt_text(:user_request), encrypt_text(:prompt))
+    (:conversation_id, :prompt_id, :tool_call_id, encrypt_text(:content), encrypt_text(:prompt), :role)
 RETURNING id;
     
 --! update_chat(tool_calls?, tool_call_results?)
 UPDATE chats 
 SET 
-    response = encrypt_text(:response),
+    content = encrypt_text(:content),
     tool_calls = encrypt_text(:tool_calls),
     tool_call_results = encrypt_text(:tool_call_results),
     tokens_received = :tokens_received,
@@ -37,13 +37,14 @@ AND
 SELECT
     id,
     conversation_id,
-    decrypt_text(user_request) as user_request,
+    decrypt_text(content) as content,
+    role,
+    tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     decrypt_text(tool_call_results) as tool_call_results,
     decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
-    decrypt_text(response) as response,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -57,12 +58,12 @@ SELECT
     ) as attachments,
     created_at,
     updated_at
-FROM 
+FROM
     chats
 WHERE
     -- Make sure the chat belongs to the user
     conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
-AND 
+AND
     conversation_id = :conversation_id
 ORDER BY updated_at;
 
@@ -70,13 +71,14 @@ ORDER BY updated_at;
 SELECT
     id,
     conversation_id,
-    decrypt_text(user_request) as user_request,
+    decrypt_text(content) as content,
+    role,
+    tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     decrypt_text(tool_call_results) as tool_call_results,
     decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
-    decrypt_text(response) as response,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -90,12 +92,12 @@ SELECT
     ) as attachments,
     created_at,
     updated_at
-FROM 
+FROM
     chats
 WHERE
     -- Make sure the chat belongs to the user
     conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
-AND 
+AND
     conversation_id = :conversation_id
 ORDER BY updated_at ASC
 LIMIT :limit;
@@ -104,13 +106,14 @@ LIMIT :limit;
 SELECT
     id,
     conversation_id,
-    decrypt_text(user_request) as user_request,
+    decrypt_text(content) as content,
+    role,
+    tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     decrypt_text(tool_call_results) as tool_call_results,
     decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
-    decrypt_text(response) as response,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -124,7 +127,7 @@ SELECT
     ) as attachments,
     created_at,
     updated_at
-FROM 
+FROM
     chats
 WHERE
     -- Make sure the chat belongs to the user

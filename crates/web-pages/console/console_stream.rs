@@ -29,7 +29,7 @@ pub fn ConsoleStream(
                     if let Some(tool_calls) = pending_chat.tool_calls {
 
                         UserRequestTimeline {
-                            user_request: pending_chat.chat.user_request.clone()
+                            user_request: pending_chat.chat.content.clone().unwrap_or_default()
                         }
 
                         for tool_call in tool_calls {
@@ -48,7 +48,7 @@ pub fn ConsoleStream(
                         }
                     } else {
                         UserRequestTimeline {
-                            user_request: pending_chat.chat.user_request.clone()
+                            user_request: pending_chat.chat.content.clone().unwrap_or_default()
                         }
                         // This component has an id of 'streaming-chat' which
                         // get picked up by the javascript and call the chat stream
@@ -74,19 +74,19 @@ pub fn ConsoleStream(
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
 
                     ResponseTimeline {
-                        response: chat_with_chunks.chat.response.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
+                        response: chat_with_chunks.chat.content.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
                         is_tts_disabled
                     }
 
                     ModelInfoTimeline {
                         model_name: chat_with_chunks.chat.model_name.clone(),
                         chat_id: chat_with_chunks.chat.id as i64,
-                        has_response: chat_with_chunks.chat.response.is_some(),
+                        has_response: chat_with_chunks.chat.content.is_some(),
                         rbac: rbac.clone()
                     }
 
                     UserRequestTimeline {
-                        user_request: chat_with_chunks.chat.user_request.clone()
+                        user_request: chat_with_chunks.chat.content.clone().unwrap_or_default()
                     }
                 }
             }

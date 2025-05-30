@@ -3,9 +3,12 @@ use axum::{
     extract::{Extension, Multipart},
     response::IntoResponse,
 };
-use db::queries::{attachments, chats, conversations, prompts};
 use db::Pool;
 use db::{authz, PromptType};
+use db::{
+    queries::{attachments, chats, conversations, prompts},
+    ChatRole,
+};
 use object_storage;
 use serde::Deserialize;
 use validator::Validate;
@@ -114,8 +117,10 @@ pub async fn send_message(
                 &transaction,
                 &conversation_id,
                 &message.prompt_id,
+                &None::<String>,
                 &message.message,
                 &"",
+                &ChatRole::User,
             )
             .one()
             .await?;

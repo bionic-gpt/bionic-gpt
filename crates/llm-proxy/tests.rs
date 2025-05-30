@@ -1,4 +1,4 @@
-use db::{Chat, ChatStatus};
+use db::{Chat, ChatRole, ChatStatus};
 use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use serde_json::json;
 use time::OffsetDateTime;
@@ -11,7 +11,9 @@ async fn test_convert_chat_to_messages_tool_calling() {
     let chat = Chat {
         id: 0,
         conversation_id: 0,
-        user_request: "What's the current time in San Francisco?".to_string(),
+        role: ChatRole::User,
+        content: Some("What's the current time in San Francisco?".to_string()),
+        tool_call_id: None,
         tool_calls: Some(
             json!([{
                 "id": "call_123",
@@ -42,7 +44,6 @@ async fn test_convert_chat_to_messages_tool_calling() {
         prompt: "time query".to_string(),
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
-        response: None,
         attachments: None,
         status: ChatStatus::Pending,
         created_at: OffsetDateTime::UNIX_EPOCH,
@@ -76,15 +77,16 @@ async fn test_convert_chat_to_messages_tool_calling() {
 async fn test_convert_chat_to_messages_tool_calling_fallback() {
     // Create a Chat struct with invalid JSON function call data
     let chat = Chat {
+        role: ChatRole::User,
         id: 0,
         conversation_id: 0,
-        user_request: "What's the current time in San Francisco?".to_string(),
+        content: Some("What's the current time in San Francisco?".to_string()),
+        tool_call_id: None,
         tool_calls: Some("[invalid json]".to_string()),
         tool_call_results: Some("[some results]".to_string()),
         prompt: "time query".to_string(),
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
-        response: None,
         attachments: None,
         status: ChatStatus::Pending,
         created_at: OffsetDateTime::UNIX_EPOCH,
