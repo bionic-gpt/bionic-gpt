@@ -15,4 +15,4 @@ We use 2 main tools to manage the database
 
 ## Database Schema: Orphans
 
-![Alt text](diagrams/orphans.png "Orphans")
+![Alt text](diagrams/orphans/orphans.png "Orphans")
