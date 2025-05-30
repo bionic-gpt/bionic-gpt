@@ -64,6 +64,7 @@ release:
 schemaspy-install:
     sudo apt update
     sudo apt install default-jre graphviz
+    mkdir -p tmp
     curl -L https://github.com/schemaspy/schemaspy/releases/download/v6.2.4/schemaspy-6.2.4.jar \
         --output tmp/schemaspy.jar
     curl -L https://jdbc.postgresql.org/download/postgresql-42.5.4.jar \
@@ -73,10 +74,10 @@ schemaspy:
     java -jar tmp/schemaspy.jar \
         -t pgsql11 \
         -dp tmp/jdbc-driver.jar \
-        -db postgres \
-        -host db \
-        -port 5432 \
-        -u postgres \
+        -db bionic-gpt \
+        -host localhost \
+        -port 30001 \
+        -u db-owner \
         -p testpassword \
         -o tmp
     cp -r tmp/diagrams/orphans crates/db/diagrams
