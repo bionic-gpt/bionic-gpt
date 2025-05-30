@@ -26,36 +26,14 @@ pub fn ConsoleStream(
                 div {
                     class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
                     // Are we sending the result of tool calls to the model?
-                    if let Some(tool_calls) = pending_chat.tool_calls {
-
-                        UserRequestTimeline {
-                            user_request: pending_chat.chat.content.clone().unwrap_or_default()
-                        }
-
-                        for tool_call in tool_calls {
-                            FunctionCallTimeline {
-                                name: tool_call.function.name.clone(),
-                                chat_id: pending_chat.chat.id as i64,
-                                team_id
-                            }
-                        }
-                        // This component has an id of 'streaming-chat' which
-                        // get picked up by the javascript and call the chat stream
-                        // At this stage we are sending the model results of the function calls
-                        ProcessingTimeline {
-                            chat_id: pending_chat.chat.id as i64,
-                            team_id: team_id
-                        }
-                    } else {
-                        UserRequestTimeline {
-                            user_request: pending_chat.chat.content.clone().unwrap_or_default()
-                        }
-                        // This component has an id of 'streaming-chat' which
-                        // get picked up by the javascript and call the chat stream
-                        ProcessingTimeline {
-                            chat_id: pending_chat.chat.id as i64,
-                            team_id: team_id
-                        }
+                    UserRequestTimeline {
+                        user_request: pending_chat.chat.content.clone().unwrap_or_default()
+                    }
+                    // This component has an id of 'streaming-chat' which
+                    // get picked up by the javascript and call the chat stream
+                    ProcessingTimeline {
+                        chat_id: pending_chat.chat.id as i64,
+                        team_id: team_id
                     }
                 }
             }
