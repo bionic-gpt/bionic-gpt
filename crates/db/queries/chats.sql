@@ -1,31 +1,16 @@
 --: Chat(content?, tool_calls?, tool_call_id?, tool_call_results?, attachments?)
 
 
---! new_chat(tool_call_id?)
+--! new_chat(tool_call_id?, tool_calls?)
 INSERT INTO chats
-    (conversation_id, prompt_id, tool_call_id, content, prompt, role)
+    (conversation_id, prompt_id, tool_call_id, tool_calls, content, role, status)
 VALUES
-    (:conversation_id, :prompt_id, :tool_call_id, encrypt_text(:content), encrypt_text(:prompt), :role)
+    (:conversation_id, :prompt_id, :tool_call_id, :tool_calls, encrypt_text(:content), :role, :status)
 RETURNING id;
-    
---! update_chat(tool_calls?, tool_call_results?)
-UPDATE chats 
-SET 
-    content = encrypt_text(:content),
-    tool_calls = encrypt_text(:tool_calls),
-    tool_call_results = encrypt_text(:tool_call_results),
-    tokens_received = :tokens_received,
-    status = :chat_status
-WHERE
-    id = :chat_id
-AND
-    -- Make sure the chat belongs to the user
-    conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user());
     
 --! update_prompt
 UPDATE chats 
 SET 
-    prompt = encrypt_text(:prompt),
     tokens_sent = :tokens_sent
 WHERE
     id = :chat_id
@@ -42,7 +27,6 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     decrypt_text(tool_call_results) as tool_call_results,
-    decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     status,
@@ -76,7 +60,6 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     decrypt_text(tool_call_results) as tool_call_results,
-    decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     status,
@@ -111,7 +94,6 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     decrypt_text(tool_call_results) as tool_call_results,
-    decrypt_text(prompt) as prompt,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     status,

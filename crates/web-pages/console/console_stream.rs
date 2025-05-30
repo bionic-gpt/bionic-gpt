@@ -3,7 +3,7 @@ use crate::routes;
 
 use assets::files::*;
 use daisy_rsx::*;
-use db::authz::Rbac;
+use db::{authz::Rbac, ChatRole};
 use dioxus::prelude::*;
 
 use super::{ChatWithChunks, PendingChat};
@@ -65,7 +65,7 @@ pub fn ConsoleStream(
                 if rbac.can_view_system_prompt() {
                     super::prompt_drawer::PromptDrawer {
                         trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
-                        prompt: chat_with_chunks.chat.prompt.clone(),
+                        prompt: "NOT IMPLEMENTED".to_string(),
                         chunks: chat_with_chunks.chunks.clone(),
                         rbac: rbac.clone()
                     }
@@ -73,20 +73,22 @@ pub fn ConsoleStream(
                 div {
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
 
-                    ResponseTimeline {
-                        response: chat_with_chunks.chat.content.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
-                        is_tts_disabled
-                    }
+                    if chat_with_chunks.chat.role == ChatRole::Assistant {
+                        ResponseTimeline {
+                            response: chat_with_chunks.chat.content.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
+                            is_tts_disabled
+                        }
 
-                    ModelInfoTimeline {
-                        model_name: chat_with_chunks.chat.model_name.clone(),
-                        chat_id: chat_with_chunks.chat.id as i64,
-                        has_response: chat_with_chunks.chat.content.is_some(),
-                        rbac: rbac.clone()
-                    }
-
-                    UserRequestTimeline {
-                        user_request: chat_with_chunks.chat.content.clone().unwrap_or_default()
+                        ModelInfoTimeline {
+                            model_name: chat_with_chunks.chat.model_name.clone(),
+                            chat_id: chat_with_chunks.chat.id as i64,
+                            has_response: chat_with_chunks.chat.content.is_some(),
+                            rbac: rbac.clone()
+                        }
+                    } else {
+                        UserRequestTimeline {
+                            user_request: chat_with_chunks.chat.content.clone().unwrap_or_default()
+                        }
                     }
                 }
             }

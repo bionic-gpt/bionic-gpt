@@ -62,6 +62,7 @@ WHERE response IS NOT NULL AND response != '';
 ALTER TABLE chats
     DROP COLUMN request_embeddings,
     DROP COLUMN response,
+    DROP COLUMN prompt,
     DROP COLUMN response_embeddings,
     DROP COLUMN user_request;
 
@@ -71,6 +72,7 @@ ALTER TABLE chats
 ALTER TABLE chats ADD COLUMN user_request VARCHAR NOT NULL DEFAULT '';
 ALTER TABLE chats ADD COLUMN request_embeddings VARCHAR;
 ALTER TABLE chats ADD COLUMN response VARCHAR;
+ALTER TABLE chats ADD COLUMN prompt VARCHAR NOT NULL DEFAULT '';
 ALTER TABLE chats ADD COLUMN response_embeddings VARCHAR;
 
 -- Copy user messages back to user_request

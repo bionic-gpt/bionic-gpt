@@ -41,7 +41,6 @@ async fn test_convert_chat_to_messages_tool_calling() {
             }])
             .to_string(),
         ),
-        prompt: "time query".to_string(),
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
         attachments: None,
@@ -84,7 +83,6 @@ async fn test_convert_chat_to_messages_tool_calling_fallback() {
         tool_call_id: None,
         tool_calls: Some("[invalid json]".to_string()),
         tool_call_results: Some("[some results]".to_string()),
-        prompt: "time query".to_string(),
         prompt_id: 0,
         model_name: "gpt-4".to_string(),
         attachments: None,
