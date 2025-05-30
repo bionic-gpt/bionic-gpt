@@ -24,6 +24,7 @@ get-config:
 
 wa:
     TOOL_INTEGRATIONS_FEATURE=1 \
+    CUSTOMER_KEY='190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949' \
     mold -run cargo watch --workdir /workspace/ \
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
