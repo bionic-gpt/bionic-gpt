@@ -75,7 +75,7 @@ pub fn ConsoleStream(
 
                     ResponseTimeline {
                         response: chat_with_chunks.chat.response.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
-                        is_tts_disabled: is_tts_disabled
+                        is_tts_disabled
                     }
 
                     ModelInfoTimeline {
