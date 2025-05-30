@@ -33,8 +33,9 @@ pub async fn conversation(
         .await?
         .is_empty();
 
-    // Process chats to get chat_history and pending_chat
-    let (chat_history, pending_chat) = super::utils::process_chats(&transaction, chats).await?;
+    // Process chats to get chat_history and pending_chat_state
+    let (chat_history, pending_chat_state) =
+        super::utils::process_chats(&transaction, chats).await?;
 
     let prompts = queries::prompts::prompts()
         .bind(&transaction, &team_id, &db::PromptType::Model)
@@ -65,7 +66,7 @@ pub async fn conversation(
         team_id,
         rbac,
         chat_history,
-        pending_chat,
+        pending_chat_state,
         prompts,
         prompt,
         conversation_id,

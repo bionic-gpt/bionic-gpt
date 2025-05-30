@@ -24,3 +24,10 @@ pub struct PendingChat {
     pub chat: Chat,
     pub tool_calls: Option<Vec<ToolCall>>,
 }
+
+#[derive(PartialEq, Clone)]
+pub enum PendingChatState {
+    PendingToolChats(Vec<Chat>),
+    PendingUserChat(Box<PendingChat>),
+    None,
+}

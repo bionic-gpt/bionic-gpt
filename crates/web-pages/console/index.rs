@@ -24,7 +24,7 @@ pub fn new_conversation(
             title: "AI Chat Console",
             selected_item: SideBar::Console,
             chat_history: vec![],
-            pending_chat: None,
+            pending_chat_state: super::PendingChatState::None,
             is_tts_disabled: true,
             capabilities,
             enabled_tools,

@@ -28,13 +28,18 @@ pub async fn conversation(
         .all()
         .await?;
 
-    // Process chats to get chat_history and pending_chat
-    let (chat_history, pending_chat) = process_chats(&transaction, chats).await?;
+    // Process chats to get chat_history and pending_chat_state
+    let (chat_history, pending_chat_state) = process_chats(&transaction, chats).await?;
+
+    let has_pending_chat = !matches!(
+        &pending_chat_state,
+        web_pages::console::PendingChatState::None
+    );
 
     tracing::debug!(
         "History items = {} and pending chat? {}",
         chat_history.len(),
-        pending_chat.is_some()
+        has_pending_chat
     );
 
     let prompt = queries::prompts::prompt()
@@ -61,7 +66,7 @@ pub async fn conversation(
         team_id,
         rbac,
         chat_history,
-        pending_chat,
+        pending_chat_state,
         prompt,
         conversation_id,
         is_tts_disabled,

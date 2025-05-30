@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(clippy::too_many_arguments)]
-use super::{ChatWithChunks, PendingChat};
+use super::{ChatWithChunks, PendingChatState};
 use crate::app_layout::SideBar;
 use crate::console::model_popup::ModelPopup;
 use assets::files::*;
@@ -14,7 +14,7 @@ pub fn page(
     team_id: i32,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<PendingChat>,
+    pending_chat_state: PendingChatState,
     prompts: Vec<Prompt>,
     prompt: SinglePrompt,
     conversation_id: i64,
@@ -33,7 +33,7 @@ pub fn page(
             prompt: prompt.clone(),
             selected_item: SideBar::Console,
             chat_history,
-            pending_chat,
+            pending_chat_state,
             conversation_id,
             is_tts_disabled,
             capabilities,

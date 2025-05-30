@@ -6,14 +6,14 @@ use daisy_rsx::*;
 use db::{authz::Rbac, ChatRole};
 use dioxus::prelude::*;
 
-use super::{ChatWithChunks, PendingChat};
+use super::{ChatWithChunks, PendingChatState};
 
 // Main ConsoleStream Component
 #[component]
 pub fn ConsoleStream(
     team_id: i32,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<PendingChat>,
+    pending_chat_state: PendingChatState,
     is_tts_disabled: bool,
     rbac: Rbac,
 ) -> Element {
@@ -21,21 +21,37 @@ pub fn ConsoleStream(
         div {
             class: "flex-1 flex flex-col-reverse overflow-y-auto",
 
-            // If we are waiting for the model, then deal with it here.
-            if let Some(pending_chat) = pending_chat {
-                div {
-                    class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
-                    // Are we sending the result of tool calls to the model?
-                    UserRequestTimeline {
-                        user_request: pending_chat.chat.content.clone().unwrap_or_default()
+            // Handle different pending chat states
+            match pending_chat_state {
+                PendingChatState::PendingToolChats(tool_chats) => rsx! {
+                    div {
+                        class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
+                        // Show each pending tool chat
+                        for tool_chat in tool_chats {
+                            FunctionCallTimeline {
+                                name: format!("Tool Call {}", tool_chat.id),
+                                chat_id: tool_chat.id as i64,
+                                team_id: team_id
+                            }
+                        }
                     }
-                    // This component has an id of 'streaming-chat' which
-                    // get picked up by the javascript and call the chat stream
-                    ProcessingTimeline {
-                        chat_id: pending_chat.chat.id as i64,
-                        team_id: team_id
+                },
+                PendingChatState::PendingUserChat(pending_chat) => rsx! {
+                    div {
+                        class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
+                        // Show user request and processing
+                        UserRequestTimeline {
+                            user_request: pending_chat.chat.content.clone().unwrap_or_default()
+                        }
+                        // This component has an id of 'streaming-chat' which
+                        // get picked up by the javascript and call the chat stream
+                        ProcessingTimeline {
+                            chat_id: pending_chat.chat.id as i64,
+                            team_id: team_id
+                        }
                     }
-                }
+                },
+                PendingChatState::None => rsx! { div {} }
             }
 
             // Show any chat history, these should all have been processed.

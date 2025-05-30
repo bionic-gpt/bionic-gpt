@@ -2,7 +2,7 @@
 #![allow(clippy::too_many_arguments)]
 use super::assistant_console::AssistantConsole;
 use crate::app_layout::SideBar;
-use crate::console::{ChatWithChunks, PendingChat};
+use crate::console::{ChatWithChunks, PendingChatState};
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -14,7 +14,7 @@ pub fn page(
     team_id: i32,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<PendingChat>,
+    pending_chat_state: PendingChatState,
     prompt: SinglePrompt,
     conversation_id: i64,
     is_tts_disabled: bool,
@@ -31,7 +31,7 @@ pub fn page(
             rbac: rbac,
             title: "{prompt.name}",
             chat_history: chat_history.clone(),
-            pending_chat,
+            pending_chat_state,
             prompt: prompt.clone(),
             conversation_id,
             is_tts_disabled,
