@@ -23,7 +23,7 @@ pub fn ConsoleStream(
 
             // Handle different pending chat states
             match pending_chat_state {
-                PendingChatState::PendingToolChats(tool_chats) => rsx! {
+                PendingChatState::PendingToolChats(tool_chats, last_chat_id) => rsx! {
                     div {
                         class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
                         // Show each pending tool chat
@@ -31,8 +31,14 @@ pub fn ConsoleStream(
                             FunctionCallTimeline {
                                 name: format!("Tool Call {}", tool_chat.id),
                                 chat_id: tool_chat.id as i64,
-                                team_id: team_id
+                                team_id
                             }
+                        }
+                        // This component has an id of 'streaming-chat' which
+                        // gets picked up by the javascript and call the chat stream
+                        ProcessingTimeline {
+                            chat_id: last_chat_id as i64,
+                            team_id
                         }
                     }
                 },
@@ -44,10 +50,10 @@ pub fn ConsoleStream(
                             user_request: pending_chat.chat.content.clone().unwrap_or_default()
                         }
                         // This component has an id of 'streaming-chat' which
-                        // get picked up by the javascript and call the chat stream
+                        // gets picked up by the javascript and call the chat stream
                         ProcessingTimeline {
                             chat_id: pending_chat.chat.id as i64,
-                            team_id: team_id
+                            team_id
                         }
                     }
                 },

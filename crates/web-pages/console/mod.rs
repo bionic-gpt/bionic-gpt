@@ -27,7 +27,7 @@ pub struct PendingChat {
 
 #[derive(PartialEq, Clone)]
 pub enum PendingChatState {
-    PendingToolChats(Vec<Chat>),
+    PendingToolChats(Vec<Chat>, i32),
     PendingUserChat(Box<PendingChat>),
     None,
 }

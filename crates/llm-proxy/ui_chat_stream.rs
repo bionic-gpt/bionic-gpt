@@ -177,6 +177,10 @@ async fn save_results(
 
     let tool_calls_json = serde_json::to_string(&tool_calls).ok();
 
+    tracing::debug!(
+        "save_results: Executing chat query with chat_id: {}",
+        chat_id
+    );
     if let Ok(chat) = queries::chats::chat()
         .bind(&transaction, &chat_id)
         .one()
@@ -251,26 +255,54 @@ async fn create_request(
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, current_user.sub.to_string()).await?;
+
+    tracing::debug!(
+        "Executing model_host_by_chat_id query with chat_id: {}",
+        chat_id
+    );
     let model = queries::models::model_host_by_chat_id()
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing get_model_capabilities query with model_id: {}",
+        model.id
+    );
     let capabilities = queries::capabilities::get_model_capabilities()
         .bind(&transaction, &model.id)
         .all()
         .await?;
+
+    tracing::debug!("Executing chat query with chat_id: {}", chat_id);
     let chat = queries::chats::chat()
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing get_conversation_from_chat query with chat_id: {}",
+        chat_id
+    );
     let conversation = queries::conversations::get_conversation_from_chat()
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing count_attachments query with conversation_id: {}",
+        conversation.id
+    );
     let attachment_count = queries::conversations::count_attachments()
         .bind(&transaction, &conversation.id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing prompt query with prompt_id: {}, team_id: {}",
+        chat.prompt_id,
+        conversation.team_id
+    );
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &chat.prompt_id, &conversation.team_id)
         .one()

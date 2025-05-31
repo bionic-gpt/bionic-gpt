@@ -33,8 +33,12 @@ pub async fn process_chats(
         return Ok((chat_history, PendingChatState::None));
     }
 
+    // Get the last chat ID from the original input list
+    let last_chat_id = chats.last().map(|chat| chat.id).unwrap_or(0);
+
     // Separate pending and non-pending chats
     let (pending_chats, non_pending_chats): (Vec<Chat>, Vec<Chat>) = chats
+        .clone()
         .into_iter()
         .partition(|chat| chat.status == ChatStatus::Pending);
 
@@ -47,7 +51,7 @@ pub async fn process_chats(
 
         if !tool_chats.is_empty() {
             // Priority 1: Show pending Tool chats
-            PendingChatState::PendingToolChats(tool_chats)
+            PendingChatState::PendingToolChats(tool_chats, last_chat_id)
         } else if !user_chats.is_empty() {
             // Priority 2: Show last pending User chat
             let last_user_chat = user_chats.into_iter().next_back().unwrap();
