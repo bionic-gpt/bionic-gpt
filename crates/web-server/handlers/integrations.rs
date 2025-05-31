@@ -159,17 +159,21 @@ pub async fn upsert_action(
     let integration_type = db::IntegrationType::OpenAPI;
 
     // Parse the OpenAPI specification from the provided JSON
-    let (definition, integration_status) = match parse_openapi_spec(&integration_form.openapi_spec)
-    {
-        Ok(spec) => (Some(spec), db::IntegrationStatus::Configured),
-        Err(error) => {
-            // If there's an error, return to the form with the error message
-            integration_form.error = Some(error);
-            let html =
-                web_pages::integrations::upsert::page(team_id, permissions, integration_form);
-            return Ok(Html(html).into_response());
-        }
-    };
+    let (definition, integration_status, integration_name) =
+        match parse_openapi_spec(&integration_form.openapi_spec) {
+            Ok(spec) => {
+                // Extract the name from the OpenAPI spec's info.title field
+                let name = spec.0.info.title.clone();
+                (Some(spec), db::IntegrationStatus::Configured, name)
+            }
+            Err(error) => {
+                // If there's an error, return to the form with the error message
+                integration_form.error = Some(error);
+                let html =
+                    web_pages::integrations::upsert::page(team_id, permissions, integration_form);
+                return Ok(Html(html).into_response());
+            }
+        };
 
     // No configuration needed since we're not storing base URL anymore
     let configuration: Option<Json<serde_json::Value>> = None;
@@ -180,7 +184,7 @@ pub async fn upsert_action(
             queries::integrations::update()
                 .bind(
                     &transaction,
-                    &integration_form.name,
+                    &integration_name,
                     &configuration, // configuration
                     &definition,    // definition
                     &integration_type,
@@ -202,7 +206,7 @@ pub async fn upsert_action(
             queries::integrations::insert()
                 .bind(
                     &transaction,
-                    &integration_form.name,
+                    &integration_name,
                     &configuration, // configuration
                     &definition,    // definition
                     &integration_type,

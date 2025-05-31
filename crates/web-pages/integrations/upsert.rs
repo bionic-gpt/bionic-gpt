@@ -9,8 +9,6 @@ use validator::Validate;
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct IntegrationForm {
     pub id: Option<i32>,
-    #[validate(length(min = 1, message = "Name is required"))]
-    pub name: String,
     #[validate(length(min = 1, message = "OpenAPI specification is required"))]
     pub openapi_spec: String,
     #[serde(skip)]
@@ -53,15 +51,6 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
                                 class: "alert alert-error",
                                 "{error}"
                             }
-                        }
-
-                        Input {
-                            input_type: InputType::Text,
-                            label_class: "mt-4",
-                            name: "name",
-                            label: "Name",
-                            help_text: "Make the name memorable and imply it's usage.",
-                            value: integration.name
                         }
 
                         div {
