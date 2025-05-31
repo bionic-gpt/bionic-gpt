@@ -26,8 +26,8 @@ pub use queries::users::User;
 pub use tokio_postgres::types::Json;
 pub use tokio_postgres::Error as TokioPostgresError;
 pub use types::public::{
-    AuditAccessType, AuditAction, ChatStatus, IntegrationStatus, IntegrationType, ModelCapability,
-    ModelType, Permission, PromptType, Role, Visibility,
+    AuditAccessType, AuditAction, ChatRole, ChatStatus, IntegrationStatus, IntegrationType,
+    ModelCapability, ModelType, Permission, PromptType, Role, Visibility,
 };
 pub use vector_search::{get_related_context, RelatedContext};
 

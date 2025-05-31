@@ -13,7 +13,7 @@ integrations = { path = "../integrations" }
 openai-api = { path = "../openai-api" }
 
 axum = { version = "0.8", features = ["multipart"] }
-axum-extra = { version = "0.10", features = ["form", "typed-routing"] }
+axum-extra = { version = "0.10", features = ["form", "typed-routing", "cookie"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 http = "1"
 tokio-stream = "0.1"

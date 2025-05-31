@@ -11,8 +11,8 @@ use crate::jwt::Jwt;
 use crate::user_config::UserConfig;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
-use db::ChatStatus;
 use db::{queries, Pool};
+use db::{ChatRole, ChatStatus};
 use integrations::{execute_tool_calls, get_chat_tools_user_selected, get_tools_for_attachments};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
@@ -164,60 +164,77 @@ async fn save_results(
 
     tracing::debug!("Setting RLS ID");
 
-    let (tool_calls, tool_calls_result, status) = if let Some(tool_calls) = tool_calls {
-        // Get conversation_id from chat_id
-        let conversation = match queries::conversations::get_conversation_from_chat()
-            .bind(&transaction, &chat_id)
+    // Set the chat status to InProgress
+    if let Err(e) = queries::chats::set_chat_status()
+        .bind(&transaction, &status, &chat_id)
+        .await
+    {
+        tracing::error!("Error updating chat status: {:?}", e);
+        return;
+    }
+
+    tracing::debug!("About to create the assistants response");
+
+    let tool_calls_json = serde_json::to_string(&tool_calls).ok();
+
+    tracing::debug!(
+        "save_results: Executing chat query with chat_id: {}",
+        chat_id
+    );
+    if let Ok(chat) = queries::chats::chat()
+        .bind(&transaction, &chat_id)
+        .one()
+        .await
+    {
+        if let Err(e) = queries::chats::new_chat()
+            .bind(
+                &transaction,
+                &chat.conversation_id,
+                &chat.prompt_id,
+                &None::<String>,
+                &tool_calls_json,
+                &snapshot,
+                &ChatRole::Assistant,
+                &ChatStatus::Success,
+            )
             .one()
             .await
         {
-            Ok(conv) => conv,
-            Err(e) => {
-                tracing::error!("Error getting conversation: {:?}", e);
-                return;
+            tracing::error!("Error creating chat: {:?}", e);
+            return;
+        }
+
+        if let Some(tool_calls) = tool_calls {
+            let tool_call_results = execute_tool_calls(
+                tool_calls.clone(),
+                Some(pool),
+                Some(sub.to_string()),
+                Some(chat.conversation_id),
+            )
+            .await;
+
+            for tool_call in tool_call_results {
+                if let Err(e) = queries::chats::new_chat()
+                    .bind(
+                        &transaction,
+                        &chat.conversation_id,
+                        &chat.prompt_id,
+                        &Some(tool_call.id),
+                        &None::<String>,
+                        &tool_call.result,
+                        &ChatRole::Tool,
+                        &ChatStatus::Pending,
+                    )
+                    .one()
+                    .await
+                {
+                    tracing::error!("Error creating tool call results chat: {:?}", e);
+                    return;
+                }
             }
-        };
-
-        let tool_call_results = execute_tool_calls(
-            tool_calls.clone(),
-            Some(pool),
-            Some(sub.to_string()),
-            Some(conversation.id),
-        )
-        .await;
-
-        let tool_call_results =
-            serde_json::to_string(&tool_call_results).unwrap_or("{}".to_string());
-        let tool_calls = serde_json::to_string(&tool_calls).unwrap_or("{}".to_string());
-
-        tracing::debug!(tool_calls);
-        tracing::debug!(tool_call_results);
-
-        (
-            Some(tool_calls),
-            Some(tool_call_results),
-            ChatStatus::Pending,
-        )
+        }
     } else {
-        (None, None, status)
-    };
-
-    tracing::debug!("About to update chat");
-
-    if let Err(e) = queries::chats::update_chat()
-        .bind(
-            &transaction,
-            &snapshot,
-            &tool_calls,
-            &tool_calls_result,
-            &super::token_count::token_count_from_string(snapshot),
-            &status,
-            &chat_id,
-        )
-        .await
-    {
-        tracing::error!("Error updating chat: {:?}", e);
-        return;
+        tracing::error!("Error retrieving chat");
     }
 
     if let Err(e) = transaction.commit().await {
@@ -238,26 +255,54 @@ async fn create_request(
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
     db::authz::set_row_level_security_user_id(&transaction, current_user.sub.to_string()).await?;
+
+    tracing::debug!(
+        "Executing model_host_by_chat_id query with chat_id: {}",
+        chat_id
+    );
     let model = queries::models::model_host_by_chat_id()
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing get_model_capabilities query with model_id: {}",
+        model.id
+    );
     let capabilities = queries::capabilities::get_model_capabilities()
         .bind(&transaction, &model.id)
         .all()
         .await?;
+
+    tracing::debug!("Executing chat query with chat_id: {}", chat_id);
     let chat = queries::chats::chat()
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing get_conversation_from_chat query with chat_id: {}",
+        chat_id
+    );
     let conversation = queries::conversations::get_conversation_from_chat()
         .bind(&transaction, &chat_id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing count_attachments query with conversation_id: {}",
+        conversation.id
+    );
     let attachment_count = queries::conversations::count_attachments()
         .bind(&transaction, &conversation.id)
         .one()
         .await?;
+
+    tracing::debug!(
+        "Executing prompt query with prompt_id: {}, team_id: {}",
+        chat.prompt_id,
+        conversation.team_id
+    );
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &chat.prompt_id, &conversation.team_id)
         .one()
@@ -278,25 +323,21 @@ async fn create_request(
 
     let messages = super::prompt::execute_prompt(
         &transaction,
-        prompt.id,
-        conversation.team_id,
+        prompt.clone(),
         Some(conversation.id),
         chat_history,
     )
     .await?;
 
-    let json_messages = serde_json::to_string(&messages)?;
     let size = super::token_count::token_count(messages.clone());
     queries::chats::update_prompt()
-        .bind(&transaction, &json_messages, &size, &chat_id)
+        .bind(&transaction, &size, &chat_id)
         .await?;
 
     // Set the chat status to InProgress
     queries::chats::set_chat_status()
         .bind(&transaction, &ChatStatus::InProgress, &chat_id)
         .await?;
-
-    transaction.commit().await?;
 
     tracing::debug!("{:?}", &user_config);
 
@@ -313,6 +354,24 @@ async fn create_request(
             all_tools.extend(get_tools_for_attachments());
         }
 
+        // Add integration tools from the prompt
+        match super::prompt::get_prompt_integration_tools(
+            &transaction,
+            prompt.id,
+            pool,
+            current_user.sub.clone(),
+        )
+        .await
+        {
+            Ok(integration_tools) => {
+                tracing::info!("Adding {} integration tools", integration_tools.len());
+                all_tools.extend(integration_tools);
+            }
+            Err(e) => {
+                tracing::warn!("Failed to get integration tools: {}", e);
+            }
+        }
+
         if all_tools.is_empty() {
             None
         } else {
@@ -321,6 +380,8 @@ async fn create_request(
     } else {
         None
     };
+
+    transaction.commit().await?;
 
     let completion = BionicChatCompletionRequest {
         model: model.name,

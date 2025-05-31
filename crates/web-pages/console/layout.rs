@@ -5,7 +5,7 @@ use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
-use super::{ChatWithChunks, PendingChat};
+use super::{ChatWithChunks, PendingChatState};
 
 #[component]
 pub fn ConsoleLayout(
@@ -13,7 +13,7 @@ pub fn ConsoleLayout(
     conversation_id: Option<i64>,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
-    pending_chat: Option<PendingChat>,
+    pending_chat_state: PendingChatState,
     prompt: SinglePrompt,
     selected_item: SideBar,
     title: String,
@@ -23,6 +23,8 @@ pub fn ConsoleLayout(
     enabled_tools: Vec<String>,
     available_tools: Vec<(String, String)>,
 ) -> Element {
+    let has_pending_chat = !matches!(&pending_chat_state, PendingChatState::None);
+
     rsx! {
         Layout {
             section_class: "console flex flex-col justify-start h-[calc(100%-79px)]",
@@ -34,11 +36,11 @@ pub fn ConsoleLayout(
             div {
                 id: "console-panel",
                 class: "h-full flex flex-col",
-                if ! chat_history.is_empty() || pending_chat.is_some() {
+                if ! chat_history.is_empty() || has_pending_chat {
                     super::console_stream::ConsoleStream {
                         team_id: team_id,
                         chat_history,
-                        pending_chat: pending_chat.clone(),
+                        pending_chat_state: pending_chat_state.clone(),
                         is_tts_disabled,
                         rbac: rbac.clone()
                     }
@@ -46,7 +48,7 @@ pub fn ConsoleLayout(
                         super::prompt_form::Form {
                             team_id: team_id,
                             prompt_id: prompt.id,
-                            lock_console: pending_chat.is_some(),
+                            lock_console: has_pending_chat,
                             conversation_id,
                             disclaimer: prompt.disclaimer,
                             capabilities: capabilities.clone(),
@@ -65,7 +67,7 @@ pub fn ConsoleLayout(
                             super::prompt_form::Form {
                                 team_id: team_id,
                                 prompt_id: prompt.id,
-                                lock_console: pending_chat.is_some(),
+                                lock_console: has_pending_chat,
                                 conversation_id,
                                 disclaimer: prompt.disclaimer,
                                 capabilities,

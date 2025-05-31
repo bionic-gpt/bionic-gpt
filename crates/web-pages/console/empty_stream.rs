@@ -45,8 +45,8 @@ pub fn ExampleForm(prompt_id: i32, team_id: i32, example: String) -> Element {
             class: "w-full",
             method: "post",
             action: routes::console::SendMessage{team_id}.to_string(),
+            enctype: "multipart/form-data",
             input {
-                class: "set-my-prompt-id",
                 "type": "hidden",
                 name: "prompt_id",
                 value: "{prompt_id}"
