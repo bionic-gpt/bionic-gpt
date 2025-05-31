@@ -9,13 +9,17 @@ use validator::Validate;
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct IntegrationForm {
     pub id: Option<i32>,
-    pub base_url: String,
+    #[validate(length(min = 1, message = "Name is required"))]
     pub name: String,
+    #[validate(length(min = 1, message = "OpenAPI specification is required"))]
+    pub openapi_spec: String,
     #[serde(skip)]
     pub error: Option<String>,
 }
 
 pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
+    let placeholder= "{\n  \"openapi\": \"3.0.0\",\n  \"info\": {\n    \"title\": \"Your API\",\n    \"version\": \"1.0.0\"\n  },\n  \"paths\": {}\n}";
+
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -60,13 +64,23 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
                             value: integration.name
                         }
 
-                        Input {
-                            input_type: InputType::Text,
-                            label_class: "mt-4",
-                            name: "base_url",
-                            label: "Base Url",
-                            help_text: "The base URL of the Open API server",
-                            value: integration.base_url
+                        div {
+                            class: "mt-4",
+                            label {
+                                class: "block text-sm font-medium text-gray-700 mb-1",
+                                "OpenAPI Specification (JSON)"
+                            }
+                            TextArea {
+                                class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-mono leading-tight overflow-y-auto",
+                                name: "openapi_spec",
+                                rows: "20",
+                                placeholder,
+                                "{integration.openapi_spec}"
+                            }
+                            p {
+                                class: "mt-1 text-sm text-gray-500",
+                                "Paste your complete OpenAPI 3.0+ specification in JSON format"
+                            }
                         }
 
                         div {

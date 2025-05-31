@@ -12,39 +12,14 @@ use web_pages::integrations::IntegrationOas3;
 use web_pages::routes::integrations::View;
 use web_pages::routes::integrations::{Delete, Index, Upsert};
 
-/// Fetches and parses an OpenAPI specification from a URL.
+/// Parses an OpenAPI specification from JSON string.
 ///
 /// This function will:
-/// 1. Fetch the content from the provided URL
-/// 2. Parse it as JSON using the oas3 crate
-/// 3. Return the parsed specification as JSON or an error
-async fn fetch_and_parse_openapi(base_url: &str) -> Result<Json<oas3::OpenApiV3Spec>, String> {
-    // Fetch the content from the base_url
-    let response = match reqwest::get(base_url).await {
-        Ok(resp) => resp,
-        Err(e) => return Err(format!("Failed to fetch OpenAPI spec: {}", e)),
-    };
-
-    dbg!(&response);
-
-    if !response.status().is_success() {
-        return Err(format!(
-            "Failed to fetch OpenAPI spec: HTTP {}",
-            response.status()
-        ));
-    }
-
-    let content = match response.text().await {
-        Ok(text) => text,
-        Err(e) => return Err(format!("Failed to read response: {}", e)),
-    };
-
-    // Parse as JSON
-    match oas3::from_json(&content) {
-        Ok(spec) => {
-            // Successfully parsed as JSON
-            Ok(Json(spec))
-        }
+/// 1. Parse the provided JSON string using the oas3 crate
+/// 2. Return the parsed specification as JSON or an error
+fn parse_openapi_spec(spec_json: &str) -> Result<Json<oas3::OpenApiV3Spec>, String> {
+    match oas3::from_json(spec_json) {
+        Ok(spec) => Ok(Json(spec)),
         Err(e) => Err(format!("Invalid OpenAPI JSON: {}", e)),
     }
 }
@@ -183,38 +158,21 @@ pub async fn upsert_action(
 
     let integration_type = db::IntegrationType::OpenAPI;
 
-    // Fetch and parse the OpenAPI specification
-    let (definition, integration_status) =
-        match fetch_and_parse_openapi(&integration_form.base_url).await {
-            Ok(spec) => (Some(spec), db::IntegrationStatus::Configured),
-            Err(error) => {
-                // If there's an error, return to the form with the error message
-                integration_form.error = Some(error);
-                let html =
-                    web_pages::integrations::upsert::page(team_id, permissions, integration_form);
-                return Ok(Html(html).into_response());
-            }
-        };
-
-    // Extract just the base part of the URL (scheme, host, port) without any paths
-    let base_url = {
-        if let Ok(parsed_url) = reqwest::Url::parse(&integration_form.base_url) {
-            format!(
-                "{}://{}{}",
-                parsed_url.scheme(),
-                parsed_url.host_str().unwrap_or("localhost"),
-                parsed_url
-                    .port()
-                    .map_or(String::new(), |p| format!(":{}", p))
-            )
-        } else {
-            integration_form.base_url.clone()
+    // Parse the OpenAPI specification from the provided JSON
+    let (definition, integration_status) = match parse_openapi_spec(&integration_form.openapi_spec)
+    {
+        Ok(spec) => (Some(spec), db::IntegrationStatus::Configured),
+        Err(error) => {
+            // If there's an error, return to the form with the error message
+            integration_form.error = Some(error);
+            let html =
+                web_pages::integrations::upsert::page(team_id, permissions, integration_form);
+            return Ok(Html(html).into_response());
         }
     };
 
-    let none: Option<Json<serde_json::Value>> = Some(Json(serde_json::json!({
-        "base_url": base_url
-    })));
+    // No configuration needed since we're not storing base URL anymore
+    let configuration: Option<Json<serde_json::Value>> = None;
 
     match (integration_form.validate(), integration_form.id) {
         (Ok(_), Some(integration_id)) => {
@@ -223,8 +181,8 @@ pub async fn upsert_action(
                 .bind(
                     &transaction,
                     &integration_form.name,
-                    &none,       // configuration
-                    &definition, // definition
+                    &configuration, // configuration
+                    &definition,    // definition
                     &integration_type,
                     &integration_status,
                     &integration_id,
@@ -245,8 +203,8 @@ pub async fn upsert_action(
                 .bind(
                     &transaction,
                     &integration_form.name,
-                    &none,       // configuration
-                    &definition, // definition
+                    &configuration, // configuration
+                    &definition,    // definition
                     &integration_type,
                     &integration_status,
                 )
