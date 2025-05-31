@@ -49,7 +49,7 @@ WHERE
     conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
 AND
     conversation_id = :conversation_id
-ORDER BY updated_at;
+ORDER BY id;
 
 --! chat_history : Chat
 SELECT
@@ -82,7 +82,7 @@ WHERE
     conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
 AND
     conversation_id = :conversation_id
-ORDER BY updated_at ASC
+ORDER BY id ASC
 LIMIT :limit;
 
 --! chat : Chat
@@ -116,7 +116,7 @@ WHERE
     conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
 AND
     id = :chat_id
-ORDER BY updated_at;
+ORDER BY id;
 
 --! set_chat_status
 UPDATE chats
