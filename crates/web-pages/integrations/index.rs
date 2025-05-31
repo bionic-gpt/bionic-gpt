@@ -30,14 +30,6 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>)
                 integrations: integrations.clone(),
                 team_id: team_id
             }
-
-            // Add details modals for tool integrations
-            //for (index, tool) in integrations.iter().enumerate() {
-            //    super::details_modal::DetailsModal {
-            //        integration: tool.clone(),
-            //        trigger_id: format!("show-integration-details-{}", index)
-            //    }
-            //}
         }
     };
 
