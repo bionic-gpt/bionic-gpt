@@ -23,7 +23,7 @@ get-config:
     k3d kubeconfig write k3s-default --kubeconfig-merge-default
 
 wa:
-    TOOL_INTEGRATIONS_FEATURE=1 \
+    WORKFLOWS_FEATURE=1 \
     mold -run cargo watch --workdir /workspace/ \
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
