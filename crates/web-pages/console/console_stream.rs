@@ -32,7 +32,8 @@ pub fn ConsoleStream(
                             FunctionCallTimeline {
                                 name: format!("Tool Call {}", tool_chat.id),
                                 chat_id: tool_chat.id as i64,
-                                team_id
+                                team_id,
+                                pending: true
                             }
                         }
                         // This component has an id of 'streaming-chat' which
@@ -97,7 +98,8 @@ pub fn ConsoleStream(
                                 FunctionCallTimeline {
                                     name: function_name,
                                     chat_id: chat_with_chunks.chat.id as i64,
-                                    team_id
+                                    team_id,
+                                    pending: false
                                 }
                             }
                         },
@@ -143,11 +145,11 @@ fn get_function_name_from_tool_calls(
 
 // Function Call Timeline Component
 #[component]
-fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32) -> Element {
+fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32, pending: bool) -> Element {
     rsx! {
         TimeLine {
             TimeLineBadge {
-                image_src: spinner_svg.name
+                image_src: if pending { spinner_svg.name } else { tools_svg.name }
             }
             TimeLineBody {
                 Label {
