@@ -5,6 +5,7 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, ChatRole};
 use dioxus::prelude::*;
+use openai_api::ToolCall;
 
 use super::{ChatWithChunks, PendingChatState};
 
@@ -61,7 +62,7 @@ pub fn ConsoleStream(
             }
 
             // Show any chat history, these should all have been processed.
-            for chat_with_chunks in chat_history {
+            for chat_with_chunks in chat_history.clone() {
                 if rbac.can_view_system_prompt() {
                     super::prompt_drawer::PromptDrawer {
                         trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
@@ -73,27 +74,71 @@ pub fn ConsoleStream(
                 div {
                     class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
 
-                    if chat_with_chunks.chat.role == ChatRole::Assistant {
-                        ResponseTimeline {
-                            response: chat_with_chunks.chat.content.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
-                            is_tts_disabled
-                        }
+                    match chat_with_chunks.chat.role {
+                        ChatRole::Assistant => rsx! {
+                            ResponseTimeline {
+                                response: chat_with_chunks.chat.content.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
+                                is_tts_disabled
+                            }
 
-                        ModelInfoTimeline {
-                            model_name: chat_with_chunks.chat.model_name.clone(),
-                            chat_id: chat_with_chunks.chat.id as i64,
-                            has_response: chat_with_chunks.chat.content.is_some(),
-                            rbac: rbac.clone()
-                        }
-                    } else {
-                        UserRequestTimeline {
-                            user_request: chat_with_chunks.chat.content.clone().unwrap_or_default()
+                            ModelInfoTimeline {
+                                model_name: chat_with_chunks.chat.model_name.clone(),
+                                chat_id: chat_with_chunks.chat.id as i64,
+                                has_response: chat_with_chunks.chat.content.is_some(),
+                                rbac: rbac.clone()
+                            }
+                        },
+                        ChatRole::Tool => {
+                            let function_name = get_function_name_from_tool_calls(
+                                &chat_with_chunks.chat.tool_call_id,
+                                &chat_history.clone()
+                            );
+                            rsx! {
+                                FunctionCallTimeline {
+                                    name: function_name,
+                                    chat_id: chat_with_chunks.chat.id as i64,
+                                    team_id
+                                }
+                            }
+                        },
+                        _ => rsx! {
+                            UserRequestTimeline {
+                                user_request: chat_with_chunks.chat.content.clone().unwrap_or_default()
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+// Helper function to extract function name from tool calls
+fn get_function_name_from_tool_calls(
+    tool_call_id: &Option<String>,
+    chat_history: &Vec<ChatWithChunks>,
+) -> String {
+    if let Some(id) = tool_call_id {
+        // Search through chat history for Assistant chats with tool_calls
+        for chat_with_chunks in chat_history {
+            if chat_with_chunks.chat.role == ChatRole::Assistant {
+                if let Some(tool_calls_json) = &chat_with_chunks.chat.tool_calls {
+                    // Parse the tool_calls JSON
+                    if let Ok(tool_calls) = serde_json::from_str::<Vec<ToolCall>>(tool_calls_json) {
+                        // Find the tool call with matching ID
+                        for tool_call in tool_calls {
+                            if tool_call.id == *id {
+                                return tool_call.function.name;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Fallback if function name cannot be resolved
+    format!("Tool Call {}", tool_call_id.as_deref().unwrap_or("Unknown"))
 }
 
 // Function Call Timeline Component
