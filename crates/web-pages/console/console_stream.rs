@@ -30,7 +30,7 @@ pub fn ConsoleStream(
                         // Show each pending tool chat
                         for tool_chat in tool_chats {
                             FunctionCallTimeline {
-                                name: format!("Tool Call {}", tool_chat.id),
+                                name: get_function_name_from_tool_calls(&tool_chat.tool_call_id, &chat_history.clone()),
                                 chat_id: tool_chat.id as i64,
                                 team_id,
                                 pending: true
@@ -77,16 +77,13 @@ pub fn ConsoleStream(
 
                     match chat_with_chunks.chat.role {
                         ChatRole::Assistant => rsx! {
-                            ResponseTimeline {
-                                response: chat_with_chunks.chat.content.clone().unwrap_or_else(|| "The chat was interrupted".to_string()),
-                                is_tts_disabled
-                            }
-
-                            ModelInfoTimeline {
-                                model_name: chat_with_chunks.chat.model_name.clone(),
-                                chat_id: chat_with_chunks.chat.id as i64,
-                                has_response: chat_with_chunks.chat.content.is_some(),
-                                rbac: rbac.clone()
+                            if let Some(content) = chat_with_chunks.chat.content.clone() {
+                                if !content.is_empty() {
+                                    ResponseTimeline {
+                                        response: content,
+                                        is_tts_disabled
+                                    }
+                                }
                             }
                         },
                         ChatRole::Tool => {
@@ -276,38 +273,6 @@ fn ProcessingForm(chat_id: i64, team_id: i32) -> Element {
                 name: "chat_id",
                 value: "{chat_id}",
                 "type": "hidden"
-            }
-        }
-    }
-}
-
-// Model Info Timeline Component
-#[component]
-fn ModelInfoTimeline(model_name: String, chat_id: i64, has_response: bool, rbac: Rbac) -> Element {
-    rsx! {
-        TimeLine {
-            class: "TimelineItem--condensed",
-            TimeLineBadge {
-                image_src: commit_svg.name
-            }
-            TimeLineBody {
-                Label {
-                    "Model:"
-                    strong {
-                        class: "ml-2",
-                        "{model_name}"
-                    }
-                }
-
-                if has_response && rbac.can_view_system_prompt() {
-                    Label {
-                        class: "ml-2",
-                        a {
-                            "data-drawer-target": "show-prompt-{chat_id}",
-                            "View Prompt"
-                        }
-                    }
-                }
             }
         }
     }
