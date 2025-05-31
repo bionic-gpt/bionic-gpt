@@ -12,6 +12,8 @@ CREATE TYPE chat_role AS ENUM (
 );
 COMMENT ON TYPE chat_role IS 'The role of the message sender in a chat conversation';
 
+UPDATE prompts SET max_history_items = 99 WHERE max_history_items = 3;
+
 -- Add the new columns to the chats table
 ALTER TABLE chats 
     ADD COLUMN content VARCHAR,
