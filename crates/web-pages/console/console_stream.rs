@@ -59,7 +59,7 @@ pub fn ConsoleStream(
                 if rbac.can_view_system_prompt() {
                     super::prompt_drawer::PromptDrawer {
                         trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
-                        prompt: "NOT IMPLEMENTED".to_string(),
+                        prompt: "{}".to_string(),
                         chunks: chat_with_chunks.chunks.clone(),
                         rbac: rbac.clone()
                     }
