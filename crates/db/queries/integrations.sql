@@ -65,3 +65,21 @@ DELETE FROM
     integrations
 WHERE
     id = :id;
+
+--! integrations_for_prompt : Integration
+SELECT
+    i.id,
+    i.name,
+    i.integration_type,
+    i.integration_status,
+    i.configuration,
+    i.definition,
+    i.created_at,
+    i.updated_at
+FROM
+    integrations i
+INNER JOIN
+    prompt_integration pi ON i.id = pi.integration_id
+WHERE
+    pi.prompt_id = :prompt_id
+ORDER BY i.updated_at;

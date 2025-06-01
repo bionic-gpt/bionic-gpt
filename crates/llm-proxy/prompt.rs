@@ -77,43 +77,19 @@ pub async fn execute_prompt(
 
 /// Get integration tools for a specific prompt
 pub async fn get_prompt_integration_tools(
-    transaction: &Transaction<'_>,
+    _transaction: &Transaction<'_>,
     prompt_id: i32,
     pool: &Pool,
     sub: String,
 ) -> Result<Vec<BionicToolDefinition>, CustomError> {
-    // Get integrations for this prompt
-    let prompt_integrations = prompts::prompt_integrations()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await?;
+    // Get external integration tools filtered by prompt
+    let external_tools = integrations::create_prompt_integration_tools(pool, sub, prompt_id).await;
 
-    if prompt_integrations.is_empty() {
-        return Ok(vec![]);
-    }
-
-    // Create a new transaction for the integrations crate
-    let mut db_client = pool.get().await?;
-    let integration_transaction = db_client.transaction().await?;
-
-    // Set row-level security
-    db::authz::set_row_level_security_user_id(&integration_transaction, sub.clone()).await?;
-
-    // Get external integration tools
-    let external_tools = integrations::create_external_integration_tools(pool, sub).await;
-
-    // For now, we'll get all external tools
-    // In a more sophisticated implementation, we could filter by specific integration IDs
-    // from the prompt_integrations
-    let mut filtered_tools = Vec::new();
-    for tool in external_tools {
-        // Since we can't easily map tools back to integration IDs with the current structure,
-        // we'll include all external tools for now
-        // This could be improved by modifying the external integration tools creation
-        filtered_tools.push(tool.get_tool());
-    }
-
-    integration_transaction.commit().await?;
+    // Convert to BionicToolDefinition
+    let filtered_tools: Vec<BionicToolDefinition> = external_tools
+        .into_iter()
+        .map(|tool| tool.get_tool())
+        .collect();
 
     tracing::info!(
         "Retrieved {} integration tools for prompt {}",
