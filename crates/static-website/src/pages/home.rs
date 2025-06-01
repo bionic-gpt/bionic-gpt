@@ -35,18 +35,15 @@ pub fn home_page() -> String {
                 ProblemSolution {
                     class: "mt-24",
                     image: "/landing-page/private-deployment.svg",
-                    title: "Leverage Generative AI Across Your Enterprise",
-                    problem: "While Chat-GPT offers incredible potential, sending sensitive data to external servers
-                        poses significant risks like breaches and unauthorized access. For businesses handling private or regulated data, 
-                        this trade-off is unacceptable.",
-                    solution: "Bionic-GPT provides the power of Chat-GPT without the risks of data leakage by running securely within your environment.
-                        Enjoy advanced AI capabilities while keeping your data private, compliant, and fully under your control."
+                    title: "Private, Compliant, and Powerful: AI for the Enterprise",
+                    problem: "ChatGPT is powerful — but sending sensitive enterprise data to external servers introduces unacceptable risks: breaches, leaks, and compliance violations.",
+                    solution: "Bionic-GPT gives you the power of ChatGPT — with none of the risks. Run advanced AI privately, stay compliant, and retain full control over your data."
                 }
 
                 Benefits {
-                    class: "mt-24",
+                    class: "mt-24 mb-24",
                     title: "Benefits",
-                    subtitle: "Rapidly Deploy Generative AI Across Your Organization",
+                    subtitle: "AI Your Teams Will Actually Use — and Trust",
                     benefit1: "Accelerate Generative AI Adoption",
                     benefit1_desc: "Boost productivity with a solution that's simple to implement and use securely.",
                     benefit2: "Custom AI Assistants (RAG)",
@@ -59,10 +56,8 @@ pub fn home_page() -> String {
                     class: "mt-24",
                     title: "Data Governance",
                     sub_title: "Empower Your Teams with Secure AI",
-                    text: "No learning curve, no confusion—just instant productivity.
-                        Bionic-GPT features an intuitive user interface, 
-                        so your teamscan get started immediately.
-                        Familiarity means faster adoption and a seamless experience for everyone.",
+                    text: "No steep learning curves, no complexity — just instant productivity.
+    Bionic-GPT’s intuitive interface gets your teams up and running fast, with a familiar user experience and secure foundation.",
                     image: "/landing-page/bionic-console.png",
                     flip: false
                 }
