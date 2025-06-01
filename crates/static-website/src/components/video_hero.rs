@@ -34,7 +34,7 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
             div {
                 class: "flex-1 mt-8 md:mt-0",
                 iframe {
-                    class: "w-full aspect-[16/9]",
+                    class: "w-full aspect-video",
                     src: "{video}",
                     title: "YouTube video player",
                     "frameborder": "0",

@@ -40,7 +40,7 @@ ws:
     cd /workspace/crates/static-website && cargo watch --workdir /workspace/crates/static-website -w ./content -w ./src --no-gitignore -x "run --bin static-website"
 
 wts:
-    cd /workspace/crates/static-website && npx tailwindcss -i ./input.css -o ./dist/tailwind.css --watch
+    cd /workspace/crates/static-website && tailwind-extra -i ./input.css -o ./dist/tailwind.css --watch
 
 spell:
     docker run --rm -ti -v /workspace/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
