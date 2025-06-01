@@ -117,6 +117,23 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                 }
                 div { class: "hidden lg:flex",
                     ul { class: "menu menu-horizontal px-1",
+                        li {
+                            div {
+                                class: "dropdown dropdown-bottom",
+                                div {
+                                    tabindex: "0",
+                                    role: "button",
+                                    class: "",
+                                    "Product"
+                                }
+                                ul {
+                                    tabindex: "0",
+                                    class: "dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm",
+                                    li { a { "Item 1" } }
+                                    li { a { "Item 2" } }
+                                }
+                            }
+                        }
                         NavItem {
                             link: marketing::Pricing {}.to_string(),
                             name: "Pricing".to_string(),
