@@ -166,6 +166,14 @@ pub fn open_api_to_definition(oas3: oas3::OpenApiV3Spec) -> Vec<OpenApiOperation
     operations
 }
 
+/// Extract the base URL from the first server in the OpenAPI specification
+pub fn extract_base_url(oas3: &oas3::OpenApiV3Spec) -> Option<String> {
+    if !oas3.servers.is_empty() {
+        return Some(oas3.servers[0].url.clone());
+    }
+    None
+}
+
 /// Legacy function for backward compatibility
 pub fn open_api_to_definition_legacy(oas3: oas3::OpenApiV3Spec) -> Vec<BionicToolDefinition> {
     open_api_to_definition(oas3)
@@ -321,5 +329,65 @@ mod tests {
             operation.definition.function.description,
             Some("Get Bitcoin prices by currency".to_string())
         );
+    }
+
+    #[test]
+    fn test_extract_base_url() {
+        // Test with servers array
+        let json_with_servers = serde_json::json!({
+            "openapi": "3.1.0",
+            "info": {
+                "title": "Test API",
+                "version": "1.0.0"
+            },
+            "servers": [
+                {
+                    "url": "https://api.example.com/v1"
+                },
+                {
+                    "url": "https://staging.example.com/v1"
+                }
+            ],
+            "paths": {}
+        });
+
+        let json_str = serde_json::to_string(&json_with_servers).unwrap();
+        let oas3_spec: oas3::OpenApiV3Spec = serde_json::from_str(&json_str).unwrap();
+
+        let base_url = extract_base_url(&oas3_spec);
+        assert_eq!(base_url, Some("https://api.example.com/v1".to_string()));
+
+        // Test without servers array
+        let json_without_servers = serde_json::json!({
+            "openapi": "3.1.0",
+            "info": {
+                "title": "Test API",
+                "version": "1.0.0"
+            },
+            "paths": {}
+        });
+
+        let json_str = serde_json::to_string(&json_without_servers).unwrap();
+        let oas3_spec: oas3::OpenApiV3Spec = serde_json::from_str(&json_str).unwrap();
+
+        let base_url = extract_base_url(&oas3_spec);
+        assert_eq!(base_url, None);
+
+        // Test with empty servers array
+        let json_empty_servers = serde_json::json!({
+            "openapi": "3.1.0",
+            "info": {
+                "title": "Test API",
+                "version": "1.0.0"
+            },
+            "servers": [],
+            "paths": {}
+        });
+
+        let json_str = serde_json::to_string(&json_empty_servers).unwrap();
+        let oas3_spec: oas3::OpenApiV3Spec = serde_json::from_str(&json_str).unwrap();
+
+        let base_url = extract_base_url(&oas3_spec);
+        assert_eq!(base_url, None);
     }
 }

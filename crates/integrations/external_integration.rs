@@ -1,4 +1,4 @@
-use crate::open_api_v3::open_api_to_definition;
+use crate::open_api_v3::{extract_base_url, open_api_to_definition};
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use db::Pool;
@@ -165,15 +165,9 @@ pub async fn create_external_integration_tools(
         if let Some(definition) = &integration.definition {
             let oas3 = oas3::from_json(definition.to_string());
             if let Ok(oas3) = oas3 {
-                // Get base URL from configuration or use a default
-                let base_url = if let Some(config) = &integration.configuration {
-                    config["base_url"]
-                        .as_str()
-                        .unwrap_or("http://localhost")
-                        .to_string()
-                } else {
-                    "http://localhost".to_string()
-                };
+                // Get base URL from the first server in the OpenAPI spec or use a default
+                let base_url =
+                    extract_base_url(&oas3).unwrap_or_else(|| "http://localhost".to_string());
 
                 // Create tools for each operation in the OpenAPI spec
                 let operations = open_api_to_definition(oas3);
