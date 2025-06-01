@@ -212,7 +212,11 @@ impl Rbac {
         self.is_sys_admin
     }
 
+    pub fn can_view_integrations(&self) -> bool {
+        self.permissions.contains(&Permission::ViewIntegrations)
+    }
+
     pub fn can_manage_integrations(&self) -> bool {
-        self.is_sys_admin
+        self.permissions.contains(&Permission::ManageIntegrations)
     }
 }

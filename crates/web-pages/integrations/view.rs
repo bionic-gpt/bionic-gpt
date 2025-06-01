@@ -1,25 +1,15 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
-use db::authz::Rbac;
+use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
-use oas3::spec::PathItem;
+use integrations::open_api_v3::{OpenApiOperation, ParameterSource};
 
-use super::IntegrationOas3;
-
-fn extract_summaries_and_descriptions(item: &PathItem) -> Vec<(String, String, String)> {
-    [&item.get, &item.put, &item.post, &item.delete]
-        .iter()
-        .filter_map(|op| op.as_ref())
-        .map(|op| {
-            let summary = op.summary.clone().unwrap_or_default();
-            let description = op.description.clone().unwrap_or_default();
-            let operationId = op.operation_id.clone().unwrap_or_default();
-            (summary, description, operationId)
-        })
-        .collect()
-}
-
-pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> String {
+pub fn view(
+    team_id: i32,
+    rbac: Rbac,
+    integration: Option<Integration>,
+    operations: Vec<OpenApiOperation>,
+) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4 max-w-3xl w-full mx-auto",
@@ -36,7 +26,7 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                     class: "flex",
                     img {
                         class: "border rounded p-2",
-                        src: super::get_logo_url(&integration.spec.info.extensions),
+                        src: super::get_logo_url(&std::collections::BTreeMap::new()),
                         width: "48",
                         height: "48"
                     }
@@ -44,12 +34,13 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                         class: "ml-4",
                         h2 {
                             class: "text-xl font-semibold",
-                            "{integration.spec.info.title.clone()}"
+                            "{integration.name.clone()}"
                         }
                         p {
-                            if let Some(description) = integration.spec.info.description.clone() {
-                                "{description}"
-                            }
+                            "Integration Type: {integration.integration_type:?}"
+                        }
+                        p {
+                            "Status: {integration.integration_status:?}"
                         }
                     }
                 }
@@ -60,9 +51,9 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                     class: "font-semibold",
                     "Actions"
                 }
-                if let Some(map) = integration.spec.paths {
-                    for (_path, item) in map {
 
+                if !operations.is_empty() {
+                    for operation in operations {
                         details { class: "card mt-5",
                             summary {
                                 class: "cursor-pointer px-4 py-3 flex items-center justify-between",
@@ -72,26 +63,159 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                                         class: "",
                                         img {
                                             class: "border rounded p-1",
-                                            src: super::get_logo_url(&integration.spec.info.extensions),
+                                            src: super::get_logo_url(&std::collections::BTreeMap::new()),
                                             width: "24",
                                             height: "24"
                                         }
                                     }
                                     div {
                                         class: "ml-4",
-                                        for (summary, description, operationId) in extract_summaries_and_descriptions(&item) {
-                                            h2 {
-                                                class: "font-semibold",
-                                                "{operationId}"
+                                        h2 {
+                                            class: "font-semibold",
+                                            if let Some(operation_id) = &operation.operation_id {
+                                                "{operation_id}"
+                                            } else {
+                                                "{operation.definition.function.name}"
                                             }
+                                        }
+                                        p {
+                                            if let Some(description) = &operation.description {
+                                                "{description}"
+                                            } else if let Some(summary) = &operation.summary {
+                                                "{summary}"
+                                            } else if let Some(desc) = &operation.definition.function.description {
+                                                "{desc}"
+                                            }
+                                        }
+                                        p {
+                                            class: "text-sm text-gray-500",
+                                            "{operation.method.to_uppercase()} {operation.path}"
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Parameter display content
+                            {
+                                let parameters = &operation.parameters;
+                                if parameters.is_empty() {
+                                    rsx! {
+                                        div {
+                                            class: "p-4",
                                             p {
-                                                "{description}{summary}"
+                                                class: "text-gray-500 italic",
+                                                "No parameters required"
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // Group parameters by source
+                                    let path_params: Vec<_> = parameters.iter()
+                                        .filter(|p| matches!(p.source, ParameterSource::PathItem))
+                                        .collect();
+
+                                    let mut operation_params: std::collections::HashMap<String, Vec<_>> = std::collections::HashMap::new();
+                                    for param in parameters.iter() {
+                                        if let ParameterSource::Operation(method) = &param.source {
+                                            operation_params.entry(method.clone()).or_insert_with(Vec::new).push(param);
+                                        }
+                                    }
+
+                                    rsx! {
+                                        div {
+                                            class: "p-4",
+
+                                            // PathItem-level parameters section
+                                            if !path_params.is_empty() {
+                                                div {
+                                                    class: "mb-4",
+                                                    h4 {
+                                                        class: "font-semibold text-sm text-gray-700 mb-2",
+                                                        "Path Parameters"
+                                                    }
+                                                    div {
+                                                        class: "space-y-2",
+                                                        for param in path_params {
+                                                            div {
+                                                                class: "border-l-2 border-blue-200 pl-3 py-1",
+                                                                div {
+                                                                    class: "flex items-center gap-2",
+                                                                    span {
+                                                                        class: "font-mono text-sm",
+                                                                        "{param.name}"
+                                                                        if param.required {
+                                                                            span { class: "text-red-500", "*" }
+                                                                        }
+                                                                    }
+                                                                    span {
+                                                                        class: "px-2 py-1 text-xs rounded bg-blue-100 text-blue-700",
+                                                                        "{param.location}"
+                                                                    }
+                                                                }
+                                                                if let Some(description) = &param.description {
+                                                                    p {
+                                                                        class: "text-sm text-gray-600 mt-1",
+                                                                        "{description}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            // Operation-level parameters sections
+                                            for (method, method_params) in operation_params {
+                                                if !method_params.is_empty() {
+                                                    div {
+                                                        class: "mb-4",
+                                                        h4 {
+                                                            class: "font-semibold text-sm text-gray-700 mb-2",
+                                                            "{method} Parameters"
+                                                        }
+                                                        div {
+                                                            class: "space-y-2",
+                                                            for param in method_params {
+                                                                div {
+                                                                    class: "border-l-2 border-green-200 pl-3 py-1",
+                                                                    div {
+                                                                        class: "flex items-center gap-2",
+                                                                        span {
+                                                                            class: "font-mono text-sm",
+                                                                            "{param.name}"
+                                                                            if param.required {
+                                                                                span { class: "text-red-500", "*" }
+                                                                            }
+                                                                        }
+                                                                        span {
+                                                                            class: "px-2 py-1 text-xs rounded bg-green-100 text-green-700",
+                                                                            "{param.location}"
+                                                                        }
+                                                                    }
+                                                                    if let Some(description) = &param.description {
+                                                                        p {
+                                                                            class: "text-sm text-gray-600 mt-1",
+                                                                            "{description}"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                            "Creates a new record in a table"
+                        }
+                    }
+                } else {
+                    div {
+                        class: "p-4",
+                        p {
+                            class: "text-gray-500 italic",
+                            "No operations found in this integration"
                         }
                     }
                 }

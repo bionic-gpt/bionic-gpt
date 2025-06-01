@@ -1,4 +1,4 @@
-use crate::open_api_v3::open_api_to_definition;
+use crate::open_api_v3::{extract_base_url, open_api_to_definition};
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use db::Pool;
@@ -107,13 +107,51 @@ impl ToolInterface for ExternalIntegrationTool {
     }
 }
 
+/// Internal function to create tools from integrations
+async fn create_tools_from_integrations(
+    integrations: Vec<db::queries::integrations::Integration>,
+) -> Vec<Arc<dyn ToolInterface>> {
+    let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+
+    for integration in integrations {
+        if let Some(definition) = &integration.definition {
+            let oas3 = oas3::from_json(definition.to_string());
+            if let Ok(oas3) = oas3 {
+                // Get base URL from the first server in the OpenAPI spec or use a default
+                let base_url =
+                    extract_base_url(&oas3).unwrap_or_else(|| "http://localhost".to_string());
+
+                // Create tools for each operation in the OpenAPI spec
+                let operations = open_api_to_definition(oas3);
+                for operation in operations {
+                    let tool = ExternalIntegrationTool::new(
+                        operation.definition,
+                        base_url.clone(),
+                        operation.path,
+                        operation.method,
+                    );
+
+                    tools.push(Arc::new(tool));
+                }
+            } else {
+                tracing::error!(
+                    "Failed to convert JSON in DB to oas3 for integration {}",
+                    integration.id
+                );
+            }
+        } else {
+            tracing::error!("Integration {} doesn't have a definition", integration.id);
+        }
+    }
+
+    tools
+}
+
 /// Create external integration tools from database integrations
 pub async fn create_external_integration_tools(
     pool: &Pool,
     sub: String,
 ) -> Vec<Arc<dyn ToolInterface>> {
-    let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
-
     // Get external integrations from the database
     tracing::debug!("Getting external integrations from database");
 
@@ -146,6 +184,7 @@ pub async fn create_external_integration_tools(
         tracing::error!("Failed to set row level security: {}", e);
         return vec![];
     }
+
     let external_integrations = match db::queries::integrations::integrations()
         .bind(&transaction)
         .all()
@@ -161,43 +200,77 @@ pub async fn create_external_integration_tools(
         }
     };
 
-    for integration in external_integrations {
-        if let Some(definition) = &integration.definition {
-            let oas3 = oas3::from_json(definition.to_string());
-            if let Ok(oas3) = oas3 {
-                // Get base URL from configuration or use a default
-                let base_url = if let Some(config) = &integration.configuration {
-                    config["base_url"]
-                        .as_str()
-                        .unwrap_or("http://localhost")
-                        .to_string()
-                } else {
-                    "http://localhost".to_string()
-                };
+    let tools = create_tools_from_integrations(external_integrations).await;
+    tracing::debug!("Created {} external integration tools", tools.len());
+    tools
+}
 
-                // Create tools for each operation in the OpenAPI spec
-                let operations = open_api_to_definition(oas3);
-                for operation in operations {
-                    let tool = ExternalIntegrationTool::new(
-                        operation.definition,
-                        base_url.clone(),
-                        operation.path,
-                        operation.method,
-                    );
+/// Create external integration tools for a specific prompt
+pub async fn create_prompt_integration_tools(
+    pool: &Pool,
+    sub: String,
+    prompt_id: i32,
+) -> Vec<Arc<dyn ToolInterface>> {
+    // Get external integrations for this specific prompt from the database
+    tracing::debug!(
+        "Getting external integrations for prompt {} from database",
+        prompt_id
+    );
 
-                    tools.push(Arc::new(tool));
-                }
-            } else {
-                tracing::error!(
-                    "Failed to convert JSON in DB to oas3 for integration {}",
-                    integration.id
-                );
-            }
-        } else {
-            tracing::error!("This integration doesn't have a definition");
+    let mut client = match pool.get().await {
+        Ok(client) => {
+            tracing::debug!("Successfully got database client");
+            client
         }
+        Err(e) => {
+            tracing::error!("Failed to get database client: {}", e);
+            return vec![];
+        }
+    };
+
+    tracing::debug!("Creating transaction");
+    let transaction = match client.transaction().await {
+        Ok(transaction) => {
+            tracing::debug!("Successfully created transaction");
+            transaction
+        }
+        Err(e) => {
+            tracing::error!("Failed to create transaction: {}", e);
+            return vec![];
+        }
+    };
+
+    // Set row-level security if sub is provided
+    tracing::debug!("Setting row-level security for user: {}", sub);
+    if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await {
+        tracing::error!("Failed to set row level security: {}", e);
+        return vec![];
     }
 
-    tracing::debug!("Created {} external integration tools", tools.len());
+    let prompt_integrations = match db::queries::integrations::integrations_for_prompt()
+        .bind(&transaction, &prompt_id)
+        .all()
+        .await
+    {
+        Ok(integrations) => {
+            tracing::debug!(
+                "Found {} integrations for prompt {}",
+                integrations.len(),
+                prompt_id
+            );
+            integrations
+        }
+        Err(e) => {
+            tracing::error!("Failed to get integrations for prompt {}: {}", prompt_id, e);
+            return vec![];
+        }
+    };
+
+    let tools = create_tools_from_integrations(prompt_integrations).await;
+    tracing::debug!(
+        "Created {} external integration tools for prompt {}",
+        tools.len(),
+        prompt_id
+    );
     tools
 }

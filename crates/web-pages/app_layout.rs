@@ -49,7 +49,7 @@ pub struct LayoutProps {
 pub fn Layout(props: LayoutProps) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
-    let show_integrations_menu = std::env::var("TOOL_INTEGRATIONS_FEATURE").is_ok();
+    let show_integrations_menu = std::env::var("WORKFLOWS_FEATURE").is_ok();
 
     rsx! {
         super::base_layout::BaseLayout {
@@ -95,7 +95,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     title: "Explore Assistants"
                                 }
                             }
-                            if show_integrations_menu {
+                            if props.rbac.can_view_integrations() {
                                 NavItem {
                                     id: SideBar::Integrations.to_string(),
                                     selected_item_id: props.selected_item.to_string(),
