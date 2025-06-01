@@ -32,6 +32,7 @@ INSERT INTO chats (
     conversation_id,
     status,
     content,
+    user_request,
     prompt,
     prompt_id,
     role,
@@ -47,6 +48,7 @@ SELECT
     conversation_id,
     'Success'::chat_status,  -- Assistant responses indicate successful completion
     response,                -- Copy response to content
+    '',
     prompt,
     prompt_id,
     'Assistant'::chat_role,  -- Set role to Assistant
