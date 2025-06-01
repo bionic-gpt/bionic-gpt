@@ -30,7 +30,7 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
             }
         }
         section {
-            class: "mt-12 text-center",
+            class: "mt-24 text-center",
             p {
                 class: "py-6",
                 "{subtitle}"
