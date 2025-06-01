@@ -32,7 +32,7 @@ pub fn ProblemSolution(
                     width: "560",
                     height: "315",
                     loading: "lazy",
-                    class: "w-full aspect-[4/3]",
+                    class: "w-full aspect-4/3",
                     alt: "Product screenshot",
                     src: "{image}",
                 }

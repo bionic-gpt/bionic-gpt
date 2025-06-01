@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 pub fn WebinarHeader() -> Element {
     rsx! {
         div {
-            class: "bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 px-2 text-center whitespace-nowrap",
+            class: "bg-linear-to-r from-blue-500 to-purple-600 text-white py-2 px-2 text-center whitespace-nowrap",
             h1 {
                 class: "text-md font-bold inline text-white",
                 "Join our No Code Enterprise RAG webinar"

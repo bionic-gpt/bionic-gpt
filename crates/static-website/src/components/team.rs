@@ -9,11 +9,11 @@ pub fn ContactCard(img: String, name: String, role: String) -> Element {
                 class: "h-full flex items-center border-gray-200 border p-4 rounded-lg",
                 img {
                     alt: "team",
-                    class: "w-16 h-16 bg-gray-100 object-cover object-center flex-shrink-0 rounded-full mr-4",
+                    class: "w-16 h-16 bg-gray-100 object-cover object-center shrink-0 rounded-full mr-4",
                     src: "{img}",
                 }
                 div {
-                    class: "flex-grow",
+                    class: "grow",
                     h2 {
                         class: "font-medium",
                         "{name}"

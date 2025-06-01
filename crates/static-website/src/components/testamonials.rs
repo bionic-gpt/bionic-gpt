@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 pub fn Testamonial(text: String, job: String, person: String, img: String) -> Element {
     rsx! {
         div {
-            class: "h-full bg-base-200 p-8 rounded",
+            class: "h-full bg-base-200 p-8 rounded-sm",
             svg {
                 xmlns: "http://www.w3.org/2000/svg",
                 fill: "currentColor",
@@ -23,10 +23,10 @@ pub fn Testamonial(text: String, job: String, person: String, img: String) -> El
                 img {
                     alt: "testimonial",
                     src: img,
-                    class: "w-12 h-12 rounded-full flex-shrink-0 object-cover object-center",
+                    class: "w-12 h-12 rounded-full shrink-0 object-cover object-center",
                 }
                 span {
-                    class: "flex-grow flex flex-col pl-4",
+                    class: "grow flex flex-col pl-4",
                     span {
                         class: "title-font font-medium text-gray-900",
                         "{person}"

@@ -1,13 +1,15 @@
 # Development
 
+We use `tailwind-extra` so we don't need npm and node and all that nonsense.
+
+Run the following command in the root of the project to start the static website in watch mode:
+
 ```bash
-npx tailwindcss -i ./input.css -o ./dist/tailwind.css --watch
+just ws
 ```
 
-Run the following command in the root of the project to start the Dioxus dev server:
-
 ```bash
-ws
+just wts
 ```
 
 - Open the browser to http://localhost:8080
