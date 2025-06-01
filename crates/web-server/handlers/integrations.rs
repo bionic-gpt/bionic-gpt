@@ -6,6 +6,7 @@ use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Json, Pool};
+use integrations::open_api_v3::open_api_to_definition;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::integrations::IntegrationOas3;
@@ -88,20 +89,17 @@ pub async fn view(
         .one()
         .await?;
 
-    let integration = if let Some(definition) = &integration.definition {
+    let operations = if let Some(definition) = &integration.definition {
         if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            Some(IntegrationOas3 {
-                spec,
-                integration: integration.clone(),
-            })
+            open_api_to_definition(spec)
         } else {
-            None
+            vec![]
         }
     } else {
-        None
+        vec![]
     };
 
-    let html = web_pages::integrations::view::view(team_id, rbac, integration);
+    let html = web_pages::integrations::view::view(team_id, rbac, Some(integration), operations);
 
     Ok(Html(html))
 }

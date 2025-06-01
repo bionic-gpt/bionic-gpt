@@ -1,107 +1,15 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
-use db::authz::Rbac;
+use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
-use oas3::spec::{ObjectOrReference, Parameter, ParameterIn, PathItem};
+use integrations::open_api_v3::{OpenApiOperation, ParameterSource};
 
-use super::IntegrationOas3;
-
-#[derive(Debug, Clone)]
-struct ParameterInfo {
-    name: String,
-    location: String,
-    description: Option<String>,
-    required: bool,
-    source: ParameterSource,
-}
-
-#[derive(Debug, Clone)]
-enum ParameterSource {
-    PathItem,
-    Operation(String),
-}
-
-fn extract_summaries_and_descriptions(item: &PathItem) -> Vec<(String, String, String)> {
-    [&item.get, &item.put, &item.post, &item.delete]
-        .iter()
-        .filter_map(|op| op.as_ref())
-        .map(|op| {
-            let summary = op.summary.clone().unwrap_or_default();
-            let description = op.description.clone().unwrap_or_default();
-            let operationId = op.operation_id.clone().unwrap_or_default();
-            (summary, description, operationId)
-        })
-        .collect()
-}
-
-fn resolve_parameter(param_ref: &ObjectOrReference<Parameter>) -> Option<Parameter> {
-    match param_ref {
-        ObjectOrReference::Object(param) => Some(param.clone()),
-        ObjectOrReference::Ref { .. } => {
-            // For now, skip references as they require spec resolution
-            // Could be enhanced later to resolve references
-            None
-        }
-    }
-}
-
-fn parameter_location_to_string(location: &ParameterIn) -> String {
-    match location {
-        ParameterIn::Path => "path".to_string(),
-        ParameterIn::Query => "query".to_string(),
-        ParameterIn::Header => "header".to_string(),
-        ParameterIn::Cookie => "cookie".to_string(),
-    }
-}
-
-fn extract_parameters_info(_path: &str, item: &PathItem) -> Vec<ParameterInfo> {
-    let mut parameters = Vec::new();
-
-    // Extract PathItem-level parameters
-    for param_ref in &item.parameters {
-        if let Some(param) = resolve_parameter(param_ref) {
-            parameters.push(ParameterInfo {
-                name: param.name,
-                location: parameter_location_to_string(&param.location),
-                description: param.description,
-                required: param.required.unwrap_or(false),
-                source: ParameterSource::PathItem,
-            });
-        }
-    }
-
-    // Extract Operation-level parameters for each HTTP method
-    let operations = [
-        ("GET", &item.get),
-        ("PUT", &item.put),
-        ("POST", &item.post),
-        ("DELETE", &item.delete),
-        ("OPTIONS", &item.options),
-        ("HEAD", &item.head),
-        ("PATCH", &item.patch),
-        ("TRACE", &item.trace),
-    ];
-
-    for (method, operation_opt) in operations {
-        if let Some(operation) = operation_opt {
-            for param_ref in &operation.parameters {
-                if let Some(param) = resolve_parameter(param_ref) {
-                    parameters.push(ParameterInfo {
-                        name: param.name,
-                        location: parameter_location_to_string(&param.location),
-                        description: param.description,
-                        required: param.required.unwrap_or(false),
-                        source: ParameterSource::Operation(method.to_string()),
-                    });
-                }
-            }
-        }
-    }
-
-    parameters
-}
-
-pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> String {
+pub fn view(
+    team_id: i32,
+    rbac: Rbac,
+    integration: Option<Integration>,
+    operations: Vec<OpenApiOperation>,
+) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4 max-w-3xl w-full mx-auto",
@@ -118,7 +26,7 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                     class: "flex",
                     img {
                         class: "border rounded p-2",
-                        src: super::get_logo_url(&integration.spec.info.extensions),
+                        src: super::get_logo_url(&std::collections::BTreeMap::new()),
                         width: "48",
                         height: "48"
                     }
@@ -126,12 +34,13 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                         class: "ml-4",
                         h2 {
                             class: "text-xl font-semibold",
-                            "{integration.spec.info.title.clone()}"
+                            "{integration.name.clone()}"
                         }
                         p {
-                            if let Some(description) = integration.spec.info.description.clone() {
-                                "{description}"
-                            }
+                            "Integration Type: {integration.integration_type:?}"
+                        }
+                        p {
+                            "Status: {integration.integration_status:?}"
                         }
                     }
                 }
@@ -142,8 +51,9 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                     class: "font-semibold",
                     "Actions"
                 }
-                if let Some(map) = integration.spec.paths {
-                    for (path, item) in map {
+
+                if !operations.is_empty() {
+                    for operation in operations {
                         details { class: "card mt-5",
                             summary {
                                 class: "cursor-pointer px-4 py-3 flex items-center justify-between",
@@ -153,21 +63,33 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                                         class: "",
                                         img {
                                             class: "border rounded p-1",
-                                            src: super::get_logo_url(&integration.spec.info.extensions),
+                                            src: super::get_logo_url(&std::collections::BTreeMap::new()),
                                             width: "24",
                                             height: "24"
                                         }
                                     }
                                     div {
                                         class: "ml-4",
-                                        for (summary, description, operationId) in extract_summaries_and_descriptions(&item) {
-                                            h2 {
-                                                class: "font-semibold",
-                                                "{operationId}"
+                                        h2 {
+                                            class: "font-semibold",
+                                            if let Some(operation_id) = &operation.operation_id {
+                                                "{operation_id}"
+                                            } else {
+                                                "{operation.definition.function.name}"
                                             }
-                                            p {
-                                                "{description}{summary}"
+                                        }
+                                        p {
+                                            if let Some(description) = &operation.description {
+                                                "{description}"
+                                            } else if let Some(summary) = &operation.summary {
+                                                "{summary}"
+                                            } else if let Some(desc) = &operation.definition.function.description {
+                                                "{desc}"
                                             }
+                                        }
+                                        p {
+                                            class: "text-sm text-gray-500",
+                                            "{operation.method.to_uppercase()} {operation.path}"
                                         }
                                     }
                                 }
@@ -175,7 +97,7 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
 
                             // Parameter display content
                             {
-                                let parameters = extract_parameters_info(&path, &item);
+                                let parameters = &operation.parameters;
                                 if parameters.is_empty() {
                                     rsx! {
                                         div {
@@ -286,6 +208,14 @@ pub fn view(team_id: i32, rbac: Rbac, integration: Option<IntegrationOas3>) -> S
                                     }
                                 }
                             }
+                        }
+                    }
+                } else {
+                    div {
+                        class: "p-4",
+                        p {
+                            class: "text-gray-500 italic",
+                            "No operations found in this integration"
                         }
                     }
                 }
