@@ -14,25 +14,10 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
                         class: "text-primary text-2xl md:text-5xl font-bold",
                         "{title}"
                     }
-                    p {
-                        class: "py-6",
-                        "{subtitle}"
-                    }
-                    div {
-                        a {
-                            class: "btn btn-primary",
-                            href: marketing::Contact {}.to_string(),
-                            "Book a Call"
-                        }
-                        strong {
-                            class: "hidden md:inline ml-4",
-                            "{claim}"
-                        }
-                    }
                 }
             }
             div {
-                class: "flex-1 mt-8 md:mt-0",
+                class: "flex-1",
                 iframe {
                     class: "w-full aspect-video",
                     src: "{video}",
@@ -41,6 +26,24 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
                     allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
                     referrerpolicy: "strict-origin-when-cross-origin",
                     allowfullscreen: true,
+                }
+            }
+        }
+        section {
+            class: "mt-12 text-center",
+            p {
+                class: "py-6",
+                "{subtitle}"
+            }
+            div {
+                a {
+                    class: "btn btn-secondary",
+                    href: marketing::Contact {}.to_string(),
+                    "Book a Call"
+                }
+                strong {
+                    class: "hidden md:inline ml-4",
+                    "{claim}"
                 }
             }
         }

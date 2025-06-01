@@ -24,9 +24,9 @@ pub fn home_page() -> String {
                 class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
-                    title: "The all-in-one Private Generative AI platform — built for enterprise security, and control.",
-                    subtitle: "Unlock the full potential of generative AI while keeping your data secure and compliant.",
-                    claim: "and join hundreds of global installations!"
+                    title: "Boost productivity across every team — without compromising data privacy.",
+                    subtitle: "Deploy anywhere — on-prem, private cloud, or fully managed by us",
+                    claim: "Join hundreds of teams already powering AI with Bionic-GPT"
                 }
                 Customers {
                     class: "mt-24"
