@@ -2,13 +2,13 @@
 use crate::app_layout::{Layout, SideBar};
 use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
-use integrations::open_api_v3::{OpenApiOperation, ParameterSource};
+use openai_api::BionicToolDefinition;
 
 pub fn view(
     team_id: i32,
     rbac: Rbac,
     integration: Option<Integration>,
-    operations: Vec<OpenApiOperation>,
+    tool_definitions: Vec<BionicToolDefinition>,
 ) -> String {
     let page = rsx! {
         Layout {
@@ -52,8 +52,8 @@ pub fn view(
                     "Actions"
                 }
 
-                if !operations.is_empty() {
-                    for operation in operations {
+                if !tool_definitions.is_empty() {
+                    for tool in tool_definitions {
                         details { class: "card mt-5",
                             summary {
                                 class: "cursor-pointer px-4 py-3 flex items-center justify-between",
@@ -72,24 +72,16 @@ pub fn view(
                                         class: "ml-4",
                                         h2 {
                                             class: "font-semibold",
-                                            if let Some(operation_id) = &operation.operation_id {
-                                                "{operation_id}"
-                                            } else {
-                                                "{operation.definition.function.name}"
-                                            }
+                                            "{tool.function.name}"
                                         }
                                         p {
-                                            if let Some(description) = &operation.description {
+                                            if let Some(description) = &tool.function.description {
                                                 "{description}"
-                                            } else if let Some(summary) = &operation.summary {
-                                                "{summary}"
-                                            } else if let Some(desc) = &operation.definition.function.description {
-                                                "{desc}"
                                             }
                                         }
                                         p {
                                             class: "text-sm text-gray-500",
-                                            "{operation.method.to_uppercase()} {operation.path}"
+                                            "Function Tool"
                                         }
                                     }
                                 }
@@ -97,62 +89,44 @@ pub fn view(
 
                             // Parameter display content
                             {
-                                let parameters = &operation.parameters;
-                                if parameters.is_empty() {
-                                    rsx! {
-                                        div {
-                                            class: "p-4",
-                                            p {
-                                                class: "text-gray-500 italic",
-                                                "No parameters required"
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    // Group parameters by source
-                                    let path_params: Vec<_> = parameters.iter()
-                                        .filter(|p| matches!(p.source, ParameterSource::PathItem))
-                                        .collect();
+                                if let Some(parameters) = &tool.function.parameters {
+                                    // Parse the JSON schema parameters
+                                    if let Some(properties) = parameters.get("properties") {
+                                        if let Some(properties_obj) = properties.as_object() {
+                                            let required_params = parameters.get("required")
+                                                .and_then(|r| r.as_array())
+                                                .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<std::collections::HashSet<_>>())
+                                                .unwrap_or_default();
 
-                                    let mut operation_params: std::collections::HashMap<String, Vec<_>> = std::collections::HashMap::new();
-                                    for param in parameters.iter() {
-                                        if let ParameterSource::Operation(method) = &param.source {
-                                            operation_params.entry(method.clone()).or_insert_with(Vec::new).push(param);
-                                        }
-                                    }
-
-                                    rsx! {
-                                        div {
-                                            class: "p-4",
-
-                                            // PathItem-level parameters section
-                                            if !path_params.is_empty() {
+                                            rsx! {
                                                 div {
-                                                    class: "mb-4",
+                                                    class: "p-4",
                                                     h4 {
                                                         class: "font-semibold text-sm text-gray-700 mb-2",
-                                                        "Path Parameters"
+                                                        "Parameters"
                                                     }
                                                     div {
                                                         class: "space-y-2",
-                                                        for param in path_params {
+                                                        for (param_name, param_schema) in properties_obj {
                                                             div {
                                                                 class: "border-l-2 border-blue-200 pl-3 py-1",
                                                                 div {
                                                                     class: "flex items-center gap-2",
                                                                     span {
                                                                         class: "font-mono text-sm",
-                                                                        "{param.name}"
-                                                                        if param.required {
+                                                                        "{param_name}"
+                                                                        if required_params.contains(param_name.as_str()) {
                                                                             span { class: "text-red-500", "*" }
                                                                         }
                                                                     }
-                                                                    span {
-                                                                        class: "px-2 py-1 text-xs rounded bg-blue-100 text-blue-700",
-                                                                        "{param.location}"
+                                                                    if let Some(param_type) = param_schema.get("type").and_then(|t| t.as_str()) {
+                                                                        span {
+                                                                            class: "px-2 py-1 text-xs rounded bg-blue-100 text-blue-700",
+                                                                            "{param_type}"
+                                                                        }
                                                                     }
                                                                 }
-                                                                if let Some(description) = &param.description {
+                                                                if let Some(description) = param_schema.get("description").and_then(|d| d.as_str()) {
                                                                     p {
                                                                         class: "text-sm text-gray-600 mt-1",
                                                                         "{description}"
@@ -163,46 +137,35 @@ pub fn view(
                                                     }
                                                 }
                                             }
-
-                                            // Operation-level parameters sections
-                                            for (method, method_params) in operation_params {
-                                                if !method_params.is_empty() {
-                                                    div {
-                                                        class: "mb-4",
-                                                        h4 {
-                                                            class: "font-semibold text-sm text-gray-700 mb-2",
-                                                            "{method} Parameters"
-                                                        }
-                                                        div {
-                                                            class: "space-y-2",
-                                                            for param in method_params {
-                                                                div {
-                                                                    class: "border-l-2 border-green-200 pl-3 py-1",
-                                                                    div {
-                                                                        class: "flex items-center gap-2",
-                                                                        span {
-                                                                            class: "font-mono text-sm",
-                                                                            "{param.name}"
-                                                                            if param.required {
-                                                                                span { class: "text-red-500", "*" }
-                                                                            }
-                                                                        }
-                                                                        span {
-                                                                            class: "px-2 py-1 text-xs rounded bg-green-100 text-green-700",
-                                                                            "{param.location}"
-                                                                        }
-                                                                    }
-                                                                    if let Some(description) = &param.description {
-                                                                        p {
-                                                                            class: "text-sm text-gray-600 mt-1",
-                                                                            "{description}"
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
+                                        } else {
+                                            rsx! {
+                                                div {
+                                                    class: "p-4",
+                                                    p {
+                                                        class: "text-gray-500 italic",
+                                                        "No parameters required"
                                                     }
                                                 }
+                                            }
+                                        }
+                                    } else {
+                                        rsx! {
+                                            div {
+                                                class: "p-4",
+                                                p {
+                                                    class: "text-gray-500 italic",
+                                                    "No parameters required"
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    rsx! {
+                                        div {
+                                            class: "p-4",
+                                            p {
+                                                class: "text-gray-500 italic",
+                                                "No parameters required"
                                             }
                                         }
                                     }
@@ -215,7 +178,7 @@ pub fn view(
                         class: "p-4",
                         p {
                             class: "text-gray-500 italic",
-                            "No operations found in this integration"
+                            "No tools found in this integration"
                         }
                     }
                 }

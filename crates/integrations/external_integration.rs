@@ -1,10 +1,101 @@
-use crate::open_api_v3::{extract_base_url, open_api_to_definition};
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
-use openai_api::BionicToolDefinition;
+use oas3;
+
+use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use reqwest::Client;
 use serde_json::Value;
 use std::sync::Arc;
+
+/// Result of parsing an OpenAPI specification for tool creation
+pub struct IntegrationTools {
+    pub tool_definitions: Vec<BionicToolDefinition>,
+    pub base_url: Option<String>,
+}
+
+/// Extract the base URL from the first server in the OpenAPI specification
+pub fn extract_base_url(oas3: &oas3::OpenApiV3Spec) -> Option<String> {
+    if !oas3.servers.is_empty() {
+        return Some(oas3.servers[0].url.clone());
+    }
+    None
+}
+
+/// Create tool definitions from an OpenAPI specification
+pub fn create_tool_definitions_from_spec(spec: oas3::OpenApiV3Spec) -> IntegrationTools {
+    let mut tool_definitions: Vec<BionicToolDefinition> = vec![];
+    let base_url = extract_base_url(&spec);
+
+    // Process each operation in the OpenAPI spec
+    for (path, _method, operation) in spec.operations() {
+        if let Some(_operation_id) = &operation.operation_id {
+            let mut parameters = None;
+            let function_name = path.replace('/', "");
+            let schema_key = format!("{}_form_model", function_name);
+
+            // Try to get schema-based parameters from components
+            if let Some(components) = &spec.components {
+                let schema = components.schemas.get(&schema_key);
+                if let Some(schema) = schema {
+                    let params = serde_json::to_value(schema).unwrap_or_default();
+                    parameters = Some(params);
+                }
+            }
+
+            let definition = BionicToolDefinition {
+                r#type: "function".to_string(),
+                function: ChatCompletionFunctionDefinition {
+                    name: function_name,
+                    description: operation
+                        .description
+                        .clone()
+                        .or_else(|| operation.summary.clone()),
+                    parameters,
+                },
+            };
+
+            tool_definitions.push(definition);
+        }
+    }
+
+    IntegrationTools {
+        tool_definitions,
+        base_url,
+    }
+}
+
+/// Create tools from a single integration
+pub fn create_tools_from_integration(
+    integration: &db::queries::integrations::Integration,
+) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
+    let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+
+    if let Some(definition) = &integration.definition {
+        let oas3 = oas3::from_json(definition.to_string())
+            .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
+
+        let integration_tools = create_tool_definitions_from_spec(oas3);
+        let base_url = integration_tools
+            .base_url
+            .unwrap_or_else(|| "http://localhost".to_string());
+
+        // Create tools for each tool definition
+        for tool_def in integration_tools.tool_definitions {
+            // For now, we'll use POST method and the function name as path
+            // This is a simplified approach - in a real implementation you might
+            // want to store method and path information separately
+            let path = format!("/{}", tool_def.function.name);
+            let method = "POST".to_string();
+
+            let tool = ExternalIntegrationTool::new(tool_def, base_url.clone(), path, method);
+            tools.push(Arc::new(tool));
+        }
+    } else {
+        return Err("Integration doesn't have a definition".to_string());
+    }
+
+    Ok(tools)
+}
 
 /// A tool that executes external integrations based on OpenAPI definitions
 pub struct ExternalIntegrationTool {
@@ -113,33 +204,17 @@ pub async fn create_tools_from_integrations(
     let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
 
     for integration in integrations {
-        if let Some(definition) = &integration.definition {
-            let oas3 = oas3::from_json(definition.to_string());
-            if let Ok(oas3) = oas3 {
-                // Get base URL from the first server in the OpenAPI spec or use a default
-                let base_url =
-                    extract_base_url(&oas3).unwrap_or_else(|| "http://localhost".to_string());
-
-                // Create tools for each operation in the OpenAPI spec
-                let operations = open_api_to_definition(oas3);
-                for operation in operations {
-                    let tool = ExternalIntegrationTool::new(
-                        operation.definition,
-                        base_url.clone(),
-                        operation.path,
-                        operation.method,
-                    );
-
-                    tools.push(Arc::new(tool));
-                }
-            } else {
+        match create_tools_from_integration(&integration) {
+            Ok(integration_tools) => {
+                tools.extend(integration_tools);
+            }
+            Err(error) => {
                 tracing::error!(
-                    "Failed to convert JSON in DB to oas3 for integration {}",
-                    integration.id
+                    "Failed to create tools for integration {}: {}",
+                    integration.id,
+                    error
                 );
             }
-        } else {
-            tracing::error!("Integration {} doesn't have a definition", integration.id);
         }
     }
 

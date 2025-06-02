@@ -6,7 +6,6 @@ pub mod attachment_as_text;
 pub mod attachment_to_text_converter;
 pub mod attachments_list;
 pub mod external_integration;
-pub mod open_api_v3;
 pub mod time_date;
 pub mod tool;
 pub mod tool_executor;
@@ -16,7 +15,10 @@ pub mod tool_registry;
 mod test_async;
 
 // Re-export key types for convenience
-pub use external_integration::{create_tools_from_integrations, ExternalIntegrationTool};
+pub use external_integration::{
+    create_tool_definitions_from_spec, create_tools_from_integration,
+    create_tools_from_integrations, extract_base_url, ExternalIntegrationTool, IntegrationTools,
+};
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};
 pub use tool_registry::{
