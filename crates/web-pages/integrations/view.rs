@@ -9,6 +9,7 @@ pub fn view(
     rbac: Rbac,
     integration: Integration,
     logo_url: String,
+    description: String,
     tool_definitions: Vec<BionicToolDefinition>,
 ) -> String {
     let page = rsx! {
@@ -37,7 +38,7 @@ pub fn view(
                         "{integration.name.clone()}"
                     }
                     p {
-                        "Integration Type: {integration.integration_type:?}"
+                        "{description}"
                     }
                 }
             }

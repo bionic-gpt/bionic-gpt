@@ -108,8 +108,21 @@ pub async fn view(
             web_pages::integrations::get_logo_url(&std::collections::BTreeMap::new())
         });
 
-    let html =
-        web_pages::integrations::view::view(team_id, rbac, integration, logo_url, tool_definitions);
+    let description = integration
+        .definition
+        .as_ref()
+        .and_then(|def| oas3::from_json(def.to_string()).ok())
+        .and_then(|spec| spec.info.description)
+        .unwrap_or_else(|| "No description available".to_string());
+
+    let html = web_pages::integrations::view::view(
+        team_id,
+        rbac,
+        integration,
+        logo_url,
+        description,
+        tool_definitions,
+    );
 
     Ok(Html(html))
 }
