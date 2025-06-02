@@ -99,8 +99,17 @@ pub async fn view(
         vec![]
     };
 
+    let logo_url = integration
+        .definition
+        .as_ref()
+        .and_then(|def| oas3::from_json(def.to_string()).ok())
+        .map(|spec| web_pages::integrations::get_logo_url(&spec.info.extensions))
+        .unwrap_or_else(|| {
+            web_pages::integrations::get_logo_url(&std::collections::BTreeMap::new())
+        });
+
     let html =
-        web_pages::integrations::view::view(team_id, rbac, Some(integration), tool_definitions);
+        web_pages::integrations::view::view(team_id, rbac, integration, logo_url, tool_definitions);
 
     Ok(Html(html))
 }
