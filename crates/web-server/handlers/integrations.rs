@@ -6,7 +6,7 @@ use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Json, Pool};
-use integrations::open_api_v3::open_api_to_definition;
+use integrations::external_integration::create_tool_definitions_from_spec;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::integrations::IntegrationOas3;
@@ -89,9 +89,9 @@ pub async fn view(
         .one()
         .await?;
 
-    let operations = if let Some(definition) = &integration.definition {
+    let tool_definitions = if let Some(definition) = &integration.definition {
         if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            open_api_to_definition(spec)
+            create_tool_definitions_from_spec(spec).tool_definitions
         } else {
             vec![]
         }
@@ -99,7 +99,30 @@ pub async fn view(
         vec![]
     };
 
-    let html = web_pages::integrations::view::view(team_id, rbac, Some(integration), operations);
+    let logo_url = integration
+        .definition
+        .as_ref()
+        .and_then(|def| oas3::from_json(def.to_string()).ok())
+        .map(|spec| web_pages::integrations::get_logo_url(&spec.info.extensions))
+        .unwrap_or_else(|| {
+            web_pages::integrations::get_logo_url(&std::collections::BTreeMap::new())
+        });
+
+    let description = integration
+        .definition
+        .as_ref()
+        .and_then(|def| oas3::from_json(def.to_string()).ok())
+        .and_then(|spec| spec.info.description)
+        .unwrap_or_else(|| "No description available".to_string());
+
+    let html = web_pages::integrations::view::view(
+        team_id,
+        rbac,
+        integration,
+        logo_url,
+        description,
+        tool_definitions,
+    );
 
     Ok(Html(html))
 }

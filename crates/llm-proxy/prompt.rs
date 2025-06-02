@@ -1,7 +1,8 @@
 use crate::errors::CustomError;
 use crate::token_count::{token_count, token_count_from_string};
-use db::queries::{chats_chunks, prompts};
-use db::{Pool, RelatedContext, Transaction};
+use db::queries::{chats_chunks, integrations as db_integrations, prompts};
+use db::{RelatedContext, Transaction};
+use integrations::create_tools_from_integrations;
 use openai_api::{BionicToolDefinition, ChatCompletionMessage, ChatCompletionMessageRole};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -77,13 +78,22 @@ pub async fn execute_prompt(
 
 /// Get integration tools for a specific prompt
 pub async fn get_prompt_integration_tools(
-    _transaction: &Transaction<'_>,
+    transaction: &Transaction<'_>,
     prompt_id: i32,
-    pool: &Pool,
-    sub: String,
+    _sub: String,
 ) -> Result<Vec<BionicToolDefinition>, CustomError> {
-    // Get external integration tools filtered by prompt
-    let external_tools = integrations::create_prompt_integration_tools(pool, sub, prompt_id).await;
+    // Get integrations for this specific prompt using existing transaction
+    let prompt_integrations = db_integrations::integrations_for_prompt()
+        .bind(transaction, &prompt_id)
+        .all()
+        .await
+        .map_err(|e| {
+            tracing::error!("Failed to get integrations for prompt {}: {}", prompt_id, e);
+            CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
+        })?;
+
+    // Create tools from the integrations
+    let external_tools = create_tools_from_integrations(prompt_integrations).await;
 
     // Convert to BionicToolDefinition
     let filtered_tools: Vec<BionicToolDefinition> = external_tools
