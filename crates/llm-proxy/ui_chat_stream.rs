@@ -358,7 +358,6 @@ async fn create_request(
         match super::prompt::get_prompt_integration_tools(
             &transaction,
             prompt.id,
-            pool,
             current_user.sub.clone(),
         )
         .await

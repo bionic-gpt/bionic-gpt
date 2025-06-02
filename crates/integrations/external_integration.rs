@@ -1,7 +1,6 @@
 use crate::open_api_v3::{extract_base_url, open_api_to_definition};
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
-use db::Pool;
 use openai_api::BionicToolDefinition;
 use reqwest::Client;
 use serde_json::Value;
@@ -107,8 +106,8 @@ impl ToolInterface for ExternalIntegrationTool {
     }
 }
 
-/// Internal function to create tools from integrations
-async fn create_tools_from_integrations(
+/// Create tools from integrations
+pub async fn create_tools_from_integrations(
     integrations: Vec<db::queries::integrations::Integration>,
 ) -> Vec<Arc<dyn ToolInterface>> {
     let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
@@ -144,133 +143,5 @@ async fn create_tools_from_integrations(
         }
     }
 
-    tools
-}
-
-/// Create external integration tools from database integrations
-pub async fn create_external_integration_tools(
-    pool: &Pool,
-    sub: String,
-) -> Vec<Arc<dyn ToolInterface>> {
-    // Get external integrations from the database
-    tracing::debug!("Getting external integrations from database");
-
-    let mut client = match pool.get().await {
-        Ok(client) => {
-            tracing::debug!("Successfully got database client");
-            client
-        }
-        Err(e) => {
-            tracing::error!("Failed to get database client: {}", e);
-            return vec![];
-        }
-    };
-
-    tracing::debug!("Creating transaction");
-    let transaction = match client.transaction().await {
-        Ok(transaction) => {
-            tracing::debug!("Successfully created transaction");
-            transaction
-        }
-        Err(e) => {
-            tracing::error!("Failed to create transaction: {}", e);
-            return vec![];
-        }
-    };
-
-    // Set row-level security if sub is provided
-    tracing::debug!("Setting row-level security for user: {}", sub);
-    if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await {
-        tracing::error!("Failed to set row level security: {}", e);
-        return vec![];
-    }
-
-    let external_integrations = match db::queries::integrations::integrations()
-        .bind(&transaction)
-        .all()
-        .await
-    {
-        Ok(integrations) => {
-            tracing::debug!("Found {} external integrations", integrations.len());
-            integrations
-        }
-        Err(e) => {
-            tracing::error!("Failed to get external integrations: {}", e);
-            return vec![];
-        }
-    };
-
-    let tools = create_tools_from_integrations(external_integrations).await;
-    tracing::debug!("Created {} external integration tools", tools.len());
-    tools
-}
-
-/// Create external integration tools for a specific prompt
-pub async fn create_prompt_integration_tools(
-    pool: &Pool,
-    sub: String,
-    prompt_id: i32,
-) -> Vec<Arc<dyn ToolInterface>> {
-    // Get external integrations for this specific prompt from the database
-    tracing::debug!(
-        "Getting external integrations for prompt {} from database",
-        prompt_id
-    );
-
-    let mut client = match pool.get().await {
-        Ok(client) => {
-            tracing::debug!("Successfully got database client");
-            client
-        }
-        Err(e) => {
-            tracing::error!("Failed to get database client: {}", e);
-            return vec![];
-        }
-    };
-
-    tracing::debug!("Creating transaction");
-    let transaction = match client.transaction().await {
-        Ok(transaction) => {
-            tracing::debug!("Successfully created transaction");
-            transaction
-        }
-        Err(e) => {
-            tracing::error!("Failed to create transaction: {}", e);
-            return vec![];
-        }
-    };
-
-    // Set row-level security if sub is provided
-    tracing::debug!("Setting row-level security for user: {}", sub);
-    if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await {
-        tracing::error!("Failed to set row level security: {}", e);
-        return vec![];
-    }
-
-    let prompt_integrations = match db::queries::integrations::integrations_for_prompt()
-        .bind(&transaction, &prompt_id)
-        .all()
-        .await
-    {
-        Ok(integrations) => {
-            tracing::debug!(
-                "Found {} integrations for prompt {}",
-                integrations.len(),
-                prompt_id
-            );
-            integrations
-        }
-        Err(e) => {
-            tracing::error!("Failed to get integrations for prompt {}: {}", prompt_id, e);
-            return vec![];
-        }
-    };
-
-    let tools = create_tools_from_integrations(prompt_integrations).await;
-    tracing::debug!(
-        "Created {} external integration tools for prompt {}",
-        tools.len(),
-        prompt_id
-    );
     tools
 }

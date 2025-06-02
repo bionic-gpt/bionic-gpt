@@ -1,15 +1,45 @@
 use crate::attachment_as_text::AttachmentAsTextTool;
 use crate::attachment_to_text_converter::AttachmentToTextConverterTool;
 use crate::attachments_list::ListAttachmentsTool;
-use crate::external_integration::create_external_integration_tools;
+use crate::external_integration::create_tools_from_integrations;
 use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
-use db::Pool;
+use db::{queries::integrations as db_integrations, Pool};
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
 use std::collections::HashSet;
 use std::sync::Arc;
 use tracing::{debug, error, info, trace, warn};
+
+/// Get external integration tools using direct database operations
+async fn get_external_integration_tools(
+    pool: &Pool,
+    sub: String,
+) -> Result<Vec<Arc<dyn ToolInterface>>, Box<dyn std::error::Error + Send + Sync>> {
+    debug!("Getting external integrations from database");
+
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    // Set row-level security
+    debug!("Setting row-level security for user: {}", sub);
+    db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await?;
+
+    let external_integrations = db_integrations::integrations()
+        .bind(&transaction)
+        .all()
+        .await?;
+
+    debug!(
+        "Found {} external integrations",
+        external_integrations.len()
+    );
+
+    let tools = create_tools_from_integrations(external_integrations).await;
+    debug!("Created {} external integration tools", tools.len());
+
+    Ok(tools)
+}
 
 /// Execute a tool call and return a message with the result
 pub async fn execute_tool_calls(
@@ -74,7 +104,13 @@ pub async fn get_tools(
 
         // Get external integration tools
         debug!("Getting external integration tools");
-        let external_tools = create_external_integration_tools(pool, sub).await;
+        let external_tools = match get_external_integration_tools(pool, sub).await {
+            Ok(tools) => tools,
+            Err(e) => {
+                error!("Failed to get external integration tools: {}", e);
+                vec![]
+            }
+        };
 
         if !external_tools.is_empty() {
             debug!("Found {} external integration tools", external_tools.len());
