@@ -39,9 +39,6 @@ pub fn view(
                         p {
                             "Integration Type: {integration.integration_type:?}"
                         }
-                        p {
-                            "Status: {integration.integration_status:?}"
-                        }
                     }
                 }
                 hr {
@@ -78,10 +75,6 @@ pub fn view(
                                             if let Some(description) = &tool.function.description {
                                                 "{description}"
                                             }
-                                        }
-                                        p {
-                                            class: "text-sm text-gray-500",
-                                            "Function Tool"
                                         }
                                     }
                                 }
