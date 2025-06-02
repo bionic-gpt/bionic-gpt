@@ -78,7 +78,7 @@ pub async fn new_assistant_loader(
         visibility: "Private".to_string(),
         model_id: -1,
         category_id: -1,
-        max_history_items: 3,
+        max_history_items: 99,
         max_chunks: 10,
         max_tokens: 1024,
         trim_ratio: 80,
