@@ -43,10 +43,21 @@ pub fn Layout(props: LayoutProps) -> Element {
                 "property": "og:title",
                 content: "{props.title}"
             }
+
+            // Open Graph tags
+            meta { property: "og:title", content: "{props.title}" }
+            meta { property: "og:description", content: "{props.description}" }
+            meta { property: "og:type", content: "article" }
+            meta { property: "og:site_name", content: "Bionic GPT" }
+
             if let Some(image) = props.image {
                 {rsx!(
                     meta {
                         "property": "og:image",
+                        content: "{image}"
+                    }
+                    meta {
+                        "name": "twitter:image",
                         content: "{image}"
                     }
                 )}
