@@ -158,7 +158,7 @@ pub fn get_attachment_to_text_converter_tool() -> BionicToolDefinition {
             name: "attachment_to_text_converter".to_string(),
             description: Some(
                 "Converts document attachments to readable text format. \
-                Supports various file types including PDF, DOCX, TXT, HTML, and more. \
+                Supports various file types including PDF, DOCX, HTML, and more. \
                 Documents are intelligently chunked for better readability. \
                 Use offset + max_bytes to limit the response and stay within context."
                     .to_string(),

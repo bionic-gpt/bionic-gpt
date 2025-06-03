@@ -159,8 +159,9 @@ pub fn get_attachment_as_text_tool() -> BionicToolDefinition {
         function: ChatCompletionFunctionDefinition {
             name: "attachment_as_text".to_string(),
             description: Some(
-                "Return the text of an attachment, works well with text based attachments such as source code or .txt. \
-                Use offset + max_bytes to limit the response and stay within context."
+                "Return the text of a single attachment (by file_id). This tool is designed for reading \
+                one text-based attachment at a time, such as source code or .txt files. Use 'offset' and \
+                'max_bytes' to control the portion returned and stay within token limits."
                     .to_string(),
             ),
             parameters: Some(json!({
@@ -168,7 +169,7 @@ pub fn get_attachment_as_text_tool() -> BionicToolDefinition {
                 "properties": {
                     "file_id": {
                         "type": "integer",
-                        "description": "ID of the attachment to read this is the file_id in the results of a call to list_attachments"
+                        "description": "ID of a single attachment to read. This is the 'file_id' from the results of 'list_attachments'. Only one file may be processed per call."
                     },
                     "offset": {
                         "type": "integer",
