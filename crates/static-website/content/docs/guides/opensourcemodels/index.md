@@ -1,4 +1,4 @@
-## Open Source Models
+# Open Source Models
 A wide variety of open-source large language models are available, many of which are refinements of foundation models. Some of these models have been fine-tuned to excel in specific tasks. Below is a curated list of some of the top open-source models currently available.
 
 

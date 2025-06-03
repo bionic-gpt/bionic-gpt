@@ -1,4 +1,4 @@
-## Visualising RAG Data
+# Visualising RAG Data
 
 You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](/docs/guides/jupyter)
 

@@ -1,4 +1,4 @@
-## Using the API
+# Using the API
 
 In order to use the API you must obtain a key first
 

@@ -1,4 +1,4 @@
-## Deploying Jupyter Notebook
+# Deploying Jupyter Notebook
 
 Your data scientists can connect to bionicGPT directly from their existing Jupyter Notebook environments using our API, providing full access to any models and datasets they are authorised to use.
 

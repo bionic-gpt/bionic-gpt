@@ -1,4 +1,4 @@
-## Administer the Database with pgAdmin
+# Administer the Database with pgAdmin
 
 [pgAdmin](https://www.pgadmin.org/) is installed  by passing the parameter `--pgadmin` to bionic at install time.
 

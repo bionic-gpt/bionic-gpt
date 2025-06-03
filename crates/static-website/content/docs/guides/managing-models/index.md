@@ -1,4 +1,4 @@
-## Managing Models
+# Managing Models
 
 **bionicGPT** is designed with flexibility and extensibility at its core, allowing you to configure as many models as you need. You can integrate both locally deployed models and externally hosted models, such as ChatGPT. This flexibility enables you to select and deploy the "best model for the job," whether that means different models for various teams or functions within your organization, or even multiple models for each team.
 

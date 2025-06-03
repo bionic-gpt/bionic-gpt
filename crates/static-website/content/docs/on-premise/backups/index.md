@@ -1,4 +1,4 @@
-## Backing up your Bionic and Keycloak Databases
+# Backing up your Bionic and Keycloak Databases
 
 Maintaining reliable backups is crucial for any Kubernetes cluster to ensure data integrity and facilitate disaster recovery. In this guide, we'll walk through how to update your clusters' backup configurations using the `kubectl patch` command. This method allows you to seamlessly integrate S3-compatible object storage for backups with client-side encryption for multiple clusters.
 

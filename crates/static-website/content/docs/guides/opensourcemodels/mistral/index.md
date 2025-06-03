@@ -1,4 +1,4 @@
-## Mistral AI Models
+# Mistral AI Models
 
 ![Alt text](mistralAIlogo.png "Mistral AI logo")
 

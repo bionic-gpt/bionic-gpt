@@ -1,4 +1,4 @@
-## Meta's Llama Models
+# Meta's Llama Models
 
 ![Alt text](metaLlama.png "Llama logo")
 

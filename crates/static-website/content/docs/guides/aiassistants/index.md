@@ -1,4 +1,4 @@
-## AI Assistants
+# AI Assistants
 
 ![Alt text](aiassistants-home.png "AI Assistants Home screen")
 

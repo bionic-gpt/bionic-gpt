@@ -1,4 +1,4 @@
-## Administer the Database with pgAdmin
+# Administer the Database with pgAdmin
 
 We can extend our `docker-compose` to include a [Jupyter Notebook](https://jupyter.org/).
 

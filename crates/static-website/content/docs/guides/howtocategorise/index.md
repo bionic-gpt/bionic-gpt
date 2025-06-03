@@ -1,4 +1,4 @@
-## Categorising Credit Card Spend Assistant
+# Categorising Credit Card Spend Assistant
 
 You might think categorising your credit card spending would be simple, but over a 3-month period, I found over 200 different vendor entries, even when the card was used at the same location. Let's build an AI assistant to help streamline this process.
 

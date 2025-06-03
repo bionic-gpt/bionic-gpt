@@ -1,4 +1,4 @@
-## Setup a Cloudflare Tunnel
+# Setup a Cloudflare Tunnel
 
 From the Cloudflare dashboard go to `zero trust / networks`. Then create a tunnel and give it a name.
 

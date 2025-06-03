@@ -1,4 +1,4 @@
-## Teams
+# Teams
 
 **bionicGPT** provides a teams based permissioning model allowing you to decide who has access to what datasets and AI Assistants
 

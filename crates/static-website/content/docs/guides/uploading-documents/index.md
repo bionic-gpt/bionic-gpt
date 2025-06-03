@@ -1,4 +1,4 @@
-## Document Pipelines
+# Document Pipelines
 
 Document pipelines give you a way to upload documents via an API. You first need to create an API key and attach that to a dataset. The documents will be uploaded to that dataset.
 

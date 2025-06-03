@@ -1,4 +1,4 @@
-## The Console
+# The Console
 
 ![Alt text](console.png "Main Console window")
 

@@ -1,4 +1,4 @@
-## IBM Granite Models
+# IBM Granite Models
 
 ![Alt text](ibmgranite.jpeg "IBM Granite image")
 

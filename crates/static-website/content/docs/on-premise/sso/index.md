@@ -1,4 +1,4 @@
-## Creating an OIDC secret
+# Creating an OIDC secret
 
 We need the credentials form your SSO provider stored in a Kubernetes Secret i.e.
 

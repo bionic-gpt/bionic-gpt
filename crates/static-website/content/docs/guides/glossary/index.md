@@ -1,4 +1,4 @@
-## Glossary
+# Glossary
 
 
 ### Chain of Thought Prompting
