@@ -23,7 +23,7 @@ pub fn home_page() -> String {
             div {
                 class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
                 VideoHero {
-                    video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
+                    video_id: "slRiOOM17tM",
                     title: "Boost productivity across every team — without compromising data privacy.",
                     subtitle: "Deploy anywhere — on-prem, private cloud, or fully managed by us",
                     claim: "Join hundreds of teams already powering AI with Bionic-GPT"

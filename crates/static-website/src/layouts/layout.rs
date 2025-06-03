@@ -76,6 +76,10 @@ pub fn Layout(props: LayoutProps) -> Element {
                 "async": "true",
                 src: "https://unpkg.com/htmx.org@2.0.3"
             }
+            script {
+                "type": "module",
+                src: "https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"
+            }
         }
         body {
             //WebinarHeader {}

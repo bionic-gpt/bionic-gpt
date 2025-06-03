@@ -2,8 +2,11 @@ use dioxus::prelude::*;
 
 use crate::routes::marketing;
 
+/// Requires the following to drastically improve google page insights performance.
+/// <script type="module" src="https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"></script>
+
 #[component]
-pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) -> Element {
+pub fn VideoHero(title: String, subtitle: String, video_id: String, claim: String) -> Element {
     rsx! {
         section {
             div {
@@ -19,14 +22,8 @@ pub fn VideoHero(title: String, subtitle: String, video: String, claim: String) 
                 }
                 div {
                     class: "flex-1",
-                    iframe {
-                        class: "w-full aspect-video",
-                        src: "{video}",
-                        title: "YouTube video player",
-                        "frameborder": "0",
-                        allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
-                        referrerpolicy: "strict-origin-when-cross-origin",
-                        allowfullscreen: true,
+                    lite-youtube{
+                        videoid: "{video_id}"
                     }
                 }
             }
