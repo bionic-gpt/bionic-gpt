@@ -1,4 +1,4 @@
---: Chat(content?, tool_calls?, tool_call_id?, tool_call_results?, attachments?)
+--: Chat(content?, tool_calls?, tool_call_id?, attachments?)
 
 
 --! new_chat(tool_call_id?, tool_calls?)
@@ -26,7 +26,6 @@ SELECT
     role,
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
-    decrypt_text(tool_call_results) as tool_call_results,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     status,
@@ -59,7 +58,6 @@ SELECT
     role,
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
-    decrypt_text(tool_call_results) as tool_call_results,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     status,
@@ -93,7 +91,6 @@ SELECT
     role,
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
-    decrypt_text(tool_call_results) as tool_call_results,
     prompt_id,
     (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
     status,
