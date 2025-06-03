@@ -320,7 +320,7 @@ impl ToolInterface for ExternalIntegrationTool {
         self.definition.clone()
     }
 
-    async fn execute(&self, arguments: &str) -> Result<String, String> {
+    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
         tracing::info!(
             "Executing external integration tool {} with arguments: {}",
             self.name(),
@@ -331,8 +331,12 @@ impl ToolInterface for ExternalIntegrationTool {
         let (path, method, operation) = self.find_operation_details()?;
 
         // Parse arguments
-        let args: Value = serde_json::from_str(arguments)
-            .map_err(|e| format!("Failed to parse arguments: {}", e))?;
+        let args: Value = serde_json::from_str(arguments).map_err(|e| {
+            serde_json::json!({
+                "error": "Failed to parse arguments",
+                "details": e.to_string()
+            })
+        })?;
 
         // Substitute path parameters in the URL
         let path_with_params = substitute_path_parameters(&path, &args, operation)?;
@@ -349,11 +353,12 @@ impl ToolInterface for ExternalIntegrationTool {
                 // or if there are additional non-path parameters
                 if path.contains('{') && path_with_params != path {
                     // We substituted path parameters, so make a simple GET request
-                    self.client
-                        .get(&url)
-                        .send()
-                        .await
-                        .map_err(|e| format!("Failed to make GET request: {}", e))?
+                    self.client.get(&url).send().await.map_err(|e| {
+                        serde_json::json!({
+                            "error": "Failed to make GET request",
+                            "details": e.to_string()
+                        })
+                    })?
                 } else {
                     // No path parameters, send as before
                     self.client
@@ -361,7 +366,12 @@ impl ToolInterface for ExternalIntegrationTool {
                         .json(&args)
                         .send()
                         .await
-                        .map_err(|e| format!("Failed to make GET request: {}", e))?
+                        .map_err(|e| {
+                            serde_json::json!({
+                                "error": "Failed to make GET request",
+                                "details": e.to_string()
+                            })
+                        })?
                 }
             }
             "POST" => self
@@ -370,36 +380,68 @@ impl ToolInterface for ExternalIntegrationTool {
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| format!("Failed to make POST request: {}", e))?,
+                .map_err(|e| {
+                    serde_json::json!({
+                        "error": "Failed to make POST request",
+                        "details": e.to_string()
+                    })
+                })?,
             "PUT" => self
                 .client
                 .put(&url)
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| format!("Failed to make PUT request: {}", e))?,
+                .map_err(|e| {
+                    serde_json::json!({
+                        "error": "Failed to make PUT request",
+                        "details": e.to_string()
+                    })
+                })?,
             "DELETE" => self
                 .client
                 .delete(&url)
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| format!("Failed to make DELETE request: {}", e))?,
-            _ => return Err(format!("Unsupported HTTP method: {}", method)),
+                .map_err(|e| {
+                    serde_json::json!({
+                        "error": "Failed to make DELETE request",
+                        "details": e.to_string()
+                    })
+                })?,
+            _ => {
+                return Err(serde_json::json!({
+                    "error": "Unsupported HTTP method",
+                    "method": method
+                }))
+            }
         };
 
         // Check if the request was successful
         if !response.status().is_success() {
-            return Err(format!("Request failed with status: {}", response.status()));
+            return Err(serde_json::json!({
+                "error": "Request failed",
+                "status": response.status().to_string()
+            }));
         }
 
         // Parse the response
-        let response_text = response
-            .text()
-            .await
-            .map_err(|e| format!("Failed to read response: {}", e))?;
+        let response_text = response.text().await.map_err(|e| {
+            serde_json::json!({
+                "error": "Failed to read response",
+                "details": e.to_string()
+            })
+        })?;
 
-        Ok(response_text)
+        // Try to parse as JSON, fallback to text if it fails
+        match serde_json::from_str::<serde_json::Value>(&response_text) {
+            Ok(json_value) => Ok(json_value),
+            Err(_) => Ok(serde_json::json!({
+                "content": response_text,
+                "content_type": "text"
+            })),
+        }
     }
 }
 

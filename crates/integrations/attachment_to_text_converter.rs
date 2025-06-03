@@ -49,7 +49,7 @@ impl ToolInterface for AttachmentToTextConverterTool {
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
-    async fn execute(&self, arguments: &str) -> Result<String, String> {
+    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
         tracing::info!("Executing tool with arguments: {}", arguments);
 
         // Deserialize directly to our struct
@@ -60,7 +60,10 @@ impl ToolInterface for AttachmentToTextConverterTool {
             }
             Err(e) => {
                 tracing::error!("Failed to parse arguments: {}", e);
-                return Err(format!("Failed to parse arguments: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to parse arguments",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -73,7 +76,10 @@ impl ToolInterface for AttachmentToTextConverterTool {
             }
             Err(e) => {
                 tracing::error!("Failed to get database client: {}", e);
-                return Err(format!("Failed to get client: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to get database client",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -85,7 +91,10 @@ impl ToolInterface for AttachmentToTextConverterTool {
             }
             Err(e) => {
                 tracing::error!("Failed to create transaction: {}", e);
-                return Err(format!("Failed to create transaction: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to create transaction",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -96,7 +105,10 @@ impl ToolInterface for AttachmentToTextConverterTool {
                 db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await
             {
                 tracing::error!("Failed to set row level security: {}", e);
-                return Err(format!("Failed to set row level security: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to set row level security",
+                    "details": e.to_string()
+                }));
             }
         }
 
@@ -121,7 +133,10 @@ impl ToolInterface for AttachmentToTextConverterTool {
             Ok(_) => tracing::debug!("Successfully committed transaction"),
             Err(e) => {
                 tracing::error!("Failed to commit transaction: {}", e);
-                return Err(format!("Failed to commit transaction: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to commit transaction",
+                    "details": e.to_string()
+                }));
             }
         }
 
@@ -143,7 +158,7 @@ pub fn get_attachment_to_text_converter_tool() -> BionicToolDefinition {
             name: "attachment_to_text_converter".to_string(),
             description: Some(
                 "Converts document attachments to readable text format. \
-                Supports various file types including PDF, DOCX, TXT, HTML, and more. \
+                Supports various file types including PDF, DOCX, HTML, and more. \
                 Documents are intelligently chunked for better readability. \
                 Use offset + max_bytes to limit the response and stay within context."
                     .to_string(),
@@ -194,7 +209,7 @@ async fn read_attachment(
     id: i32,
     offset: usize,
     max_bytes: Option<u64>,
-) -> Result<String, String> {
+) -> Result<serde_json::Value, serde_json::Value> {
     tracing::info!(
         "Reading attachment id: {}, offset: {}, max_bytes: {:?}",
         id,
@@ -215,7 +230,10 @@ async fn read_attachment(
         }
         Err(e) => {
             tracing::error!("Failed to get attachment content: {}", e);
-            return Err(format!("Failed to get attachment content: {}", e));
+            return Err(serde_json::json!({
+                "error": "Failed to get attachment content",
+                "details": e.to_string()
+            }));
         }
     };
 
@@ -271,7 +289,13 @@ async fn read_attachment(
                 .collect::<Vec<String>>()
                 .join("\n\n");
 
-            Ok(text)
+            Ok(serde_json::json!({
+                "content": text,
+                "mime_type": content.mime_type,
+                "total_size": bytes.len(),
+                "offset": start,
+                "length": end - start
+            }))
         }
         Err(e) => {
             tracing::error!("Failed to convert attachment to text: {}", e);
@@ -288,7 +312,13 @@ async fn read_attachment(
                 }
             };
 
-            Ok(text)
+            Ok(serde_json::json!({
+                "content": text,
+                "mime_type": content.mime_type,
+                "total_size": bytes.len(),
+                "offset": start,
+                "length": end - start
+            }))
         }
     }
 }

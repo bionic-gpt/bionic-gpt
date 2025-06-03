@@ -212,8 +212,15 @@ async fn save_results(
                 Some(chat.conversation_id),
             )
             .await;
-
             for tool_call in tool_call_results {
+                let result_json = match serde_json::to_string(&tool_call.result) {
+                    Ok(json) => json,
+                    Err(e) => {
+                        tracing::error!("Failed to serialize tool result: {:?}", e);
+                        return;
+                    }
+                };
+
                 if let Err(e) = queries::chats::new_chat()
                     .bind(
                         &transaction,
@@ -221,7 +228,7 @@ async fn save_results(
                         &chat.prompt_id,
                         &Some(tool_call.id),
                         &None::<String>,
-                        &tool_call.result,
+                        &result_json,
                         &ChatRole::Tool,
                         &ChatStatus::Pending,
                     )

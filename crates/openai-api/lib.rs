@@ -265,7 +265,7 @@ pub struct ToolCallResult {
     /// The ID of the tool call we are responding to.
     pub id: String,
     /// This will be the response in json format.
-    pub result: String,
+    pub result: serde_json::Value,
     /// The name of the function that was called.
     pub name: String,
 }

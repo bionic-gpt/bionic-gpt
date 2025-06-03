@@ -13,7 +13,7 @@ impl ToolInterface for TimeDateTool {
         get_time_date_tool()
     }
 
-    async fn execute(&self, arguments: &str) -> Result<String, String> {
+    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
         // Since execute_time_date_tool is synchronous, we can just call it
         // It will be automatically wrapped in a future
         execute_time_date_tool(arguments)
@@ -49,7 +49,7 @@ pub fn get_time_date_tool() -> BionicToolDefinition {
 }
 
 /// Execute the time and date tool with the given arguments
-pub fn execute_time_date_tool(arguments: &str) -> Result<String, String> {
+pub fn execute_time_date_tool(arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
     let args: Value =
         serde_json::from_str(arguments).map_err(|e| format!("Failed to parse arguments: {}", e))?;
 
@@ -84,8 +84,7 @@ pub fn execute_time_date_tool(arguments: &str) -> Result<String, String> {
         "timestamp": now_utc.timestamp(),
         "timezone": timezone,
         "format": format
-    })
-    .to_string())
+    }))
 }
 
 #[cfg(test)]
@@ -102,7 +101,7 @@ mod tests {
     fn test_execute_time_date_tool_valid() {
         let args = r#"{"timezone": "utc", "format": "human_readable"}"#;
         let result = execute_time_date_tool(args).unwrap();
-        let parsed: Value = serde_json::from_str(&result).unwrap();
+        let parsed: Value = result;
 
         assert!(parsed["current_time"].is_string());
         assert!(parsed["timestamp"].is_number());
@@ -114,7 +113,7 @@ mod tests {
     fn test_execute_time_date_tool_iso_format() {
         let args = r#"{"format": "iso"}"#;
         let result = execute_time_date_tool(args).unwrap();
-        let parsed: Value = serde_json::from_str(&result).unwrap();
+        let parsed: Value = result;
 
         assert!(parsed["current_time"].is_string());
         assert_eq!(parsed["format"], "iso");

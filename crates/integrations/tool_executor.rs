@@ -187,7 +187,7 @@ pub async fn execute_tool_call_with_tools(
     ToolCallResult {
         id: tool_call.id.clone(),
         name: tool_call.function.name.clone(),
-        result: json!({"error": "Problem calling tool"}).to_string(),
+        result: json!({"error": "Problem calling tool"}),
     }
 }
 
