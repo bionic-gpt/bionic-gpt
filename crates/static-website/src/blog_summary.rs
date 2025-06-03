@@ -9,7 +9,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2025-02-08",
                     title: "The Future Opportunities for Junior Developers in the Age of AI Coding",
-                    description: "The Future Opportunities for Junior Developers in the Age of AI Coding - An Architects Perspective",
+                    description: "Explore how AI coding tools create new opportunities for junior developers, from an architect's perspective on career growth.",
                     folder: "blog/junior-developers/",
                     markdown: include_str!("../content/blog/junior-developers/index.md"),
                     image: Some("/blog/junior-developers/junior-developer.png"),
@@ -19,7 +19,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-10-10",
                     title: "Real-Time Content Alerting: A Smarter Approach to Monitoring Harmful Content in Large Language Models",
-                    description: "A detailed guide how to set up streaming of content from bionicGPT",
+                    description: "Learn how to implement real-time content monitoring and alerting systems for harmful content in large language models.",
                     folder: "blog/streaming/",
                     markdown: include_str!("../content/blog/streaming/index.md"),
                     image: Some("/blog/streaming/contentMonitoring.png"),
@@ -29,7 +29,7 @@ pub fn summary() -> Summary {
                 Page  {
                     date: "2024-10-10",
                     title: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
-                    description: "The Road to Autonomy: How AI in Software Development Mirrors Autonomous Driving Levels",
+                    description: "Discover how AI in software development follows autonomous driving levels, from basic assistance to full automation.",
                     folder: "blog/ai-coding-automation/",
                     markdown: include_str!("../content/blog/ai-coding-automation/index.md"),
                     image: Some("/blog/ai-coding-automation/llama-coder.jpg"),
@@ -39,7 +39,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-10-09",
                     title: "Create a Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
-                    description: "A Data Lakehouse with Trino, Iceberg, S3, Parquet and Kubernetes",
+                    description: "Build a modern data lakehouse architecture using Trino, Iceberg, S3, Parquet and Kubernetes for scalable analytics.",
                     folder: "blog/ai-lakehouse/",
                     markdown: include_str!("../content/blog/ai-lakehouse/index.md"),
                     image: Some("/blog/ai-lakehouse/lakehouse-architecture.png"),
@@ -59,7 +59,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-09-20",
                     title: "What Are Guardrails",
-                    description: "A guide to AI guardrails, what they are, what they do and the types of guardrail you can implement",
+                    description: "Comprehensive guide to AI guardrails: what they are, how they work, and the different types you can implement for safety.",
                     folder: "blog/guardrails/",
                     markdown: include_str!("../content/blog/guardrails/index.md"),
                     image: Some("/blog/guardrails/guardrails.jpg"),
@@ -69,7 +69,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-08-21",
                     title: "How Enterprises Can Prepare for Generative AI",
-                    description: "A comprehensive guide for businesses to effectively integrate and leverage Generative AI. Emphasising the importance of strategic planning, stakeholder engagement, and infrastructure readiness. Outlining the potential benefits, while cautioning about risks like algorithmic bias and data privacy concerns. Highlighting the need for robust governance, multidisciplinary teams, and continuous monitoring to ensure AI initiatives align with business goals and deliver measurable value.",
+                    description: "Strategic guide for enterprises to integrate Generative AI effectively, covering planning, governance, and risk management.",
                     folder: "blog/preparing-for-gen-ai/",
                     markdown: include_str!("../content/blog/preparing-for-gen-ai/index.md"),
                     image: Some("/blog/preparing-for-gen-ai/enterprise.png"),
@@ -79,7 +79,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-07-16",
                     title: "Create A ChatBot On Your Data",
-                    description: "Create A ChatBot On Your Data",
+                    description: "Step-by-step tutorial to build a custom chatbot using your own data with practical examples and implementation tips.",
                     folder: "blog/api-chatbot/",
                     markdown: include_str!("../content/blog/api-chatbot/index.md"),
                     image: Some("/blog/api-chatbot/chatbot-screenshot.png"),
@@ -89,7 +89,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-07-12",
                     title: "The Perfect RAG Use Case?",
-                    description: "The Perfect RAG Use Case?",
+                    description: "Explore the ideal use case for Retrieval Augmented Generation (RAG) and why code-based applications might be perfect.",
                     folder: "blog/code-rag-usecase/",
                     markdown: include_str!("../content/blog/code-rag-usecase/index.md"),
                     image: Some("/blog/code-rag-usecase/codeimage.png"),
@@ -99,7 +99,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-07-11",
                     title: "Building SaaS applications for highly regulated industries using Confidential Computing",
-                    description: "Building SaaS applications for highly regulated industries using Confidential Computing",
+                    description: "Learn how to build secure SaaS applications for regulated industries using confidential computing and privacy-preserving tech.",
                     folder: "blog/confidential-saas/",
                     markdown: include_str!("../content/blog/confidential-saas/index.md"),
                     image: Some("/blog/confidential-saas/kubernetes.png"),
@@ -109,7 +109,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-05-28",
                     title: "Why companies are banning Chat-GPT",
-                    description: "",
+                    description: "Understand why companies are banning ChatGPT and the security, privacy, and compliance concerns driving these decisions.",
                     folder: "blog/banning-chat-gpt/",
                     markdown: include_str!("../content/blog/banning-chat-gpt/index.md"),
                     image: Some("/blog/banning-chat-gpt/chat-gpt-banned.png"),
@@ -119,7 +119,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2024-04-10",
                     title: "Model Denial of Service prevention for  production LLM applications",
-                    description: "",
+                    description: "Protect your production LLM applications from model denial of service attacks with effective prevention strategies.",
                     folder: "blog/model-denial-of-service/",
                     markdown: include_str!("../content/blog/model-denial-of-service/index.md"),
                     image: Some("/blog/model-denial-of-service/model-denial-of-service.png"),
@@ -129,7 +129,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2023-12-04",
                     title: "bionicGPT Integration with Jupyter",
-                    description: "",
+                    description: "Integrate bionicGPT with Jupyter notebooks for enhanced data science workflows and AI-powered analysis capabilities.",
                     folder: "blog/jupyter/",
                     markdown: include_str!("../content/blog/jupyter/index.md"),
                     image: Some("/blog/jupyter/llama-jupyter.jpg"),
@@ -139,7 +139,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2023-10-30",
                     title: "Hardware requirements for LLM's in production",
-                    description: "What hardware is required to put LLM's into production?",
+                    description: "Complete guide to hardware requirements for deploying large language models in production environments effectively.",
                     folder: "blog/llm-hardware/",
                     markdown: include_str!("../content/blog/llm-hardware/index.md"),
                     image: Some("/blog/llm-hardware/multi-gpu-llm-setup.jpg"),
@@ -149,7 +149,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2023-10-13",
                     title: "Why you don't need a specialist Vector Database",
-                    description: "Questioning the use of adding another database to your system",
+                    description: "Why PostgreSQL with vector extensions might be better than specialized vector databases for most AI applications.",
                     folder: "blog/you-dont-need-a-vector-database/",
                     markdown: include_str!("../content/blog/you-dont-need-a-vector-database/index.md"),
                     image: Some("/blog/you-dont-need-a-vector-database/postgres-vs-vector.jpg"),
@@ -159,7 +159,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2023-10-01",
                     title: "Understanding Quantisation in Large Language Models (LLMs)",
-                    description: "Understanding Quantisation in Large Language Models (LLMs)",
+                    description: "Deep dive into quantization techniques for large language models, reducing memory usage while maintaining performance.",
                     folder: "blog/quantisation/",
                     markdown: include_str!("../content/blog/quantisation/index.md"),
                     image: Some("/blog/quantisation/futuristic-llama.jpg"),
@@ -169,7 +169,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2023-09-21",
                     title: "What is Retrieval Augmented Generation?",
-                    description: "A more low level guide to Retrieval Augmented Generation",
+                    description: "Technical deep-dive into Retrieval Augmented Generation (RAG) architecture, implementation details, and best practices.",
                     folder: "blog/retrieval-augmented-generation/",
                     markdown: include_str!("../content/blog/retrieval-augmented-generation/index.md"),
                     image: Some("/blog/retrieval-augmented-generation/rag-llama.webp"),
