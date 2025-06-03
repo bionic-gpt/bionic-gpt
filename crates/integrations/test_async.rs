@@ -16,11 +16,11 @@ async fn test_async_tool_execution() {
 
     // Verify the result
     assert!(result.is_ok());
-    let result_str = result.unwrap();
-    assert!(result_str.contains("current_time"));
-    assert!(result_str.contains("timestamp"));
-    assert!(result_str.contains("timezone"));
-    assert!(result_str.contains("format"));
+    let result_value = result.unwrap();
+    assert!(result_value["current_time"].is_string());
+    assert!(result_value["timestamp"].is_number());
+    assert!(result_value["timezone"].is_string());
+    assert!(result_value["format"].is_string());
 }
 
 // Test the execute_tool_call_with_tools function
@@ -50,5 +50,5 @@ async fn test_execute_tool_call_with_tools() {
     // Verify the result
     assert_eq!(result.id, "call_123".to_string());
     assert_eq!(result.name, "get_current_time_and_date".to_string());
-    assert!(result.result.contains("current_time"));
+    assert!(result.result["current_time"].is_string());
 }

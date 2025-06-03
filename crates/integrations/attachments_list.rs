@@ -35,7 +35,7 @@ impl ToolInterface for ListAttachmentsTool {
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
-    async fn execute(&self, arguments: &str) -> Result<String, String> {
+    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
         tracing::info!(
             "Executing list_attachments tool with arguments: {}",
             arguments
@@ -50,7 +50,10 @@ impl ToolInterface for ListAttachmentsTool {
             }
             Err(e) => {
                 tracing::error!("Failed to get database client: {}", e);
-                return Err(format!("Failed to get client: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to get database client",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -62,7 +65,10 @@ impl ToolInterface for ListAttachmentsTool {
             }
             Err(e) => {
                 tracing::error!("Failed to create transaction: {}", e);
-                return Err(format!("Failed to create transaction: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to create transaction",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -73,7 +79,10 @@ impl ToolInterface for ListAttachmentsTool {
                 db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await
             {
                 tracing::error!("Failed to set row level security: {}", e);
-                return Err(format!("Failed to set row level security: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to set row level security",
+                    "details": e.to_string()
+                }));
             }
         }
 
@@ -83,7 +92,9 @@ impl ToolInterface for ListAttachmentsTool {
             list_attachments(&transaction, conv_id).await
         } else {
             tracing::warn!("Missing conversation_id for list_attachments");
-            Err("Missing conversation_id".to_string())
+            Err(serde_json::json!({
+                "error": "Missing conversation_id"
+            }))
         };
 
         // Commit transaction
@@ -92,7 +103,10 @@ impl ToolInterface for ListAttachmentsTool {
             Ok(_) => tracing::debug!("Successfully committed transaction"),
             Err(e) => {
                 tracing::error!("Failed to commit transaction: {}", e);
-                return Err(format!("Failed to commit transaction: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to commit transaction",
+                    "details": e.to_string()
+                }));
             }
         }
 
@@ -127,7 +141,7 @@ pub fn get_list_attachments_tool() -> BionicToolDefinition {
 async fn list_attachments(
     transaction: &Transaction<'_>,
     conversation_id: i64,
-) -> Result<String, String> {
+) -> Result<serde_json::Value, serde_json::Value> {
     tracing::info!("Listing attachments for conversation: {}", conversation_id);
 
     // Get all attachments
@@ -143,7 +157,10 @@ async fn list_attachments(
         }
         Err(e) => {
             tracing::error!("Failed to get attachments: {}", e);
-            return Err(format!("Failed to get attachments: {}", e));
+            return Err(serde_json::json!({
+                "error": "Failed to get attachments",
+                "details": e.to_string()
+            }));
         }
     };
 
@@ -162,7 +179,7 @@ async fn list_attachments(
     });
 
     tracing::info!("Successfully listed {} attachments", attachments.len());
-    Ok(result.to_string())
+    Ok(result)
 }
 
 #[cfg(test)]

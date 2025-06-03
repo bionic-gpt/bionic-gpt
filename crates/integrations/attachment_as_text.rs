@@ -48,7 +48,7 @@ impl ToolInterface for AttachmentAsTextTool {
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
-    async fn execute(&self, arguments: &str) -> Result<String, String> {
+    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
         tracing::info!(
             "Executing attachment_as_text tool with arguments: {}",
             arguments
@@ -62,7 +62,10 @@ impl ToolInterface for AttachmentAsTextTool {
             }
             Err(e) => {
                 tracing::error!("Failed to parse arguments: {}", e);
-                return Err(format!("Failed to parse arguments: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to parse arguments",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -75,7 +78,10 @@ impl ToolInterface for AttachmentAsTextTool {
             }
             Err(e) => {
                 tracing::error!("Failed to get database client: {}", e);
-                return Err(format!("Failed to get client: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to get database client",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -87,7 +93,10 @@ impl ToolInterface for AttachmentAsTextTool {
             }
             Err(e) => {
                 tracing::error!("Failed to create transaction: {}", e);
-                return Err(format!("Failed to create transaction: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to create transaction",
+                    "details": e.to_string()
+                }));
             }
         };
 
@@ -98,7 +107,10 @@ impl ToolInterface for AttachmentAsTextTool {
                 db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await
             {
                 tracing::error!("Failed to set row level security: {}", e);
-                return Err(format!("Failed to set row level security: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to set row level security",
+                    "details": e.to_string()
+                }));
             }
         }
 
@@ -123,7 +135,10 @@ impl ToolInterface for AttachmentAsTextTool {
             Ok(_) => tracing::debug!("Successfully committed transaction"),
             Err(e) => {
                 tracing::error!("Failed to commit transaction: {}", e);
-                return Err(format!("Failed to commit transaction: {}", e));
+                return Err(serde_json::json!({
+                    "error": "Failed to commit transaction",
+                    "details": e.to_string()
+                }));
             }
         }
 
@@ -179,7 +194,7 @@ async fn read_attachment(
     id: i32,
     offset: usize,
     max_bytes: Option<u64>,
-) -> Result<String, String> {
+) -> Result<serde_json::Value, serde_json::Value> {
     tracing::info!(
         "Reading attachment id: {}, offset: {}, max_bytes: {:?}",
         id,
@@ -200,7 +215,10 @@ async fn read_attachment(
         }
         Err(e) => {
             tracing::error!("Failed to get attachment content: {}", e);
-            return Err(format!("Failed to get attachment content: {}", e));
+            return Err(serde_json::json!({
+                "error": "Failed to get attachment content",
+                "details": e.to_string()
+            }));
         }
     };
 
@@ -250,7 +268,7 @@ async fn read_attachment(
     });
 
     tracing::info!("Successfully read attachment: {} bytes", end - start);
-    Ok(result.to_string())
+    Ok(result)
 }
 
 #[cfg(test)]

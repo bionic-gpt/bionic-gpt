@@ -221,7 +221,7 @@ async fn save_results(
                         &chat.prompt_id,
                         &Some(tool_call.id),
                         &None::<String>,
-                        &tool_call.result,
+                        &tool_call.result.to_string(),
                         &ChatRole::Tool,
                         &ChatStatus::Pending,
                     )
