@@ -21,19 +21,18 @@ pub fn home_page() -> String {
             section: Section::Home,
 
             div {
-                class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
+                class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
                 VideoHero {
                     video: "https://www.youtube.com/embed/slRiOOM17tM?si=yBb5noZUF44ZIo70",
                     title: "Boost productivity across every team — without compromising data privacy.",
                     subtitle: "Deploy anywhere — on-prem, private cloud, or fully managed by us",
                     claim: "Join hundreds of teams already powering AI with Bionic-GPT"
                 }
+
                 Customers {
-                    class: "mt-24"
                 }
 
                 ProblemSolution {
-                    class: "mt-24",
                     image: "/landing-page/private-deployment.svg",
                     title: "Private, Compliant, and Powerful: AI for the Enterprise",
                     problem: "ChatGPT is powerful — but sending sensitive enterprise data to external servers introduces unacceptable risks: breaches, leaks, and compliance violations.",
@@ -41,7 +40,6 @@ pub fn home_page() -> String {
                 }
 
                 Benefits {
-                    class: "mt-24 mb-24",
                     title: "Benefits",
                     subtitle: "AI Your Teams Will Actually Use — and Trust",
                     benefit1: "Accelerate Generative AI Adoption",
@@ -53,7 +51,6 @@ pub fn home_page() -> String {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
                     title: "Data Governance",
                     sub_title: "Empower Your Teams with Secure AI",
                     text: "No steep learning curves, no complexity — just instant productivity.
@@ -63,7 +60,6 @@ pub fn home_page() -> String {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
                     title: "Retrieval Augmented Generation",
                     sub_title: "Transform Your Data into a Competitive Advantage",
                     text: "Build AI assistants tailored to your needs by training on your unique datasets.
@@ -74,7 +70,6 @@ pub fn home_page() -> String {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
                     title: "Teams",
                     sub_title: "Seamless Integration for Enhanced Collaboration",
                     text: "Empower your teams with AI that works where they do. Bionic-GPT integrates
@@ -85,7 +80,6 @@ pub fn home_page() -> String {
                 }
 
                 SmallImageFeature {
-                    class: "mt-24",
                     title: "Observability and Auditability",
                     sub_title: "Stay in Control with Detailed Insights",
                     text: "Monitor usage, track interactions, and ensure compliance with robust observability and
@@ -95,7 +89,6 @@ pub fn home_page() -> String {
                 }
 
                 Features {
-                    class: "mt-24",
                     title: "Bionic-GPT Features",
                     description: "A comprehensive solution for all your AI needs.",
                     features: vec![
@@ -127,7 +120,6 @@ pub fn home_page() -> String {
                 }
 
                 Testamonials {
-                    class: "mt-24",
                     text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic-GPT’s support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
                     job1: "Data Scientist",
                     person1: "Emmat",
@@ -139,7 +131,6 @@ pub fn home_page() -> String {
                 }
 
                 Faq {
-                    class: "mt-24",
                     questions: vec![
                         FaqText {
                             question: String::from("How does Bionic-GPT ensure data privacy?"),
@@ -165,7 +156,6 @@ pub fn home_page() -> String {
                 }
 
                 Security {
-                    class: "mt-24"
                 }
             }
             Footer {}
