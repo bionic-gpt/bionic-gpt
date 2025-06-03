@@ -1,5 +1,5 @@
 use crate::attachment_as_text::AttachmentAsTextTool;
-use crate::attachment_to_text_converter::AttachmentToTextConverterTool;
+use crate::attachment_to_text_converter::AttachmentChunkTool;
 use crate::attachments_list::ListAttachmentsTool;
 use crate::external_integration::create_tools_from_integrations;
 use crate::time_date::TimeDateTool;
@@ -96,7 +96,7 @@ pub async fn get_tools(
             Some(sub.clone()),
             conversation_id,
         )));
-        tools.push(Arc::new(AttachmentToTextConverterTool::new(
+        tools.push(Arc::new(AttachmentChunkTool::new(
             pool.clone(),
             Some(sub.clone()),
             conversation_id,

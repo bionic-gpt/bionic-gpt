@@ -1,6 +1,6 @@
 // Import the tool trait and time date tool
 use crate::attachment_as_text::get_attachment_as_text_tool;
-use crate::attachment_to_text_converter::get_attachment_to_text_converter_tool;
+use crate::attachment_to_text_converter::get_tool_definition;
 use crate::attachments_list::get_list_attachments_tool;
 use crate::time_date::get_time_date_tool;
 use openai_api::BionicToolDefinition;
@@ -34,12 +34,12 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
             title: "Tools to retrieve documents and read their contents.".into(),
             definitions: vec![
                 get_list_attachments_tool(),
-                get_attachment_to_text_converter_tool(),
+                get_tool_definition(),
                 get_attachment_as_text_tool(),
             ],
             definitions_json: serde_json::to_string_pretty(&vec![
                 get_list_attachments_tool(),
-                get_attachment_to_text_converter_tool(),
+                get_tool_definition(),
                 get_attachment_as_text_tool(),
             ])
             .expect("Failed to serialize attachment tools to JSON"),
