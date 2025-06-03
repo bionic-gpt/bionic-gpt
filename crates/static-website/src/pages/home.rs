@@ -158,7 +158,9 @@ pub fn home_page() -> String {
                 Security {
                 }
             }
-            Footer {}
+            Footer {
+                extra_class: "mt-24"
+            }
         }
     };
 

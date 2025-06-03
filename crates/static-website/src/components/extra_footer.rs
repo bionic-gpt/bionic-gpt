@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 pub fn ExtraFooter(title: String, image: String, cta: String, cta_url: String) -> Element {
     rsx! {
         section {
-            class: "mt-12 flex flex-col items-center text-center p-4 bg-secondary-content",
+            class: "mt-24 flex flex-col items-center text-center p-4 bg-secondary-content",
             h2 {
                 class: "mt-4 mb-4 max-w-lg text-2xl font-bold",
                 "{title}"

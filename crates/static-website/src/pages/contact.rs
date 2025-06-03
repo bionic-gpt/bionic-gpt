@@ -69,7 +69,9 @@ pub fn contact_page() -> String {
                 cta: "Find out more",
                 cta_url: crate::routes::marketing::Index {}.to_string()
             }
-            Footer {}
+            Footer {
+                extra_class: ""
+            }
         }
     };
 

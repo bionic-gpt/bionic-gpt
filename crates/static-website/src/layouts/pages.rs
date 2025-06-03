@@ -17,7 +17,9 @@ pub fn MarkdownPage(post: Page) -> Element {
                     dangerous_inner_html: "{content}"
                 }
             }
-            Footer {}
+            Footer {
+                extra_class: ""
+            }
         }
     }
 }

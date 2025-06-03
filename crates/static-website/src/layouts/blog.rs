@@ -87,7 +87,9 @@ pub fn BlogPost(post: Page) -> Element {
                 cta: "Find out More",
                 cta_url: "/"
             }
-            Footer {}
+            Footer {
+                extra_class: ""
+            }
         }
     }
 }
@@ -152,7 +154,9 @@ pub fn BlogList(summary: Summary) -> Element {
                     }
                 }
             }
-            Footer {}
+            Footer {
+                extra_class: ""
+            }
         }
     }
 }
