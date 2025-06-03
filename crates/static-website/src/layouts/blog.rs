@@ -29,7 +29,8 @@ pub fn BlogPost(post: Page) -> Element {
                     img {
                         width: "44",
                         height: "44",
-                        src: post.author_image
+                        src: post.author_image,
+                        alt: "Author"
                     }
                     div {
                         class: "not-prose flex flex-col pl-2",
@@ -73,7 +74,8 @@ pub fn BlogPost(post: Page) -> Element {
                 }
                 img {
                     class: "mb-8 object-cover h-96 w-full",
-                    src: "{post.image.unwrap()}"
+                    src: "{post.image.unwrap()}",
+                    alt: "{post.title}"
                 }
                 div {
                     dangerous_inner_html: "{content}"
