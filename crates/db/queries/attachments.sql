@@ -32,6 +32,7 @@ WHERE
 --! get_content : AttachmentData
 SELECT
     o.object_data,
+    o.file_name,
     o.mime_type
 FROM
     objects o

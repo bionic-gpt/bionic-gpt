@@ -2,14 +2,11 @@
 //!
 //! This crate provides integration with external services and tools.
 
-pub mod attachment_as_text;
-pub mod attachment_to_text_converter;
-pub mod attachments_list;
 pub mod external_integration;
-pub mod time_date;
 pub mod tool;
 pub mod tool_executor;
 pub mod tool_registry;
+pub mod tools;
 
 #[cfg(test)]
 mod test_async;

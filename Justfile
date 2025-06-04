@@ -18,11 +18,16 @@ chunking-engine-setup:
         --type='json' \
         -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/command"}]'y
 
+expose-chunking-engine:
+    kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/chunking-engine 8000:8000
+
 # Retrieve the cluster kube config - so kubectl and k9s work.
 get-config:
     k3d kubeconfig write k3s-default --kubeconfig-merge-default
 
+# If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
+    CHUNKING_ENGINE=http://localhost:8000 \
     WORKFLOWS_FEATURE=1 \
     mold -run cargo watch --workdir /workspace/ \
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
