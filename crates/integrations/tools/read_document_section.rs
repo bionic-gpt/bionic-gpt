@@ -7,21 +7,21 @@ use serde::Deserialize;
 use serde_json::json;
 
 #[derive(Debug, Deserialize)]
-struct AttachmentChunkParams {
+struct ReadDocumentSectionParams {
     file_id: i32,
     #[serde(default)]
-    chunk_index: usize,
+    section_index: usize,
     #[serde(default)]
-    chunk_count: usize,
+    section_count: usize,
 }
 
-pub struct AttachmentChunkTool {
+pub struct ReadDocumentSectionTool {
     pool: Pool,
     sub: Option<String>,
     _conversation_id: Option<i64>,
 }
 
-impl AttachmentChunkTool {
+impl ReadDocumentSectionTool {
     pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
         Self {
             pool,
@@ -35,8 +35,10 @@ pub fn get_tool_definition() -> BionicToolDefinition {
     BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
-            name: "get_attachment_text_chunks".to_string(),
-            description: Some("Reads one or more consecutive text chunks from a document attachment and returns them with pagination metadata. Chunks are intelligently extracted and represent coherent sections of the original text.".to_string()),
+            name: "read_document_section".to_string(),
+            description: Some(
+                "Reads one or more consecutive text sections from a document attachment and returns them with pagination metadata. Sections represent coherent parts of the original document, automatically extracted and converted to plain text.".to_string(),
+            ),
             parameters: Some(json!({
                 "type": "object",
                 "properties": {
@@ -44,15 +46,15 @@ pub fn get_tool_definition() -> BionicToolDefinition {
                         "type": "integer",
                         "description": "ID of the attachment"
                     },
-                    "chunk_index": {
+                    "section_index": {
                         "type": "integer",
                         "minimum": 0,
-                        "description": "Index of the first chunk to retrieve (starts at 0)"
+                        "description": "Index of the first section to retrieve (starts at 0)"
                     },
-                    "chunk_count": {
+                    "section_count": {
                         "type": "integer",
                         "minimum": 1,
-                        "description": "Number of consecutive chunks to retrieve (default 1)"
+                        "description": "Number of consecutive sections to retrieve (default 1)"
                     }
                 },
                 "required": ["file_id"]
@@ -62,13 +64,13 @@ pub fn get_tool_definition() -> BionicToolDefinition {
 }
 
 #[async_trait]
-impl ToolInterface for AttachmentChunkTool {
+impl ToolInterface for ReadDocumentSectionTool {
     fn get_tool(&self) -> BionicToolDefinition {
         get_tool_definition()
     }
 
     async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let params: AttachmentChunkParams = serde_json::from_str(arguments)
+        let params: ReadDocumentSectionParams = serde_json::from_str(arguments)
             .map_err(|e| json!({ "error": "Invalid parameters", "details": e.to_string() }))?;
 
         let mut client = self.pool.get().await.map_err(
@@ -94,7 +96,7 @@ impl ToolInterface for AttachmentChunkTool {
         let bytes = content.object_data;
 
         let config = rag_engine::config::Config::new();
-        let chunks = document_to_chunks(
+        let sections = document_to_chunks(
             bytes,
             &content.file_name,
             500,
@@ -103,15 +105,15 @@ impl ToolInterface for AttachmentChunkTool {
             &config.unstructured_endpoint,
         )
         .await
-        .map_err(|e| json!({ "error": "Chunking failed", "details": e.to_string() }))?;
+        .map_err(|e| json!({ "error": "Document processing failed", "details": e.to_string() }))?;
 
-        let total_chunks = chunks.len();
-        let start_index = params.chunk_index.min(total_chunks);
-        let count = params.chunk_count.max(1);
-        let end_index = (start_index + count).min(total_chunks);
-        let selected_chunks = &chunks[start_index..end_index];
+        let total_sections = sections.len();
+        let start_index = params.section_index.min(total_sections);
+        let count = params.section_count.max(1);
+        let end_index = (start_index + count).min(total_sections);
+        let selected_sections = &sections[start_index..end_index];
 
-        let combined_text = selected_chunks
+        let combined_text = selected_sections
             .iter()
             .map(|chunk| chunk.text.clone())
             .collect::<Vec<_>>()
@@ -119,10 +121,10 @@ impl ToolInterface for AttachmentChunkTool {
 
         Ok(json!({
             "content": combined_text,
-            "chunk_index": start_index,
-            "chunk_count": selected_chunks.len(),
-            "total_chunks": total_chunks,
-            "has_next": end_index < total_chunks,
+            "section_index": start_index,
+            "section_count": selected_sections.len(),
+            "total_sections": total_sections,
+            "has_next": end_index < total_sections,
             "has_prev": start_index > 0,
             "mime_type": content.mime_type
         }))

@@ -1,9 +1,6 @@
-use crate::attachment_as_text::AttachmentAsTextTool;
-use crate::attachment_to_text_converter::AttachmentChunkTool;
-use crate::attachments_list::ListAttachmentsTool;
 use crate::external_integration::create_tools_from_integrations;
-use crate::time_date::TimeDateTool;
 use crate::tool::ToolInterface;
+use crate::tools;
 use db::{queries::integrations as db_integrations, Pool};
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
@@ -80,27 +77,24 @@ pub async fn get_tools(
     trace!("Getting available tool instances");
 
     // Start with internal tools
-    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(TimeDateTool)];
+    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(tools::time_date::TimeDateTool)];
     debug!("Added TimeDateTool");
 
     // Add the attachment tools if a pool is provided
     if let (Some(pool), Some(sub)) = (pool, sub) {
         debug!("Adding attachment tools with database pool");
-        tools.push(Arc::new(ListAttachmentsTool::new(
+        tools.push(Arc::new(tools::list_documents::ListDocumentsTool::new(
             pool.clone(),
             Some(sub.clone()),
             conversation_id,
         )));
-        tools.push(Arc::new(AttachmentAsTextTool::new(
-            pool.clone(),
-            Some(sub.clone()),
-            conversation_id,
-        )));
-        tools.push(Arc::new(AttachmentChunkTool::new(
-            pool.clone(),
-            Some(sub.clone()),
-            conversation_id,
-        )));
+        tools.push(Arc::new(
+            tools::read_document_section::ReadDocumentSectionTool::new(
+                pool.clone(),
+                Some(sub.clone()),
+                conversation_id,
+            ),
+        ));
 
         // Get external integration tools
         debug!("Getting external integration tools");
@@ -194,7 +188,7 @@ pub async fn execute_tool_call_with_tools(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::time_date::TimeDateTool;
+    use crate::tools::time_date::TimeDateTool;
     use openai_api::{ToolCall, ToolCallFunction};
     use serde_json::json;
 
