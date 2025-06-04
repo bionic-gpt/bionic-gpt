@@ -57,7 +57,7 @@ pub fn Layout(props: LayoutProps) -> Element {
             stylesheets: stylesheets,
             js_href: index_js.name,
             section_class: props.section_class,
-            fav_icon_src: favicon_svg.name,
+            fav_icon_src: bionic_logo_svg.name,
             collapse_svg_src: collapse_svg.name,
             header: rsx!(
                 {props.header}

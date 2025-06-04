@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
-use assets::files::button_select_svg;
-use assets::files::profile_svg;
+use assets::files::{bionic_logo_svg, button_select_svg, profile_svg};
 use daisy_rsx::*;
 use db::queries::teams::Team;
 use dioxus::prelude::*;
@@ -36,9 +35,14 @@ pub fn popup(teams: Vec<(String, String)>, team: Team) -> String {
                 id: "teams-popup",
                 class: "w-full",
                 div {
-                    class: "flex justify-center height-full w-full items-center",
+                    class: "flex gap-2 height-full w-full items-center",
+                    img {
+                        height: "16",
+                        width: "16",
+                        src: bionic_logo_svg.name
+                    }
                     h4 {
-                        "BionicGPT"
+                        "Bionic"
                     }
                 }
             }

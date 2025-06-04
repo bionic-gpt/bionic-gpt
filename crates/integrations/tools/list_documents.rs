@@ -27,6 +27,22 @@ impl ListDocumentsTool {
     }
 }
 
+/// Returns the tool definition for list_documents
+pub fn get_tool_definition() -> BionicToolDefinition {
+    BionicToolDefinition {
+        r#type: "function".to_string(),
+        function: ChatCompletionFunctionDefinition {
+            name: "list_documents".to_string(),
+            description: Some("List all available documents for this conversation, including uploaded files and previously indexed materials.".to_string()),
+            parameters: Some(json!({
+                "type": "object",
+                "properties": {},
+                "required": []
+            })),
+        },
+    }
+}
+
 #[async_trait]
 impl ToolInterface for ListDocumentsTool {
     fn get_tool(&self) -> BionicToolDefinition {
@@ -92,22 +108,6 @@ impl ToolInterface for ListDocumentsTool {
         }
 
         result
-    }
-}
-
-/// Returns the tool definition for list_documents
-pub fn get_tool_definition() -> BionicToolDefinition {
-    BionicToolDefinition {
-        r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
-            name: "list_documents".to_string(),
-            description: Some("List all available documents for this conversation, including uploaded files and previously indexed materials.".to_string()),
-            parameters: Some(json!({
-                "type": "object",
-                "properties": {},
-                "required": []
-            })),
-        },
     }
 }
 
