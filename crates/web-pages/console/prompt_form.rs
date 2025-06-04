@@ -32,8 +32,8 @@ pub fn Form(
         div {
             class: "mx-auto pl-2 pr-2 md:max-w-3xl lg:max-w-160 xl:max-w-3xl",
 
-            div {
-                class: "flex flex-col gap-2 remember w-full p-2 rounded-lg border",
+            Card {
+                class: "flex flex-col gap-2 remember w-full p-2",
                 form {
                     method: "post",
                     action: routes::console::SendMessage{team_id}.to_string(),

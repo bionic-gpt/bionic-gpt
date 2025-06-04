@@ -4,7 +4,8 @@
 
 @source '../web-pages/**/*.rs';
 @source 'typescript/**/*.ts';
-@source inline("modal-box tab-content");
+@source inline("modal modal-box");
+@source inline("tab tabs tab-content");
 
 :root {
     --main-bg-color: #fafbfb;
