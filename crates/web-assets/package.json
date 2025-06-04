@@ -14,6 +14,7 @@
         "@hotwired/turbo": "^7.2.4",
         "@parcel/reporter-bundle-buddy": "2.14.4",
         "@parcel/transformer-sass": "2.14.4",
+        "@tailwindcss/cli": "^4.1.8",
         "@tailwindcss/typography": "^0.5.10",
         "@types/highlightjs": "^9.12.6",
         "buffer": "^6.0.3",
