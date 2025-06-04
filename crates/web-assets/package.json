@@ -14,16 +14,12 @@
         "@hotwired/turbo": "^7.2.4",
         "@parcel/reporter-bundle-buddy": "2.14.4",
         "@parcel/transformer-sass": "2.14.4",
-        "@tailwindcss/cli": "^4.1.8",
-        "@tailwindcss/typography": "^0.5.10",
         "@types/highlightjs": "^9.12.6",
         "buffer": "^6.0.3",
-        "daisyui": "^4.4.2",
         "highlight.js": "^11.9.0",
         "openai": "4.93.0",
         "parcel": "2.14.4",
         "patch-package": "^8.0.0",
-        "process": "^0.11.10",
-        "tailwindcss": "^3.3.5"
+        "process": "^0.11.10"
     }
 }

@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@source '../web-pages/**/*.rs';
+@source 'typescript/**/*.ts';
 
 :root {
     --main-bg-color: #fafbfb;

@@ -26,7 +26,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                 div {
                     a {
                         href: crate::routes::prompts::Index{team_id}.to_string(),
-                        class: "btn btn-ghost btn-sm !font-bold mr-4",
+                        class: "btn btn-ghost btn-sm font-bold! mr-4",
                         "Explore Assistants"
                     }
                     crate::button::Button {
@@ -46,7 +46,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
             }
 
             Card {
-                class: "has-data-table max-w-[64rem] mx-auto",
+                class: "has-data-table max-w-5xl mx-auto",
                 CardHeader {
                     title: "My Assistants"
                 }
