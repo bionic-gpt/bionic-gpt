@@ -8,17 +8,14 @@
 @source inline("tab tabs tab-content");
 @source inline("tooltip tooltip-info");
 
-/** Brand Identity **/
 :root {
+    /** Brand Identity **/
     --color-primary: #3559c7;
 }
 
-/** Stuff we had before, remove carefully **/
-:root {
-    --main-bg-color: #fafbfb;
-    --bg-color-surface: white;
-    --default-border-color: #d8dee4;
-    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+/** Since the tailwinf upgrade cards have no padding **/
+.card-body {
+    @apply p-4;
 }
 
 [data-theme="dark"] {
@@ -47,16 +44,16 @@
 
 
 [data-theme="light"] {
-    .btn-primary {
-        color: white;
-    }
-    
-    table > thead {
-        background-color: #fafbfb;
-    }
 
-    .menu > li > a.active > img {
-        filter: invert(1);
+    --main-bg-color: #fafbfb;
+    --bg-color-surface: white;
+    --default-border-color: #d8dee4;
+
+    /** Make sure SVG's are the correct color **/
+    .menu > li > a.menu-active {
+        > img {
+            filter: invert(1);
+        }
     }
 }
 
@@ -93,17 +90,6 @@
             }
         }
     }
-}
-
-.menu li > *:not(ul):not(.menu-title):not(details):active, 
-.menu li > *:not(ul):not(.menu-title):not(details).active, 
-.menu li > details > summary:active {
-    background-color: var(--color-primary);
-    color: white;
-}
-
-.menu li a {
-    text-decoration: none;
 }
 
 /** Tables **/
@@ -143,11 +129,6 @@
     background-color: rgb(249, 241, 254);
     color: rgb(121, 58, 175);
     border-color: rgb(227,204,244);
-}
-
-/** Alerts **/
-.alert {
-    font-size: 0.9rem;
 }
 
 .alert-danger {

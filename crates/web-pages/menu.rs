@@ -16,7 +16,7 @@ pub fn NavItem(props: MenuProps) -> Element {
     let mut class = "";
     if let (Some(id), Some(selected_item_id)) = (&props.id, &props.selected_item_id) {
         if id == selected_item_id {
-            class = "active";
+            class = "menu-active";
         }
     }
     rsx!(
