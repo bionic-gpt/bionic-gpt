@@ -21,8 +21,6 @@ A team manager role is automatically given to the creator of a team. They have t
 
 ## Restricting the Team Collaborator
 
-Currently we don't have a user interface for RBAC however you can manage it yourself using by [Connecting to the database](http://bionic-gpt.com/docs/administration/db-connecting/).
-
 All the available permissions are stored in the [Enum](https://www.postgresql.org/docs/current/datatype-enum.html) called `permission`.
 
 ### To view the permissions.
