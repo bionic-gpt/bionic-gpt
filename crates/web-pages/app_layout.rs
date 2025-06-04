@@ -1,9 +1,9 @@
 #![allow(non_snake_case)]
 use super::logout_form::LogoutForm;
 use super::snackbar::Snackbar;
+use crate::menu::{NavGroup, NavItem};
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
-use daisy_rsx::{NavGroup, NavItem};
 use db::authz::Rbac;
 use dioxus::prelude::*;
 

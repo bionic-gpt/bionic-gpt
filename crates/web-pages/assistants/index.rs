@@ -4,7 +4,7 @@ use crate::assistants::prompt_card::PromptCard;
 use crate::hero::Hero;
 use crate::routes;
 use assets::files::*;
-use daisy_rsx::*;
+use daisy_rsx::{TabContainer, TabPanel};
 use db::authz::Rbac;
 
 use db::{queries::prompts::Prompt, Category};

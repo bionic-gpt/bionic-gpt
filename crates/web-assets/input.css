@@ -1,8 +1,10 @@
 @import 'tailwindcss';
+@plugin "@tailwindcss/typography";
 @plugin "daisyui";
 
 @source '../web-pages/**/*.rs';
 @source 'typescript/**/*.ts';
+@source inline("modal-box tab-content");
 
 :root {
     --main-bg-color: #fafbfb;
@@ -48,10 +50,6 @@
     .menu > li > a.active > img {
         filter: invert(1);
     }
-}
-
-a {
-    text-decoration: underline;
 }
 
 /** In the chat the first p has margin, we need to remove it **/

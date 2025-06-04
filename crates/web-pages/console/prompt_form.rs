@@ -55,7 +55,7 @@ pub fn Form(
                     div {
                         class: "flex flex-col",
                         TextArea {
-                            class: "pt-3 auto-expand max-h-96 text-sm submit-on-enter resize-none",
+                            class: "pt-3 auto-expand w-full max-h-96 text-sm submit-on-enter resize-none",
                             rows: "1",
                             placeholder: "Ask a question...",
                             name: "message",
