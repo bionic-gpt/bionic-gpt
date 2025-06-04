@@ -6,6 +6,7 @@
 @source 'typescript/**/*.ts';
 @source inline("modal modal-box");
 @source inline("tab tabs tab-content");
+@source inline("tooltip tooltip-info");
 
 :root {
     --main-bg-color: #fafbfb;
