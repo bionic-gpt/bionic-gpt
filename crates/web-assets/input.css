@@ -13,7 +13,7 @@
     --color-primary: #3559c7;
 }
 
-/** Since the tailwinf upgrade cards have no padding **/
+/** Since the tailwind upgrade cards have no padding **/
 .card-body {
     @apply p-4;
 }
@@ -46,14 +46,12 @@
 [data-theme="light"] {
 
     --main-bg-color: #fafbfb;
-    --bg-color-surface: white;
     --default-border-color: #d8dee4;
 
-    /** Make sure SVG's are the correct color **/
+    /** The default menu is a bit scary **/
     .menu > li > a.menu-active {
-        > img {
-            filter: invert(1);
-        }
+        --menu-active-bg: var(--color-base-300);
+        --menu-active-fg: var(--color-base-content);
     }
 }
 
