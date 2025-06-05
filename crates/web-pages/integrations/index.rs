@@ -19,7 +19,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>)
                     crate::button::Button {
                         button_type: crate::button::ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::integrations::Upsert{team_id}.to_string(),
+                        href: routes::integrations::New{team_id}.to_string(),
                         button_scheme: crate::button::ButtonScheme::Primary,
                         "Add Integration"
                     }

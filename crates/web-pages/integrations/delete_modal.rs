@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
+pub fn DeleteModal(team_id: i32, id: i32, trigger_id: String) -> Element {
     rsx! {
         form {
             action: crate::routes::integrations::Delete{team_id, id}.to_string(),
@@ -16,12 +16,12 @@ pub fn DeleteDrawer(team_id: i32, id: i32, trigger_id: String) -> Element {
                         "Delete this Integration?"
                     }
                     div {
+                        class: "flex flex-col",
                         Alert {
                             alert_color: AlertColor::Warn,
                             class: "mb-3",
                             p {
                                 "Are you sure you want to delete this Integration?"
-
                             }
                         }
                         input {
