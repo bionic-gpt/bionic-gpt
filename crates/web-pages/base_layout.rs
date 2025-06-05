@@ -55,12 +55,12 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
         }
         body {
             div {
-                class: "flex h-screen overflow-hidden",
+                class: "flex h-screen bg-base-300",
                 nav {
                     id: "sidebar",
                     class: "
                         fixed
-                        bg-base-200
+                        bg-base-300
                         inset-y-0
                         left-0
                         w-64
@@ -91,7 +91,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                 }
                 turbo-frame {
                     id: "main-content",
-                    class: "flex-1 flex flex-col",
+                    class: "flex-1 flex flex-col bg-base-200 m-2 border border-base-300 shadow",
                     header {
                         class: "flex items-center p-4",
                         button {

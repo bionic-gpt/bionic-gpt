@@ -13,16 +13,21 @@
     --color-primary: #3559c7;
 }
 
-/** Since the tailwind upgrade cards have no padding **/
-.card-body {
-    @apply p-4;
+/** 
+    Since the tailwind upgrade cards have no padding 
+    Also we alaways want a border
+**/
+.card {
+    @apply bg-base-100 border border-base-300;
+    > .card-header {
+        @apply border-b border-base-300 p-4
+    }
+    > .card-body {
+        @apply p-4;
+    }
 }
 
 [data-theme="dark"] {
-    --main-bg-color: #333;
-    --bg-color-surface: 3333;
-    --default-border-color: #606c79;
-
     .menu {
         > li > a > img {
             filter: invert(0.6);
@@ -44,14 +49,13 @@
 
 
 [data-theme="light"] {
-
-    --main-bg-color: #fafbfb;
-    --default-border-color: #d8dee4;
-
     /** The default menu is a bit scary **/
-    .menu > li > a.menu-active {
+    /**.menu > li > a.menu-active {
         --menu-active-bg: var(--color-base-300);
         --menu-active-fg: var(--color-base-content);
+    }**/
+    .menu > li > a.menu-active > img {
+        filter: invert(1);
     }
 }
 
@@ -62,17 +66,6 @@
 
 /** Override daisy cards **/
 .card {
-    border: 1px solid var(--default-border-color);
-    background-color: var(--bg-color-surface);
-    .card-header {
-        border-bottom: 1px solid var(--default-border-color);
-        padding: 1rem;
-
-        > .card-title {
-            font-size: 0.875rem;
-        }
-    }
-
     &.has-data-table {
         .card-header {
             padding-left: 0.75rem;
