@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::routes;
-use assets::files::button_edit_svg;
+use assets::files::{button_edit_svg, menu_delete_svg};
 use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
@@ -14,6 +14,7 @@ pub fn view(
     description: String,
     tool_definitions: Vec<BionicToolDefinition>,
 ) -> String {
+    let modal_trigger = format!("delete-integration-{}", integration.id);
     let page = rsx! {
         Layout {
             section_class: "p-4 max-w-3xl w-full mx-auto",
@@ -48,12 +49,25 @@ pub fn view(
                 }
                 div {
                     class: "flex flex-col justify-center",
-                    crate::button::Button {
-                        button_type: crate::button::ButtonType::Link,
-                        prefix_image_src: "{button_edit_svg.name}",
-                        href: routes::integrations::Edit{team_id, id: integration.id}.to_string(),
-                        button_scheme: crate::button::ButtonScheme::Outline,
-                        "Edit"
+                    div {
+                        class: "flex gap-4",
+                        crate::button::Button {
+                            button_type: crate::button::ButtonType::Link,
+                            prefix_image_src: "{button_edit_svg.name}",
+                            href: routes::integrations::Edit{team_id, id: integration.id}.to_string(),
+                            button_scheme: crate::button::ButtonScheme::Outline,
+                            "Edit"
+                        }
+                        crate::button::Button {
+                            prefix_image_src: "{menu_delete_svg.name}",
+                            modal_trigger: modal_trigger.clone(),
+                            button_scheme: crate::button::ButtonScheme::Danger
+                        }
+                        super::delete_modal::DeleteModal {
+                            team_id: team_id,
+                            id: integration.id,
+                            trigger_id: modal_trigger
+                        }
                     }
                 }
             }
