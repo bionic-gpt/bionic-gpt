@@ -7,6 +7,7 @@
 @source inline("modal modal-box");
 @source inline("tab tabs tab-content");
 @source inline("tooltip tooltip-info");
+@source inline("dropdown dropdown-top dropdown-left");
 
 :root {
     /** Brand Identity **/
