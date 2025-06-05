@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::routes;
+use assets::files::button_edit_svg;
 use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
@@ -24,21 +26,34 @@ pub fn view(
             ),
 
             div {
-                class: "flex",
-                img {
-                    class: "border border-neutral-content rounded p-2",
-                    src: "{logo_url}",
-                    width: "48",
-                    height: "48"
+                class: "flex justify-between",
+                div {
+                    class: "flex",
+                    img {
+                        class: "border border-neutral-content rounded p-2",
+                        src: "{logo_url}",
+                        width: "48",
+                        height: "48"
+                    }
+                    div {
+                        class: "ml-4",
+                        h2 {
+                            class: "text-xl font-semibold",
+                            "{integration.name.clone()}"
+                        }
+                        p {
+                            "{description}"
+                        }
+                    }
                 }
                 div {
-                    class: "ml-4",
-                    h2 {
-                        class: "text-xl font-semibold",
-                        "{integration.name.clone()}"
-                    }
-                    p {
-                        "{description}"
+                    class: "flex flex-col justify-center",
+                    crate::button::Button {
+                        button_type: crate::button::ButtonType::Link,
+                        prefix_image_src: "{button_edit_svg.name}",
+                        href: routes::integrations::Edit{team_id, id: integration.id}.to_string(),
+                        button_scheme: crate::button::ButtonScheme::Outline,
+                        "Edit"
                     }
                 }
             }

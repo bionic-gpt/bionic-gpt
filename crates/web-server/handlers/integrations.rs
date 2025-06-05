@@ -11,7 +11,19 @@ use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::integrations::IntegrationOas3;
 use web_pages::routes::integrations::View;
-use web_pages::routes::integrations::{Delete, Index, Upsert};
+use web_pages::routes::integrations::{Delete, Edit, Index, New};
+
+pub fn routes() -> Router {
+    Router::new()
+        // Loaders
+        .typed_get(loader)
+        .typed_get(view_loader)
+        .typed_get(new_loader)
+        .typed_get(edit_loader)
+        // Actions
+        .typed_post(upsert_action)
+        .typed_post(delete_action)
+}
 
 /// Parses an OpenAPI specification from JSON string.
 ///
@@ -23,15 +35,6 @@ fn parse_openapi_spec(spec_json: &str) -> Result<Json<oas3::OpenApiV3Spec>, Stri
         Ok(spec) => Ok(Json(spec)),
         Err(e) => Err(format!("Invalid OpenAPI JSON: {}", e)),
     }
-}
-
-pub fn routes() -> Router {
-    Router::new()
-        .typed_get(loader)
-        .typed_get(view)
-        .typed_get(new_edit_action)
-        .typed_post(upsert_action)
-        .typed_post(delete_action)
 }
 
 pub async fn loader(
@@ -74,7 +77,7 @@ pub async fn loader(
     Ok(Html(html))
 }
 
-pub async fn view(
+pub async fn view_loader(
     View { team_id, id }: View,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
@@ -127,8 +130,8 @@ pub async fn view(
     Ok(Html(html))
 }
 
-pub async fn new_edit_action(
-    Upsert { team_id }: Upsert,
+pub async fn new_loader(
+    New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -138,6 +141,36 @@ pub async fn new_edit_action(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let integration_form = IntegrationForm::default();
+
+    let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
+
+    Ok(Html(html))
+}
+
+pub async fn edit_loader(
+    Edit { team_id, id }: Edit,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let integration = queries::integrations::integration()
+        .bind(&transaction, &id)
+        .one()
+        .await?;
+
+    let integration_form = if let Some(definition) = &integration.definition {
+        IntegrationForm {
+            id: Some(integration.id),
+            openapi_spec: serde_json::to_string(&definition).unwrap_or("".to_string()),
+            error: None,
+        }
+    } else {
+        IntegrationForm::default()
+    };
 
     let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
 
@@ -167,7 +200,7 @@ pub async fn delete_action(
 }
 
 pub async fn upsert_action(
-    Upsert { team_id }: Upsert,
+    New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(mut integration_form): Form<IntegrationForm>,
