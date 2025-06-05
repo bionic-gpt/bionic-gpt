@@ -9,6 +9,8 @@ pub mod base_layout;
 pub mod button;
 pub mod console;
 pub mod datasets;
+pub mod confirm_modal;
+pub use confirm_modal::ConfirmModal;
 pub mod documents;
 pub mod hero;
 pub mod history;

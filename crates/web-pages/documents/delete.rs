@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
 use dioxus::prelude::*;
+use crate::ConfirmModal;
 
 #[component]
 pub fn DeleteDrawer(
@@ -9,51 +10,16 @@ pub fn DeleteDrawer(
     dataset_id: i32,
     trigger_id: String,
 ) -> Element {
-    rsx! {
-        form {
-            action: crate::routes::documents::Delete{team_id, document_id}.to_string(),
-            method: "post",
-            Modal {
-                trigger_id: trigger_id,
-                ModalBody {
-                    h3 {
-                        class: "font-bold text-lg mb-4",
-                        "Delete this document?"
-                    }
-                    div {
-                        class: "flex flex-col",
-                        Alert {
-                            alert_color: AlertColor::Warn,
-                            class: "mb-3",
-                            p {
-                                "Are you sure you want to delete this document?"
-                            }
-                        }
-                        input {
-                            "type": "hidden",
-                            "name": "team_id",
-                            "value": "{team_id}"
-                        }
-                        input {
-                            "type": "hidden",
-                            "name": "document_id",
-                            "value": "{document_id}"
-                        }
-                        input {
-                            "type": "hidden",
-                            "name": "dataset_id",
-                            "value": "{dataset_id}"
-                        }
-                    }
-                    ModalAction {
-                        Button {
-                            button_type: ButtonType::Submit,
-                            button_scheme: ButtonScheme::Danger,
-                            "Delete Document"
-                        }
-                    }
-                }
-            }
-        }
+    ConfirmModal {
+        action: crate::routes::documents::Delete{team_id, document_id}.to_string(),
+        trigger_id,
+        submit_label: "Delete Document".to_string(),
+        heading: "Delete this document?".to_string(),
+        warning: "Are you sure you want to delete this document?".to_string(),
+        hidden_fields: vec![
+            ("team_id".into(), team_id.to_string()),
+            ("document_id".into(), document_id.to_string()),
+            ("dataset_id".into(), dataset_id.to_string()),
+        ],
     }
 }

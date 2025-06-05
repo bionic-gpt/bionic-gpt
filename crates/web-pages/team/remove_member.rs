@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
 use dioxus::prelude::*;
+use crate::ConfirmModal;
 
 #[component]
 pub fn RemoveMemberDrawer(
@@ -9,46 +10,15 @@ pub fn RemoveMemberDrawer(
     user_id: i32,
     trigger_id: String,
 ) -> Element {
-    rsx! {
-        form {
-            action: crate::routes::team::Delete{team_id}.to_string(),
-            method: "post",
-            Modal {
-                trigger_id: &trigger_id,
-                ModalBody {
-                    h3 {
-                        class: "font-bold text-lg mb-4",
-                        "Remove this user?"
-                    }
-                    div {
-                        class: "flex flex-col",
-                        Alert {
-                            alert_color: AlertColor::Warn,
-                            class: "mb-3",
-                            h4 {
-                                "Are you sure you want to remove '{email}' from the team?"
-                            }
-                        }
-                        input {
-                            "type": "hidden",
-                            "name": "team_id",
-                            "value": "{team_id}"
-                        }
-                        input {
-                            "type": "hidden",
-                            "name": "user_id",
-                            "value": "{user_id}"
-                        }
-                    }
-                    ModalAction {
-                        Button {
-                            button_type: ButtonType::Submit,
-                            button_scheme: ButtonScheme::Danger,
-                            "Remove User"
-                        }
-                    }
-                }
-            }
-        }
+    ConfirmModal {
+        action: crate::routes::team::Delete{team_id}.to_string(),
+        trigger_id,
+        submit_label: "Remove User".to_string(),
+        heading: "Remove this user?".to_string(),
+        warning: format!("Are you sure you want to remove '{email}' from the team?"),
+        hidden_fields: vec![
+            ("team_id".into(), team_id.to_string()),
+            ("user_id".into(), user_id.to_string()),
+        ],
     }
 }
