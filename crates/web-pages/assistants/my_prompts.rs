@@ -32,7 +32,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                     crate::button::Button {
                         button_type: crate::button::ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::prompts::Upsert{team_id}.to_string(),
+                        href: routes::prompts::New{team_id}.to_string(),
                         button_scheme: crate::button::ButtonScheme::Primary,
                         "New Assistant"
                     }
