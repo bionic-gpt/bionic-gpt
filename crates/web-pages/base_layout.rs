@@ -77,7 +77,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         lg:transform-none
                         z-20",
                     div {
-                        class: "flex items-center p-4",
+                        class: "flex items-center pl-2 pt-2",
                         {props.sidebar_header}
                     }
                     div {
@@ -85,13 +85,13 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         {props.sidebar}
                     }
                     div {
-                        class: "p-4",
+                        class: "pb-2 pl-2",
                         {props.sidebar_footer}
                     }
                 }
                 turbo-frame {
                     id: "main-content",
-                    class: "flex-1 flex flex-col bg-base-200 m-2 border border-base-300 shadow",
+                    class: "flex-1 flex flex-col bg-base-200 m-2 border border-base-300 shadow  overflow-x-hidden",
                     header {
                         class: "flex items-center p-4",
                         button {
