@@ -7,6 +7,14 @@ use reqwest::Client;
 use serde_json::Value;
 use std::sync::Arc;
 
+/// Create a JSON error object with a message and details
+fn json_error(kind: &str, err: impl ToString) -> serde_json::Value {
+    serde_json::json!({
+        "error": kind,
+        "details": err.to_string(),
+    })
+}
+
 /// Result of parsing an OpenAPI specification for tool creation
 pub struct IntegrationTools {
     pub tool_definitions: Vec<BionicToolDefinition>,
@@ -331,12 +339,8 @@ impl ToolInterface for ExternalIntegrationTool {
         let (path, method, operation) = self.find_operation_details()?;
 
         // Parse arguments
-        let args: Value = serde_json::from_str(arguments).map_err(|e| {
-            serde_json::json!({
-                "error": "Failed to parse arguments",
-                "details": e.to_string()
-            })
-        })?;
+        let args: Value = serde_json::from_str(arguments)
+            .map_err(|e| json_error("Failed to parse arguments", e))?;
 
         // Substitute path parameters in the URL
         let path_with_params = substitute_path_parameters(&path, &args, operation)?;
@@ -353,12 +357,12 @@ impl ToolInterface for ExternalIntegrationTool {
                 // or if there are additional non-path parameters
                 if path.contains('{') && path_with_params != path {
                     // We substituted path parameters, so make a simple GET request
-                    self.client.get(&url).send().await.map_err(|e| {
-                        serde_json::json!({
-                            "error": "Failed to make GET request",
-                            "details": e.to_string()
-                        })
-                    })?
+                    self
+                        .client
+                        .get(&url)
+                        .send()
+                        .await
+                        .map_err(|e| json_error("Failed to make GET request", e))?
                 } else {
                     // No path parameters, send as before
                     self.client
@@ -366,12 +370,7 @@ impl ToolInterface for ExternalIntegrationTool {
                         .json(&args)
                         .send()
                         .await
-                        .map_err(|e| {
-                            serde_json::json!({
-                                "error": "Failed to make GET request",
-                                "details": e.to_string()
-                            })
-                        })?
+                        .map_err(|e| json_error("Failed to make GET request", e))?
                 }
             }
             "POST" => self
@@ -380,36 +379,21 @@ impl ToolInterface for ExternalIntegrationTool {
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| {
-                    serde_json::json!({
-                        "error": "Failed to make POST request",
-                        "details": e.to_string()
-                    })
-                })?,
+                .map_err(|e| json_error("Failed to make POST request", e))?,
             "PUT" => self
                 .client
                 .put(&url)
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| {
-                    serde_json::json!({
-                        "error": "Failed to make PUT request",
-                        "details": e.to_string()
-                    })
-                })?,
+                .map_err(|e| json_error("Failed to make PUT request", e))?,
             "DELETE" => self
                 .client
                 .delete(&url)
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| {
-                    serde_json::json!({
-                        "error": "Failed to make DELETE request",
-                        "details": e.to_string()
-                    })
-                })?,
+                .map_err(|e| json_error("Failed to make DELETE request", e))?,
             _ => {
                 return Err(serde_json::json!({
                     "error": "Unsupported HTTP method",
@@ -427,12 +411,10 @@ impl ToolInterface for ExternalIntegrationTool {
         }
 
         // Parse the response
-        let response_text = response.text().await.map_err(|e| {
-            serde_json::json!({
-                "error": "Failed to read response",
-                "details": e.to_string()
-            })
-        })?;
+        let response_text = response
+            .text()
+            .await
+            .map_err(|e| json_error("Failed to read response", e))?;
 
         // Try to parse as JSON, fallback to text if it fails
         match serde_json::from_str::<serde_json::Value>(&response_text) {
