@@ -30,15 +30,22 @@ fn extract_operation_parameters(operation: &Operation) -> Option<Value> {
     let mut properties = serde_json::Map::new();
     let mut required = Vec::new();
 
-    // For now, let's create a simple implementation that works with the basic case
-    // We'll iterate through parameters and create a basic JSON schema
+    // Iterate through parameters and convert them to JSON schema properties
     for param in &operation.parameters {
         // Try to extract parameter information using serde_json serialization
         if let Ok(param_value) = serde_json::to_value(param) {
             if let Some(param_obj) = param_value.as_object() {
                 if let Some(name) = param_obj.get("name").and_then(|n| n.as_str()) {
-                    let mut property = serde_json::Map::new();
-                    property.insert("type".to_string(), Value::String("string".to_string()));
+                    // Determine the property definition from the parameter schema
+                    let mut property = if let Some(Value::Object(schema_obj)) =
+                        param_obj.get("schema")
+                    {
+                        schema_obj.clone()
+                    } else {
+                        let mut map = serde_json::Map::new();
+                        map.insert("type".to_string(), Value::String("string".to_string()));
+                        map
+                    };
 
                     if let Some(description) = param_obj.get("description").and_then(|d| d.as_str())
                     {
@@ -566,6 +573,27 @@ mod tests {
         serde_json::from_value(spec_json).unwrap()
     }
 
+    fn create_numeric_boolean_spec() -> oas3::OpenApiV3Spec {
+        let spec_json = json!({
+            "openapi": "3.0.3",
+            "info": {"title": "Numeric and Boolean", "version": "1.0"},
+            "paths": {
+                "/items": {
+                    "get": {
+                        "operationId": "getItems",
+                        "parameters": [
+                            {"in": "query", "name": "limit", "required": true, "schema": {"type": "integer"}},
+                            {"in": "query", "name": "active", "required": false, "schema": {"type": "boolean"}}
+                        ],
+                        "responses": {"200": {"description": "ok"}}
+                    }
+                }
+            }
+        });
+
+        serde_json::from_value(spec_json).unwrap()
+    }
+
     #[test]
     fn test_create_tool_definitions_uses_operation_id() {
         let spec = create_test_openapi_spec();
@@ -745,5 +773,26 @@ mod tests {
         assert!(result
             .unwrap_err()
             .contains("Missing required path parameter: id"));
+    }
+
+    #[test]
+    fn test_numeric_and_boolean_parameter_types() {
+        let spec = create_numeric_boolean_spec();
+        let integration_tools = create_tool_definitions_from_spec(spec);
+
+        let tool = integration_tools
+            .tool_definitions
+            .iter()
+            .find(|t| t.function.name == "getItems")
+            .expect("getItems tool should exist");
+
+        let params = tool
+            .function
+            .parameters
+            .as_ref()
+            .expect("parameters should be present");
+
+        assert_eq!(params["properties"]["limit"]["type"], "integer");
+        assert_eq!(params["properties"]["active"]["type"], "boolean");
     }
 }
