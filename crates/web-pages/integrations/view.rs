@@ -26,7 +26,7 @@ pub fn view(
             div {
                 class: "flex",
                 img {
-                    class: "border rounded p-2",
+                    class: "border border-neutral-content rounded p-2",
                     src: "{logo_url}",
                     width: "48",
                     height: "48"
@@ -52,18 +52,18 @@ pub fn view(
 
             if !tool_definitions.is_empty() {
                 for tool in tool_definitions {
-                    details { class: "card mt-5",
+                    details { class: "card mt-5 text-sm",
                         summary {
                             class: "cursor-pointer px-4 py-3 flex items-center justify-between",
                             div {
                                 class: "flex",
                                 div {
-                                    class: "",
+                                    class: "flex flex-col justify-center",
                                     img {
-                                        class: "border rounded p-1",
+                                        class: "border border-neutral-content  rounded p-1",
                                         src: "{logo_url}",
-                                        width: "24",
-                                        height: "24"
+                                        width: "32",
+                                        height: "32"
                                     }
                                 }
                                 div {
