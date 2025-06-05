@@ -4,6 +4,7 @@ use oas3::{self, spec::Operation};
 
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use reqwest::Client;
+use url::Url;
 use serde_json::Value;
 use std::sync::Arc;
 
@@ -341,38 +342,67 @@ impl ToolInterface for ExternalIntegrationTool {
         // Substitute path parameters in the URL
         let path_with_params = substitute_path_parameters(&path, &args, operation)?;
 
-        // Construct the final URL
-        let url = format!("{}{}", self.base_url, path_with_params);
+        // Collect remaining arguments to be used as query parameters
+        let mut query_args = serde_json::Map::new();
+        if let Some(obj) = args.as_object() {
+            // Determine which parameters were used for the path
+            let mut path_params = std::collections::HashSet::new();
+            for param in &operation.parameters {
+                if let Ok(param_value) = serde_json::to_value(param) {
+                    if let Some(param_obj) = param_value.as_object() {
+                        if param_obj
+                            .get("in")
+                            .and_then(|l| l.as_str())
+                            .map(|l| l == "path")
+                            .unwrap_or(false)
+                        {
+                            if let Some(name) = param_obj.get("name").and_then(|n| n.as_str()) {
+                                path_params.insert(name.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (k, v) in obj {
+                if !path_params.contains(k) {
+                    query_args.insert(k.clone(), v.clone());
+                }
+            }
+        }
+
+        // Construct the final URL and append query parameters
+        let mut url = Url::parse(&format!("{}{}", self.base_url, path_with_params))
+            .map_err(|e| {
+                serde_json::json!({
+                    "error": "Failed to parse URL",
+                    "details": e.to_string()
+                })
+            })?;
+
+        if !query_args.is_empty() {
+            let mut pairs = url.query_pairs_mut();
+            for (k, v) in &query_args {
+                let value = match v {
+                    Value::String(s) => s.clone(),
+                    Value::Number(n) => n.to_string(),
+                    Value::Bool(b) => b.to_string(),
+                    _ => v.to_string(),
+                };
+                pairs.append_pair(k, &value);
+            }
+        }
         tracing::debug!("Making request to URL: {} using method: {}", url, method);
 
         // Make the request based on the HTTP method
-        // For GET requests, don't send JSON body if we have path parameters
         let response = match method.to_uppercase().as_str() {
             "GET" => {
-                // For GET requests, only send JSON body if there are no path parameters
-                // or if there are additional non-path parameters
-                if path.contains('{') && path_with_params != path {
-                    // We substituted path parameters, so make a simple GET request
-                    self.client.get(&url).send().await.map_err(|e| {
-                        serde_json::json!({
-                            "error": "Failed to make GET request",
-                            "details": e.to_string()
-                        })
-                    })?
-                } else {
-                    // No path parameters, send as before
-                    self.client
-                        .get(&url)
-                        .json(&args)
-                        .send()
-                        .await
-                        .map_err(|e| {
-                            serde_json::json!({
-                                "error": "Failed to make GET request",
-                                "details": e.to_string()
-                            })
-                        })?
-                }
+                self.client.get(url).send().await.map_err(|e| {
+                    serde_json::json!({
+                        "error": "Failed to make GET request",
+                        "details": e.to_string()
+                    })
+                })?
             }
             "POST" => self
                 .client
@@ -745,5 +775,55 @@ mod tests {
         assert!(result
             .unwrap_err()
             .contains("Missing required path parameter: id"));
+    }
+
+    #[tokio::test]
+    async fn test_execute_appends_query_parameters() {
+        use axum::{routing::get, Router};
+        use axum::extract::{Path, Query};
+        use axum::Json;
+        use serde_json::json;
+        use std::collections::HashMap;
+        use tokio::net::TcpListener;
+
+        async fn handler(Path(id): Path<String>, Query(params): Query<HashMap<String, String>>) -> Json<Value> {
+            Json(json!({ "id": id, "query": params }))
+        }
+
+        let app = Router::new().route("/api/forces/:id", get(handler));
+
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            axum::Server::from_tcp(listener)
+                .unwrap()
+                .serve(app.into_make_service())
+                .await
+                .unwrap();
+        });
+
+        let spec = create_uk_police_api_spec();
+        let tool_def = BionicToolDefinition {
+            r#type: "function".to_string(),
+            function: ChatCompletionFunctionDefinition {
+                name: "getPoliceForceDetails".to_string(),
+                description: Some("Get details".to_string()),
+                parameters: None,
+            },
+        };
+
+        let tool = ExternalIntegrationTool::new(
+            tool_def,
+            format!("http://{}", addr),
+            spec,
+            "getPoliceForceDetails".to_string(),
+        );
+
+        let result = tool
+            .execute(r#"{"id": "leicestershire", "foo": "bar"}"#)
+            .await
+            .unwrap();
+        assert_eq!(result["id"], "leicestershire");
+        assert_eq!(result["query"]["foo"], "bar");
     }
 }
