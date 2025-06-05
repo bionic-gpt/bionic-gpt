@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>) -> String {
     let page = rsx! {
         Layout {
-            section_class: "p-4 max-w-3xl w-full mx-auto",
+            section_class: "p-4",
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac.clone(),
@@ -26,9 +26,12 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>)
                 }
             ),
 
-            super::integration_cards::IntegrationCards {
-                integrations: integrations.clone(),
-                team_id: team_id
+            div {
+                class: "p-4 max-w-3xl w-full mx-auto",
+                super::integration_cards::IntegrationCards {
+                    integrations: integrations.clone(),
+                    team_id: team_id
+                }
             }
         }
     };
