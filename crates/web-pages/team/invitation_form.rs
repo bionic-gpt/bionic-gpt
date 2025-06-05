@@ -9,10 +9,13 @@ pub fn InvitationForm(submit_action: String) -> Element {
         form {
             method: "post",
             action: "{submit_action}",
-            Drawer {
-                label: "Invite people into your team.",
+            Modal {
                 trigger_id: "create-invite-form",
-                DrawerBody {
+                ModalBody {
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "Invite people into your team."
+                    }
                     div {
                         class: "flex flex-col",
                         Input {
@@ -58,12 +61,12 @@ pub fn InvitationForm(submit_action: String) -> Element {
                             }
                         }
                     }
-                }
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Send Invitation"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            "Send Invitation"
+                        }
                     }
                 }
             }

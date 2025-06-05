@@ -21,10 +21,14 @@ pub fn Upsert(
         form {
             action: crate::routes::datasets::Upsert{team_id}.to_string(),
             method: "post",
-            Drawer {
-                label: "Dataset",
+            Modal {
                 trigger_id,
-                DrawerBody {
+                ModalBody {
+                    class: "flex flex-col justify-between md:w-full max-w-5xl h-full",
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "Dataset"
+                    }
                     TabContainer {
                         TabPanel {
                             checked: true,
@@ -147,13 +151,13 @@ pub fn Upsert(
                             }
                         }
                     }
-                }
 
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Save"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            "Save"
+                        }
                     }
                 }
             }
