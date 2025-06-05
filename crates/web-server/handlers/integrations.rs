@@ -21,7 +21,8 @@ pub fn routes() -> Router {
         .typed_get(new_loader)
         .typed_get(edit_loader)
         // Actions
-        .typed_post(upsert_action)
+        .typed_post(new_action)
+        .typed_post(edit_action)
         .typed_post(delete_action)
 }
 
@@ -199,7 +200,71 @@ pub async fn delete_action(
     )
 }
 
-pub async fn upsert_action(
+pub async fn edit_action(
+    Edit { team_id, id }: Edit,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+    Form(mut integration_form): Form<IntegrationForm>,
+) -> Result<impl IntoResponse, CustomError> {
+    // Create a transaction and setup RLS
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let integration_type = db::IntegrationType::OpenAPI;
+
+    // Parse the OpenAPI specification from the provided JSON
+    let (definition, integration_status, integration_name) =
+        match parse_openapi_spec(&integration_form.openapi_spec) {
+            Ok(spec) => {
+                // Extract the name from the OpenAPI spec's info.title field
+                let name = spec.0.info.title.clone();
+                (Some(spec), db::IntegrationStatus::Configured, name)
+            }
+            Err(error) => {
+                // If there's an error, return to the form with the error message
+                integration_form.error = Some(error);
+                let html =
+                    web_pages::integrations::upsert::page(team_id, permissions, integration_form);
+                return Ok(Html(html).into_response());
+            }
+        };
+
+    // No configuration needed since we're not storing base URL anymore
+    let configuration: Option<Json<serde_json::Value>> = None;
+
+    match integration_form.validate() {
+        Ok(_) => {
+            // The form is valid, update the integration
+            queries::integrations::update()
+                .bind(
+                    &transaction,
+                    &integration_name,
+                    &configuration, // configuration
+                    &definition,    // definition
+                    &integration_type,
+                    &integration_status,
+                    &id,
+                )
+                .await?;
+
+            transaction.commit().await?;
+
+            Ok(crate::layout::redirect_and_snackbar(
+                &web_pages::routes::integrations::Index { team_id }.to_string(),
+                "Integration Updated",
+            )
+            .into_response())
+        }
+        Err(_) => Ok(crate::layout::redirect_and_snackbar(
+            &web_pages::routes::integrations::Index { team_id }.to_string(),
+            "Problem with Integration Validation",
+        )
+        .into_response()),
+    }
+}
+
+pub async fn new_action(
     New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
@@ -232,30 +297,8 @@ pub async fn upsert_action(
     // No configuration needed since we're not storing base URL anymore
     let configuration: Option<Json<serde_json::Value>> = None;
 
-    match (integration_form.validate(), integration_form.id) {
-        (Ok(_), Some(integration_id)) => {
-            // The form is valid, update the integration
-            queries::integrations::update()
-                .bind(
-                    &transaction,
-                    &integration_name,
-                    &configuration, // configuration
-                    &definition,    // definition
-                    &integration_type,
-                    &integration_status,
-                    &integration_id,
-                )
-                .await?;
-
-            transaction.commit().await?;
-
-            Ok(crate::layout::redirect_and_snackbar(
-                &web_pages::routes::integrations::Index { team_id }.to_string(),
-                "Integration Updated",
-            )
-            .into_response())
-        }
-        (Ok(_), None) => {
+    match integration_form.validate() {
+        Ok(_) => {
             // The form is valid, create a new integration
             queries::integrations::insert()
                 .bind(
@@ -277,7 +320,7 @@ pub async fn upsert_action(
             )
             .into_response())
         }
-        (Err(_), _) => Ok(crate::layout::redirect_and_snackbar(
+        Err(_) => Ok(crate::layout::redirect_and_snackbar(
             &web_pages::routes::integrations::Index { team_id }.to_string(),
             "Problem with Integration Validation",
         )
