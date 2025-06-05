@@ -5,10 +5,13 @@ use dioxus::prelude::*;
 #[component]
 pub fn RemoveMemberWarningDrawer(trigger_id: String) -> Element {
     rsx! {
-        Drawer {
-            label: "A vault must have at least one admin user",
+        Modal {
             trigger_id: &trigger_id,
-            DrawerBody {
+            ModalBody {
+                h3 {
+                    class: "font-bold text-lg mb-4",
+                    "A vault must have at least one admin user"
+                }
                 div {
                     class: "flex flex-col",
                     Alert {
@@ -19,8 +22,6 @@ pub fn RemoveMemberWarningDrawer(trigger_id: String) -> Element {
                         }
                     }
                 }
-            }
-            DrawerFooter {
             }
         }
     }

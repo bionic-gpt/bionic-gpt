@@ -85,7 +85,7 @@ pub fn WorkflowCards(workflows: Vec<Workflow>, team_id: i32) -> Element {
                         div {
                             class: "flex items-start gap-4",
                             img {
-                                class: "border rounded p-2 flex-shrink-0",
+                                class: "border rounded p-2 shrink-0",
                                 src: get_workflow_icon("Social Media"),
                                 width: "48",
                                 height: "48",

@@ -1,19 +1,34 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+@plugin "daisyui";
+
+@source '../web-pages/**/*.rs';
+@source 'typescript/**/*.ts';
+@source inline("modal modal-box");
+@source inline("tab tabs tab-content");
+@source inline("tooltip tooltip-info");
+@source inline("dropdown dropdown-top dropdown-left");
 
 :root {
-    --main-bg-color: #fafbfb;
-    --bg-color-surface: white;
-    --default-border-color: #d8dee4;
-    --header-box-shadow: rgba(12, 12, 12, 0.05) 0px 1px 5px 0px;
+    /** Brand Identity **/
+    --color-primary: #3559c7;
+}
+
+/** 
+    Since the tailwind upgrade cards have no padding 
+    Also we alaways want a border
+**/
+.card {
+    @apply bg-base-100 border border-base-300;
+    > .card-header {
+        @apply border-b border-base-300 p-4
+    }
+    > .card-body {
+        @apply p-4;
+    }
 }
 
 [data-theme="dark"] {
-    --main-bg-color: #333;
-    --bg-color-surface: 3333;
-    --default-border-color: #606c79;
-
     .menu {
         > li > a > img {
             filter: invert(0.6);
@@ -35,21 +50,14 @@
 
 
 [data-theme="light"] {
-    .btn-primary {
-        color: white;
-    }
-    
-    table > thead {
-        background-color: #fafbfb;
-    }
-
-    .menu > li > a.active > img {
+    /** The default menu is a bit scary **/
+    /**.menu > li > a.menu-active {
+        --menu-active-bg: var(--color-base-300);
+        --menu-active-fg: var(--color-base-content);
+    }**/
+    .menu > li > a.menu-active > img {
         filter: invert(1);
     }
-}
-
-a {
-    text-decoration: underline;
 }
 
 /** In the chat the first p has margin, we need to remove it **/
@@ -59,17 +67,6 @@ a {
 
 /** Override daisy cards **/
 .card {
-    border: 1px solid var(--default-border-color);
-    background-color: var(--bg-color-surface);
-    .card-header {
-        border-bottom: 1px solid var(--default-border-color);
-        padding: 1rem;
-
-        > .card-title {
-            font-size: 0.875rem;
-        }
-    }
-
     &.has-data-table {
         .card-header {
             padding-left: 0.75rem;
@@ -85,33 +82,6 @@ a {
             }
         }
     }
-}
-
-/** Override daisy buttons **/
-.btn {
-    font-weight: 400;
-}
-
-.btn-default {
-    border: 1px solid var(--default-border-color);
-    background-color: var(--bg-color-surface);
-    box-shadow: rgba(12, 12, 12, 0.09) 0px 1px 3px 0px;
-
-    &:hover {
-        border: 1px solid black;
-        background-color: var(--bg-color-surface);
-    }
-}
-
-.menu li > *:not(ul):not(.menu-title):not(details):active, 
-.menu li > *:not(ul):not(.menu-title):not(details).active, 
-.menu li > details > summary:active {
-    background-color: #3559c7;
-    color: white;
-}
-
-.menu li a {
-    text-decoration: none;
 }
 
 /** Tables **/
@@ -151,11 +121,6 @@ a {
     background-color: rgb(249, 241, 254);
     color: rgb(121, 58, 175);
     border-color: rgb(227,204,244);
-}
-
-/** Alerts **/
-.alert {
-    font-size: 0.9rem;
 }
 
 .alert-danger {

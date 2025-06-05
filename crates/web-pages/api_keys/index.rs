@@ -163,9 +163,12 @@ fn OpenAICompatibility() -> Element {
         // OpenAI API Compatibility Card
         Card {
             class: "mt-8 mb-8",
+            CardHeader {
+                title: "OpenAI API"
+            }
             CardBody {
-                h2 { class: "card-title", "OpenAI API Compatibility" }
-                p { "Our API is compatible with the OpenAI completionbs API, allowing seamless integration with existing projects and tools." }
+                class: "p-5",
+                p { "Our API is compatible with the OpenAI completions API, allowing seamless integration with existing projects and tools." }
                 ul { class: "list-disc list-inside mt-4",
                     li { "Use the same endpoints and parameters as OpenAI" }
                     li { "Easy migration from OpenAI to our service" }
@@ -184,6 +187,7 @@ fn CodeExamples() -> Element {
                 title: "API Usage Example"
             }
             CardBody {
+                class: "p-5",
                 p {
                     ""
                 }
@@ -220,11 +224,11 @@ fn KeySelector() -> Element {
             class: "grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 mt-8",
             // Assistant Key Card
             Card {
+                CardHeader {
+                    title: "Assistant Key"
+                }
                 CardBody {
-                    h2 {
-                        class: "card-title",
-                        "Assistant Key"
-                    }
+                    class: "p-5",
                     p { "Turn any of your assistants into an API" }
                     ul { class: "list-disc list-inside mt-4",
                         li { "Access to pre-configured AI assistants" }
@@ -242,8 +246,11 @@ fn KeySelector() -> Element {
 
             // Model Key Card
             Card {
+                CardHeader {
+                    title: "Model Key"
+                }
                 CardBody {
-                    h2 { class: "card-title", "Model Key" }
+                    class: "p-5",
                     p { "Use existing models for your own projects" }
                     ul { class: "list-disc list-inside mt-4",
                         li { "Full control over AI model parameters" }

@@ -12,14 +12,17 @@ pub fn PromptDrawer(
     rbac: Rbac,
 ) -> Element {
     rsx! {
-        Drawer {
-            label: "Full Prompt",
+        Modal {
             trigger_id: &trigger_id,
-            DrawerBody {
-                class: "prose prose-sm",
+            ModalBody {
+                class: "prose prose-sm max-w-4xl",
+                h3 {
+                    class: "font-bold text-lg mb-4",
+                    "Full Prompt"
+                }
                 if rbac.can_view_system_prompt() {
                     pre {
-                        class: "json",
+                        class: "json bg-gray-100 p-4 rounded overflow-auto max-h-96",
                         "{prompt}"
                     }
                 } else {
@@ -31,10 +34,12 @@ pub fn PromptDrawer(
 
                 if ! chunks.is_empty() {
                     h4 {
+                        class: "mt-6 mb-3",
                         "Context provided to the prompt from your documents"
                     }
 
                     ol {
+                        class: "space-y-1",
                         for chunk in chunks {
                             li {
                                 "A section from Page {chunk.page_number} in file {chunk.file_name}."
@@ -42,8 +47,6 @@ pub fn PromptDrawer(
                         }
                     }
                 }
-            }
-            DrawerFooter {
             }
         }
     }

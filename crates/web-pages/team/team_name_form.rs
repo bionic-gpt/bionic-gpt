@@ -9,10 +9,13 @@ pub fn TeamNameForm(submit_action: String) -> Element {
             method: "post",
             "data-turbo-frame": "_top",
             action: "{submit_action}",
-            Drawer {
-                label: "Set Team Name",
+            Modal {
                 trigger_id: "set-name-drawer",
-                DrawerBody {
+                ModalBody {
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "Set Team Name"
+                    }
                     div {
                         class: "flex flex-col",
                         Input {
@@ -24,12 +27,12 @@ pub fn TeamNameForm(submit_action: String) -> Element {
                             name: "name"
                         }
                     }
-                }
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Set Team Name"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            "Set Team Name"
+                        }
                     }
                 }
             }

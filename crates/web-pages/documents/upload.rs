@@ -9,10 +9,13 @@ pub fn Upload(upload_action: String) -> Element {
             action: "{upload_action}",
             method: "post",
             enctype: "multipart/form-data",
-            Drawer {
-                label: "Upload a file into this dataset",
+            Modal {
                 trigger_id: "upload-form",
-                DrawerBody {
+                ModalBody {
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "Upload a file into this dataset"
+                    }
 
                     input {
                         "type": "file",
@@ -49,14 +52,14 @@ pub fn Upload(upload_action: String) -> Element {
                             }
                         }
                     }
-                }
 
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        disabled_text: "Document uploading, this may take some time",
-                        "Upload File(s)"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            disabled_text: "Document uploading, this may take some time",
+                            "Upload File(s)"
+                        }
                     }
                 }
             }

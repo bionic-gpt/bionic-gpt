@@ -1,9 +1,9 @@
 #![allow(non_snake_case)]
 use super::logout_form::LogoutForm;
 use super::snackbar::Snackbar;
+use crate::menu::{NavGroup, NavItem};
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
-use daisy_rsx::{NavGroup, NavItem};
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
@@ -57,7 +57,7 @@ pub fn Layout(props: LayoutProps) -> Element {
             stylesheets: stylesheets,
             js_href: index_js.name,
             section_class: props.section_class,
-            fav_icon_src: favicon_svg.name,
+            fav_icon_src: bionic_logo_svg.name,
             collapse_svg_src: collapse_svg.name,
             header: rsx!(
                 {props.header}

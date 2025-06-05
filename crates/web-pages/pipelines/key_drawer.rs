@@ -9,10 +9,13 @@ pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: i32) -> Element {
         form {
             method: "post",
             action: crate::routes::document_pipelines::New {team_id}.to_string(),
-            Drawer {
-                label: "New Document Pipeline",
+            Modal {
                 trigger_id: "create-api-key",
-                DrawerBody {
+                ModalBody {
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "New Document Pipeline"
+                    }
                     div {
                         class: "flex flex-col",
                         Input {
@@ -37,12 +40,12 @@ pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: i32) -> Element {
                             }
                         }
                     }
-                }
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Create Pipeline"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            "Create Pipeline"
+                        }
                     }
                 }
             }

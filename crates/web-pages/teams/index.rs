@@ -207,10 +207,13 @@ pub fn page(
                 method: "post",
                 "data-turbo-frame": "_top",
                 action: crate::routes::teams::New{team_id}.to_string(),
-                Drawer {
-                    label: "Create a new team?",
+                Modal {
                     trigger_id: "create-new-team",
-                    DrawerBody {
+                    ModalBody {
+                        h3 {
+                            class: "font-bold text-lg mb-4",
+                            "Create a new team?"
+                        }
                         div {
                             class: "flex flex-col",
                             Input {
@@ -222,12 +225,12 @@ pub fn page(
                                 name: "name"
                             }
                         }
-                    }
-                    DrawerFooter {
-                        Button {
-                            button_type: ButtonType::Submit,
-                            button_scheme: ButtonScheme::Primary,
-                            "Create Team"
+                        ModalAction {
+                            Button {
+                                button_type: ButtonType::Submit,
+                                button_scheme: ButtonScheme::Primary,
+                                "Create Team"
+                            }
                         }
                     }
                 }

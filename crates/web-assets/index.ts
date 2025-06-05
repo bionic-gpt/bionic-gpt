@@ -13,7 +13,6 @@ import { autoExpand } from './typescript/console/auto-expand'
 import { modalTriggers } from './typescript/components/modal-trigger'
 import { initializeSidebar } from './typescript/layout/responsive-nav'
 import { streamingChat } from './typescript/console/streaming-chat'
-import { drawers } from './typescript/components/side-drawer'
 import { formatter } from './typescript/console/format-json'
 import { copyPaste } from './typescript/console/copy-paste'
 import { snackBar } from './typescript/layout/snackbar'
@@ -39,7 +38,6 @@ function loadEverything() {
     toggleVisibility()
     autoExpand()
     modalTriggers()
-    drawers()
     formatter()
     streamingChat()
     copyPaste()

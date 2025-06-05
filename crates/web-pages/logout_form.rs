@@ -17,10 +17,13 @@ pub fn LogoutForm() -> Element {
                 name: "rd",
                 value: "{logout_url}"
             }
-            Drawer {
-                label: "Logout ?",
-                trigger_id: "logout-drawer",
-                DrawerBody {
+            Modal {
+                trigger_id: "logout-trigger",
+                ModalBody {
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "Logout ?"
+                    }
                     p {
                         class: "mb-4",
                         "Are you sure you want to log out?"
@@ -30,12 +33,12 @@ pub fn LogoutForm() -> Element {
                         "During logout we delete all cookies associated with your account
                         and any private keys stored in local storage."
                     }
-                }
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Danger,
-                        "Logout"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Danger,
+                            "Logout"
+                        }
                     }
                 }
             }
