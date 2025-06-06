@@ -7,6 +7,7 @@ pub mod assistants;
 pub mod audit_trail;
 pub mod base_layout;
 pub mod button;
+pub mod charts;
 pub mod confirm_modal;
 pub mod console;
 pub mod datasets;
