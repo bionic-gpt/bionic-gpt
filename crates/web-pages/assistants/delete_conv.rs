@@ -10,16 +10,18 @@ pub fn DeleteDrawer(
     prompt_id: i32,
     trigger_id: String,
 ) -> Element {
-    ConfirmModal {
-        action: crate::routes::prompts::DeleteConv{team_id, prompt_id, conversation_id}.to_string(),
-        trigger_id,
-        submit_label: "Delete".to_string(),
-        heading: "Delete this Conversation?".to_string(),
-        warning: "Are you sure you want to delete this Conversation?".to_string(),
-        hidden_fields: vec![
-            ("team_id".into(), team_id.to_string()),
-            ("id".into(), conversation_id.to_string()),
-            ("prompt_id".into(), prompt_id.to_string()),
-        ],
+    rsx! {
+        ConfirmModal {
+            action: crate::routes::prompts::DeleteConv{team_id, prompt_id, conversation_id}.to_string(),
+            trigger_id,
+            submit_label: "Delete".to_string(),
+            heading: "Delete this Conversation?".to_string(),
+            warning: "Are you sure you want to delete this Conversation?".to_string(),
+            hidden_fields: vec![
+                ("team_id".into(), team_id.to_string()),
+                ("id".into(), conversation_id.to_string()),
+                ("prompt_id".into(), prompt_id.to_string()),
+            ],
+        }
     }
 }
