@@ -45,54 +45,61 @@ pub fn page(
             },
             // Add graphs section - always show regardless of API keys
             div {
-                class: "grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8",
+                div {
 
-                    // Token Usage Graph Card
-                    Card {
-                        CardHeader {
-                            title: "Token Usage (Last 7 Days)"
-                        }
-                        CardBody {
-                            TokenUsageChart {
-                                data: token_usage_data.clone()
+                    class: "grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8",
+
+                        // Token Usage Graph Card
+                        Card {
+                            CardHeader {
+                                title: "Token Usage (Last 7 Days)"
                             }
-                            div {
-                                class: "flex justify-center mt-4 space-x-4",
-                                div {
-                                    class: "flex items-center",
-                                    div {
-                                        class: "w-4 h-4 bg-blue-500 mr-2"
-                                    }
-                                    span {
-                                        class: "text-sm",
-                                        "Prompt Tokens"
-                                    }
+                            CardBody {
+                                TokenUsageChart {
+                                    data: token_usage_data.clone()
                                 }
                                 div {
-                                    class: "flex items-center",
+                                    class: "flex justify-center mt-4 space-x-4",
                                     div {
-                                        class: "w-4 h-4 bg-green-500 mr-2"
+                                        class: "flex items-center",
+                                        div {
+                                            class: "w-4 h-4 bg-blue-500 mr-2"
+                                        }
+                                        span {
+                                            class: "text-sm",
+                                            "Prompt Tokens"
+                                        }
                                     }
-                                    span {
-                                        class: "text-sm",
-                                        "Completion Tokens"
+                                    div {
+                                        class: "flex items-center",
+                                        div {
+                                            class: "w-4 h-4 bg-green-500 mr-2"
+                                        }
+                                        span {
+                                            class: "text-sm",
+                                            "Completion Tokens"
+                                        }
                                     }
+                                }
+                            }
+                        }
+
+                        // API Request Rate Graph Card
+                        Card {
+                            CardHeader {
+                                title: "API Requests (Last 7 Days)"
+                            }
+                            CardBody {
+                                ApiRequestChart {
+                                    data: api_request_data.clone()
                                 }
                             }
                         }
                     }
-
-                    // API Request Rate Graph Card
-                    Card {
-                        CardHeader {
-                            title: "API Requests (Last 7 Days)"
-                        }
-                        CardBody {
-                            ApiRequestChart {
-                                data: api_request_data.clone()
-                            }
-                        }
-                    }
+                }
+                ApiKeysTable {
+                    api_keys: api_keys.clone(),
+                    team_id: team_id
                 }
             }
 
@@ -119,75 +126,6 @@ pub fn page(
                 prompts: models.clone()
             },
 
-            if ! api_keys.is_empty() {
-                Card {
-                    class: "has-data-table",
-                    CardHeader {
-                        title: "API Keys"
-                    }
-                    CardBody {
-                        table {
-                            class: "table table-sm",
-                            thead {
-                                th { "Name" }
-                                th { "Type" }
-                                th { "API Key" }
-                                th { "Assistant/Model" }
-                                th {
-                                    class: "text-right",
-                                    "Action"
-                                }
-                            }
-                            tbody {
-                                for key in &api_keys {
-                                    tr {
-                                        td {
-                                            "{key.name}"
-                                        }
-                                        td {
-                                            PromptType {
-                                                prompt_type: key.prompt_type
-                                            }
-                                        }
-                                        td {
-                                            div {
-                                                class: "flex w-full",
-                                                Input {
-                                                    value: key.api_key.clone(),
-                                                    name: "api_key",
-                                                    input_type: InputType::Password
-                                                }
-                                                Button {
-                                                    class: "api-keys-toggle-visibility",
-                                                    "Show"
-                                                }
-                                            }
-                                        }
-                                        td {
-                                            "{key.prompt_name}"
-                                        }
-                                        td {
-                                            class: "text-right",
-                                            DropDown {
-                                                direction: Direction::Left,
-                                                button_text: "...",
-                                                DropDownLink {
-                                                    drawer_trigger: format!("delete-trigger-{}-{}",
-                                                        key.id, team_id),
-                                                    href: "#",
-                                                    target: "_top",
-                                                    "Delete"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-            }
-
-        }
     };
 
     render(page)
@@ -210,6 +148,82 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
                 "Assistant"
             }
         ),
+    }
+}
+
+#[component]
+fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: i32) -> Element {
+    if api_keys.is_empty() {
+        return rsx! { div {} };
+    }
+
+    rsx! {
+        Card {
+            class: "has-data-table",
+            CardHeader {
+                title: "API Keys"
+            }
+            CardBody {
+                table {
+                    class: "table table-sm",
+                    thead {
+                        th { "Name" }
+                        th { "Type" }
+                        th { "API Key" }
+                        th { "Assistant/Model" }
+                        th {
+                            class: "text-right",
+                            "Action"
+                        }
+                    }
+                    tbody {
+                        for key in &api_keys {
+                            tr {
+                                td {
+                                    "{key.name}"
+                                }
+                                td {
+                                    PromptType {
+                                        prompt_type: key.prompt_type
+                                    }
+                                }
+                                td {
+                                    div {
+                                        class: "flex w-full",
+                                        Input {
+                                            value: key.api_key.clone(),
+                                            name: "api_key",
+                                            input_type: InputType::Password
+                                        }
+                                        Button {
+                                            class: "api-keys-toggle-visibility",
+                                            "Show"
+                                        }
+                                    }
+                                }
+                                td {
+                                    "{key.prompt_name}"
+                                }
+                                td {
+                                    class: "text-right",
+                                    DropDown {
+                                        direction: Direction::Left,
+                                        button_text: "...",
+                                        DropDownLink {
+                                            drawer_trigger: format!("delete-trigger-{}-{}",
+                                                key.id, team_id),
+                                            href: "#",
+                                            target: "_top",
+                                            "Delete"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
