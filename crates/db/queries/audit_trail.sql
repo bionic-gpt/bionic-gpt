@@ -16,32 +16,3 @@ WHERE
     AND user_id = COALESCE(:user_id, user_id)
 ORDER BY created_at DESC
 LIMIT :limit;
-
---! top_users : TopUser()
-SELECT
-    COALESCE(u.email, '') as email,
-    agg.total_tokens_sent,
-    agg.name as model_name
-FROM (
-    SELECT
-        at.user_id,
-        SUM(attg.tokens_sent) AS total_tokens_sent,
-        m.name
-    FROM 
-        audit_trail AS at
-    JOIN 
-        audit_trail_text_generation AS attg ON at.id = attg.audit_id
-    LEFT JOIN 
-        chats c ON attg.chat_id = c.id
-    LEFT JOIN 
-        prompts p ON c.prompt_id = p.id
-    LEFT JOIN 
-        models m ON p.model_id = m.id
-    WHERE 
-        at.created_at >= NOW() - INTERVAL '24 HOURS'
-    GROUP BY 
-        at.user_id, m.name
-) AS agg
-LEFT JOIN users u ON u.id = agg.user_id
-LIMIT 10;
-

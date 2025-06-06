@@ -337,8 +337,18 @@ async fn create_request(
     .await?;
 
     let size = super::token_count::token_count(messages.clone());
-    queries::chats::update_prompt()
-        .bind(&transaction, &size, &chat_id)
+
+    // Track prompt tokens in the new token_usage_metrics table
+    queries::token_usage_metrics::create_token_usage_metric()
+        .bind(
+            &transaction,
+            &Some(chat_id),
+            &None::<i32>, // api_key_id
+            &db::TokenUsageType::Prompt,
+            &size,
+            &None::<i32>, // duration_ms
+        )
+        .one()
         .await?;
 
     // Set the chat status to InProgress

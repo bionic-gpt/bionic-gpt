@@ -6,7 +6,6 @@ use axum::extract::Request;
 use axum::response::{sse::Event, Sse};
 use axum::response::{IntoResponse, Response};
 use axum::{Extension, RequestExt};
-use db::ChatStatus;
 use db::{queries, Pool, Transaction};
 use http::{HeaderMap, StatusCode};
 use openai_api::BionicChatCompletionRequest;
@@ -38,8 +37,7 @@ pub async fn chat_generate(
         let completion: BionicChatCompletionRequest = serde_json::from_str(&body)?;
         let streaming = completion.stream.unwrap_or(false);
 
-        let (api_key, request, api_chat_id) =
-            create_request(&transaction, api_key, completion).await?;
+        let (api_key, request) = create_request(&transaction, api_key, completion).await?;
 
         if limits::is_limit_exceeded(&transaction, api_key.model_id, api_key.user_id).await? {
             return Err(CustomError::Limits(
@@ -81,14 +79,9 @@ pub async fn chat_generate(
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::End(completion_chunk) => {
-                                log_end_of_chat(
-                                    pool,
-                                    &completion_chunk.snapshot,
-                                    &api_key,
-                                    api_chat_id,
-                                )
-                                .await
-                                .unwrap();
+                                log_end_of_chat(pool, &completion_chunk.snapshot, &api_key)
+                                    .await
+                                    .unwrap();
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                         },
@@ -139,7 +132,7 @@ async fn create_request(
     transaction: &Transaction<'_>,
     api_key: String,
     completion: BionicChatCompletionRequest,
-) -> Result<(db::ApiKey, reqwest::RequestBuilder, i32), CustomError> {
+) -> Result<(db::ApiKey, reqwest::RequestBuilder), CustomError> {
     let api_key = queries::api_keys::find_api_key()
         .bind(transaction, &api_key)
         .one()
@@ -182,8 +175,7 @@ async fn create_request(
 
     tracing::debug!("{:?}", &completion_json);
 
-    let api_chat_id =
-        log_initial_chat(transaction, api_key.id, &completion_json, &completion).await?;
+    log_initial_chat(transaction, api_key.id, &completion_json, &completion).await?;
 
     let client = reqwest::Client::new();
     let request = if let Some(api_key) = model.api_key {
@@ -199,7 +191,7 @@ async fn create_request(
             .body(completion_json)
     };
 
-    Ok((api_key, request, api_chat_id))
+    Ok((api_key, request))
 }
 
 async fn log_initial_chat(
@@ -207,36 +199,77 @@ async fn log_initial_chat(
     api_key_id: i32,
     completion_json: &str,
     completion: &BionicChatCompletionRequest,
-) -> Result<i32, CustomError> {
+) -> Result<(), CustomError> {
     let size = super::token_count::token_count(completion.messages.clone());
 
-    // Store the prompt, ready for the front end webcomponent to pickup
-    let api_chat_id = queries::api_keys::new_api_chat()
-        .bind(transaction, &api_key_id, &completion_json, &size)
+    // Create the API chat entry with new structure
+    queries::api_keys::new_api_chat()
+        .bind(
+            transaction,
+            &api_key_id,
+            &completion_json,
+            &db::ChatRole::User,
+            &db::ChatStatus::Pending,
+        )
         .one()
         .await?;
 
-    Ok(api_chat_id)
+    // Track prompt token usage in token_usage_metrics
+    queries::token_usage_metrics::create_token_usage_metric()
+        .bind(
+            transaction,
+            &None::<i32>, // chat_id
+            &Some(api_key_id),
+            &db::TokenUsageType::Prompt,
+            &size,
+            &None::<i32>, // duration_ms
+        )
+        .one()
+        .await?;
+
+    Ok(())
 }
 
 async fn log_end_of_chat(
     pool: Arc<Pool>,
     snapshot: &str,
     api_key: &str,
-    api_chat_id: i32,
 ) -> Result<(), CustomError> {
-    let size = super::token_count::token_count_from_string(snapshot);
-    let db_client = pool.get().await.unwrap();
-    queries::api_keys::update_api_chat()
-        .bind(
-            &db_client,
-            &snapshot,
-            &ChatStatus::Success,
-            &size,
-            &api_key,
-            &api_chat_id,
-        )
+    let completion_tokens = super::token_count::token_count_from_string(snapshot);
+    let mut db_client = pool.get().await.unwrap();
+    let transaction = db_client.transaction().await.unwrap();
+
+    // Get the API key record to get the api_key_id
+    let api_key_record = queries::api_keys::find_api_key()
+        .bind(&transaction, &api_key)
+        .one()
         .await?;
 
+    // Create a new API chat entry for the assistant's response
+    queries::api_keys::new_api_chat()
+        .bind(
+            &transaction,
+            &api_key_record.id,
+            &snapshot,
+            &db::ChatRole::Assistant,
+            &db::ChatStatus::Success,
+        )
+        .one()
+        .await?;
+
+    // Track completion token usage in token_usage_metrics
+    queries::token_usage_metrics::create_token_usage_metric()
+        .bind(
+            &transaction,
+            &None::<i32>, // chat_id
+            &Some(api_key_record.id),
+            &db::TokenUsageType::Completion,
+            &completion_tokens,
+            &None::<i32>, // duration_ms - we could add timing here later
+        )
+        .one()
+        .await?;
+
+    transaction.commit().await?;
     Ok(())
 }
