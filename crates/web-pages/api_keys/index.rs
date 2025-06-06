@@ -97,9 +97,11 @@ pub fn page(
                         }
                     }
                 }
-                ApiKeysTable {
-                    api_keys: api_keys.clone(),
-                    team_id: team_id
+                if !api_keys.is_empty() {
+                    ApiKeysTable {
+                        api_keys: api_keys.clone(),
+                        team_id: team_id
+                    }
                 }
             }
 
@@ -153,10 +155,6 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
 
 #[component]
 fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: i32) -> Element {
-    if api_keys.is_empty() {
-        return rsx! { div {} };
-    }
-
     rsx! {
         Card {
             class: "has-data-table",
