@@ -1,49 +1,21 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
 use dioxus::prelude::*;
+use crate::ConfirmModal;
 
 #[component]
 pub fn DeleteDrawer(team_id: i32, id: i64, trigger_id: String) -> Element {
     rsx! {
-        form {
+        ConfirmModal {
             action: crate::routes::console::Delete{team_id, id}.to_string(),
-            method: "post",
-            Modal {
-                trigger_id: trigger_id,
-                ModalBody {
-                    h3 {
-                        class: "font-bold text-lg mb-4",
-                        "Delete this Conversation?"
-                    }
-                    div {
-                        class: "flex flex-col",
-                        Alert {
-                            alert_color: AlertColor::Warn,
-                            class: "mb-3",
-                            p {
-                                "Are you sure you want to delete this Conversation?"
-                            }
-                        }
-                        input {
-                            "type": "hidden",
-                            "name": "team_id",
-                            "value": "{team_id}"
-                        }
-                        input {
-                            "type": "hidden",
-                            "name": "id",
-                            "value": "{id}"
-                        }
-                    }
-                    ModalAction {
-                        Button {
-                            button_type: ButtonType::Submit,
-                            button_scheme: ButtonScheme::Danger,
-                            "Delete"
-                        }
-                    }
-                }
-            }
+            trigger_id,
+            submit_label: "Delete".to_string(),
+            heading: "Delete this Conversation?".to_string(),
+            warning: "Are you sure you want to delete this Conversation?".to_string(),
+            hidden_fields: vec![
+                ("team_id".into(), team_id.to_string()),
+                ("id".into(), id.to_string()),
+            ],
         }
     }
 }
