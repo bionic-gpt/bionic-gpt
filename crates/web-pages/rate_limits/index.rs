@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, Model, RateLimit};
@@ -31,10 +32,16 @@ pub fn page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<M
             super::RateTable { rate_limits: rate_limits.clone(), team_id }
 
             for item in rate_limits {
-                super::delete::DeleteDrawer {
-                    team_id: team_id,
-                    id: item.id,
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                ConfirmModal {
+                    action: crate::routes::rate_limits::Delete {team_id, id: item.id}.to_string(),
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this Rate Limit?".to_string(),
+                    warning: "Are you sure you want to delete this rate limit?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), item.id.to_string()),
+                    ],
                 }
             }
 

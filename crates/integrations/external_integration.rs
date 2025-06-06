@@ -8,6 +8,14 @@ use url::Url;
 use serde_json::Value;
 use std::sync::Arc;
 
+/// Create a JSON error object with a message and details
+fn json_error(kind: &str, err: impl ToString) -> serde_json::Value {
+    serde_json::json!({
+        "error": kind,
+        "details": err.to_string(),
+    })
+}
+
 /// Result of parsing an OpenAPI specification for tool creation
 pub struct IntegrationTools {
     pub tool_definitions: Vec<BionicToolDefinition>,
@@ -31,15 +39,21 @@ fn extract_operation_parameters(operation: &Operation) -> Option<Value> {
     let mut properties = serde_json::Map::new();
     let mut required = Vec::new();
 
-    // For now, let's create a simple implementation that works with the basic case
-    // We'll iterate through parameters and create a basic JSON schema
+    // Iterate through parameters and convert them to JSON schema properties
     for param in &operation.parameters {
         // Try to extract parameter information using serde_json serialization
         if let Ok(param_value) = serde_json::to_value(param) {
             if let Some(param_obj) = param_value.as_object() {
                 if let Some(name) = param_obj.get("name").and_then(|n| n.as_str()) {
-                    let mut property = serde_json::Map::new();
-                    property.insert("type".to_string(), Value::String("string".to_string()));
+                    // Determine the property definition from the parameter schema
+                    let mut property =
+                        if let Some(Value::Object(schema_obj)) = param_obj.get("schema") {
+                            schema_obj.clone()
+                        } else {
+                            let mut map = serde_json::Map::new();
+                            map.insert("type".to_string(), Value::String("string".to_string()));
+                            map
+                        };
 
                     if let Some(description) = param_obj.get("description").and_then(|d| d.as_str())
                     {
@@ -332,12 +346,8 @@ impl ToolInterface for ExternalIntegrationTool {
         let (path, method, operation) = self.find_operation_details()?;
 
         // Parse arguments
-        let args: Value = serde_json::from_str(arguments).map_err(|e| {
-            serde_json::json!({
-                "error": "Failed to parse arguments",
-                "details": e.to_string()
-            })
-        })?;
+        let args: Value = serde_json::from_str(arguments)
+            .map_err(|e| json_error("Failed to parse arguments", e))?;
 
         // Substitute path parameters in the URL
         let path_with_params = substitute_path_parameters(&path, &args, operation)?;
@@ -397,12 +407,24 @@ impl ToolInterface for ExternalIntegrationTool {
         // Make the request based on the HTTP method
         let response = match method.to_uppercase().as_str() {
             "GET" => {
-                self.client.get(url).send().await.map_err(|e| {
-                    serde_json::json!({
-                        "error": "Failed to make GET request",
-                        "details": e.to_string()
-                    })
-                })?
+                // For GET requests, only send JSON body if there are no path parameters
+                // or if there are additional non-path parameters
+                if path.contains('{') && path_with_params != path {
+                    // We substituted path parameters, so make a simple GET request
+                    self.client
+                        .get(&url)
+                        .send()
+                        .await
+                        .map_err(|e| json_error("Failed to make GET request", e))?
+                } else {
+                    // No path parameters, send as before
+                    self.client
+                        .get(&url)
+                        .json(&args)
+                        .send()
+                        .await
+                        .map_err(|e| json_error("Failed to make GET request", e))?
+                }
             }
             "POST" => self
                 .client
@@ -410,36 +432,21 @@ impl ToolInterface for ExternalIntegrationTool {
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| {
-                    serde_json::json!({
-                        "error": "Failed to make POST request",
-                        "details": e.to_string()
-                    })
-                })?,
+                .map_err(|e| json_error("Failed to make POST request", e))?,
             "PUT" => self
                 .client
                 .put(&url)
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| {
-                    serde_json::json!({
-                        "error": "Failed to make PUT request",
-                        "details": e.to_string()
-                    })
-                })?,
+                .map_err(|e| json_error("Failed to make PUT request", e))?,
             "DELETE" => self
                 .client
                 .delete(&url)
                 .json(&args)
                 .send()
                 .await
-                .map_err(|e| {
-                    serde_json::json!({
-                        "error": "Failed to make DELETE request",
-                        "details": e.to_string()
-                    })
-                })?,
+                .map_err(|e| json_error("Failed to make DELETE request", e))?,
             _ => {
                 return Err(serde_json::json!({
                     "error": "Unsupported HTTP method",
@@ -457,12 +464,10 @@ impl ToolInterface for ExternalIntegrationTool {
         }
 
         // Parse the response
-        let response_text = response.text().await.map_err(|e| {
-            serde_json::json!({
-                "error": "Failed to read response",
-                "details": e.to_string()
-            })
-        })?;
+        let response_text = response
+            .text()
+            .await
+            .map_err(|e| json_error("Failed to read response", e))?;
 
         // Try to parse as JSON, fallback to text if it fails
         match serde_json::from_str::<serde_json::Value>(&response_text) {
@@ -588,6 +593,27 @@ mod tests {
                         "operationId": "getUserById",
                         "summary": "Get user by ID",
                         "description": "Retrieve a specific user by ID"
+                    }
+                }
+            }
+        });
+
+        serde_json::from_value(spec_json).unwrap()
+    }
+
+    fn create_numeric_boolean_spec() -> oas3::OpenApiV3Spec {
+        let spec_json = json!({
+            "openapi": "3.0.3",
+            "info": {"title": "Numeric and Boolean", "version": "1.0"},
+            "paths": {
+                "/items": {
+                    "get": {
+                        "operationId": "getItems",
+                        "parameters": [
+                            {"in": "query", "name": "limit", "required": true, "schema": {"type": "integer"}},
+                            {"in": "query", "name": "active", "required": false, "schema": {"type": "boolean"}}
+                        ],
+                        "responses": {"200": {"description": "ok"}}
                     }
                 }
             }

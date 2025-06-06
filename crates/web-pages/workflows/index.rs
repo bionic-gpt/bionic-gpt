@@ -29,15 +29,18 @@ pub fn page(rbac: Rbac, team_id: i32) -> String {
             }
 
             // Create workflow drawer
-            Drawer {
-                label: "Create New Workflow",
-                trigger_id: "create-workflow-form",
-                DrawerBody {
-                    div {
-                        class: "flex flex-col gap-4",
-                        form {
-                            method: "post",
-                            action: crate::routes::workflows::Upsert { team_id }.to_string(),
+            form {
+                method: "post",
+                action: crate::routes::workflows::Upsert { team_id }.to_string(),
+                Modal {
+                    trigger_id: "create-workflow-form",
+                    ModalBody {
+                        h3 {
+                            class: "font-bold text-lg mb-4",
+                            "Create New Workflow"
+                        }
+                        div {
+                            class: "flex flex-col gap-4",
                             div {
                                 class: "form-group",
                                 label {
@@ -86,18 +89,18 @@ pub fn page(rbac: Rbac, team_id: i32) -> String {
                                     option { value: "webhook", "Webhook" }
                                 }
                             }
-                            div {
-                                class: "flex gap-2 mt-4",
-                                Button {
-                                    button_type: ButtonType::Submit,
-                                    button_scheme: ButtonScheme::Primary,
-                                    "Create Workflow"
-                                }
-                                button {
-                                    "type": "button",
-                                    class: "btn btn-outline",
-                                    "Cancel"
-                                }
+                        }
+                        ModalAction {
+                            class: "flex gap-2 mt-4",
+                            Button {
+                                button_type: ButtonType::Submit,
+                                button_scheme: ButtonScheme::Primary,
+                                "Create Workflow"
+                            }
+                            button {
+                                "type": "button",
+                                class: "btn btn-outline cancel-modal",
+                                "Cancel"
                             }
                         }
                     }

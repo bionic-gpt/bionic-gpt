@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -76,11 +77,17 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                 }
 
                 for doc in documents {
-                    super::delete::DeleteDrawer {
-                        team_id: team_id,
-                        document_id: doc.id,
-                        dataset_id: doc.dataset_id,
-                        trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, team_id)
+                    ConfirmModal {
+                        action: crate::routes::documents::Delete{team_id, document_id: doc.id}.to_string(),
+                        trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, team_id),
+                        submit_label: "Delete Document".to_string(),
+                        heading: "Delete this document?".to_string(),
+                        warning: "Are you sure you want to delete this document?".to_string(),
+                        hidden_fields: vec![
+                            ("team_id".into(), team_id.to_string()),
+                            ("document_id".into(), doc.id.to_string()),
+                            ("dataset_id".into(), doc.dataset_id.to_string()),
+                        ],
                     }
                 }
 

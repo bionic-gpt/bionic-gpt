@@ -3,6 +3,7 @@
 use super::{ChatWithChunks, PendingChatState};
 use crate::app_layout::SideBar;
 use crate::console::model_popup::ModelPopup;
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -81,10 +82,16 @@ fn Head(
                         src: delete_svg.name
                     }
                 }
-                super::delete::DeleteDrawer{
+                ConfirmModal {
+                    action: crate::routes::console::Delete{team_id, id: conversation_id}.to_string(),
                     trigger_id: format!("delete-conv-{}", conversation_id),
-                    team_id: team_id,
-                    id: conversation_id
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this Conversation?".to_string(),
+                    warning: "Are you sure you want to delete this Conversation?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), conversation_id.to_string()),
+                    ],
                 }
             }
             a {

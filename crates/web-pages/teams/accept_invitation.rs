@@ -9,10 +9,13 @@ pub fn AcceptInvite(invite: db::InviteSummary, team_id: i32) -> Element {
         form {
             method: "post",
             action: crate::routes::teams::AcceptInvite{}.to_string(),
-            Drawer {
-                label: "Do you want to accept this invitation?",
+            Modal {
                 trigger_id: format!("accept-invite-trigger-{}", invite.id),
-                DrawerBody {
+                ModalBody {
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "Do you want to accept this invitation?"
+                    }
                     div {
                         class: "flex flex-col",
                         input {
@@ -31,12 +34,12 @@ pub fn AcceptInvite(invite: db::InviteSummary, team_id: i32) -> Element {
                             "value": "{invite.id}"
                         }
                     }
-                }
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Accept Invitation"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            "Accept Invitation"
+                        }
                     }
                 }
             }

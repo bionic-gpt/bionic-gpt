@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::{
     app_layout::{Layout, SideBar},
-    render,
+    render, ConfirmModal,
 };
 use assets::files::*;
 use daisy_rsx::*;
@@ -34,10 +34,16 @@ pub fn page(
             },
 
             for item in &api_keys {
-                super::delete::DeleteDrawer {
-                    team_id: team_id,
-                    id: item.id,
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                ConfirmModal {
+                    action: crate::routes::api_keys::Delete {team_id, id: item.id}.to_string(),
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this API Key?".to_string(),
+                    warning: "Are you sure you want to delete this api key?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), item.id.to_string()),
+                    ],
                 }
             }
 
@@ -163,9 +169,12 @@ fn OpenAICompatibility() -> Element {
         // OpenAI API Compatibility Card
         Card {
             class: "mt-8 mb-8",
+            CardHeader {
+                title: "OpenAI API"
+            }
             CardBody {
-                h2 { class: "card-title", "OpenAI API Compatibility" }
-                p { "Our API is compatible with the OpenAI completionbs API, allowing seamless integration with existing projects and tools." }
+                class: "p-5",
+                p { "Our API is compatible with the OpenAI completions API, allowing seamless integration with existing projects and tools." }
                 ul { class: "list-disc list-inside mt-4",
                     li { "Use the same endpoints and parameters as OpenAI" }
                     li { "Easy migration from OpenAI to our service" }
@@ -184,6 +193,7 @@ fn CodeExamples() -> Element {
                 title: "API Usage Example"
             }
             CardBody {
+                class: "p-5",
                 p {
                     ""
                 }
@@ -220,11 +230,11 @@ fn KeySelector() -> Element {
             class: "grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 mt-8",
             // Assistant Key Card
             Card {
+                CardHeader {
+                    title: "Assistant Key"
+                }
                 CardBody {
-                    h2 {
-                        class: "card-title",
-                        "Assistant Key"
-                    }
+                    class: "p-5",
                     p { "Turn any of your assistants into an API" }
                     ul { class: "list-disc list-inside mt-4",
                         li { "Access to pre-configured AI assistants" }
@@ -242,8 +252,11 @@ fn KeySelector() -> Element {
 
             // Model Key Card
             Card {
+                CardHeader {
+                    title: "Model Key"
+                }
                 CardBody {
-                    h2 { class: "card-title", "Model Key" }
+                    class: "p-5",
                     p { "Use existing models for your own projects" }
                     ul { class: "list-disc list-inside mt-4",
                         li { "Full control over AI model parameters" }

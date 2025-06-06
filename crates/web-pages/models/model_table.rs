@@ -53,7 +53,7 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                 td {
                                     class: "max-sm:hidden",
                                     code {
-                                        class: "[overflow-wrap:anywhere]",
+                                        class: "wrap-anywhere",
                                         "{model.base_url}"
                                     }
                                 }

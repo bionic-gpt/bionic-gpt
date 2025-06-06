@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -90,10 +91,16 @@ pub fn page(
             }
 
             for (item, _, _, _) in &models_with_capabilities {
-                super::delete::DeleteDrawer {
-                    team_id: team_id,
-                    id: item.id,
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                ConfirmModal {
+                    action: crate::routes::models::Delete{team_id, id: item.id}.to_string(),
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this Model?".to_string(),
+                    warning: "Are you sure you want to delete this Model? Deleting a model will also delete any Assistants that use the model".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), item.id.to_string()),
+                    ],
                 }
             }
         }

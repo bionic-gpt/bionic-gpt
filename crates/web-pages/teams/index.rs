@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::ConfirmModal;
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -196,9 +197,15 @@ pub fn page(
             }
 
             for team in teams {
-                super::delete::DeleteDrawer {
-                    team_id: team.id,
-                    trigger_id: format!("delete-trigger-{}", team.id)
+                ConfirmModal {
+                    action: crate::routes::teams::Delete {team_id: team.id}.to_string(),
+                    trigger_id: format!("delete-trigger-{}", team.id),
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this Team?".to_string(),
+                    warning: "Are you sure you want to delete this Team?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team.id.to_string()),
+                    ],
                 }
             }
 
@@ -207,10 +214,13 @@ pub fn page(
                 method: "post",
                 "data-turbo-frame": "_top",
                 action: crate::routes::teams::New{team_id}.to_string(),
-                Drawer {
-                    label: "Create a new team?",
+                Modal {
                     trigger_id: "create-new-team",
-                    DrawerBody {
+                    ModalBody {
+                        h3 {
+                            class: "font-bold text-lg mb-4",
+                            "Create a new team?"
+                        }
                         div {
                             class: "flex flex-col",
                             Input {
@@ -222,12 +232,12 @@ pub fn page(
                                 name: "name"
                             }
                         }
-                    }
-                    DrawerFooter {
-                        Button {
-                            button_type: ButtonType::Submit,
-                            button_scheme: ButtonScheme::Primary,
-                            "Create Team"
+                        ModalAction {
+                            Button {
+                                button_type: ButtonType::Submit,
+                                button_scheme: ButtonScheme::Primary,
+                                "Create Team"
+                            }
                         }
                     }
                 }

@@ -11,7 +11,20 @@ use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::integrations::IntegrationOas3;
 use web_pages::routes::integrations::View;
-use web_pages::routes::integrations::{Delete, Index, Upsert};
+use web_pages::routes::integrations::{Delete, Edit, Index, New};
+
+pub fn routes() -> Router {
+    Router::new()
+        // Loaders
+        .typed_get(loader)
+        .typed_get(view_loader)
+        .typed_get(new_loader)
+        .typed_get(edit_loader)
+        // Actions
+        .typed_post(new_action)
+        .typed_post(edit_action)
+        .typed_post(delete_action)
+}
 
 /// Parses an OpenAPI specification from JSON string.
 ///
@@ -23,15 +36,6 @@ fn parse_openapi_spec(spec_json: &str) -> Result<Json<oas3::OpenApiV3Spec>, Stri
         Ok(spec) => Ok(Json(spec)),
         Err(e) => Err(format!("Invalid OpenAPI JSON: {}", e)),
     }
-}
-
-pub fn routes() -> Router {
-    Router::new()
-        .typed_get(loader)
-        .typed_get(view)
-        .typed_get(new_edit_action)
-        .typed_post(upsert_action)
-        .typed_post(delete_action)
 }
 
 pub async fn loader(
@@ -74,7 +78,7 @@ pub async fn loader(
     Ok(Html(html))
 }
 
-pub async fn view(
+pub async fn view_loader(
     View { team_id, id }: View,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
@@ -127,8 +131,8 @@ pub async fn view(
     Ok(Html(html))
 }
 
-pub async fn new_edit_action(
-    Upsert { team_id }: Upsert,
+pub async fn new_loader(
+    New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -138,6 +142,36 @@ pub async fn new_edit_action(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let integration_form = IntegrationForm::default();
+
+    let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
+
+    Ok(Html(html))
+}
+
+pub async fn edit_loader(
+    Edit { team_id, id }: Edit,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let integration = queries::integrations::integration()
+        .bind(&transaction, &id)
+        .one()
+        .await?;
+
+    let integration_form = if let Some(definition) = &integration.definition {
+        IntegrationForm {
+            id: Some(integration.id),
+            openapi_spec: serde_json::to_string(&definition).unwrap_or("".to_string()),
+            error: None,
+        }
+    } else {
+        IntegrationForm::default()
+    };
 
     let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
 
@@ -166,8 +200,8 @@ pub async fn delete_action(
     )
 }
 
-pub async fn upsert_action(
-    Upsert { team_id }: Upsert,
+pub async fn edit_action(
+    Edit { team_id, id }: Edit,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(mut integration_form): Form<IntegrationForm>,
@@ -199,8 +233,8 @@ pub async fn upsert_action(
     // No configuration needed since we're not storing base URL anymore
     let configuration: Option<Json<serde_json::Value>> = None;
 
-    match (integration_form.validate(), integration_form.id) {
-        (Ok(_), Some(integration_id)) => {
+    match integration_form.validate() {
+        Ok(_) => {
             // The form is valid, update the integration
             queries::integrations::update()
                 .bind(
@@ -210,7 +244,7 @@ pub async fn upsert_action(
                     &definition,    // definition
                     &integration_type,
                     &integration_status,
-                    &integration_id,
+                    &id,
                 )
                 .await?;
 
@@ -222,7 +256,49 @@ pub async fn upsert_action(
             )
             .into_response())
         }
-        (Ok(_), None) => {
+        Err(_) => Ok(crate::layout::redirect_and_snackbar(
+            &web_pages::routes::integrations::Index { team_id }.to_string(),
+            "Problem with Integration Validation",
+        )
+        .into_response()),
+    }
+}
+
+pub async fn new_action(
+    New { team_id }: New,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+    Form(mut integration_form): Form<IntegrationForm>,
+) -> Result<impl IntoResponse, CustomError> {
+    // Create a transaction and setup RLS
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let integration_type = db::IntegrationType::OpenAPI;
+
+    // Parse the OpenAPI specification from the provided JSON
+    let (definition, integration_status, integration_name) =
+        match parse_openapi_spec(&integration_form.openapi_spec) {
+            Ok(spec) => {
+                // Extract the name from the OpenAPI spec's info.title field
+                let name = spec.0.info.title.clone();
+                (Some(spec), db::IntegrationStatus::Configured, name)
+            }
+            Err(error) => {
+                // If there's an error, return to the form with the error message
+                integration_form.error = Some(error);
+                let html =
+                    web_pages::integrations::upsert::page(team_id, permissions, integration_form);
+                return Ok(Html(html).into_response());
+            }
+        };
+
+    // No configuration needed since we're not storing base URL anymore
+    let configuration: Option<Json<serde_json::Value>> = None;
+
+    match integration_form.validate() {
+        Ok(_) => {
             // The form is valid, create a new integration
             queries::integrations::insert()
                 .bind(
@@ -244,7 +320,7 @@ pub async fn upsert_action(
             )
             .into_response())
         }
-        (Err(_), _) => Ok(crate::layout::redirect_and_snackbar(
+        Err(_) => Ok(crate::layout::redirect_and_snackbar(
             &web_pages::routes::integrations::Index { team_id }.to_string(),
             "Problem with Integration Validation",
         )

@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -198,19 +199,30 @@ pub fn page(
             }
 
             for member in members {
-                super::remove_member::RemoveMemberDrawer {
-                    team_id: member.team_id,
-                    user_id: member.id,
-                    email: member.email.clone(),
-                    trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.team_id)
+                ConfirmModal {
+                    action: crate::routes::team::Delete{team_id: member.team_id}.to_string(),
+                    trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.team_id),
+                    submit_label: "Remove User".to_string(),
+                    heading: "Remove this user?".to_string(),
+                    warning: format!("Are you sure you want to remove '{}' from the team?", member.email),
+                    hidden_fields: vec![
+                        ("team_id".into(), member.team_id.to_string()),
+                        ("user_id".into(), member.id.to_string()),
+                    ],
                 }
             }
 
             for invite in invites {
-                super::remove_invite::RemoveInviteDrawer {
-                    team_id: invite.team_id,
-                    invite_id: invite.id,
-                    trigger_id: format!("remove-invite-trigger-{}-{}", invite.id, invite.team_id)
+                ConfirmModal {
+                    action: crate::routes::team::DeleteInvite{team_id: invite.team_id}.to_string(),
+                    trigger_id: format!("remove-invite-trigger-{}-{}", invite.id, invite.team_id),
+                    submit_label: "Remove Invite".to_string(),
+                    heading: "Remove this invite?".to_string(),
+                    warning: "Are you sure you want to remove this invite?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), invite.team_id.to_string()),
+                        ("invite_id".into(), invite.id.to_string()),
+                    ],
                 }
             }
 

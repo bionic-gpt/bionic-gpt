@@ -2,6 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use crate::hero::Hero;
 use crate::routes;
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -26,13 +27,13 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                 div {
                     a {
                         href: crate::routes::prompts::Index{team_id}.to_string(),
-                        class: "btn btn-ghost btn-sm !font-bold mr-4",
+                        class: "btn btn-ghost btn-sm font-bold! mr-4",
                         "Explore Assistants"
                     }
                     crate::button::Button {
                         button_type: crate::button::ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::prompts::Upsert{team_id}.to_string(),
+                        href: routes::prompts::New{team_id}.to_string(),
                         button_scheme: crate::button::ButtonScheme::Primary,
                         "New Assistant"
                     }
@@ -46,7 +47,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
             }
 
             Card {
-                class: "has-data-table max-w-[64rem] mx-auto",
+                class: "has-data-table max-w-5xl mx-auto",
                 CardHeader {
                     title: "My Assistants"
                 }
@@ -124,10 +125,16 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
 
 
             for item in &prompts {
-                super::delete::DeleteDrawer {
-                    team_id: team_id,
-                    id: item.id,
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                ConfirmModal {
+                    action: crate::routes::prompts::Delete{team_id, id: item.id}.to_string(),
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this Assistant?".to_string(),
+                    warning: "Are you sure you want to delete this Assistant?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), item.id.to_string()),
+                    ],
                 }
             }
 

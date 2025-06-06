@@ -47,7 +47,7 @@ pub fn ProfilePopup(email: String, first_name: String, last_name: String, team_i
             DropDownLink {
                 href: "#",
                 target: "_top",
-                drawer_trigger: "logout-drawer".to_string(),
+                drawer_trigger: "logout-trigger".to_string(),
                 "Log Out"
             }
         }

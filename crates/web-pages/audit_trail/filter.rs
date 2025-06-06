@@ -16,10 +16,13 @@ pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: 
             id: "filter-form",
             action: "{submit_action}",
 
-            Drawer {
-                label: "Filter",
+            Modal {
                 trigger_id: DRAW_TRIGGER,
-                DrawerBody {
+                ModalBody {
+                    h3 {
+                        class: "font-bold text-lg mb-4",
+                        "Filter"
+                    }
                     div {
                         class: "flex flex-col ",
 
@@ -74,12 +77,12 @@ pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: 
                             value: "0"
                         }
                     }
-                }
-                DrawerFooter {
-                    Button {
-                        button_type: ButtonType::Submit,
-                        button_scheme: ButtonScheme::Primary,
-                        "Apply Filter"
+                    ModalAction {
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            "Apply Filter"
+                        }
                     }
                 }
             }

@@ -1,4 +1,3 @@
-pub mod delete_drawer;
 pub mod index;
 use std::collections::BTreeMap;
 

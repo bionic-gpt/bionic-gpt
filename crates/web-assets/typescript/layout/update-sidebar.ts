@@ -6,11 +6,11 @@ export const updateSidebar = () => {
 
             // Remove all active
             document.querySelectorAll('a[data-turbo-frame="main-content"]').forEach((link) => {
-                link.classList.remove('active')
+                link.classList.remove('menu-active')
             })
 
             // Set this one
-            link.classList.add('active')
+            link.classList.add('menu-active')
         }, {once : true});
     })
 }

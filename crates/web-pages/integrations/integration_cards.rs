@@ -20,13 +20,13 @@ pub fn IntegrationCards(integrations: Vec<IntegrationOas3>, team_id: i32) -> Ele
                 Card {
                     class: "p-3 mt-5 flex flex-row clickable",
                     img {
-                        class: "border rounded p-2",
+                        class: "border border-neutral-content rounded p-2",
                         src: super::get_logo_url(&integration.spec.info.extensions),
                         width: "48",
                         height: "48"
                     }
                     div {
-                        class: "ml-4",
+                        class: "ml-4 text-sm flex flex-col justify-center",
                         h2 {
                             class: "font-semibold",
                             "{integration.spec.info.title.clone()}"

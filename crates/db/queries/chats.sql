@@ -8,16 +8,6 @@ VALUES
     (:conversation_id, :prompt_id, :tool_call_id, :tool_calls, encrypt_text(:content), :role, :status)
 RETURNING id;
     
---! update_prompt
-UPDATE chats 
-SET 
-    tokens_sent = :tokens_sent
-WHERE
-    id = :chat_id
-AND
-    -- Make sure the chat belongs to the user
-    conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user());
-
 --! chats : Chat
 SELECT
     id,

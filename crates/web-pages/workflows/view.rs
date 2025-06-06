@@ -23,7 +23,7 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                     div {
                         class: "flex items-start gap-4 mb-6",
                         img {
-                            class: "border rounded p-2 flex-shrink-0",
+                            class: "border rounded p-2 shrink-0",
                             src: get_workflow_icon(&workflow.name),
                             width: "48",
                             height: "48",

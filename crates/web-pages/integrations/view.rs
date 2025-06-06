@@ -1,5 +1,8 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::routes;
+use crate::ConfirmModal;
+use assets::files::{button_edit_svg, menu_delete_svg};
 use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
@@ -12,6 +15,7 @@ pub fn view(
     description: String,
     tool_definitions: Vec<BionicToolDefinition>,
 ) -> String {
+    let modal_trigger = format!("delete-integration-{}", integration.id);
     let page = rsx! {
         Layout {
             section_class: "p-4 max-w-3xl w-full mx-auto",
@@ -24,21 +28,53 @@ pub fn view(
             ),
 
             div {
-                class: "flex",
-                img {
-                    class: "border rounded p-2",
-                    src: "{logo_url}",
-                    width: "48",
-                    height: "48"
+                class: "flex justify-between",
+                div {
+                    class: "flex",
+                    img {
+                        class: "border border-neutral-content rounded p-2",
+                        src: "{logo_url}",
+                        width: "48",
+                        height: "48"
+                    }
+                    div {
+                        class: "ml-4",
+                        h2 {
+                            class: "text-xl font-semibold",
+                            "{integration.name.clone()}"
+                        }
+                        p {
+                            "{description}"
+                        }
+                    }
                 }
                 div {
-                    class: "ml-4",
-                    h2 {
-                        class: "text-xl font-semibold",
-                        "{integration.name.clone()}"
-                    }
-                    p {
-                        "{description}"
+                    class: "flex flex-col justify-center",
+                    div {
+                        class: "flex gap-4",
+                        crate::button::Button {
+                            button_type: crate::button::ButtonType::Link,
+                            prefix_image_src: "{button_edit_svg.name}",
+                            href: routes::integrations::Edit{team_id, id: integration.id}.to_string(),
+                            button_scheme: crate::button::ButtonScheme::Outline,
+                            "Edit"
+                        }
+                        crate::button::Button {
+                            prefix_image_src: "{menu_delete_svg.name}",
+                            modal_trigger: modal_trigger.clone(),
+                            button_scheme: crate::button::ButtonScheme::Danger
+                        }
+                        ConfirmModal {
+                            action: crate::routes::integrations::Delete{team_id, id: integration.id}.to_string(),
+                            trigger_id: modal_trigger,
+                            submit_label: "Delete".to_string(),
+                            heading: "Delete this Integration?".to_string(),
+                            warning: "Are you sure you want to delete this Integration?".to_string(),
+                            hidden_fields: vec![
+                                ("team_id".into(), team_id.to_string()),
+                                ("id".into(), integration.id.to_string()),
+                            ],
+                        }
                     }
                 }
             }
@@ -52,18 +88,18 @@ pub fn view(
 
             if !tool_definitions.is_empty() {
                 for tool in tool_definitions {
-                    details { class: "card mt-5",
+                    details { class: "card mt-5 text-sm",
                         summary {
                             class: "cursor-pointer px-4 py-3 flex items-center justify-between",
                             div {
                                 class: "flex",
                                 div {
-                                    class: "",
+                                    class: "flex flex-col justify-center",
                                     img {
-                                        class: "border rounded p-1",
+                                        class: "border border-neutral-content  rounded p-1",
                                         src: "{logo_url}",
-                                        width: "24",
-                                        height: "24"
+                                        width: "32",
+                                        height: "32"
                                     }
                                 }
                                 div {
