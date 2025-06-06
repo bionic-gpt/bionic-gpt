@@ -49,7 +49,26 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = api_keys::index::page(rbac, team_id, api_keys, assistants, models);
+    // Fetch graph data for the last 7 days
+    let token_usage_data = queries::token_usage_metrics::get_daily_token_usage_for_team()
+        .bind(&transaction, &team_id, &"7")
+        .all()
+        .await?;
+
+    let api_request_data = queries::token_usage_metrics::get_daily_api_request_count_for_team()
+        .bind(&transaction, &team_id, &"7")
+        .all()
+        .await?;
+
+    let html = api_keys::index::page(
+        rbac,
+        team_id,
+        api_keys,
+        assistants,
+        models,
+        token_usage_data,
+        api_request_data,
+    );
 
     Ok(Html(html))
 }
