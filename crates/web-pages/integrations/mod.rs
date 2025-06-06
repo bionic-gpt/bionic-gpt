@@ -1,4 +1,3 @@
-pub mod delete_modal;
 pub mod index;
 use std::collections::BTreeMap;
 

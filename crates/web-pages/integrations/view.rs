@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::routes;
+use crate::ConfirmModal;
 use assets::files::{button_edit_svg, menu_delete_svg};
 use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
@@ -63,10 +64,16 @@ pub fn view(
                             modal_trigger: modal_trigger.clone(),
                             button_scheme: crate::button::ButtonScheme::Danger
                         }
-                        super::delete_modal::DeleteModal {
-                            team_id: team_id,
-                            id: integration.id,
-                            trigger_id: modal_trigger
+                        ConfirmModal {
+                            action: crate::routes::integrations::Delete{team_id, id: integration.id}.to_string(),
+                            trigger_id: modal_trigger,
+                            submit_label: "Delete".to_string(),
+                            heading: "Delete this Integration?".to_string(),
+                            warning: "Are you sure you want to delete this Integration?".to_string(),
+                            hidden_fields: vec![
+                                ("team_id".into(), team_id.to_string()),
+                                ("id".into(), integration.id.to_string()),
+                            ],
                         }
                     }
                 }

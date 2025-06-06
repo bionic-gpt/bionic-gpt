@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -124,10 +125,16 @@ pub fn page(
                     }
 
                     for dataset in datasets {
-                        super::delete::DeleteDrawer {
-                            team_id: team_id,
-                            id: dataset.id,
-                            trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id)
+                        ConfirmModal {
+                            action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
+                            trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id),
+                            submit_label: "Delete".to_string(),
+                            heading: "Delete this Dataset?".to_string(),
+                            warning: "Are you sure you want to delete this Dataset?".to_string(),
+                            hidden_fields: vec![
+                                ("team_id".into(), team_id.to_string()),
+                                ("id".into(), dataset.id.to_string()),
+                            ],
                         }
 
                         super::upsert::Upsert {

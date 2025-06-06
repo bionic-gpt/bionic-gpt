@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::ConfirmModal;
 use assets::files::empty_api_keys_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -104,10 +105,16 @@ pub fn page(
                 }
 
                 for item in pipelines {
-                    super::delete::DeleteDrawer {
-                        team_id: team_id,
-                        id: item.id,
-                        trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                    ConfirmModal {
+                        action: crate::routes::document_pipelines::Delete { team_id, id: item.id }.to_string(),
+                        trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                        submit_label: "Delete".to_string(),
+                        heading: "Delete this Document Pipeline?".to_string(),
+                        warning: "Are you sure you want to delete this Document Pipeline?".to_string(),
+                        hidden_fields: vec![
+                            ("team_id".into(), team_id.to_string()),
+                            ("id".into(), item.id.to_string()),
+                        ],
                     }
                 }
 

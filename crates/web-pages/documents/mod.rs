@@ -1,4 +1,3 @@
-pub mod delete;
 pub mod index;
 pub mod status;
 pub mod upload;
