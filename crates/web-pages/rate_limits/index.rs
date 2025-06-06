@@ -1,12 +1,20 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::charts::{ApiRequestChartCard, TokenUsageChartCard};
 use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, Model, RateLimit};
 use dioxus::prelude::*;
 
-pub fn page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<Model>) -> String {
+pub fn page(
+    rbac: Rbac,
+    team_id: i32,
+    rate_limits: Vec<RateLimit>,
+    models: Vec<Model>,
+    token_usage_data: Vec<db::queries::token_usage_metrics::DailyTokenUsage>,
+    api_request_data: Vec<db::queries::token_usage_metrics::DailyApiRequests>,
+) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -23,10 +31,22 @@ pub fn page(rbac: Rbac, team_id: i32, rate_limits: Vec<RateLimit>, models: Vec<M
                     "Add Limit"
                 }
             },
-            BlankSlate {
-                heading: "Bionic can assign token limits based on a users role.",
-                visual: limits_svg.name,
-                description: "Roles are assigned in your identity system and mapped here to limits"
+
+            // Add system-wide graphs section
+            div {
+                class: "grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8",
+
+                // Token Usage Graph Card
+                TokenUsageChartCard {
+                    data: token_usage_data.clone(),
+                    title: "System-wide Token Usage (Last 7 Days)".to_string()
+                }
+
+                // API Request Rate Graph Card
+                ApiRequestChartCard {
+                    data: api_request_data.clone(),
+                    title: "System-wide API Requests (Last 7 Days)".to_string()
+                }
             }
 
             super::RateTable { rate_limits: rate_limits.clone(), team_id }

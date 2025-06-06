@@ -45,7 +45,25 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = rate_limits::index::page(rbac, team_id, rate_limits, models);
+    // Fetch system-wide graph data for the last 7 days
+    let token_usage_data = queries::token_usage_metrics::get_daily_token_usage_system_wide()
+        .bind(&transaction, &"7")
+        .all()
+        .await?;
+
+    let api_request_data = queries::token_usage_metrics::get_daily_api_request_count_system_wide()
+        .bind(&transaction, &"7")
+        .all()
+        .await?;
+
+    let html = rate_limits::index::page(
+        rbac,
+        team_id,
+        rate_limits,
+        models,
+        token_usage_data,
+        api_request_data,
+    );
 
     Ok(Html(html))
 }
