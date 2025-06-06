@@ -3,6 +3,7 @@ use crate::{
     app_layout::{Layout, SideBar},
     render, ConfirmModal,
 };
+use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKey, Prompt, PromptType as DBPromptType};
 use dioxus::prelude::*;
@@ -26,6 +27,21 @@ pub fn page(
             title: "API Keys",
             header: rsx! {
                 h3 { "API Keys" }
+                div {
+                    class: "flex gap-4",
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        drawer_trigger: "create-assistant-key",
+                        button_scheme: ButtonScheme::Default,
+                        "Create Assistant Key"
+                    }
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        drawer_trigger: "create-model-key",
+                        button_scheme: ButtonScheme::Primary,
+                        "Create Model Key"
+                    }
+                }
             },
             // Add graphs section - always show regardless of API keys
             div {
@@ -171,9 +187,6 @@ pub fn page(
                     }
             }
 
-            KeySelector {
-
-            }
         }
     };
 
@@ -197,58 +210,6 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
                 "Assistant"
             }
         ),
-    }
-}
-
-#[component]
-fn KeySelector() -> Element {
-    rsx! {
-        div {
-            class: "grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 mt-8",
-            // Assistant Key Card
-            Card {
-                CardHeader {
-                    title: "Assistant Key"
-                }
-                CardBody {
-                    class: "p-5",
-                    p { "Turn any of your assistants into an API" }
-                    ul { class: "list-disc list-inside mt-4",
-                        li { "Access to pre-configured AI assistants" }
-                        li { "Simplified integration process" }
-                        li { "Ideal for specific use-cases" }
-                    }
-                    div { class: "card-actions justify-end mt-4",
-                        Button {
-                            drawer_trigger: "create-assistant-key",
-                            "Create an Assistant Key"
-                        }
-                    }
-                }
-            }
-
-            // Model Key Card
-            Card {
-                CardHeader {
-                    title: "Model Key"
-                }
-                CardBody {
-                    class: "p-5",
-                    p { "Use existing models for your own projects" }
-                    ul { class: "list-disc list-inside mt-4",
-                        li { "Full control over AI model parameters" }
-                        li { "Flexibility for advanced use-cases" }
-                        li { "Limits will be applied to ensure fair use" }
-                    }
-                    div { class: "card-actions justify-end mt-4",
-                        Button {
-                            drawer_trigger: "create-model-key",
-                            "Create a Model Key"
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
