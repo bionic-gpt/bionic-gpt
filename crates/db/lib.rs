@@ -1,9 +1,11 @@
+pub mod authorized;
 pub mod authz;
 pub mod customer_keys;
 pub mod vector_search;
 
 use std::str::FromStr;
 
+pub use authorized::{AuthorizedTransaction, AuthorizedTransactionError};
 pub use cornucopia_async::Params;
 pub use deadpool_postgres::{Pool, PoolError, Transaction};
 pub use queries::api_keys::ApiKey;

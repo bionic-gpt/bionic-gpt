@@ -4,7 +4,7 @@ use axum::response::{Html, IntoResponse};
 use axum::Router;
 use axum_extra::extract::Form;
 use axum_extra::routing::RouterExt;
-use db::authz;
+use db::AuthorizedTransaction;
 use db::{queries, Pool};
 use rand::distr::Alphanumeric;
 use rand::{rng, Rng};
@@ -25,31 +25,33 @@ pub async fn loader(
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
+    let mut authorized =
+        AuthorizedTransaction::new(&pool, &current_user.clone().into(), team_id).await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    if !rbac.can_use_api_keys() {
+    if !authorized.rbac.can_use_api_keys() {
         return Err(CustomError::Authorization);
     }
 
     let api_keys = queries::api_keys::api_keys()
-        .bind(&transaction, &team_id)
+        .bind(&authorized.transaction, &team_id)
         .all()
         .await?;
 
     let assistants = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Assistant)
+        .bind(
+            &authorized.transaction,
+            &team_id,
+            &db::PromptType::Assistant,
+        )
         .all()
         .await?;
 
     let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Model)
+        .bind(&authorized.transaction, &team_id, &db::PromptType::Model)
         .all()
         .await?;
 
-    let html = api_keys::index::page(rbac, team_id, api_keys, assistants, models);
+    let html = api_keys::index::page(authorized.rbac, team_id, api_keys, assistants, models);
 
     Ok(Html(html))
 }
@@ -67,10 +69,8 @@ pub async fn new_api_key_action(
     Extension(pool): Extension<Pool>,
     Form(new_api_key): Form<NewApiKey>,
 ) -> Result<impl IntoResponse, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let mut authorized =
+        AuthorizedTransaction::new(&pool, &current_user.clone().into(), team_id).await?;
 
     if new_api_key.validate().is_ok() {
         let api_key: String = rng()
@@ -81,9 +81,9 @@ pub async fn new_api_key_action(
 
         queries::api_keys::new_api_key()
             .bind(
-                &transaction,
+                &authorized.transaction,
                 &new_api_key.prompt_id,
-                &rbac.user_id,
+                &authorized.rbac.user_id,
                 &team_id,
                 &new_api_key.name,
                 &api_key,
@@ -91,7 +91,7 @@ pub async fn new_api_key_action(
             .await?;
     }
 
-    transaction.commit().await?;
+    authorized.commit().await?;
 
     crate::layout::redirect_and_snackbar(&Index { team_id }.to_string(), "Api Key Created")
 }
@@ -102,13 +102,14 @@ pub async fn delete_api_key_action(
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
     // Create a transaction and setup RLS
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let mut authorized =
+        AuthorizedTransaction::new(&pool, &current_user.clone().into(), team_id).await?;
 
-    queries::api_keys::delete().bind(&transaction, &id).await?;
+    queries::api_keys::delete()
+        .bind(&authorized.transaction, &id)
+        .await?;
 
-    transaction.commit().await?;
+    authorized.commit().await?;
 
     crate::layout::redirect_and_snackbar(
         &web_pages::routes::api_keys::Index { team_id }.to_string(),

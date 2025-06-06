@@ -6,8 +6,8 @@ use axum::{
     Router,
 };
 use axum_extra::routing::RouterExt;
-use db::authz;
 use db::queries::{self, datasets, documents};
+use db::AuthorizedTransaction;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
@@ -34,22 +34,20 @@ pub async fn loader(
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let mut authorized =
+        AuthorizedTransaction::new(&pool, &current_user.clone().into(), team_id).await?;
 
     let documents = documents::documents()
-        .bind(&transaction, &dataset_id)
+        .bind(&authorized.transaction, &dataset_id)
         .all()
         .await?;
 
     let dataset = datasets::dataset()
-        .bind(&transaction, &dataset_id)
+        .bind(&authorized.transaction, &dataset_id)
         .one()
         .await?;
 
-    let html = web_pages::documents::index::page(rbac, team_id, dataset, documents);
+    let html = web_pages::documents::index::page(authorized.rbac, team_id, dataset, documents);
 
     Ok(Html(html))
 }
@@ -71,16 +69,14 @@ pub async fn delete_action(
     Extension(pool): Extension<Pool>,
     Form(delete_doc): Form<DeleteDoc>,
 ) -> Result<impl IntoResponse, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-    let _permissions =
-        authz::get_permissions(&transaction, &current_user.into(), delete_doc.team_id).await?;
+    let mut authorized =
+        AuthorizedTransaction::new(&pool, &current_user.clone().into(), delete_doc.team_id).await?;
 
     queries::documents::delete()
-        .bind(&transaction, &delete_doc.document_id)
+        .bind(&authorized.transaction, &delete_doc.document_id)
         .await?;
 
-    transaction.commit().await?;
+    authorized.commit().await?;
 
     crate::layout::redirect_and_snackbar(
         &web_pages::routes::documents::Index {
@@ -101,13 +97,11 @@ pub async fn row(
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let mut authorized =
+        AuthorizedTransaction::new(&pool, &current_user.clone().into(), team_id).await?;
 
     let document = documents::document()
-        .bind(&transaction, &document_id)
+        .bind(&authorized.transaction, &document_id)
         .one()
         .await?;
 
@@ -126,9 +120,8 @@ pub async fn upload_action(
     Extension(pool): Extension<Pool>,
     mut files: Multipart,
 ) -> Result<impl IntoResponse, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let mut authorized =
+        AuthorizedTransaction::new(&pool, &current_user.clone().into(), team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         let name = file.file_name().unwrap().to_string();
@@ -136,7 +129,7 @@ pub async fn upload_action(
 
         let _document_id = queries::documents::insert()
             .bind(
-                &transaction,
+                &authorized.transaction,
                 &dataset_id,
                 &name,
                 &data,
@@ -146,7 +139,7 @@ pub async fn upload_action(
             .await?;
     }
 
-    transaction.commit().await?;
+    authorized.commit().await?;
 
     crate::layout::redirect_and_snackbar(
         &web_pages::routes::documents::Index {
