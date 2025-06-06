@@ -177,6 +177,9 @@ async fn save_results(
 
     let tool_calls_json = serde_json::to_string(&tool_calls).ok();
 
+    // Calculate completion tokens from the response
+    let completion_tokens = super::token_count::token_count_from_string(snapshot);
+
     tracing::debug!(
         "save_results: Executing chat query with chat_id: {}",
         chat_id
@@ -202,6 +205,23 @@ async fn save_results(
         {
             tracing::error!("Error creating chat: {:?}", e);
             return;
+        }
+
+        // Track completion token usage in token_usage_metrics
+        if let Err(e) = queries::token_usage_metrics::create_token_usage_metric()
+            .bind(
+                &transaction,
+                &Some(chat_id),
+                &None::<i32>, // api_key_id
+                &db::TokenUsageType::Completion,
+                &completion_tokens,
+                &None::<i32>, // duration_ms - could add timing here later
+            )
+            .one()
+            .await
+        {
+            tracing::error!("Error tracking completion tokens: {:?}", e);
+            // Don't return here, continue with the rest of the function
         }
 
         if let Some(tool_calls) = tool_calls {
@@ -337,8 +357,18 @@ async fn create_request(
     .await?;
 
     let size = super::token_count::token_count(messages.clone());
-    queries::chats::update_prompt()
-        .bind(&transaction, &size, &chat_id)
+
+    // Track prompt tokens in the new token_usage_metrics table
+    queries::token_usage_metrics::create_token_usage_metric()
+        .bind(
+            &transaction,
+            &Some(chat_id),
+            &None::<i32>, // api_key_id
+            &db::TokenUsageType::Prompt,
+            &size,
+            &None::<i32>, // duration_ms
+        )
+        .one()
         .await?;
 
     // Set the chat status to InProgress

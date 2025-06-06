@@ -53,4 +53,3 @@ pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
         }
     }
 }
-

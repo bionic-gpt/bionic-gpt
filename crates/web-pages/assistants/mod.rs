@@ -1,7 +1,5 @@
 pub mod assistant_console;
 pub mod conversation;
-pub mod delete;
-pub mod delete_conv;
 pub mod index;
 pub mod my_prompts;
 pub mod prompt_card;

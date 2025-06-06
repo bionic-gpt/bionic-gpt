@@ -2,6 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use crate::hero::Hero;
 use crate::routes;
+use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -124,10 +125,16 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
 
 
             for item in &prompts {
-                super::delete::DeleteDrawer {
-                    team_id: team_id,
-                    id: item.id,
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                ConfirmModal {
+                    action: crate::routes::prompts::Delete{team_id, id: item.id}.to_string(),
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this Assistant?".to_string(),
+                    warning: "Are you sure you want to delete this Assistant?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), item.id.to_string()),
+                    ],
                 }
             }
 

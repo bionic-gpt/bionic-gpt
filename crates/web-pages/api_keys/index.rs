@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::{
     app_layout::{Layout, SideBar},
-    render,
+    render, ConfirmModal,
 };
 use assets::files::*;
 use daisy_rsx::*;
@@ -34,10 +34,16 @@ pub fn page(
             },
 
             for item in &api_keys {
-                super::delete::DeleteDrawer {
-                    team_id: team_id,
-                    id: item.id,
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id)
+                ConfirmModal {
+                    action: crate::routes::api_keys::Delete {team_id, id: item.id}.to_string(),
+                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                    submit_label: "Delete".to_string(),
+                    heading: "Delete this API Key?".to_string(),
+                    warning: "Are you sure you want to delete this api key?".to_string(),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), item.id.to_string()),
+                    ],
                 }
             }
 
