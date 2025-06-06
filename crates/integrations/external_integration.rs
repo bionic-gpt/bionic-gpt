@@ -45,15 +45,14 @@ fn extract_operation_parameters(operation: &Operation) -> Option<Value> {
             if let Some(param_obj) = param_value.as_object() {
                 if let Some(name) = param_obj.get("name").and_then(|n| n.as_str()) {
                     // Determine the property definition from the parameter schema
-                    let mut property = if let Some(Value::Object(schema_obj)) =
-                        param_obj.get("schema")
-                    {
-                        schema_obj.clone()
-                    } else {
-                        let mut map = serde_json::Map::new();
-                        map.insert("type".to_string(), Value::String("string".to_string()));
-                        map
-                    };
+                    let mut property =
+                        if let Some(Value::Object(schema_obj)) = param_obj.get("schema") {
+                            schema_obj.clone()
+                        } else {
+                            let mut map = serde_json::Map::new();
+                            map.insert("type".to_string(), Value::String("string".to_string()));
+                            map
+                        };
 
                     if let Some(description) = param_obj.get("description").and_then(|d| d.as_str())
                     {
@@ -364,8 +363,7 @@ impl ToolInterface for ExternalIntegrationTool {
                 // or if there are additional non-path parameters
                 if path.contains('{') && path_with_params != path {
                     // We substituted path parameters, so make a simple GET request
-                    self
-                        .client
+                    self.client
                         .get(&url)
                         .send()
                         .await

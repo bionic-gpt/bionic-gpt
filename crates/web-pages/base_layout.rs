@@ -77,7 +77,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         lg:transform-none
                         z-20",
                     div {
-                        class: "flex items-center pl-2 pt-2",
+                        class: "flex items-center pl-4 pr-2 pt-4",
                         {props.sidebar_header}
                     }
                     div {
@@ -85,7 +85,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         {props.sidebar}
                     }
                     div {
-                        class: "pb-2 pl-2",
+                        class: "pb-2 pl-4 pr-2",
                         {props.sidebar_footer}
                     }
                 }
