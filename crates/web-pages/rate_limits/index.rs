@@ -49,12 +49,6 @@ pub fn page(
                 }
             }
 
-            BlankSlate {
-                heading: "Bionic can assign token limits based on a users role.",
-                visual: limits_svg.name,
-                description: "Roles are assigned in your identity system and mapped here to limits"
-            }
-
             super::RateTable { rate_limits: rate_limits.clone(), team_id }
 
             for item in rate_limits {
