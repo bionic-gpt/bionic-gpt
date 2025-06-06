@@ -129,14 +129,6 @@ pub fn page(
             KeySelector {
 
             }
-
-            OpenAICompatibility {
-
-            }
-
-            /***CodeExamples {
-
-            }**/
         }
     };
 
@@ -160,66 +152,6 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
                 "Assistant"
             }
         ),
-    }
-}
-
-#[component]
-fn OpenAICompatibility() -> Element {
-    rsx! {
-        // OpenAI API Compatibility Card
-        Card {
-            class: "mt-8 mb-8",
-            CardHeader {
-                title: "OpenAI API"
-            }
-            CardBody {
-                class: "p-5",
-                p { "Our API is compatible with the OpenAI completions API, allowing seamless integration with existing projects and tools." }
-                ul { class: "list-disc list-inside mt-4",
-                    li { "Use the same endpoints and parameters as OpenAI" }
-                    li { "Easy migration from OpenAI to our service" }
-                    li { "Access to similar models and capabilities" }
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn CodeExamples() -> Element {
-    rsx! {
-        Card {
-            CardHeader {
-                title: "API Usage Example"
-            }
-            CardBody {
-                class: "p-5",
-                p {
-                    ""
-                }
-                div { class: "mt-4",
-                    pre {
-                        code {
-                            "// Example: Using the Assistant API
-const response = await fetch('https://app.bionic-gpt.com/v1/chat/completions', {{
-    method: 'POST',
-    headers: {{
-        'Authorization': 'Bearer YOUR_ASSISTANT_KEY',
-        'Content-Type': 'application/json'
-    }},
-    body: JSON.stringify({{
-        model: 'assistant',
-            messages: [{{ role: 'user', content: 'Hello, how are you?' }}]
-    }})
-}});
-
-const data = await response.json();
-console.log(data.choices[0].message.content);"
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
