@@ -1,4 +1,4 @@
-use crate::open_api_v3_integration::create_tools_from_integrations;
+use crate::bionic_openapi::create_tools_from_integrations;
 use crate::tool::ToolInterface;
 use crate::tools;
 use db::{queries::integrations as db_integrations, Pool};
@@ -77,8 +77,10 @@ pub async fn get_tools(
     trace!("Getting available tool instances");
 
     // Start with internal tools
-    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![Arc::new(tools::time_date::TimeDateTool)];
-    debug!("Added TimeDateTool");
+    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![
+        Arc::new(tools::time_date::TimeDateTool),
+        Arc::new(tools::web::WebTool),
+    ];
 
     // Add the attachment tools if a pool is provided
     if let (Some(pool), Some(sub)) = (pool, sub) {
@@ -216,8 +218,9 @@ mod tests {
         // Test get_tools without a pool
         let tools = get_tools(None, None, None).await;
 
-        // Should only have the TimeDateTool
-        assert_eq!(tools.len(), 1);
+        // Should have TimeDateTool and WebTool
+        assert_eq!(tools.len(), 2);
         assert_eq!(tools[0].name(), "get_current_time_and_date");
+        assert_eq!(tools[1].name(), "open_url");
     }
 }

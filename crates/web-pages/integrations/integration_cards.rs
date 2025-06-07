@@ -49,10 +49,10 @@ pub fn IntegrationCards(integrations: Vec<IntegrationOas3>, team_id: i32) -> Ele
                         if has_oauth2 {
                             div {
                                 class: "flex flex-col justify-center ml-4",
-                                crate::button::Button {
-                                    button_type: crate::button::ButtonType::Link,
+                                a {
+                                    class: "btn  btn-primary btn-sm ",
+                                    "data-turbo": "false",
                                     href: crate::routes::integrations::Connect { team_id, integration_id: integration.integration.id }.to_string(),
-                                    button_scheme: crate::button::ButtonScheme::Primary,
                                     "Connect"
                                 }
                             }

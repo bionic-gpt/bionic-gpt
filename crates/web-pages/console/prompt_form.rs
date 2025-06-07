@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 use crate::console::tools_modal::ToolsModal;
 use crate::routes;
-use std::env;
 
 use assets::files::*;
 use daisy_rsx::*;
@@ -25,7 +24,6 @@ pub fn Form(
         .iter()
         .any(|cap| cap.capability == ModelCapability::tool_use);
 
-    let show_tools_button = env::var("TOOL_INTEGRATIONS_FEATURE").is_ok();
     let show_attach_button = has_tool_use;
 
     rsx! {
@@ -73,7 +71,7 @@ pub fn Form(
                                     id: "attach-button"
                                 }
                             }
-                            if has_tool_use && show_tools_button {
+                            if has_tool_use {
                                 ToolsButton {
                                     lock_console
                                 }

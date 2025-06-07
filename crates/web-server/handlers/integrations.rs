@@ -6,7 +6,7 @@ use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Json, Pool};
-use integrations::open_api_v3_integration::create_tool_definitions_from_spec;
+use integrations::bionic_openapi::BionicOpenAPI;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::integrations::IntegrationOas3;
@@ -95,7 +95,8 @@ pub async fn view_loader(
 
     let tool_definitions = if let Some(definition) = &integration.definition {
         if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            create_tool_definitions_from_spec(spec).tool_definitions
+            let bionic_api = BionicOpenAPI::new(spec);
+            bionic_api.create_tool_definitions().tool_definitions
         } else {
             vec![]
         }
