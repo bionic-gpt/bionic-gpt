@@ -110,17 +110,26 @@ pub async fn enriched_chat(
 // otherwise they get buried in the logs.
 fn convert_error_to_chats(err: reqwest_eventsource::Error) -> Vec<(CompletionChunk, String)> {
     vec![
-        string_to_chunk("\n\n*Unable to complete your request due to the following error*"),
-        string_to_chunk(&format!("\n\n`{}`\n\n", err)),
-        string_to_chunk(&format!("\n\n```\n{:#?}\n```", err)),
+        {
+            let msg = "\n\n*Unable to complete your request due to the following error*";
+            (
+                super::sse_chat_error::string_to_chunk(msg),
+                msg.to_string(),
+            )
+        },
+        {
+            let msg = format!("\n\n`{}`\n\n", err);
+            (
+                super::sse_chat_error::string_to_chunk(&msg),
+                msg,
+            )
+        },
+        {
+            let msg = format!("\n\n```\n{:#?}\n```", err);
+            (
+                super::sse_chat_error::string_to_chunk(&msg),
+                msg,
+            )
+        },
     ]
-}
-
-// During a chat setion its good to let the assitant show the error,
-// otherwise they get buried in the logs.
-fn string_to_chunk(content: &str) -> (CompletionChunk, String) {
-    (
-        super::sse_chat_error::string_to_chunk(content),
-        content.to_string(),
-    )
 }
