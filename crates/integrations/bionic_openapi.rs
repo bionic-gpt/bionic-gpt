@@ -264,31 +264,53 @@ impl BionicOpenAPI {
 
         Some(result)
     }
-}
 
-/// Extract the base URL from the first server in the OpenAPI specification
-pub fn extract_base_url(oas3: &oas3::OpenApiV3Spec) -> Option<String> {
-    let bionic_api = BionicOpenAPI::new(oas3.clone());
-    bionic_api.extract_base_url()
-}
+    /// Check if the OpenAPI spec has OAuth2 security schemes
+    pub fn has_oauth2_security(&self) -> bool {
+        if let Some(components) = &self.spec.components {
+            for scheme_ref in components.security_schemes.values() {
+                match scheme_ref {
+                    oas3::spec::ObjectOrReference::Object(scheme) => {
+                        if matches!(scheme, SecurityScheme::OAuth2 { .. }) {
+                            return true;
+                        }
+                    }
+                    _ => {
+                        // For references, we would need to resolve them manually
+                        // For now, skip references as they're less common
+                        continue;
+                    }
+                }
+            }
+        }
+        false
+    }
 
-/// Create tool definitions from an OpenAPI specification
-pub fn create_tool_definitions_from_spec(spec: oas3::OpenApiV3Spec) -> IntegrationTools {
-    let bionic_api = BionicOpenAPI::new(spec);
-    bionic_api.create_tool_definitions()
-}
+    /// Retrieve OAuth2 configuration from the OpenAPI spec
+    pub fn get_oauth2_config(&self) -> Option<OAuth2Config> {
+        let components = self.spec.components.as_ref()?;
+        for scheme_ref in components.security_schemes.values() {
+            match scheme_ref {
+                oas3::spec::ObjectOrReference::Object(SecurityScheme::OAuth2 { flows, .. }) => {
+                    if let Some(flow) = &flows.authorization_code {
+                        let scopes = flow.scopes.keys().cloned().collect();
+                        return Some(OAuth2Config {
+                            authorization_url: flow.authorization_url.to_string(),
+                            token_url: flow.token_url.to_string(),
+                            scopes,
+                        });
+                    }
+                }
+                _ => continue,
+            }
+        }
+        None
+    }
 
-/// Create tools from a single integration
-pub fn create_tools_from_integration(
-    integration: &db::queries::integrations::Integration,
-) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
-    let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
-
-    if let Some(definition) = &integration.definition {
-        let oas3 = oas3::from_json(definition.to_string())
-            .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
-
-        let integration_tools = create_tool_definitions_from_spec(oas3.clone());
+    /// Create tools from the OpenAPI specification
+    pub fn create_tools(&self) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
+        let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+        let integration_tools = self.create_tool_definitions();
         let base_url = integration_tools
             .base_url
             .unwrap_or_else(|| "http://localhost".to_string());
@@ -301,16 +323,37 @@ pub fn create_tools_from_integration(
             let tool = crate::open_api_tool::OpenApiTool::new(
                 tool_def,
                 base_url.clone(),
-                oas3.clone(),
+                self.spec.clone(),
                 operation_id,
             );
             tools.push(Arc::new(tool));
         }
-    } else {
-        return Err("Integration doesn't have a definition".to_string());
-    }
 
-    Ok(tools)
+        Ok(tools)
+    }
+}
+
+/// OAuth2 configuration extracted from a security scheme
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OAuth2Config {
+    pub authorization_url: String,
+    pub token_url: String,
+    pub scopes: Vec<String>,
+}
+
+/// Create tools from a single integration
+pub fn create_tools_from_integration(
+    integration: &db::queries::integrations::Integration,
+) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
+    if let Some(definition) = &integration.definition {
+        let oas3 = oas3::from_json(definition.to_string())
+            .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
+
+        let bionic_api = BionicOpenAPI::new(oas3);
+        bionic_api.create_tools()
+    } else {
+        Err("Integration doesn't have a definition".to_string())
+    }
 }
 
 /// Create tools from integrations
@@ -337,64 +380,15 @@ pub async fn create_tools_from_integrations(
     tools
 }
 
-/// OAuth2 configuration extracted from a security scheme
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct OAuth2Config {
-    pub authorization_url: String,
-    pub token_url: String,
-    pub scopes: Vec<String>,
-}
-
 /// Check if an integration has OAuth2 support
 pub fn has_oauth2_support(integration: &db::queries::integrations::Integration) -> bool {
     if let Some(definition) = &integration.definition {
         if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            return has_oauth2_security(&spec);
+            let bionic_api = BionicOpenAPI::new(spec);
+            return bionic_api.has_oauth2_security();
         }
     }
     false
-}
-
-/// Check if an OpenAPI spec has OAuth2 security schemes
-pub fn has_oauth2_security(spec: &oas3::OpenApiV3Spec) -> bool {
-    if let Some(components) = &spec.components {
-        for scheme_ref in components.security_schemes.values() {
-            match scheme_ref {
-                oas3::spec::ObjectOrReference::Object(scheme) => {
-                    if matches!(scheme, SecurityScheme::OAuth2 { .. }) {
-                        return true;
-                    }
-                }
-                _ => {
-                    // For references, we would need to resolve them manually
-                    // For now, skip references as they're less common
-                    continue;
-                }
-            }
-        }
-    }
-    false
-}
-
-/// Retrieve OAuth2 configuration from an OpenAPI spec
-pub fn get_oauth2_config(spec: &oas3::OpenApiV3Spec) -> Option<OAuth2Config> {
-    let components = spec.components.as_ref()?;
-    for scheme_ref in components.security_schemes.values() {
-        match scheme_ref {
-            oas3::spec::ObjectOrReference::Object(SecurityScheme::OAuth2 { flows, .. }) => {
-                if let Some(flow) = &flows.authorization_code {
-                    let scopes = flow.scopes.keys().cloned().collect();
-                    return Some(OAuth2Config {
-                        authorization_url: flow.authorization_url.to_string(),
-                        token_url: flow.token_url.to_string(),
-                        scopes,
-                    });
-                }
-            }
-            _ => continue,
-        }
-    }
-    None
 }
 
 #[cfg(test)]
@@ -581,34 +575,10 @@ mod tests {
     }
 
     #[test]
-    fn test_create_tool_definitions_uses_operation_id_wrapper() {
-        let spec = create_test_openapi_spec();
-        let integration_tools = create_tool_definitions_from_spec(spec);
-
-        assert_eq!(integration_tools.tool_definitions.len(), 3);
-
-        let tool_names: Vec<String> = integration_tools
-            .tool_definitions
-            .iter()
-            .map(|t| t.function.name.clone())
-            .collect();
-
-        assert!(tool_names.contains(&"getUsers".to_string()));
-        assert!(tool_names.contains(&"createUser".to_string()));
-        assert!(tool_names.contains(&"getUserById".to_string()));
-    }
-
-    #[test]
-    fn test_extract_base_url_wrapper() {
-        let spec = create_test_openapi_spec();
-        let base_url = extract_base_url(&spec);
-        assert_eq!(base_url, Some("https://api.example.com".to_string()));
-    }
-
-    #[test]
     fn test_numeric_and_boolean_parameter_types() {
         let spec = create_numeric_boolean_spec();
-        let integration_tools = create_tool_definitions_from_spec(spec);
+        let bionic_api = BionicOpenAPI::new(spec);
+        let integration_tools = bionic_api.create_tool_definitions();
 
         let tool = integration_tools
             .tool_definitions
@@ -624,5 +594,46 @@ mod tests {
 
         assert_eq!(params["properties"]["limit"]["type"], "integer");
         assert_eq!(params["properties"]["active"]["type"], "boolean");
+    }
+
+    #[test]
+    fn test_oauth2_security_detection() {
+        let spec_json = serde_json::json!({
+            "openapi": "3.0.0",
+            "info": {"title": "OAuth2 API", "version": "1.0.0"},
+            "components": {
+                "securitySchemes": {
+                    "oauth2": {
+                        "type": "oauth2",
+                        "flows": {
+                            "authorizationCode": {
+                                "authorizationUrl": "https://example.com/oauth/authorize",
+                                "tokenUrl": "https://example.com/oauth/token",
+                                "scopes": {
+                                    "read": "Read access",
+                                    "write": "Write access"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "paths": {}
+        });
+
+        let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
+        let bionic_api = BionicOpenAPI::new(spec);
+
+        assert!(bionic_api.has_oauth2_security());
+
+        let oauth2_config = bionic_api.get_oauth2_config().unwrap();
+        assert_eq!(
+            oauth2_config.authorization_url,
+            "https://example.com/oauth/authorize"
+        );
+        assert_eq!(oauth2_config.token_url, "https://example.com/oauth/token");
+        assert_eq!(oauth2_config.scopes.len(), 2);
+        assert!(oauth2_config.scopes.contains(&"read".to_string()));
+        assert!(oauth2_config.scopes.contains(&"write".to_string()));
     }
 }
