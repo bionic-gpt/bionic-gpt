@@ -1,6 +1,9 @@
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
-use oas3::{self, spec::{Operation, Parameter, ObjectOrReference, RequestBody, Spec}};
+use oas3::{
+    self,
+    spec::{Operation, RequestBody, Spec},
+};
 
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use reqwest::Client;
@@ -470,7 +473,7 @@ impl ToolInterface for ExternalIntegrationTool {
 
         // Determine if we should send a request body
         let body_obj = request_body_params.as_object();
-        let has_request_body = body_obj.map_or(false, |obj| !obj.is_empty());
+        let has_request_body = body_obj.is_some_and(|obj| !obj.is_empty());
         if body_obj.is_none() {
             return Err(serde_json::json!({
                 "error": "Malformed request body arguments"
