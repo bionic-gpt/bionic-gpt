@@ -1,7 +1,7 @@
---: Connection()
+--: Oauth2Connection()
 
---! insert_connection(refresh_token?, expires_at?) : Connection
-INSERT INTO connections (
+--! insert_oauth2_connection(refresh_token?, expires_at?) : Oauth2Connection
+INSERT INTO oauth2_connections (
     integration_id,
     user_id,
     team_id,
