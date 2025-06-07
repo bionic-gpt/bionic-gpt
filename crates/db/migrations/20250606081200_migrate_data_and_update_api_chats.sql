@@ -57,6 +57,7 @@ UPDATE api_chats SET
 -- Insert assistant responses for api_chats that have responses
 INSERT INTO api_chats (
     api_key_id,
+    prompt,
     content,
     role,
     status,
@@ -65,6 +66,7 @@ INSERT INTO api_chats (
 )
 SELECT 
     api_key_id,
+    '' AS prompt,
     response,
     'Assistant'::chat_role,
     status,
