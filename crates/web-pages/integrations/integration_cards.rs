@@ -22,7 +22,7 @@ pub fn IntegrationCards(integrations: Vec<IntegrationOas3>, team_id: i32) -> Ele
                         class: "p-3 mt-5 flex flex-row",
                         a {
                             href: crate::routes::integrations::View {team_id, id: integration.integration.id }.to_string(),
-                            class: "no-underline flex-1",
+                            class: "no-underline flex-1 min-w-0",
                             div {
                                 class: "flex flex-row",
                                 img {
@@ -32,12 +32,13 @@ pub fn IntegrationCards(integrations: Vec<IntegrationOas3>, team_id: i32) -> Ele
                                     height: "48"
                                 }
                                 div {
-                                    class: "ml-4 text-sm flex flex-col justify-center flex-1",
+                                    class: "ml-4 text-sm flex flex-col justify-center flex-1 min-w-0",
                                     h2 {
                                         class: "font-semibold",
                                         "{integration.spec.info.title.clone()}"
                                     }
                                     p {
+                                        class: "truncate overflow-hidden whitespace-nowrap",
                                         if let Some(description) = integration.spec.info.description.clone() {
                                             "{description}"
                                         }
