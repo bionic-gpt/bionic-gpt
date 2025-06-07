@@ -6,7 +6,7 @@ use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Json, Pool};
-use integrations::open_api_v3_integration::create_tool_definitions_from_spec;
+use integrations::bionic_openapi::create_tool_definitions_from_spec;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::integrations::IntegrationOas3;
