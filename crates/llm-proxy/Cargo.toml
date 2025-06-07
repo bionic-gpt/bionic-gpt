@@ -27,4 +27,6 @@ tower-http = { version = "0.5", features = ["fs", "cors"] }
 # Tiktoken counts our token usage for prompts
 tiktoken-rs = { version = "0.5.4" }
 base64 = { version = "0.13.1" }
+
+[dev-dependencies]
 time = "0.3.36"
