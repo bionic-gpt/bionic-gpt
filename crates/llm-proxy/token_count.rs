@@ -5,7 +5,15 @@ pub fn token_count(messages: Vec<ChatCompletionMessage>) -> i32 {
     let messages: Vec<ChatCompletionRequestMessage> = messages
         .iter()
         .map(|msg| ChatCompletionRequestMessage {
-            role: "user".to_string(),
+            role: match msg.role {
+                ChatCompletionMessageRole::System => "system",
+                ChatCompletionMessageRole::User => "user",
+                ChatCompletionMessageRole::Assistant => "assistant",
+                ChatCompletionMessageRole::Function => "function",
+                ChatCompletionMessageRole::Tool => "tool",
+                ChatCompletionMessageRole::Developer => "developer",
+            }
+            .to_string(),
             content: msg.content.clone(),
             name: None,
             function_call: None,
