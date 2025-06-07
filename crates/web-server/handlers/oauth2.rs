@@ -4,7 +4,11 @@ use axum::response::Redirect;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Pool, Visibility};
-use oauth2::{AuthUrl, ClientId, ClientSecret, RedirectUrl};
+use oauth2::basic::BasicClient;
+use oauth2::{
+    AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, RevocationUrl,
+    Scope, TokenUrl,
+};
 use serde::Deserialize;
 use web_pages::routes::integrations::{Connect, OAuth2Callback};
 
@@ -20,7 +24,6 @@ pub fn routes() -> Router {
         .typed_get(oauth2_callback)
 }
 
-/// Initiate OAuth2 connection
 pub async fn connect_loader(
     Connect {
         team_id,
@@ -35,81 +38,55 @@ pub async fn connect_loader(
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // Get the integration from the database
-    let integration = queries::integrations::integration()
+    let _integration = queries::integrations::integration()
         .bind(&transaction, &integration_id)
         .one()
         .await?;
 
-    // Get OAuth2 config from OpenAPI spec
-    if let Some(definition) = &integration.definition {
-        if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            if let Some(components) = &spec.components {
-                for security_scheme in components.security_schemes.values() {
-                    if let Ok(scheme_value) = serde_json::to_value(security_scheme) {
-                        if let Some(scheme_type) = scheme_value.get("type").and_then(|t| t.as_str())
-                        {
-                            if scheme_type == "oauth2" {
-                                // Extract OAuth2 configuration
-                                if let Some(flows) = scheme_value.get("flows") {
-                                    if let Some(auth_code_flow) = flows.get("authorizationCode") {
-                                        let auth_url = auth_code_flow
-                                            .get("authorizationUrl")
-                                            .and_then(|u| u.as_str())
-                                            .ok_or_else(|| {
-                                                CustomError::FaultySetup(
-                                                    "Missing authorization URL".to_string(),
-                                                )
-                                            })?;
+    let google_client_id =
+        ClientId::new(std::env::var("GOOGLE_CLIENT_ID").unwrap_or("DUMMY_VALUE".into()));
+    let google_client_secret =
+        ClientSecret::new(std::env::var("GOOGLE_CLIENT_SECRET").unwrap_or("DUMMY_VALUE".into()));
 
-                                        // Build authorization URL with placeholder client credentials
-                                        // TODO: Get actual client credentials from configuration
-                                        let _client_id =
-                                            ClientId::new("placeholder-client-id".to_string());
-                                        let _client_secret = ClientSecret::new(
-                                            "placeholder-client-secret".to_string(),
-                                        );
-                                        let _redirect_url = RedirectUrl::new(format!(
-                                            "http://localhost:3000/teams/{}/integrations/{}/oauth2/callback",
-                                            team_id, integration_id
-                                        ))
-                                        .map_err(|e| CustomError::FaultySetup(e.to_string()))?;
+    let auth_url = AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string())
+        .expect("Invalid authorization endpoint URL");
+    let token_url = TokenUrl::new("https://www.googleapis.com/oauth2/v3/token".to_string())
+        .expect("Invalid token endpoint URL");
 
-                                        let _auth_url_parsed = AuthUrl::new(auth_url.to_string())
-                                            .map_err(|e| {
-                                            CustomError::FaultySetup(e.to_string())
-                                        })?;
+    // Set up the config for the Google OAuth2 process.
+    let client = BasicClient::new(google_client_id)
+        .set_client_secret(google_client_secret)
+        .set_auth_uri(auth_url)
+        .set_token_uri(token_url)
+        // This example will be running its own server at localhost:8080.
+        // See below for the server implementation.
+        .set_redirect_uri(
+            RedirectUrl::new("http://localhost:8080".to_string()).expect("Invalid redirect URL"),
+        )
+        // Google supports OAuth 2.0 Token Revocation (RFC-7009)
+        .set_revocation_url(
+            RevocationUrl::new("https://oauth2.googleapis.com/revoke".to_string())
+                .expect("Invalid revocation endpoint URL"),
+        );
 
-                                        // For now, just redirect to the authorization URL with basic parameters
-                                        let mut auth_url_with_params = url::Url::parse(auth_url)
-                                            .map_err(|e| CustomError::FaultySetup(e.to_string()))?;
+    // Google supports Proof Key for Code Exchange (PKCE - https://oauth.net/2/pkce/).
+    // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
+    let (pkce_code_challenge, _pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
 
-                                        auth_url_with_params.query_pairs_mut()
-                                            .append_pair("client_id", "placeholder-client-id")
-                                            .append_pair("response_type", "code")
-                                            .append_pair("redirect_uri", &format!(
-                                                "http://localhost:3000/teams/{}/integrations/{}/oauth2/callback",
-                                                team_id, integration_id
-                                            ))
-                                            .append_pair("scope", "read")
-                                            .append_pair("state", "csrf-token-placeholder");
+    // Generate the authorization URL to which we'll redirect the user.
+    let (authorize_url, _csrf_state) = client
+        .authorize_url(CsrfToken::new_random)
+        // This example is requesting access to the "calendar" features and the user's profile.
+        .add_scope(Scope::new(
+            "https://www.googleapis.com/auth/calendar".to_string(),
+        ))
+        .add_scope(Scope::new(
+            "https://www.googleapis.com/auth/plus.me".to_string(),
+        ))
+        .set_pkce_challenge(pkce_code_challenge)
+        .url();
 
-                                        transaction.commit().await?;
-
-                                        // Redirect to OAuth provider
-                                        return Ok(Redirect::to(auth_url_with_params.as_str()));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Err(CustomError::FaultySetup(
-        "OAuth2 configuration not found".to_string(),
-    ))
+    Ok(Redirect::to(authorize_url.as_str()))
 }
 
 /// Handle OAuth2 callback
@@ -124,8 +101,6 @@ pub async fn oauth2_callback(
 ) -> Result<Redirect, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-
-    let user_id = current_user.sub.parse::<i32>().unwrap();
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // TODO: Exchange code for token
@@ -139,7 +114,6 @@ pub async fn oauth2_callback(
         .bind(
             &transaction,
             &integration_id,
-            &user_id,
             &team_id,
             &Visibility::Private,
             &"dummy_access_token".to_string(),

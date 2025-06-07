@@ -12,7 +12,7 @@ INSERT INTO oauth2_connections (
     scopes
 ) VALUES (
     :integration_id,
-    :user_id,
+    current_app_user(),
     :team_id,
     :visibility,
     :access_token,
