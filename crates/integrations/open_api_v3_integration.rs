@@ -1,9 +1,6 @@
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
-use oas3::{
-    self,
-    spec::{Operation, RequestBody, Spec},
-};
+use oas3::{self, spec::{Operation, Parameter, ObjectOrReference, RequestBody, Spec}};
 
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use reqwest::Client;
@@ -33,50 +30,54 @@ pub fn extract_base_url(oas3: &oas3::OpenApiV3Spec) -> Option<String> {
 }
 
 /// Extract parameters from an OpenAPI operation and convert to JSON Schema format
-fn extract_operation_parameters(operation: &Operation) -> Option<Value> {
-    if operation.parameters.is_empty() {
+fn extract_operation_parameters(
+    operation: &Operation,
+    spec: &oas3::OpenApiV3Spec,
+) -> Option<Value> {
+    let params = match operation.parameters(spec) {
+        Ok(p) => p,
+        Err(_) => return None,
+    };
+    if params.is_empty() {
         return None;
     }
 
     let mut properties = serde_json::Map::new();
     let mut required = Vec::new();
 
-    // Iterate through parameters and convert them to JSON schema properties
-    for param in &operation.parameters {
-        // Try to extract parameter information using serde_json serialization
-        if let Ok(param_value) = serde_json::to_value(param) {
-            if let Some(param_obj) = param_value.as_object() {
-                if let Some(name) = param_obj.get("name").and_then(|n| n.as_str()) {
-                    // Determine the property definition from the parameter schema
-                    let mut property =
-                        if let Some(Value::Object(schema_obj)) = param_obj.get("schema") {
-                            schema_obj.clone()
-                        } else {
-                            let mut map = serde_json::Map::new();
-                            map.insert("type".to_string(), Value::String("string".to_string()));
-                            map
-                        };
+    for param in params {
+        let name = param.name.clone();
 
-                    if let Some(description) = param_obj.get("description").and_then(|d| d.as_str())
-                    {
-                        property.insert(
-                            "description".to_string(),
-                            Value::String(description.to_string()),
-                        );
-                    }
-
-                    properties.insert(name.to_string(), Value::Object(property));
-
-                    // Check if required
-                    if param_obj
-                        .get("required")
-                        .and_then(|r| r.as_bool())
-                        .unwrap_or(false)
-                    {
-                        required.push(name.to_string());
-                    }
+        // Determine the property definition from the parameter schema
+        let mut property = if let Some(schema_or_ref) = &param.schema {
+            match schema_or_ref.resolve(spec) {
+                Ok(schema) => serde_json::to_value(&schema)
+                    .ok()
+                    .and_then(|v| v.as_object().cloned())
+                    .unwrap_or_default(),
+                Err(_) => {
+                    let mut map = serde_json::Map::new();
+                    map.insert("type".to_string(), Value::String("string".to_string()));
+                    map
                 }
             }
+        } else {
+            let mut map = serde_json::Map::new();
+            map.insert("type".to_string(), Value::String("string".to_string()));
+            map
+        };
+
+        if let Some(description) = &param.description {
+            property.insert(
+                "description".to_string(),
+                Value::String(description.clone()),
+            );
+        }
+
+        properties.insert(name.clone(), Value::Object(property));
+
+        if param.required.unwrap_or(false) {
+            required.push(name);
         }
     }
 
@@ -309,7 +310,7 @@ pub fn create_tool_definitions_from_spec(spec: oas3::OpenApiV3Spec) -> Integrati
             let schema_key = format!("{}_form_model", function_name);
 
             // Extract parameters from operation definition
-            let operation_params = extract_operation_parameters(operation);
+            let operation_params = extract_operation_parameters(operation, &spec);
 
             // Extract request body schema
             let request_body_params = extract_request_body_schema(operation, &spec);
