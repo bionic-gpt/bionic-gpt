@@ -20,7 +20,7 @@ pub fn token_count(messages: Vec<ChatCompletionMessage>) -> i32 {
         })
         .collect();
 
-    num_tokens_from_messages("gpt-4", &messages).unwrap() as i32
+    num_tokens_from_messages("gpt-4", &messages).unwrap_or(0) as i32
 }
 
 pub fn token_count_from_string(message: &str) -> i32 {

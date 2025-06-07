@@ -14,9 +14,12 @@ pub async fn handler(
     req: Request<Body>,
 ) -> Result<Response, CustomError> {
     if let Some(api_key) = req.headers().get("Authorization") {
-        let api_key = api_key.to_str().unwrap().replace("Bearer ", "");
-        let mut db_client = pool.get().await.unwrap();
-        let transaction = db_client.transaction().await.unwrap();
+        let api_key = api_key
+            .to_str()
+            .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?
+            .replace("Bearer ", "");
+        let mut db_client = pool.get().await?;
+        let transaction = db_client.transaction().await?;
 
         // Check this first, if we have a false API key then return auth error
         let api_key = queries::api_keys::find_api_key()
@@ -47,12 +50,14 @@ pub async fn handler(
             let api_key = format!("Bearer {}", api_key);
             headers.insert(
                 "Authorization",
-                header::HeaderValue::from_str(&api_key).unwrap(),
+                header::HeaderValue::from_str(&api_key)
+                    .map_err(|e| CustomError::FaultySetup(e.to_string()))?,
             );
         }
         headers.insert(
             "Content-Type",
-            header::HeaderValue::from_str("application/json").unwrap(),
+            header::HeaderValue::from_str("application/json")
+                .map_err(|e| CustomError::FaultySetup(e.to_string()))?,
         );
 
         let client = reqwest::Client::builder();
@@ -73,8 +78,7 @@ pub async fn handler(
         let response_builder = Response::builder().status(reqwest_response.status().as_u16());
         Ok(response_builder
             .body(Body::from_stream(reqwest_response.bytes_stream()))
-            // This unwrap is fine because the body is empty here
-            .unwrap())
+            .map_err(|e| CustomError::FaultySetup(e.to_string()))?)
     } else {
         Err(CustomError::Authentication(
             "You need an API key".to_string(),
