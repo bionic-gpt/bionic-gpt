@@ -520,7 +520,13 @@ impl ToolInterface for ExternalIntegrationTool {
         tracing::debug!("Making request to URL: {} using method: {}", url, method);
 
         // Determine if we should send a request body
-        let has_request_body = !request_body_params.as_object().unwrap().is_empty();
+        let body_obj = request_body_params.as_object();
+        let has_request_body = body_obj.map_or(false, |obj| !obj.is_empty());
+        if body_obj.is_none() {
+            return Err(serde_json::json!({
+                "error": "Malformed request body arguments"
+            }));
+        }
 
         // Make the request based on the HTTP method
         let response = match method.to_uppercase().as_str() {
