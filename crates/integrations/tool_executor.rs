@@ -218,8 +218,9 @@ mod tests {
         // Test get_tools without a pool
         let tools = get_tools(None, None, None).await;
 
-        // Should only have the TimeDateTool
-        assert_eq!(tools.len(), 1);
+        // Should have TimeDateTool and WebTool
+        assert_eq!(tools.len(), 2);
         assert_eq!(tools[0].name(), "get_current_time_and_date");
+        assert_eq!(tools[1].name(), "open_url");
     }
 }

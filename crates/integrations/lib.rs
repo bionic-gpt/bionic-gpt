@@ -2,7 +2,9 @@
 //!
 //! This crate provides integration with external services and tools.
 
+pub mod bionic_openapi;
 pub mod oauth2;
+pub mod open_api_tool;
 pub mod open_api_v3_integration;
 pub mod tool;
 pub mod tool_executor;
@@ -12,11 +14,19 @@ pub mod tools;
 #[cfg(test)]
 mod test_async;
 
+/// Create a JSON error object with a message and details
+pub fn json_error(kind: &str, err: impl ToString) -> serde_json::Value {
+    serde_json::json!({
+        "error": kind,
+        "details": err.to_string(),
+    })
+}
+
 // Re-export key types for convenience
 pub use oauth2::has_oauth2_support;
 pub use open_api_v3_integration::{
     create_tool_definitions_from_spec, create_tools_from_integration,
-    create_tools_from_integrations, extract_base_url, ExternalIntegrationTool, IntegrationTools,
+    create_tools_from_integrations, extract_base_url, BionicOpenAPI, IntegrationTools, OpenApiTool,
 };
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};
