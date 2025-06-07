@@ -1,6 +1,6 @@
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
-use oas3::{self, spec::{Operation, Parameter, ObjectOrReference}};
+use oas3::{self, spec::{Operation, Parameter, ObjectOrReference, RequestBody, Spec}};
 
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use reqwest::Client;
@@ -101,76 +101,22 @@ fn extract_operation_parameters(
 }
 
 /// Extract request body schema from an OpenAPI operation and convert to JSON Schema format
-fn extract_request_body_schema(
-    operation: &Operation,
-    components: Option<&oas3::spec::Components>,
-) -> Option<Value> {
+fn extract_request_body_schema(operation: &Operation, spec: &Spec) -> Option<Value> {
     let request_body_ref = operation.request_body.as_ref()?;
+    let request_body = request_body_ref.resolve(spec).ok()?;
 
-    // Handle ObjectOrReference - convert to JSON and parse
-    let request_body_value = serde_json::to_value(request_body_ref).ok()?;
-
-    // If it's a reference, resolve it first
-    if let Some(ref_str) = request_body_value.get("$ref").and_then(|r| r.as_str()) {
-        if let Some(components_ref) = components {
-            if let Some(resolved) = resolve_request_body_reference(ref_str, components_ref) {
-                return extract_schema_from_request_body_value(&resolved, components);
-            }
-        }
-        return None;
-    }
-
-    // If it's an inline request body, extract schema directly
-    extract_schema_from_request_body_value(&request_body_value, components)
+    extract_schema_from_request_body_value(&request_body, spec)
 }
 
 /// Extract schema from a request body JSON value
 fn extract_schema_from_request_body_value(
-    request_body_value: &Value,
-    components: Option<&oas3::spec::Components>,
+    request_body: &RequestBody,
+    spec: &Spec,
 ) -> Option<Value> {
-    // Get the JSON content type from request body
-    let content = request_body_value.get("content")?;
-    let json_content = content.get("application/json")?;
-    let schema = json_content.get("schema")?;
-
-    // If this is a reference, resolve it
-    if let Some(schema_ref) = schema.get("$ref").and_then(|r| r.as_str()) {
-        if let Some(components) = components {
-            return resolve_schema_reference(schema_ref, components);
-        }
-    }
-
-    // If it's an inline schema, return it directly
-    Some(schema.clone())
-}
-
-/// Resolve a request body reference to its actual definition
-fn resolve_request_body_reference(
-    ref_str: &str,
-    components: &oas3::spec::Components,
-) -> Option<Value> {
-    // Handle references like "#/components/requestBodies/RequestBodyName"
-    if let Some(request_body_name) = ref_str.strip_prefix("#/components/requestBodies/") {
-        if let Some(request_body) = components.request_bodies.get(request_body_name) {
-            return serde_json::to_value(request_body).ok();
-        }
-    }
-    None
-}
-
-/// Resolve a schema reference to its actual schema definition
-fn resolve_schema_reference(
-    schema_ref: &str,
-    components: &oas3::spec::Components,
-) -> Option<Value> {
-    // Handle references like "#/components/schemas/Event"
-    if let Some(schema_name) = schema_ref.strip_prefix("#/components/schemas/") {
-        if let Some(schema) = components.schemas.get(schema_name) {
-            return serde_json::to_value(schema).ok();
-        }
-    }
-    None
+    let json_content = request_body.content.get("application/json")?;
+    let schema_ref = json_content.schema.as_ref()?;
+    let schema = schema_ref.resolve(spec).ok()?;
+    serde_json::to_value(schema).ok()
 }
 
 /// Merge schema-based parameters with operation-based parameters and request body parameters
@@ -367,8 +313,7 @@ pub fn create_tool_definitions_from_spec(spec: oas3::OpenApiV3Spec) -> Integrati
             let operation_params = extract_operation_parameters(operation, &spec);
 
             // Extract request body schema
-            let request_body_params =
-                extract_request_body_schema(operation, spec.components.as_ref());
+            let request_body_params = extract_request_body_schema(operation, &spec);
 
             // Try to get schema-based parameters from components (backward compatibility)
             let schema_params = if let Some(components) = &spec.components {
@@ -524,7 +469,13 @@ impl ToolInterface for ExternalIntegrationTool {
         tracing::debug!("Making request to URL: {} using method: {}", url, method);
 
         // Determine if we should send a request body
-        let has_request_body = !request_body_params.as_object().unwrap().is_empty();
+        let body_obj = request_body_params.as_object();
+        let has_request_body = body_obj.map_or(false, |obj| !obj.is_empty());
+        if body_obj.is_none() {
+            return Err(serde_json::json!({
+                "error": "Malformed request body arguments"
+            }));
+        }
 
         // Make the request based on the HTTP method
         let response = match method.to_uppercase().as_str() {
