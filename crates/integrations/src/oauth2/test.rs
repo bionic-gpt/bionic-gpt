@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use super::detection::has_oauth2_security;
+    use super::detection::{get_oauth2_config, has_oauth2_security};
     use oas3::OpenApiV3;
     use serde_json;
 
@@ -51,8 +51,16 @@ mod tests {
 
         let spec: OpenApiV3 = serde_json::from_str(spec_json).unwrap();
         let has_oauth2 = has_oauth2_security(&spec);
-        
+
         assert!(has_oauth2, "OAuth2 should be detected in the test spec");
+
+        let config = get_oauth2_config(&spec).expect("config should be parsed");
+        assert_eq!(
+            config.authorization_url,
+            "https://example.com/oauth/authorize"
+        );
+        assert_eq!(config.token_url, "https://example.com/oauth/token");
+        assert_eq!(config.scopes, vec!["read".to_string()]);
     }
 
     #[test]
@@ -81,7 +89,8 @@ mod tests {
 
         let spec: OpenApiV3 = serde_json::from_str(spec_json).unwrap();
         let has_oauth2 = has_oauth2_security(&spec);
-        
+
         assert!(!has_oauth2, "OAuth2 should not be detected in spec without OAuth2");
+        assert!(get_oauth2_config(&spec).is_none(), "No config should be returned");
     }
 }
