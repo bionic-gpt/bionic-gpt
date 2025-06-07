@@ -1,4 +1,4 @@
-use crate::external_integration::create_tools_from_integrations;
+use crate::open_api_v3_integration::create_tools_from_integrations;
 use crate::tool::ToolInterface;
 use crate::tools;
 use db::{queries::integrations as db_integrations, Pool};
