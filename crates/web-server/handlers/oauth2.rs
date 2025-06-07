@@ -4,10 +4,10 @@ use axum::response::Redirect;
 use axum::Router;
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Pool, Visibility};
+use integrations::{BionicOpenAPI, OAuth2Config};
 use oauth2::basic::BasicClient;
 use oauth2::{
-    AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, RevocationUrl,
-    Scope, TokenUrl,
+    AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, Scope, TokenUrl,
 };
 use serde::Deserialize;
 use web_pages::routes::integrations::{Connect, OAuth2Callback};
@@ -38,55 +38,69 @@ pub async fn connect_loader(
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // Get the integration from the database
-    let _integration = queries::integrations::integration()
+    let integration = queries::integrations::integration()
         .bind(&transaction, &integration_id)
         .one()
         .await?;
 
-    let google_client_id =
-        ClientId::new(std::env::var("GOOGLE_CLIENT_ID").unwrap_or("DUMMY_VALUE".into()));
-    let google_client_secret =
-        ClientSecret::new(std::env::var("GOOGLE_CLIENT_SECRET").unwrap_or("DUMMY_VALUE".into()));
+    // Extract OAuth2 configuration from the integration's OpenAPI definition
+    let oauth2_config = get_oauth2_config_from_integration(&integration)?;
 
-    let auth_url = AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string())
-        .expect("Invalid authorization endpoint URL");
-    let token_url = TokenUrl::new("https://www.googleapis.com/oauth2/v3/token".to_string())
-        .expect("Invalid token endpoint URL");
+    let client_id =
+        ClientId::new(std::env::var("OAUTH2_CLIENT_ID").unwrap_or("DUMMY_VALUE".into()));
+    let client_secret =
+        ClientSecret::new(std::env::var("OAUTH2_CLIENT_SECRET").unwrap_or("DUMMY_VALUE".into()));
 
-    // Set up the config for the Google OAuth2 process.
-    let client = BasicClient::new(google_client_id)
-        .set_client_secret(google_client_secret)
+    let auth_url = AuthUrl::new(oauth2_config.authorization_url)
+        .map_err(|_| CustomError::FaultySetup("Invalid authorization endpoint URL".to_string()))?;
+    let token_url = TokenUrl::new(oauth2_config.token_url)
+        .map_err(|_| CustomError::FaultySetup("Invalid token endpoint URL".to_string()))?;
+
+    // Set up the config for the OAuth2 process using dynamic configuration
+    let client = BasicClient::new(client_id)
+        .set_client_secret(client_secret)
         .set_auth_uri(auth_url)
         .set_token_uri(token_url)
         // This example will be running its own server at localhost:8080.
         // See below for the server implementation.
         .set_redirect_uri(
             RedirectUrl::new("http://localhost:8080".to_string()).expect("Invalid redirect URL"),
-        )
-        // Google supports OAuth 2.0 Token Revocation (RFC-7009)
-        .set_revocation_url(
-            RevocationUrl::new("https://oauth2.googleapis.com/revoke".to_string())
-                .expect("Invalid revocation endpoint URL"),
         );
 
-    // Google supports Proof Key for Code Exchange (PKCE - https://oauth.net/2/pkce/).
     // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
     let (pkce_code_challenge, _pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
 
     // Generate the authorization URL to which we'll redirect the user.
-    let (authorize_url, _csrf_state) = client
+    let mut auth_request = client
         .authorize_url(CsrfToken::new_random)
-        // This example is requesting access to the "calendar" features and the user's profile.
-        .add_scope(Scope::new(
-            "https://www.googleapis.com/auth/calendar".to_string(),
-        ))
-        .add_scope(Scope::new(
-            "https://www.googleapis.com/auth/plus.me".to_string(),
-        ))
-        .set_pkce_challenge(pkce_code_challenge)
-        .url();
+        .set_pkce_challenge(pkce_code_challenge);
+
+    // Add scopes from the OAuth2 configuration
+    for scope in oauth2_config.scopes {
+        auth_request = auth_request.add_scope(Scope::new(scope));
+    }
+
+    let (authorize_url, _csrf_state) = auth_request.url();
 
     Ok(Redirect::to(authorize_url.as_str()))
+}
+
+/// Extract OAuth2 configuration from an integration's OpenAPI definition
+fn get_oauth2_config_from_integration(
+    integration: &db::queries::integrations::Integration,
+) -> Result<OAuth2Config, CustomError> {
+    let definition = integration.definition.as_ref().ok_or_else(|| {
+        CustomError::FaultySetup("Integration has no OpenAPI definition".to_string())
+    })?;
+
+    let spec = oas3::from_json(definition.to_string())
+        .map_err(|e| CustomError::FaultySetup(format!("Invalid OpenAPI spec: {}", e)))?;
+
+    let bionic_api = BionicOpenAPI::new(spec);
+
+    bionic_api
+        .get_oauth2_config()
+        .ok_or_else(|| CustomError::FaultySetup("Integration does not support OAuth2".to_string()))
 }
 
 /// Handle OAuth2 callback
