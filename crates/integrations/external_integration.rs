@@ -254,6 +254,46 @@ fn merge_parameters(
     Some(result)
 }
 
+/// Separate path/query parameters from request body parameters
+fn separate_parameters(args: &Value, operation: &Operation) -> Result<(Value, Value), String> {
+    let mut path_query_params = serde_json::Map::new();
+    let mut request_body_params = serde_json::Map::new();
+
+    // Get all arguments as an object
+    let args_obj = args.as_object().ok_or("Arguments must be a JSON object")?;
+
+    // Collect path and query parameter names from the operation
+    let mut path_query_param_names = std::collections::HashSet::new();
+
+    for param in &operation.parameters {
+        if let Ok(param_value) = serde_json::to_value(param) {
+            if let Some(param_obj) = param_value.as_object() {
+                if let Some(location) = param_obj.get("in").and_then(|l| l.as_str()) {
+                    if location == "path" || location == "query" {
+                        if let Some(param_name) = param_obj.get("name").and_then(|n| n.as_str()) {
+                            path_query_param_names.insert(param_name.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Separate the arguments based on parameter type
+    for (key, value) in args_obj {
+        if path_query_param_names.contains(key) {
+            path_query_params.insert(key.clone(), value.clone());
+        } else {
+            request_body_params.insert(key.clone(), value.clone());
+        }
+    }
+
+    Ok((
+        Value::Object(path_query_params),
+        Value::Object(request_body_params),
+    ))
+}
+
 /// Substitute path parameters in a URL template with actual values
 fn substitute_path_parameters(
     path: &str,
@@ -462,57 +502,67 @@ impl ToolInterface for ExternalIntegrationTool {
         let args: Value = serde_json::from_str(arguments)
             .map_err(|e| json_error("Failed to parse arguments", e))?;
 
-        // Substitute path parameters in the URL
-        let path_with_params = substitute_path_parameters(&path, &args, operation)?;
+        // Separate path/query parameters from request body parameters
+        let (path_query_params, request_body_params) = separate_parameters(&args, operation)
+            .map_err(|e| json_error("Failed to separate parameters", e))?;
+
+        tracing::debug!(
+            "Separated parameters - Path/Query: {}, Request Body: {}",
+            serde_json::to_string(&path_query_params).unwrap_or_default(),
+            serde_json::to_string(&request_body_params).unwrap_or_default()
+        );
+
+        // Substitute path parameters in the URL using only path/query params
+        let path_with_params = substitute_path_parameters(&path, &path_query_params, operation)?;
 
         // Construct the final URL
         let url = format!("{}{}", self.base_url, path_with_params);
         tracing::debug!("Making request to URL: {} using method: {}", url, method);
 
+        // Determine if we should send a request body
+        let has_request_body = !request_body_params.as_object().unwrap().is_empty();
+
         // Make the request based on the HTTP method
-        // For GET requests, don't send JSON body if we have path parameters
         let response = match method.to_uppercase().as_str() {
             "GET" => {
-                // For GET requests, only send JSON body if there are no path parameters
-                // or if there are additional non-path parameters
-                if path.contains('{') && path_with_params != path {
-                    // We substituted path parameters, so make a simple GET request
-                    self.client
-                        .get(&url)
-                        .send()
-                        .await
-                        .map_err(|e| json_error("Failed to make GET request", e))?
-                } else {
-                    // No path parameters, send as before
-                    self.client
-                        .get(&url)
-                        .json(&args)
-                        .send()
-                        .await
-                        .map_err(|e| json_error("Failed to make GET request", e))?
-                }
+                // GET requests typically don't have request bodies
+                // Send query parameters in URL if any (future enhancement)
+                self.client
+                    .get(&url)
+                    .send()
+                    .await
+                    .map_err(|e| json_error("Failed to make GET request", e))?
             }
-            "POST" => self
-                .client
-                .post(&url)
-                .json(&args)
-                .send()
-                .await
-                .map_err(|e| json_error("Failed to make POST request", e))?,
-            "PUT" => self
-                .client
-                .put(&url)
-                .json(&args)
-                .send()
-                .await
-                .map_err(|e| json_error("Failed to make PUT request", e))?,
-            "DELETE" => self
-                .client
-                .delete(&url)
-                .json(&args)
-                .send()
-                .await
-                .map_err(|e| json_error("Failed to make DELETE request", e))?,
+            "POST" => {
+                let mut request = self.client.post(&url);
+                if has_request_body {
+                    request = request.json(&request_body_params);
+                }
+                request
+                    .send()
+                    .await
+                    .map_err(|e| json_error("Failed to make POST request", e))?
+            }
+            "PUT" => {
+                let mut request = self.client.put(&url);
+                if has_request_body {
+                    request = request.json(&request_body_params);
+                }
+                request
+                    .send()
+                    .await
+                    .map_err(|e| json_error("Failed to make PUT request", e))?
+            }
+            "DELETE" => {
+                let mut request = self.client.delete(&url);
+                if has_request_body {
+                    request = request.json(&request_body_params);
+                }
+                request
+                    .send()
+                    .await
+                    .map_err(|e| json_error("Failed to make DELETE request", e))?
+            }
             _ => {
                 return Err(serde_json::json!({
                     "error": "Unsupported HTTP method",
