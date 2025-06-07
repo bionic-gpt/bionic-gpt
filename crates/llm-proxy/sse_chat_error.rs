@@ -67,7 +67,7 @@ pub fn string_to_chunk(content: &str) -> CompletionChunk {
         }],
     };
     CompletionChunk {
-        delta: serde_json::to_string(&delta).unwrap(),
+        delta: serde_json::to_string(&delta).unwrap_or_default(),
         merged: None,
         snapshot: "".to_string(),
     }

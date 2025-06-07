@@ -36,8 +36,7 @@ pub async fn synthesize(
             let response_builder = Response::builder().status(response.status().as_u16());
             Ok(response_builder
                 .body(Body::from_stream(response.bytes_stream()))
-                // This unwrap is fine because the body is empty here
-                .unwrap())
+                .map_err(|e| CustomError::FaultySetup(e.to_string()))?)
         }
         Err(err) => {
             dbg!(&err);

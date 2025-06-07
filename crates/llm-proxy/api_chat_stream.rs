@@ -26,9 +26,12 @@ pub async fn chat_generate(
     req: Request<Body>,
 ) -> Result<Response<Body>, CustomError> {
     if let Some(api_key) = req.headers().get("Authorization") {
-        let api_key = api_key.to_str().unwrap().replace("Bearer ", "");
-        let mut db_client = pool.get().await.unwrap();
-        let transaction = db_client.transaction().await.unwrap();
+        let api_key = api_key
+            .to_str()
+            .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?
+            .replace("Bearer ", "");
+        let mut db_client = pool.get().await?;
+        let transaction = db_client.transaction().await?;
 
         let body: String = req
             .extract()
@@ -79,9 +82,7 @@ pub async fn chat_generate(
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                             GenerationEvent::End(completion_chunk) => {
-                                log_end_of_chat(pool, &completion_chunk.snapshot, &api_key)
-                                    .await
-                                    .unwrap();
+                                log_end_of_chat(pool, &completion_chunk.snapshot, &api_key).await?;
                                 Ok(Event::default().data(completion_chunk.delta))
                             }
                         },
@@ -236,8 +237,8 @@ async fn log_end_of_chat(
     api_key: &str,
 ) -> Result<(), CustomError> {
     let completion_tokens = super::token_count::token_count_from_string(snapshot);
-    let mut db_client = pool.get().await.unwrap();
-    let transaction = db_client.transaction().await.unwrap();
+    let mut db_client = pool.get().await?;
+    let transaction = db_client.transaction().await?;
 
     // Get the API key record to get the api_key_id
     let api_key_record = queries::api_keys::find_api_key()
