@@ -3,6 +3,7 @@
 //! This crate provides integration with external services and tools.
 
 pub mod external_integration;
+pub mod oauth2;
 pub mod tool;
 pub mod tool_executor;
 pub mod tool_registry;
@@ -16,6 +17,7 @@ pub use external_integration::{
     create_tool_definitions_from_spec, create_tools_from_integration,
     create_tools_from_integrations, extract_base_url, ExternalIntegrationTool, IntegrationTools,
 };
+pub use oauth2::has_oauth2_support;
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};
 pub use tool_registry::{

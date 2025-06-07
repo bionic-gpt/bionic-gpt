@@ -976,6 +976,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b42b6fa04a440b495c8b04d0e71b707c585f83cb9cb28cf8cd0d976c315e31b4"
 dependencies = [
  "powerfmt",
+ "serde",
 ]
 
 [[package]]
@@ -1595,8 +1596,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -2205,6 +2208,7 @@ dependencies = [
  "chrono",
  "db",
  "oas3",
+ "oauth2",
  "openai-api",
  "rag-engine",
  "reqwest",
@@ -2862,6 +2866,26 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "url",
+]
+
+[[package]]
+name = "oauth2"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "51e219e79014df21a225b1860a479e2dcd7cbd9130f4defd4bd0e191ea31d67d"
+dependencies = [
+ "base64 0.22.1",
+ "chrono",
+ "getrandom 0.2.10",
+ "http 1.1.0",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_path_to_error",
+ "sha2",
+ "thiserror 1.0.58",
  "url",
 ]
 
@@ -5228,6 +5252,7 @@ dependencies = [
  "axum-extra",
  "axum_typed_multipart",
  "base64 0.13.1",
+ "chrono",
  "db",
  "embeddings-api",
  "http 1.1.0",
@@ -5236,6 +5261,7 @@ dependencies = [
  "llm-proxy",
  "mime",
  "oas3",
+ "oauth2",
  "object-storage",
  "openai-api",
  "pgvector 0.4.0",

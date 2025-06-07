@@ -10,6 +10,7 @@ pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::AuditTrail;
 pub use queries::categories::Category;
 pub use queries::chats::Chat;
+pub use queries::connections::Connection;
 pub use queries::conversations::Conversation;
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;

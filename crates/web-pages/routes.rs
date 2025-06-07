@@ -279,6 +279,20 @@ pub mod integrations {
         pub team_id: i32,
         pub id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/integrations/{integration_id}/connect")]
+    pub struct Connect {
+        pub team_id: i32,
+        pub integration_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/integrations/{integration_id}/oauth2/callback")]
+    pub struct OAuth2Callback {
+        pub team_id: i32,
+        pub integration_id: i32,
+    }
 }
 
 pub mod workflows {

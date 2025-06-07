@@ -9,6 +9,7 @@ pub mod history;
 pub mod integrations;
 pub mod metrics;
 pub mod models;
+pub mod oauth2;
 pub mod oidc_endpoint;
 pub mod pipelines;
 pub mod profile;
