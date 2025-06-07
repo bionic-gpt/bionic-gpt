@@ -1,8 +1,8 @@
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
-use serde_json::{json, Value};
 use reqwest::Url;
+use serde_json::{json, Value};
 use std::fmt;
 
 /// Error type returned by the web tool
@@ -56,7 +56,9 @@ impl ToolInterface for WebTool {
         let args: Value = serde_json::from_str(arguments)
             .map_err(|e| json!({"error": "Failed to parse arguments", "details": e.to_string()}))?;
 
-        let url = args["url"].as_str().ok_or_else(|| json!({"error": "Missing url"}))?;
+        let url = args["url"]
+            .as_str()
+            .ok_or_else(|| json!({"error": "Missing url"}))?;
 
         match open_url(url.to_string()).await {
             Ok(content) => Ok(json!({"content": content})),
@@ -96,4 +98,3 @@ mod tests {
         assert!(result.is_err());
     }
 }
-
