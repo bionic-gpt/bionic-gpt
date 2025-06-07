@@ -40,7 +40,7 @@ pub async fn synthesize(
                 .unwrap())
         }
         Err(err) => {
-            dbg!(&err);
+            tracing::error!("Error creating request: {:?}", err);
             Err(CustomError::FaultySetup(err.to_string()))
         }
     }
