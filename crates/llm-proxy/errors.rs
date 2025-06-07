@@ -31,6 +31,13 @@ impl fmt::Display for CustomError {
     }
 }
 
+// Implement std::error::Error trait for CustomError
+impl std::error::Error for CustomError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
+}
+
 // So that errors get printed to the browser?
 impl IntoResponse for CustomError {
     fn into_response(self) -> Response {
@@ -102,5 +109,11 @@ impl From<db::TokioPostgresError> for CustomError {
 impl From<db::PoolError> for CustomError {
     fn from(err: db::PoolError) -> CustomError {
         CustomError::Database(err.to_string(), Backtrace::capture())
+    }
+}
+
+impl From<CustomError> for axum::Error {
+    fn from(err: CustomError) -> axum::Error {
+        axum::Error::new(err)
     }
 }
