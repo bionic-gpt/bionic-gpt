@@ -286,6 +286,20 @@ impl BionicOpenAPI {
         false
     }
 
+    /// Check if the OpenAPI spec defines API key security schemes
+    pub fn has_api_key_security(&self) -> bool {
+        if let Some(components) = &self.spec.components {
+            for scheme_ref in components.security_schemes.values() {
+                if let oas3::spec::ObjectOrReference::Object(scheme) = scheme_ref {
+                    if matches!(scheme, SecurityScheme::ApiKey { .. }) {
+                        return true;
+                    }
+                }
+            }
+        }
+        false
+    }
+
     /// Retrieve OAuth2 configuration from the OpenAPI spec
     pub fn get_oauth2_config(&self) -> Option<OAuth2Config> {
         let components = self.spec.components.as_ref()?;
