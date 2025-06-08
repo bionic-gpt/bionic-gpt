@@ -18,6 +18,14 @@ pub struct IntegrationTools {
     pub base_url: Option<String>,
 }
 
+/// OAuth2 configuration extracted from a security scheme
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OAuth2Config {
+    pub authorization_url: String,
+    pub token_url: String,
+    pub scopes: Vec<String>,
+}
+
 // Default placeholder SVG for integrations without logos
 const DEFAULT_INTEGRATION_LOGO: &str = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iIzZCNzI4MCIvPgo8cGF0aCBkPSJNMTYgMTZIMzJWMjBIMTZWMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTYgMjRIMzJWMjhIMTZWMjRaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTYgMzJIMjhWMzZIMTZWMzJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K";
 
@@ -297,27 +305,6 @@ impl BionicOpenAPI {
         Some(result)
     }
 
-    /// Check if the OpenAPI spec has OAuth2 security schemes
-    pub fn has_oauth2_security(&self) -> bool {
-        if let Some(components) = &self.spec.components {
-            for scheme_ref in components.security_schemes.values() {
-                match scheme_ref {
-                    oas3::spec::ObjectOrReference::Object(scheme) => {
-                        if matches!(scheme, SecurityScheme::OAuth2 { .. }) {
-                            return true;
-                        }
-                    }
-                    _ => {
-                        // For references, we would need to resolve them manually
-                        // For now, skip references as they're less common
-                        continue;
-                    }
-                }
-            }
-        }
-        false
-    }
-
     /// Check if the OpenAPI spec defines API key security schemes
     pub fn has_api_key_security(&self) -> bool {
         if let Some(components) = &self.spec.components {
@@ -377,14 +364,6 @@ impl BionicOpenAPI {
 
         Ok(tools)
     }
-}
-
-/// OAuth2 configuration extracted from a security scheme
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct OAuth2Config {
-    pub authorization_url: String,
-    pub token_url: String,
-    pub scopes: Vec<String>,
 }
 
 /// Create tools from a single integration
@@ -659,7 +638,7 @@ mod tests {
         let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
         let bionic_api = BionicOpenAPI::from_spec(spec);
 
-        assert!(bionic_api.has_oauth2_security());
+        assert!(bionic_api.get_oauth2_config().is_some());
 
         let oauth2_config = bionic_api.get_oauth2_config().unwrap();
         assert_eq!(
