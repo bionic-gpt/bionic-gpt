@@ -59,13 +59,24 @@ pub fn IntegrationCards(integrations: Vec<(BionicOpenAPI, i32)>, team_id: i32) -
                             div {
                                 class: "flex flex-col justify-center ml-4",
                                 Button {
-                                    popover_target: "logout-trigger",
+                                    popover_target: format!("configure-api-key-{}", integration.1),
                                     button_scheme: ButtonScheme::Secondary,
                                     "Configure"
                                 }
                             }
                         }
                     }
+                }
+            }
+        }
+
+        // Add API key configuration modals for integrations that support API keys
+        for integration in integrations.iter() {
+            if integration.0.has_api_key_security() {
+                super::api_key_form::ApiKeyForm {
+                    team_id,
+                    integration_id: integration.1,
+                    integration_name: integration.0.get_title().to_string()
                 }
             }
         }
