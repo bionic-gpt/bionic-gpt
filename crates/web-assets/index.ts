@@ -7,6 +7,7 @@ import hljs from 'highlight.js';
 import '@github/relative-time-element';
 
 // Misc.
+import { modalTriggers } from './typescript/components/modal-trigger'
 import { toggleVisibility } from './typescript/api-keys/toggle-visibility'
 import { autoExpand } from './typescript/console/auto-expand'
 import { initializeSidebar } from './typescript/layout/responsive-nav'
@@ -32,6 +33,7 @@ import '@hotwired/turbo'
 // Set everything up
 function loadEverything() {
     hljs.highlightAll()
+    modalTriggers()
     toggleVisibility()
     autoExpand()
     formatter()
