@@ -17,7 +17,7 @@ pub fn page(rbac: Rbac, team_id: i32) -> String {
                 h3 { "Workflows" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "create-workflow-form",
+                    popover_target: "create-workflow-form",
                     button_scheme: ButtonScheme::Primary,
                     "New Workflow"
                 }

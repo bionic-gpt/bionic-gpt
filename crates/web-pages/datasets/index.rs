@@ -26,7 +26,7 @@ pub fn page(
                 h3 { "Datasets" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "new-dataset-form",
+                    popover_target: "new-dataset-form",
                     button_scheme: ButtonScheme::Primary,
                     "Add Dataset"
                 }
@@ -102,7 +102,7 @@ pub fn page(
 
                                                 if rbac.can_edit_dataset(dataset) {
                                                     DropDownLink {
-                                                        drawer_trigger: format!("edit-trigger-{}-{}",
+                                                        popover_target: format!("edit-trigger-{}-{}",
                                                             dataset.id, team_id),
                                                         href: "#",
                                                         target: "_top",
@@ -110,7 +110,7 @@ pub fn page(
                                                     }
                                                 }
                                                 DropDownLink {
-                                                    drawer_trigger: format!("delete-trigger-{}-{}",
+                                                    popover_target: format!("delete-trigger-{}-{}",
                                                         dataset.id, team_id),
                                                     href: "#",
                                                     target: "_top",

@@ -19,7 +19,7 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                 h3 { "{dataset.name} / Documents" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "upload-form",
+                    popover_target: "upload-form",
                     button_scheme: ButtonScheme::Primary,
                     "Add Document"
                 }
@@ -208,7 +208,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     direction: Direction::Left,
                     button_text: "...",
                     DropDownLink {
-                        drawer_trigger: format!("delete-doc-trigger-{}-{}",
+                        popover_target: format!("delete-doc-trigger-{}-{}",
                             document.id, team_id),
                         href: "#",
                         target: "_top",

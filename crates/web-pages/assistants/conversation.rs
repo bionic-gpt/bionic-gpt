@@ -46,7 +46,7 @@ pub fn page(
                         class: "flex flex-row",
                         Button {
                             class: "btn-circle mr-2 p-1",
-                            drawer_trigger: "delete-conv-{conversation_id}",
+                            popover_target: "delete-conv-{conversation_id}",
                             button_scheme: ButtonScheme::Default,
                             img {
                                 src: delete_svg.name

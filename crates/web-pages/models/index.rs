@@ -28,7 +28,7 @@ pub fn page(
                 h3 { "Models" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    modal_trigger: "new-model-form",
+                    popover_target: "new-model-form",
                     button_scheme: ButtonScheme::Primary,
                     "Add Model"
                 }

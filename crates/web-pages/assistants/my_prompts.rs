@@ -30,11 +30,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                         class: "btn btn-ghost btn-sm font-bold! mr-4",
                         "Explore Assistants"
                     }
-                    crate::button::Button {
-                        button_type: crate::button::ButtonType::Link,
+                    Button {
+                        button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         href: routes::prompts::New{team_id}.to_string(),
-                        button_scheme: crate::button::ButtonScheme::Primary,
+                        button_scheme: ButtonScheme::Primary,
                         "New Assistant"
                     }
                 }
@@ -94,9 +94,9 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                                         }
                                     }
                                     td {
-                                        crate::button::Button {
-                                            button_type: crate::button::ButtonType::Link,
-                                            button_scheme: crate::button::ButtonScheme::Default,
+                                        Button {
+                                            button_type: ButtonType::Link,
+                                            button_scheme: ButtonScheme::Default,
                                             href: routes::prompts::Edit{team_id, prompt_id: prompt.id}.to_string(),
                                             "Edit"
                                         }
@@ -108,7 +108,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                                             direction: Direction::Left,
                                             button_text: "...",
                                             DropDownLink {
-                                                drawer_trigger: format!("delete-trigger-{}-{}",
+                                                popover_target: format!("delete-trigger-{}-{}",
                                                     prompt.id, team_id),
                                                 href: "#",
                                                 target: "_top",

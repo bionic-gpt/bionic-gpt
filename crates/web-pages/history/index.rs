@@ -21,7 +21,7 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
                 h3 { "Chat History" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "search-history",
+                    popover_target: "search-history",
                     button_scheme: ButtonScheme::Primary,
                     "Search History"
                 }

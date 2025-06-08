@@ -76,7 +76,7 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                 }
                                 td {
                                     Button {
-                                        modal_trigger: format!("edit-model-form-{}", model.id),
+                                        popover_target: format!("edit-model-form-{}", model.id),
                                         button_scheme: ButtonScheme::Default,
                                         "Edit"
                                     }
@@ -87,7 +87,7 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                         direction: Direction::Left,
                                         button_text: "...",
                                         DropDownLink {
-                                            drawer_trigger: format!("delete-trigger-{}-{}",
+                                            popover_target: format!("delete-trigger-{}-{}",
                                                 model.id, team_id),
                                             href: "#",
                                             target: "_top",

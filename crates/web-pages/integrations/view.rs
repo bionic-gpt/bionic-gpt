@@ -3,6 +3,7 @@ use crate::app_layout::{Layout, SideBar};
 use crate::routes;
 use crate::ConfirmModal;
 use assets::files::{button_edit_svg, menu_delete_svg};
+use daisy_rsx::*;
 use db::{authz::Rbac, Integration};
 use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
@@ -93,7 +94,7 @@ pub fn view(
     description: Option<String>,
     tool_definitions: Vec<BionicToolDefinition>,
 ) -> String {
-    let modal_trigger = format!("delete-integration-{}", integration.id);
+    let popover_target = format!("delete-integration-{}", integration.id);
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -135,21 +136,21 @@ pub fn view(
                         class: "flex flex-col justify-center",
                         div {
                             class: "flex gap-4",
-                            crate::button::Button {
-                                button_type: crate::button::ButtonType::Link,
+                            Button {
+                                button_type: ButtonType::Link,
                                 prefix_image_src: "{button_edit_svg.name}",
                                 href: routes::integrations::Edit{team_id, id: integration.id}.to_string(),
-                                button_scheme: crate::button::ButtonScheme::Outline,
+                                button_scheme: ButtonScheme::Outline,
                                 "Edit"
                             }
-                            crate::button::Button {
+                            Button {
                                 prefix_image_src: "{menu_delete_svg.name}",
-                                modal_trigger: modal_trigger.clone(),
-                                button_scheme: crate::button::ButtonScheme::Danger
+                                popover_target: popover_target.clone(),
+                                button_scheme: ButtonScheme::Danger
                             }
                             ConfirmModal {
                                 action: crate::routes::integrations::Delete{team_id, id: integration.id}.to_string(),
-                                trigger_id: modal_trigger,
+                                trigger_id: popover_target,
                                 submit_label: "Delete".to_string(),
                                 heading: "Delete this Integration?".to_string(),
                                 warning: "Are you sure you want to delete this Integration?".to_string(),
