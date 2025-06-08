@@ -26,7 +26,7 @@ pub fn page(
                 h3 { "Rate Limits" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "create-limit",
+                    popover_target: "create-limit",
                     button_scheme: ButtonScheme::Primary,
                     "Add Limit"
                 }

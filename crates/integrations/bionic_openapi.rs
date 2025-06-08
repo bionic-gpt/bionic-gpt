@@ -18,15 +18,33 @@ pub struct IntegrationTools {
     pub base_url: Option<String>,
 }
 
+/// OAuth2 configuration extracted from a security scheme
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OAuth2Config {
+    pub authorization_url: String,
+    pub token_url: String,
+    pub scopes: Vec<String>,
+}
+
+// Default placeholder SVG for integrations without logos
+const DEFAULT_INTEGRATION_LOGO: &str = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iIzZCNzI4MCIvPgo8cGF0aCBkPSJNMTYgMTZIMzJWMjBIMTZWMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTYgMjRIMzJWMjhIMTZWMjRaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTYgMzJIMjhWMzZIMTZWMzJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K";
+
 /// A wrapper around an OpenAPI v3 specification that provides methods
 /// for extracting tool definitions and handling OpenAPI operations
+#[derive(Clone, PartialEq, Debug)]
 pub struct BionicOpenAPI {
     spec: oas3::OpenApiV3Spec,
 }
 
 impl BionicOpenAPI {
-    /// Create a new BionicOpenAPI instance from an OpenAPI v3 specification
-    pub fn new(spec: oas3::OpenApiV3Spec) -> Self {
+    /// Create a new BionicOpenAPI instance from an OpenAPI v3 specification JSON string
+    pub fn new(spec: &Value) -> Result<Self, serde_json::Error> {
+        let spec = oas3::from_json(spec.to_string())?;
+        Ok(Self { spec })
+    }
+
+    /// Create a new BionicOpenAPI instance from an already parsed OpenAPI v3 specification
+    pub fn from_spec(spec: oas3::OpenApiV3Spec) -> Self {
         Self { spec }
     }
 
@@ -36,6 +54,28 @@ impl BionicOpenAPI {
             return Some(self.spec.servers[0].url.clone());
         }
         None
+    }
+
+    pub fn get_title(&self) -> String {
+        self.spec.info.title.clone()
+    }
+
+    pub fn get_description(&self) -> Option<String> {
+        self.spec.info.description.clone()
+    }
+
+    /// Safely extracts the logo URL from integration extensions
+    pub fn get_logo_url(&self) -> String {
+        self.spec
+            .info
+            .extensions
+            .get("logo")
+            .and_then(|logo| logo.as_object())
+            .and_then(|logo_obj| logo_obj.get("url"))
+            .and_then(|url| url.as_str())
+            .filter(|url| !url.is_empty())
+            .map(|url| url.to_string())
+            .unwrap_or_else(|| DEFAULT_INTEGRATION_LOGO.to_string())
     }
 
     /// Create tool definitions from the OpenAPI specification
@@ -265,6 +305,20 @@ impl BionicOpenAPI {
         Some(result)
     }
 
+    /// Check if the OpenAPI spec defines API key security schemes
+    pub fn has_api_key_security(&self) -> bool {
+        if let Some(components) = &self.spec.components {
+            for scheme_ref in components.security_schemes.values() {
+                if let oas3::spec::ObjectOrReference::Object(scheme) = scheme_ref {
+                    if matches!(scheme, SecurityScheme::ApiKey { .. }) {
+                        return true;
+                    }
+                }
+            }
+        }
+        false
+    }
+
     /// Check if the OpenAPI spec has OAuth2 security schemes
     pub fn has_oauth2_security(&self) -> bool {
         if let Some(components) = &self.spec.components {
@@ -333,14 +387,6 @@ impl BionicOpenAPI {
     }
 }
 
-/// OAuth2 configuration extracted from a security scheme
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct OAuth2Config {
-    pub authorization_url: String,
-    pub token_url: String,
-    pub scopes: Vec<String>,
-}
-
 /// Create tools from a single integration
 pub fn create_tools_from_integration(
     integration: &db::queries::integrations::Integration,
@@ -349,7 +395,7 @@ pub fn create_tools_from_integration(
         let oas3 = oas3::from_json(definition.to_string())
             .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
 
-        let bionic_api = BionicOpenAPI::new(oas3);
+        let bionic_api = BionicOpenAPI::from_spec(oas3);
         bionic_api.create_tools()
     } else {
         Err("Integration doesn't have a definition".to_string())
@@ -380,23 +426,12 @@ pub async fn create_tools_from_integrations(
     tools
 }
 
-/// Check if an integration has OAuth2 support
-pub fn has_oauth2_support(integration: &db::queries::integrations::Integration) -> bool {
-    if let Some(definition) = &integration.definition {
-        if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            let bionic_api = BionicOpenAPI::new(spec);
-            return bionic_api.has_oauth2_security();
-        }
-    }
-    false
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
 
-    fn create_test_openapi_spec() -> oas3::OpenApiV3Spec {
+    fn create_test_openapi_spec() -> Value {
         let spec_json = json!({
             "openapi": "3.0.0",
             "info": {
@@ -434,8 +469,8 @@ mod tests {
         serde_json::from_value(spec_json).unwrap()
     }
 
-    fn create_uk_police_api_spec() -> oas3::OpenApiV3Spec {
-        let spec_json = json!({
+    fn create_uk_police_api_spec() -> Value {
+        json!({
             "openapi": "3.0.3",
             "info": {
                 "title": "UK Police Forces API",
@@ -483,15 +518,13 @@ mod tests {
                     }
                 }
             }
-        });
-
-        serde_json::from_value(spec_json).unwrap()
+        })
     }
 
     #[test]
     fn test_create_tool_definitions_uses_operation_id() {
         let spec = create_test_openapi_spec();
-        let bionic_api = BionicOpenAPI::new(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let integration_tools = bionic_api.create_tool_definitions();
 
         assert_eq!(integration_tools.tool_definitions.len(), 3);
@@ -510,7 +543,7 @@ mod tests {
     #[test]
     fn test_extract_base_url() {
         let spec = create_test_openapi_spec();
-        let bionic_api = BionicOpenAPI::new(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let base_url = bionic_api.extract_base_url();
         assert_eq!(base_url, Some("https://api.example.com".to_string()));
     }
@@ -518,7 +551,7 @@ mod tests {
     #[test]
     fn test_uk_police_api_parameter_extraction() {
         let spec = create_uk_police_api_spec();
-        let bionic_api = BionicOpenAPI::new(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let integration_tools = bionic_api.create_tool_definitions();
 
         assert_eq!(integration_tools.tool_definitions.len(), 2);
@@ -553,8 +586,8 @@ mod tests {
         assert!(get_forces_tool.function.parameters.is_none());
     }
 
-    fn create_numeric_boolean_spec() -> oas3::OpenApiV3Spec {
-        let spec_json = json!({
+    fn create_numeric_boolean_spec() -> Value {
+        json!({
             "openapi": "3.0.3",
             "info": {"title": "Numeric and Boolean", "version": "1.0"},
             "paths": {
@@ -569,15 +602,13 @@ mod tests {
                     }
                 }
             }
-        });
-
-        serde_json::from_value(spec_json).unwrap()
+        })
     }
 
     #[test]
     fn test_numeric_and_boolean_parameter_types() {
         let spec = create_numeric_boolean_spec();
-        let bionic_api = BionicOpenAPI::new(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let integration_tools = bionic_api.create_tool_definitions();
 
         let tool = integration_tools
@@ -621,8 +652,7 @@ mod tests {
             "paths": {}
         });
 
-        let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
-        let bionic_api = BionicOpenAPI::new(spec);
+        let bionic_api = BionicOpenAPI::new(&spec_json).unwrap();
 
         assert!(bionic_api.has_oauth2_security());
 

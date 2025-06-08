@@ -31,13 +31,13 @@ pub fn page(
                     class: "flex gap-4",
                     Button {
                         prefix_image_src: "{button_plus_svg.name}",
-                        drawer_trigger: "create-assistant-key",
-                        button_scheme: ButtonScheme::Default,
+                        popover_target: "create-assistant-key",
+                        button_scheme: ButtonScheme::Neutral,
                         "Create Assistant Key"
                     }
                     Button {
                         prefix_image_src: "{button_plus_svg.name}",
-                        drawer_trigger: "create-model-key",
+                        popover_target: "create-model-key",
                         button_scheme: ButtonScheme::Primary,
                         "Create Model Key"
                     }
@@ -173,7 +173,7 @@ fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: i32) -> Element {
                                         direction: Direction::Left,
                                         button_text: "...",
                                         DropDownLink {
-                                            drawer_trigger: format!("delete-trigger-{}-{}",
+                                            popover_target: format!("delete-trigger-{}-{}",
                                                 key.id, team_id),
                                             href: "#",
                                             target: "_top",

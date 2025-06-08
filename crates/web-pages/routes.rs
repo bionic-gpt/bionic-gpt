@@ -293,6 +293,13 @@ pub mod integrations {
         pub team_id: i32,
         pub integration_id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/integrations/{integration_id}/configure_api_key")]
+    pub struct ConfigureApiKey {
+        pub team_id: i32,
+        pub integration_id: i32,
+    }
 }
 
 pub mod workflows {

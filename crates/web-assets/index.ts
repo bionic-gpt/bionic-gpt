@@ -7,10 +7,9 @@ import hljs from 'highlight.js';
 import '@github/relative-time-element';
 
 // Misc.
-import { triggers } from './typescript/components/side-drawer-trigger'
+import { modalTriggers } from './typescript/components/modal-trigger'
 import { toggleVisibility } from './typescript/api-keys/toggle-visibility'
 import { autoExpand } from './typescript/console/auto-expand'
-import { modalTriggers } from './typescript/components/modal-trigger'
 import { initializeSidebar } from './typescript/layout/responsive-nav'
 import { streamingChat } from './typescript/console/streaming-chat'
 import { formatter } from './typescript/console/format-json'
@@ -34,10 +33,9 @@ import '@hotwired/turbo'
 // Set everything up
 function loadEverything() {
     hljs.highlightAll()
-    triggers()
+    modalTriggers()
     toggleVisibility()
     autoExpand()
-    modalTriggers()
     formatter()
     streamingChat()
     copyPaste()

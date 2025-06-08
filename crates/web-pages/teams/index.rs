@@ -25,7 +25,7 @@ pub fn page(
                 h3 { "Your Teams" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "create-new-team",
+                    popover_target: "create-new-team",
                     button_scheme: ButtonScheme::Primary,
                     "Create a New Team"
                 }
@@ -80,7 +80,7 @@ pub fn page(
                                                     direction: Direction::Left,
                                                     button_text: "...",
                                                     DropDownLink {
-                                                        drawer_trigger: format!("delete-trigger-{}", team.id),
+                                                        popover_target: format!("delete-trigger-{}", team.id),
                                                         href: "#",
                                                         target: "_top",
                                                         "Delete Team"
@@ -123,7 +123,7 @@ pub fn page(
                                                     direction: Direction::Left,
                                                     button_text: "...",
                                                     DropDownLink {
-                                                        drawer_trigger: format!("delete-trigger-{}", team.id),
+                                                        popover_target: format!("delete-trigger-{}", team.id),
                                                         href: "#",
                                                         target: "_top",
                                                         "Delete Team"
@@ -176,7 +176,7 @@ pub fn page(
                                         direction: Direction::Left,
                                         button_text: "...",
                                         DropDownLink {
-                                            drawer_trigger: format!("accept-invite-trigger-{}", invite.id),
+                                            popover_target: format!("accept-invite-trigger-{}", invite.id),
                                             href: "#",
                                             target: "_top",
                                             "Accept Invite"

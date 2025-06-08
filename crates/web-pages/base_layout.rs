@@ -85,7 +85,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         {props.sidebar}
                     }
                     div {
-                        class: "pb-2 pl-4 pr-2",
+                        class: "pb-4 pl-4 pr-2",
                         {props.sidebar_footer}
                     }
                 }

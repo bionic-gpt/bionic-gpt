@@ -5,7 +5,7 @@ use crate::hero::Hero;
 use crate::routes;
 use crate::ConfirmModal;
 use assets::files::*;
-use daisy_rsx::{TabContainer, TabPanel};
+use daisy_rsx::{Button, ButtonScheme, ButtonType, TabContainer, TabPanel};
 use db::authz::Rbac;
 
 use db::{queries::prompts::Prompt, Category};
@@ -36,11 +36,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                         class: "btn btn-ghost btn-sm font-bold! mr-4",
                         "My Assistants"
                     }
-                    crate::button::Button {
-                        button_type: crate::button::ButtonType::Link,
+                    Button {
+                        button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         href: routes::prompts::New{team_id}.to_string(),
-                        button_scheme: crate::button::ButtonScheme::Primary,
+                        button_scheme: ButtonScheme::Primary,
                         "New Assistant"
                     }
                 }

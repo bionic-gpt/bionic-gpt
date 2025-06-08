@@ -96,7 +96,7 @@ fn get_oauth2_config_from_integration(
     let spec = oas3::from_json(definition.to_string())
         .map_err(|e| CustomError::FaultySetup(format!("Invalid OpenAPI spec: {}", e)))?;
 
-    let bionic_api = BionicOpenAPI::new(spec);
+    let bionic_api = BionicOpenAPI::from_spec(spec);
 
     bionic_api
         .get_oauth2_config()
@@ -124,7 +124,7 @@ pub async fn oauth2_callback(
     let refresh_token: Option<&str> = None;
     let expires_at: Option<time::OffsetDateTime> = None;
 
-    let _connection_id = queries::oauth2_connections::insert_oauth2_connection()
+    let _connection_id = queries::connections::insert_oauth2_connection()
         .bind(
             &transaction,
             &integration_id,

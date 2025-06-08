@@ -20,3 +20,19 @@ INSERT INTO oauth2_connections (
     :expires_at,
     :scopes
 ) RETURNING id;
+--: ApiKeyConnection()
+
+--! insert_api_key_connection : ApiKeyConnection
+INSERT INTO api_key_connections (
+    integration_id,
+    user_id,
+    team_id,
+    visibility,
+    api_key
+) VALUES (
+    :integration_id,
+    current_app_user(),
+    :team_id,
+    :visibility,
+    :api_key
+) RETURNING id;

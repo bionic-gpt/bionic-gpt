@@ -26,7 +26,7 @@ pub fn page(
                 h3 { "Team Members" }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
-                    drawer_trigger: "create-invite-form",
+                    popover_target: "create-invite-form",
                     button_scheme: ButtonScheme::Primary,
                     "Invite New Team Member"
                 }
@@ -70,7 +70,7 @@ pub fn page(
                     title: &team_name,
                     Button {
                         class: "ml-2",
-                        drawer_trigger: "set-name-drawer",
+                        popover_target: "set-name-drawer",
                         button_size: ButtonSize::Small,
                         "Edit Name"
                     }
@@ -137,7 +137,7 @@ pub fn page(
                                                 direction: Direction::Left,
                                                 button_text: "...",
                                                 DropDownLink {
-                                                    drawer_trigger: format!("remove-member-trigger-{}-{}",
+                                                    popover_target: format!("remove-member-trigger-{}-{}",
                                                         member.id, member.team_id),
                                                     href: "#",
                                                     target: "_top",
@@ -182,7 +182,7 @@ pub fn page(
                                                 direction: Direction::Left,
                                                 button_text: "...",
                                                 DropDownLink {
-                                                    drawer_trigger: format!("remove-invite-trigger-{}-{}",
+                                                    popover_target: format!("remove-invite-trigger-{}-{}",
                                                         invite.id, invite.team_id),
                                                     href: "#",
                                                     target: "_top",

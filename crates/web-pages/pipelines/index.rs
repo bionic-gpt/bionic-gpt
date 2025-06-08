@@ -46,7 +46,7 @@ pub fn page(
                 header: rsx!(
                     h3 { "Document Pipelines" }
                     Button {
-                        drawer_trigger: "create-api-key",
+                        popover_target: "create-api-key",
                         button_scheme: ButtonScheme::Primary,
                         "New Pipeline"
                     }
@@ -89,7 +89,7 @@ pub fn page(
                                                 direction: Direction::Left,
                                                 button_text: "...",
                                                 DropDownLink {
-                                                    drawer_trigger: format!("delete-trigger-{}-{}",
+                                                    popover_target: format!("delete-trigger-{}-{}",
                                                         key.id, team_id),
                                                     href: "#",
                                                     target: "_top",

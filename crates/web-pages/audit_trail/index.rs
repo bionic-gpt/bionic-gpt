@@ -26,8 +26,8 @@ pub fn page(
             header: rsx! {
                 h3 { "Audit Trail" }
                 Button {
-                    drawer_trigger: super::filter::DRAW_TRIGGER,
-                    button_scheme: ButtonScheme::Default,
+                    popover_target: super::filter::DRAW_TRIGGER,
+                    button_scheme: ButtonScheme::Neutral,
                     "Filter"
                 }
             },

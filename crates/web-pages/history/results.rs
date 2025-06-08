@@ -18,7 +18,7 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
             header: rsx!(
                 h3 { "Chat History" }
                 Button {
-                    drawer_trigger: "search-history",
+                    popover_target: "search-history",
                     button_scheme: ButtonScheme::Primary,
                     "Search Chats"
                 }

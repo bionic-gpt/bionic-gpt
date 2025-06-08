@@ -15,7 +15,7 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
     rsx! {
         Card {
             class: "cursor-pointer hover:bg-base-200 w-full",
-            modal_trigger: format!("view-trigger-{}-{}", prompt.id, team_id),
+            popover_target: format!("view-trigger-{}-{}", prompt.id, team_id),
             CardHeader {
                 class: "truncate ellipses flex justify-between p-2",
                 title: "{prompt.name}",

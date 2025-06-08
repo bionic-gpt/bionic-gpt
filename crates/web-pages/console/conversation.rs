@@ -75,8 +75,8 @@ fn Head(
             if rbac.can_delete_chat() {
                 Button {
                     class: "btn-circle mr-2 p-1",
-                    drawer_trigger: "delete-conv-{conversation_id}",
-                    button_scheme: ButtonScheme::Default,
+                    popover_target: "delete-conv-{conversation_id}",
+                    button_scheme: ButtonScheme::Neutral,
                     img {
                         class: "svg-icon",
                         src: delete_svg.name

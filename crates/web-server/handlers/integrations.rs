@@ -5,13 +5,69 @@ use axum::response::IntoResponse;
 use axum::Form;
 use axum::Router;
 use axum_extra::routing::RouterExt;
-use db::{authz, queries, Json, Pool};
+use db::{authz, queries, Json, Pool, Visibility};
 use integrations::bionic_openapi::BionicOpenAPI;
+use serde::Deserialize;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
-use web_pages::integrations::IntegrationOas3;
 use web_pages::routes::integrations::View;
-use web_pages::routes::integrations::{Delete, Edit, Index, New};
+use web_pages::routes::integrations::{ConfigureApiKey, Delete, Edit, Index, New};
+
+#[derive(Deserialize, Validate, Debug)]
+pub struct ApiKeyForm {
+    #[validate(length(min = 1, message = "API key is required"))]
+    pub api_key: String,
+    pub visibility: String,
+}
+
+pub async fn configure_api_key_action(
+    ConfigureApiKey {
+        team_id,
+        integration_id,
+    }: ConfigureApiKey,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+    Form(api_key_form): Form<ApiKeyForm>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    // Parse visibility
+    let visibility = match api_key_form.visibility.as_str() {
+        "Private" => Visibility::Private,
+        "Team" => Visibility::Team,
+        _ => Visibility::Private,
+    };
+
+    // Validate the form
+    match api_key_form.validate() {
+        Ok(_) => {
+            // Insert new connection
+            let _connection_id = queries::connections::insert_api_key_connection()
+                .bind(
+                    &transaction,
+                    &integration_id,
+                    &team_id,
+                    &visibility,
+                    &api_key_form.api_key,
+                )
+                .one()
+                .await?;
+
+            transaction.commit().await?;
+
+            Ok(crate::layout::redirect_and_snackbar(
+                &web_pages::routes::integrations::Index { team_id }.to_string(),
+                "API Key configured successfully",
+            ))
+        }
+        Err(_) => Ok(crate::layout::redirect_and_snackbar(
+            &web_pages::routes::integrations::Index { team_id }.to_string(),
+            "Invalid API key configuration",
+        )),
+    }
+}
 
 pub fn routes() -> Router {
     Router::new()
@@ -24,6 +80,7 @@ pub fn routes() -> Router {
         .typed_post(new_action)
         .typed_post(edit_action)
         .typed_post(delete_action)
+        .typed_post(configure_api_key_action)
 }
 
 /// Parses an OpenAPI specification from JSON string.
@@ -54,15 +111,12 @@ pub async fn loader(
         .await?;
 
     // Get the Open API Spec
-    let integrations: Vec<IntegrationOas3> = integrations
+    let integrations: Vec<(BionicOpenAPI, i32)> = integrations
         .iter()
         .filter_map(|integration| {
             if let Some(definition) = &integration.definition {
-                if let Ok(spec) = oas3::from_json(definition.to_string()) {
-                    Some(IntegrationOas3 {
-                        spec,
-                        integration: integration.clone(),
-                    })
+                if let Ok(bionic_openapi) = BionicOpenAPI::new(definition) {
+                    Some((bionic_openapi, integration.id))
                 } else {
                     None
                 }
@@ -93,32 +147,23 @@ pub async fn view_loader(
         .one()
         .await?;
 
-    let tool_definitions = if let Some(definition) = &integration.definition {
-        if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            let bionic_api = BionicOpenAPI::new(spec);
-            bionic_api.create_tool_definitions().tool_definitions
+    let (logo_url, description, tool_definitions) =
+        if let Some(definition) = &integration.definition {
+            match BionicOpenAPI::new(definition) {
+                Ok(openapi_helper) => {
+                    let logo_url = openapi_helper.get_logo_url();
+                    let description = openapi_helper.get_description();
+                    let integration_tools = openapi_helper.create_tool_definitions();
+                    (logo_url, description, integration_tools.tool_definitions)
+                }
+                Err(_) => {
+                    // If parsing fails, use defaults
+                    (String::new(), None, vec![])
+                }
+            }
         } else {
-            vec![]
-        }
-    } else {
-        vec![]
-    };
-
-    let logo_url = integration
-        .definition
-        .as_ref()
-        .and_then(|def| oas3::from_json(def.to_string()).ok())
-        .map(|spec| web_pages::integrations::get_logo_url(&spec.info.extensions))
-        .unwrap_or_else(|| {
-            web_pages::integrations::get_logo_url(&std::collections::BTreeMap::new())
-        });
-
-    let description = integration
-        .definition
-        .as_ref()
-        .and_then(|def| oas3::from_json(def.to_string()).ok())
-        .and_then(|spec| spec.info.description)
-        .unwrap_or_else(|| "No description available".to_string());
+            (String::new(), None, vec![])
+        };
 
     let html = web_pages::integrations::view::view(
         team_id,

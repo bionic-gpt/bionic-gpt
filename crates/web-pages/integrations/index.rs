@@ -2,10 +2,12 @@
 use crate::app_layout::{Layout, SideBar};
 use crate::routes;
 use assets::files::*;
+use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
+use integrations::BionicOpenAPI;
 
-pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<(BionicOpenAPI, i32)>) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -16,11 +18,11 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>)
             header: rsx!(
                 h3 { "Integrations" }
                 if rbac.can_manage_integrations() {
-                    crate::button::Button {
-                        button_type: crate::button::ButtonType::Link,
+                    Button {
+                        button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         href: routes::integrations::New{team_id}.to_string(),
-                        button_scheme: crate::button::ButtonScheme::Primary,
+                        button_scheme: ButtonScheme::Primary,
                         "Add Integration"
                     }
                 }
@@ -29,7 +31,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>)
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
                 super::integration_cards::IntegrationCards {
-                    integrations: integrations.clone(),
+                    integrations,
                     team_id: team_id
                 }
             }

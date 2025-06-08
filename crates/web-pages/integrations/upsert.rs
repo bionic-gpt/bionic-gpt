@@ -74,10 +74,10 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
 
                         div {
                             class: "mt-5 flex justify-between",
-                            crate::button::Button {
-                                button_type: crate::button::ButtonType::Link,
+                            Button {
+                                button_type: ButtonType::Link,
                                 href: crate::routes::integrations::Index { team_id }.to_string(),
-                                button_scheme: crate::button::ButtonScheme::Danger,
+                                button_scheme: ButtonScheme::Error,
                                 "Cancel"
                             }
                             Button {

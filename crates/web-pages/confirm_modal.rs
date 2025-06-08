@@ -44,7 +44,7 @@ pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
                     ModalAction {
                         Button {
                             button_type: ButtonType::Submit,
-                            button_scheme: ButtonScheme::Danger,
+                            button_scheme: ButtonScheme::Error,
                             "{props.submit_label}"
                         }
                     }
