@@ -109,7 +109,7 @@ pub fn Form(
 fn ToolsButton(lock_console: bool) -> Element {
     rsx! {
         Button {
-            button_scheme: ButtonScheme::Outline,
+            button_style: ButtonStyle::Outline,
             disabled: lock_console, // Enable if tool_use capability is present
             prefix_image_src: tools_svg.name,
             popover_target: "tool-modal",
@@ -125,7 +125,7 @@ fn SpeechToTextButton(lock_console: bool) -> Element {
             id: "speech-to-text-button",
             class: "hidden",
             disabled: lock_console,
-            button_scheme: ButtonScheme::Outline,
+            button_style: ButtonStyle::Outline,
             button_shape: ButtonShape::Circle,
             prefix_image_src: microphone_svg.name,
             suffix_image_src: stop_recording_svg.name,
@@ -138,7 +138,7 @@ fn AttachButton(lock_console: bool, id: &'static str) -> Element {
     rsx! {
         Button {
             id: id,
-            button_scheme: ButtonScheme::Outline,
+            button_style: ButtonStyle::Outline,
             button_shape: ButtonShape::Circle,
             disabled: lock_console,
             prefix_image_src: attach_svg.name

@@ -74,7 +74,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     Button {
                         class: "basis-1/4 cancel-modal",
                         button_type: ButtonType::Reset,
-                        button_scheme: ButtonScheme::Danger,
+                        button_scheme: ButtonScheme::Error,
                         "Cancel"
                     }
                 }

@@ -76,7 +76,7 @@ fn Head(
                 Button {
                     class: "btn-circle mr-2 p-1",
                     popover_target: "delete-conv-{conversation_id}",
-                    button_scheme: ButtonScheme::Default,
+                    button_scheme: ButtonScheme::Neutral,
                     img {
                         class: "svg-icon",
                         src: delete_svg.name

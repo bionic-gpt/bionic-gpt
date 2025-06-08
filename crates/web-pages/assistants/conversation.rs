@@ -47,7 +47,7 @@ pub fn page(
                         Button {
                             class: "btn-circle mr-2 p-1",
                             popover_target: "delete-conv-{conversation_id}",
-                            button_scheme: ButtonScheme::Default,
+                            button_scheme: ButtonScheme::Neutral,
                             img {
                                 src: delete_svg.name
                             }
@@ -69,7 +69,7 @@ pub fn page(
                             action: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
                             Button {
                                 class: "mr-2",
-                                button_scheme: ButtonScheme::Default,
+                                button_scheme: ButtonScheme::Neutral,
                                 button_type: ButtonType::Submit,
                                 "New Chat"
                             }

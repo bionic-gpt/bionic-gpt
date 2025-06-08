@@ -32,7 +32,7 @@ pub fn page(
                     Button {
                         prefix_image_src: "{button_plus_svg.name}",
                         popover_target: "create-assistant-key",
-                        button_scheme: ButtonScheme::Default,
+                        button_scheme: ButtonScheme::Neutral,
                         "Create Assistant Key"
                     }
                     Button {

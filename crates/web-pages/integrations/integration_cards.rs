@@ -58,10 +58,9 @@ pub fn IntegrationCards(integrations: Vec<(BionicOpenAPI, i32)>, team_id: i32) -
                         if integration.0.has_api_key_security() {
                             div {
                                 class: "flex flex-col justify-center ml-4",
-                                a {
-                                    class: "btn btn-sm ",
-                                    "data-turbo": "false",
-                                    href: crate::routes::integrations::Connect { team_id, integration_id: integration.1 }.to_string(),
+                                Button {
+                                    popover_target: "logout-trigger",
+                                    button_scheme: ButtonScheme::Secondary,
                                     "Configure"
                                 }
                             }

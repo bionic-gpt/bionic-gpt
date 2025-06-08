@@ -875,9 +875,9 @@ dependencies = [
 
 [[package]]
 name = "daisy_rsx"
-version = "0.1.20"
+version = "0.1.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2412db94d03a1d7820ed8a02d059f643ad5c30122d58d826348c9e37ac8b71c3"
+checksum = "fd516647c24b980bf3025bddfaf56bd3330dfa0be6d0a8b3cff88f9910ea549c"
 dependencies = [
  "dioxus",
  "dioxus-ssr",

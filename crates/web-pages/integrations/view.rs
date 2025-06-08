@@ -140,13 +140,13 @@ pub fn view(
                                 button_type: ButtonType::Link,
                                 prefix_image_src: "{button_edit_svg.name}",
                                 href: routes::integrations::Edit{team_id, id: integration.id}.to_string(),
-                                button_scheme: ButtonScheme::Outline,
+                                button_style: ButtonStyle::Outline,
                                 "Edit"
                             }
                             Button {
                                 prefix_image_src: "{menu_delete_svg.name}",
                                 popover_target: popover_target.clone(),
-                                button_scheme: ButtonScheme::Danger
+                                button_scheme: ButtonScheme::Error
                             }
                             ConfirmModal {
                                 action: crate::routes::integrations::Delete{team_id, id: integration.id}.to_string(),

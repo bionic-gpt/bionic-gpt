@@ -96,7 +96,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                                     td {
                                         Button {
                                             button_type: ButtonType::Link,
-                                            button_scheme: ButtonScheme::Default,
+                                            button_scheme: ButtonScheme::Neutral,
                                             href: routes::prompts::Edit{team_id, prompt_id: prompt.id}.to_string(),
                                             "Edit"
                                         }

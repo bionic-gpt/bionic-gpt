@@ -77,7 +77,7 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                 td {
                                     Button {
                                         popover_target: format!("edit-model-form-{}", model.id),
-                                        button_scheme: ButtonScheme::Default,
+                                        button_scheme: ButtonScheme::Neutral,
                                         "Edit"
                                     }
                                 }

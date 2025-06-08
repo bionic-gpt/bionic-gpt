@@ -27,7 +27,7 @@ pub fn page(
                 h3 { "Audit Trail" }
                 Button {
                     popover_target: super::filter::DRAW_TRIGGER,
-                    button_scheme: ButtonScheme::Default,
+                    button_scheme: ButtonScheme::Neutral,
                     "Filter"
                 }
             },
