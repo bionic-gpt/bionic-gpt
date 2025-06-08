@@ -124,7 +124,7 @@ pub async fn oauth2_callback(
     let refresh_token: Option<&str> = None;
     let expires_at: Option<time::OffsetDateTime> = None;
 
-    let _connection_id = queries::oauth2_connections::insert_oauth2_connection()
+    let _connection_id = queries::connections::insert_oauth2_connection()
         .bind(
             &transaction,
             &integration_id,
