@@ -319,6 +319,27 @@ impl BionicOpenAPI {
         false
     }
 
+    /// Check if the OpenAPI spec has OAuth2 security schemes
+    pub fn has_oauth2_security(&self) -> bool {
+        if let Some(components) = &self.spec.components {
+            for scheme_ref in components.security_schemes.values() {
+                match scheme_ref {
+                    oas3::spec::ObjectOrReference::Object(scheme) => {
+                        if matches!(scheme, SecurityScheme::OAuth2 { .. }) {
+                            return true;
+                        }
+                    }
+                    _ => {
+                        // For references, we would need to resolve them manually
+                        // For now, skip references as they're less common
+                        continue;
+                    }
+                }
+            }
+        }
+        false
+    }
+
     /// Retrieve OAuth2 configuration from the OpenAPI spec
     pub fn get_oauth2_config(&self) -> Option<OAuth2Config> {
         let components = self.spec.components.as_ref()?;
@@ -410,7 +431,7 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    fn create_test_openapi_spec() -> oas3::OpenApiV3Spec {
+    fn create_test_openapi_spec() -> Value {
         let spec_json = json!({
             "openapi": "3.0.0",
             "info": {
@@ -448,8 +469,8 @@ mod tests {
         serde_json::from_value(spec_json).unwrap()
     }
 
-    fn create_uk_police_api_spec() -> oas3::OpenApiV3Spec {
-        let spec_json = json!({
+    fn create_uk_police_api_spec() -> Value {
+        json!({
             "openapi": "3.0.3",
             "info": {
                 "title": "UK Police Forces API",
@@ -497,15 +518,13 @@ mod tests {
                     }
                 }
             }
-        });
-
-        serde_json::from_value(spec_json).unwrap()
+        })
     }
 
     #[test]
     fn test_create_tool_definitions_uses_operation_id() {
         let spec = create_test_openapi_spec();
-        let bionic_api = BionicOpenAPI::from_spec(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let integration_tools = bionic_api.create_tool_definitions();
 
         assert_eq!(integration_tools.tool_definitions.len(), 3);
@@ -524,7 +543,7 @@ mod tests {
     #[test]
     fn test_extract_base_url() {
         let spec = create_test_openapi_spec();
-        let bionic_api = BionicOpenAPI::from_spec(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let base_url = bionic_api.extract_base_url();
         assert_eq!(base_url, Some("https://api.example.com".to_string()));
     }
@@ -532,7 +551,7 @@ mod tests {
     #[test]
     fn test_uk_police_api_parameter_extraction() {
         let spec = create_uk_police_api_spec();
-        let bionic_api = BionicOpenAPI::from_spec(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let integration_tools = bionic_api.create_tool_definitions();
 
         assert_eq!(integration_tools.tool_definitions.len(), 2);
@@ -567,8 +586,8 @@ mod tests {
         assert!(get_forces_tool.function.parameters.is_none());
     }
 
-    fn create_numeric_boolean_spec() -> oas3::OpenApiV3Spec {
-        let spec_json = json!({
+    fn create_numeric_boolean_spec() -> Value {
+        json!({
             "openapi": "3.0.3",
             "info": {"title": "Numeric and Boolean", "version": "1.0"},
             "paths": {
@@ -583,15 +602,13 @@ mod tests {
                     }
                 }
             }
-        });
-
-        serde_json::from_value(spec_json).unwrap()
+        })
     }
 
     #[test]
     fn test_numeric_and_boolean_parameter_types() {
         let spec = create_numeric_boolean_spec();
-        let bionic_api = BionicOpenAPI::from_spec(spec);
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let integration_tools = bionic_api.create_tool_definitions();
 
         let tool = integration_tools
@@ -635,10 +652,9 @@ mod tests {
             "paths": {}
         });
 
-        let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
-        let bionic_api = BionicOpenAPI::from_spec(spec);
+        let bionic_api = BionicOpenAPI::new(&spec_json).unwrap();
 
-        assert!(bionic_api.get_oauth2_config().is_some());
+        assert!(bionic_api.has_oauth2_security());
 
         let oauth2_config = bionic_api.get_oauth2_config().unwrap();
         assert_eq!(

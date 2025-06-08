@@ -22,7 +22,8 @@ pub fn json_error(kind: &str, err: impl ToString) -> serde_json::Value {
 
 // Re-export key types for convenience
 pub use bionic_openapi::{
-    create_tools_from_integrations, BionicOpenAPI, IntegrationTools, OAuth2Config,
+    create_tools_from_integration, create_tools_from_integrations, BionicOpenAPI, IntegrationTools,
+    OAuth2Config,
 };
 pub use open_api_tool::OpenApiTool;
 pub use tool::ToolInterface;
