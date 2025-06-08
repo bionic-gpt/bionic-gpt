@@ -90,7 +90,7 @@ pub fn view(
     rbac: Rbac,
     integration: Integration,
     logo_url: String,
-    description: String,
+    description: Option<String>,
     tool_definitions: Vec<BionicToolDefinition>,
 ) -> String {
     let modal_trigger = format!("delete-integration-{}", integration.id);
@@ -123,9 +123,11 @@ pub fn view(
                                 class: "text-xl font-semibold",
                                 "{integration.name.clone()}"
                             }
-                            p {
-                                class: "text-sm text-gray-700 whitespace-pre-wrap break-words mt-1",
-                                "{description}"
+                            if let Some(description) = description {
+                                p {
+                                    class: "text-sm text-gray-700 whitespace-pre-wrap break-words mt-1",
+                                    "{description}"
+                                }
                             }
                         }
                     }

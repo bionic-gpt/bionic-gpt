@@ -4,8 +4,9 @@ use crate::routes;
 use assets::files::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
+use integrations::BionicOpenAPI;
 
-pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<(BionicOpenAPI, i32)>) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -29,7 +30,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<super::IntegrationOas3>)
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
                 super::integration_cards::IntegrationCards {
-                    integrations: integrations.clone(),
+                    integrations,
                     team_id: team_id
                 }
             }

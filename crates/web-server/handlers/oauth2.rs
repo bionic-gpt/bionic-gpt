@@ -96,7 +96,7 @@ fn get_oauth2_config_from_integration(
     let spec = oas3::from_json(definition.to_string())
         .map_err(|e| CustomError::FaultySetup(format!("Invalid OpenAPI spec: {}", e)))?;
 
-    let bionic_api = BionicOpenAPI::new(spec);
+    let bionic_api = BionicOpenAPI::from_spec(spec);
 
     bionic_api
         .get_oauth2_config()

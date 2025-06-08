@@ -9,7 +9,6 @@ use db::{authz, queries, Json, Pool};
 use integrations::bionic_openapi::BionicOpenAPI;
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
-use web_pages::integrations::IntegrationOas3;
 use web_pages::routes::integrations::View;
 use web_pages::routes::integrations::{Delete, Edit, Index, New};
 
@@ -54,15 +53,12 @@ pub async fn loader(
         .await?;
 
     // Get the Open API Spec
-    let integrations: Vec<IntegrationOas3> = integrations
+    let integrations: Vec<(BionicOpenAPI, i32)> = integrations
         .iter()
         .filter_map(|integration| {
             if let Some(definition) = &integration.definition {
-                if let Ok(spec) = oas3::from_json(definition.to_string()) {
-                    Some(IntegrationOas3 {
-                        spec,
-                        integration: integration.clone(),
-                    })
+                if let Ok(bionic_openapi) = BionicOpenAPI::new(definition) {
+                    Some((bionic_openapi, integration.id))
                 } else {
                     None
                 }
@@ -93,32 +89,23 @@ pub async fn view_loader(
         .one()
         .await?;
 
-    let tool_definitions = if let Some(definition) = &integration.definition {
-        if let Ok(spec) = oas3::from_json(definition.to_string()) {
-            let bionic_api = BionicOpenAPI::new(spec);
-            bionic_api.create_tool_definitions().tool_definitions
+    let (logo_url, description, tool_definitions) =
+        if let Some(definition) = &integration.definition {
+            match BionicOpenAPI::new(definition) {
+                Ok(openapi_helper) => {
+                    let logo_url = openapi_helper.get_logo_url();
+                    let description = openapi_helper.get_description();
+                    let integration_tools = openapi_helper.create_tool_definitions();
+                    (logo_url, description, integration_tools.tool_definitions)
+                }
+                Err(_) => {
+                    // If parsing fails, use defaults
+                    (String::new(), None, vec![])
+                }
+            }
         } else {
-            vec![]
-        }
-    } else {
-        vec![]
-    };
-
-    let logo_url = integration
-        .definition
-        .as_ref()
-        .and_then(|def| oas3::from_json(def.to_string()).ok())
-        .map(|spec| web_pages::integrations::get_logo_url(&spec.info.extensions))
-        .unwrap_or_else(|| {
-            web_pages::integrations::get_logo_url(&std::collections::BTreeMap::new())
-        });
-
-    let description = integration
-        .definition
-        .as_ref()
-        .and_then(|def| oas3::from_json(def.to_string()).ok())
-        .and_then(|spec| spec.info.description)
-        .unwrap_or_else(|| "No description available".to_string());
+            (String::new(), None, vec![])
+        };
 
     let html = web_pages::integrations::view::view(
         team_id,
