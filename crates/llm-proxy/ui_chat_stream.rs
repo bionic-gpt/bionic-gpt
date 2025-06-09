@@ -13,7 +13,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
 use db::{ChatRole, ChatStatus};
-use integrations::{execute_tool_calls, get_chat_tools_user_selected, get_tools_for_attachments};
+use integrations::{execute_tool_calls, get_chat_tools_user_selected, get_tools, ToolScope};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -388,7 +388,7 @@ async fn create_request(
 
         // Check if the chat has attachments
         if attachment_count > 0 {
-            all_tools.extend(get_tools_for_attachments());
+            all_tools.extend(get_tools(ToolScope::DocumentIntelligence));
         }
 
         // Add integration tools from the prompt
