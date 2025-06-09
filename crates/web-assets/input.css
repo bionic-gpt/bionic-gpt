@@ -6,7 +6,8 @@
 @source 'typescript/**/*.ts';
 @source inline("modal modal-box modal-action");
 @source inline("breadcrumbs");
-@source inline("btn btn-warning");
+@source inline("badge badge-neutral badge-primary badge-secondary badge-accent badge-info badge-success badge-warning badge-error");
+@source inline("btn btn-secondary btn-accent btn-info btn-success btn-warning btn-error btn-outline btn-dash btn-soft btn-ghost btn-link btn-active btn-disabled btn-xs btn-sm btn-md btn-lg btn-xl btn-wide btn-block btn-square btn-circle");
 @source inline("tab tabs tab-content");
 @source inline("tooltip tooltip-info");
 @source inline("dropdown dropdown-top dropdown-left");
