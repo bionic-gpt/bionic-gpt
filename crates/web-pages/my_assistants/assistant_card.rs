@@ -15,52 +15,56 @@ pub fn MyAssistantCard(team_id: i32, prompt: Prompt) -> Element {
     rsx! {
         Card {
             class: "p-3 mt-5 flex flex-row",
-            div {
-                class: "flex flex-row flex-1 min-w-0",
-                // Left section: Image/Avatar
+            a {
+                href: crate::routes::prompts::View{team_id, prompt_id: prompt.id}.to_string(),
+                class: "no-underline flex-1 min-w-0",
                 div {
-                    class: "flex-shrink-0",
-                    if let Some(object_id) = prompt.image_icon_object_id {
-                        img {
-                            class: "border border-neutral-content rounded p-2",
-                            src: Image { team_id, id: object_id }.to_string(),
-                            width: "48",
-                            height: "48"
-                        }
-                    } else {
-                        Avatar {
-                            avatar_size: AvatarSize::Medium,
-                            avatar_type: AvatarType::User
-                        }
-                    }
+                    class: "flex flex-row",
+                    // Left section: Image/Avatar
                     div {
-                        class: "mt-2",
-                        crate::assistants::visibility::VisLabel {
-                            visibility: prompt.visibility
+                        class: "flex-shrink-0",
+                        if let Some(object_id) = prompt.image_icon_object_id {
+                            img {
+                                class: "border border-neutral-content rounded p-2",
+                                src: Image { team_id, id: object_id }.to_string(),
+                                width: "48",
+                                height: "48"
+                            }
+                        } else {
+                            Avatar {
+                                avatar_size: AvatarSize::Medium,
+                                avatar_type: AvatarType::User
+                            }
+                        }
+                        div {
+                            class: "mt-2",
+                            crate::assistants::visibility::VisLabel {
+                                visibility: prompt.visibility
+                            }
                         }
                     }
-                }
-                // Middle section: Info
-                div {
-                    class: "ml-4 text-sm flex flex-col justify-center flex-1 min-w-0",
-                    h2 {
-                        class: "font-semibold text-base mb-1",
-                        "{prompt.name}"
-                    }
-                    if !description.is_empty() {
-                        p {
-                            class: "text-sm text-gray-600 truncate overflow-hidden whitespace-nowrap mb-2",
-                            "{description}"
-                        }
-                    }
+                    // Middle section: Info
                     div {
-                        class: "flex items-center gap-2 text-xs text-gray-500",
-                        span {
-                            "Last updated "
+                        class: "ml-4 text-sm flex flex-col justify-center flex-1 min-w-0",
+                        h2 {
+                            class: "font-semibold text-base mb-1",
+                            "{prompt.name}"
                         }
-                        RelativeTime {
-                            format: RelativeTimeFormat::Relative,
-                            datetime: "{prompt.updated_at}"
+                        if !description.is_empty() {
+                            p {
+                                class: "text-sm text-gray-600 truncate overflow-hidden whitespace-nowrap mb-2",
+                                "{description}"
+                            }
+                        }
+                        div {
+                            class: "flex items-center gap-2 text-xs text-gray-500",
+                            span {
+                                "Last updated "
+                            }
+                            RelativeTime {
+                                format: RelativeTimeFormat::Relative,
+                                datetime: "{prompt.updated_at}"
+                            }
                         }
                     }
                 }

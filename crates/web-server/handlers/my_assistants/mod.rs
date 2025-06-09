@@ -7,6 +7,7 @@ pub fn routes() -> Router {
     Router::new()
         // Loaders
         .typed_get(loaders::my_assistants)
+        .typed_get(loaders::view_assistant)
         // Actions
         .typed_post(form::upsert)
 }

@@ -217,6 +217,13 @@ pub mod prompts {
         pub prompt_id: i32,
         pub conversation_id: i64,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}")]
+    pub struct View {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
 }
 
 pub mod models {
