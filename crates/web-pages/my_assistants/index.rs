@@ -48,7 +48,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
             }
 
             div {
-                class: "max-w-5xl mx-auto",
+                class: "p-4 max-w-3xl w-full mx-auto",
                 h1 {
                     class: "text-xl font-semibold mb-4",
                     "My Assistants"
