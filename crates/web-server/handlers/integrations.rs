@@ -147,31 +147,69 @@ pub async fn view_loader(
         .one()
         .await?;
 
-    let (logo_url, description, tool_definitions) =
+    let (tool_definitions, openapi, api_key_connections, oauth2_connections) =
         if let Some(definition) = &integration.definition {
             match BionicOpenAPI::new(definition) {
                 Ok(openapi_helper) => {
-                    let logo_url = openapi_helper.get_logo_url();
-                    let description = openapi_helper.get_description();
                     let integration_tools = openapi_helper.create_tool_definitions();
-                    (logo_url, description, integration_tools.tool_definitions)
+
+                    // Fetch connections based on security type
+                    let api_key_connections = if openapi_helper.has_api_key_security() {
+                        queries::connections::get_api_key_connections_for_integration()
+                            .bind(&transaction, &id, &team_id)
+                            .all()
+                            .await
+                            .unwrap_or_default()
+                    } else {
+                        vec![]
+                    };
+
+                    let oauth2_connections = if openapi_helper.has_oauth2_security() {
+                        queries::connections::get_oauth2_connections_for_integration()
+                            .bind(&transaction, &id, &team_id)
+                            .all()
+                            .await
+                            .unwrap_or_default()
+                    } else {
+                        vec![]
+                    };
+
+                    (
+                        integration_tools.tool_definitions,
+                        openapi_helper,
+                        api_key_connections,
+                        oauth2_connections,
+                    )
                 }
                 Err(_) => {
                     // If parsing fails, use defaults
-                    (String::new(), None, vec![])
+                    (
+                        vec![],
+                        BionicOpenAPI::new(&serde_json::json!({}))
+                            .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
+                        vec![],
+                        vec![],
+                    )
                 }
             }
         } else {
-            (String::new(), None, vec![])
+            (
+                vec![],
+                BionicOpenAPI::new(&serde_json::json!({}))
+                    .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
+                vec![],
+                vec![],
+            )
         };
 
     let html = web_pages::integrations::view::view(
         team_id,
         rbac,
         integration,
-        logo_url,
-        description,
         tool_definitions,
+        openapi,
+        api_key_connections,
+        oauth2_connections,
     );
 
     Ok(Html(html))

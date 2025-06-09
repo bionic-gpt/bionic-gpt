@@ -1,7 +1,13 @@
+pub mod actions_section;
+pub mod api_key_connections_table;
 pub mod api_key_form;
+pub mod connections_section;
 pub mod index;
 pub mod integration_cards;
+pub mod integration_header;
 pub mod integration_type;
+pub mod oauth2_connections_table;
+pub mod parameter_renderer;
 pub mod status_type;
 pub mod upsert;
 pub mod view;
