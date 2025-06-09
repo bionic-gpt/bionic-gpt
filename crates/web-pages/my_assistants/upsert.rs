@@ -45,6 +45,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
     let example2 = prompt.example2.clone().unwrap_or_default();
     let example3 = prompt.example3.clone().unwrap_or_default();
     let example4 = prompt.example4.clone().unwrap_or_default();
+    let name = if prompt.id.is_some() {
+        "Edit Assistant"
+    } else {
+        "Create Assistant"
+    };
 
     let page = rsx! {
         Layout {
@@ -54,6 +59,23 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
             rbac: rbac.clone(),
             title: "Assistant",
             header: rsx!(
+
+                Breadcrumb {
+                    items: vec![
+                        BreadcrumbItem {
+                            text: "Assistants".into(),
+                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
+                        },
+                        BreadcrumbItem {
+                            text: "My Assistants".into(),
+                            href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
+                        },
+                        BreadcrumbItem {
+                            text: name.into(),
+                            href: None
+                        }
+                    ]
+                }
                 h3 {
                     if prompt.id.is_some() { "Edit Assistant" } else { "Create Assistant" }
                 }

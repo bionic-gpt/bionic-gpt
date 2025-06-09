@@ -19,11 +19,17 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
             rbac: rbac.clone(),
             title: "My Assistants",
             header: rsx!(
-                h3 {
-                    span {
-                        class: "hidden md:block",
-                        "My Assistants"
-                    }
+                Breadcrumb {
+                    items: vec![
+                        BreadcrumbItem {
+                            text: "Assistants".into(),
+                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
+                        },
+                        BreadcrumbItem {
+                            text: "My Assistants".into(),
+                            href: None
+                        }
+                    ]
                 }
                 div {
                     a {
