@@ -25,8 +25,8 @@ pub fn ConnectionsSection(
         return rsx! {
             div {
                 class: "mt-8",
-                h2 {
-                    class: "font-semibold mb-4",
+                h3 {
+                    class: "text-lg font-medium",
                     "Connections"
                 }
                 p {
@@ -40,10 +40,6 @@ pub fn ConnectionsSection(
     rsx! {
         div {
             class: "mt-8",
-            h2 {
-                class: "font-semibold mb-4",
-                "Connections"
-            }
 
             if has_api_key {
                 div {
@@ -52,7 +48,7 @@ pub fn ConnectionsSection(
                         class: "flex justify-between items-center mb-3",
                         h3 {
                             class: "text-lg font-medium",
-                            "API Key Connections"
+                            "API Keys"
                         }
                         Button {
                             popover_target: format!("configure-api-key-{}", integration_id),
