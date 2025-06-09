@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::hero::Hero;
+use crate::my_assistants::assistant_card::MyAssistantCard;
 use crate::routes;
 use crate::ConfirmModal;
 use assets::files::*;
@@ -46,77 +47,33 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
                     extra knowledge, and any combination of skills.".to_string()
             }
 
-            Card {
-                class: "has-data-table max-w-5xl mx-auto",
-                CardHeader {
-                    title: "My Assistants"
+            div {
+                class: "max-w-5xl mx-auto",
+                h1 {
+                    class: "text-xl font-semibold mb-4",
+                    "My Assistants"
                 }
-                CardBody {
-                    table {
-                        class: "table table-sm table-layout-fixed",
-                        thead {
-                            th {
-                                class: "hidden md:block",
-                                "Last Updated"
-                            }
-                            th {
-                                class: "w-full",
-                                "Name"
-                            }
-                            th { "Visibility" }
-                            th {
-                                "Edit"
-                            }
-                            th {
-                                class: "hidden md:block",
-                                class: "text-right",
-                                "Action"
-                            }
+                if prompts.is_empty() {
+                    div {
+                        class: "text-center py-12",
+                        p {
+                            class: "text-gray-500 mb-4",
+                            "You haven't created any assistants yet."
                         }
-                        tbody {
-                            for prompt in &prompts {
-                                tr {
-                                    td {
-                                        class: "hidden md:block",
-                                        RelativeTime {
-                                            format: RelativeTimeFormat::Relative,
-                                            datetime: "{prompt.updated_at}"
-                                        }
-                                    }
-                                    td {
-                                        strong {
-                                            "{prompt.name}"
-                                        }
-                                    }
-                                    td {
-                                        crate::assistants::visibility::VisLabel {
-                                            visibility: prompt.visibility
-                                        }
-                                    }
-                                    td {
-                                        Button {
-                                            button_type: ButtonType::Link,
-                                            button_scheme: ButtonScheme::Neutral,
-                                            href: routes::prompts::Edit{team_id, prompt_id: prompt.id}.to_string(),
-                                            "Edit"
-                                        }
-
-                                    }
-                                    td {
-                                        class: "text-right hidden md:block",
-                                        DropDown {
-                                            direction: Direction::Left,
-                                            button_text: "...",
-                                            DropDownLink {
-                                                popover_target: format!("delete-trigger-{}-{}",
-                                                    prompt.id, team_id),
-                                                href: "#",
-                                                target: "_top",
-                                                "Delete"
-                                            }
-                                        }
-                                    }
-                                }
+                        Button {
+                            button_type: ButtonType::Link,
+                            href: routes::prompts::New{team_id}.to_string(),
+                            button_scheme: ButtonScheme::Primary,
+                            "Create Your First Assistant"
+                        }
+                    }
+                } else {
+                    div {
+                        class: "space-y-2",
+                        for prompt in &prompts {
+                            MyAssistantCard {
+                                team_id,
+                                prompt: prompt.clone()
                             }
                         }
                     }
