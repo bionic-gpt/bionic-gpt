@@ -166,8 +166,8 @@ pub mod prompts {
     }
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/app/team/{team_id}/my_prompts")]
-    pub struct MyPrompts {
+    #[typed_path("/app/team/{team_id}/my_assistants")]
+    pub struct MyAssistants {
         pub team_id: i32,
     }
 

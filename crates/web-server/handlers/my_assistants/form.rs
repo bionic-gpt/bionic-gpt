@@ -111,13 +111,13 @@ pub async fn upsert(
         transaction.commit().await?;
 
         Ok(crate::layout::redirect_and_snackbar(
-            &web_pages::routes::prompts::MyPrompts { team_id }.to_string(),
+            &web_pages::routes::prompts::MyAssistants { team_id }.to_string(),
             "Assistant Created",
         )
         .into_response())
     } else {
         Ok(crate::layout::redirect_and_snackbar(
-            &web_pages::routes::prompts::MyPrompts { team_id }.to_string(),
+            &web_pages::routes::prompts::MyAssistants { team_id }.to_string(),
             "Failed to Create Assitant",
         )
         .into_response())

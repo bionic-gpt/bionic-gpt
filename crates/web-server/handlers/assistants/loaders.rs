@@ -65,7 +65,7 @@ pub async fn new_assistant_loader(
         .all()
         .await?;
 
-    let form = assistants::upsert::PromptForm {
+    let form = web_pages::my_assistants::upsert::PromptForm {
         id: None,
         name: "".to_string(),
         system_prompt: "".to_string(),
@@ -92,7 +92,7 @@ pub async fn new_assistant_loader(
         error: None,
     };
 
-    let html = assistants::upsert::page(team_id, rbac, form);
+    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form);
 
     Ok(Html(html))
 }
@@ -154,7 +154,7 @@ pub async fn edit_assistant_loader(
             .collect()
     };
 
-    let form = assistants::upsert::PromptForm {
+    let form = web_pages::my_assistants::upsert::PromptForm {
         id: Some(prompt.id),
         name: prompt.name,
         system_prompt: prompt.system_prompt.unwrap_or_default(),
@@ -181,7 +181,7 @@ pub async fn edit_assistant_loader(
         error: None,
     };
 
-    let html = assistants::upsert::page(team_id, rbac, form);
+    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form);
 
     Ok(Html(html))
 }
