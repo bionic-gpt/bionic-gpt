@@ -8,7 +8,7 @@
 @source inline("breadcrumbs");
 @source inline("badge badge-neutral badge-primary badge-secondary badge-accent badge-info badge-success badge-warning badge-error");
 @source inline("btn btn-secondary btn-accent btn-info btn-success btn-warning btn-error btn-outline btn-dash btn-soft btn-ghost btn-link btn-active btn-disabled btn-xs btn-sm btn-md btn-lg btn-xl btn-wide btn-block btn-square btn-circle");
-@source inline("tab tabs tab-content");
+@source inline("tab tabs tab-content tabs-border");
 @source inline("tooltip tooltip-info");
 @source inline("dropdown dropdown-top dropdown-left");
 
@@ -61,6 +61,29 @@
     .menu > li > a.menu-active > img {
         filter: invert(1);
     }
+
+    /** Daisy UI colors we can set
+    --color-base-100: oklch(100% 0 0);
+    --color-base-200: oklch(96.115% 0 0);
+    --color-base-300: oklch(92.416% 0.001 197.137);
+    --color-base-content: oklch(27.807% 0.029 256.847);
+    --color-primary: oklch(49.12% 0.309 275.75);
+    --color-primary-content: oklch(89.824% 0.061 275.75);
+    --color-secondary: oklch(69.71% 0.329 342.55);
+    --color-secondary-content: oklch(98.71% 0.01 342.55);
+    --color-accent: oklch(76.76% 0.184 183.61);
+    --color-accent-content: oklch(15.352% 0.036 183.61);
+    --color-neutral: oklch(20% 0.024 255.701);
+    --color-neutral-content: oklch(89.499% 0.011 252.096);
+    --color-info: oklch(72.06% 0.191 231.6);
+    --color-info-content: oklch(0% 0 0);
+    --color-success: oklch(64.8% 0.15 160);
+    --color-success-content: oklch(0% 0 0);
+    --color-warning: oklch(84.71% 0.199 83.87);
+    --color-warning-content: oklch(0% 0 0);
+    --color-error: oklch(71.76% 0.221 22.18);
+    --color-error-content: oklch(0% 0 0);
+    **/
 }
 
 /** In the chat the first p has margin, we need to remove it **/
