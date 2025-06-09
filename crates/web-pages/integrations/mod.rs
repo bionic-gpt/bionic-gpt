@@ -1,5 +1,5 @@
 pub mod actions_section;
-pub mod api_key_connections_table;
+pub mod api_key_cards;
 pub mod api_key_form;
 pub mod connections_section;
 pub mod index;

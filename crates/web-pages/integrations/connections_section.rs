@@ -5,7 +5,7 @@ use db::{ApiKeyConnection, Oauth2Connection};
 use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
 
-use super::api_key_connections_table::ApiKeyConnectionsTable;
+use super::api_key_cards::ApiKeyCards;
 use super::api_key_form::ApiKeyForm;
 use super::oauth2_connections_table::Oauth2ConnectionsTable;
 
@@ -67,7 +67,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {ApiKeyConnectionsTable(team_id, integration_id, api_key_connections)}
+                        {ApiKeyCards(team_id, integration_id, api_key_connections)}
                     }
                 }
             }
