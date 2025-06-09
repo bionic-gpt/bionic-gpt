@@ -5,6 +5,7 @@
 @source '../web-pages/**/*.rs';
 @source 'typescript/**/*.ts';
 @source inline("modal modal-box modal-action");
+@source inline("breadcrumbs");
 @source inline("tab tabs tab-content");
 @source inline("tooltip tooltip-info");
 @source inline("dropdown dropdown-top dropdown-left");

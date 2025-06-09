@@ -3,6 +3,7 @@ use super::actions_section::ActionsSection;
 use super::connections_section::ConnectionsSection;
 use super::integration_header::IntegrationHeader;
 use crate::app_layout::{Layout, SideBar};
+use daisy_rsx::*;
 use db::{authz::Rbac, ApiKeyConnection, Integration, Oauth2Connection};
 use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
@@ -25,7 +26,18 @@ pub fn view(
             rbac: rbac.clone(),
             title: "Integrations",
             header: rsx!(
-                h3 { "Integration" }
+                Breadcrumb {
+                    items: vec![
+                            BreadcrumbItem {
+                            text: "Integrations".into(),
+                            href: Some(crate::routes::integrations::Index { team_id }.to_string())
+                        },
+                        BreadcrumbItem {
+                            text: integration.name.clone(),
+                            href: None
+                        }
+                    ]
+                }
             ),
 
             div {

@@ -16,7 +16,12 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<(BionicOpenAPI, i32)>) -
             rbac: rbac.clone(),
             title: "Integrations",
             header: rsx!(
-                h3 { "Integrations" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Integrations".into(),
+                        href: Some(crate::routes::integrations::Index { team_id }.to_string())
+                    }]
+                }
                 if rbac.can_manage_integrations() {
                     Button {
                         button_type: ButtonType::Link,
