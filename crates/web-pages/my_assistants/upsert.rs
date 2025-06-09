@@ -59,7 +59,6 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
             rbac: rbac.clone(),
             title: "Assistant",
             header: rsx!(
-
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
@@ -81,141 +80,155 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                 }
             ),
 
-            Card {
-                CardHeader {
-                    title: if prompt.id.is_some() { "Edit Assistant" } else { "Create Assistant" }
-                }
-                CardBody {
-                    form {
-                        action: crate::routes::prompts::Upsert { team_id }.to_string(),
-                        enctype: "multipart/form-data",
-                        method: "post",
-                        class: "flex flex-col space-y-6",
+            div {
+                class: "p-4 max-w-4xl w-full mx-auto",
 
-                        // Display error if present
-                        if let Some(error) = &prompt.error {
+                form {
+                    action: crate::routes::prompts::Upsert { team_id }.to_string(),
+                    enctype: "multipart/form-data",
+                    method: "post",
+                    class: "space-y-6",
+
+                    // Display error if present
+                    if let Some(error) = &prompt.error {
+                        div {
+                            class: "alert alert-error mb-4",
+                            "{error}"
+                        }
+                    }
+
+                    // Hidden ID field for edit mode
+                    if let Some(id) = prompt.id {
+                        input {
+                            "type": "hidden",
+                            value: "{id}",
+                            name: "id"
+                        }
+                    }
+
+                    // Assistant Details Section
+                    Card {
+                        class: "mb-6",
+                        CardHeader {
+                            title: "Assistant Details"
+                        }
+                        CardBody {
                             div {
-                                class: "alert alert-error mb-4",
-                                "{error}"
+                                class: "space-y-4",
+
+                                Input {
+                                    input_type: InputType::Text,
+                                    name: "name",
+                                    label: "Assistant Name",
+                                    help_text: "Make the name memorable and imply its usage.",
+                                    value: prompt.name,
+                                    required: true
+                                }
+
+                                div {
+                                    class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+
+                                    Select {
+                                        name: "category_id",
+                                        label: "Category",
+                                        help_text: "Categories help users find assistants.",
+                                        value: "{prompt.category_id}",
+                                        required: true,
+                                        for category in &prompt.categories {
+                                            SelectOption {
+                                                value: "{category.id}",
+                                                selected_value: "{prompt.category_id}",
+                                                "{category.name}"
+                                            }
+                                        }
+                                    }
+
+                                    Select {
+                                        name: "visibility",
+                                        label: "Visibility",
+                                        help_text: "Set to private if you don't want to share this assistant.",
+                                        value: "{prompt.visibility}",
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Private)}",
+                                            selected_value: "{prompt.visibility}",
+                                            {crate::visibility_to_string(Visibility::Private)}
+                                        },
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Team)}",
+                                            selected_value: "{prompt.visibility}",
+                                            {crate::visibility_to_string(Visibility::Team)}
+                                        },
+                                        if rbac.can_make_assistant_public() {
+                                            SelectOption {
+                                                value: "{crate::visibility_to_string(Visibility::Company)}",
+                                                selected_value: "{prompt.visibility}",
+                                                {crate::visibility_to_string(Visibility::Company)}
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Select {
+                                    name: "model_id",
+                                    label: "Model",
+                                    help_text: "The model will be used to answer any questions.",
+                                    value: "{prompt.model_id}",
+                                    required: true,
+                                    for model in &prompt.models {
+                                        SelectOption {
+                                            value: "{model.id}",
+                                            selected_value: "{prompt.model_id}",
+                                            "{model.name}"
+                                        }
+                                    }
+                                }
+
+                                TextArea {
+                                    class: "resize-none",
+                                    name: "description",
+                                    rows: "3",
+                                    label: "Description",
+                                    help_text: "Describe what this assistant does and how it can help users.",
+                                    required: true,
+                                    "{prompt.description}",
+                                }
                             }
                         }
+                    }
 
-                        // Hidden ID field for edit mode
-                        if let Some(id) = prompt.id {
-                            input {
-                                "type": "hidden",
-                                value: "{id}",
-                                name: "id"
-                            }
+                    // System Prompt Section
+                    Card {
+                        class: "mb-6",
+                        CardHeader {
+                            title: "System Prompt"
                         }
-
-                        // Assistant Details Section
-                        div {
-                            class: "flex flex-col space-y-4",
-                            h4 { class: "text-lg font-semibold text-gray-900", "Assistant Details" }
-
-                            Input {
-                                input_type: InputType::Text,
-                                name: "name",
-                                label: "Assistant Name",
-                                help_text: "Make the name memorable and imply its usage.",
-                                value: prompt.name,
-                                required: true
-                            }
-
-                            Select {
-                                name: "category_id",
-                                label: "Select the category for this assistant",
-                                label_class: "mt-4",
-                                help_text: "Categories help users find assistants.",
-                                value: "{prompt.category_id}",
-                                required: true,
-                                for category in &prompt.categories {
-                                    SelectOption {
-                                        value: "{category.id}",
-                                        selected_value: "{prompt.category_id}",
-                                        "{category.name}"
-                                    }
-                                }
-                            }
-
-                            Select {
-                                name: "visibility",
-                                label: "Who should be able to use this assistant?",
-                                label_class: "mt-4",
-                                help_text: "Set to private if you don't want to share this assistant.",
-                                value: "{prompt.visibility}",
-                                SelectOption {
-                                    value: "{crate::visibility_to_string(Visibility::Private)}",
-                                    selected_value: "{prompt.visibility}",
-                                    {crate::visibility_to_string(Visibility::Private)}
-                                },
-                                SelectOption {
-                                    value: "{crate::visibility_to_string(Visibility::Team)}",
-                                    selected_value: "{prompt.visibility}",
-                                    {crate::visibility_to_string(Visibility::Team)}
-                                },
-                                if rbac.can_make_assistant_public() {
-                                    SelectOption {
-                                        value: "{crate::visibility_to_string(Visibility::Company)}",
-                                        selected_value: "{prompt.visibility}",
-                                        {crate::visibility_to_string(Visibility::Company)}
-                                    }
-                                }
-                            }
-
-                            Select {
-                                name: "model_id",
-                                label: "Select the model this assistant will use",
-                                label_class: "mt-4",
-                                help_text: "The model will be used to answer any questions.",
-                                value: "{prompt.model_id}",
-                                required: true,
-                                for model in &prompt.models {
-                                    SelectOption {
-                                        value: "{model.id}",
-                                        selected_value: "{prompt.model_id}",
-                                        "{model.name}"
-                                    }
-                                }
-                            }
-
+                        CardBody {
                             TextArea {
-                                class: "mt-3 resize-none",
-                                name: "description",
-                                rows: "2",
-                                label: "Description",
-                                label_class: "mt-4",
-                                required: true,
-                                "{prompt.description}",
-                            }
-                        }
-
-                        // System Prompt Section
-                        div {
-                            class: "flex flex-col space-y-4",
-                            h4 { class: "text-lg font-semibold text-gray-900", "System Prompt" }
-
-                            TextArea {
-                                class: "mt-3 font-mono leading-tight overflow-y-auto",
+                                class: "font-mono leading-tight overflow-y-auto",
                                 name: "system_prompt",
                                 rows: "16",
                                 label: "System Prompt",
-                                label_class: "mt-4",
+                                help_text: "Define the assistant's behavior, personality, and capabilities.",
                                 "{prompt.system_prompt}",
                             }
                         }
+                    }
 
-                        // Assistant Icon Section
-                        div {
-                            class: "flex flex-col space-y-4",
-                            h4 { class: "text-lg font-semibold text-gray-900", "Assistant Icon" }
-
+                    // Assistant Icon Section
+                    Card {
+                        class: "mb-6",
+                        CardHeader {
+                            title: "Assistant Icon"
+                        }
+                        CardBody {
                             div {
-                                class: "mt-3",
                                 label {
                                     class: "block text-sm font-medium text-gray-700 mb-2",
                                     "Upload Assistant Icon"
+                                }
+                                p {
+                                    class: "text-sm text-gray-500 mb-3",
+                                    "Choose an image that represents your assistant. Recommended size: 48x48 pixels."
                                 }
                                 input {
                                     "type": "file",
@@ -225,43 +238,49 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                 }
                             }
                         }
+                    }
 
-                        // Datasets Section
-                        div {
-                            class: "flex flex-col space-y-4",
-                            h4 { class: "text-lg font-semibold text-gray-900", "Datasets" }
-
+                    // Datasets Section
+                    Card {
+                        class: "mb-6",
+                        CardHeader {
+                            title: "Datasets"
+                        }
+                        CardBody {
                             Alert {
                                 class: "mb-4",
                                 "Select which datasets you wish to attach to this assistant"
                             }
 
                             if !prompt.datasets.is_empty() {
-                                table {
-                                    class: "table table-sm w-full",
-                                    thead {
-                                        tr {
-                                            th { "Dataset" }
-                                            th { "Model" }
-                                            th { "Add?" }
-                                        }
-                                    }
-                                    tbody {
-                                        for dataset in &prompt.datasets {
+                                div {
+                                    class: "overflow-x-auto",
+                                    table {
+                                        class: "table table-sm w-full",
+                                        thead {
                                             tr {
-                                                td { "{dataset.name}" }
-                                                td { "{dataset.embeddings_model_name}" }
-                                                td {
-                                                    if prompt.selected_dataset_ids.contains(&dataset.id) {
-                                                        CheckBox {
-                                                            checked: true,
-                                                            name: "datasets",
-                                                            value: "{dataset.id}"
-                                                        }
-                                                    } else {
-                                                        CheckBox {
-                                                            name: "datasets",
-                                                            value: "{dataset.id}"
+                                                th { "Dataset" }
+                                                th { "Model" }
+                                                th { "Add?" }
+                                            }
+                                        }
+                                        tbody {
+                                            for dataset in &prompt.datasets {
+                                                tr {
+                                                    td { "{dataset.name}" }
+                                                    td { "{dataset.embeddings_model_name}" }
+                                                    td {
+                                                        if prompt.selected_dataset_ids.contains(&dataset.id) {
+                                                            CheckBox {
+                                                                checked: true,
+                                                                name: "datasets",
+                                                                value: "{dataset.id}"
+                                                            }
+                                                        } else {
+                                                            CheckBox {
+                                                                name: "datasets",
+                                                                value: "{dataset.id}"
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -271,58 +290,64 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                 }
                             } else {
                                 div {
-                                    class: "text-gray-500 italic",
+                                    class: "text-gray-500 italic text-center py-4",
                                     "No datasets available"
                                 }
                             }
                         }
+                    }
 
-                        // Integrations Section
-                        div {
-                            class: "flex flex-col space-y-4",
-                            h4 { class: "text-lg font-semibold text-gray-900", "Integrations" }
-
+                    // Integrations Section
+                    Card {
+                        class: "mb-6",
+                        CardHeader {
+                            title: "Integrations"
+                        }
+                        CardBody {
                             Alert {
                                 class: "mb-4",
                                 "Select which integrations this assistant can use"
                             }
 
                             if !prompt.integrations.is_empty() {
-                                table {
-                                    class: "table table-sm w-full",
-                                    thead {
-                                        tr {
-                                            th { "Integration" }
-                                            th { "Type" }
-                                            th { "Status" }
-                                            th { "Add?" }
-                                        }
-                                    }
-                                    tbody {
-                                        for integration in &prompt.integrations {
+                                div {
+                                    class: "overflow-x-auto",
+                                    table {
+                                        class: "table table-sm w-full",
+                                        thead {
                                             tr {
-                                                td { "{integration.name}" }
-                                                td { "{integration.integration_type:?}" }
-                                                td {
-                                                    span {
-                                                        class: match integration.integration_status {
-                                                            db::IntegrationStatus::Configured => "badge badge-success",
-                                                            _ => "badge badge-warning"
-                                                        },
-                                                        "{integration.integration_status:?}"
-                                                    }
-                                                }
-                                                td {
-                                                    if prompt.selected_integration_ids.contains(&integration.id) {
-                                                        CheckBox {
-                                                            checked: true,
-                                                            name: "integrations",
-                                                            value: "{integration.id}"
+                                                th { "Integration" }
+                                                th { "Type" }
+                                                th { "Status" }
+                                                th { "Add?" }
+                                            }
+                                        }
+                                        tbody {
+                                            for integration in &prompt.integrations {
+                                                tr {
+                                                    td { "{integration.name}" }
+                                                    td { "{integration.integration_type:?}" }
+                                                    td {
+                                                        span {
+                                                            class: match integration.integration_status {
+                                                                db::IntegrationStatus::Configured => "badge badge-success",
+                                                                _ => "badge badge-warning"
+                                                            },
+                                                            "{integration.integration_status:?}"
                                                         }
-                                                    } else {
-                                                        CheckBox {
-                                                            name: "integrations",
-                                                            value: "{integration.id}"
+                                                    }
+                                                    td {
+                                                        if prompt.selected_integration_ids.contains(&integration.id) {
+                                                            CheckBox {
+                                                                checked: true,
+                                                                name: "integrations",
+                                                                value: "{integration.id}"
+                                                            }
+                                                        } else {
+                                                            CheckBox {
+                                                                name: "integrations",
+                                                                value: "{integration.id}"
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -332,136 +357,156 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                 }
                             } else {
                                 div {
-                                    class: "text-gray-500 italic",
+                                    class: "text-gray-500 italic text-center py-4",
                                     "No integrations available"
                                 }
                             }
                         }
+                    }
 
-                        // Examples Section
-                        div {
-                            class: "flex flex-col space-y-4",
-                            h4 { class: "text-lg font-semibold text-gray-900", "Examples" }
-
-                            Input {
-                                input_type: InputType::Text,
-                                label: "Disclaimer",
-                                help_text: "This is displayed at the bottom of the chat.",
-                                name: "disclaimer",
-                                value: "{prompt.disclaimer}"
-                            }
-                            Input {
-                                input_type: InputType::Text,
-                                label: "Example 1",
-                                label_class: "mt-4",
-                                help_text: "Give the user an example prompt.",
-                                name: "example1",
-                                value: "{example1}"
-                            }
-                            Input {
-                                input_type: InputType::Text,
-                                label: "Example 2",
-                                label_class: "mt-4",
-                                help_text: "Give the user an example prompt.",
-                                name: "example2",
-                                value: "{example2}"
-                            }
-                            Input {
-                                input_type: InputType::Text,
-                                label: "Example 3",
-                                label_class: "mt-4",
-                                help_text: "Give the user an example prompt.",
-                                name: "example3",
-                                value: "{example3}"
-                            }
-                            Input {
-                                input_type: InputType::Text,
-                                label: "Example 4",
-                                label_class: "mt-4",
-                                help_text: "Give the user an example prompt.",
-                                name: "example4",
-                                value: "{example4}"
-                            }
+                    // Examples Section
+                    Card {
+                        class: "mb-6",
+                        CardHeader {
+                            title: "Examples & Disclaimer"
                         }
+                        CardBody {
+                            div {
+                                class: "space-y-4",
 
-                        // Advanced Settings Section
-                        div {
-                            class: "flex flex-col space-y-4",
-                            h4 { class: "text-lg font-semibold text-gray-900", "Advanced Settings" }
+                                Input {
+                                    input_type: InputType::Text,
+                                    label: "Disclaimer",
+                                    help_text: "This is displayed at the bottom of the chat.",
+                                    name: "disclaimer",
+                                    value: "{prompt.disclaimer}"
+                                }
 
-                            Input {
-                                input_type: InputType::Number,
-                                step: "0.1",
-                                name: "temperature",
-                                label: "Temperature",
-                                help_text: "Value between 0 and 2.",
-                                value: "{prompt.temperature}",
-                                required: true
-                            }
-
-                            Input {
-                                input_type: InputType::Number,
-                                name: "max_history_items",
-                                label: "Max number of history items",
-                                label_class: "mt-4",
-                                help_text: "This decides how much history we add to the prompt. Set it to zero to send no history.",
-                                value: "{prompt.max_history_items}",
-                                required: true
-                            }
-
-                            Input {
-                                input_type: InputType::Number,
-                                name: "max_tokens",
-                                label: "Max Tokens",
-                                label_class: "mt-4",
-                                help_text: "How much of the context to leave for the LLM's reply. Set this to roughly half of the available context for the model you are using.",
-                                value: "{prompt.max_tokens}",
-                                required: true
-                            }
-
-                            Range {
-                                label: "Trim Ratio",
-                                label_class: "mt-4",
-                                name: "trim_ratio",
-                                min: 0,
-                                max: 100,
-                                value: prompt.trim_ratio,
-                                help_text: "The way we count tokens may not match the way the inference engine does. Here you can say how much of the available context to use. i.e. 80% will use 80% of the context_size - max_tokens.",
                                 div {
-                                    class: "w-full flex justify-between text-xs px-2",
-                                    span { "0" }
-                                    span { "20" }
-                                    span { "40" }
-                                    span { "60" }
-                                    span { "80" }
-                                    span { "100" }
+                                    class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 1",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example1",
+                                        value: "{example1}"
+                                    }
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 2",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example2",
+                                        value: "{example2}"
+                                    }
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 3",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example3",
+                                        value: "{example3}"
+                                    }
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 4",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example4",
+                                        value: "{example4}"
+                                    }
                                 }
                             }
+                        }
+                    }
 
-                            Input {
-                                input_type: InputType::Number,
-                                name: "max_chunks",
-                                label: "Maximum number of Chunks",
-                                label_class: "mt-4",
-                                help_text: "We don't add more chunks to the prompt than this.",
-                                value: "{prompt.max_chunks}",
-                                required: true
+                    // Advanced Settings Section
+                    Card {
+                        class: "mb-6",
+                        CardHeader {
+                            title: "Advanced Settings"
+                        }
+                        CardBody {
+                            div {
+                                class: "space-y-4",
+
+                                div {
+                                    class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+
+                                    Input {
+                                        input_type: InputType::Number,
+                                        step: "0.1",
+                                        name: "temperature",
+                                        label: "Temperature",
+                                        help_text: "Value between 0 and 2. Higher values make output more random.",
+                                        value: "{prompt.temperature}",
+                                        required: true
+                                    }
+
+                                    Input {
+                                        input_type: InputType::Number,
+                                        name: "max_history_items",
+                                        label: "Max History Items",
+                                        help_text: "How much conversation history to include. Set to zero for no history.",
+                                        value: "{prompt.max_history_items}",
+                                        required: true
+                                    }
+
+                                    Input {
+                                        input_type: InputType::Number,
+                                        name: "max_tokens",
+                                        label: "Max Tokens",
+                                        help_text: "Context space reserved for the LLM's reply.",
+                                        value: "{prompt.max_tokens}",
+                                        required: true
+                                    }
+
+                                    Input {
+                                        input_type: InputType::Number,
+                                        name: "max_chunks",
+                                        label: "Max Chunks",
+                                        help_text: "Maximum number of dataset chunks to include.",
+                                        value: "{prompt.max_chunks}",
+                                        required: true
+                                    }
+                                }
+
+                                div {
+                                    Range {
+                                        label: "Trim Ratio",
+                                        name: "trim_ratio",
+                                        min: 0,
+                                        max: 100,
+                                        value: prompt.trim_ratio,
+                                        help_text: "Percentage of available context to use. Accounts for token counting differences.",
+                                        div {
+                                            class: "w-full flex justify-between text-xs px-2 mt-1",
+                                            span { "0%" }
+                                            span { "25%" }
+                                            span { "50%" }
+                                            span { "75%" }
+                                            span { "100%" }
+                                        }
+                                    }
+                                }
                             }
                         }
+                    }
 
-                        // Form Actions
-                        div {
-                            class: "mt-8 flex justify-between",
-                            Button {
-                                button_type: ButtonType::Link,
-                                href: crate::routes::prompts::Index { team_id }.to_string(),
-                                button_scheme: ButtonScheme::Error,
-                                "Cancel"
-                            }
-                            Button {
-                                button_type: ButtonType::Submit,
-                                button_scheme: ButtonScheme::Primary,
-                                "Submit"
+                    // Form Actions
+                    Card {
+                        CardBody {
+                            div {
+                                class: "flex justify-between",
+                                Button {
+                                    button_type: ButtonType::Link,
+                                    href: crate::routes::prompts::MyAssistants { team_id }.to_string(),
+                                    button_scheme: ButtonScheme::Error,
+                                    "Cancel"
+                                }
+                                Button {
+                                    button_type: ButtonType::Submit,
+                                    button_scheme: ButtonScheme::Primary,
+                                    if prompt.id.is_some() { "Update Assistant" } else { "Create Assistant" }
+                                }
                             }
                         }
                     }
