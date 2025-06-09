@@ -1,5 +1,4 @@
 #![allow(non_snake_case)]
-use crate::routes;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{ApiKeyConnection, Oauth2Connection};
@@ -7,6 +6,7 @@ use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
 
 use super::api_key_connections_table::ApiKeyConnectionsTable;
+use super::api_key_form::ApiKeyForm;
 use super::oauth2_connections_table::Oauth2ConnectionsTable;
 
 #[component]
@@ -55,8 +55,7 @@ pub fn ConnectionsSection(
                             "API Key Connections"
                         }
                         Button {
-                            button_type: ButtonType::Link,
-                            href: routes::integrations::ConfigureApiKey{team_id, integration_id}.to_string(),
+                            popover_target: format!("configure-api-key-{}", integration_id),
                             button_style: ButtonStyle::Outline,
                             button_scheme: ButtonScheme::Primary,
                             "Add API Key"
@@ -105,6 +104,15 @@ pub fn ConnectionsSection(
                         {Oauth2ConnectionsTable(team_id, integration_id, oauth2_connections)}
                     }
                 }
+            }
+        }
+
+        // Add API key configuration modal
+        if has_api_key {
+            ApiKeyForm {
+                team_id,
+                integration_id,
+                integration_name: openapi.get_title().to_string()
             }
         }
     }

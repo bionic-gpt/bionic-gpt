@@ -5,7 +5,7 @@ use axum::Form;
 use db::{authz, queries, Pool, Visibility};
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::integrations::ConfigureApiKey;
+use web_pages::routes::integrations::{ConfigureApiKey, DeleteApiKeyConnection};
 
 #[derive(Deserialize, Validate, Debug)]
 pub struct ApiKeyForm {
@@ -61,4 +61,34 @@ pub async fn configure_api_key_action(
             "Invalid API key configuration",
         )),
     }
+}
+
+pub async fn delete_api_key_connection_action(
+    DeleteApiKeyConnection {
+        team_id,
+        integration_id,
+        connection_id,
+    }: DeleteApiKeyConnection,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    // Delete the connection
+    queries::connections::delete_api_key_connection()
+        .bind(&transaction, &connection_id, &team_id)
+        .await?;
+
+    transaction.commit().await?;
+
+    Ok(crate::layout::redirect_and_snackbar(
+        &web_pages::routes::integrations::View {
+            team_id,
+            id: integration_id,
+        }
+        .to_string(),
+        "API Key connection deleted successfully",
+    ))
 }
