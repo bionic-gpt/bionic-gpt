@@ -7,7 +7,7 @@ use integrations::bionic_openapi::BionicOpenAPI;
 
 use super::api_key_cards::ApiKeyCards;
 use super::api_key_form::ApiKeyForm;
-use super::oauth2_connections_table::Oauth2ConnectionsTable;
+use super::oauth2_cards::Oauth2Cards;
 
 #[component]
 pub fn ConnectionsSection(
@@ -97,7 +97,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {Oauth2ConnectionsTable(team_id, integration_id, oauth2_connections)}
+                        {Oauth2Cards(team_id, integration_id, oauth2_connections)}
                     }
                 }
             }
