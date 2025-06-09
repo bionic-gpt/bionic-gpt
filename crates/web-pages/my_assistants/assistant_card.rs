@@ -33,6 +33,12 @@ pub fn MyAssistantCard(team_id: i32, prompt: Prompt) -> Element {
                             avatar_type: AvatarType::User
                         }
                     }
+                    div {
+                        class: "mt-2",
+                        crate::assistants::visibility::VisLabel {
+                            visibility: prompt.visibility
+                        }
+                    }
                 }
                 // Middle section: Info
                 div {
@@ -55,12 +61,6 @@ pub fn MyAssistantCard(team_id: i32, prompt: Prompt) -> Element {
                         RelativeTime {
                             format: RelativeTimeFormat::Relative,
                             datetime: "{prompt.updated_at}"
-                        }
-                    }
-                    div {
-                        class: "mt-2",
-                        crate::assistants::visibility::VisLabel {
-                            visibility: prompt.visibility
                         }
                     }
                 }
