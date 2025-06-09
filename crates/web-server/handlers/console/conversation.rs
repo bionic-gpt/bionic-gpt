@@ -5,6 +5,7 @@ use db::queries;
 use db::Pool;
 use db::{authz, ModelType};
 use integrations;
+use integrations::ToolScope;
 use llm_proxy::user_config::UserConfig;
 use web_pages::{console, routes::console::Conversation};
 
@@ -59,8 +60,7 @@ pub async fn conversation(
         .await?;
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
-    let available_tools: Vec<(String, String)> =
-        integrations::get_user_selectable_tools_for_chat_ui();
+    let available_tools = integrations::get_tools(ToolScope::UserSelectable);
 
     let html = console::conversation::page(
         team_id,

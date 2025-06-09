@@ -5,6 +5,7 @@ use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::{Prompt, SinglePrompt};
 use dioxus::prelude::*;
+use openai_api::BionicToolDefinition;
 
 pub fn new_conversation(
     team_id: i32,
@@ -13,7 +14,7 @@ pub fn new_conversation(
     rbac: Rbac,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
-    available_tools: Vec<(String, String)>,
+    available_tools: Vec<BionicToolDefinition>,
 ) -> String {
     // Rerverse it because that's how we display it.
     crate::render(rsx! {

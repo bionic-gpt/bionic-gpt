@@ -300,6 +300,22 @@ pub mod integrations {
         pub team_id: i32,
         pub integration_id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/integrations/{integration_id}/connections/api-key/{connection_id}/delete")]
+    pub struct DeleteApiKeyConnection {
+        pub team_id: i32,
+        pub integration_id: i32,
+        pub connection_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/integrations/{integration_id}/connections/oauth2/{connection_id}/delete")]
+    pub struct DeleteOauth2Connection {
+        pub team_id: i32,
+        pub integration_id: i32,
+        pub connection_id: i32,
+    }
 }
 
 pub mod workflows {

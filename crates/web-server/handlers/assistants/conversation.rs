@@ -5,7 +5,9 @@ use axum::response::Html;
 use db::queries;
 use db::Pool;
 use db::{authz, ModelType};
+use integrations::ToolScope;
 use llm_proxy::UserConfig;
+use openai_api::BionicToolDefinition;
 use web_pages::routes::prompts::Conversation;
 
 pub async fn conversation(
@@ -59,8 +61,8 @@ pub async fn conversation(
         .await?;
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
-    let available_tools: Vec<(String, String)> =
-        integrations::get_user_selectable_tools_for_chat_ui();
+    let available_tools: Vec<BionicToolDefinition> =
+        integrations::get_tools(ToolScope::UserSelectable);
 
     let html = web_pages::assistants::conversation::page(
         team_id,

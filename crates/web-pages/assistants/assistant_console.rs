@@ -4,6 +4,7 @@ use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
+use openai_api::BionicToolDefinition;
 
 use crate::console::empty_stream::EmptyStream;
 use crate::console::{ChatWithChunks, PendingChatState};
@@ -22,7 +23,7 @@ pub fn AssistantConsole(
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
-    available_tools: Vec<(String, String)>,
+    available_tools: Vec<BionicToolDefinition>,
 ) -> Element {
     let has_pending_chat = !matches!(&pending_chat_state, PendingChatState::None);
 
