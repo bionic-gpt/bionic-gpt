@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn DatasetsCard(team_id: i32, prompt_id: i32) -> Element {
+pub fn DatasetsCard(team_id: i32, prompt_id: i32, datasets: Vec<db::PromptDataset>) -> Element {
     rsx! {
         Card {
             class: "mb-6",
@@ -22,9 +22,28 @@ pub fn DatasetsCard(team_id: i32, prompt_id: i32) -> Element {
                 }
             }
             CardBody {
-                p {
-                    class: "text-gray-600",
-                    "Click 'Manage Datasets' to view and configure dataset connections for this assistant."
+                if datasets.is_empty() {
+                    p {
+                        class: "text-gray-600",
+                        "No datasets connected to this assistant."
+                    }
+                } else {
+                    div {
+                        class: "space-y-2",
+                        for dataset in datasets {
+                            div {
+                                class: "flex items-center justify-between p-3 bg-gray-50 rounded-lg border",
+                                span {
+                                    class: "font-medium text-gray-900",
+                                    "{dataset.name}"
+                                }
+                                span {
+                                    class: "text-sm text-gray-500",
+                                    "Dataset"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -4,7 +4,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AdvancedSettingsCard(prompt: super::upsert::PromptForm) -> Element {
+pub fn AdvancedSettingsCard(prompt: db::SinglePrompt) -> Element {
     rsx! {
         Card {
             class: "mb-6",
@@ -17,7 +17,7 @@ pub fn AdvancedSettingsCard(prompt: super::upsert::PromptForm) -> Element {
 
                     DisplayField {
                         label: "Temperature".to_string(),
-                        value: prompt.temperature.to_string(),
+                        value: format!("{}", prompt.temperature.unwrap_or(0.0)),
                     }
 
                     DisplayField {

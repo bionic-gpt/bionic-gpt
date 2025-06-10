@@ -3,7 +3,11 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn IntegrationsCard(team_id: i32, prompt_id: i32) -> Element {
+pub fn IntegrationsCard(
+    team_id: i32,
+    prompt_id: i32,
+    integrations: Vec<db::PromptIntegration>,
+) -> Element {
     rsx! {
         Card {
             class: "mb-6",
@@ -22,9 +26,31 @@ pub fn IntegrationsCard(team_id: i32, prompt_id: i32) -> Element {
                 }
             }
             CardBody {
-                p {
-                    class: "text-gray-600",
-                    "Click 'Manage Integrations' to view and configure integration connections for this assistant."
+                if integrations.is_empty() {
+                    p {
+                        class: "text-gray-600",
+                        "No integrations connected to this assistant."
+                    }
+                } else {
+                    div {
+                        class: "space-y-2",
+                        for integration in integrations {
+                            div {
+                                class: "flex items-center justify-between p-3 bg-gray-50 rounded-lg border",
+                                div {
+                                    class: "flex flex-col",
+                                    span {
+                                        class: "font-medium text-gray-900",
+                                        "{integration.name}"
+                                    }
+                                    span {
+                                        class: "text-sm text-gray-500",
+                                        "{integration.integration_type:?}"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

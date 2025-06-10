@@ -4,21 +4,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AssistantDetailsCard(prompt: super::upsert::PromptForm) -> Element {
-    let category_name = prompt
-        .categories
-        .iter()
-        .find(|c| c.id == prompt.category_id)
-        .map(|c| c.name.as_str())
-        .unwrap_or("Unknown");
-
-    let model_name = prompt
-        .models
-        .iter()
-        .find(|m| m.id == prompt.model_id)
-        .map(|m| m.name.as_str())
-        .unwrap_or("Unknown");
-
+pub fn AssistantDetailsCard(prompt: db::SinglePrompt) -> Element {
     rsx! {
         Card {
             class: "mb-6",
@@ -34,7 +20,7 @@ pub fn AssistantDetailsCard(prompt: super::upsert::PromptForm) -> Element {
                         value: prompt.name.clone(),
                     }
 
-                    DisplayField {
+                    /***DisplayField {
                         label: "Category".to_string(),
                         value: category_name.to_string(),
                     }
@@ -42,11 +28,11 @@ pub fn AssistantDetailsCard(prompt: super::upsert::PromptForm) -> Element {
                     DisplayField {
                         label: "Visibility".to_string(),
                         value: prompt.visibility.to_string(),
-                    }
+                    }**/
 
                     DisplayField {
                         label: "Model".to_string(),
-                        value: model_name.to_string(),
+                        value: prompt.model_name.to_string(),
                     }
                 }
 

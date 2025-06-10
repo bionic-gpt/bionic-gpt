@@ -9,7 +9,13 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, prompt: super::upsert::PromptForm) -> String {
+pub fn page(
+    team_id: i32,
+    rbac: Rbac,
+    prompt: db::SinglePrompt,
+    datasets: Vec<db::PromptDataset>,
+    integrations: Vec<db::PromptIntegration>,
+) -> String {
     let example1 = prompt.example1.clone().unwrap_or_default();
     let example2 = prompt.example2.clone().unwrap_or_default();
     let example3 = prompt.example3.clone().unwrap_or_default();
@@ -45,13 +51,13 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: super::upsert::PromptForm) -> Stri
                         button_type: ButtonType::Link,
                         button_scheme: ButtonScheme::Neutral,
                         button_size: ButtonSize::Small,
-                        href: crate::routes::prompts::Edit{team_id, prompt_id: prompt.id.unwrap_or(0)}.to_string(),
+                        href: crate::routes::prompts::Edit{team_id, prompt_id: prompt.id}.to_string(),
                         "Edit"
                     }
                     Button {
                         button_scheme: ButtonScheme::Error,
                         button_size: ButtonSize::Small,
-                        popover_target: format!("delete-trigger-{}-{}", prompt.id.unwrap_or(0), team_id),
+                        popover_target: format!("delete-trigger-{}-{}", prompt.id, team_id),
                         "Delete"
                     }
                 }
@@ -65,22 +71,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: super::upsert::PromptForm) -> Stri
                     class: "mb-8",
                     div {
                         class: "flex items-center gap-4 mb-4",
-                        if let Some(_object_id) = prompt.id {
-                            // Try to show image if available - this would need the actual object_id from the prompt
-                            div {
-                                class: "flex-shrink-0",
-                                Avatar {
-                                    avatar_size: AvatarSize::Large,
-                                    avatar_type: AvatarType::User
-                                }
-                            }
-                        } else {
-                            div {
-                                class: "flex-shrink-0",
-                                Avatar {
-                                    avatar_size: AvatarSize::Large,
-                                    avatar_type: AvatarType::User
-                                }
+                        div {
+                            class: "flex-shrink-0",
+                            Avatar {
+                                avatar_size: AvatarSize::Large,
+                                avatar_type: AvatarType::User
                             }
                         }
                         div {
@@ -98,9 +93,9 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: super::upsert::PromptForm) -> Stri
 
                 // Replace all card sections with component calls
                 AssistantDetailsCard { prompt: prompt.clone() }
-                SystemPromptCard { system_prompt: prompt.system_prompt.clone() }
-                DatasetsCard { team_id, prompt_id: prompt.id.unwrap_or(0) }
-                IntegrationsCard { team_id, prompt_id: prompt.id.unwrap_or(0) }
+                SystemPromptCard { system_prompt: prompt.system_prompt.clone().unwrap_or_default() }
+                DatasetsCard { team_id, prompt_id: prompt.id, datasets: datasets.clone() }
+                IntegrationsCard { team_id, prompt_id: prompt.id, integrations: integrations.clone() }
                 ExamplesCard {
                     disclaimer: prompt.disclaimer.clone(),
                     example1, example2, example3, example4
@@ -110,18 +105,16 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: super::upsert::PromptForm) -> Stri
         }
 
         // Delete confirmation modal
-        if let Some(id) = prompt.id {
-            crate::ConfirmModal {
-                action: crate::routes::prompts::Delete{team_id, id}.to_string(),
-                trigger_id: format!("delete-trigger-{}-{}", id, team_id),
-                submit_label: "Delete".to_string(),
-                heading: "Delete this Assistant?".to_string(),
-                warning: "Are you sure you want to delete this Assistant?".to_string(),
-                hidden_fields: vec![
-                    ("team_id".into(), team_id.to_string()),
-                    ("id".into(), id.to_string()),
-                ],
-            }
+        crate::ConfirmModal {
+            action: crate::routes::prompts::Delete{team_id, id: prompt.id}.to_string(),
+            trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id),
+            submit_label: "Delete".to_string(),
+            heading: "Delete this Assistant?".to_string(),
+            warning: "Are you sure you want to delete this Assistant?".to_string(),
+            hidden_fields: vec![
+                ("team_id".into(), team_id.to_string()),
+                ("id".into(), prompt.id.to_string()),
+            ],
         }
     };
 
