@@ -10,6 +10,8 @@
 @source inline("btn btn-secondary btn-accent btn-info btn-success btn-warning btn-error btn-outline btn-dash btn-soft btn-ghost btn-link btn-active btn-disabled btn-xs btn-sm btn-md btn-lg btn-xl btn-wide btn-block btn-square btn-circle");
 @source inline("tab tabs tab-content tabs-border");
 @source inline("tooltip tooltip-info");
+@source inline("input input-border");
+@source inline("select select-border");
 @source inline("dropdown dropdown-top dropdown-left");
 
 :root {
