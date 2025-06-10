@@ -4,10 +4,7 @@ use axum::{extract::Extension, response::IntoResponse};
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use db::{authz, queries, Pool, Transaction, Visibility};
 use validator::Validate;
-use web_pages::{
-    routes::prompts::{UpdateDatasets, UpdateIntegrations, Upsert},
-    string_to_visibility,
-};
+use web_pages::{routes::prompts::Upsert, string_to_visibility};
 
 #[derive(TryFromMultipart, Validate, Default, Debug)]
 pub struct NewPromptTemplate {
@@ -203,96 +200,4 @@ async fn insert_prompt(
         .one()
         .await?;
     Ok(id)
-}
-
-async fn update_datasets(
-    transaction: &Transaction<'_>,
-    prompt_id: i32,
-    datasets: Vec<i32>,
-) -> Result<(), CustomError> {
-    for dataset in datasets {
-        queries::prompts::insert_prompt_dataset()
-            .bind(transaction, &prompt_id, &dataset)
-            .await?;
-    }
-    Ok(())
-}
-
-async fn update_integrations(
-    transaction: &Transaction<'_>,
-    prompt_id: i32,
-    integrations: Vec<i32>,
-) -> Result<(), CustomError> {
-    for integration in integrations {
-        queries::prompts::insert_prompt_integration()
-            .bind(transaction, &prompt_id, &integration)
-            .await?;
-    }
-    Ok(())
-}
-
-#[derive(TryFromMultipart, Validate, Default, Debug)]
-pub struct DatasetUpdateForm {
-    pub datasets: Vec<i32>,
-}
-
-#[derive(TryFromMultipart, Validate, Default, Debug)]
-pub struct IntegrationUpdateForm {
-    pub integrations: Vec<i32>,
-}
-
-pub async fn update_datasets_action(
-    UpdateDatasets { team_id, prompt_id }: UpdateDatasets,
-    current_user: Jwt,
-    Extension(pool): Extension<Pool>,
-    TypedMultipart(form): TypedMultipart<DatasetUpdateForm>,
-) -> Result<impl IntoResponse, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    // Delete existing dataset connections
-    queries::prompts::delete_prompt_datasets()
-        .bind(&transaction, &prompt_id)
-        .await?;
-
-    // Add new dataset connections
-    update_datasets(&transaction, prompt_id, form.datasets).await?;
-
-    transaction.commit().await?;
-
-    Ok(crate::layout::redirect_and_snackbar(
-        &web_pages::routes::prompts::View { team_id, prompt_id }.to_string(),
-        "Dataset connections updated successfully",
-    )
-    .into_response())
-}
-
-pub async fn update_integrations_action(
-    UpdateIntegrations { team_id, prompt_id }: UpdateIntegrations,
-    current_user: Jwt,
-    Extension(pool): Extension<Pool>,
-    TypedMultipart(form): TypedMultipart<IntegrationUpdateForm>,
-) -> Result<impl IntoResponse, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    // Delete existing integration connections
-    queries::prompts::delete_prompt_integrations()
-        .bind(&transaction, &prompt_id)
-        .await?;
-
-    // Add new integration connections
-    update_integrations(&transaction, prompt_id, form.integrations).await?;
-
-    transaction.commit().await?;
-
-    Ok(crate::layout::redirect_and_snackbar(
-        &web_pages::routes::prompts::View { team_id, prompt_id }.to_string(),
-        "Integration connections updated successfully",
-    )
-    .into_response())
 }
