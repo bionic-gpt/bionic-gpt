@@ -7,7 +7,7 @@ use dioxus::prelude::*;
 use serde::Deserialize;
 use validator::Validate;
 
-#[derive(Deserialize, Validate, Default, Debug)]
+#[derive(Deserialize, Validate, Default, Debug, Clone, PartialEq)]
 pub struct PromptForm {
     pub id: Option<i32>,
     pub name: String,
