@@ -1,16 +1,18 @@
 use crate::{CustomError, Jwt};
 use axum::response::Html;
 use axum::{extract::Extension, response::IntoResponse};
-use axum_typed_multipart::{TryFromMultipart, TypedMultipart};
+use axum_extra::extract::Form;
 use db::{authz, queries, Pool, Transaction};
+use serde::Deserialize;
 use validator::Validate;
 use web_pages::{
     my_assistants,
     routes::prompts::{ManageIntegrations, UpdateIntegrations},
 };
 
-#[derive(TryFromMultipart, Validate, Default, Debug)]
+#[derive(Deserialize, Validate, Default, Debug)]
 pub struct IntegrationUpdateForm {
+    #[serde(default)]
     pub integrations: Vec<i32>,
 }
 
@@ -31,7 +33,7 @@ pub async fn update_integrations_action(
     UpdateIntegrations { team_id, prompt_id }: UpdateIntegrations,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
-    TypedMultipart(form): TypedMultipart<IntegrationUpdateForm>,
+    Form(form): Form<IntegrationUpdateForm>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
