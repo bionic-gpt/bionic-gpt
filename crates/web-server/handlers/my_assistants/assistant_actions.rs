@@ -14,8 +14,6 @@ pub struct NewPromptTemplate {
     pub system_prompt: String,
     pub model_id: i32,
     pub category_id: i32,
-    pub datasets: Vec<i32>,
-    pub integrations: Vec<i32>,
     pub max_history_items: i32,
     pub max_chunks: i32,
     pub max_tokens: i32,
@@ -92,10 +90,8 @@ pub async fn upsert(
                     .bind(&transaction, &image_object_id, &id)
                     .await?;
             }
-            update_datasets(&transaction, id, new_prompt_template.datasets).await?;
-            update_integrations(&transaction, id, new_prompt_template.integrations).await?;
         } else {
-            let prompt_id = insert_prompt(
+            let _prompt_id = insert_prompt(
                 &transaction,
                 &new_prompt_template,
                 image_object_id,
@@ -104,20 +100,18 @@ pub async fn upsert(
                 team_id,
             )
             .await?;
-            update_datasets(&transaction, prompt_id, new_prompt_template.datasets).await?;
-            update_integrations(&transaction, prompt_id, new_prompt_template.integrations).await?;
         }
 
         transaction.commit().await?;
 
         Ok(crate::layout::redirect_and_snackbar(
-            &web_pages::routes::prompts::MyPrompts { team_id }.to_string(),
+            &web_pages::routes::prompts::MyAssistants { team_id }.to_string(),
             "Assistant Created",
         )
         .into_response())
     } else {
         Ok(crate::layout::redirect_and_snackbar(
-            &web_pages::routes::prompts::MyPrompts { team_id }.to_string(),
+            &web_pages::routes::prompts::MyAssistants { team_id }.to_string(),
             "Failed to Create Assitant",
         )
         .into_response())
@@ -169,12 +163,6 @@ async fn update_prompt(
             &id,
         )
         .await?;
-    queries::prompts::delete_prompt_datasets()
-        .bind(transaction, &id)
-        .await?;
-    queries::prompts::delete_prompt_integrations()
-        .bind(transaction, &id)
-        .await?;
     Ok(())
 }
 
@@ -212,30 +200,4 @@ async fn insert_prompt(
         .one()
         .await?;
     Ok(id)
-}
-
-async fn update_datasets(
-    transaction: &Transaction<'_>,
-    prompt_id: i32,
-    datasets: Vec<i32>,
-) -> Result<(), CustomError> {
-    for dataset in datasets {
-        queries::prompts::insert_prompt_dataset()
-            .bind(transaction, &prompt_id, &dataset)
-            .await?;
-    }
-    Ok(())
-}
-
-async fn update_integrations(
-    transaction: &Transaction<'_>,
-    prompt_id: i32,
-    integrations: Vec<i32>,
-) -> Result<(), CustomError> {
-    for integration in integrations {
-        queries::prompts::insert_prompt_integration()
-            .bind(transaction, &prompt_id, &integration)
-            .await?;
-    }
-    Ok(())
 }

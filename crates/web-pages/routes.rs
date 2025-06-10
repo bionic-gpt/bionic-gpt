@@ -166,8 +166,8 @@ pub mod prompts {
     }
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/app/team/{team_id}/my_prompts")]
-    pub struct MyPrompts {
+    #[typed_path("/app/team/{team_id}/my_assistants")]
+    pub struct MyAssistants {
         pub team_id: i32,
     }
 
@@ -216,6 +216,41 @@ pub mod prompts {
         pub team_id: i32,
         pub prompt_id: i32,
         pub conversation_id: i64,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}")]
+    pub struct View {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/datasets")]
+    pub struct ManageDatasets {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/datasets/update")]
+    pub struct UpdateDatasets {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations")]
+    pub struct ManageIntegrations {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations/update")]
+    pub struct UpdateIntegrations {
+        pub team_id: i32,
+        pub prompt_id: i32,
     }
 }
 

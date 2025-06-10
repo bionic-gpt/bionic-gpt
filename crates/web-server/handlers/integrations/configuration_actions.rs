@@ -38,7 +38,7 @@ pub async fn configure_api_key_action(
     match api_key_form.validate() {
         Ok(_) => {
             // Insert new connection
-            let _connection_id = queries::connections::insert_api_key_connection()
+            queries::connections::insert_api_key_connection()
                 .bind(
                     &transaction,
                     &integration_id,
@@ -52,7 +52,11 @@ pub async fn configure_api_key_action(
             transaction.commit().await?;
 
             Ok(crate::layout::redirect_and_snackbar(
-                &web_pages::routes::integrations::Index { team_id }.to_string(),
+                &web_pages::routes::integrations::View {
+                    team_id,
+                    id: integration_id,
+                }
+                .to_string(),
                 "API Key configured successfully",
             ))
         }

@@ -45,12 +45,12 @@ pub async fn new_assistant_loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let datasets = queries::datasets::datasets()
+    let _datasets = queries::datasets::datasets()
         .bind(&transaction)
         .all()
         .await?;
 
-    let integrations = queries::integrations::integrations()
+    let _integrations = queries::integrations::integrations()
         .bind(&transaction)
         .all()
         .await?;
@@ -65,14 +65,10 @@ pub async fn new_assistant_loader(
         .all()
         .await?;
 
-    let form = assistants::upsert::PromptForm {
+    let form = web_pages::my_assistants::upsert::PromptForm {
         id: None,
         name: "".to_string(),
         system_prompt: "".to_string(),
-        datasets: datasets.clone(),
-        selected_dataset_ids: Default::default(),
-        integrations: integrations.clone(),
-        selected_integration_ids: Default::default(),
         models: models.clone(),
         categories: categories.clone(),
         visibility: "Private".to_string(),
@@ -92,7 +88,7 @@ pub async fn new_assistant_loader(
         error: None,
     };
 
-    let html = assistants::upsert::page(team_id, rbac, form);
+    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form);
 
     Ok(Html(html))
 }
@@ -107,12 +103,12 @@ pub async fn edit_assistant_loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let datasets = queries::datasets::datasets()
+    let _datasets = queries::datasets::datasets()
         .bind(&transaction)
         .all()
         .await?;
 
-    let integrations = queries::integrations::integrations()
+    let _integrations = queries::integrations::integrations()
         .bind(&transaction)
         .all()
         .await?;
@@ -133,7 +129,7 @@ pub async fn edit_assistant_loader(
         .await?;
 
     // Parse selected dataset IDs from comma-separated string
-    let selected_dataset_ids: Vec<i32> = if prompt.selected_datasets.is_empty() {
+    let _selected_dataset_ids: Vec<i32> = if prompt.selected_datasets.is_empty() {
         Vec::new()
     } else {
         prompt
@@ -144,7 +140,7 @@ pub async fn edit_assistant_loader(
     };
 
     // Parse selected integration IDs from comma-separated string
-    let selected_integration_ids: Vec<i32> = if prompt.selected_integrations.is_empty() {
+    let _selected_integration_ids: Vec<i32> = if prompt.selected_integrations.is_empty() {
         Vec::new()
     } else {
         prompt
@@ -154,14 +150,10 @@ pub async fn edit_assistant_loader(
             .collect()
     };
 
-    let form = assistants::upsert::PromptForm {
+    let form = web_pages::my_assistants::upsert::PromptForm {
         id: Some(prompt.id),
         name: prompt.name,
         system_prompt: prompt.system_prompt.unwrap_or_default(),
-        datasets: datasets.clone(),
-        selected_dataset_ids,
-        integrations: integrations.clone(),
-        selected_integration_ids,
         models: models.clone(),
         categories: categories.clone(),
         visibility: visibility_to_string(prompt.visibility),
@@ -181,7 +173,7 @@ pub async fn edit_assistant_loader(
         error: None,
     };
 
-    let html = assistants::upsert::page(team_id, rbac, form);
+    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form);
 
     Ok(Html(html))
 }

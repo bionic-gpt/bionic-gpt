@@ -55,7 +55,7 @@ pub fn IntegrationHeader(
                     Button {
                         prefix_image_src: "{menu_delete_svg.name}",
                         popover_target: popover_target.clone(),
-                        button_scheme: ButtonScheme::Error
+                        button_scheme: ButtonScheme::Warning
                     }
                     ConfirmModal {
                         action: crate::routes::integrations::Delete{team_id, id: integration.id}.to_string(),

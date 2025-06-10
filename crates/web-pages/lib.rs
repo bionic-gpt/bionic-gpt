@@ -10,6 +10,7 @@ pub mod charts;
 pub mod confirm_modal;
 pub mod console;
 pub mod datasets;
+pub mod my_assistants;
 pub use confirm_modal::ConfirmModal;
 pub mod documents;
 pub mod hero;

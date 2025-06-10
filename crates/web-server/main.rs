@@ -95,6 +95,7 @@ async fn main() {
         .merge(handlers::pipelines::routes())
         .merge(handlers::profile::routes())
         .merge(handlers::assistants::routes())
+        .merge(handlers::my_assistants::routes())
         .merge(handlers::rate_limits::routes())
         .merge(handlers::team::routes())
         .merge(handlers::teams::routes())

@@ -5,9 +5,9 @@ use db::{ApiKeyConnection, Oauth2Connection};
 use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
 
-use super::api_key_connections_table::ApiKeyConnectionsTable;
+use super::api_key_cards::ApiKeyCards;
 use super::api_key_form::ApiKeyForm;
-use super::oauth2_connections_table::Oauth2ConnectionsTable;
+use super::oauth2_cards::Oauth2Cards;
 
 #[component]
 pub fn ConnectionsSection(
@@ -25,8 +25,8 @@ pub fn ConnectionsSection(
         return rsx! {
             div {
                 class: "mt-8",
-                h2 {
-                    class: "font-semibold mb-4",
+                h3 {
+                    class: "text-lg font-medium",
                     "Connections"
                 }
                 p {
@@ -40,10 +40,6 @@ pub fn ConnectionsSection(
     rsx! {
         div {
             class: "mt-8",
-            h2 {
-                class: "font-semibold mb-4",
-                "Connections"
-            }
 
             if has_api_key {
                 div {
@@ -52,7 +48,7 @@ pub fn ConnectionsSection(
                         class: "flex justify-between items-center mb-3",
                         h3 {
                             class: "text-lg font-medium",
-                            "API Key Connections"
+                            "API Keys"
                         }
                         Button {
                             popover_target: format!("configure-api-key-{}", integration_id),
@@ -71,7 +67,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {ApiKeyConnectionsTable(team_id, integration_id, api_key_connections)}
+                        {ApiKeyCards(team_id, integration_id, api_key_connections)}
                     }
                 }
             }
@@ -101,7 +97,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {Oauth2ConnectionsTable(team_id, integration_id, oauth2_connections)}
+                        {Oauth2Cards(team_id, integration_id, oauth2_connections)}
                     }
                 }
             }
