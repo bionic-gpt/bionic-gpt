@@ -4,7 +4,10 @@ use axum::{extract::Extension, response::IntoResponse};
 use axum_typed_multipart::{FieldData, TryFromMultipart, TypedMultipart};
 use db::{authz, queries, Pool, Transaction, Visibility};
 use validator::Validate;
-use web_pages::{routes::prompts::Upsert, string_to_visibility};
+use web_pages::{
+    routes::prompts::{UpdateDatasets, UpdateIntegrations, Upsert},
+    string_to_visibility,
+};
 
 #[derive(TryFromMultipart, Validate, Default, Debug)]
 pub struct NewPromptTemplate {
@@ -14,8 +17,6 @@ pub struct NewPromptTemplate {
     pub system_prompt: String,
     pub model_id: i32,
     pub category_id: i32,
-    pub datasets: Vec<i32>,
-    pub integrations: Vec<i32>,
     pub max_history_items: i32,
     pub max_chunks: i32,
     pub max_tokens: i32,
@@ -92,10 +93,8 @@ pub async fn upsert(
                     .bind(&transaction, &image_object_id, &id)
                     .await?;
             }
-            update_datasets(&transaction, id, new_prompt_template.datasets).await?;
-            update_integrations(&transaction, id, new_prompt_template.integrations).await?;
         } else {
-            let prompt_id = insert_prompt(
+            let _prompt_id = insert_prompt(
                 &transaction,
                 &new_prompt_template,
                 image_object_id,
@@ -104,8 +103,6 @@ pub async fn upsert(
                 team_id,
             )
             .await?;
-            update_datasets(&transaction, prompt_id, new_prompt_template.datasets).await?;
-            update_integrations(&transaction, prompt_id, new_prompt_template.integrations).await?;
         }
 
         transaction.commit().await?;
@@ -168,12 +165,6 @@ async fn update_prompt(
             &db::PromptType::Assistant,
             &id,
         )
-        .await?;
-    queries::prompts::delete_prompt_datasets()
-        .bind(transaction, &id)
-        .await?;
-    queries::prompts::delete_prompt_integrations()
-        .bind(transaction, &id)
         .await?;
     Ok(())
 }
@@ -238,4 +229,70 @@ async fn update_integrations(
             .await?;
     }
     Ok(())
+}
+
+#[derive(TryFromMultipart, Validate, Default, Debug)]
+pub struct DatasetUpdateForm {
+    pub datasets: Vec<i32>,
+}
+
+#[derive(TryFromMultipart, Validate, Default, Debug)]
+pub struct IntegrationUpdateForm {
+    pub integrations: Vec<i32>,
+}
+
+pub async fn update_datasets_action(
+    UpdateDatasets { team_id, prompt_id }: UpdateDatasets,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+    TypedMultipart(form): TypedMultipart<DatasetUpdateForm>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    // Delete existing dataset connections
+    queries::prompts::delete_prompt_datasets()
+        .bind(&transaction, &prompt_id)
+        .await?;
+
+    // Add new dataset connections
+    update_datasets(&transaction, prompt_id, form.datasets).await?;
+
+    transaction.commit().await?;
+
+    Ok(crate::layout::redirect_and_snackbar(
+        &web_pages::routes::prompts::View { team_id, prompt_id }.to_string(),
+        "Dataset connections updated successfully",
+    )
+    .into_response())
+}
+
+pub async fn update_integrations_action(
+    UpdateIntegrations { team_id, prompt_id }: UpdateIntegrations,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+    TypedMultipart(form): TypedMultipart<IntegrationUpdateForm>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    // Delete existing integration connections
+    queries::prompts::delete_prompt_integrations()
+        .bind(&transaction, &prompt_id)
+        .await?;
+
+    // Add new integration connections
+    update_integrations(&transaction, prompt_id, form.integrations).await?;
+
+    transaction.commit().await?;
+
+    Ok(crate::layout::redirect_and_snackbar(
+        &web_pages::routes::prompts::View { team_id, prompt_id }.to_string(),
+        "Integration connections updated successfully",
+    )
+    .into_response())
 }

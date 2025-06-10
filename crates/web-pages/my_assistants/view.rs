@@ -187,38 +187,24 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: super::upsert::PromptForm) -> Stri
                 // Datasets Section
                 Card {
                     class: "mb-6",
-                    CardHeader {
-                        title: "Connected Datasets"
+                    div {
+                        class: "card-header flex justify-between items-center p-4 border-b",
+                        h3 {
+                            class: "text-lg font-semibold",
+                            "Connected Datasets"
+                        }
+                        Button {
+                            button_type: ButtonType::Link,
+                            href: crate::routes::prompts::ManageDatasets{team_id, prompt_id: prompt.id.unwrap_or(0)}.to_string(),
+                            button_scheme: ButtonScheme::Primary,
+                            button_size: ButtonSize::Small,
+                            "Manage Datasets"
+                        }
                     }
                     CardBody {
-                        if !prompt.datasets.is_empty() && !prompt.selected_dataset_ids.is_empty() {
-                            div {
-                                class: "space-y-3",
-                                for dataset in prompt.datasets.iter().filter(|d| prompt.selected_dataset_ids.contains(&d.id)) {
-                                    div {
-                                        class: "flex items-center justify-between p-3 bg-gray-50 rounded border",
-                                        div {
-                                            h4 {
-                                                class: "font-medium text-gray-900",
-                                                "{dataset.name}"
-                                            }
-                                            p {
-                                                class: "text-sm text-gray-600",
-                                                "Model: {dataset.embeddings_model_name}"
-                                            }
-                                        }
-                                        span {
-                                            class: "badge badge-success",
-                                            "Connected"
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            p {
-                                class: "text-gray-500 italic",
-                                "No datasets connected to this assistant"
-                            }
+                        p {
+                            class: "text-gray-600",
+                            "Click 'Manage Datasets' to view and configure dataset connections for this assistant."
                         }
                     }
                 }
@@ -226,41 +212,24 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: super::upsert::PromptForm) -> Stri
                 // Integrations Section
                 Card {
                     class: "mb-6",
-                    CardHeader {
-                        title: "Connected Integrations"
+                    div {
+                        class: "card-header flex justify-between items-center p-4 border-b",
+                        h3 {
+                            class: "text-lg font-semibold",
+                            "Connected Integrations"
+                        }
+                        Button {
+                            button_type: ButtonType::Link,
+                            href: crate::routes::prompts::ManageIntegrations{team_id, prompt_id: prompt.id.unwrap_or(0)}.to_string(),
+                            button_scheme: ButtonScheme::Primary,
+                            button_size: ButtonSize::Small,
+                            "Manage Integrations"
+                        }
                     }
                     CardBody {
-                        if !prompt.integrations.is_empty() && !prompt.selected_integration_ids.is_empty() {
-                            div {
-                                class: "space-y-3",
-                                for integration in prompt.integrations.iter().filter(|i| prompt.selected_integration_ids.contains(&i.id)) {
-                                    div {
-                                        class: "flex items-center justify-between p-3 bg-gray-50 rounded border",
-                                        div {
-                                            h4 {
-                                                class: "font-medium text-gray-900",
-                                                "{integration.name}"
-                                            }
-                                            p {
-                                                class: "text-sm text-gray-600",
-                                                "Type: {integration.integration_type:?}"
-                                            }
-                                        }
-                                        span {
-                                            class: match integration.integration_status {
-                                                db::IntegrationStatus::Configured => "badge badge-success",
-                                                _ => "badge badge-warning"
-                                            },
-                                            "{integration.integration_status:?}"
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            p {
-                                class: "text-gray-500 italic",
-                                "No integrations connected to this assistant"
-                            }
+                        p {
+                            class: "text-gray-600",
+                            "Click 'Manage Integrations' to view and configure integration connections for this assistant."
                         }
                     }
                 }
