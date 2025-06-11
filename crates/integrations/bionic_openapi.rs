@@ -374,7 +374,7 @@ impl BionicOpenAPI {
             // The function name is now the operation_id, so we use it directly
             let operation_id = tool_def.function.name.clone();
 
-            let tool = crate::open_api_tool::OpenApiTool::new(
+            let tool = crate::OpenApiTool::new(
                 tool_def,
                 base_url.clone(),
                 self.spec.clone(),
