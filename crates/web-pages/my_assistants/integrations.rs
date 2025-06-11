@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::my_assistants::connection_modal::ConnectionModal;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{ApiKeyConnection, Integration, Oauth2Connection};
@@ -28,7 +29,7 @@ pub struct ConnectionSelection {
     pub oauth2_connection_id: Option<i32>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct IntegrationWithAuthInfo {
     pub integration: Integration,
     pub requires_api_key: bool,
@@ -36,7 +37,7 @@ pub struct IntegrationWithAuthInfo {
     pub has_connections: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct AvailableConnections {
     pub api_key_connections: Vec<ApiKeyConnection>,
     pub oauth2_connections: Vec<Oauth2Connection>,
@@ -176,20 +177,28 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                             }
                                                         }
                                                     } else {
-                                                        // Show Add button - for now, simple add without connection selection
-                                                        form {
-                                                            action: crate::routes::prompts::AddIntegration {
-                                                                team_id,
-                                                                prompt_id: form.prompt_id,
-                                                                integration_id: integration_info.integration.id
-                                                            }.to_string(),
-                                                            method: "post",
-                                                            Button {
-                                                                button_type: ButtonType::Submit,
-                                                                button_scheme: ButtonScheme::Primary,
-                                                                button_size: ButtonSize::Small,
-                                                                disabled: !integration_info.has_connections && (integration_info.requires_api_key || integration_info.requires_oauth2),
+                                                        // Show Add button (with modal if connection required)
+                                                        if (integration_info.requires_api_key || integration_info.requires_oauth2) && integration_info.has_connections {
+                                                            label {
+                                                                "for": format!("add-modal-{}", integration_info.integration.id),
+                                                                class: "btn btn-primary btn-sm",
                                                                 "Add"
+                                                            }
+                                                        } else {
+                                                            form {
+                                                                action: crate::routes::prompts::AddIntegration {
+                                                                    team_id,
+                                                                    prompt_id: form.prompt_id,
+                                                                    integration_id: integration_info.integration.id
+                                                                }.to_string(),
+                                                                method: "post",
+                                                                Button {
+                                                                    button_type: ButtonType::Submit,
+                                                                    button_scheme: ButtonScheme::Primary,
+                                                                    button_size: ButtonSize::Small,
+                                                                    disabled: !integration_info.has_connections && (integration_info.requires_api_key || integration_info.requires_oauth2),
+                                                                    "Add"
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -204,6 +213,18 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                 class: "text-gray-500 italic text-center py-4",
                                 "No integrations available"
                             }
+                        }
+                    }
+                }
+
+                // Connection Selection Modals
+                for integration_info in &form.integrations {
+                    if (integration_info.requires_api_key || integration_info.requires_oauth2) && integration_info.has_connections {
+                        ConnectionModal {
+                            team_id: team_id,
+                            prompt_id: form.prompt_id,
+                            integration_info: integration_info.clone(),
+                            available_connections: form.available_connections.clone(),
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 pub mod advanced_settings_card;
 pub mod assistant_card;
 pub mod assistant_details_card;
+pub mod connection_modal;
 pub mod datasets;
 pub mod datasets_card;
 pub mod display_field;
