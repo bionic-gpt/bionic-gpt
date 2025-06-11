@@ -385,3 +385,49 @@ async fn test_tool_call_id_linking() {
     assert_eq!(messages[1].tool_call_id, Some("call_link_test".to_string()));
     assert_eq!(messages[1].role, ChatCompletionMessageRole::Tool);
 }
+
+#[tokio::test]
+async fn test_history_truncation_keeps_latest() {
+    use crate::token_count::token_count;
+
+    fn mk_msg(content: &str) -> ChatCompletionMessage {
+        ChatCompletionMessage {
+            role: ChatCompletionMessageRole::User,
+            content: Some(content.to_string()),
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
+        }
+    }
+
+    // Measure token counts for small and large messages
+    let small_msg = mk_msg("hi");
+    let small_tokens = token_count(vec![small_msg.clone()]) as usize;
+
+    let large_content = "long ".repeat(100);
+    let large_msg = mk_msg(&large_content);
+    let large_tokens = token_count(vec![large_msg.clone()]) as usize;
+
+    // Allow large message and three recent small messages
+    let context_size = large_tokens + small_tokens * 3 + 1;
+
+    let history = vec![
+        mk_msg("m1"),
+        mk_msg("m2"),
+        mk_msg("m3"),
+        mk_msg("m4"),
+        mk_msg("m5"),
+        large_msg.clone(),
+    ];
+
+    let (messages, _chunk_ids) =
+        generate_prompt(context_size, 0, 1.0, None, history, Default::default()).await;
+
+    let contents: Vec<_> = messages.iter().map(|m| m.content.clone()).collect();
+
+    assert_eq!(messages.len(), 4);
+    assert_eq!(contents[0], Some("m3".to_string()));
+    assert_eq!(contents[1], Some("m4".to_string()));
+    assert_eq!(contents[2], Some("m5".to_string()));
+    assert_eq!(contents[3], Some(large_content));
+}
