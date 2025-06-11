@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use validator::Validate;
 use web_pages::{
     my_assistants,
-    routes::prompts::{ManageIntegrations, UpdateIntegrations},
+    routes::prompts::{AddIntegration, ManageIntegrations, RemoveIntegration, UpdateIntegrations},
 };
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -205,4 +205,75 @@ pub async fn manage_integrations(
     let html = my_assistants::integrations::page(team_id, rbac, form);
 
     Ok(Html(html))
+}
+
+#[derive(Deserialize, Default, Debug)]
+pub struct AddIntegrationForm {
+    #[serde(default)]
+    pub api_connection_id: Option<i32>,
+    #[serde(default)]
+    pub oauth2_connection_id: Option<i32>,
+}
+
+pub async fn add_integration_action(
+    AddIntegration {
+        team_id,
+        prompt_id,
+        integration_id,
+    }: AddIntegration,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+    Form(form): Form<AddIntegrationForm>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    // Add the integration with connection info
+    queries::prompt_integrations::insert_prompt_integration_with_connection()
+        .bind(
+            &transaction,
+            &prompt_id,
+            &integration_id,
+            &form.api_connection_id,
+            &form.oauth2_connection_id,
+        )
+        .await?;
+
+    transaction.commit().await?;
+
+    Ok(crate::layout::redirect_and_snackbar(
+        &web_pages::routes::prompts::ManageIntegrations { team_id, prompt_id }.to_string(),
+        "Integration added successfully",
+    )
+    .into_response())
+}
+
+pub async fn remove_integration_action(
+    RemoveIntegration {
+        team_id,
+        prompt_id,
+        integration_id,
+    }: RemoveIntegration,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    // Remove the specific integration
+    queries::prompt_integrations::delete_specific_prompt_integration()
+        .bind(&transaction, &prompt_id, &integration_id)
+        .await?;
+
+    transaction.commit().await?;
+
+    Ok(crate::layout::redirect_and_snackbar(
+        &web_pages::routes::prompts::ManageIntegrations { team_id, prompt_id }.to_string(),
+        "Integration removed successfully",
+    )
+    .into_response())
 }

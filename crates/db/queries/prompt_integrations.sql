@@ -69,3 +69,18 @@ JOIN integrations i ON pi.integration_id = i.id
 LEFT JOIN api_key_connections akc ON pi.api_connection_id = akc.id
 LEFT JOIN oauth2_connections o2c ON pi.oauth2_connection_id = o2c.id
 WHERE pi.prompt_id = :prompt_id;
+
+--! delete_specific_prompt_integration
+DELETE FROM prompt_integration
+WHERE
+    prompt_id = :prompt_id
+AND integration_id = :integration_id
+AND prompt_id IN (
+    SELECT id FROM prompts WHERE model_id IN(
+        SELECT id FROM models WHERE team_id IN(
+            SELECT team_id
+            FROM team_users
+            WHERE user_id = current_app_user()
+        )
+    )
+);

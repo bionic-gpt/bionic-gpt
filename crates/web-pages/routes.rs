@@ -252,6 +252,22 @@ pub mod prompts {
         pub team_id: i32,
         pub prompt_id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations/add/{integration_id}")]
+    pub struct AddIntegration {
+        pub team_id: i32,
+        pub prompt_id: i32,
+        pub integration_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations/remove/{integration_id}")]
+    pub struct RemoveIntegration {
+        pub team_id: i32,
+        pub prompt_id: i32,
+        pub integration_id: i32,
+    }
 }
 
 pub mod models {
