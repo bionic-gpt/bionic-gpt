@@ -178,28 +178,11 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                         }
                                                     } else {
                                                         // Show Add button (with modal if connection required)
-                                                        if (integration_info.requires_api_key || integration_info.requires_oauth2) && integration_info.has_connections {
-                                                            label {
-                                                                "for": format!("add-modal-{}", integration_info.integration.id),
-                                                                class: "btn btn-primary btn-sm",
-                                                                "Add"
-                                                            }
-                                                        } else {
-                                                            form {
-                                                                action: crate::routes::prompts::AddIntegration {
-                                                                    team_id,
-                                                                    prompt_id: form.prompt_id,
-                                                                    integration_id: integration_info.integration.id
-                                                                }.to_string(),
-                                                                method: "post",
-                                                                Button {
-                                                                    button_type: ButtonType::Submit,
-                                                                    button_scheme: ButtonScheme::Primary,
-                                                                    button_size: ButtonSize::Small,
-                                                                    disabled: !integration_info.has_connections && (integration_info.requires_api_key || integration_info.requires_oauth2),
-                                                                    "Add"
-                                                                }
-                                                            }
+                                                        ConnectionModal {
+                                                            team_id: team_id,
+                                                            prompt_id: form.prompt_id,
+                                                            integration_info: integration_info.clone(),
+                                                            available_connections: form.available_connections.clone(),
                                                         }
                                                     }
                                                 }
@@ -213,18 +196,6 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                 class: "text-gray-500 italic text-center py-4",
                                 "No integrations available"
                             }
-                        }
-                    }
-                }
-
-                // Connection Selection Modals
-                for integration_info in &form.integrations {
-                    if (integration_info.requires_api_key || integration_info.requires_oauth2) && integration_info.has_connections {
-                        ConnectionModal {
-                            team_id: team_id,
-                            prompt_id: form.prompt_id,
-                            integration_info: integration_info.clone(),
-                            available_connections: form.available_connections.clone(),
                         }
                     }
                 }
