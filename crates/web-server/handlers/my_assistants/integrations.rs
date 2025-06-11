@@ -159,12 +159,16 @@ pub async fn manage_integrations(
         }
     }
 
+    tracing::debug!("get_prompt_integrations_with_connections");
+
     // Get existing prompt integrations with connections
     let existing_connections =
         queries::prompt_integrations::get_prompt_integrations_with_connections()
             .bind(&transaction, &prompt_id)
             .all()
             .await?;
+
+    tracing::debug!("Finished get_prompt_integrations_with_connections");
 
     let mut integration_connections: HashMap<
         i32,

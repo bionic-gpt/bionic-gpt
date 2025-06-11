@@ -1,5 +1,5 @@
 --: PromptIntegration()
---: PromptIntegrationWithConnection(api_connection_id?, oauth2_connection_id?,  integration_definition?)
+--: PromptIntegrationWithConnection(api_connection_id?, oauth2_connection_id?,  integration_definition?, api_key_connection_name?, oauth2_connection_name?)
 
 --! prompt_integrations : PromptIntegration
 SELECT
