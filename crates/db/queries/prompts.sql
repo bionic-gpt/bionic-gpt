@@ -476,41 +476,4 @@ AND
     team_id
     IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
 
---! prompt_integrations : PromptIntegration()
-SELECT
-    i.id as integration_id,
-    pi.prompt_id as prompt_id,
-    i.name,
-    i.integration_type,
-    i.integration_status
-FROM 
-    integrations i
-LEFT JOIN 
-    prompt_integration pi
-ON 
-    i.id = pi.integration_id
-WHERE
-    pi.prompt_id = :prompts_id;
 
---! delete_prompt_integrations
-DELETE FROM prompt_integration
-WHERE
-    prompt_id = :prompts_id
-AND
-    prompt_id IN (
-        SELECT id FROM prompts WHERE model_id IN(
-            SELECT id FROM models WHERE team_id IN(
-                SELECT team_id 
-                FROM team_users 
-                WHERE user_id = current_app_user()
-            )
-        )
-    );
-
---! insert_prompt_integration
-INSERT INTO prompt_integration(
-    prompt_id,
-    integration_id
-)
-VALUES(
-    :prompt_id, :integration_id);

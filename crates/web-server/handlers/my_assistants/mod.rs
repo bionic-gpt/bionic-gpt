@@ -17,4 +17,6 @@ pub fn routes() -> Router {
         .typed_post(assistant_actions::upsert)
         .typed_post(datasets::update_datasets_action)
         .typed_post(integrations::update_integrations_action)
+        .typed_post(integrations::add_integration_action)
+        .typed_post(integrations::remove_integration_action)
 }

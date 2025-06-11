@@ -47,7 +47,7 @@ pub async fn view_assistant(
         .all()
         .await?;
 
-    let integrations = queries::prompts::prompt_integrations()
+    let integrations = queries::prompt_integrations::prompt_integrations()
         .bind(&transaction, &prompt_id)
         .all()
         .await?;
