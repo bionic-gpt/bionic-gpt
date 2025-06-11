@@ -22,7 +22,7 @@ async fn update_integrations(
     integrations: Vec<i32>,
 ) -> Result<(), CustomError> {
     for integration in integrations {
-        queries::prompts::insert_prompt_integration()
+        queries::prompt_integrations::insert_prompt_integration()
             .bind(transaction, &prompt_id, &integration)
             .await?;
     }
@@ -41,7 +41,7 @@ pub async fn update_integrations_action(
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // Delete existing integration connections
-    queries::prompts::delete_prompt_integrations()
+    queries::prompt_integrations::delete_prompt_integrations()
         .bind(&transaction, &prompt_id)
         .await?;
 

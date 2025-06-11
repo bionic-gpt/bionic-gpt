@@ -54,3 +54,13 @@ WHERE id = :connection_id AND team_id = :team_id;
 --! delete_oauth2_connection
 DELETE FROM oauth2_connections
 WHERE id = :connection_id AND team_id = :team_id;
+
+--! get_team_api_key_connections : ApiKeyConnection
+SELECT id, integration_id, user_id, team_id, visibility, created_at
+FROM api_key_connections
+WHERE team_id = :team_id AND integration_id = :integration_id;
+
+--! get_team_oauth2_connections : Oauth2Connection
+SELECT id, integration_id, user_id, team_id, visibility, expires_at, scopes, created_at
+FROM oauth2_connections
+WHERE team_id = :team_id AND integration_id = :integration_id;
