@@ -35,7 +35,7 @@ pub fn ConnectionModal(
                             name: "api_connection_id",
                             label: "Please select an API Key",
                             label_class: "mt-4",
-                            help_text: "All access via this API key will use the above assistant",
+                            help_text: "This is the API key setup in the integration screen",
                             {available_connections.get(&integration_info.integration.id).unwrap().api_key_connections.iter().map(|connection| rsx!(
                                 SelectOption {
                                     value: "{connection.id}",
@@ -43,8 +43,20 @@ pub fn ConnectionModal(
                                 }
                             ))}
                         }
+                } else {
+                        Select {
+                            name: "oauth2_connection_id",
+                            label: "Please select an Oauth2 connectiony",
+                            label_class: "mt-4",
+                            help_text: "This is the Oauth2 key setup in the integration screen",
+                            {available_connections.get(&integration_info.integration.id).unwrap().oauth2_connections.iter().map(|connection| rsx!(
+                                SelectOption {
+                                    value: "{connection.id}",
+                                    "{connection.id}"
+                                }
+                            ))}
+                        }
                 }
-                "Connect it",
                 ModalAction {
                     Button {
                         button_type: ButtonType::Submit,
