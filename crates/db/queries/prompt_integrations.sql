@@ -1,5 +1,5 @@
 --: PromptIntegration()
---: PromptIntegrationWithConnection()
+--: PromptIntegrationWithConnection(api_connection_id?, oauth2_connection_id?,  integration_definition?)
 
 --! prompt_integrations : PromptIntegration
 SELECT
@@ -40,7 +40,7 @@ INSERT INTO prompt_integration(
 VALUES(
     :prompt_id, :integration_id);
 
---! insert_prompt_integration_with_connection
+--! insert_prompt_integration_with_connection(api_connection_id?, oauth2_connection_id?)
 INSERT INTO prompt_integration(
     prompt_id,
     integration_id,

@@ -2,9 +2,10 @@
 use crate::app_layout::{Layout, SideBar};
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::Integration;
+use db::{ApiKeyConnection, Integration, Oauth2Connection};
 use dioxus::prelude::*;
 use serde::Deserialize;
+use std::collections::HashMap;
 use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -12,10 +13,33 @@ pub struct IntegrationForm {
     pub prompt_id: i32,
     pub prompt_name: String,
     pub selected_integration_ids: Vec<i32>,
+    pub integration_connections: HashMap<i32, ConnectionSelection>,
     #[serde(skip)]
     pub error: Option<String>,
     #[serde(skip)]
-    pub integrations: Vec<Integration>,
+    pub integrations: Vec<IntegrationWithAuthInfo>,
+    #[serde(skip)]
+    pub available_connections: HashMap<i32, AvailableConnections>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct ConnectionSelection {
+    pub api_connection_id: Option<i32>,
+    pub oauth2_connection_id: Option<i32>,
+}
+
+#[derive(Debug, Clone)]
+pub struct IntegrationWithAuthInfo {
+    pub integration: Integration,
+    pub requires_api_key: bool,
+    pub requires_oauth2: bool,
+    pub has_connections: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct AvailableConnections {
+    pub api_key_connections: Vec<ApiKeyConnection>,
+    pub oauth2_connections: Vec<Oauth2Connection>,
 }
 
 pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
@@ -97,34 +121,81 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                 th { "Integration" }
                                                 th { "Type" }
                                                 th { "Status" }
+                                                th { "Authentication" }
                                                 th { "Add?" }
                                             }
                                         }
                                         tbody {
-                                            for integration in &form.integrations {
+                                            for integration_info in &form.integrations {
                                                 tr {
-                                                    td { "{integration.name}" }
-                                                    td { "{integration.integration_type:?}" }
+                                                    td { "{integration_info.integration.name}" }
+                                                    td { "{integration_info.integration.integration_type:?}" }
                                                     td {
-                                                        span {
-                                                            class: match integration.integration_status {
-                                                                db::IntegrationStatus::Configured => "badge badge-success",
-                                                                _ => "badge badge-warning"
+                                                        Label {
+                                                            label_role: match integration_info.integration.integration_status {
+                                                                db::IntegrationStatus::Configured => LabelRole::Success,
+                                                                _ => LabelRole::Warning
                                                             },
-                                                            "{integration.integration_status:?}"
+                                                            "{integration_info.integration.integration_status:?}"
                                                         }
                                                     }
                                                     td {
-                                                        if form.selected_integration_ids.contains(&integration.id) {
-                                                            CheckBox {
-                                                                checked: true,
-                                                                name: "integrations",
-                                                                value: "{integration.id}"
+                                                        // Auth requirements indicator
+                                                        if integration_info.requires_api_key || integration_info.requires_oauth2 {
+                                                            div {
+                                                                class: "flex items-center gap-1",
+                                                                if integration_info.requires_api_key {
+                                                                    Label {
+                                                                        label_size: LabelSize::Small,
+                                                                        "API Key"
+                                                                    }
+                                                                }
+                                                                if integration_info.requires_oauth2 {
+                                                                    Label {
+                                                                        label_size: LabelSize::Small,
+                                                                        "OAuth2"
+                                                                    }
+                                                                }
+                                                                if !integration_info.has_connections {
+                                                                    Label {
+                                                                        label_size: LabelSize::Small,
+                                                                        "No connections available ⚠️"
+                                                                    }
+                                                                }
                                                             }
                                                         } else {
-                                                            CheckBox {
-                                                                name: "integrations",
-                                                                value: "{integration.id}"
+                                                            Label {
+                                                                label_size: LabelSize::Small,
+                                                                "None"
+                                                            }
+                                                        }
+                                                    }
+                                                    td {
+                                                        div {
+                                                            class: "flex items-center gap-2",
+                                                            if form.selected_integration_ids.contains(&integration_info.integration.id) {
+                                                                CheckBox {
+                                                                    checked: true,
+                                                                    name: "integrations",
+                                                                    value: "{integration_info.integration.id}"
+                                                                }
+                                                            } else {
+                                                                CheckBox {
+                                                                    name: "integrations",
+                                                                    value: "{integration_info.integration.id}",
+                                                                    //disabled: (integration_info.requires_api_key || integration_info.requires_oauth2) && !integration_info.has_connections
+                                                                }
+                                                            }
+
+                                                            // Connection configuration button
+                                                            if (integration_info.requires_api_key || integration_info.requires_oauth2) && integration_info.has_connections {
+                                                                Button {
+                                                                    button_type: ButtonType::Button,
+                                                                    button_size: ButtonSize::Small,
+                                                                    popover_target: format!("connection-modal-{}", integration_info.integration.id),
+                                                                    disabled: !form.selected_integration_ids.contains(&integration_info.integration.id),
+                                                                    "Configure"
+                                                                }
                                                             }
                                                         }
                                                     }
