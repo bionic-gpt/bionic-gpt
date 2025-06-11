@@ -30,6 +30,20 @@ pub fn ConnectionModal(
                 integration_id: integration_info.integration.id
             }.to_string(),
             ModalBody {
+                if integration_info.requires_api_key {
+                        Select {
+                            name: "api_connection_id",
+                            label: "Please select an API Key",
+                            label_class: "mt-4",
+                            help_text: "All access via this API key will use the above assistant",
+                            {available_connections.get(&integration_info.integration.id).unwrap().api_key_connections.iter().map(|connection| rsx!(
+                                SelectOption {
+                                    value: "{connection.id}",
+                                    "{connection.id}"
+                                }
+                            ))}
+                        }
+                }
                 "Connect it",
                 ModalAction {
                     Button {
