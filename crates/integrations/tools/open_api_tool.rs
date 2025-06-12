@@ -5,7 +5,10 @@
 
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
-use oas3::{self, spec::Operation};
+use oas3::{
+    self,
+    spec::{ObjectOrReference, Operation, Parameter, ParameterIn},
+};
 use openai_api::BionicToolDefinition;
 use reqwest::{header::AUTHORIZATION, Client};
 use serde_json::Value;
@@ -206,21 +209,17 @@ fn separate_parameters(args: &Value, operation: &Operation) -> Result<(Value, Va
     let mut request_body_params = serde_json::Map::new();
 
     // Get all arguments as an object
-    let args_obj = args.as_object().ok_or("Arguments must be a JSON object")?;
+    let args_obj = args
+        .as_object()
+        .ok_or("Arguments must be a JSON object")?;
 
     // Collect path and query parameter names from the operation
     let mut path_query_param_names = HashSet::new();
 
     for param in &operation.parameters {
-        if let Ok(param_value) = serde_json::to_value(param) {
-            if let Some(param_obj) = param_value.as_object() {
-                if let Some(location) = param_obj.get("in").and_then(|l| l.as_str()) {
-                    if location == "path" || location == "query" {
-                        if let Some(param_name) = param_obj.get("name").and_then(|n| n.as_str()) {
-                            path_query_param_names.insert(param_name.to_string());
-                        }
-                    }
-                }
+        if let ObjectOrReference::Object(Parameter { name, location, .. }) = param {
+            if *location == ParameterIn::Path || *location == ParameterIn::Query {
+                path_query_param_names.insert(name.clone());
             }
         }
     }
@@ -249,43 +248,29 @@ fn substitute_path_parameters(
     let mut result_path = path.to_string();
 
     // Extract path parameters from the operation
-    for param in &operation.parameters {
-        if let Ok(param_value) = serde_json::to_value(param) {
-            if let Some(param_obj) = param_value.as_object() {
-                // Check if this is a path parameter
-                if let Some(location) = param_obj.get("in").and_then(|l| l.as_str()) {
-                    if location == "path" {
-                        if let Some(param_name) = param_obj.get("name").and_then(|n| n.as_str()) {
-                            let placeholder = format!("{{{}}}", param_name);
+    let args_obj = args
+        .as_object()
+        .ok_or("Arguments must be a JSON object")?;
 
-                            if let Some(value) = args.get(param_name) {
-                                let value_str = match value {
-                                    Value::String(s) => s.clone(),
-                                    Value::Number(n) => n.to_string(),
-                                    Value::Bool(b) => b.to_string(),
-                                    _ => {
-                                        return Err(format!(
-                                            "Invalid value type for path parameter: {}",
-                                            param_name
-                                        ))
-                                    }
-                                };
-                                result_path = result_path.replace(&placeholder, &value_str);
-                            } else {
-                                // Check if parameter is required
-                                let is_required = param_obj
-                                    .get("required")
-                                    .and_then(|r| r.as_bool())
-                                    .unwrap_or(false);
-                                if is_required {
-                                    return Err(format!(
-                                        "Missing required path parameter: {}",
-                                        param_name
-                                    ));
-                                }
-                            }
+    for param in &operation.parameters {
+        if let ObjectOrReference::Object(Parameter { name, location, required, .. }) = param {
+            if *location == ParameterIn::Path {
+                let placeholder = format!("{{{}}}", name);
+                if let Some(value) = args_obj.get(name) {
+                    let value_str = match value {
+                        Value::String(s) => s.clone(),
+                        Value::Number(n) => n.to_string(),
+                        Value::Bool(b) => b.to_string(),
+                        _ => {
+                            return Err(format!(
+                                "Invalid value type for path parameter: {}",
+                                name
+                            ))
                         }
-                    }
+                    };
+                    result_path = result_path.replace(&placeholder, &value_str);
+                } else if required.unwrap_or(false) {
+                    return Err(format!("Missing required path parameter: {}", name));
                 }
             }
         }
