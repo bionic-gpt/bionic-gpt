@@ -205,7 +205,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                 button_type: ButtonType::Link,
                                 href: crate::routes::prompts::MyAssistants { team_id }.to_string(),
                                 button_scheme: ButtonScheme::Error,
-                                "Back to Assistant"
+                                "Cancel"
                             }
                         }
                     }
