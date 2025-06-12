@@ -219,13 +219,6 @@ pub mod prompts {
     }
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/app/team/{team_id}/assistant/{prompt_id}")]
-    pub struct View {
-        pub team_id: i32,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/datasets")]
     pub struct ManageDatasets {
         pub team_id: i32,
