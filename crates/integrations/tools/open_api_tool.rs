@@ -7,7 +7,7 @@ use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use oas3::{self, spec::Operation};
 use openai_api::BionicToolDefinition;
-use reqwest::Client;
+use reqwest::{header::AUTHORIZATION, Client};
 use serde_json::Value;
 use std::collections::HashSet;
 
@@ -24,7 +24,7 @@ pub struct OpenApiTool {
     /// The operation ID for this tool
     operation_id: String,
     /// Does this API need an API key.
-    _bearer_token: Option<String>,
+    bearer_token: Option<String>,
 }
 
 impl OpenApiTool {
@@ -41,7 +41,7 @@ impl OpenApiTool {
             client: Client::new(),
             spec,
             operation_id,
-            _bearer_token: bearer_token,
+            bearer_token,
         }
     }
 
@@ -58,6 +58,18 @@ impl OpenApiTool {
             "Operation with ID '{}' not found in OpenAPI spec",
             self.operation_id
         ))
+    }
+
+    /// Add Authorization header to request if bearer token is present
+    fn add_auth_header_if_present(
+        &self,
+        request: reqwest::RequestBuilder,
+    ) -> reqwest::RequestBuilder {
+        if let Some(ref token) = self.bearer_token {
+            request.header(AUTHORIZATION, format!("Bearer {}", token))
+        } else {
+            request
+        }
     }
 }
 
@@ -115,14 +127,16 @@ impl ToolInterface for OpenApiTool {
             "GET" => {
                 // GET requests typically don't have request bodies
                 // Send query parameters in URL if any (future enhancement)
-                self.client
-                    .get(&url)
+                let request = self.client.get(&url);
+                let request = self.add_auth_header_if_present(request);
+                request
                     .send()
                     .await
                     .map_err(|e| crate::json_error("Failed to make GET request", e))?
             }
             "POST" => {
                 let mut request = self.client.post(&url);
+                request = self.add_auth_header_if_present(request);
                 if has_request_body {
                     request = request.json(&request_body_params);
                 }
@@ -133,6 +147,7 @@ impl ToolInterface for OpenApiTool {
             }
             "PUT" => {
                 let mut request = self.client.put(&url);
+                request = self.add_auth_header_if_present(request);
                 if has_request_body {
                     request = request.json(&request_body_params);
                 }
@@ -143,6 +158,7 @@ impl ToolInterface for OpenApiTool {
             }
             "DELETE" => {
                 let mut request = self.client.delete(&url);
+                request = self.add_auth_header_if_present(request);
                 if has_request_body {
                     request = request.json(&request_body_params);
                 }
