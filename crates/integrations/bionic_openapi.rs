@@ -308,37 +308,34 @@ impl BionicOpenAPI {
 
     /// Check if the OpenAPI spec defines API key security schemes
     pub fn has_api_key_security(&self) -> bool {
-        if let Some(components) = &self.spec.components {
-            for scheme_ref in components.security_schemes.values() {
-                if let oas3::spec::ObjectOrReference::Object(scheme) = scheme_ref {
-                    if matches!(scheme, SecurityScheme::ApiKey { .. }) {
-                        return true;
-                    }
-                }
-            }
-        }
-        false
+        self
+            .spec
+            .components
+            .as_ref()
+            .map_or(false, |c| {
+                c.security_schemes.values().any(|s| {
+                    matches!(
+                        s,
+                        oas3::spec::ObjectOrReference::Object(SecurityScheme::ApiKey { .. })
+                    )
+                })
+            })
     }
 
     /// Check if the OpenAPI spec has OAuth2 security schemes
     pub fn has_oauth2_security(&self) -> bool {
-        if let Some(components) = &self.spec.components {
-            for scheme_ref in components.security_schemes.values() {
-                match scheme_ref {
-                    oas3::spec::ObjectOrReference::Object(scheme) => {
-                        if matches!(scheme, SecurityScheme::OAuth2 { .. }) {
-                            return true;
-                        }
-                    }
-                    _ => {
-                        // For references, we would need to resolve them manually
-                        // For now, skip references as they're less common
-                        continue;
-                    }
-                }
-            }
-        }
-        false
+        self
+            .spec
+            .components
+            .as_ref()
+            .map_or(false, |c| {
+                c.security_schemes.values().any(|s| {
+                    matches!(
+                        s,
+                        oas3::spec::ObjectOrReference::Object(SecurityScheme::OAuth2 { .. })
+                    )
+                })
+            })
     }
 
     /// Retrieve OAuth2 configuration from the OpenAPI spec
