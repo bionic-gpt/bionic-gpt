@@ -29,6 +29,7 @@ const CNPG_YAML: &str = include_str!("../../config/cnpg-1.22.1.yaml");
 const NGINX_YAML: &str = include_str!("../../config/nginx-ingress.yaml");
 const POSTGRES_SERVICE: &str = include_str!("../../config/postgres-service-dev.yaml");
 const APPLICATION_SERVICE: &str = include_str!("../../config/bionic-service-dev.yaml");
+const USAGE_REPORT_CRONJOB: &str = include_str!("../../config/usage-report-cron.yaml");
 
 pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     println!("Connecting to the cluster...");
@@ -43,6 +44,7 @@ pub async fn install(installer: &crate::cli::Installer) -> Result<()> {
     create_namespace(&client, &installer.operator_namespace).await?;
     create_crd(&client).await?;
     create_bionic(&client, installer).await?;
+    create_usage_report_cronjob(&client, installer).await?;
     create_roles(&client, installer).await?;
     if !installer.no_operator {
         create_bionic_operator(&client, &installer.operator_namespace).await?;
@@ -276,6 +278,18 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
             &Patch::Apply(bionic),
         )
         .await?;
+    Ok(())
+}
+
+async fn create_usage_report_cronjob(client: &Client, installer: &super::Installer) -> Result<()> {
+    let hostname_url = if let Some(hostname_url) = &installer.hostname_url {
+        hostname_url.clone()
+    } else {
+        let my_local_ip = local_ip().unwrap();
+        format!("http://{:?}", my_local_ip)
+    };
+    let yaml = USAGE_REPORT_CRONJOB.replace("$HOSTNAME_URL", &hostname_url);
+    super::super::cli::apply::apply(client, &yaml, Some(&installer.namespace)).await?;
     Ok(())
 }
 

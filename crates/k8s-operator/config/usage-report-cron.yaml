@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: usage-report
+spec:
+  schedule: "0 0 1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: usage-report
+            image: ghcr.io/bionic-gpt/usage-report:latest
+            env:
+            - name: APP_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-urls
+                  key: application-url
+            - name: HOSTNAME_URL
+              value: $HOSTNAME_URL
+            - name: IP_ADDRESS
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
