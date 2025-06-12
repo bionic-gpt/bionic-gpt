@@ -30,7 +30,7 @@ pub async fn execute_prompt(
             &embeddings_base_url,
             &embeddings_model,
             prompt.model_context_size,
-            &prompt.api_key,
+            &prompt.embeddings_api_key,
         )
         .await
         .map_err(|e| {
