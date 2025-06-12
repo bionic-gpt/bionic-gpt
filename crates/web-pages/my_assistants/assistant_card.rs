@@ -1,11 +1,11 @@
 #![allow(non_snake_case)]
 use crate::routes::prompts::Image;
 use daisy_rsx::*;
-use db::queries::prompts::Prompt;
+use db::queries::prompts::MyPrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn MyAssistantCard(team_id: i32, prompt: Prompt) -> Element {
+pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt) -> Element {
     let description: String = prompt
         .description
         .chars()
@@ -73,22 +73,28 @@ pub fn MyAssistantCard(team_id: i32, prompt: Prompt) -> Element {
                     class: "flex flex-col justify-center text-center",
                     div {
                         class: "",
-                        "1"
+                        "{prompt.integration_count}"
                     }
                     div {
                         class: "text-base-content/70",
                         "Integration"
+                        if prompt.integration_count != 1 {
+                            "s"
+                        }
                     }
                 }
                 div {
                     class: "flex flex-col justify-center text-center",
                     div {
                         class: "",
-                        "1"
+                        "{prompt.dataset_count}"
                     }
                     div {
                         class: "text-base-content/70",
                         "Dataset"
+                        if prompt.dataset_count != 1 {
+                            "s"
+                        }
                     }
                 }
                 div {
