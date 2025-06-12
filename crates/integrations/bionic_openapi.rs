@@ -308,34 +308,26 @@ impl BionicOpenAPI {
 
     /// Check if the OpenAPI spec defines API key security schemes
     pub fn has_api_key_security(&self) -> bool {
-        self
-            .spec
-            .components
-            .as_ref()
-            .map_or(false, |c| {
-                c.security_schemes.values().any(|s| {
-                    matches!(
-                        s,
-                        oas3::spec::ObjectOrReference::Object(SecurityScheme::ApiKey { .. })
-                    )
-                })
+        self.spec.components.as_ref().is_some_and(|c| {
+            c.security_schemes.values().any(|s| {
+                matches!(
+                    s,
+                    oas3::spec::ObjectOrReference::Object(SecurityScheme::ApiKey { .. })
+                )
             })
+        })
     }
 
     /// Check if the OpenAPI spec has OAuth2 security schemes
     pub fn has_oauth2_security(&self) -> bool {
-        self
-            .spec
-            .components
-            .as_ref()
-            .map_or(false, |c| {
-                c.security_schemes.values().any(|s| {
-                    matches!(
-                        s,
-                        oas3::spec::ObjectOrReference::Object(SecurityScheme::OAuth2 { .. })
-                    )
-                })
+        self.spec.components.as_ref().is_some_and(|c| {
+            c.security_schemes.values().any(|s| {
+                matches!(
+                    s,
+                    oas3::spec::ObjectOrReference::Object(SecurityScheme::OAuth2 { .. })
+                )
             })
+        })
     }
 
     /// Retrieve OAuth2 configuration from the OpenAPI spec

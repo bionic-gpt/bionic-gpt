@@ -174,9 +174,7 @@ fn separate_parameters(args: &Value, operation: &Operation) -> Result<(Value, Va
     let mut request_body_params = serde_json::Map::new();
 
     // Get all arguments as an object
-    let args_obj = args
-        .as_object()
-        .ok_or("Arguments must be a JSON object")?;
+    let args_obj = args.as_object().ok_or("Arguments must be a JSON object")?;
 
     // Collect path and query parameter names from the operation
     let mut path_query_param_names = HashSet::new();
@@ -213,12 +211,16 @@ fn substitute_path_parameters(
     let mut result_path = path.to_string();
 
     // Extract path parameters from the operation
-    let args_obj = args
-        .as_object()
-        .ok_or("Arguments must be a JSON object")?;
+    let args_obj = args.as_object().ok_or("Arguments must be a JSON object")?;
 
     for param in &operation.parameters {
-        if let ObjectOrReference::Object(Parameter { name, location, required, .. }) = param {
+        if let ObjectOrReference::Object(Parameter {
+            name,
+            location,
+            required,
+            ..
+        }) = param
+        {
             if *location == ParameterIn::Path {
                 let placeholder = format!("{{{}}}", name);
                 if let Some(value) = args_obj.get(name) {
@@ -227,10 +229,7 @@ fn substitute_path_parameters(
                         Value::Number(n) => n.to_string(),
                         Value::Bool(b) => b.to_string(),
                         _ => {
-                            return Err(format!(
-                                "Invalid value type for path parameter: {}",
-                                name
-                            ))
+                            return Err(format!("Invalid value type for path parameter: {}", name))
                         }
                     };
                     result_path = result_path.replace(&placeholder, &value_str);
