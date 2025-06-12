@@ -10,7 +10,7 @@ use oas3::{
     spec::{ObjectOrReference, Operation, Parameter, ParameterIn},
 };
 use openai_api::BionicToolDefinition;
-use reqwest::{header::AUTHORIZATION, Client};
+use reqwest::{header::AUTHORIZATION, Client, Method};
 use serde_json::Value;
 use std::collections::HashSet;
 
@@ -125,58 +125,23 @@ impl ToolInterface for OpenApiTool {
             }));
         }
 
-        // Make the request based on the HTTP method
-        let response = match method.to_uppercase().as_str() {
-            "GET" => {
-                // GET requests typically don't have request bodies
-                // Send query parameters in URL if any (future enhancement)
-                let request = self.client.get(&url);
-                let request = self.add_auth_header_if_present(request);
-                request
-                    .send()
-                    .await
-                    .map_err(|e| crate::json_error("Failed to make GET request", e))?
-            }
-            "POST" => {
-                let mut request = self.client.post(&url);
-                request = self.add_auth_header_if_present(request);
-                if has_request_body {
-                    request = request.json(&request_body_params);
-                }
-                request
-                    .send()
-                    .await
-                    .map_err(|e| crate::json_error("Failed to make POST request", e))?
-            }
-            "PUT" => {
-                let mut request = self.client.put(&url);
-                request = self.add_auth_header_if_present(request);
-                if has_request_body {
-                    request = request.json(&request_body_params);
-                }
-                request
-                    .send()
-                    .await
-                    .map_err(|e| crate::json_error("Failed to make PUT request", e))?
-            }
-            "DELETE" => {
-                let mut request = self.client.delete(&url);
-                request = self.add_auth_header_if_present(request);
-                if has_request_body {
-                    request = request.json(&request_body_params);
-                }
-                request
-                    .send()
-                    .await
-                    .map_err(|e| crate::json_error("Failed to make DELETE request", e))?
-            }
-            _ => {
-                return Err(serde_json::json!({
-                    "error": "Unsupported HTTP method",
-                    "method": method
-                }))
-            }
-        };
+        // Parse the HTTP method
+        let http_method: Method = method
+            .parse()
+            .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
+
+        // Build the request
+        let mut request = self.client.request(http_method, &url);
+        request = self.add_auth_header_if_present(request);
+        if has_request_body {
+            request = request.json(&request_body_params);
+        }
+
+        // Send the request
+        let response = request
+            .send()
+            .await
+            .map_err(|e| crate::json_error("Failed to make request", e))?;
 
         // Check if the request was successful
         if !response.status().is_success() {
