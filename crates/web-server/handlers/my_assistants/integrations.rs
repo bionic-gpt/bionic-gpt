@@ -84,7 +84,7 @@ pub async fn update_integrations_action(
     transaction.commit().await?;
 
     Ok(crate::layout::redirect_and_snackbar(
-        &web_pages::routes::prompts::View { team_id, prompt_id }.to_string(),
+        &web_pages::routes::prompts::MyAssistants { team_id }.to_string(),
         "Integration connections updated successfully",
     )
     .into_response())

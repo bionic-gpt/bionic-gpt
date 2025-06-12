@@ -7,10 +7,10 @@ use crate::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::queries::prompts::Prompt;
+use db::queries::prompts::MyPrompt;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",

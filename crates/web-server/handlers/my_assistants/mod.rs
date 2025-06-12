@@ -10,7 +10,6 @@ pub fn routes() -> Router {
     Router::new()
         // Loaders
         .typed_get(assistant_loaders::my_assistants)
-        .typed_get(assistant_loaders::view_assistant)
         .typed_get(datasets::manage_datasets)
         .typed_get(integrations::manage_integrations)
         // Actions

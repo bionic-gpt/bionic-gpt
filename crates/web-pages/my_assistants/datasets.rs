@@ -38,10 +38,6 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: form.prompt_name.clone(),
-                            href: Some(crate::routes::prompts::View{team_id, prompt_id: form.prompt_id}.to_string())
-                        },
-                        BreadcrumbItem {
                             text: "Manage Datasets".into(),
                             href: None
                         }
@@ -139,7 +135,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                                 class: "flex justify-between",
                                 Button {
                                     button_type: ButtonType::Link,
-                                    href: crate::routes::prompts::View { team_id, prompt_id: form.prompt_id }.to_string(),
+                                    href: crate::routes::prompts::MyAssistants { team_id }.to_string(),
                                     button_scheme: ButtonScheme::Error,
                                     "Cancel"
                                 }

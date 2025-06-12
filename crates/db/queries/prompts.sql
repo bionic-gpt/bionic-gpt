@@ -1,4 +1,5 @@
 --: Prompt(image_icon_object_id?, temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
+--: MyPrompt(image_icon_object_id?)
 --: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, embeddings_api_key?, api_key?, example1?, example2?, example3?, example4?)
 
 --! update_image
@@ -11,7 +12,7 @@ WHERE
 AND
     created_by = current_app_user();
 
---! my_prompts : Prompt
+--! my_prompts : MyPrompt
 SELECT
     p.id,
     (SELECT name FROM models WHERE id = p.model_id) as model_name, 
@@ -25,47 +26,8 @@ SELECT
     p.image_icon_object_id,
     p.visibility,
     p.description,
-    p.disclaimer,
-    p.example1,
-    p.example2,
-    p.example3,
-    p.example4,
-    -- Creata a string showing the datsets connected to this prompt
-    (
-        SELECT 
-            COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
-        FROM 
-            prompt_dataset pd
-        WHERE 
-            pd.prompt_id = p.id
-    ) 
-    as selected_datasets, 
-    (
-        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM datasets d WHERE d.id IN (
-            SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id
-        )
-    ) AS datasets,
-    -- Create a string showing the integrations connected to this prompt
-    (
-        SELECT
-            COALESCE(STRING_AGG(pi.integration_id::text, ','), '')
-        FROM
-            prompt_integration pi
-        WHERE
-            pi.prompt_id = p.id
-    )
-    as selected_integrations,
-    (
-        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM integrations i WHERE i.id IN (
-            SELECT integration_id FROM prompt_integration WHERE prompt_id = p.id
-        )
-    ) AS integrations,
-    p.system_prompt,
-    p.max_history_items,
-    p.max_chunks,
-    p.max_tokens,
-    p.trim_ratio,
-    p.temperature,
+    (SELECT count(*) FROM prompt_dataset WHERE prompt_id = id) AS dataset_count,
+    (SELECT count(*) FROM prompt_integration WHERE prompt_id = id) AS integration_count,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
