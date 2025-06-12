@@ -1,5 +1,5 @@
 --: Prompt(image_icon_object_id?, temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
---: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, api_key?, example1?, example2?, example3?, example4?)
+--: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, embeddings_api_key?, api_key?, example1?, example2?, example3?, example4?)
 
 --! update_image
 UPDATE 
@@ -181,6 +181,9 @@ SELECT
     (SELECT name FROM models WHERE id IN 
         (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
         (SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_model,
+    (SELECT api_key FROM models WHERE id IN 
+        (SELECT embeddings_model_id FROM datasets ds WHERE ds.id IN
+        (SELECT dataset_id FROM prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_api_key,
     p.model_id,
     p.category_id,
     p.name,

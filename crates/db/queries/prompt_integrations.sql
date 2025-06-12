@@ -1,5 +1,5 @@
 --: PromptIntegration()
---: PromptIntegrationWithConnection(api_connection_id?, oauth2_connection_id?,  integration_definition?, api_key_connection_name?, oauth2_connection_name?)
+--: PromptIntegrationWithConnection(api_connection_id?, oauth2_connection_id?,  definition?, bearer_token?)
 
 --! prompt_integrations : PromptIntegration
 SELECT
@@ -54,16 +54,21 @@ VALUES(
     :oauth2_connection_id
 );
 
+-- This is called by the front end to show the user which integrations have connections
+-- It's also used in the backend to pass the bearer tokens to the open api tool
 --! get_prompt_integrations_with_connections : PromptIntegrationWithConnection
 SELECT 
     pi.prompt_id,
     pi.integration_id,
     pi.api_connection_id,
     pi.oauth2_connection_id,
-    i.name as integration_name,
-    i.definition as integration_definition,
-    akc.id as api_key_connection_name,
-    o2c.id as oauth2_connection_name
+    i.name AS integration_name,
+    i.definition,
+    CASE 
+        WHEN akc.api_key IS NOT NULL THEN akc.api_key
+        WHEN o2c.access_token IS NOT NULL THEN o2c.access_token
+        ELSE NULL
+    END AS bearer_token
 FROM prompt_integration pi
 JOIN integrations i ON pi.integration_id = i.id
 LEFT JOIN api_key_connections akc ON pi.api_connection_id = akc.id

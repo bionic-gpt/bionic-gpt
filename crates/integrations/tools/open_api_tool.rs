@@ -7,7 +7,7 @@ use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use oas3::{self, spec::Operation};
 use openai_api::BionicToolDefinition;
-use reqwest::Client;
+use reqwest::{header::AUTHORIZATION, Client};
 use serde_json::Value;
 use std::collections::HashSet;
 
@@ -23,6 +23,8 @@ pub struct OpenApiTool {
     spec: oas3::OpenApiV3Spec,
     /// The operation ID for this tool
     operation_id: String,
+    /// Does this API need an API key.
+    bearer_token: Option<String>,
 }
 
 impl OpenApiTool {
@@ -31,6 +33,7 @@ impl OpenApiTool {
         base_url: String,
         spec: oas3::OpenApiV3Spec,
         operation_id: String,
+        bearer_token: Option<String>,
     ) -> Self {
         Self {
             definition,
@@ -38,6 +41,7 @@ impl OpenApiTool {
             client: Client::new(),
             spec,
             operation_id,
+            bearer_token,
         }
     }
 
@@ -54,6 +58,18 @@ impl OpenApiTool {
             "Operation with ID '{}' not found in OpenAPI spec",
             self.operation_id
         ))
+    }
+
+    /// Add Authorization header to request if bearer token is present
+    fn add_auth_header_if_present(
+        &self,
+        request: reqwest::RequestBuilder,
+    ) -> reqwest::RequestBuilder {
+        if let Some(ref token) = self.bearer_token {
+            request.header(AUTHORIZATION, format!("Bearer {}", token))
+        } else {
+            request
+        }
     }
 }
 
@@ -111,14 +127,16 @@ impl ToolInterface for OpenApiTool {
             "GET" => {
                 // GET requests typically don't have request bodies
                 // Send query parameters in URL if any (future enhancement)
-                self.client
-                    .get(&url)
+                let request = self.client.get(&url);
+                let request = self.add_auth_header_if_present(request);
+                request
                     .send()
                     .await
                     .map_err(|e| crate::json_error("Failed to make GET request", e))?
             }
             "POST" => {
                 let mut request = self.client.post(&url);
+                request = self.add_auth_header_if_present(request);
                 if has_request_body {
                     request = request.json(&request_body_params);
                 }
@@ -129,6 +147,7 @@ impl ToolInterface for OpenApiTool {
             }
             "PUT" => {
                 let mut request = self.client.put(&url);
+                request = self.add_auth_header_if_present(request);
                 if has_request_body {
                     request = request.json(&request_body_params);
                 }
@@ -139,6 +158,7 @@ impl ToolInterface for OpenApiTool {
             }
             "DELETE" => {
                 let mut request = self.client.delete(&url);
+                request = self.add_auth_header_if_present(request);
                 if has_request_body {
                     request = request.json(&request_body_params);
                 }
@@ -389,6 +409,7 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "getUsers".to_string(),
+            None,
         );
 
         let result = tool.find_operation_details();
@@ -417,6 +438,7 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "nonExistentOperation".to_string(),
+            None,
         );
 
         let result = tool.find_operation_details();
@@ -443,6 +465,7 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "createUser".to_string(),
+            None,
         );
 
         assert_eq!(tool.name(), "createUser");

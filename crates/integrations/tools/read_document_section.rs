@@ -17,12 +17,13 @@ struct ReadDocumentSectionParams {
 
 pub struct ReadDocumentSectionTool {
     pool: Pool,
-    sub: Option<String>,
-    _conversation_id: Option<i64>,
+    sub: String,
+    /// TODO does the user actually own that document
+    _conversation_id: i64,
 }
 
 impl ReadDocumentSectionTool {
-    pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
+    pub fn new(pool: Pool, sub: String, conversation_id: i64) -> Self {
         Self {
             pool,
             sub,
@@ -81,11 +82,9 @@ impl ToolInterface for ReadDocumentSectionTool {
             |e| json!({ "error": "Failed to start transaction", "details": e.to_string() }),
         )?;
 
-        if let Some(sub) = &self.sub {
-            db::authz::set_row_level_security_user_id(&transaction, sub.clone())
-                .await
-                .map_err(|e| json!({ "error": "Failed to set RLS", "details": e.to_string() }))?;
-        }
+        db::authz::set_row_level_security_user_id(&transaction, self.sub.clone())
+            .await
+            .map_err(|e| json!({ "error": "Failed to set RLS", "details": e.to_string() }))?;
 
         let content = db::queries::attachments::get_content()
             .bind(&transaction, &params.file_id)
