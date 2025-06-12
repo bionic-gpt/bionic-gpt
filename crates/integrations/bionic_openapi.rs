@@ -4,6 +4,7 @@
 //! extracting tool definitions and handling parameter parsing.
 
 use crate::tool::ToolInterface;
+use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
     spec::{Operation, RequestBody, SecurityScheme},
@@ -362,7 +363,10 @@ impl BionicOpenAPI {
     }
 
     /// Create tools from the OpenAPI specification
-    pub fn create_tools(&self) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
+    pub fn create_tools(
+        &self,
+        bearer_token: Option<String>,
+    ) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
         let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
         let integration_tools = self.create_tool_definitions();
         let base_url = integration_tools
@@ -379,6 +383,7 @@ impl BionicOpenAPI {
                 base_url.clone(),
                 self.spec.clone(),
                 operation_id,
+                bearer_token.clone(),
             );
             tools.push(Arc::new(tool));
         }
@@ -389,14 +394,14 @@ impl BionicOpenAPI {
 
 /// Create tools from a single integration
 pub fn create_tools_from_integration(
-    integration: &db::queries::integrations::Integration,
+    integration: &PromptIntegrationWithConnection,
 ) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
     if let Some(definition) = &integration.definition {
         let oas3 = oas3::from_json(definition.to_string())
             .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
 
         let bionic_api = BionicOpenAPI::from_spec(oas3);
-        bionic_api.create_tools()
+        bionic_api.create_tools(integration.bearer_token.clone())
     } else {
         Err("Integration doesn't have a definition".to_string())
     }
@@ -404,7 +409,7 @@ pub fn create_tools_from_integration(
 
 /// Create tools from integrations
 pub async fn create_tools_from_integrations(
-    integrations: Vec<db::queries::integrations::Integration>,
+    integrations: Vec<PromptIntegrationWithConnection>,
 ) -> Vec<Arc<dyn ToolInterface>> {
     let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
 
@@ -416,7 +421,7 @@ pub async fn create_tools_from_integrations(
             Err(error) => {
                 tracing::error!(
                     "Failed to create tools for integration {}: {}",
-                    integration.id,
+                    integration.integration_name,
                     error
                 );
             }

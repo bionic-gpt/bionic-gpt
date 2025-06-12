@@ -23,6 +23,8 @@ pub struct OpenApiTool {
     spec: oas3::OpenApiV3Spec,
     /// The operation ID for this tool
     operation_id: String,
+    /// Does this API need an API key.
+    _bearer_token: Option<String>,
 }
 
 impl OpenApiTool {
@@ -31,6 +33,7 @@ impl OpenApiTool {
         base_url: String,
         spec: oas3::OpenApiV3Spec,
         operation_id: String,
+        bearer_token: Option<String>,
     ) -> Self {
         Self {
             definition,
@@ -38,6 +41,7 @@ impl OpenApiTool {
             client: Client::new(),
             spec,
             operation_id,
+            _bearer_token: bearer_token,
         }
     }
 
@@ -389,6 +393,7 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "getUsers".to_string(),
+            None,
         );
 
         let result = tool.find_operation_details();
@@ -417,6 +422,7 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "nonExistentOperation".to_string(),
+            None,
         );
 
         let result = tool.find_operation_details();
@@ -443,6 +449,7 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "createUser".to_string(),
+            None,
         );
 
         assert_eq!(tool.name(), "createUser");

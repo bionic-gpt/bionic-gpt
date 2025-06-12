@@ -1,6 +1,6 @@
 use crate::errors::CustomError;
 use crate::token_count::{token_count, token_count_from_string};
-use db::queries::{chats_chunks, integrations as db_integrations, prompts};
+use db::queries::{chats_chunks, prompt_integrations, prompts};
 use db::{RelatedContext, Transaction};
 use integrations::create_tools_from_integrations;
 use openai_api::{BionicToolDefinition, ChatCompletionMessage, ChatCompletionMessageRole};
@@ -80,10 +80,9 @@ pub async fn execute_prompt(
 pub async fn get_prompt_integration_tools(
     transaction: &Transaction<'_>,
     prompt_id: i32,
-    _sub: String,
 ) -> Result<Vec<BionicToolDefinition>, CustomError> {
     // Get integrations for this specific prompt using existing transaction
-    let prompt_integrations = db_integrations::integrations_for_prompt()
+    let prompt_integrations = prompt_integrations::get_prompt_integrations_with_connections()
         .bind(transaction, &prompt_id)
         .all()
         .await

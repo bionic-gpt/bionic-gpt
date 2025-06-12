@@ -1,7 +1,7 @@
 use crate::bionic_openapi::create_tools_from_integrations;
 use crate::tool::ToolInterface;
 use crate::tools;
-use db::{queries::integrations as db_integrations, Pool};
+use db::{queries::prompt_integrations, Pool};
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
 use std::collections::HashSet;
@@ -12,6 +12,7 @@ use tracing::{debug, error, info, trace, warn};
 async fn get_external_integration_tools(
     pool: &Pool,
     sub: String,
+    prompt_id: i32,
 ) -> Result<Vec<Arc<dyn ToolInterface>>, Box<dyn std::error::Error + Send + Sync>> {
     debug!("Getting external integrations from database");
 
@@ -22,8 +23,8 @@ async fn get_external_integration_tools(
     debug!("Setting row-level security for user: {}", sub);
     db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await?;
 
-    let external_integrations = db_integrations::integrations()
-        .bind(&transaction)
+    let external_integrations = prompt_integrations::get_prompt_integrations_with_connections()
+        .bind(&transaction, &prompt_id)
         .all()
         .await?;
 
@@ -41,15 +42,16 @@ async fn get_external_integration_tools(
 /// Execute a tool call and return a message with the result
 pub async fn execute_tool_calls(
     tool_calls: Vec<ToolCall>,
-    pool: Option<&Pool>,
-    sub: Option<String>,
-    conversation_id: Option<i64>,
+    pool: &Pool,
+    sub: String,
+    conversation_id: i64,
+    prompt_id: i32,
 ) -> Vec<ToolCallResult> {
     info!("Executing {} tool calls", tool_calls.len());
 
     // Get tool instances with the pool for execution
     debug!("Getting tool instances");
-    let tools = get_tools(pool, sub.clone(), conversation_id).await;
+    let tools = get_tools(pool, sub.clone(), conversation_id, prompt_id).await;
     debug!("Got {} tool instances", tools.len());
 
     let mut tool_results: Vec<ToolCallResult> = Vec::new();
@@ -70,9 +72,10 @@ pub async fn execute_tool_calls(
 /// Returns a list of available tool instances
 /// This requires a pool for tools that need database access
 pub async fn get_tools(
-    pool: Option<&Pool>,
-    sub: Option<String>,
-    conversation_id: Option<i64>,
+    pool: &Pool,
+    sub: String,
+    conversation_id: i64,
+    prompt_id: i32,
 ) -> Vec<Arc<dyn ToolInterface>> {
     trace!("Getting available tool instances");
 
@@ -82,62 +85,57 @@ pub async fn get_tools(
         Arc::new(tools::web::WebTool),
     ];
 
-    // Add the attachment tools if a pool is provided
-    if let (Some(pool), Some(sub)) = (pool, sub) {
-        debug!("Adding attachment tools with database pool");
-        tools.push(Arc::new(tools::list_documents::ListDocumentsTool::new(
+    debug!("Adding attachment tools with database pool");
+    tools.push(Arc::new(tools::list_documents::ListDocumentsTool::new(
+        pool.clone(),
+        sub.clone(),
+        conversation_id,
+    )));
+    tools.push(Arc::new(
+        tools::read_document_section::ReadDocumentSectionTool::new(
             pool.clone(),
-            Some(sub.clone()),
+            sub.clone(),
             conversation_id,
-        )));
-        tools.push(Arc::new(
-            tools::read_document_section::ReadDocumentSectionTool::new(
-                pool.clone(),
-                Some(sub.clone()),
-                conversation_id,
-            ),
-        ));
+        ),
+    ));
 
-        // Get external integration tools
-        debug!("Getting external integration tools");
-        let external_tools = match get_external_integration_tools(pool, sub).await {
-            Ok(tools) => tools,
-            Err(e) => {
-                error!("Failed to get external integration tools: {}", e);
-                vec![]
-            }
-        };
-
-        if !external_tools.is_empty() {
-            debug!("Found {} external integration tools", external_tools.len());
-
-            // Check for name conflicts and override internal tools
-            let mut tool_names = HashSet::new();
-            for tool in &tools {
-                tool_names.insert(tool.name());
-            }
-
-            for external_tool in external_tools {
-                let name = external_tool.name();
-                if tool_names.contains(&name) {
-                    debug!(
-                        "External tool {} overrides internal tool with the same name",
-                        name
-                    );
-                    // Remove the internal tool with the same name
-                    tools.retain(|t| t.name() != name);
-                }
-                tools.push(external_tool);
-                tool_names.insert(name);
-            }
-
-            debug!(
-                "Added external integration tools, total tools: {}",
-                tools.len()
-            );
+    // Get external integration tools
+    debug!("Getting external integration tools");
+    let external_tools = match get_external_integration_tools(pool, sub, prompt_id).await {
+        Ok(tools) => tools,
+        Err(e) => {
+            error!("Failed to get external integration tools: {}", e);
+            vec![]
         }
-    } else {
-        debug!("Skipping attachment tools and external integrations (no database pool provided)");
+    };
+
+    if !external_tools.is_empty() {
+        debug!("Found {} external integration tools", external_tools.len());
+
+        // Check for name conflicts and override internal tools
+        let mut tool_names = HashSet::new();
+        for tool in &tools {
+            tool_names.insert(tool.name());
+        }
+
+        for external_tool in external_tools {
+            let name = external_tool.name();
+            if tool_names.contains(&name) {
+                debug!(
+                    "External tool {} overrides internal tool with the same name",
+                    name
+                );
+                // Remove the internal tool with the same name
+                tools.retain(|t| t.name() != name);
+            }
+            tools.push(external_tool);
+            tool_names.insert(name);
+        }
+
+        debug!(
+            "Added external integration tools, total tools: {}",
+            tools.len()
+        );
     }
 
     info!("Returning {} tool instances", tools.len());
@@ -211,16 +209,5 @@ mod tests {
         let result = execute_tool_call_with_tools(&tools, &tool_call).await;
         assert_eq!(result.id, "call_123".to_string());
         assert_eq!(result.name, "get_current_time_and_date".to_string());
-    }
-
-    #[tokio::test]
-    async fn test_get_tools_no_pool() {
-        // Test get_tools without a pool
-        let tools = get_tools(None, None, None).await;
-
-        // Should have TimeDateTool and WebTool
-        assert_eq!(tools.len(), 2);
-        assert_eq!(tools[0].name(), "get_current_time_and_date");
-        assert_eq!(tools[1].name(), "open_url");
     }
 }

@@ -227,9 +227,10 @@ async fn save_results(
         if let Some(tool_calls) = tool_calls {
             let tool_call_results = execute_tool_calls(
                 tool_calls.clone(),
-                Some(pool),
-                Some(sub.to_string()),
-                Some(chat.conversation_id),
+                pool,
+                sub.to_string(),
+                chat.conversation_id,
+                chat.prompt_id,
             )
             .await;
             for tool_call in tool_call_results {
@@ -392,13 +393,7 @@ async fn create_request(
         }
 
         // Add integration tools from the prompt
-        match super::prompt::get_prompt_integration_tools(
-            &transaction,
-            prompt.id,
-            current_user.sub.clone(),
-        )
-        .await
-        {
+        match super::prompt::get_prompt_integration_tools(&transaction, prompt.id).await {
             Ok(integration_tools) => {
                 tracing::info!("Adding {} integration tools", integration_tools.len());
                 all_tools.extend(integration_tools);

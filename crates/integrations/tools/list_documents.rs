@@ -8,12 +8,12 @@ use tracing;
 /// A tool that lists all documents available to the user in this chat session or knowledge base.
 pub struct ListDocumentsTool {
     pool: Pool,
-    sub: Option<String>,
-    conversation_id: Option<i64>,
+    sub: String,
+    conversation_id: i64,
 }
 
 impl ListDocumentsTool {
-    pub fn new(pool: Pool, sub: Option<String>, conversation_id: Option<i64>) -> Self {
+    pub fn new(pool: Pool, sub: String, conversation_id: i64) -> Self {
         tracing::debug!(
             "Creating new ListDocumentsTool with sub: {:?}, conversation_id: {:?}",
             sub,
@@ -79,25 +79,17 @@ impl ToolInterface for ListDocumentsTool {
         };
 
         // Set row-level security
-        if let Some(sub) = &self.sub {
-            if let Err(e) =
-                db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await
-            {
-                return Err(json!({
-                    "error": "Failed to set row level security",
-                    "details": e.to_string()
-                }));
-            }
+        if let Err(e) =
+            db::authz::set_row_level_security_user_id(&transaction, self.sub.clone()).await
+        {
+            return Err(json!({
+                "error": "Failed to set row level security",
+                "details": e.to_string()
+            }));
         }
 
         // Use the conversation ID to get documents
-        let result = if let Some(conv_id) = self.conversation_id {
-            list_documents(&transaction, conv_id).await
-        } else {
-            Err(json!({
-                "error": "Missing conversation_id"
-            }))
-        };
+        let result = list_documents(&transaction, self.conversation_id).await;
 
         // Commit transaction
         if let Err(e) = transaction.commit().await {
