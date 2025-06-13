@@ -64,8 +64,8 @@ SELECT
     i.name AS integration_name,
     i.definition,
     CASE 
-        WHEN akc.api_key IS NOT NULL THEN akc.api_key
-        WHEN o2c.access_token IS NOT NULL THEN o2c.access_token
+        WHEN akc.api_key IS NOT NULL THEN decrypt_text(akc.api_key)
+        WHEN o2c.access_token IS NOT NULL THEN decrypt_text(o2c.access_token)
         ELSE NULL
     END AS bearer_token
 FROM prompt_integration pi
