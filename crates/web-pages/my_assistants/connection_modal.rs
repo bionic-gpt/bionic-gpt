@@ -9,6 +9,27 @@ pub fn ConnectionModal(
     integration_info: IntegrationWithAuthInfo,
 ) -> Element {
     let integration = &integration_info.integration;
+
+    // If no authentication is required simply post the form without opening a modal
+    if !integration_info.requires_api_key && !integration_info.requires_oauth2 {
+        return rsx!(
+            form {
+                action: crate::routes::prompts::AddIntegration {
+                    team_id,
+                    prompt_id,
+                    integration_id: integration.id,
+                }.to_string(),
+                method: "post",
+                Button {
+                    button_type: ButtonType::Submit,
+                    button_scheme: ButtonScheme::Primary,
+                    button_size: ButtonSize::Small,
+                    "Add"
+                }
+            }
+        );
+    }
+
     let modal_id = format!("add-modal-{}", integration.id);
 
     rsx! {
@@ -25,35 +46,40 @@ pub fn ConnectionModal(
             submit_action: crate::routes::prompts::AddIntegration {
                 team_id,
                 prompt_id,
-                integration_id: integration_info.integration.id
+                integration_id: integration.id
             }.to_string(),
             ModalBody {
                 if integration_info.requires_api_key {
-                        Select {
-                            name: "api_connection_id",
-                            label: "Please select an API Key",
-                            label_class: "mt-4",
-                            help_text: "This is the API key setup in the integration screen",
-                            {integration_info.api_key_connections.iter().map(|connection| rsx!(
+                    Select {
+                        name: "api_connection_id",
+                        label: "Please select an API Key",
+                        label_class: "mt-4",
+                        help_text: "This is the API key setup in the integration screen",
+                        if let Some(connections) = available_connections.get(&integration.id) {
+                            connections.api_key_connections.iter().map(|connection| rsx!(
                                 SelectOption {
                                     value: "{connection.id}",
                                     "{connection.id}"
                                 }
-                            ))}
+                            ))
                         }
-                } else {
-                        Select {
-                            name: "oauth2_connection_id",
-                            label: "Please select an Oauth2 connectiony",
-                            label_class: "mt-4",
-                            help_text: "This is the Oauth2 key setup in the integration screen",
-                            {integration_info.oauth2_connections.iter().map(|connection| rsx!(
+                    }
+                }
+                if integration_info.requires_oauth2 {
+                    Select {
+                        name: "oauth2_connection_id",
+                        label: "Please select an OAuth2 connection",
+                        label_class: "mt-4",
+                        help_text: "This is the OAuth2 key setup in the integration screen",
+                        if let Some(connections) = available_connections.get(&integration.id) {
+                            connections.oauth2_connections.iter().map(|connection| rsx!(
                                 SelectOption {
                                     value: "{connection.id}",
                                     "{connection.id}"
                                 }
-                            ))}
+                            ))
                         }
+                    }
                 }
                 ModalAction {
                     Button {
