@@ -6,7 +6,6 @@ use db::authz::Rbac;
 use db::{ApiKeyConnection, Integration, Oauth2Connection};
 use dioxus::prelude::*;
 use serde::Deserialize;
-use std::collections::HashMap;
 use validator::Validate;
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -14,20 +13,12 @@ pub struct IntegrationForm {
     pub prompt_id: i32,
     pub prompt_name: String,
     pub selected_integration_ids: Vec<i32>,
-    pub integration_connections: HashMap<i32, ConnectionSelection>,
     #[serde(skip)]
     pub error: Option<String>,
     #[serde(skip)]
     pub integrations: Vec<IntegrationWithAuthInfo>,
-    #[serde(skip)]
-    pub available_connections: HashMap<i32, AvailableConnections>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct ConnectionSelection {
-    pub api_connection_id: Option<i32>,
-    pub oauth2_connection_id: Option<i32>,
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IntegrationWithAuthInfo {
@@ -35,13 +26,10 @@ pub struct IntegrationWithAuthInfo {
     pub requires_api_key: bool,
     pub requires_oauth2: bool,
     pub has_connections: bool,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct AvailableConnections {
     pub api_key_connections: Vec<ApiKeyConnection>,
     pub oauth2_connections: Vec<Oauth2Connection>,
 }
+
 
 pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
     let page = rsx! {
@@ -178,7 +166,6 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                             team_id: team_id,
                                                             prompt_id: form.prompt_id,
                                                             integration_info: integration_info.clone(),
-                                                            available_connections: form.available_connections.clone(),
                                                         }
                                                     }
                                                 }
