@@ -1,5 +1,5 @@
 --: Prompt(image_icon_object_id?, temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
---: MyPrompt(image_icon_object_id?)
+--: MyPrompt(image_icon_object_id?, api_key?)
 --: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, embeddings_api_key?, api_key?, example1?, example2?, example3?, example4?)
 
 --! update_image

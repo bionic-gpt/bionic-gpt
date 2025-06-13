@@ -1,9 +1,12 @@
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
+use futures_util::StreamExt;
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use reqwest::Url;
 use serde_json::{json, Value};
 use std::fmt;
+
+const MAX_CONTENT_BYTES: usize = 1000; // 1 KB limit
 
 /// Error type returned by the web tool
 #[derive(Debug)]
@@ -35,11 +38,20 @@ pub async fn open_url(url: String) -> Result<String, ToolError> {
         return Err(ToolError::Request(format!("HTTP {}", response.status())));
     }
 
-    let body = response
-        .text()
-        .await
-        .map_err(|e| ToolError::Request(e.to_string()))?;
+    let mut stream = response.bytes_stream();
+    let mut buffer: Vec<u8> = Vec::new();
+    while let Some(chunk) = stream.next().await {
+        let chunk = chunk.map_err(|e| ToolError::Request(e.to_string()))?;
+        if buffer.len() + chunk.len() > MAX_CONTENT_BYTES {
+            let remaining = MAX_CONTENT_BYTES - buffer.len();
+            buffer.extend_from_slice(&chunk[..remaining]);
+            break;
+        } else {
+            buffer.extend_from_slice(&chunk);
+        }
+    }
 
+    let body = String::from_utf8_lossy(&buffer).to_string();
     Ok(body)
 }
 

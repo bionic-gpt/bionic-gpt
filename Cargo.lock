@@ -2207,6 +2207,8 @@ dependencies = [
  "axum",
  "chrono",
  "db",
+ "embeddings-api",
+ "futures-util",
  "oas3",
  "oauth2",
  "openai-api",
