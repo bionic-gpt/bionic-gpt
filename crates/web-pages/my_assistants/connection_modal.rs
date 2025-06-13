@@ -1,14 +1,12 @@
-use crate::my_assistants::integrations::{AvailableConnections, IntegrationWithAuthInfo};
+use crate::my_assistants::integrations::IntegrationWithAuthInfo;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use std::collections::HashMap;
 
 #[component]
 pub fn ConnectionModal(
     team_id: i32,
     prompt_id: i32,
     integration_info: IntegrationWithAuthInfo,
-    available_connections: HashMap<i32, AvailableConnections>,
 ) -> Element {
     let integration = &integration_info.integration;
 
