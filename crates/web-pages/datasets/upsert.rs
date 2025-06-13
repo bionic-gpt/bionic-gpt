@@ -22,7 +22,7 @@ pub fn Upsert(
             submit_action: crate::routes::datasets::Upsert{team_id}.to_string(),
             trigger_id,
             ModalBody {
-                class: "flex flex-col justify-between md:w-full max-w-5xl h-full",
+                class: "flex flex-col justify-between",
                 h3 {
                     class: "font-bold text-lg mb-4",
                     "Dataset"
