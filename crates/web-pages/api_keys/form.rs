@@ -41,6 +41,11 @@ pub fn AssistantForm(team_id: i32, prompts: Vec<Prompt>) -> Element {
                     }
                     ModalAction {
                         Button {
+                            class: "cancel-modal",
+                            button_scheme: ButtonScheme::Warning,
+                            "Cancel"
+                        }
+                        Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Primary,
                             "Create API Key"
@@ -89,6 +94,11 @@ pub fn ModelForm(team_id: i32, prompts: Vec<Prompt>) -> Element {
                         }
                     }
                     ModalAction {
+                        Button {
+                            class: "cancel-modal",
+                            button_scheme: ButtonScheme::Warning,
+                            "Cancel"
+                        }
                         Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Primary,

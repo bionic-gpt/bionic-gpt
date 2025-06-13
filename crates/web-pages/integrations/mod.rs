@@ -8,6 +8,5 @@ pub mod integration_header;
 pub mod integration_type;
 pub mod oauth2_cards;
 pub mod parameter_renderer;
-pub mod status_type;
 pub mod upsert;
 pub mod view;

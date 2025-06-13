@@ -55,6 +55,11 @@ pub fn Upload(upload_action: String) -> Element {
 
                     ModalAction {
                         Button {
+                            class: "cancel-modal",
+                            button_scheme: ButtonScheme::Warning,
+                            "Cancel"
+                        }
+                        Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Primary,
                             disabled_text: "Document uploading, this may take some time",

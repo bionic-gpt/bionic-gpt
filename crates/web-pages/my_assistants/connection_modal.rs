@@ -55,14 +55,12 @@ pub fn ConnectionModal(
                         label: "Please select an API Key",
                         label_class: "mt-4",
                         help_text: "This is the API key setup in the integration screen",
-                        if let Some(connections) = available_connections.get(&integration.id) {
-                            connections.api_key_connections.iter().map(|connection| rsx!(
-                                SelectOption {
-                                    value: "{connection.id}",
-                                    "{connection.id}"
-                                }
-                            ))
-                        }
+                        {integration_info.api_key_connections.iter().map(|connection| rsx!(
+                            SelectOption {
+                                value: "{connection.id}",
+                                "{connection.id}"
+                            }
+                        ))}
                     }
                 }
                 if integration_info.requires_oauth2 {
@@ -71,17 +69,21 @@ pub fn ConnectionModal(
                         label: "Please select an OAuth2 connection",
                         label_class: "mt-4",
                         help_text: "This is the OAuth2 key setup in the integration screen",
-                        if let Some(connections) = available_connections.get(&integration.id) {
-                            connections.oauth2_connections.iter().map(|connection| rsx!(
-                                SelectOption {
-                                    value: "{connection.id}",
-                                    "{connection.id}"
-                                }
-                            ))
-                        }
+                        {integration_info.oauth2_connections.iter().map(|connection| rsx!(
+                            SelectOption {
+                                value: "{connection.id}",
+                                "{connection.id}"
+                            }
+                        ))}
                     }
                 }
                 ModalAction {
+                    Button {
+                        class: "cancel-modal",
+                        button_scheme: ButtonScheme::Warning,
+                        button_size: ButtonSize::Small,
+                        "Cancel"
+                    }
                     Button {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,

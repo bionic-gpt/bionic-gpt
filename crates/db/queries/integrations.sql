@@ -1,12 +1,10 @@
---: Integration(configuration?, definition?)
+--: Integration(definition?)
 
 --! integrations : Integration
 SELECT
     id,
     name,
     integration_type,
-    integration_status,
-    configuration,
     definition,
     created_at,
     updated_at
@@ -19,8 +17,6 @@ SELECT
     id,
     name,
     integration_type,
-    integration_status,
-    configuration,
     definition,
     created_at,
     updated_at
@@ -31,32 +27,26 @@ WHERE
 ORDER BY updated_at;
 
 
---! insert(configuration?, definition?)
+--! insert(definition?)
 INSERT INTO integrations (
     name,
-    configuration,
     definition,
-    integration_type,
-    integration_status
+    integration_type
 )
 VALUES(
     :name,
-    :configuration,
     :definition,
-    :integration_type,
-    :integration_status
+    :integration_type
 )
 RETURNING id;
 
---! update(configuration?, definition?)
+--! update(definition?)
 UPDATE 
     integrations 
 SET 
     name = :name,
-    configuration = :configuration,
     definition = :definition,
-    integration_type = :integration_type,
-    integration_status = :integration_status
+    integration_type = :integration_type
 WHERE
     id = :id;
 

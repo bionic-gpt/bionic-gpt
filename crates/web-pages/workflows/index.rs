@@ -91,16 +91,15 @@ pub fn page(rbac: Rbac, team_id: i32) -> String {
                             }
                         }
                         ModalAction {
-                            class: "flex gap-2 mt-4",
+                            Button {
+                                class: "cancel-modal",
+                                button_scheme: ButtonScheme::Warning,
+                                "Cancel"
+                            }
                             Button {
                                 button_type: ButtonType::Submit,
                                 button_scheme: ButtonScheme::Primary,
                                 "Create Workflow"
-                            }
-                            button {
-                                "type": "button",
-                                class: "btn btn-outline cancel-modal",
-                                "Cancel"
                             }
                         }
                     }

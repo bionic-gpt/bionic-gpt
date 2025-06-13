@@ -17,7 +17,7 @@ export const modalTriggers = () => {
                         });
                     });
                 } else {
-                    console.log(`The drawer ${attr} not there`);
+                    console.log(`The target ${attr} is not a dialog or not there!`);
                 }
             } else {
                 console.log("modal-trigger could not find data-target");

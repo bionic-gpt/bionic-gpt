@@ -19,7 +19,6 @@ pub struct IntegrationForm {
     pub integrations: Vec<IntegrationWithAuthInfo>,
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct IntegrationWithAuthInfo {
     pub integration: Integration,
@@ -30,6 +29,59 @@ pub struct IntegrationWithAuthInfo {
     pub oauth2_connections: Vec<Oauth2Connection>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IntegrationStatus {
+    Available,
+    RequiresAPIKey,
+    RequiresOauth2Key,
+    Active,
+}
+
+#[component]
+pub fn Status(status: IntegrationStatus) -> Element {
+    match status {
+        IntegrationStatus::Active => rsx!(
+            Label {
+                class: "truncate",
+                label_role: LabelRole::Info,
+                "Active"
+            }
+        ),
+        IntegrationStatus::RequiresAPIKey => rsx!(
+            Label {
+                class: "truncate",
+                label_role: LabelRole::Warning,
+                "Missing API Key"
+            }
+        ),
+        IntegrationStatus::RequiresOauth2Key => rsx!(
+            Label {
+                class: "truncate",
+                label_role: LabelRole::Warning,
+                "Missing Oauth2"
+            }
+        ),
+        IntegrationStatus::Available => rsx!(
+            Label {
+                class: "truncate",
+                label_role: LabelRole::Info,
+                "Available"
+            }
+        ),
+    }
+}
+
+pub fn determine_status(info: &IntegrationWithAuthInfo, connected: bool) -> IntegrationStatus {
+    if connected {
+        IntegrationStatus::Active
+    } else if info.requires_api_key && !info.has_connections {
+        IntegrationStatus::RequiresAPIKey
+    } else if info.requires_oauth2 && !info.has_connections {
+        IntegrationStatus::RequiresOauth2Key
+    } else {
+        IntegrationStatus::Available
+    }
+}
 
 pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
     let page = rsx! {
@@ -51,13 +103,10 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: "Manage Integrations".into(),
+                            text: {form.prompt_name},
                             href: None
                         }
                     ]
-                }
-                h3 {
-                    "Manage Integrations for {form.prompt_name}"
                 }
             ),
 
@@ -94,7 +143,6 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                             th { "Integration" }
                                             th { "Type" }
                                             th { "Status" }
-                                            th { "Authentication" }
                                             th { "Action" }
                                         }
                                     }
@@ -104,43 +152,8 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                 td { "{integration_info.integration.name}" }
                                                 td { "{integration_info.integration.integration_type:?}" }
                                                 td {
-                                                    Label {
-                                                        label_role: match integration_info.integration.integration_status {
-                                                            db::IntegrationStatus::Configured => LabelRole::Success,
-                                                            _ => LabelRole::Warning
-                                                        },
-                                                        "{integration_info.integration.integration_status:?}"
-                                                    }
-                                                }
-                                                td {
-                                                    // Auth requirements indicator
-                                                    if integration_info.requires_api_key || integration_info.requires_oauth2 {
-                                                        div {
-                                                            class: "flex items-center gap-1",
-                                                            if integration_info.requires_api_key {
-                                                                Label {
-                                                                    label_size: LabelSize::Small,
-                                                                    "API Key"
-                                                                }
-                                                            }
-                                                            if integration_info.requires_oauth2 {
-                                                                Label {
-                                                                    label_size: LabelSize::Small,
-                                                                    "OAuth2"
-                                                                }
-                                                            }
-                                                            if !integration_info.has_connections {
-                                                                Label {
-                                                                    label_size: LabelSize::Small,
-                                                                    "No connections available ⚠️"
-                                                                }
-                                                            }
-                                                        }
-                                                    } else {
-                                                        Label {
-                                                            label_size: LabelSize::Small,
-                                                            "None"
-                                                        }
+                                                    Status {
+                                                        status: determine_status(integration_info, form.selected_integration_ids.contains(&integration_info.integration.id))
                                                     }
                                                 }
                                                 td {

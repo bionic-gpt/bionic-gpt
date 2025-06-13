@@ -29,6 +29,7 @@ import { fileUpload } from './typescript/console/file-upload';
 
 // Hotwired Turbo
 import '@hotwired/turbo'
+import { FrameElement } from '@hotwired/turbo'
 
 // Set everything up
 function loadEverything() {
@@ -78,6 +79,14 @@ document.addEventListener('turbo:frame-load', (event: Event) => {
         }
     }
 });
+
+// Reload the turbo frame when the browser history changes
+window.addEventListener('popstate', () => {
+    const frame = document.getElementById('main-content')
+    if (frame instanceof FrameElement) {
+        frame.src = location.href
+    }
+})
 
 // ERROR HANDLING
 document.addEventListener('turbo:before-fetch-response', (event: Event) => {

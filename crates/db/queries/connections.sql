@@ -16,8 +16,8 @@ INSERT INTO oauth2_connections (
     current_app_user(),
     :team_id,
     :visibility,
-    :access_token,
-    :refresh_token,
+    encrypt_text(:access_token),
+    encrypt_text(:refresh_token),
     :expires_at,
     :scopes
 ) RETURNING id;
@@ -34,7 +34,7 @@ INSERT INTO api_key_connections (
     current_app_user(),
     :team_id,
     :visibility,
-    :api_key
+    encrypt_text(:api_key)
 ) RETURNING id;
 
 --! get_api_key_connections_for_integration : ApiKeyConnection

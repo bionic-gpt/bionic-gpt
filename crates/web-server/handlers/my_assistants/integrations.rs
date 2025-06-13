@@ -23,8 +23,6 @@ fn analyze_integration_auth(integration: &db::Integration) -> Result<(bool, bool
     }
 }
 
-
-
 pub async fn manage_integrations(
     ManageIntegrations { team_id, prompt_id }: ManageIntegrations,
     current_user: Jwt,
@@ -88,16 +86,12 @@ pub async fn manage_integrations(
         }
     }
 
-    tracing::debug!("get_prompt_integrations_with_connections");
-
     // Get existing prompt integrations with connections
     let existing_connections =
         queries::prompt_integrations::get_prompt_integrations_with_connections()
             .bind(&transaction, &prompt_id)
             .all()
             .await?;
-
-    tracing::debug!("Finished get_prompt_integrations_with_connections");
 
     let mut selected_integration_ids: Vec<i32> = Vec::new();
 
