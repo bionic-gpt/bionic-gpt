@@ -103,13 +103,10 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: "Manage Integrations".into(),
+                            text: {form.prompt_name},
                             href: None
                         }
                     ]
-                }
-                h3 {
-                    "Manage Integrations for {form.prompt_name}"
                 }
             ),
 
