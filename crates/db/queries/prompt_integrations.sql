@@ -6,8 +6,7 @@ SELECT
     i.id as integration_id,
     pi.prompt_id as prompt_id,
     i.name,
-    i.integration_type,
-    i.integration_status
+    i.integration_type
 FROM 
     integrations i
 LEFT JOIN 
