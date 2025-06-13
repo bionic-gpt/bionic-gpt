@@ -19,7 +19,6 @@ pub struct IntegrationForm {
     pub integrations: Vec<IntegrationWithAuthInfo>,
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct IntegrationWithAuthInfo {
     pub integration: Integration,
@@ -29,7 +28,6 @@ pub struct IntegrationWithAuthInfo {
     pub api_key_connections: Vec<ApiKeyConnection>,
     pub oauth2_connections: Vec<Oauth2Connection>,
 }
-
 
 pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
     let page = rsx! {

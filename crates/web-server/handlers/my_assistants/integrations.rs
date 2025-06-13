@@ -23,8 +23,6 @@ fn analyze_integration_auth(integration: &db::Integration) -> Result<(bool, bool
     }
 }
 
-
-
 pub async fn manage_integrations(
     ManageIntegrations { team_id, prompt_id }: ManageIntegrations,
     current_user: Jwt,

@@ -239,7 +239,6 @@ pub mod prompts {
         pub prompt_id: i32,
     }
 
-
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations/add/{integration_id}")]
     pub struct AddIntegration {
