@@ -14,14 +14,13 @@ export function fileUpload() {
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.multiple = true;
-  fileInput.style.display = 'none';
+  fileInput.classList.add('hidden');
   fileInput.id = 'file-upload-input';
   document.body.appendChild(fileInput);
 
   // Create a container for the file list
   const fileListContainer = document.createElement('div');
-  fileListContainer.className = 'mt-2 space-y-2 file-list-container';
-  fileListContainer.style.display = 'none';
+  fileListContainer.className = 'mt-2 space-y-2 file-list-container hidden';
   
   // Find the form and insert the file list container after the textarea
   const form = attachButton.closest('form');
@@ -56,7 +55,7 @@ export function fileUpload() {
       
       // Show the file list container if we have files
       if (selectedFiles.size > 0) {
-        fileListContainer.style.display = 'block';
+        fileListContainer.classList.remove('hidden');
       }
       
       // Reset the file input
@@ -94,8 +93,7 @@ export function fileUpload() {
     
     // Progress bar container
     const progressContainer = document.createElement('div');
-    progressContainer.className = 'w-full h-1 bg-gray-200 rounded mt-1';
-    progressContainer.style.display = 'none';
+    progressContainer.className = 'w-full h-1 bg-gray-200 rounded mt-1 hidden';
     
     // Progress bar
     const progressBar = document.createElement('div');
@@ -123,7 +121,7 @@ export function fileUpload() {
     
     // Hide the container if no files are left
     if (selectedFiles.size === 0) {
-      fileListContainer.style.display = 'none';
+      fileListContainer.classList.add('hidden');
     }
   }
 
