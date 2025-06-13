@@ -1,14 +1,12 @@
-use crate::my_assistants::integrations::{AvailableConnections, IntegrationWithAuthInfo};
+use crate::my_assistants::integrations::IntegrationWithAuthInfo;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use std::collections::HashMap;
 
 #[component]
 pub fn ConnectionModal(
     team_id: i32,
     prompt_id: i32,
     integration_info: IntegrationWithAuthInfo,
-    available_connections: HashMap<i32, AvailableConnections>,
 ) -> Element {
     let integration = &integration_info.integration;
     let modal_id = format!("add-modal-{}", integration.id);
@@ -36,7 +34,7 @@ pub fn ConnectionModal(
                             label: "Please select an API Key",
                             label_class: "mt-4",
                             help_text: "This is the API key setup in the integration screen",
-                            {available_connections.get(&integration_info.integration.id).unwrap().api_key_connections.iter().map(|connection| rsx!(
+                            {integration_info.api_key_connections.iter().map(|connection| rsx!(
                                 SelectOption {
                                     value: "{connection.id}",
                                     "{connection.id}"
@@ -49,7 +47,7 @@ pub fn ConnectionModal(
                             label: "Please select an Oauth2 connectiony",
                             label_class: "mt-4",
                             help_text: "This is the Oauth2 key setup in the integration screen",
-                            {available_connections.get(&integration_info.integration.id).unwrap().oauth2_connections.iter().map(|connection| rsx!(
+                            {integration_info.oauth2_connections.iter().map(|connection| rsx!(
                                 SelectOption {
                                     value: "{connection.id}",
                                     "{connection.id}"
