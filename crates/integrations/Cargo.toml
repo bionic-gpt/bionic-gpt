@@ -8,6 +8,8 @@ path = "lib.rs"
 
 [dependencies]
 openai-api = { path = "../openai-api" }
+embeddings-api = { path = "../embeddings-api" }
+rag-engine = { path = "../rag-engine" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 tracing = { version = "0.1" }
@@ -18,5 +20,7 @@ tokio = { version = "1", features = ["rt", "rt-multi-thread"] }
 async-trait = { version = "0.1" }
 oas3 = "0.16.1"
 oauth2 = "5.0.0"
-rag-engine = { path = "../rag-engine" }
 reqwest = { version = "0", default-features = false, features = ["json", "rustls-tls"] }
+
+# Used by the web tool to stream responses
+futures-util = "0.3"

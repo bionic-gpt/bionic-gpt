@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub enum ToolScope {
     UserSelectable,
     DocumentIntelligence,
+    Rag,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
@@ -47,6 +48,15 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
                 tools::read_document_section::get_tool_definition(),
             ])
             .expect("Failed to serialize attachment tools to JSON"),
+        },
+        IntegrationTool {
+            scope: ToolScope::Rag,
+            title: "Tools to search RAG context".into(),
+            definitions: vec![tools::search_context::get_tool_definition()],
+            definitions_json: serde_json::to_string_pretty(&vec![
+                tools::search_context::get_tool_definition(),
+            ])
+            .expect("Failed to serialize search_context tool to JSON"),
         },
     ];
 
