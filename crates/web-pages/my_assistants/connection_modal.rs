@@ -79,6 +79,12 @@ pub fn ConnectionModal(
                 }
                 ModalAction {
                     Button {
+                        class: "cancel-modal",
+                        button_scheme: ButtonScheme::Warning,
+                        button_size: ButtonSize::Small,
+                        "Cancel"
+                    }
+                    Button {
                         button_type: ButtonType::Submit,
                         button_scheme: ButtonScheme::Primary,
                         button_size: ButtonSize::Small,
