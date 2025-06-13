@@ -19,7 +19,7 @@ export const speechToText = (): void => {
       if (button) {
         const suffixImage = button.children.item(1) as HTMLElement | null;
         if (suffixImage) {
-          suffixImage.style.display = 'none';
+          suffixImage.classList.add('hidden');
         }
         button.classList.remove('hidden');
       }
@@ -93,11 +93,11 @@ export const speechToText = (): void => {
       const suffixImage = button.children.item(1) as HTMLElement | null;
   
       if (state === 'idle') {
-        if (prefixImage) prefixImage.style.display = '';
-        if (suffixImage) suffixImage.style.display = 'none';
+        if (prefixImage) prefixImage.classList.remove('hidden');
+        if (suffixImage) suffixImage.classList.add('hidden');
       } else {
-        if (prefixImage) prefixImage.style.display = 'none';
-        if (suffixImage) suffixImage.style.display = '';
+        if (prefixImage) prefixImage.classList.add('hidden');
+        if (suffixImage) suffixImage.classList.remove('hidden');
       }
     }
   
