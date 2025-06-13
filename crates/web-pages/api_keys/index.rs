@@ -46,20 +46,18 @@ pub fn page(
             // Add graphs section - always show regardless of API keys
             div {
                 div {
-
                     class: "grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8",
 
-                        // Token Usage Graph Card
-                        TokenUsageChartCard {
-                            data: token_usage_data.clone(),
-                            title: "Token Usage (Last 7 Days)".to_string()
-                        }
+                    // Token Usage Graph Card
+                    TokenUsageChartCard {
+                        data: token_usage_data.clone(),
+                        title: "Token Usage (Last 7 Days)".to_string()
+                    }
 
-                        // API Request Rate Graph Card
-                        ApiRequestChartCard {
-                            data: api_request_data.clone(),
-                            title: "API Requests (Last 7 Days)".to_string()
-                        }
+                    // API Request Rate Graph Card
+                    ApiRequestChartCard {
+                        data: api_request_data.clone(),
+                        title: "API Requests (Last 7 Days)".to_string()
                     }
                 }
                 if !api_keys.is_empty() {
@@ -68,30 +66,31 @@ pub fn page(
                         team_id: team_id
                     }
                 }
-            }
 
-            for item in &api_keys {
-                ConfirmModal {
-                    action: crate::routes::api_keys::Delete {team_id, id: item.id}.to_string(),
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
-                    submit_label: "Delete".to_string(),
-                    heading: "Delete this API Key?".to_string(),
-                    warning: "Are you sure you want to delete this api key?".to_string(),
-                    hidden_fields: vec![
-                        ("team_id".into(), team_id.to_string()),
-                        ("id".into(), item.id.to_string()),
-                    ],
+                for item in &api_keys {
+                    ConfirmModal {
+                        action: crate::routes::api_keys::Delete {team_id, id: item.id}.to_string(),
+                        trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
+                        submit_label: "Delete".to_string(),
+                        heading: "Delete this API Key?".to_string(),
+                        warning: "Are you sure you want to delete this api key?".to_string(),
+                        hidden_fields: vec![
+                            ("team_id".into(), team_id.to_string()),
+                            ("id".into(), item.id.to_string()),
+                        ],
+                    }
+                }
+
+                super::form::AssistantForm {
+                    team_id: team_id,
+                    prompts: assistants.clone()
+                },
+                super::form::ModelForm {
+                    team_id: team_id,
+                    prompts: models.clone()
                 }
             }
-
-            super::form::AssistantForm {
-                team_id: team_id,
-                prompts: assistants.clone()
-            },
-            super::form::ModelForm {
-                team_id: team_id,
-                prompts: models.clone()
-            },
+        }
 
     };
 
