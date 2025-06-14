@@ -62,183 +62,198 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                             name: "prompt_id"
                         }
                     }
-                    TabContainer {
-                        TabPanel {
-                            checked: true,
-                            name: "model-tabs",
-                            tab_name: "Assistant",
-                            div {
-                                class: "flex flex-col mt-3",
-                                Input {
-                                    input_type: InputType::Text,
-                                    label_class: "mt-4",
-                                    name: "display_name",
-                                    label: "Display Name",
-                                    help_text: "Make the name memorable and imply it's usage.",
-                                    value: form.display_name.clone(),
-                                    required: true
-                                }
-                                TextArea {
-                                    class: "mt-3",
-                                    name: "description",
-                                    rows: "8",
-                                    label: "Description",
-                                    help_text: "A brief summary about this model.",
-                                    label_class: "mt-4",
-                                    required: true,
-                                    "{form.description}"
-                                }
-                                Input {
-                                    input_type: InputType::Text,
-                                    label_class: "mt-4",
-                                    name: "name",
-                                    label: "Model Name",
-                                    help_text: "The model's id as used in the API. i.e. llama3-70b",
-                                    value: form.name.clone(),
-                                    required: true
-                                }
-                                Select {
-                                    name: "model_type",
-                                    label: "Is this model for LLM or Embeddings",
-                                    label_class: "mt-4",
-                                    help_text: "Some models can do both, in which case enter it twice.",
-                                    value: form.model_type.clone(),
-                                    SelectOption { value: "LLM", selected_value: form.model_type.clone(), "Large Language Model" }
-                                    SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
-                                    SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
-                                    SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
-                                }
-                                Input {
-                                    input_type: InputType::Text,
-                                    label_class: "mt-4",
-                                    name: "base_url",
-                                    label: "The Base URL of the model",
-                                    help_text: "The URL location of the OpenAI compatible API",
-                                    value: form.base_url.clone(),
-                                    required: true
-                                }
-                                Input {
-                                    input_type: InputType::Text,
-                                    label_class: "mt-4",
-                                    name: "api_key",
-                                    label: "The API secret from your provider",
-                                    help_text: "This will be given in the providers console",
-                                    value: form.api_key.clone()
-                                }
+                    // Model Details
+                    Card {
+                        class: "mb-6",
+                        CardHeader { title: "Model Details" }
+                        CardBody {
+                            class: "flex flex-col gap-6",
+                            Input {
+                                input_type: InputType::Text,
+                                name: "display_name",
+                                label: "Display Name",
+                                label_class: "mt-4",
+                                help_text: "Make the name memorable and imply it's usage.",
+                                value: form.display_name.clone(),
+                                required: true
+                            }
+                            TextArea {
+                                class: "mt-3",
+                                name: "description",
+                                rows: "8",
+                                label: "Description",
+                                help_text: "A brief summary about this model.",
+                                label_class: "mt-4",
+                                required: true,
+                                "{form.description}"
+                            }
+                            Input {
+                                input_type: InputType::Text,
+                                label_class: "mt-4",
+                                name: "name",
+                                label: "Model Name",
+                                help_text: "The model's id as used in the API. i.e. llama3-70b",
+                                value: form.name.clone(),
+                                required: true
+                            }
+                            Select {
+                                name: "model_type",
+                                label: "Is this model for LLM or Embeddings",
+                                label_class: "mt-4",
+                                help_text: "Some models can do both, in which case enter it twice.",
+                                value: form.model_type.clone(),
+                                SelectOption { value: "LLM", selected_value: form.model_type.clone(), "Large Language Model" }
+                                SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
+                                SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
+                                SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
+                            }
+                            Input {
+                                input_type: InputType::Text,
+                                label_class: "mt-4",
+                                name: "base_url",
+                                label: "The Base URL of the model",
+                                help_text: "The URL location of the OpenAI compatible API",
+                                value: form.base_url.clone(),
+                                required: true
+                            }
+                            Input {
+                                input_type: InputType::Text,
+                                label_class: "mt-4",
+                                name: "api_key",
+                                label: "The API secret from your provider",
+                                help_text: "This will be given in the providers console",
+                                value: form.api_key.clone()
                             }
                         }
-                        TabPanel {
-                            name: "model-tabs",
-                            tab_name: "Advanced",
-                            div {
-                                class: "flex flex-col mt-3",
-                                Input {
-                                    input_type: InputType::Number,
-                                    label_class: "mt-4",
-                                    name: "tpm_limit",
-                                    label: "Set the maximum tokens per minute for each user.",
-                                    help_text: "If users exceed this limit there access to the model will be limited.",
-                                    value: "{form.tpm_limit}",
-                                    required: true
-                                }
-                                Input {
-                                    input_type: InputType::Number,
-                                    label_class: "mt-4",
-                                    name: "rpm_limit",
-                                    label: "Set the maximum requests per minute for each user.",
-                                    help_text: "If users exceed this limit there access to the model will be limited.",
-                                    value: "{form.rpm_limit}",
-                                    required: true
-                                }
-                                Input {
-                                    input_type: InputType::Number,
-                                    label_class: "mt-4",
-                                    name: "context_size",
-                                    label: "Context Size",
-                                    help_text: "How much data can be passed to the prompt",
-                                    value: "{form.context_size_bytes}",
-                                    required: true
-                                }
+                    }
+
+                    // Advanced Settings
+                    Card {
+                        class: "mb-6",
+                        CardHeader { title: "Advanced Settings" }
+                        CardBody {
+                            class: "flex flex-col gap-6",
+                            Input {
+                                input_type: InputType::Number,
+                                label_class: "mt-4",
+                                name: "tpm_limit",
+                                label: "Set the maximum tokens per minute for each user.",
+                                help_text: "If users exceed this limit there access to the model will be limited.",
+                                value: "{form.tpm_limit}",
+                                required: true
+                            }
+                            Input {
+                                input_type: InputType::Number,
+                                label_class: "mt-4",
+                                name: "rpm_limit",
+                                label: "Set the maximum requests per minute for each user.",
+                                help_text: "If users exceed this limit there access to the model will be limited.",
+                                value: "{form.rpm_limit}",
+                                required: true
+                            }
+                            Input {
+                                input_type: InputType::Number,
+                                label_class: "mt-4",
+                                name: "context_size",
+                                label: "Context Size",
+                                help_text: "How much data can be passed to the prompt",
+                                value: "{form.context_size_bytes}",
+                                required: true
                             }
                         }
-                        TabPanel {
-                            name: "model-tabs",
-                            tab_name: "Capabilities",
-                            div {
-                                class: "flex flex-col mt-3",
-                                if form.model_type == "LLM" {
-                                    div {
-                                        class: "form-control",
-                                        label {
-                                            class: "label cursor-pointer",
-                                            span { class: "label-text", "Function Calling" }
-                                            input { "type": "checkbox", name: "capability_function_calling", class: "checkbox", checked: form.has_capability_function_calling }
-                                        }
+                    }
+
+                    // Capabilities
+                    Card {
+                        class: "mb-6",
+                        CardHeader { title: "Capabilities" }
+                        CardBody {
+                            class: "flex flex-col gap-4",
+                            if form.model_type == "LLM" {
+                                div {
+                                    class: "form-control",
+                                    label {
+                                        class: "label cursor-pointer",
+                                        span { class: "label-text", "Function Calling" }
+                                        input { "type": "checkbox", name: "capability_function_calling", class: "checkbox", checked: form.has_capability_function_calling }
                                     }
-                                    div {
-                                        class: "form-control",
-                                        label {
-                                            class: "label cursor-pointer",
-                                            span { class: "label-text", "Vision" }
-                                            input { "type": "checkbox", name: "capability_vision", class: "checkbox", checked: form.has_capability_vision }
-                                        }
-                                    }
-                                    div {
-                                        class: "form-control",
-                                        label {
-                                            class: "label cursor-pointer",
-                                            span { class: "label-text", "Tool Use" }
-                                            input { "type": "checkbox", name: "capability_tool_use", class: "checkbox", checked: form.has_capability_tool_use }
-                                        }
-                                    }
-                                } else {
-                                    p { "Capabilities are only available for LLM models." }
                                 }
+                                div {
+                                    class: "form-control",
+                                    label {
+                                        class: "label cursor-pointer",
+                                        span { class: "label-text", "Vision" }
+                                        input { "type": "checkbox", name: "capability_vision", class: "checkbox", checked: form.has_capability_vision }
+                                    }
+                                }
+                                div {
+                                    class: "form-control",
+                                    label {
+                                        class: "label cursor-pointer",
+                                        span { class: "label-text", "Tool Use" }
+                                        input { "type": "checkbox", name: "capability_tool_use", class: "checkbox", checked: form.has_capability_tool_use }
+                                    }
+                                }
+                            } else {
+                                p { "Capabilities are only available for LLM models." }
                             }
                         }
-                        TabPanel {
-                            name: "model-tabs",
-                            tab_name: "Examples",
+                    }
+
+                    // Examples & Disclaimer
+                    Card {
+                        class: "mb-6",
+                        CardHeader { title: "Examples & Disclaimer" }
+                        CardBody {
+                            class: "flex flex-col gap-6",
+                            Input {
+                                input_type: InputType::Text,
+                                label: "Disclaimer",
+                                help_text: "This is displayed at the bottom of the chat.",
+                                name: "disclaimer",
+                                value: "{form.disclaimer}"
+                            }
                             div {
-                                class: "flex flex-col mt-3",
-                                Input {
-                                    input_type: InputType::Text,
-                                    label: "Disclaimer",
-                                    help_text: "This is displayed at the bottom of the chat.",
-                                    name: "disclaimer",
-                                    value: "{form.disclaimer}"
+                                class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+                                div {
+                                    class: "flex flex-col",
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 1",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example1",
+                                        value: "{form.example1}"
+                                    }
                                 }
-                                Input {
-                                    input_type: InputType::Text,
-                                    label: "Example 1",
-                                    label_class: "mt-4",
-                                    help_text: "Give the user an example prompt.",
-                                    name: "example1",
-                                    value: "{form.example1}"
+                                div {
+                                    class: "flex flex-col",
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 2",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example2",
+                                        value: "{form.example2}"
+                                    }
                                 }
-                                Input {
-                                    input_type: InputType::Text,
-                                    label: "Example 2",
-                                    label_class: "mt-4",
-                                    help_text: "Give the user an example prompt.",
-                                    name: "example2",
-                                    value: "{form.example2}"
+                                div {
+                                    class: "flex flex-col",
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 3",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example3",
+                                        value: "{form.example3}"
+                                    }
                                 }
-                                Input {
-                                    input_type: InputType::Text,
-                                    label: "Example 3",
-                                    label_class: "mt-4",
-                                    help_text: "Give the user an example prompt.",
-                                    name: "example3",
-                                    value: "{form.example3}"
-                                }
-                                Input {
-                                    input_type: InputType::Text,
-                                    label: "Example 4",
-                                    label_class: "mt-4",
-                                    help_text: "Give the user an example prompt.",
-                                    name: "example4",
-                                    value: "{form.example4}"
+                                div {
+                                    class: "flex flex-col",
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label: "Example 4",
+                                        help_text: "Give the user an example prompt.",
+                                        name: "example4",
+                                        value: "{form.example4}"
+                                    }
                                 }
                             }
                         }
