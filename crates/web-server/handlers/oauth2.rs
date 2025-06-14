@@ -49,6 +49,8 @@ pub async fn connect_loader(
     // Extract OAuth2 configuration from the integration's OpenAPI definition
     let oauth2_config = get_oauth2_config_from_integration(&integration)?;
 
+    tracing::debug!("Search by {}", &oauth2_config.authorization_url);
+
     // Load OAuth client credentials from the database
     let oauth_client = queries::oauth_clients::oauth_client_by_provider_url()
         .bind(&transaction, &oauth2_config.authorization_url)
@@ -216,7 +218,7 @@ pub async fn oauth2_callback(
     Ok((
         jar,
         Redirect::to(&format!(
-            "/teams/{}/integrations/{}",
+            "/app/team/{}/integrations/{}",
             team_id, integration_id
         )),
     ))

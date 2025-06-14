@@ -68,61 +68,82 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                         CardHeader { title: "Model Details" }
                         CardBody {
                             class: "flex flex-col gap-6",
-                            Input {
-                                input_type: InputType::Text,
-                                name: "display_name",
-                                label: "Display Name",
-                                label_class: "mt-4",
-                                help_text: "Make the name memorable and imply it's usage.",
-                                value: form.display_name.clone(),
-                                required: true
+                            div {
+                                class: "grid grid-cols-1 md:grid-cols-2 gap-6",
+                                div {
+                                    class: "flex flex-col",
+                                    Input {
+                                        input_type: InputType::Text,
+                                        name: "display_name",
+                                        label: "Display Name",
+                                        label_class: "mt-4",
+                                        help_text: "Make the name memorable and imply it's usage.",
+                                        value: form.display_name.clone(),
+                                        required: true
+                                    }
+                                }
+                                div {
+                                    class: "flex flex-col",
+                                    Input {
+                                        input_type: InputType::Text,
+                                        label_class: "mt-4",
+                                        name: "name",
+                                        label: "Model Name",
+                                        help_text: "The model's id as used in the API. i.e. llama3-70b",
+                                        value: form.name.clone(),
+                                        required: true
+                                    }
+                                }
                             }
-                            TextArea {
-                                class: "mt-3",
-                                name: "description",
-                                rows: "8",
-                                label: "Description",
-                                help_text: "A brief summary about this model.",
-                                label_class: "mt-4",
-                                required: true,
-                                "{form.description}"
+                            div {
+                                    class: "flex flex-col",
+                                TextArea {
+                                    class: "mt-3 w-full",
+                                    name: "description",
+                                    rows: "8",
+                                    label: "Description",
+                                    help_text: "A brief summary about this model.",
+                                    label_class: "mt-4",
+                                    required: true,
+                                    "{form.description}"
+                                }
                             }
-                            Input {
-                                input_type: InputType::Text,
-                                label_class: "mt-4",
-                                name: "name",
-                                label: "Model Name",
-                                help_text: "The model's id as used in the API. i.e. llama3-70b",
-                                value: form.name.clone(),
-                                required: true
+                            div {
+                                class: "flex flex-col",
+                                Select {
+                                    name: "model_type",
+                                    label: "Is this model for LLM or Embeddings",
+                                    label_class: "mt-4",
+                                    help_text: "Some models can do both, in which case enter it twice.",
+                                    value: form.model_type.clone(),
+                                    SelectOption { value: "LLM", selected_value: form.model_type.clone(), "Large Language Model" }
+                                    SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
+                                    SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
+                                    SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
+                                }
                             }
-                            Select {
-                                name: "model_type",
-                                label: "Is this model for LLM or Embeddings",
-                                label_class: "mt-4",
-                                help_text: "Some models can do both, in which case enter it twice.",
-                                value: form.model_type.clone(),
-                                SelectOption { value: "LLM", selected_value: form.model_type.clone(), "Large Language Model" }
-                                SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
-                                SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
-                                SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
+                            div {
+                                class: "flex flex-col",
+                                Input {
+                                    input_type: InputType::Text,
+                                    label_class: "mt-4",
+                                    name: "base_url",
+                                    label: "The Base URL of the model",
+                                    help_text: "The URL location of the OpenAI compatible API",
+                                    value: form.base_url.clone(),
+                                    required: true
+                                }
                             }
-                            Input {
-                                input_type: InputType::Text,
-                                label_class: "mt-4",
-                                name: "base_url",
-                                label: "The Base URL of the model",
-                                help_text: "The URL location of the OpenAI compatible API",
-                                value: form.base_url.clone(),
-                                required: true
-                            }
-                            Input {
-                                input_type: InputType::Text,
-                                label_class: "mt-4",
-                                name: "api_key",
-                                label: "The API secret from your provider",
-                                help_text: "This will be given in the providers console",
-                                value: form.api_key.clone()
+                            div {
+                                class: "flex flex-col",
+                                Input {
+                                    input_type: InputType::Text,
+                                    label_class: "mt-4",
+                                    name: "api_key",
+                                    label: "The API secret from your provider",
+                                    help_text: "This will be given in the providers console",
+                                    value: form.api_key.clone()
+                                }
                             }
                         }
                     }

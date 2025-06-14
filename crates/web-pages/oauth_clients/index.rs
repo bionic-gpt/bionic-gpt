@@ -46,16 +46,6 @@ pub fn page(team_id: i32, rbac: Rbac, oauth_clients: Vec<db::OauthClient>) -> St
                     div {
                         class: "text-center py-8",
                         p { class: "text-base-content/70", "No OAuth clients configured yet." }
-                        if rbac.is_sys_admin {
-                            p { class: "mt-2",
-                                Button {
-                                    button_type: ButtonType::Link,
-                                    href: routes::oauth_clients::New { team_id }.to_string(),
-                                    button_scheme: ButtonScheme::Primary,
-                                    "Create your first OAuth client"
-                                }
-                            }
-                        }
                     }
                 } else {
                     for oauth_client in oauth_clients {
