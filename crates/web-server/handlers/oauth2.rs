@@ -50,8 +50,8 @@ pub async fn connect_loader(
     let oauth2_config = get_oauth2_config_from_integration(&integration)?;
 
     // Load OAuth client credentials from the database
-    let oauth_client = queries::oauth_clients::oauth_client_by_provider()
-        .bind(&transaction, &integration.name)
+    let oauth_client = queries::oauth_clients::oauth_client_by_provider_url()
+        .bind(&transaction, &oauth2_config.authorization_url)
         .one()
         .await?;
 
@@ -141,8 +141,8 @@ pub async fn oauth2_callback(
         .one()
         .await?;
     let oauth2_config = get_oauth2_config_from_integration(&integration)?;
-    let oauth_client = queries::oauth_clients::oauth_client_by_provider()
-        .bind(&transaction, &integration.name)
+    let oauth_client = queries::oauth_clients::oauth_client_by_provider_url()
+        .bind(&transaction, &oauth2_config.authorization_url)
         .one()
         .await?;
 

@@ -6,8 +6,9 @@ SELECT
     client_id,
     client_secret,
     provider,
+    provider_url,
     created_at
-FROM 
+FROM
     oauth_clients
 ORDER BY provider, created_at DESC;
 
@@ -17,22 +18,38 @@ SELECT
     client_id,
     client_secret,
     provider,
+    provider_url,
     created_at
-FROM 
+FROM
     oauth_clients
 WHERE
     provider = :provider;
+
+--! oauth_client_by_provider_url : OauthClient
+SELECT
+    id,
+    client_id,
+    client_secret,
+    provider,
+    provider_url,
+    created_at
+FROM
+    oauth_clients
+WHERE
+    provider_url = :provider_url;
 
 --! insert_oauth_client
 INSERT INTO oauth_clients (
     client_id,
     client_secret,
-    provider
+    provider,
+    provider_url
 )
 VALUES(
     :client_id,
     :client_secret,
-    :provider
+    :provider,
+    :provider_url
 )
 RETURNING id;
 
