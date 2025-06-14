@@ -75,9 +75,9 @@ pub fn ModelTable(models: Vec<ModelWithPrompt>, team_id: i32) -> Element {
                                     "{model.context_size}"
                                 }
                                 td {
-                                    Button {
-                                        popover_target: format!("edit-model-form-{}", model.id),
-                                        button_scheme: ButtonScheme::Neutral,
+                                    a {
+                                        href: crate::routes::models::Edit { team_id, id: model.id }.to_string(),
+                                        class: "btn btn-neutral btn-sm",
                                         "Edit"
                                     }
                                 }
