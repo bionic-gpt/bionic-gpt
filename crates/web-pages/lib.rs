@@ -19,6 +19,7 @@ pub mod integrations;
 pub mod logout_form;
 pub mod menu;
 pub mod models;
+pub mod oauth_clients;
 pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;

@@ -90,6 +90,7 @@ async fn main() {
         .merge(handlers::history::routes())
         .merge(handlers::integrations::routes())
         .merge(handlers::oauth2::routes())
+        .merge(handlers::oauth_clients::routes())
         .merge(llm_proxy::routes())
         .merge(handlers::models::routes())
         .merge(handlers::pipelines::routes())
