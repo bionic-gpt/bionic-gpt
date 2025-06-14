@@ -109,13 +109,3 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
 
     crate::render(page)
 }
-
-// Comma separated dataset to vec of i32
-fn _split_datasets(datasets: &str) -> Vec<i32> {
-    let ids: Vec<i32> = datasets
-        .split(',')
-        .map(|dataset_id| dataset_id.parse::<i32>().unwrap_or(-1))
-        .filter(|x| x != &-1)
-        .collect();
-    ids
-}

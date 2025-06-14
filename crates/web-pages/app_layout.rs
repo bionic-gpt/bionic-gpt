@@ -20,6 +20,7 @@ pub enum SideBar {
     Integrations,
     Licence,
     Models,
+    OauthClients,
     Prompts,
     Profile,
     RateLimits,
@@ -189,6 +190,15 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 href: super::routes::rate_limits::Index { team_id: props.team_id },
                                 icon: limits_svg.name,
                                 title: "Rate Limits"
+                            }
+                            if props.rbac.is_sys_admin {
+                                NavItem {
+                                    id: SideBar::OauthClients.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::oauth_clients::Index { team_id: props.team_id },
+                                    icon: nav_api_keys_svg.name,
+                                    title: "OAuth Clients"
+                                }
                             }
                         )
                     }

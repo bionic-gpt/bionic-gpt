@@ -18,6 +18,7 @@ pub use queries::history::History;
 pub use queries::integrations::Integration;
 pub use queries::invitations::{Invitation, InviteSummary};
 pub use queries::models::{Model, ModelWithPrompt};
+pub use queries::oauth_clients::OauthClient;
 pub use queries::object_storage::ObjectStorage;
 pub use queries::prompt_integrations::{PromptIntegration, PromptIntegrationWithConnection};
 pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};

@@ -43,6 +43,11 @@ pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
                     }
                     ModalAction {
                         Button {
+                            class: "cancel-modal",
+                            button_scheme: ButtonScheme::Warning,
+                            "Cancel"
+                        }
+                        Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Error,
                             "{props.submit_label}"

@@ -546,3 +546,27 @@ pub mod profile {
         pub team_id: i32,
     }
 }
+
+pub mod oauth_clients {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/oauth_clients")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/oauth_clients/new")]
+    pub struct New {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/oauth_clients/delete/{id}")]
+    pub struct Delete {
+        pub team_id: i32,
+        pub id: i32,
+    }
+}

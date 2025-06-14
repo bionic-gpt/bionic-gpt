@@ -11,6 +11,7 @@ pub mod metrics;
 pub mod models;
 pub mod my_assistants;
 pub mod oauth2;
+pub mod oauth_clients;
 pub mod oidc_endpoint;
 pub mod pipelines;
 pub mod profile;

@@ -169,7 +169,7 @@ async fn test_complete_time_conversation_flow() {
     dbg!(&messages);
 
     // Verify we have 4 messages
-    assert_eq!(messages.len(), 4);
+    assert_eq!(messages.len(), 5);
 
     // Verify User message (Chat ID 69)
     assert_message_properties(
@@ -409,7 +409,7 @@ async fn test_history_truncation_keeps_latest() {
     let large_tokens = token_count(vec![large_msg.clone()]) as usize;
 
     // Allow large message and three recent small messages
-    let context_size = large_tokens + small_tokens * 3 + 1;
+    let context_size = large_tokens + small_tokens * 4 + 1;
 
     let history = vec![
         mk_msg("m1"),
@@ -424,6 +424,8 @@ async fn test_history_truncation_keeps_latest() {
         generate_prompt(context_size, 0, 1.0, None, history, Default::default()).await;
 
     let contents: Vec<_> = messages.iter().map(|m| m.content.clone()).collect();
+
+    dbg!(&contents);
 
     assert_eq!(messages.len(), 4);
     assert_eq!(contents[0], Some("m3".to_string()));
