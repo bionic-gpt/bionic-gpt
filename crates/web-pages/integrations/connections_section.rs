@@ -82,6 +82,8 @@ pub fn ConnectionsSection(
                             "OAuth2 Connections"
                         }
                         Button {
+                            button_type: ButtonType::Link,
+                            href: routes::integrations::Connect { team_id, integration_id }.to_string(),
                             button_style: ButtonStyle::Outline,
                             button_scheme: ButtonScheme::Primary,
                             "Add OAuth2 Connection"

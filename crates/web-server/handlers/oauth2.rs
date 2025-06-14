@@ -3,11 +3,13 @@ use axum::extract::{Extension, Query};
 use axum::response::Redirect;
 use axum::Router;
 use axum_extra::routing::RouterExt;
+use axum_extra::extract::cookie::{Cookie, CookieJar};
 use db::{authz, queries, Pool, Visibility};
 use integrations::{BionicOpenAPI, OAuth2Config};
 use oauth2::basic::BasicClient;
 use oauth2::{
-    AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, Scope, TokenUrl,
+    reqwest::async_http_client, AuthorizationCode, AuthUrl, ClientId, ClientSecret, CsrfToken,
+    PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, Scope, TokenResponse, TokenUrl,
 };
 use serde::Deserialize;
 use web_pages::routes::integrations::{Connect, OAuth2Callback};
@@ -30,8 +32,9 @@ pub async fn connect_loader(
         integration_id,
     }: Connect,
     current_user: Jwt,
+    mut jar: CookieJar,
     Extension(pool): Extension<Pool>,
-) -> Result<Redirect, CustomError> {
+) -> Result<(CookieJar, Redirect), CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
@@ -46,10 +49,14 @@ pub async fn connect_loader(
     // Extract OAuth2 configuration from the integration's OpenAPI definition
     let oauth2_config = get_oauth2_config_from_integration(&integration)?;
 
-    let client_id =
-        ClientId::new(std::env::var("OAUTH2_CLIENT_ID").unwrap_or("DUMMY_VALUE".into()));
-    let client_secret =
-        ClientSecret::new(std::env::var("OAUTH2_CLIENT_SECRET").unwrap_or("DUMMY_VALUE".into()));
+    // Load OAuth client credentials from the database
+    let oauth_client = queries::oauth_clients::oauth_client_by_provider()
+        .bind(&transaction, &integration.name)
+        .one()
+        .await?;
+
+    let client_id = ClientId::new(oauth_client.client_id);
+    let client_secret = ClientSecret::new(oauth_client.client_secret);
 
     let auth_url = AuthUrl::new(oauth2_config.authorization_url)
         .map_err(|_| CustomError::FaultySetup("Invalid authorization endpoint URL".to_string()))?;
@@ -57,18 +64,18 @@ pub async fn connect_loader(
         .map_err(|_| CustomError::FaultySetup("Invalid token endpoint URL".to_string()))?;
 
     // Set up the config for the OAuth2 process using dynamic configuration
+    let redirect_uri = format!(
+        "http://localhost:7703/app/team/{}/integrations/{}/oauth2/callback",
+        team_id, integration_id
+    );
     let client = BasicClient::new(client_id)
         .set_client_secret(client_secret)
         .set_auth_uri(auth_url)
         .set_token_uri(token_url)
-        // This example will be running its own server at localhost:8080.
-        // See below for the server implementation.
-        .set_redirect_uri(
-            RedirectUrl::new("http://localhost:8080".to_string()).expect("Invalid redirect URL"),
-        );
+        .set_redirect_uri(RedirectUrl::new(redirect_uri).expect("Invalid redirect URL"));
 
     // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
-    let (pkce_code_challenge, _pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
+    let (pkce_code_challenge, pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
 
     // Generate the authorization URL to which we'll redirect the user.
     let mut auth_request = client
@@ -80,9 +87,18 @@ pub async fn connect_loader(
         auth_request = auth_request.add_scope(Scope::new(scope));
     }
 
-    let (authorize_url, _csrf_state) = auth_request.url();
+    let (authorize_url, csrf_state) = auth_request.url();
 
-    Ok(Redirect::to(authorize_url.as_str()))
+    // Store verifier and state in cookies
+    let mut jar = jar;
+    let mut verifier_cookie = Cookie::new("oauth_pkce_verifier", pkce_code_verifier.secret().clone());
+    verifier_cookie.set_path("/");
+    jar = jar.add(verifier_cookie);
+    let mut state_cookie = Cookie::new("oauth_csrf_state", csrf_state.secret().clone());
+    state_cookie.set_path("/");
+    jar = jar.add(state_cookie);
+
+    Ok((jar, Redirect::to(authorize_url.as_str())))
 }
 
 /// Extract OAuth2 configuration from an integration's OpenAPI definition
@@ -109,39 +125,89 @@ pub async fn oauth2_callback(
         team_id,
         integration_id,
     }: OAuth2Callback,
-    Query(_query): Query<CallbackQuery>,
+    Query(query): Query<CallbackQuery>,
     current_user: Jwt,
+    mut jar: CookieJar,
     Extension(pool): Extension<Pool>,
-) -> Result<Redirect, CustomError> {
+) -> Result<(CookieJar, Redirect), CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    // TODO: Exchange code for token
-    // TODO: Store connection
+    // Load OAuth client credentials
+    let integration = queries::integrations::integration()
+        .bind(&transaction, &integration_id)
+        .one()
+        .await?;
+    let oauth2_config = get_oauth2_config_from_integration(&integration)?;
+    let oauth_client = queries::oauth_clients::oauth_client_by_provider()
+        .bind(&transaction, &integration.name)
+        .one()
+        .await?;
 
-    // Placeholder - store a dummy connection
-    let refresh_token: Option<&str> = None;
-    let expires_at: Option<time::OffsetDateTime> = None;
+    let client = BasicClient::new(ClientId::new(oauth_client.client_id))
+        .set_client_secret(ClientSecret::new(oauth_client.client_secret))
+        .set_auth_uri(AuthUrl::new(oauth2_config.authorization_url).unwrap())
+        .set_token_uri(TokenUrl::new(oauth2_config.token_url).unwrap())
+        .set_redirect_uri(
+            RedirectUrl::new(format!(
+                "http://localhost:7703/app/team/{}/integrations/{}/oauth2/callback",
+                team_id, integration_id
+            ))
+            .unwrap(),
+        );
 
-    let _connection_id = queries::connections::insert_oauth2_connection()
+    // Validate CSRF state
+    let state_cookie = jar.get("oauth_csrf_state");
+    let verifier_cookie = jar.get("oauth_pkce_verifier");
+
+    let state_cookie = match state_cookie {
+        Some(c) => c.value().to_string(),
+        None => return Err(CustomError::FaultySetup("Missing CSRF state".into())),
+    };
+    let verifier_cookie = match verifier_cookie {
+        Some(c) => c.value().to_string(),
+        None => return Err(CustomError::FaultySetup("Missing PKCE verifier".into())),
+    };
+
+    if state_cookie != query.state {
+        return Err(CustomError::FaultySetup("Invalid CSRF state".into()));
+    }
+
+    // Exchange code for token
+    let token = client
+        .exchange_code(AuthorizationCode::new(query.code))
+        .set_pkce_verifier(PkceCodeVerifier::new(verifier_cookie))
+        .request_async(async_http_client)
+        .await
+        .map_err(|e| CustomError::FaultySetup(format!("Token exchange failed: {e}")))?;
+
+    let refresh_token = token.refresh_token().map(|t| t.secret().to_string());
+    let expires_at = token
+        .expires_in()
+        .map(|dur| time::OffsetDateTime::now_utc() + time::Duration::seconds(dur.as_secs() as i64));
+
+    queries::connections::insert_oauth2_connection()
         .bind(
             &transaction,
             &integration_id,
             &team_id,
             &Visibility::Private,
-            &"dummy_access_token".to_string(),
-            &refresh_token,
+            &token.access_token().secret().to_string(),
+            &refresh_token.as_deref(),
             &expires_at,
-            &serde_json::json!([]),
+            &serde_json::to_value(oauth2_config.scopes).unwrap_or_else(|_| serde_json::json!([])),
         )
         .one()
         .await?;
 
     transaction.commit().await?;
 
-    Ok(Redirect::to(&format!(
+    jar.remove(Cookie::named("oauth_csrf_state"));
+    jar.remove(Cookie::named("oauth_pkce_verifier"));
+
+    Ok((jar, Redirect::to(&format!(
         "/teams/{}/integrations/{}",
         team_id, integration_id
-    )))
+    ))))
 }
