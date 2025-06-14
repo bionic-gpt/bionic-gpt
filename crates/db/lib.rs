@@ -1,6 +1,7 @@
 pub mod authz;
 pub mod customer_keys;
 pub mod vector_search;
+pub mod licence;
 
 use std::str::FromStr;
 
@@ -33,6 +34,7 @@ pub use types::public::{
     ModelType, Permission, PromptType, Role, TokenUsageType, Visibility,
 };
 pub use vector_search::{get_related_context, RelatedContext};
+pub use licence::Licence;
 
 pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {
     let config = tokio_postgres::Config::from_str(database_url).unwrap();

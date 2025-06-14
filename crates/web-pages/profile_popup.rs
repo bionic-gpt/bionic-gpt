@@ -4,7 +4,13 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ProfilePopup(email: String, first_name: String, last_name: String, team_id: i32) -> Element {
+pub fn ProfilePopup(
+    email: String,
+    first_name: String,
+    last_name: String,
+    team_id: i32,
+    unlicensed: bool,
+) -> Element {
     let user_name_or_email = if !first_name.is_empty() || !last_name.is_empty() {
         format!("{} {}", first_name, last_name)
     } else {
@@ -12,6 +18,13 @@ pub fn ProfilePopup(email: String, first_name: String, last_name: String, team_i
     };
 
     rsx! {
+        if unlicensed {
+            Alert {
+                alert_color: AlertColor::Error,
+                class: "mb-2",
+                "This is an unlicenced version of bionic"
+            }
+        }
         DropDown {
             direction: Direction::Top,
             button_text: "{user_name_or_email}",
