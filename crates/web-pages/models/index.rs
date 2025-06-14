@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use super::model_card::ModelCard;
 use crate::app_layout::{Layout, SideBar};
 use crate::ConfirmModal;
 use assets::files::*;
@@ -12,11 +13,6 @@ pub fn page(
     rbac: Rbac,
     models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool)>,
 ) -> String {
-    // Extract models for components that don't need capabilities
-    let models: Vec<ModelWithPrompt> = models_with_capabilities
-        .iter()
-        .map(|(model, _, _, _)| model.clone())
-        .collect();
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -35,9 +31,40 @@ pub fn page(
                 }
             ),
 
-            super::model_table::ModelTable {
-                models: models.clone(),
-                team_id: team_id
+            div {
+                class: "p-4 max-w-3xl w-full mx-auto",
+                h1 {
+                    class: "text-xl font-semibold mb-4",
+                    "Models"
+                }
+                if models_with_capabilities.is_empty() {
+                    div {
+                        class: "text-center py-12",
+                        p {
+                            class: "text-gray-500 mb-4",
+                            "You haven't added any models yet."
+                        }
+                        Button {
+                            button_type: ButtonType::Link,
+                            href: crate::routes::models::New { team_id }.to_string(),
+                            button_scheme: ButtonScheme::Primary,
+                            "Create Your First Model"
+                        }
+                    }
+                } else {
+                    div {
+                        class: "space-y-2",
+                        for (model, fc, vis, tool) in &models_with_capabilities {
+                            ModelCard {
+                                team_id,
+                                model: model.clone(),
+                                has_function_calling: *fc,
+                                has_vision: *vis,
+                                has_tool_use: *tool
+                            }
+                        }
+                    }
+                }
             }
 
             for (item, _, _, _) in &models_with_capabilities {
