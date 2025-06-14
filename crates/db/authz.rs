@@ -51,6 +51,13 @@ pub async fn get_permissions(
         .all()
         .await?;
 
+    let user_count: i64 = queries::users::count_users()
+        .bind(transaction)
+        .one()
+        .await?;
+    let licence = crate::Licence::from_env();
+    let unlicensed = user_count as usize > licence.user_count;
+
     let rbac = Rbac {
         permissions,
         user_id,
@@ -58,6 +65,7 @@ pub async fn get_permissions(
         first_name,
         last_name,
         is_sys_admin: system_admin,
+        unlicensed,
     };
 
     Ok(rbac)
@@ -153,6 +161,7 @@ pub struct Rbac {
     pub is_sys_admin: bool,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
+    pub unlicensed: bool,
 }
 
 impl Rbac {

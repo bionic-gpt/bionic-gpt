@@ -216,7 +216,8 @@ pub fn Layout(props: LayoutProps) -> Element {
                     email: props.rbac.email.clone(),
                     first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
                     last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
-                    team_id: props.team_id
+                    team_id: props.team_id,
+                    unlicensed: props.rbac.unlicensed,
                 }
             ),
             {props.children}
