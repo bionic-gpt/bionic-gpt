@@ -14,6 +14,8 @@ pub struct OauthClientForm {
     pub client_secret: String,
     #[validate(length(min = 1, message = "Provider is required"))]
     pub provider: String,
+    #[validate(length(min = 1, message = "Provider URL is required"))]
+    pub provider_url: String,
     #[serde(skip)]
     pub error: Option<String>,
 }
@@ -66,6 +68,16 @@ pub fn page(team_id: i32, rbac: Rbac, oauth_client: OauthClientForm) -> String {
                             help_text: "The OAuth provider name (e.g., google, github, microsoft)",
                             placeholder: "e.g., google, github, microsoft",
                             value: "{oauth_client.provider}",
+                            required: true
+                        }
+
+                        Input {
+                            input_type: InputType::Text,
+                            name: "provider_url",
+                            label: "Provider URL",
+                            help_text: "The OAuth provider authorization URL",
+                            placeholder: "https://accounts.google.com/o/oauth2/v2/auth",
+                            value: "{oauth_client.provider_url}",
                             required: true
                         }
 

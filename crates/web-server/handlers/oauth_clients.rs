@@ -97,6 +97,8 @@ pub struct OauthClientForm {
     pub client_secret: String,
     #[validate(length(min = 1, message = "Provider is required"))]
     pub provider: String,
+    #[validate(length(min = 1, message = "Provider URL is required"))]
+    pub provider_url: String,
 }
 
 pub async fn create_action(
@@ -121,6 +123,7 @@ pub async fn create_action(
                     &oauth_client_form.client_id,
                     &oauth_client_form.client_secret,
                     &oauth_client_form.provider,
+                    &oauth_client_form.provider_url,
                 )
                 .one()
                 .await?;
@@ -138,6 +141,7 @@ pub async fn create_action(
                 client_id: oauth_client_form.client_id,
                 client_secret: oauth_client_form.client_secret,
                 provider: oauth_client_form.provider,
+                provider_url: oauth_client_form.provider_url,
                 error: Some("Please check the form for errors".to_string()),
             };
             let html = web_pages::oauth_clients::upsert::page(team_id, rbac, oauth_client);
