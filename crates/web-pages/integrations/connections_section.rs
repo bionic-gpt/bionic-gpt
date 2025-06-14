@@ -1,13 +1,13 @@
 #![allow(non_snake_case)]
+use super::api_key_cards::ApiKeyCards;
+use super::api_key_form::ApiKeyForm;
+use super::oauth2_cards::Oauth2Cards;
+use crate::routes;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{ApiKeyConnection, Oauth2Connection};
 use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
-
-use super::api_key_cards::ApiKeyCards;
-use super::api_key_form::ApiKeyForm;
-use super::oauth2_cards::Oauth2Cards;
 
 #[component]
 pub fn ConnectionsSection(
@@ -82,6 +82,8 @@ pub fn ConnectionsSection(
                             "OAuth2 Connections"
                         }
                         Button {
+                            button_type: ButtonType::Link,
+                            href: routes::integrations::Connect { team_id, integration_id }.to_string(),
                             button_style: ButtonStyle::Outline,
                             button_scheme: ButtonScheme::Primary,
                             "Add OAuth2 Connection"

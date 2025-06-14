@@ -10,7 +10,8 @@ pub mod loaders;
 // Re-export all public functions for backward compatibility
 pub use actions::{delete_action, edit_action, new_action};
 pub use configuration_actions::{
-    configure_api_key_action, delete_api_key_connection_action, ApiKeyForm,
+    configure_api_key_action, delete_api_key_connection_action, delete_oauth2_connection_action,
+    ApiKeyForm,
 };
 pub use helpers::parse_openapi_spec;
 pub use loaders::{edit_loader, loader, new_loader, view_loader};
@@ -28,4 +29,5 @@ pub fn routes() -> Router {
         .typed_post(delete_action)
         .typed_post(configure_api_key_action)
         .typed_post(delete_api_key_connection_action)
+        .typed_post(delete_oauth2_connection_action)
 }
