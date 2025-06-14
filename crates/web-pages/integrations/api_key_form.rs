@@ -44,6 +44,12 @@ pub fn ApiKeyForm(team_id: i32, integration_id: i32, integration_name: String) -
                     }
                     ModalAction {
                         Button {
+                            class: "cancel-modal",
+                            button_scheme: ButtonScheme::Warning,
+                            button_size: ButtonSize::Small,
+                            "Cancel"
+                        }
+                        Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Primary,
                             "Save API Key"

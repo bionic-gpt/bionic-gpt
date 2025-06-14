@@ -79,6 +79,12 @@ pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: 
                     }
                     ModalAction {
                         Button {
+                            class: "cancel-modal",
+                            button_scheme: ButtonScheme::Warning,
+                            button_size: ButtonSize::Small,
+                            "Cancel"
+                        }
+                        Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Primary,
                             "Apply Filter"
