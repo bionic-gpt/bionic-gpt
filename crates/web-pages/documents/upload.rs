@@ -17,8 +17,7 @@ pub fn Upload(upload_action: String) -> Element {
                         "Upload a file into this dataset"
                     }
 
-                    input {
-                        "type": "file",
+                    FileInput {
                         name: "payload",
                         multiple: true
                     }
