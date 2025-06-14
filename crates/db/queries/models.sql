@@ -45,6 +45,36 @@ LEFT JOIN
 ORDER BY 
     m.updated_at;
 
+--! model_with_prompt : ModelWithPrompt
+SELECT DISTINCT
+    m.id,
+    m.name,
+    m.model_type,
+    m.base_url,
+    m.api_key,
+    m.tpm_limit,
+    m.rpm_limit,
+    m.context_size,
+    m.created_at,
+    m.updated_at,
+    COALESCE(p.name, '') AS display_name,
+    COALESCE(p.description, '') AS description,
+    COALESCE(p.disclaimer, '') AS disclaimer,
+    p.id AS prompt_id,
+    COALESCE(p.example1, '') AS example1,
+    COALESCE(p.example2, '') AS example2,
+    COALESCE(p.example3, '') AS example3,
+    COALESCE(p.example4, '') AS example4
+FROM 
+    models m
+LEFT JOIN 
+    prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
+WHERE
+    m.id = :id
+ORDER BY 
+    m.updated_at
+LIMIT 1;
+
 
 --! get_system_model : Model
 SELECT

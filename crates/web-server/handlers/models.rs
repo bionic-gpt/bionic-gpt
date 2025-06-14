@@ -127,8 +127,10 @@ pub async fn edit_loader(
         return Err(CustomError::Authorization);
     }
 
-    let models = models::all_models().bind(&transaction).all().await?;
-    let model = models.into_iter().find(|m| m.id == id).ok_or(CustomError::NotFound)?;
+    let model = models::model_with_prompt()
+        .bind(&transaction, &id)
+        .one()
+        .await?;
 
     let capabilities = capabilities::get_model_capabilities()
         .bind(&transaction, &id)
