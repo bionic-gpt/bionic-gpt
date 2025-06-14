@@ -12,6 +12,7 @@
 @source inline("tooltip tooltip-info");
 @source inline("input input-border");
 @source inline("select select-border");
+@source inline("file-input");
 @source inline("dropdown dropdown-top dropdown-left");
 
 :root {
