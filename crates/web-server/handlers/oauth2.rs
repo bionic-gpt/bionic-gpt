@@ -2,14 +2,14 @@ use crate::{CustomError, Jwt};
 use axum::extract::{Extension, Query};
 use axum::response::Redirect;
 use axum::Router;
-use axum_extra::routing::RouterExt;
 use axum_extra::extract::cookie::{Cookie, CookieJar};
+use axum_extra::routing::RouterExt;
 use db::{authz, queries, Pool, Visibility};
 use integrations::{BionicOpenAPI, OAuth2Config};
 use oauth2::basic::BasicClient;
 use oauth2::{
-    reqwest::async_http_client, AuthorizationCode, AuthUrl, ClientId, ClientSecret, CsrfToken,
-    PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, Scope, TokenResponse, TokenUrl,
+    AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge,
+    PkceCodeVerifier, RedirectUrl, Scope, TokenResponse, TokenUrl,
 };
 use serde::Deserialize;
 use web_pages::routes::integrations::{Connect, OAuth2Callback};
@@ -32,7 +32,7 @@ pub async fn connect_loader(
         integration_id,
     }: Connect,
     current_user: Jwt,
-    mut jar: CookieJar,
+    jar: CookieJar,
     Extension(pool): Extension<Pool>,
 ) -> Result<(CookieJar, Redirect), CustomError> {
     let mut client = pool.get().await?;
@@ -91,7 +91,8 @@ pub async fn connect_loader(
 
     // Store verifier and state in cookies
     let mut jar = jar;
-    let mut verifier_cookie = Cookie::new("oauth_pkce_verifier", pkce_code_verifier.secret().clone());
+    let mut verifier_cookie =
+        Cookie::new("oauth_pkce_verifier", pkce_code_verifier.secret().clone());
     verifier_cookie.set_path("/");
     jar = jar.add(verifier_cookie);
     let mut state_cookie = Cookie::new("oauth_csrf_state", csrf_state.secret().clone());
@@ -127,7 +128,7 @@ pub async fn oauth2_callback(
     }: OAuth2Callback,
     Query(query): Query<CallbackQuery>,
     current_user: Jwt,
-    mut jar: CookieJar,
+    jar: CookieJar,
     Extension(pool): Extension<Pool>,
 ) -> Result<(CookieJar, Redirect), CustomError> {
     let mut client = pool.get().await?;
@@ -174,11 +175,17 @@ pub async fn oauth2_callback(
         return Err(CustomError::FaultySetup("Invalid CSRF state".into()));
     }
 
+    let http_client = reqwest::ClientBuilder::new()
+        // Following redirects opens the client up to SSRF vulnerabilities.
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .expect("Client should build");
+
     // Exchange code for token
     let token = client
         .exchange_code(AuthorizationCode::new(query.code))
         .set_pkce_verifier(PkceCodeVerifier::new(verifier_cookie))
-        .request_async(async_http_client)
+        .request_async(&http_client)
         .await
         .map_err(|e| CustomError::FaultySetup(format!("Token exchange failed: {e}")))?;
 
@@ -203,11 +210,14 @@ pub async fn oauth2_callback(
 
     transaction.commit().await?;
 
-    jar.remove(Cookie::named("oauth_csrf_state"));
-    jar.remove(Cookie::named("oauth_pkce_verifier"));
+    let jar = jar.clone().remove(Cookie::build("oauth_csrf_state"));
+    let jar = jar.clone().remove(Cookie::build("oauth_pkce_verifier"));
 
-    Ok((jar, Redirect::to(&format!(
-        "/teams/{}/integrations/{}",
-        team_id, integration_id
-    ))))
+    Ok((
+        jar,
+        Redirect::to(&format!(
+            "/teams/{}/integrations/{}",
+            team_id, integration_id
+        )),
+    ))
 }
