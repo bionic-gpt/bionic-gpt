@@ -273,6 +273,19 @@ pub mod models {
     }
 
     #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/models/edit/{id}")]
+    pub struct Edit {
+        pub team_id: i32,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/models/upsert")]
+    pub struct Upsert {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models/delete/{id}")]
     pub struct Delete {
         pub team_id: i32,

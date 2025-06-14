@@ -2,6 +2,7 @@ pub mod form;
 pub mod index;
 pub mod model_table;
 pub mod model_type;
+pub mod upsert;
 use db::ModelType;
 
 fn model_type(model_type: ModelType) -> String {
