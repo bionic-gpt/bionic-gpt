@@ -21,8 +21,8 @@ pub fn ProfilePopup(
         if unlicensed {
             Alert {
                 alert_color: AlertColor::Error,
-                class: "mb-2",
-                "This is an unlicenced version of bionic"
+                class: "mb-2 border",
+                "User allowance exceeded please contact https://bionic-gpt.com"
             }
         }
         DropDown {
