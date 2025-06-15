@@ -60,9 +60,9 @@ pub fn ConnectionsSection(
 
                     if api_key_connections.is_empty() {
                         div {
-                            class: "bg-gray-50 border border-gray-200 rounded-lg p-4",
+                            class: "bg-base-100 border border-base-300 rounded-lg p-4",
                             p {
-                                class: "text-gray-500 text-center",
+                                class: "text-base-content/70 text-center",
                                 "No API key connections configured"
                             }
                         }
@@ -92,9 +92,9 @@ pub fn ConnectionsSection(
 
                     if oauth2_connections.is_empty() {
                         div {
-                            class: "bg-gray-50 border border-gray-200 rounded-lg p-4",
+                            class: "bg-base-100 border border-base-300 rounded-lg p-4",
                             p {
-                                class: "text-gray-500 text-center",
+                                class: "text-base-content/70 text-center",
                                 "No OAuth2 connections configured"
                             }
                         }

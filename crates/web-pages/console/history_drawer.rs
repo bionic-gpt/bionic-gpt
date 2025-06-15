@@ -19,7 +19,7 @@ pub fn HistoryDrawer(trigger_id: String, team_id: i32, history: Vec<History>) ->
                         li {
                             class: "w-full overflow-hidden truncate",
                             a {
-                                class: "block p-2 hover:bg-gray-100 rounded",
+                                class: "block p-2 hover:bg-base-200 rounded",
                                 href: crate::routes::console::Conversation{team_id, conversation_id: history.id}.to_string(),
                                 {history.summary.clone()}
                             }

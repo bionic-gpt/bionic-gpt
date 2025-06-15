@@ -43,7 +43,7 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                                 }
                             }
                             p {
-                                class: "text-gray-600 mb-4",
+                                class: "text-base-content/70 mb-4",
                                 "{workflow.description}"
                             }
                         }
@@ -61,7 +61,7 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                             "Instructions"
                         }
                         textarea {
-                            class: "w-full h-32 p-4 border border-gray-300 rounded-lg resize-none bg-gray-50",
+                            class: "w-full h-32 p-4 border border-base-300 rounded-lg resize-none bg-base-100",
                             readonly: true,
                             "Connect to linked in and get anyone who has set their job to an AI related field in the last few days"
                         }
@@ -147,25 +147,25 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                         }
                         div {
                             class: "grid grid-cols-1 md:grid-cols-2 gap-4",
-                            div {
-                                class: "bg-gray-50 p-4 rounded-lg",
+                              div {
+                                  class: "bg-base-100 p-4 rounded-lg",
                                 h4 {
-                                    class: "font-medium text-gray-700 mb-2",
+                                      class: "font-medium text-base-content mb-2",
                                     "Trigger Type"
                                 }
                                 p {
-                                    class: "text-gray-900",
+                                      class: "text-base-content",
                                     "{workflow.trigger_type}"
                                 }
                             }
-                            div {
-                                class: "bg-gray-50 p-4 rounded-lg",
+                              div {
+                                  class: "bg-base-100 p-4 rounded-lg",
                                 h4 {
-                                    class: "font-medium text-gray-700 mb-2",
+                                      class: "font-medium text-base-content mb-2",
                                     "Category"
                                 }
                                 p {
-                                    class: "text-gray-900",
+                                      class: "text-base-content",
                                     "{workflow.category}"
                                 }
                             }
@@ -175,11 +175,11 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                     // Back to workflows link
                     div {
                         class: "mt-8 pt-6 border-t",
-                        a {
-                            href: crate::routes::workflows::Index { team_id }.to_string(),
-                            class: "inline-flex items-center text-blue-600 hover:text-blue-800 font-medium",
-                            "← Back to Workflows"
-                        }
+                          a {
+                              href: crate::routes::workflows::Index { team_id }.to_string(),
+                              class: "inline-flex items-center text-primary hover:text-primary-focus font-medium",
+                              "← Back to Workflows"
+                          }
                     }
                 }
             } else {
@@ -187,18 +187,18 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                 div {
                     class: "text-center py-12",
                     h2 {
-                        class: "text-xl font-semibold text-gray-900 mb-2",
+                        class: "text-xl font-semibold text-base-content mb-2",
                         "Workflow Not Found"
                     }
                     p {
-                        class: "text-gray-600 mb-6",
+                        class: "text-base-content/70 mb-6",
                         "The requested workflow could not be found."
                     }
-                    a {
-                        href: crate::routes::workflows::Index { team_id }.to_string(),
-                        class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium",
-                        "← Back to Workflows"
-                    }
+                      a {
+                          href: crate::routes::workflows::Index { team_id }.to_string(),
+                          class: "inline-flex items-center px-4 py-2 bg-primary text-primary-content rounded-lg hover:bg-primary-focus font-medium",
+                          "← Back to Workflows"
+                      }
                 }
             }
         }
