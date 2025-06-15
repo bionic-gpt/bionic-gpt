@@ -149,7 +149,7 @@ fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32, pending: bool)
                 image_src: if pending { spinner_svg.name } else { tools_svg.name }
             }
             TimeLineBody {
-                Label {
+                Badge {
                     "Function Call:"
                     strong {
                         class: "ml-2",

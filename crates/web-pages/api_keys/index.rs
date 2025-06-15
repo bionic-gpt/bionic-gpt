@@ -101,16 +101,16 @@ pub fn page(
 pub fn PromptType(prompt_type: DBPromptType) -> Element {
     match prompt_type {
         DBPromptType::Model => rsx!(
-            Label {
+            Badge {
                 class: "mr-2 truncate",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "Model"
             }
         ),
         DBPromptType::Assistant => rsx!(
-            Label {
+            Badge {
                 class: "mr-2 truncate",
-                label_role: LabelRole::Highlight,
+                badge_color: BadgeColor::Accent,
                 "Assistant"
             }
         ),

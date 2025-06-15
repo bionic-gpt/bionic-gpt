@@ -7,23 +7,23 @@ use dioxus::prelude::*;
 pub fn Integration(integration_type: IntegrationType) -> Element {
     match integration_type {
         IntegrationType::MCP_Server => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "MCP Server"
             }
         ),
         IntegrationType::BuiltIn => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "Built In"
             }
         ),
         IntegrationType::OpenAPI => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "Open API"
             }
         ),

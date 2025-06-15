@@ -21,11 +21,11 @@ pub enum WorkflowStatus {
 }
 
 impl WorkflowStatus {
-    pub fn badge_class(&self) -> &'static str {
+    pub fn badge_color(&self) -> BadgeColor {
         match self {
-            WorkflowStatus::Active => "badge badge-success",
-            WorkflowStatus::Paused => "badge badge-warning",
-            WorkflowStatus::Draft => "badge badge-neutral",
+            WorkflowStatus::Active => BadgeColor::Success,
+            WorkflowStatus::Paused => BadgeColor::Warning,
+            WorkflowStatus::Draft => BadgeColor::Neutral,
         }
     }
 
@@ -77,8 +77,8 @@ pub fn WorkflowCards(workflows: Vec<Workflow>, team_id: i32) -> Element {
                         class: "mt-5 p-4 flex flex-col clickable hover:shadow-lg transition-shadow relative",
                         div {
                             class: "absolute top-3 right-3",
-                            span {
-                                class: workflow.status.badge_class(),
+                            Badge {
+                                badge_color: workflow.status.badge_color(),
                                 "{workflow.status.display_text()}"
                             }
                         }

@@ -117,8 +117,8 @@ pub fn page(
                                         }
                                     }
                                     td {
-                                        Label {
-                                            label_role: LabelRole::Success,
+                                        Badge {
+                                            badge_color: BadgeColor::Success,
                                             "Active"
                                         }
                                     }
@@ -162,8 +162,8 @@ pub fn page(
                                             }
                                     }
                                     td {
-                                        Label {
-                                            label_role: LabelRole::Highlight,
+                                        Badge {
+                                            badge_color: BadgeColor::Accent,
                                             "Invite Pending"
                                         }
                                     }

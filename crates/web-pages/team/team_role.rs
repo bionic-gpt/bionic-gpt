@@ -7,23 +7,23 @@ use dioxus::prelude::*;
 pub fn Role(role: DBRole) -> Element {
     match role {
         DBRole::SystemAdministrator => rsx!(
-            Label {
+            Badge {
                 class: "mr-2",
-                label_role: LabelRole::Highlight,
+                badge_color: BadgeColor::Accent,
                 "System Administrator"
             }
         ),
         DBRole::TeamManager => rsx!(
-            Label {
+            Badge {
                 class: "mr-2",
-                label_role: LabelRole::Neutral,
+                badge_color: BadgeColor::Neutral,
                 "Team Manager"
             }
         ),
         DBRole::Collaborator => rsx!(
-            Label {
+            Badge {
                 class: "mr-2",
-                label_role: LabelRole::Neutral,
+                badge_color: BadgeColor::Neutral,
                 "Collaborator"
             }
         ),

@@ -30,14 +30,14 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
                                     "{limit.api_key_id}"
                                 }
                                 td {
-                                    Label {
-                                        label_role: LabelRole::Success,
+                                    Badge {
+                                        badge_color: BadgeColor::Success,
                                         "{limit.tpm_limit}"
                                     }
                                 }
                                 td {
-                                    Label {
-                                        label_role: LabelRole::Success,
+                                    Badge {
+                                        badge_color: BadgeColor::Success,
                                         "{limit.rpm_limit}"
                                     }
                                 }

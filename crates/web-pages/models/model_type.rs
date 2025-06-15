@@ -7,30 +7,30 @@ use dioxus::prelude::*;
 pub fn Model(model_type: ModelType) -> Element {
     match model_type {
         ModelType::LLM => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "Large Language Model"
             }
         ),
         ModelType::Embeddings => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Highlight,
+                badge_color: BadgeColor::Accent,
                 "Embeddings Model"
             }
         ),
         ModelType::TextToSpeech => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Warning,
+                badge_color: BadgeColor::Warning,
                 "Text To Speech"
             }
         ),
         ModelType::Image => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Neutral,
+                badge_color: BadgeColor::Neutral,
                 "Image Generation"
             }
         ),
