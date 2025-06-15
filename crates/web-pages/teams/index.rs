@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use super::{invite_card::InviteCard, team_card::TeamCard};
 use crate::app_layout::{Layout, SideBar};
 use crate::ConfirmModal;
 use assets::files::button_plus_svg;
@@ -36,107 +37,14 @@ pub fn page(
                     title: "Teams"
                 }
                 CardBody {
-                    table {
-                        class: "table table-sm",
-                        thead {
-                            th { "Team" }
-                            th { "Team Creator" }
-                            th {
-                                class: "text-right",
-                                "Action"
-                            }
-                        }
-                        tbody {
-                            for team in &teams {
-
-                                if let Some(name) = &team.team_name {
-                                    tr {
-                                        td {
-                                            Avatar {
-                                                name: "{name}",
-                                                avatar_type: avatar::AvatarType::Team
-                                            }
-                                            span {
-                                                class: "ml-2 mr-2",
-                                                "{name}"
-                                            }
-                                            if team.id != team_id {
-                                                a {
-                                                    "data-turbo-frame": "_top",
-                                                    href: crate::routes::team::Index{ team_id: team.id }.to_string(),
-                                                    "(Switch to this Team)"
-                                                }
-                                            }
-                                        }
-                                        td {
-                                            strong {
-                                                "{team.team_owner}"
-                                            }
-                                        }
-                                        if team.team_owner == current_user_email && teams.len() > 1 {
-                                            td {
-                                                class: "text-right",
-                                                DropDown {
-                                                    direction: Direction::Left,
-                                                    button_text: "...",
-                                                    DropDownLink {
-                                                        popover_target: format!("delete-trigger-{}", team.id),
-                                                        href: "#",
-                                                        target: "_top",
-                                                        "Delete Team"
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            td {
-                                                class: "text-right",
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    tr {
-                                        td {
-                                            Avatar {
-                                                avatar_type: avatar::AvatarType::Team
-                                            }
-                                            span {
-                                                class: "ml-2 mr-2",
-                                                "Name Not Set"
-                                            }
-                                            if team.id != team_id {
-                                                a {
-                                                    "data-turbo-frame": "_top",
-                                                    href: crate::routes::team::Index{ team_id: team.id }.to_string(),
-                                                    "(Switch to this Team)"
-                                                }
-                                            }
-                                        }
-                                        td {
-                                            strong {
-                                                "{team.team_owner}"
-                                            }
-                                        }
-                                        if team.team_owner == current_user_email && teams.len() > 1 {
-                                            td {
-                                                class: "text-right",
-                                                DropDown {
-                                                    direction: Direction::Left,
-                                                    button_text: "...",
-                                                    DropDownLink {
-                                                        popover_target: format!("delete-trigger-{}", team.id),
-                                                        href: "#",
-                                                        target: "_top",
-                                                        "Delete Team"
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            td {
-                                                class: "text-right",
-                                            }
-                                        }
-                                    }
-                                }
+                    div {
+                        class: "space-y-2",
+                        for team in &teams {
+                            TeamCard {
+                                team: team.clone(),
+                                current_team_id: team_id,
+                                teams_len: teams.len(),
+                                current_user_email: current_user_email.clone(),
                             }
                         }
                     }
@@ -150,40 +58,10 @@ pub fn page(
                     title: "You have invitations to join the following teams"
                 }
                 CardBody {
-                    table {
-                        class: "table table-sm",
-                        thead {
-                            th { "Team" }
-                            th {
-                                "Team Creator"
-                            }
-                            th {
-                                class: "text-right",
-                                "Action"
-                            }
-                        }
-                        tbody {
-                            for invite in &invites {
-                                td {
-                                    "{invite.team_name}"
-                                }
-                                td {
-                                    "{invite.created_by}"
-                                }
-                                td {
-                                    class: "text-right",
-                                    DropDown {
-                                        direction: Direction::Left,
-                                        button_text: "...",
-                                        DropDownLink {
-                                            popover_target: format!("accept-invite-trigger-{}", invite.id),
-                                            href: "#",
-                                            target: "_top",
-                                            "Accept Invite"
-                                        }
-                                    }
-                                }
-                            }
+                    div {
+                        class: "space-y-2",
+                        for invite in &invites {
+                            InviteCard { invite: invite.clone() }
                         }
                     }
                 }
