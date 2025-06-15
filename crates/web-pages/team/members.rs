@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use super::member_card::{InvitePendingCard, MemberCard};
 use crate::app_layout::{Layout, SideBar};
 use crate::ConfirmModal;
 use assets::files::*;
@@ -76,123 +77,13 @@ pub fn page(
                     }
                 }
                 CardBody {
-                    table {
-                        class: "table table-sm",
-                        thead {
-                            th { "Name or Email" }
-                            th { "Status" }
-                            th {
-                                class: "max-sm:hidden",
-                                "Special Privelages"
-                            }
-                            if rbac.can_make_invitations() {
-                                th {
-                                    class: "text-right",
-                                    "Action"
-                                }
-                            }
+                    div {
+                        class: "space-y-2",
+                        for member in &members {
+                            MemberCard { member: member.clone(), rbac: rbac.clone() }
                         }
-                        tbody {
-                            for member in &members {
-                                tr {
-                                    td {
-                                        if let (Some(first_name), Some(last_name)) = (&member.first_name, &member.last_name) {
-                                            Avatar {
-                                                name: "{first_name}",
-                                                avatar_type: avatar::AvatarType::User
-                                            }
-                                            span {
-                                                class: "ml-2",
-                                                "{first_name} {last_name}"
-                                            }
-                                        } else {
-                                            Avatar {
-                                                name: "{member.email}",
-                                                avatar_type: avatar::AvatarType::User
-                                            }
-                                            span {
-                                                class: "ml-2",
-                                                "{member.email}"
-                                            }
-                                        }
-                                    }
-                                    td {
-                                        Label {
-                                            label_role: LabelRole::Success,
-                                            "Active"
-                                        }
-                                    }
-                                    td {
-                                        class: "max-sm:hidden",
-                                        for role in member.roles.clone() {
-                                            super::team_role::Role {
-                                                role: role
-                                            }
-                                        }
-                                    }
-                                    if rbac.can_make_invitations() && rbac.email != member.email {
-                                        td {
-                                            class: "text-right",
-                                            DropDown {
-                                                direction: Direction::Left,
-                                                button_text: "...",
-                                                DropDownLink {
-                                                    popover_target: format!("remove-member-trigger-{}-{}",
-                                                        member.id, member.team_id),
-                                                    href: "#",
-                                                    target: "_top",
-                                                    "Remove User From Team"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            for invite in &invites {
-                                tr {
-                                    td {
-                                            Avatar {
-                                                name: "{invite.first_name}",
-                                                avatar_type: avatar::AvatarType::User
-                                            }
-                                            span {
-                                                class: "ml-2",
-                                                "{invite.first_name} {invite.last_name}"
-                                            }
-                                    }
-                                    td {
-                                        Label {
-                                            label_role: LabelRole::Highlight,
-                                            "Invite Pending"
-                                        }
-                                    }
-                                    td {
-                                        for role in invite.roles.clone() {
-                                            super::team_role::Role {
-                                                role
-                                            }
-                                        }
-                                    }
-
-                                    if rbac.can_make_invitations() {
-                                        td {
-                                            class: "text-right",
-                                            DropDown {
-                                                direction: Direction::Left,
-                                                button_text: "...",
-                                                DropDownLink {
-                                                    popover_target: format!("remove-invite-trigger-{}-{}",
-                                                        invite.id, invite.team_id),
-                                                    href: "#",
-                                                    target: "_top",
-                                                    "Delete Invite"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        for invite in &invites {
+                            InvitePendingCard { invite: invite.clone(), rbac: rbac.clone() }
                         }
                     }
                 }
