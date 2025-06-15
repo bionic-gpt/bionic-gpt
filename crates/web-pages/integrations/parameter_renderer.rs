@@ -9,9 +9,9 @@ pub fn render_parameter(
     depth: usize,
 ) -> Element {
     let indent_class = match depth {
-        0 => "border-l-2 border-blue-200 pl-3 py-2",
-        1 => "border-l-2 border-green-200 pl-6 py-1 ml-3",
-        _ => "border-l-2 border-gray-200 pl-6 py-1 ml-6",
+        0 => "border-l-2 border-primary pl-3 py-2",
+        1 => "border-l-2 border-success pl-6 py-1 ml-3",
+        _ => "border-l-2 border-base-300 pl-6 py-1 ml-6",
     };
 
     let param_type = param_schema
@@ -41,16 +41,16 @@ pub fn render_parameter(
 
                 // Type and format
                 span {
-                    class: "bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded",
+                    class: "bg-primary/20 text-primary text-xs px-2 py-0.5 rounded",
                     "{param_type}"
                     if let Some(fmt) = format {
-                        span { class: "text-blue-500", ", {fmt}" }
+                        span { class: "text-primary", ", {fmt}" }
                     }
                 }
 
                 // Required/Optional badge
                 span {
-                    class: if is_required { "bg-red-100 text-red-700" } else { "bg-gray-100 text-gray-700" },
+                    class: if is_required { "bg-error/20 text-error" } else { "bg-base-200 text-base-content" },
                     class: "text-xs px-2 py-0.5 rounded",
                     if is_required { "required" } else { "optional" }
                 }
@@ -58,11 +58,11 @@ pub fn render_parameter(
                 // Example value
                 if let Some(ex) = example {
                     span {
-                        class: "text-xs text-gray-500",
+                        class: "text-xs text-base-content/70",
                         "Example: "
                     }
                     code {
-                        class: "bg-gray-100 px-1 py-0.5 rounded text-xs",
+                        class: "bg-base-200 px-1 py-0.5 rounded text-xs",
                         "{ex}"
                     }
                 }
@@ -71,7 +71,7 @@ pub fn render_parameter(
             // Optional: description below in smaller font
             if let Some(desc) = description {
                 p {
-                    class: "text-xs text-gray-500 ml-1",
+                    class: "text-xs text-base-content/70 ml-1",
                     "{desc}"
                 }
             }

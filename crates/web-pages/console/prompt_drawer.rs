@@ -22,7 +22,7 @@ pub fn PromptDrawer(
                 }
                 if rbac.can_view_system_prompt() {
                     pre {
-                        class: "json bg-gray-100 p-4 rounded overflow-auto max-h-96",
+                        class: "json bg-base-200 p-4 rounded overflow-auto max-h-96",
                         "{prompt}"
                     }
                 } else {

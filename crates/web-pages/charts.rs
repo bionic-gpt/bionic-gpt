@@ -42,7 +42,7 @@ pub fn TokenUsageChart(data: Vec<DailyTokenUsage>) -> Element {
                             y: "{200 - (prompt_tokens * 180 / max_tokens)}",
                             width: "40",
                             height: "{prompt_tokens * 180 / max_tokens}",
-                            fill: "#3b82f6",
+                            fill: "hsl(var(--p))",
                             class: "hover:opacity-80 cursor-pointer"
                         }
                         // Stacked bar for completion tokens (top)
@@ -51,7 +51,7 @@ pub fn TokenUsageChart(data: Vec<DailyTokenUsage>) -> Element {
                             y: "{200 - ((prompt_tokens + completion_tokens) * 180 / max_tokens)}",
                             width: "40",
                             height: "{completion_tokens * 180 / max_tokens}",
-                            fill: "#10b981",
+                            fill: "hsl(var(--su))",
                             class: "hover:opacity-80 cursor-pointer"
                         }
                         text {
@@ -87,7 +87,7 @@ pub fn ApiRequestChart(data: Vec<DailyApiRequests>) -> Element {
                             y: "{200 - (day_data.request_count * 180 / max_requests)}",
                             width: "40",
                             height: "{day_data.request_count * 180 / max_requests}",
-                            fill: "#6366f1",
+                            fill: "hsl(var(--p))",
                             class: "hover:opacity-80 cursor-pointer"
                         }
                         text {
@@ -120,7 +120,7 @@ pub fn TokenUsageChartCard(data: Vec<DailyTokenUsage>, title: String) -> Element
                     div {
                         class: "flex items-center",
                         div {
-                            class: "w-4 h-4 bg-blue-500 mr-2"
+                            class: "w-4 h-4 bg-primary mr-2"
                         }
                         span {
                             class: "text-sm",
@@ -130,7 +130,7 @@ pub fn TokenUsageChartCard(data: Vec<DailyTokenUsage>, title: String) -> Element
                     div {
                         class: "flex items-center",
                         div {
-                            class: "w-4 h-4 bg-green-500 mr-2"
+                            class: "w-4 h-4 bg-success mr-2"
                         }
                         span {
                             class: "text-sm",
