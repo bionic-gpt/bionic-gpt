@@ -59,6 +59,7 @@ pub async fn enriched_chat(
                             &mut snapshot,
                             &sender,
                             &mut stream,
+                            Some(&message.data),
                         )
                         .await?;
                         break;
@@ -94,6 +95,7 @@ pub async fn enriched_chat(
                     &mut snapshot,
                     &sender,
                     &mut stream,
+                    None,
                 )
                 .await?;
                 break;
@@ -106,21 +108,35 @@ pub async fn enriched_chat(
 
 fn convert_error_to_chats(
     err: impl std::fmt::Debug + std::fmt::Display,
+    context_message: Option<&str>,
 ) -> Vec<(CompletionChunk, String)> {
-    vec![
+    let mut messages = vec![{
+        let msg = "\n\n*Unable to complete your request due to the following error*";
+        (super::sse_chat_error::string_to_chunk(msg), msg.to_string())
+    }];
+
+    // Add original context message if provided
+    if let Some(context) = context_message {
+        let msg = format!(
+            "\n\n**Original LLM Provider Response:**\n```\n{}\n```",
+            context
+        );
+        messages.push((super::sse_chat_error::string_to_chunk(&msg), msg));
+    }
+
+    // Add processing error
+    messages.extend([
         {
-            let msg = "\n\n*Unable to complete your request due to the following error*";
-            (super::sse_chat_error::string_to_chunk(msg), msg.to_string())
-        },
-        {
-            let msg = format!("\n\n`{}`\n\n", err);
+            let msg = format!("\n\n**Processing Error:**\n`{}`", err);
             (super::sse_chat_error::string_to_chunk(&msg), msg)
         },
         {
             let msg = format!("\n\n```\n{:#?}\n```", err);
             (super::sse_chat_error::string_to_chunk(&msg), msg)
         },
-    ]
+    ]);
+
+    messages
 }
 
 async fn handle_chat_error<E: std::error::Error + Send + Sync + 'static>(
@@ -129,12 +145,13 @@ async fn handle_chat_error<E: std::error::Error + Send + Sync + 'static>(
     snapshot: &mut String,
     sender: &mpsc::Sender<Result<GenerationEvent, Error>>,
     stream: &mut ReqwestEventSource,
+    context_message: Option<&str>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     tracing::error!("Chat error: {:?}", err);
     stream.close();
 
     if convert_errors_to_chat {
-        for (chunk, markdown) in convert_error_to_chats(err) {
+        for (chunk, markdown) in convert_error_to_chats(err, context_message) {
             snapshot.push_str(&markdown);
             sender.send(Ok(GenerationEvent::Text(chunk))).await?;
         }
