@@ -16,8 +16,9 @@ tokio-postgres = { version = "0.7", features = [
 cornucopia_async = { version = "0", features = ["with-serde_json-1"] }
 deadpool-postgres = { version = "0", features = ["serde"] }
 postgres-types = { version = "0", features = ["derive"] }
-time = { version = "0", default-features = false,  features = ["formatting", "serde"] }
+time = { version = "0.3.41", default-features = false,  features = ["formatting", "serde"] }
 pgvector = { version = "0.3", features = ["postgres"] }
+tracing = { version = "0.1" }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["raw_value"] }
