@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 use integrations::BionicOpenAPI;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct IntegrationSummary {
     pub openapi: BionicOpenAPI,
     pub id: i32,
@@ -66,12 +66,12 @@ pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> 
                                 class: "flex flex-col justify-center text-center ml-4",
                                 div { "{count}" }
                                 div {
-                                    class: "text-base-content/70",
+                                    class: "text-base-content/70 text-sm",
                                     if has_oauth2 {
-                                        "OAuth2 Config"
+                                        "Connection"
                                         if count != 1 { "s" }
                                     } else if has_api_key {
-                                        "API Key"
+                                        "Key"
                                         if count != 1 { "s" }
                                     }
                                 }

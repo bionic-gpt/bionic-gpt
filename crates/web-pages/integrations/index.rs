@@ -6,7 +6,6 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
-use integrations::BionicOpenAPI;
 
 pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> String {
     let page = rsx! {
