@@ -1,4 +1,5 @@
 pub mod invitation_form;
+pub mod member_card;
 pub mod members;
 pub mod remove_warning;
 pub mod team_name_form;
