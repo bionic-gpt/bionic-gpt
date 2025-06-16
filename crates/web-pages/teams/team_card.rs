@@ -38,26 +38,31 @@ pub fn TeamCard(props: TeamCardProps) -> Element {
                         class: "text-sm text-base-content/70",
                         "{props.team.team_owner}"
                     }
-                    if props.team.id != props.current_team_id {
-                        a {
-                            href: crate::routes::team::Index{ team_id: props.team.id }.to_string(),
-                            class: "text-xs text-primary",
-                            "Switch to this Team"
-                        }
-                    }
                 }
             }
-            if props.team.team_owner == props.current_user_email && props.teams_len > 1 {
-                div {
-                    class: "flex flex-col justify-center ml-4",
-                    DropDown {
-                        direction: Direction::Left,
-                        button_text: "...",
-                        DropDownLink {
-                            popover_target: format!("delete-trigger-{}", props.team.id),
-                            href: "#",
-                            target: "_top",
-                            "Delete Team"
+            div {
+                class: "flex flex-row items-center ml-4 gap-2",
+                if props.team.id != props.current_team_id {
+                    Button {
+                        button_type: ButtonType::Link,
+                        href: crate::routes::team::Index { team_id: props.team.id }.to_string(),
+                        button_scheme: ButtonScheme::Primary,
+                        button_size: ButtonSize::Small,
+                        "Switch to this Team"
+                    }
+                }
+                if props.team.team_owner == props.current_user_email && props.teams_len > 1 {
+                    div {
+                        class: "flex flex-col justify-center",
+                        DropDown {
+                            direction: Direction::Left,
+                            button_text: "...",
+                            DropDownLink {
+                                popover_target: format!("delete-trigger-{}", props.team.id),
+                                href: "#",
+                                target: "_top",
+                                "Delete Team"
+                            }
                         }
                     }
                 }
