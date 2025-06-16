@@ -94,5 +94,5 @@ schemaspy:
         -u db-owner \
         -p testpassword \
         -o tmp
-    cp -r tmp/diagrams/orphans crates/db/diagrams
-    cp -r tmp/diagrams/summary crates/db/diagrams
+    cp -r tmp/diagrams/orphans/orphans.png crates/db/diagrams
+    cp -r tmp/diagrams/summary/relationships.real.large.png crates/db/diagrams
