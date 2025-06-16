@@ -51,7 +51,7 @@ pub async fn new_assistant_loader(
         .await?;
 
     let _integrations = queries::integrations::integrations()
-        .bind(&transaction)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
@@ -109,7 +109,7 @@ pub async fn edit_assistant_loader(
         .await?;
 
     let _integrations = queries::integrations::integrations()
-        .bind(&transaction)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 

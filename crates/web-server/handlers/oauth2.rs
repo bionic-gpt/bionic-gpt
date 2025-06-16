@@ -42,7 +42,7 @@ pub async fn connect_loader(
 
     // Get the integration from the database
     let integration = queries::integrations::integration()
-        .bind(&transaction, &integration_id)
+        .bind(&transaction, &integration_id, &team_id)
         .one()
         .await?;
 
@@ -139,7 +139,7 @@ pub async fn oauth2_callback(
 
     // Load OAuth client credentials
     let integration = queries::integrations::integration()
-        .bind(&transaction, &integration_id)
+        .bind(&transaction, &integration_id, &team_id)
         .one()
         .await?;
     let oauth2_config = get_oauth2_config_from_integration(&integration)?;

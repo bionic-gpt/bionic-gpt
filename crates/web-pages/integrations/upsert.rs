@@ -11,6 +11,7 @@ pub struct IntegrationForm {
     pub id: Option<i32>,
     #[validate(length(min = 1, message = "OpenAPI specification is required"))]
     pub openapi_spec: String,
+    pub visibility: String,
     #[serde(skip)]
     pub error: Option<String>,
 }
@@ -23,7 +24,7 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Integrations",
             header: rsx!(
                 h3 { "Integrations" }
@@ -69,6 +70,33 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
                             p {
                                 class: "mt-1 text-sm text-gray-500",
                                 "Paste your complete OpenAPI 3.0+ specification in JSON format"
+                            }
+                        }
+
+                        div {
+                            class: "mt-4 flex flex-col",
+                            Select {
+                                name: "visibility",
+                                label: "Visibility",
+                                help_text: "Who can use this integration",
+                                value: "{integration.visibility}",
+                                SelectOption {
+                                    value: "{crate::visibility_to_string(db::Visibility::Private)}",
+                                    selected_value: "{integration.visibility}",
+                                    {crate::visibility_to_string(db::Visibility::Private)}
+                                }
+                                SelectOption {
+                                    value: "{crate::visibility_to_string(db::Visibility::Team)}",
+                                    selected_value: "{integration.visibility}",
+                                    {crate::visibility_to_string(db::Visibility::Team)}
+                                }
+                                if rbac.can_make_assistant_public() {
+                                    SelectOption {
+                                        value: "{crate::visibility_to_string(db::Visibility::Company)}",
+                                        selected_value: "{integration.visibility}",
+                                        {crate::visibility_to_string(db::Visibility::Company)}
+                                    }
+                                }
                             }
                         }
 

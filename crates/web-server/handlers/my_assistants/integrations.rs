@@ -34,7 +34,7 @@ pub async fn manage_integrations(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let integrations = queries::integrations::integrations()
-        .bind(&transaction)
+        .bind(&transaction, &team_id)
         .all()
         .await?;
 
