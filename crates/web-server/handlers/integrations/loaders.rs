@@ -160,7 +160,7 @@ pub async fn new_loader(
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let integration_form = IntegrationForm {
-        visibility: crate::visibility_to_string(db::Visibility::Private),
+        visibility: web_pages::visibility_to_string(db::Visibility::Private),
         ..Default::default()
     };
 
@@ -188,12 +188,12 @@ pub async fn edit_loader(
         IntegrationForm {
             id: Some(integration.id),
             openapi_spec: serde_json::to_string(&definition).unwrap_or("".to_string()),
-            visibility: crate::visibility_to_string(integration.visibility),
+            visibility: web_pages::visibility_to_string(integration.visibility),
             error: None,
         }
     } else {
         IntegrationForm {
-            visibility: crate::visibility_to_string(integration.visibility),
+            visibility: web_pages::visibility_to_string(integration.visibility),
             ..Default::default()
         }
     };

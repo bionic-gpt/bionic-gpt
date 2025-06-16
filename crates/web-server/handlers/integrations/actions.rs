@@ -2,7 +2,7 @@ use crate::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::{Html, IntoResponse};
 use axum::Form;
-use db::{authz, queries, Pool, Visibility};
+use db::{authz, queries, Pool};
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::{Delete, Edit, New};

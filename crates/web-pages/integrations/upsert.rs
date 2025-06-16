@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use daisy_rsx::*;
-use db::{authz::Rbac, Visibility};
+use db::authz::Rbac;
 use dioxus::prelude::*;
 use serde::Deserialize;
 use validator::Validate;
@@ -24,7 +24,7 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Integrations",
             header: rsx!(
                 h3 { "Integrations" }
@@ -74,7 +74,7 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
                         }
 
                         div {
-                            class: "mt-4",
+                            class: "mt-4 flex flex-col",
                             Select {
                                 name: "visibility",
                                 label: "Visibility",
