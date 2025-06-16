@@ -128,6 +128,7 @@ pub async fn new_action(
             queries::integrations::insert()
                 .bind(
                     &transaction,
+                    &team_id,
                     &integration_name,
                     &definition, // definition
                     &integration_type,

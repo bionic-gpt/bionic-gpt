@@ -58,12 +58,14 @@ ORDER BY updated_at;
 
 --! insert(definition?)
 INSERT INTO integrations (
+    team_id,
     name,
     definition,
     integration_type,
     visibility
 )
 VALUES(
+    :team_id,
     :name,
     :definition,
     :integration_type,
