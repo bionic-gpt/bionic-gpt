@@ -140,7 +140,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::document_pipelines::Index { team_id: props.team_id },
                                 icon: nav_ccsds_data_svg.name,
-                                title: "Bulk Data Upload"
+                                title: "Data Pipelines"
                             }
                         )
                     }
