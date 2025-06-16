@@ -2,10 +2,11 @@ use crate::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::{Html, IntoResponse};
 use axum::Form;
-use db::{authz, queries, Pool};
+use db::{authz, queries, Pool, Visibility};
 use validator::Validate;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::{Delete, Edit, New};
+use web_pages::string_to_visibility;
 
 use super::helpers::parse_openapi_spec;
 
@@ -62,6 +63,7 @@ pub async fn edit_action(
 
     match integration_form.validate() {
         Ok(_) => {
+            let visibility = string_to_visibility(&integration_form.visibility);
             // The form is valid, update the integration
             queries::integrations::update()
                 .bind(
@@ -69,6 +71,7 @@ pub async fn edit_action(
                     &integration_name,
                     &definition, // definition
                     &integration_type,
+                    &visibility,
                     &id,
                 )
                 .await?;
@@ -120,6 +123,7 @@ pub async fn new_action(
 
     match integration_form.validate() {
         Ok(_) => {
+            let visibility = string_to_visibility(&integration_form.visibility);
             // The form is valid, create a new integration
             queries::integrations::insert()
                 .bind(
@@ -127,6 +131,7 @@ pub async fn new_action(
                     &integration_name,
                     &definition, // definition
                     &integration_type,
+                    &visibility,
                 )
                 .one()
                 .await?;
