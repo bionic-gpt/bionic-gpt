@@ -4,6 +4,7 @@ use axum::response::Html;
 use axum::response::IntoResponse;
 use db::{authz, queries, Pool};
 use integrations::bionic_openapi::BionicOpenAPI;
+use web_pages::integrations::integration_cards::IntegrationSummary;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::View;
 use web_pages::routes::integrations::{Edit, Index, New};
@@ -18,27 +19,47 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let integrations = queries::integrations::integrations()
+    let integrations_db = queries::integrations::integrations()
         .bind(&transaction)
         .all()
         .await?;
 
-    // Get the Open API Spec
-    let integrations: Vec<(BionicOpenAPI, i32)> = integrations
-        .iter()
-        .filter_map(|integration| {
-            if let Some(definition) = &integration.definition {
-                if let Ok(bionic_openapi) = BionicOpenAPI::new(definition) {
-                    Some((bionic_openapi, integration.id))
+    // Build integration summaries with connection counts
+    let mut integrations: Vec<IntegrationSummary> = Vec::new();
+    for integration in integrations_db.iter() {
+        if let Some(definition) = &integration.definition {
+            if let Ok(bionic_openapi) = BionicOpenAPI::new(definition) {
+                let api_key_count = if bionic_openapi.has_api_key_security() {
+                    queries::connections::get_api_key_connections_for_integration()
+                        .bind(&transaction, &integration.id, &team_id)
+                        .all()
+                        .await?
+                        .len()
                 } else {
-                    None
-                }
-            } else {
-                tracing::error!("This integration doesn't have a definition");
-                None
+                    0
+                };
+
+                let oauth2_count = if bionic_openapi.has_oauth2_security() {
+                    queries::connections::get_oauth2_connections_for_integration()
+                        .bind(&transaction, &integration.id, &team_id)
+                        .all()
+                        .await?
+                        .len()
+                } else {
+                    0
+                };
+
+                integrations.push(IntegrationSummary {
+                    openapi: bionic_openapi,
+                    id: integration.id,
+                    api_key_count,
+                    oauth2_count,
+                });
             }
-        })
-        .collect();
+        } else {
+            tracing::error!("This integration doesn't have a definition");
+        }
+    }
 
     let html = web_pages::integrations::index::page(team_id, rbac, integrations);
 

@@ -3,8 +3,16 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 use integrations::BionicOpenAPI;
 
+#[derive(Clone)]
+pub struct IntegrationSummary {
+    pub openapi: BionicOpenAPI,
+    pub id: i32,
+    pub api_key_count: usize,
+    pub oauth2_count: usize,
+}
+
 #[component]
-pub fn IntegrationCards(integrations: Vec<(BionicOpenAPI, i32)>, team_id: i32) -> Element {
+pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> Element {
     rsx!(
         h1 {
             class: "text-xl font-semibold",
@@ -15,17 +23,26 @@ pub fn IntegrationCards(integrations: Vec<(BionicOpenAPI, i32)>, team_id: i32) -
         }
         for integration in integrations.iter() {
             {
+                let has_oauth2 = integration.openapi.get_oauth2_config().is_some();
+                let has_api_key = integration.openapi.has_api_key_security();
+                let count = if has_oauth2 {
+                    integration.oauth2_count
+                } else if has_api_key {
+                    integration.api_key_count
+                } else {
+                    0
+                };
                 rsx! {
                     Card {
                         class: "p-3 mt-5 flex flex-row",
                         a {
-                            href: crate::routes::integrations::View {team_id, id: integration.1 }.to_string(),
+                            href: crate::routes::integrations::View {team_id, id: integration.id }.to_string(),
                             class: "no-underline flex-1 min-w-0",
                             div {
                                 class: "flex flex-row",
                                 img {
                                     class: "border border-neutral-content rounded p-2",
-                                    src: integration.0.get_logo_url(),
+                                    src: integration.openapi.get_logo_url(),
                                     width: "48",
                                     height: "48"
                                 }
@@ -33,33 +50,49 @@ pub fn IntegrationCards(integrations: Vec<(BionicOpenAPI, i32)>, team_id: i32) -
                                     class: "ml-4 text-sm flex flex-col justify-center flex-1 min-w-0",
                                     h2 {
                                         class: "font-semibold",
-                                        "{integration.0.get_title()}"
+                                        "{integration.openapi.get_title()}"
                                     }
                                     p {
                                         class: "truncate overflow-hidden whitespace-nowrap",
-                                        if let Some(description) = integration.0.get_description() {
+                                        if let Some(description) = integration.openapi.get_description() {
                                             "{description}"
                                         }
                                     }
                                 }
                             }
                         }
-                        if integration.0.get_oauth2_config().is_some() {
+                        if has_oauth2 || has_api_key {
+                            div {
+                                class: "flex flex-col justify-center text-center ml-4",
+                                div { "{count}" }
+                                div {
+                                    class: "text-base-content/70",
+                                    if has_oauth2 {
+                                        "OAuth2 Config"
+                                        if count != 1 { "s" }
+                                    } else if has_api_key {
+                                        "API Key"
+                                        if count != 1 { "s" }
+                                    }
+                                }
+                            }
+                        }
+                        if has_oauth2 {
                             div {
                                 class: "flex flex-col justify-center ml-4",
                                 a {
                                     class: "btn btn-secondary btn-sm ",
                                     "data-turbo": "false",
-                                    href: crate::routes::integrations::Connect { team_id, integration_id: integration.1 }.to_string(),
+                                    href: crate::routes::integrations::Connect { team_id, integration_id: integration.id }.to_string(),
                                     "Connect"
                                 }
                             }
                         }
-                        if integration.0.has_api_key_security() {
+                        if has_api_key {
                             div {
                                 class: "flex flex-col justify-center ml-4",
                                 Button {
-                                    popover_target: format!("configure-api-key-{}", integration.1),
+                                    popover_target: format!("configure-api-key-{}", integration.id),
                                     button_scheme: ButtonScheme::Secondary,
                                     "Configure"
                                 }
@@ -72,11 +105,11 @@ pub fn IntegrationCards(integrations: Vec<(BionicOpenAPI, i32)>, team_id: i32) -
 
         // Add API key configuration modals for integrations that support API keys
         for integration in integrations.iter() {
-            if integration.0.has_api_key_security() {
+            if integration.openapi.has_api_key_security() {
                 super::api_key_form::ApiKeyForm {
                     team_id,
-                    integration_id: integration.1,
-                    integration_name: integration.0.get_title().to_string()
+                    integration_id: integration.id,
+                    integration_name: integration.openapi.get_title().to_string()
                 }
             }
         }
