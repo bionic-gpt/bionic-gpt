@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use super::integration_cards::IntegrationSummary;
 use crate::app_layout::{Layout, SideBar};
 use crate::routes;
 use assets::files::*;
@@ -7,7 +8,7 @@ use db::authz::Rbac;
 use dioxus::prelude::*;
 use integrations::BionicOpenAPI;
 
-pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<(BionicOpenAPI, i32)>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
