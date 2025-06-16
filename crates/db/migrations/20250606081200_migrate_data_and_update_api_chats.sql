@@ -62,17 +62,23 @@ INSERT INTO api_chats (
     role,
     status,
     created_at,
-    updated_at
+    updated_at,
+    tokens_sent,
+    tokens_received,
+    time_taken_ms
 )
-SELECT 
+SELECT
     api_key_id,
     '' AS prompt,
     response,
     'Assistant'::chat_role,
     status,
     created_at,
-    updated_at
-FROM api_chats 
+    updated_at,
+    0,
+    0,
+    0
+FROM api_chats
 WHERE response IS NOT NULL AND response != '';
 
 -- Drop the inference_metrics view first since it depends on token columns
