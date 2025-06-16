@@ -45,8 +45,9 @@ pub fn TeamCard(props: TeamCardProps) -> Element {
                 if props.team.id != props.current_team_id {
                     Button {
                         button_type: ButtonType::Link,
+                        target: "_top",
                         href: crate::routes::team::Index { team_id: props.team.id }.to_string(),
-                        button_scheme: ButtonScheme::Primary,
+                        button_scheme: ButtonScheme::Info,
                         button_size: ButtonSize::Small,
                         "Switch to this Team"
                     }
