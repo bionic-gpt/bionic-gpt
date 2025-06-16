@@ -84,8 +84,8 @@ pub fn page(
                                         }
                                         td {
                                             class: "max-sm:hidden",
-                                            Label {
-                                                label_role: LabelRole::Highlight,
+                                            Badge {
+                                                badge_color: BadgeColor::Accent,
                                                 "By Title"
                                             }
                                             }

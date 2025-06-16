@@ -7,23 +7,23 @@ use dioxus::prelude::*;
 pub fn VisLabel(visibility: Visibility) -> Element {
     match visibility {
         Visibility::Company => rsx!(
-            Label {
+            Badge {
                 class: "mr-2",
-                label_role: LabelRole::Danger,
+                badge_color: BadgeColor::Error,
                 "{crate::visibility_to_string(visibility)}"
             }
         ),
         Visibility::Private => rsx!(
-            Label {
+            Badge {
                 class: "mr-2",
-                label_role: LabelRole::Highlight,
+                badge_color: BadgeColor::Accent,
                 "{crate::visibility_to_string(visibility)}"
             }
         ),
         Visibility::Team => rsx!(
-            Label {
+            Badge {
                 class: "mr-2",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "{crate::visibility_to_string(visibility)}"
             }
         ),

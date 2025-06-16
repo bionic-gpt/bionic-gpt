@@ -143,7 +143,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     turbo-frame {
                         id,
                         src,
-                        Label {
+                        Badge {
                             class: class,
                             "Processing ({document.waiting} remaining)"
                         }
@@ -155,8 +155,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
 
                         ToolTip {
                             text: "{text}",
-                            Label {
-                                label_role: LabelRole::Danger,
+                            Badge {
+                                badge_color: BadgeColor::Error,
                                 "Failed"
                             }
                         }
@@ -166,17 +166,15 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                         id,
                         src,
 
-                        Label {
-                            "Queued"
-                        }
+                        Badge { "Queued" }
                     }
                 } else if document.fail_count > 0 {
                     turbo-frame {
                         id,
                         src,
 
-                        Label {
-                            label_role: LabelRole::Danger,
+                        Badge {
+                            badge_color: BadgeColor::Error,
                             "Processed ({document.fail_count} failed)"
                         }
                     }
@@ -185,8 +183,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                         id,
                         src,
 
-                        Label {
-                            label_role: LabelRole::Danger,
+                        Badge {
+                            badge_color: BadgeColor::Error,
                             "Failed"
                         }
                     }
@@ -195,8 +193,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                         id,
                         src,
 
-                        Label {
-                            label_role: LabelRole::Success,
+                        Badge {
+                            badge_color: BadgeColor::Success,
                             "Processed"
                         }
                     }

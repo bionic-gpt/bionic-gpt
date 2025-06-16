@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use daisy_rsx::Badge;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
@@ -37,8 +38,8 @@ pub fn view(team_id: i32, rbac: Rbac, workflow: Option<Workflow>) -> String {
                                     class: "text-2xl font-semibold",
                                     "{workflow.name}"
                                 }
-                                span {
-                                    class: workflow.status.badge_class(),
+                                Badge {
+                                    badge_color: workflow.status.badge_color(),
                                     "{workflow.status.display_text()}"
                                 }
                             }

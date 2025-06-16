@@ -41,30 +41,30 @@ pub enum IntegrationStatus {
 pub fn Status(status: IntegrationStatus) -> Element {
     match status {
         IntegrationStatus::Active => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "Active"
             }
         ),
         IntegrationStatus::RequiresAPIKey => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Warning,
+                badge_color: BadgeColor::Warning,
                 "Missing API Key"
             }
         ),
         IntegrationStatus::RequiresOauth2Key => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Warning,
+                badge_color: BadgeColor::Warning,
                 "Missing Oauth2"
             }
         ),
         IntegrationStatus::Available => rsx!(
-            Label {
+            Badge {
                 class: "truncate",
-                label_role: LabelRole::Info,
+                badge_color: BadgeColor::Info,
                 "Available"
             }
         ),

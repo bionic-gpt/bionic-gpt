@@ -40,16 +40,16 @@ pub fn AuditTable(audits: Vec<AuditTrail>) -> Element {
                                 }
                                 td {
                                     class: "max-sm:hidden",
-                                    Label {
+                                    Badge {
                                         class: "mr-2",
-                                        label_role: LabelRole::Neutral,
+                                        badge_color: BadgeColor::Neutral,
                                         {super::access_type_to_string(audit.access_type)}
                                     }
                                 }
                                 td {
                                     class: "text-right",
-                                    Label {
-                                        label_role: LabelRole::Neutral,
+                                    Badge {
+                                        badge_color: BadgeColor::Neutral,
                                         {super::audit_action_to_string(audit.action)}
                                     }
                                 }

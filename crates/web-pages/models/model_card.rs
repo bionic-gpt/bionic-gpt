@@ -28,9 +28,24 @@ pub fn ModelCard(
                     div {
                         class: "flex gap-2 mt-1 text-xs",
                         super::model_type::Model { model_type: model.model_type }
-                        if has_function_calling { span { class: "badge badge-ghost", "Functions" } }
-                        if has_vision { span { class: "badge badge-ghost", "Vision" } }
-                        if has_tool_use { span { class: "badge badge-ghost", "Tools" } }
+                        if has_function_calling {
+                            Badge {
+                                badge_style: BadgeStyle::Ghost,
+                                "Functions"
+                            }
+                        }
+                        if has_vision {
+                            Badge {
+                                badge_style: BadgeStyle::Ghost,
+                                "Vision"
+                            }
+                        }
+                        if has_tool_use {
+                            Badge {
+                                badge_style: BadgeStyle::Ghost,
+                                "Tools"
+                            }
+                        }
                     }
                 }
             }
