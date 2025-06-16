@@ -4,7 +4,7 @@
 SELECT
     id,
     client_id,
-    client_secret,
+    decrypt_text(client_secret) as client_secret,
     provider,
     provider_url,
     created_at
@@ -16,7 +16,7 @@ ORDER BY provider, created_at DESC;
 SELECT
     id,
     client_id,
-    client_secret,
+    decrypt_text(client_secret) as client_secret,
     provider,
     provider_url,
     created_at
@@ -29,7 +29,7 @@ WHERE
 SELECT
     id,
     client_id,
-    client_secret,
+    decrypt_text(client_secret) as client_secret,
     provider,
     provider_url,
     created_at
@@ -47,7 +47,7 @@ INSERT INTO oauth_clients (
 )
 VALUES(
     :client_id,
-    :client_secret,
+    encrypt_text(:client_secret),
     :provider,
     :provider_url
 )
