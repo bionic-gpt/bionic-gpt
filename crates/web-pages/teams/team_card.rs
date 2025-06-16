@@ -24,7 +24,8 @@ pub fn TeamCard(props: TeamCardProps) -> Element {
             div {
                 class: "flex flex-row items-center",
                 Avatar {
-                    avatar_type: avatar::AvatarType::Team,
+                    avatar_size: AvatarSize::Medium,
+                    avatar_type: AvatarType::Team,
                     name: "{name}"
                 }
                 div {

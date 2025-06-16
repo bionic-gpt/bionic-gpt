@@ -33,7 +33,7 @@ pub fn page(team_id: i32, rbac: Rbac, oauth_clients: Vec<db::OauthClient>) -> St
             ),
 
             div {
-                class: "p-4 max-w-4xl w-full mx-auto",
+                class: "p-4 max-w-3xl w-full mx-auto",
                 h1 {
                     class: "text-xl font-semibold",
                     "OAuth Clients"

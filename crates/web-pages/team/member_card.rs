@@ -16,7 +16,7 @@ pub fn MemberCard(member: Member, rbac: Rbac) -> Element {
             div {
                 class: "flex flex-row items-center",
                 Avatar {
-                    avatar_type: avatar::AvatarType::User,
+                    avatar_size: AvatarSize::Medium,
                     name: "{name}"
                 }
                 div {

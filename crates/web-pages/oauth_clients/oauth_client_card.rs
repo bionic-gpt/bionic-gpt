@@ -19,12 +19,10 @@ pub fn OauthClientCard(props: OauthClientCardProps) -> Element {
             class: "p-3 mt-5 flex flex-row",
             div {
                 class: "flex flex-row flex-1 min-w-0",
-                div {
-                    class: "flex items-center justify-center w-12 h-12 rounded border border-base-300 bg-base-200",
-                    span {
-                        class: "text-lg font-bold text-base-content",
-                        "{props.oauth_client.provider.chars().next().unwrap_or('?').to_uppercase()}"
-                    }
+
+                Avatar {
+                    avatar_size: AvatarSize::Medium,
+                    name: "{props.oauth_client.provider}"
                 }
                 div {
                     class: "ml-4 text-sm flex flex-col justify-center flex-1 min-w-0",
