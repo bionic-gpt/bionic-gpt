@@ -46,7 +46,7 @@ pub fn TeamCard(props: TeamCardProps) -> Element {
                     Button {
                         button_type: ButtonType::Link,
                         target: "_top",
-                        href: crate::routes::team::Index { team_id: props.team.id }.to_string(),
+                        href: crate::routes::teams::Switch { team_id: props.team.id }.to_string(),
                         button_scheme: ButtonScheme::Info,
                         button_size: ButtonSize::Small,
                         "Switch to this Team"

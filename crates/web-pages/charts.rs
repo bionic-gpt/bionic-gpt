@@ -42,7 +42,7 @@ pub fn TokenUsageChart(data: Vec<DailyTokenUsage>) -> Element {
                             y: "{200 - (prompt_tokens * 180 / max_tokens)}",
                             width: "40",
                             height: "{prompt_tokens * 180 / max_tokens}",
-                            fill: "hsl(var(--p))",
+                            fill: "var(--color-primary)",
                             class: "hover:opacity-80 cursor-pointer"
                         }
                         // Stacked bar for completion tokens (top)
@@ -51,7 +51,7 @@ pub fn TokenUsageChart(data: Vec<DailyTokenUsage>) -> Element {
                             y: "{200 - ((prompt_tokens + completion_tokens) * 180 / max_tokens)}",
                             width: "40",
                             height: "{completion_tokens * 180 / max_tokens}",
-                            fill: "hsl(var(--su))",
+                            fill: "var(--color-success)",
                             class: "hover:opacity-80 cursor-pointer"
                         }
                         text {
@@ -87,7 +87,7 @@ pub fn ApiRequestChart(data: Vec<DailyApiRequests>) -> Element {
                             y: "{200 - (day_data.request_count * 180 / max_requests)}",
                             width: "40",
                             height: "{day_data.request_count * 180 / max_requests}",
-                            fill: "hsl(var(--p))",
+                            fill: "var(--color-primary)",
                             class: "hover:opacity-80 cursor-pointer"
                         }
                         text {
