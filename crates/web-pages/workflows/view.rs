@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use daisy_rsx::Badge;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 

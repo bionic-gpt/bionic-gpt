@@ -1,12 +1,13 @@
 pub mod authz;
 pub mod customer_keys;
-pub mod vector_search;
 pub mod licence;
+pub mod vector_search;
 
 use std::str::FromStr;
 
 pub use cornucopia_async::Params;
 pub use deadpool_postgres::{Pool, PoolError, Transaction};
+pub use licence::Licence;
 pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::AuditTrail;
 pub use queries::categories::Category;
@@ -34,7 +35,6 @@ pub use types::public::{
     ModelType, Permission, PromptType, Role, TokenUsageType, Visibility,
 };
 pub use vector_search::{get_related_context, RelatedContext};
-pub use licence::Licence;
 
 pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {
     let config = tokio_postgres::Config::from_str(database_url).unwrap();
