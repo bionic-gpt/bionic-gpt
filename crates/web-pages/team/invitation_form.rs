@@ -18,29 +18,35 @@ pub fn InvitationForm(submit_action: String) -> Element {
                     }
                     div {
                         class: "flex flex-col",
-                        Input {
-                            input_type: InputType::Email,
+                        Fieldset {
+                            legend: "Email",
+                            legend_class: "mt-4",
                             help_text: "The email address of the person you wish to invite",
-                            required: true,
-                            label: "Email",
-                            label_class: "mt-4",
-                            name: "email"
+                            Input {
+                                input_type: InputType::Email,
+                                required: true,
+                                name: "email"
+                            }
                         }
-                        Input {
-                            input_type: InputType::Text,
+                        Fieldset {
+                            legend: "First Name",
+                            legend_class: "mt-4",
                             help_text: "The first name of the person you wish to invite",
-                            required: true,
-                            label: "First Name",
-                            label_class: "mt-4",
-                            name: "first_name"
+                            Input {
+                                input_type: InputType::Text,
+                                required: true,
+                                name: "first_name"
+                            }
                         }
-                        Input {
-                            input_type: InputType::Text,
+                        Fieldset {
+                            legend: "Last Name",
+                            legend_class: "mt-4",
                             help_text: "The last name of the person you wish to invite",
-                            required: true,
-                            label: "Last Name",
-                            label_class: "mt-4",
-                            name: "last_name"
+                            Input {
+                                input_type: InputType::Text,
+                                required: true,
+                                name: "last_name"
+                            }
                         }
                         Alert {
                             alert_color: AlertColor::Success,

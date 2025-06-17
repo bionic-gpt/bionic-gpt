@@ -61,44 +61,52 @@ pub fn page(team_id: i32, rbac: Rbac, oauth_client: OauthClientForm) -> String {
                             }
                         }
 
-                        Input {
-                            input_type: InputType::Text,
-                            name: "provider",
-                            label: "Provider",
+                        Fieldset {
+                            legend: "Provider",
                             help_text: "The OAuth provider name (e.g., google, github, microsoft)",
-                            placeholder: "e.g., google, github, microsoft",
-                            value: "{oauth_client.provider}",
-                            required: true
+                            Input {
+                                input_type: InputType::Text,
+                                name: "provider",
+                                placeholder: "e.g., google, github, microsoft",
+                                value: "{oauth_client.provider}",
+                                required: true
+                            }
                         }
 
-                        Input {
-                            input_type: InputType::Text,
-                            name: "provider_url",
-                            label: "Provider URL",
+                        Fieldset {
+                            legend: "Provider URL",
                             help_text: "The OAuth provider authorization URL",
-                            placeholder: "https://accounts.google.com/o/oauth2/v2/auth",
-                            value: "{oauth_client.provider_url}",
-                            required: true
+                            Input {
+                                input_type: InputType::Text,
+                                name: "provider_url",
+                                placeholder: "https://accounts.google.com/o/oauth2/v2/auth",
+                                value: "{oauth_client.provider_url}",
+                                required: true
+                            }
                         }
 
-                        Input {
-                            input_type: InputType::Text,
-                            name: "client_id",
-                            label: "Client ID",
+                        Fieldset {
+                            legend: "Client ID",
                             help_text: "The client ID provided by your OAuth provider",
-                            placeholder: "Enter the OAuth client ID",
-                            value: "{oauth_client.client_id}",
-                            required: true
+                            Input {
+                                input_type: InputType::Text,
+                                name: "client_id",
+                                placeholder: "Enter the OAuth client ID",
+                                value: "{oauth_client.client_id}",
+                                required: true
+                            }
                         }
 
-                        Input {
-                            input_type: InputType::Password,
-                            name: "client_secret",
-                            label: "Client Secret",
+                        Fieldset {
+                            legend: "Client Secret",
                             help_text: "The client secret provided by your OAuth provider",
-                            placeholder: "Enter the OAuth client secret",
-                            value: "{oauth_client.client_secret}",
-                            required: true
+                            Input {
+                                input_type: InputType::Password,
+                                name: "client_secret",
+                                placeholder: "Enter the OAuth client secret",
+                                value: "{oauth_client.client_secret}",
+                                required: true
+                            }
                         }
 
                         div {

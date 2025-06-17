@@ -26,48 +26,54 @@ pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: 
                     div {
                         class: "flex flex-col ",
 
-                        Select {
-                            label: "User",
+                        Fieldset {
+                            legend: "User",
                             help_text: "For which user do you want to search",
-                            name: "user",
-                            option {
-                                value: "0",
-                                "Any"
-                            }
-                            for user in team_users {
+                            Select {
+                                name: "user",
                                 option {
-                                    value: "{user.id}",
-                                    "{user.email}"
+                                    value: "0",
+                                    "Any"
+                                }
+                                for user in team_users {
+                                    option {
+                                        value: "{user.id}",
+                                        "{user.email}"
+                                    }
                                 }
                             }
                         }
 
-                        Select {
-                            label: "Access Type",
+                        Fieldset {
+                            legend: "Access Type",
                             help_text: "Split between user interface and CLI usage.",
-                            name: "access_type",
-                            {super::AUDIT_ACCESS.iter().enumerate().map(|(index, access_type)| {
-                                rsx! {
-                                    option {
-                                        value: "{index + 1}",
-                                        {super::access_type_to_string(*access_type)}
+                            Select {
+                                name: "access_type",
+                                {super::AUDIT_ACCESS.iter().enumerate().map(|(index, access_type)| {
+                                    rsx! {
+                                        option {
+                                            value: "{index + 1}",
+                                            {super::access_type_to_string(*access_type)}
+                                        }
                                     }
-                                }
-                            })}
+                                })}
+                            }
                         }
 
-                        Select {
-                            label: "Action",
+                        Fieldset {
+                            legend: "Action",
                             help_text: "What action did the user perform",
-                            name: "action",
-                            {super::AUDIT_ACTION.iter().enumerate().map(|(index, action_type)| {
-                                rsx! {
-                                    option {
-                                        value: "{index + 1}",
-                                        {super::audit_action_to_string(*action_type)}
+                            Select {
+                                name: "action",
+                                {super::AUDIT_ACTION.iter().enumerate().map(|(index, action_type)| {
+                                    rsx! {
+                                        option {
+                                            value: "{index + 1}",
+                                            {super::audit_action_to_string(*action_type)}
+                                        }
                                     }
-                                }
-                            })}
+                                })}
+                            }
                         }
 
                         input {

@@ -17,13 +17,15 @@ pub fn Form(team_id: i32) -> Element {
                     }
                     div {
                         class: "flex flex-col",
-                        Input {
-                            input_type: InputType::Text,
-                            placeholder: "Your Search",
+                        Fieldset {
+                            legend: "Search",
                             help_text: "What do you want to look for?",
-                            required: true,
-                            label: "Search",
-                            name: "search"
+                            Input {
+                                input_type: InputType::Text,
+                                placeholder: "Your Search",
+                                required: true,
+                                name: "search"
+                            }
                         }
                     }
                     ModalAction {
