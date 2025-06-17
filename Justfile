@@ -60,7 +60,7 @@ test:
 # Look at CONTRIBUTING.md to see how integration testing works
 integration-testing:
     export WEB_DRIVER_URL=http://localhost:4444 && \
-    export APPLICATION_URL=ttp://bionic-gpt.bionic-gpt.svc.cluster.local:7703 && \
+    export APPLICATION_URL=http://bionic-gpt.bionic-gpt.svc.cluster.local:7903 && \
     cargo test --workspace --exclude rag-engine
 
 # Install Selenium in the bionic-gpt namespace
@@ -81,7 +81,7 @@ selenium:
         '    - containerPort: 4444' \
     | kubectl replace --force -f -
     kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-gpt --timeout=60s
-    kubectl port-forward pod/selenium-chrome 4444:4444 -n bionic-gpt
+    kubectl port-forward pod/selenium-chrome 4444:4444 7900:7900 -n bionic-gpt
 
 release-docker:
     #!/usr/bin/env bash

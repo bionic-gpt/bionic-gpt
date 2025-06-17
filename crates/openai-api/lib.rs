@@ -53,9 +53,9 @@ pub struct ChatCompletionGeneric<C> {
 
 #[derive(Deserialize, Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Usage {
-    pub prompt_tokens: u32,
-    pub completion_tokens: u32,
-    pub total_tokens: u32,
+    pub prompt_tokens: Option<u32>,
+    pub completion_tokens: Option<u32>,
+    pub total_tokens: Option<u32>,
 }
 
 #[derive(Deserialize, Clone, Debug, Eq, PartialEq)]
