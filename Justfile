@@ -60,8 +60,13 @@ test:
 # Look at CONTRIBUTING.md to see how integration testing works
 integration-testing:
     export WEB_DRIVER_URL=http://localhost:4444 && \
-    export APPLICATION_URL=http://bionic-gpt.bionic-gpt.svc.cluster.local:7903 && \
+    export APPLICATION_URL=http://nginx-development && \
     cargo test --workspace --exclude rag-engine
+
+# Similar to dev setup, but so that selenium works
+testing-setup:
+    cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://nginx-development
+    cargo run --bin k8s-operator -- operator
 
 # Install Selenium in the bionic-gpt namespace
 selenium:
