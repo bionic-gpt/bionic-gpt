@@ -62,14 +62,16 @@ INSERT INTO integrations (
     name,
     definition,
     integration_type,
-    visibility
+    visibility,
+    created_by
 )
 VALUES(
     :team_id,
     :name,
     :definition,
     :integration_type,
-    :visibility
+    :visibility,
+    current_app_user()
 )
 RETURNING id;
 

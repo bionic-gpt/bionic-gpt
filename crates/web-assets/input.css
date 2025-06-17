@@ -14,6 +14,7 @@
 @source inline("select select-border");
 @source inline("file-input");
 @source inline("dropdown dropdown-top dropdown-left");
+@source inline("fieldset fieldset-legend label");
 
 :root {
     /** Brand Identity **/
