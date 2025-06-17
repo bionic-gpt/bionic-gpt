@@ -75,26 +75,28 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
 
                         div {
                             class: "mt-4 flex flex-col",
-                            Select {
-                                name: "visibility",
-                                label: "Visibility",
+                            Fieldset {
+                                legend: "Visibility",
                                 help_text: "Who can use this integration",
-                                value: "{integration.visibility}",
-                                SelectOption {
-                                    value: "{crate::visibility_to_string(db::Visibility::Private)}",
-                                    selected_value: "{integration.visibility}",
-                                    {crate::visibility_to_string(db::Visibility::Private)}
-                                }
-                                SelectOption {
-                                    value: "{crate::visibility_to_string(db::Visibility::Team)}",
-                                    selected_value: "{integration.visibility}",
-                                    {crate::visibility_to_string(db::Visibility::Team)}
-                                }
-                                if rbac.can_make_assistant_public() {
+                                Select {
+                                    name: "visibility",
+                                    value: "{integration.visibility}",
                                     SelectOption {
-                                        value: "{crate::visibility_to_string(db::Visibility::Company)}",
+                                        value: "{crate::visibility_to_string(db::Visibility::Private)}",
                                         selected_value: "{integration.visibility}",
-                                        {crate::visibility_to_string(db::Visibility::Company)}
+                                        {crate::visibility_to_string(db::Visibility::Private)}
+                                    }
+                                    SelectOption {
+                                        value: "{crate::visibility_to_string(db::Visibility::Team)}",
+                                        selected_value: "{integration.visibility}",
+                                        {crate::visibility_to_string(db::Visibility::Team)}
+                                    }
+                                    if rbac.can_make_assistant_public() {
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(db::Visibility::Company)}",
+                                            selected_value: "{integration.visibility}",
+                                            {crate::visibility_to_string(db::Visibility::Company)}
+                                        }
                                     }
                                 }
                             }

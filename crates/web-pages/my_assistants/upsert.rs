@@ -114,29 +114,33 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                     class: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                     div {
                                         class: "flex flex-col",
-                                        Input {
-                                            input_type: InputType::Text,
-                                            name: "name",
-                                            label: "Assistant Name",
+                                        Fieldset {
+                                            legend: "Assistant Name",
                                             help_text: "Make the name memorable and imply its usage.",
-                                            value: prompt.name,
-                                            required: true
+                                            Input {
+                                                input_type: InputType::Text,
+                                                name: "name",
+                                                value: prompt.name,
+                                                required: true
+                                            }
                                         }
                                     }
 
                                     div {
                                         class: "flex flex-col",
-                                        Select {
-                                            name: "category_id",
-                                            label: "Category",
+                                        Fieldset {
+                                            legend: "Category",
                                             help_text: "Categories help users find assistants.",
-                                            value: "{prompt.category_id}",
-                                            required: true,
-                                            for category in &prompt.categories {
-                                                SelectOption {
-                                                    value: "{category.id}",
-                                                    selected_value: "{prompt.category_id}",
-                                                    "{category.name}"
+                                            Select {
+                                                name: "category_id",
+                                                value: "{prompt.category_id}",
+                                                required: true,
+                                                for category in &prompt.categories {
+                                                    SelectOption {
+                                                        value: "{category.id}",
+                                                        selected_value: "{prompt.category_id}",
+                                                        "{category.name}"
+                                                    }
                                                 }
                                             }
                                         }
@@ -144,26 +148,28 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
 
                                     div {
                                         class: "flex flex-col",
-                                        Select {
-                                            name: "visibility",
-                                            label: "Visibility",
+                                        Fieldset {
+                                            legend: "Visibility",
                                             help_text: "Set to private if you don't want to share this assistant.",
-                                            value: "{prompt.visibility}",
-                                            SelectOption {
-                                                value: "{crate::visibility_to_string(Visibility::Private)}",
-                                                selected_value: "{prompt.visibility}",
-                                                {crate::visibility_to_string(Visibility::Private)}
-                                            },
-                                            SelectOption {
-                                                value: "{crate::visibility_to_string(Visibility::Team)}",
-                                                selected_value: "{prompt.visibility}",
-                                                {crate::visibility_to_string(Visibility::Team)}
-                                            },
-                                            if rbac.can_make_assistant_public() {
+                                            Select {
+                                                name: "visibility",
+                                                value: "{prompt.visibility}",
                                                 SelectOption {
-                                                    value: "{crate::visibility_to_string(Visibility::Company)}",
+                                                    value: "{crate::visibility_to_string(Visibility::Private)}",
                                                     selected_value: "{prompt.visibility}",
-                                                    {crate::visibility_to_string(Visibility::Company)}
+                                                    {crate::visibility_to_string(Visibility::Private)}
+                                                },
+                                                SelectOption {
+                                                    value: "{crate::visibility_to_string(Visibility::Team)}",
+                                                    selected_value: "{prompt.visibility}",
+                                                    {crate::visibility_to_string(Visibility::Team)}
+                                                },
+                                                if rbac.can_make_assistant_public() {
+                                                    SelectOption {
+                                                        value: "{crate::visibility_to_string(Visibility::Company)}",
+                                                        selected_value: "{prompt.visibility}",
+                                                        {crate::visibility_to_string(Visibility::Company)}
+                                                    }
                                                 }
                                             }
                                         }
@@ -171,17 +177,19 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
 
                                     div {
                                         class: "flex flex-col",
-                                        Select {
-                                            name: "model_id",
-                                            label: "Model",
+                                        Fieldset {
+                                            legend: "Model",
                                             help_text: "The model will be used to answer any questions.",
-                                            value: "{prompt.model_id}",
-                                            required: true,
-                                            for model in &prompt.models {
-                                                SelectOption {
-                                                    value: "{model.id}",
-                                                    selected_value: "{prompt.model_id}",
-                                                    "{model.name}"
+                                            Select {
+                                                name: "model_id",
+                                                value: "{prompt.model_id}",
+                                                required: true,
+                                                for model in &prompt.models {
+                                                    SelectOption {
+                                                        value: "{model.id}",
+                                                        selected_value: "{prompt.model_id}",
+                                                        "{model.name}"
+                                                    }
                                                 }
                                             }
                                         }
@@ -256,54 +264,64 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                             class: "flex flex-col gap-6",
                             div {
                                 class: "flex flex-col",
-                                Input {
-                                    input_type: InputType::Text,
-                                    label: "Disclaimer",
+                                Fieldset {
+                                    legend: "Disclaimer",
                                     help_text: "This is displayed at the bottom of the chat.",
-                                    name: "disclaimer",
-                                    value: "{prompt.disclaimer}"
+                                    Input {
+                                        input_type: InputType::Text,
+                                        name: "disclaimer",
+                                        value: "{prompt.disclaimer}"
+                                    }
                                 }
                             }
                             div {
                                 class: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 1",
+                                    Fieldset {
+                                        legend: "Example 1",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example1",
-                                        value: "{example1}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example1",
+                                            value: "{example1}"
+                                        }
                                     }
                                 }
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 2",
+                                    Fieldset {
+                                        legend: "Example 2",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example2",
-                                        value: "{example2}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example2",
+                                            value: "{example2}"
+                                        }
                                     }
                                 }
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 3",
+                                    Fieldset {
+                                        legend: "Example 3",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example3",
-                                        value: "{example3}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example3",
+                                            value: "{example3}"
+                                        }
                                     }
                                 }
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 4",
+                                    Fieldset {
+                                        legend: "Example 4",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example4",
-                                        value: "{example4}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example4",
+                                            value: "{example4}"
+                                        }
                                     }
                                 }
                             }
@@ -325,47 +343,55 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
 
                                     div {
                                         class: "flex flex-col",
-                                        Input {
-                                            input_type: InputType::Number,
-                                            step: "0.1",
-                                            name: "temperature",
-                                            label: "Temperature",
+                                        Fieldset {
+                                            legend: "Temperature",
                                             help_text: "Value between 0 and 2. Higher values make output more random.",
-                                            value: "{prompt.temperature}",
-                                            required: true
+                                            Input {
+                                                input_type: InputType::Number,
+                                                step: "0.1",
+                                                name: "temperature",
+                                                value: "{prompt.temperature}",
+                                                required: true
+                                            }
                                         }
                                     }
                                     div {
                                         class: "flex flex-col",
-                                        Input {
-                                            input_type: InputType::Number,
-                                            name: "max_history_items",
-                                            label: "Max History Items",
+                                        Fieldset {
+                                            legend: "Max History Items",
                                             help_text: "How much conversation history to include. Set to zero for no history.",
-                                            value: "{prompt.max_history_items}",
-                                            required: true
+                                            Input {
+                                                input_type: InputType::Number,
+                                                name: "max_history_items",
+                                                value: "{prompt.max_history_items}",
+                                                required: true
+                                            }
                                         }
                                     }
                                     div {
                                         class: "flex flex-col",
-                                        Input {
-                                            input_type: InputType::Number,
-                                            name: "max_tokens",
-                                            label: "Max Tokens",
+                                        Fieldset {
+                                            legend: "Max Tokens",
                                             help_text: "Context space reserved for the LLM's reply.",
-                                            value: "{prompt.max_tokens}",
-                                            required: true
+                                            Input {
+                                                input_type: InputType::Number,
+                                                name: "max_tokens",
+                                                value: "{prompt.max_tokens}",
+                                                required: true
+                                            }
                                         }
                                     }
                                     div {
                                         class: "flex flex-col",
-                                        Input {
-                                            input_type: InputType::Number,
-                                            name: "max_chunks",
-                                            label: "Max Chunks",
+                                        Fieldset {
+                                            legend: "Max Chunks",
                                             help_text: "Maximum number of dataset chunks to include.",
-                                            value: "{prompt.max_chunks}",
-                                            required: true
+                                            Input {
+                                                input_type: InputType::Number,
+                                                name: "max_chunks",
+                                                value: "{prompt.max_chunks}",
+                                                required: true
+                                            }
                                         }
                                     }
                                 }

@@ -50,31 +50,35 @@ pub fn ConnectionModal(
             }.to_string(),
             ModalBody {
                 if integration_info.requires_api_key {
-                    Select {
-                        name: "api_connection_id",
-                        label: "Please select an API Key",
-                        label_class: "mt-4",
+                    Fieldset {
+                        legend: "Please select an API Key",
+                        legend_class: "mt-4",
                         help_text: "This is the API key setup in the integration screen",
-                        {integration_info.api_key_connections.iter().map(|connection| rsx!(
-                            SelectOption {
-                                value: "{connection.id}",
-                                "{connection.id}"
-                            }
-                        ))}
+                        Select {
+                            name: "api_connection_id",
+                            {integration_info.api_key_connections.iter().map(|connection| rsx!(
+                                SelectOption {
+                                    value: "{connection.id}",
+                                    "{connection.id}"
+                                }
+                            ))}
+                        }
                     }
                 }
                 if integration_info.requires_oauth2 {
-                    Select {
-                        name: "oauth2_connection_id",
-                        label: "Please select an OAuth2 connection",
-                        label_class: "mt-4",
+                    Fieldset {
+                        legend: "Please select an OAuth2 connection",
+                        legend_class: "mt-4",
                         help_text: "This is the OAuth2 key setup in the integration screen",
-                        {integration_info.oauth2_connections.iter().map(|connection| rsx!(
-                            SelectOption {
-                                value: "{connection.id}",
-                                "{connection.id}"
-                            }
-                        ))}
+                        Select {
+                            name: "oauth2_connection_id",
+                            {integration_info.oauth2_connections.iter().map(|connection| rsx!(
+                                SelectOption {
+                                    value: "{connection.id}",
+                                    "{connection.id}"
+                                }
+                            ))}
+                        }
                     }
                 }
                 ModalAction {

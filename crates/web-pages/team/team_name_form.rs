@@ -18,13 +18,15 @@ pub fn TeamNameForm(submit_action: String) -> Element {
                     }
                     div {
                         class: "flex flex-col",
-                        Input {
-                            input_type: InputType::Text,
-                            placeholder: "Team Name",
+                        Fieldset {
+                            legend: "Name",
                             help_text: "Give your new team a name",
-                            required: true,
-                            label: "Name",
-                            name: "name"
+                            Input {
+                                input_type: InputType::Text,
+                                placeholder: "Team Name",
+                                required: true,
+                                name: "name"
+                            }
                         }
                     }
                     ModalAction {

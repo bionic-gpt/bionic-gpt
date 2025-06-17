@@ -19,26 +19,30 @@ pub fn ApiKeyForm(team_id: i32, integration_id: i32, integration_name: String) -
                     }
                     div {
                         class: "flex flex-col",
-                        Input {
-                            input_type: InputType::Password,
-                            placeholder: "Enter your API key",
+                        Fieldset {
+                            legend: "API Key",
                             help_text: "This API key will be used to authenticate requests to the integration",
-                            required: true,
-                            label: "API Key",
-                            name: "api_key"
-                        }
-                        Select {
-                            name: "visibility",
-                            label: "Visibility",
-                            label_class: "mt-4",
-                            help_text: "Who can use this API key connection",
-                            SelectOption {
-                                value: "Private",
-                                "Private (Only you)"
+                            Input {
+                                input_type: InputType::Password,
+                                placeholder: "Enter your API key",
+                                required: true,
+                                name: "api_key"
                             }
-                            SelectOption {
-                                value: "Team",
-                                "Team (All team members)"
+                        }
+                        Fieldset {
+                            legend: "Visibility",
+                            legend_class: "mt-4",
+                            help_text: "Who can use this API key connection",
+                            Select {
+                                name: "visibility",
+                                SelectOption {
+                                    value: "Private",
+                                    "Private (Only you)"
+                                }
+                                SelectOption {
+                                    value: "Team",
+                                    "Team (All team members)"
+                                }
                             }
                         }
                     }

@@ -19,34 +19,40 @@ pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
                     div {
                         class: "flex flex-col",
 
-                        Input {
-                            label_class: "mt-4",
-                            input_type: InputType::Number,
-                            placeholder: "Api Key Id i.e. 1234",
+                        Fieldset {
+                            legend: "API Key ID",
+                            legend_class: "mt-4",
                             help_text: "We need the ID of the Api Key from the ID field",
-                            label: "API Key ID",
-                            required: true,
-                            name: "api_key_id"
+                            Input {
+                                input_type: InputType::Number,
+                                placeholder: "Api Key Id i.e. 1234",
+                                required: true,
+                                name: "api_key_id"
+                            }
                         }
 
-                        Input {
-                            label_class: "mt-4",
-                            input_type: InputType::Number,
-                            placeholder: "Tokens per Minute e.g. 1000",
+                        Fieldset {
+                            legend: "Tokens per Minute",
+                            legend_class: "mt-4",
                             help_text: "Tokens Per minute",
-                            label: "Tokens per Minute",
-                            required: true,
-                            name: "tpm_limit"
+                            Input {
+                                input_type: InputType::Number,
+                                placeholder: "Tokens per Minute e.g. 1000",
+                                required: true,
+                                name: "tpm_limit"
+                            }
                         }
 
-                        Input {
-                            label_class: "mt-4",
-                            input_type: InputType::Number,
-                            placeholder: "Requests per Minute e.g. 1000",
+                        Fieldset {
+                            legend: "Requests per Minute",
+                            legend_class: "mt-4",
                             help_text: "Requests Per minute",
-                            label: "Requests per Minute",
-                            required: true,
-                            name: "rpm_limit"
+                            Input {
+                                input_type: InputType::Number,
+                                placeholder: "Requests per Minute e.g. 1000",
+                                required: true,
+                                name: "rpm_limit"
+                            }
                         }
                     }
                     ModalAction {

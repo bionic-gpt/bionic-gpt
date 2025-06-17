@@ -72,77 +72,89 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                                 class: "grid grid-cols-1 md:grid-cols-2 gap-6",
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        name: "display_name",
-                                        label: "Display Name",
-                                        label_class: "mt-4",
+                                    Fieldset {
+                                        legend: "Display Name",
+                                        legend_class: "mt-4",
                                         help_text: "Make the name memorable and imply it's usage.",
-                                        value: form.display_name.clone(),
-                                        required: true
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "display_name",
+                                            value: form.display_name.clone(),
+                                            required: true
+                                        }
                                     }
                                 }
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label_class: "mt-4",
-                                        name: "name",
-                                        label: "Model Name",
+                                    Fieldset {
+                                        legend: "Model Name",
+                                        legend_class: "mt-4",
                                         help_text: "The model's id as used in the API. i.e. llama3-70b",
-                                        value: form.name.clone(),
-                                        required: true
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "name",
+                                            value: form.name.clone(),
+                                            required: true
+                                        }
                                     }
                                 }
                             }
                             div {
                                     class: "flex flex-col",
-                                TextArea {
-                                    class: "mt-3 w-full",
-                                    name: "description",
-                                    rows: "8",
-                                    label: "Description",
+                                Fieldset {
+                                    legend: "Description",
+                                    legend_class: "mt-4",
                                     help_text: "A brief summary about this model.",
-                                    label_class: "mt-4",
-                                    required: true,
-                                    "{form.description}"
+                                    TextArea {
+                                        class: "mt-3 w-full",
+                                        name: "description",
+                                        rows: "8",
+                                        required: true,
+                                        "{form.description}"
+                                    }
                                 }
                             }
                             div {
                                 class: "flex flex-col",
-                                Select {
-                                    name: "model_type",
-                                    label: "Is this model for LLM or Embeddings",
-                                    label_class: "mt-4",
+                                Fieldset {
+                                    legend: "Is this model for LLM or Embeddings",
+                                    legend_class: "mt-4",
                                     help_text: "Some models can do both, in which case enter it twice.",
-                                    value: form.model_type.clone(),
-                                    SelectOption { value: "LLM", selected_value: form.model_type.clone(), "Large Language Model" }
-                                    SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
-                                    SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
-                                    SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
+                                    Select {
+                                        name: "model_type",
+                                        value: form.model_type.clone(),
+                                        SelectOption { value: "LLM", selected_value: form.model_type.clone(), "Large Language Model" }
+                                        SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
+                                        SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
+                                        SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
+                                    }
                                 }
                             }
                             div {
                                 class: "flex flex-col",
-                                Input {
-                                    input_type: InputType::Text,
-                                    label_class: "mt-4",
-                                    name: "base_url",
-                                    label: "The Base URL of the model",
+                                Fieldset {
+                                    legend: "The Base URL of the model",
+                                    legend_class: "mt-4",
                                     help_text: "The URL location of the OpenAI compatible API",
-                                    value: form.base_url.clone(),
-                                    required: true
+                                    Input {
+                                        input_type: InputType::Text,
+                                        name: "base_url",
+                                        value: form.base_url.clone(),
+                                        required: true
+                                    }
                                 }
                             }
                             div {
                                 class: "flex flex-col",
-                                Input {
-                                    input_type: InputType::Text,
-                                    label_class: "mt-4",
-                                    name: "api_key",
-                                    label: "The API secret from your provider",
+                                Fieldset {
+                                    legend: "The API secret from your provider",
+                                    legend_class: "mt-4",
                                     help_text: "This will be given in the providers console",
-                                    value: form.api_key.clone()
+                                    Input {
+                                        input_type: InputType::Text,
+                                        name: "api_key",
+                                        value: form.api_key.clone()
+                                    }
                                 }
                             }
                         }
@@ -154,32 +166,38 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                         CardHeader { title: "Advanced Settings" }
                         CardBody {
                             class: "flex flex-col gap-6",
-                            Input {
-                                input_type: InputType::Number,
-                                label_class: "mt-4",
-                                name: "tpm_limit",
-                                label: "Set the maximum tokens per minute for each user.",
+                            Fieldset {
+                                legend: "Set the maximum tokens per minute for each user.",
+                                legend_class: "mt-4",
                                 help_text: "If users exceed this limit there access to the model will be limited.",
-                                value: "{form.tpm_limit}",
-                                required: true
+                                Input {
+                                    input_type: InputType::Number,
+                                    name: "tpm_limit",
+                                    value: "{form.tpm_limit}",
+                                    required: true
+                                }
                             }
-                            Input {
-                                input_type: InputType::Number,
-                                label_class: "mt-4",
-                                name: "rpm_limit",
-                                label: "Set the maximum requests per minute for each user.",
+                            Fieldset {
+                                legend: "Set the maximum requests per minute for each user.",
+                                legend_class: "mt-4",
                                 help_text: "If users exceed this limit there access to the model will be limited.",
-                                value: "{form.rpm_limit}",
-                                required: true
+                                Input {
+                                    input_type: InputType::Number,
+                                    name: "rpm_limit",
+                                    value: "{form.rpm_limit}",
+                                    required: true
+                                }
                             }
-                            Input {
-                                input_type: InputType::Number,
-                                label_class: "mt-4",
-                                name: "context_size",
-                                label: "Context Size",
+                            Fieldset {
+                                legend: "Context Size",
+                                legend_class: "mt-4",
                                 help_text: "How much data can be passed to the prompt",
-                                value: "{form.context_size_bytes}",
-                                required: true
+                                Input {
+                                    input_type: InputType::Number,
+                                    name: "context_size",
+                                    value: "{form.context_size_bytes}",
+                                    required: true
+                                }
                             }
                         }
                     }
@@ -227,53 +245,63 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                         CardHeader { title: "Examples & Disclaimer" }
                         CardBody {
                             class: "flex flex-col gap-6",
-                            Input {
-                                input_type: InputType::Text,
-                                label: "Disclaimer",
+                            Fieldset {
+                                legend: "Disclaimer",
                                 help_text: "This is displayed at the bottom of the chat.",
-                                name: "disclaimer",
-                                value: "{form.disclaimer}"
+                                Input {
+                                    input_type: InputType::Text,
+                                    name: "disclaimer",
+                                    value: "{form.disclaimer}"
+                                }
                             }
                             div {
                                 class: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 1",
+                                    Fieldset {
+                                        legend: "Example 1",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example1",
-                                        value: "{form.example1}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example1",
+                                            value: "{form.example1}"
+                                        }
                                     }
                                 }
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 2",
+                                    Fieldset {
+                                        legend: "Example 2",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example2",
-                                        value: "{form.example2}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example2",
+                                            value: "{form.example2}"
+                                        }
                                     }
                                 }
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 3",
+                                    Fieldset {
+                                        legend: "Example 3",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example3",
-                                        value: "{form.example3}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example3",
+                                            value: "{form.example3}"
+                                        }
                                     }
                                 }
                                 div {
                                     class: "flex flex-col",
-                                    Input {
-                                        input_type: InputType::Text,
-                                        label: "Example 4",
+                                    Fieldset {
+                                        legend: "Example 4",
                                         help_text: "Give the user an example prompt.",
-                                        name: "example4",
-                                        value: "{form.example4}"
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "example4",
+                                            value: "{form.example4}"
+                                        }
                                     }
                                 }
                             }
