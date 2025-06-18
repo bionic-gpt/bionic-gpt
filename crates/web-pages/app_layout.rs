@@ -131,7 +131,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     id: SideBar::Automations.to_string(),
                                     selected_item_id: props.selected_item.to_string(),
                                     href: super::routes::api_keys::Index { team_id: props.team_id },
-                                    icon: nav_audit_svg.name,
+                                    icon: nav_automations_svg.name,
                                     title: "Automations"
                                 }
                             }
