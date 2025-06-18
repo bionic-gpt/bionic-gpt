@@ -84,6 +84,15 @@ selenium:
         '    image: selenium/standalone-chrome' \
         '    ports:' \
         '    - containerPort: 4444' \
+        '    volumeMounts:' \
+        '    - name: dshm' \
+        '      mountPath: /dev/shm' \
+        '  # Mirrors --shm-size=2g from .devcontainer/docker-compose.yml and CI' \
+        '  volumes:' \
+        '  - name: dshm' \
+        '    emptyDir:' \
+        '      medium: Memory' \
+        '      sizeLimit: 2Gi' \
     | kubectl replace --force -f -
     kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-gpt --timeout=60s
     kubectl port-forward pod/selenium-chrome 4444:4444 7900:7900 -n bionic-gpt
