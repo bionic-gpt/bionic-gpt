@@ -48,7 +48,7 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
 
                 if !documents.is_empty() {
                     Card {
-                        class: "has-data-table",
+                        class: "mt-5 has-data-table",
                         CardHeader {
                             title: "Documents"
                         }
