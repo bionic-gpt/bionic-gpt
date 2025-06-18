@@ -17,7 +17,18 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
             rbac: rbac,
             title: "{dataset.name} / Documents",
             header: rsx!(
-                h3 { "{dataset.name} / Documents" }
+                Breadcrumb {
+                    items: vec![
+                        BreadcrumbItem {
+                            text: dataset.name,
+                            href: None
+                        },
+                        BreadcrumbItem {
+                            text: "Documents".into(),
+                            href: None
+                        }
+                    ]
+                }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "upload-form",

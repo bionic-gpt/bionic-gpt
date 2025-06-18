@@ -24,7 +24,14 @@ pub fn page(
             rbac: rbac.clone(),
             title: "Datasets",
             header: rsx!(
-                h3 { "Datasets" }
+                Breadcrumb {
+                    items: vec![
+                        BreadcrumbItem {
+                            text: "Dataset".into(),
+                            href: None
+                        }
+                    ]
+                }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "new-dataset-form",
