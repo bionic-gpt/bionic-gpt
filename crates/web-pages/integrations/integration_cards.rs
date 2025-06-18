@@ -15,13 +15,6 @@ pub struct IntegrationSummary {
 #[component]
 pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> Element {
     rsx!(
-        h1 {
-            class: "text-xl font-semibold",
-            "Integrations"
-        }
-        p {
-            "Connect external tools to retrieve data, take actions, and more."
-        }
         for integration in integrations.iter() {
             {
                 let has_oauth2 = integration.openapi.get_oauth2_config().is_some();

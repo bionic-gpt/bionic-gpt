@@ -2,6 +2,7 @@
 use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
 use crate::ConfirmModal;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -32,13 +33,14 @@ pub fn page(
                 }
             ),
 
-            if datasets.is_empty() {
-                BlankSlate {
-                    heading: "Looks like you don't have any datasets yet",
-                    visual: nav_ccsds_data_svg.name,
-                    description: "Datasets allow you to organize your documents like folders"
-                }
-            } else {
+            SectionIntroduction {
+                header: "Datasets".to_string(),
+                subtitle: "Organize your documents into datasets for better management and retrieval.".to_string(),
+                is_empty: datasets.is_empty(),
+                empty_text: "No datasets created yet. Datasets allow you to organize your documents like folders.".to_string(),
+            }
+
+            if !datasets.is_empty() {
                 Card {
                     class: "has-data-table",
                     CardHeader {

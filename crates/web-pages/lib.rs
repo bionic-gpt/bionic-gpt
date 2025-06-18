@@ -24,6 +24,8 @@ pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;
 pub mod rate_limits;
+pub mod section_introduction;
+pub use section_introduction::SectionIntroduction;
 pub mod snackbar;
 pub mod team;
 pub mod teams;

@@ -2,6 +2,7 @@
 use super::model_card::ModelCard;
 use crate::app_layout::{Layout, SideBar};
 use crate::ConfirmModal;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -33,25 +34,13 @@ pub fn page(
 
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
-                h1 {
-                    class: "text-xl font-semibold mb-4",
-                    "Models"
+                SectionIntroduction {
+                    header: "Models".to_string(),
+                    subtitle: "Configure and manage AI models for your assistants and applications.".to_string(),
+                    is_empty: models_with_capabilities.is_empty(),
+                    empty_text: "No models configured yet. Add your first model to start building assistants.".to_string(),
                 }
-                if models_with_capabilities.is_empty() {
-                    div {
-                        class: "text-center py-12",
-                        p {
-                            class: "text-gray-500 mb-4",
-                            "You haven't added any models yet."
-                        }
-                        Button {
-                            button_type: ButtonType::Link,
-                            href: crate::routes::models::New { team_id }.to_string(),
-                            button_scheme: ButtonScheme::Primary,
-                            "Create Your First Model"
-                        }
-                    }
-                } else {
+                if !models_with_capabilities.is_empty() {
                     div {
                         class: "space-y-2",
                         for (model, fc, vis, tool) in &models_with_capabilities {
