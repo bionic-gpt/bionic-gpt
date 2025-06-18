@@ -9,6 +9,7 @@ pub struct IntegrationSummary {
     pub id: i32,
     pub api_key_count: usize,
     pub oauth2_count: usize,
+    pub oauth_client_configured: bool,
 }
 
 #[component]
@@ -80,11 +81,19 @@ pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> 
                         if has_oauth2 {
                             div {
                                 class: "flex flex-col justify-center ml-4",
-                                a {
-                                    class: "btn btn-secondary btn-sm ",
-                                    "data-turbo": "false",
-                                    href: crate::routes::integrations::Connect { team_id, integration_id: integration.id }.to_string(),
-                                    "Connect"
+                                if integration.oauth_client_configured {
+                                    a {
+                                        class: "btn btn-secondary btn-sm ",
+                                        "data-turbo": "false",
+                                        href: crate::routes::integrations::Connect { team_id, integration_id: integration.id }.to_string(),
+                                        "Connect"
+                                    }
+                                } else {
+                                    Button {
+                                        button_scheme: ButtonScheme::Secondary,
+                                        popover_target: format!("missing-oauth-client-{}", integration.id),
+                                        "Connect"
+                                    }
                                 }
                             }
                         }
@@ -112,6 +121,31 @@ pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> 
                     integration_name: integration.openapi.get_title().to_string()
                 }
             }
+            if integration.openapi.get_oauth2_config().is_some() && !integration.oauth_client_configured {
+                MissingOauthClientModal {
+                    trigger_id: format!("missing-oauth-client-{}", integration.id)
+                }
+            }
         }
     )
+}
+
+#[component]
+fn MissingOauthClientModal(trigger_id: String) -> Element {
+    rsx! {
+        Modal {
+            trigger_id: &trigger_id,
+            ModalBody {
+                h3 { class: "font-bold text-lg mb-4", "OAuth2 Client Not Configured" }
+                div {
+                    class: "flex flex-col",
+                    Alert {
+                        alert_color: AlertColor::Warn,
+                        class: "mb-3",
+                        p { "Your sys admin needs to setup an Oauth2 Client" }
+                    }
+                }
+            }
+        }
+    }
 }

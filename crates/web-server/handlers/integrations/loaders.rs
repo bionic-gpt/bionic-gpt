@@ -39,21 +39,35 @@ pub async fn loader(
                     0
                 };
 
-                let oauth2_count = if bionic_openapi.has_oauth2_security() {
-                    queries::connections::get_oauth2_connections_for_integration()
-                        .bind(&transaction, &integration.id, &team_id)
-                        .all()
-                        .await?
-                        .len()
-                } else {
-                    0
-                };
+                let (oauth2_count, oauth_client_configured) =
+                    if bionic_openapi.has_oauth2_security() {
+                        let count = queries::connections::get_oauth2_connections_for_integration()
+                            .bind(&transaction, &integration.id, &team_id)
+                            .all()
+                            .await?
+                            .len();
+
+                        let has_client = if let Some(config) = bionic_openapi.get_oauth2_config() {
+                            !queries::oauth_clients::oauth_client_by_provider_url()
+                                .bind(&transaction, &config.authorization_url)
+                                .all()
+                                .await?
+                                .is_empty()
+                        } else {
+                            false
+                        };
+
+                        (count, has_client)
+                    } else {
+                        (0, false)
+                    };
 
                 integrations.push(IntegrationSummary {
                     openapi: bionic_openapi,
                     id: integration.id,
                     api_key_count,
                     oauth2_count,
+                    oauth_client_configured,
                 });
             }
         } else {
