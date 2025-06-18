@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::{
     app_layout::{Layout, SideBar},
-    hero::Hero,
+    SectionIntroduction,
 };
 use assets::files::*;
 use daisy_rsx::*;
@@ -29,20 +29,14 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
             super::form::Form {
                 team_id: team_id
             }
-            if buckets.1 == 0 {
-                BlankSlate {
-                    heading: "Looks like you haven't had any conversations yet",
-                    visual: nav_history_svg.name,
-                    description: "When you do a summary will appear on this page"
-                }
-            } else {
+            SectionIntroduction {
+                header: "Chat History".to_string(),
+                subtitle: "Easily reference past conversations to recall information, follow up on topics, or continue where you left off.".to_string(),
+                is_empty: buckets.1 == 0,
+                empty_text: "You haven't had any conversations yet. When you do, a summary will appear on this page.".to_string(),
+            }
 
-                Hero {
-                    heading: "Chat History".to_string(),
-                    subheading: "Easily reference past conversations to recall information,
-                        follow up on topics, or continue where you left off.".to_string()
-                }
-
+            if buckets.1 > 0 {
                 super::history_table::HistoryTable {
                     team_id,
                     buckets: buckets.0

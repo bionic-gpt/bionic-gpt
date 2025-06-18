@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
-use assets::files::nav_history_svg;
+use crate::SectionIntroduction;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::History;
@@ -23,13 +23,14 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
                     "Search Chats"
                 }
             ),
-            if buckets.1 == 0 {
-                BlankSlate {
-                    heading: "We didn't find any results for your search",
-                    visual: nav_history_svg.name,
-                    description: "Please try agian with a different query"
-                }
-            } else {
+            SectionIntroduction {
+                header: "Search Results".to_string(),
+                subtitle: "Browse through your chat history search results.".to_string(),
+                is_empty: buckets.1 == 0,
+                empty_text: "We didn't find any results for your search. Please try again with a different query.".to_string(),
+            }
+
+            if buckets.1 > 0 {
                 super::history_table::HistoryTable {
                     team_id,
                     buckets: buckets.0

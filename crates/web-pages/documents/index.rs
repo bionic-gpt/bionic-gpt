@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::ConfirmModal;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -25,22 +26,14 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                 }
             ),
 
-            if documents.is_empty() {
-                BlankSlate {
-                    heading: "Looks like this dataset doesn't have any documents yet",
-                    visual: nav_ccsds_data_svg.name,
-                    description: "Here you can upload documents in a range of formats",
-                    primary_action_drawer: (
-                        "Add a Document".to_string(),
-                        "upload-form".to_string()
-                    )
-                }
+            SectionIntroduction {
+                header: "Documents".to_string(),
+                subtitle: "Upload and manage documents in various formats for this dataset.".to_string(),
+                is_empty: documents.is_empty(),
+                empty_text: "This dataset doesn't have any documents yet. Upload your first document to get started.".to_string(),
+            }
 
-                // The form to create an invitation
-                super::upload::Upload {
-                    upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
-                }
-            } else {
+            if !documents.is_empty() {
                 Card {
                     class: "has-data-table",
                     CardHeader {
@@ -90,11 +83,11 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                         ],
                     }
                 }
+            }
 
-                // The form to create an invitation
-                super::upload::Upload {
-                    upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
-                }
+            // The form to create an invitation - always available
+            super::upload::Upload {
+                upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
             }
         }
     };

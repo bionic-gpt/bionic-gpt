@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::ConfirmModal;
-use assets::files::empty_api_keys_svg;
+use crate::SectionIntroduction;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{Dataset, DocumentPipeline};
@@ -14,43 +14,31 @@ pub fn page(
     datasets: Vec<Dataset>,
 ) -> String {
     let page = rsx! {
-        if pipelines.is_empty() {
-            Layout {
-                section_class: "p-4",
-                selected_item: SideBar::DocumentPipelines,
-                team_id: team_id,
-                rbac: rbac,
-                title: "Document Pipelines",
-                header: rsx!(
-                    h3 { "Document Pipelines" }
-                ),
-                BlankSlate {
-                    heading: "Automate document upload with our bulk upload API",
-                    visual: empty_api_keys_svg.name,
-                    description: "The upload API connects your documents to datasets for processing by our pipeline",
-                    primary_action_drawer: Some(("New Document Pipeline".to_string(), "create-api-key".to_string()))
-                }
-
-                super::key_drawer::KeyDrawer {
-                    datasets: datasets.clone(),
-                    team_id: team_id,
-                }
-            }
-        } else {
-            Layout {
-                section_class: "p-4",
-                selected_item: SideBar::DocumentPipelines,
-                team_id: team_id,
-                rbac: rbac,
-                title: "Document Pipelines",
-                header: rsx!(
-                    h3 { "Document Pipelines" }
+        Layout {
+            section_class: "p-4",
+            selected_item: SideBar::DocumentPipelines,
+            team_id: team_id,
+            rbac: rbac,
+            title: "Document Pipelines",
+            header: rsx!(
+                h3 { "Document Pipelines" }
+                if !pipelines.is_empty() {
                     Button {
                         popover_target: "create-api-key",
                         button_scheme: ButtonScheme::Primary,
                         "New Pipeline"
                     }
-                ),
+                }
+            ),
+
+            SectionIntroduction {
+                header: "Document Pipelines".to_string(),
+                subtitle: "Automate document upload with our bulk upload API. The upload API connects your documents to datasets for processing by our pipeline.".to_string(),
+                is_empty: pipelines.is_empty(),
+                empty_text: "No document pipelines configured yet. Create your first pipeline to automate document processing.".to_string(),
+            }
+
+            if !pipelines.is_empty() {
                 Card {
                     class: "has-data-table",
                     CardHeader {
@@ -117,11 +105,11 @@ pub fn page(
                         ],
                     }
                 }
+            }
 
-                super::key_drawer::KeyDrawer {
-                    datasets: datasets.clone(),
-                    team_id: team_id,
-                }
+            super::key_drawer::KeyDrawer {
+                datasets: datasets.clone(),
+                team_id: team_id,
             }
         }
     };

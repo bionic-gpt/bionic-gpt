@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::routes;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -34,20 +35,14 @@ pub fn page(team_id: i32, rbac: Rbac, oauth_clients: Vec<db::OauthClient>) -> St
 
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
-                h1 {
-                    class: "text-xl font-semibold",
-                    "OAuth Clients"
-                }
-                p {
-                    "Configure OAuth client credentials for external service integrations."
+                SectionIntroduction {
+                    header: "OAuth Clients".to_string(),
+                    subtitle: "Configure OAuth client credentials for external service integrations.".to_string(),
+                    is_empty: oauth_clients.is_empty(),
+                    empty_text: "No OAuth clients configured yet. Add your first OAuth client to enable external service integrations.".to_string(),
                 }
 
-                if oauth_clients.is_empty() {
-                    div {
-                        class: "text-center py-8",
-                        p { class: "text-base-content/70", "No OAuth clients configured yet." }
-                    }
-                } else {
+                if !oauth_clients.is_empty() {
                     for oauth_client in oauth_clients {
                         super::oauth_client_card::OauthClientCard {
                             oauth_client: oauth_client,
