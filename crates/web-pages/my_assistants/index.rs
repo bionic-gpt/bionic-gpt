@@ -1,9 +1,9 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
-use crate::hero::Hero;
 use crate::my_assistants::assistant_card::MyAssistantCard;
 use crate::routes;
 use crate::ConfirmModal;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -47,40 +47,24 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
                 }
             ),
 
-            Hero {
-                heading: "Your Assistants".to_string(),
-                subheading: "Discover and create custom chat bots that combine instructions,
-                    extra knowledge, and any combination of skills.".to_string()
-            }
-
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
-                h1 {
-                    class: "text-xl font-semibold mb-4",
-                    "My Assistants"
+
+
+                SectionIntroduction {
+                    header: "Your Assistants".to_string(),
+                    subtitle: "Discover and create custom chat bots that combine instructions,
+                        extra knowledge, and any combination of skills.".to_string(),
+                    is_empty: prompts.is_empty(),
+                    empty_text: "You haven't created any assistants yet.".to_string(),
                 }
-                if prompts.is_empty() {
-                    div {
-                        class: "text-center py-12",
-                        p {
-                            class: "text-gray-500 mb-4",
-                            "You haven't created any assistants yet."
-                        }
-                        Button {
-                            button_type: ButtonType::Link,
-                            href: routes::prompts::New{team_id}.to_string(),
-                            button_scheme: ButtonScheme::Primary,
-                            "Create Your First Assistant"
-                        }
-                    }
-                } else {
-                    div {
-                        class: "space-y-2",
+
+                div {
+                    class: "space-y-2",
                         for prompt in &prompts {
-                            MyAssistantCard {
-                                team_id,
-                                prompt: prompt.clone()
-                            }
+                        MyAssistantCard {
+                            team_id,
+                            prompt: prompt.clone()
                         }
                     }
                 }

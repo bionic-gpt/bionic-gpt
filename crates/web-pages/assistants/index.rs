@@ -1,9 +1,9 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::assistants::prompt_card::PromptCard;
-use crate::hero::Hero;
 use crate::routes;
 use crate::ConfirmModal;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::{Button, ButtonScheme, ButtonType, TabContainer, TabPanel};
 use db::authz::Rbac;
@@ -46,15 +46,18 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                 }
             ),
 
-            Hero {
-                heading: "Assistants".to_string(),
-                subheading: "Discover and create custom chat bots that combine instructions,
-                    extra knowledge, and any combination of skills.".to_string()
-            }
+            div {
+                class: "mx-auto max-w-3xl overflow-x-clip px-4",
 
-            if ! prompts.is_empty() {
-                div {
-                    class: "mx-auto max-w-3xl overflow-x-clip px-4",
+                SectionIntroduction {
+                    header: "Assistants".to_string(),
+                    subtitle: "Discover and create custom chat bots that combine instructions,
+                    extra knowledge, and any combination of skills.".to_string(),
+                    is_empty: prompts.is_empty(),
+                    empty_text: "You haven't created any assistants yet.".to_string(),
+                }
+
+                if ! prompts.is_empty() {
                     TabContainer {
                         class: "w-full",
                         if prompts.len() < 20 {
