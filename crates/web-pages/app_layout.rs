@@ -50,7 +50,7 @@ pub struct LayoutProps {
 pub fn Layout(props: LayoutProps) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
-    let show_integrations_menu = std::env::var("WORKFLOWS_FEATURE").is_ok();
+    let show_automations_menu = std::env::var("AUTOMATIONS_FEATURE").is_ok();
 
     rsx! {
         super::base_layout::BaseLayout {
@@ -126,7 +126,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 icon: nav_api_keys_svg.name,
                                 title: "API Keys"
                             }
-                            if show_integrations_menu {
+                            if show_automations_menu {
                                 NavItem {
                                     id: SideBar::Automations.to_string(),
                                     selected_item_id: props.selected_item.to_string(),
@@ -140,7 +140,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                 selected_item_id: props.selected_item.to_string(),
                                 href: super::routes::document_pipelines::Index { team_id: props.team_id },
                                 icon: nav_ccsds_data_svg.name,
-                                title: "Data Pipelines"
+                                title: "Document Pipelines"
                             }
                         )
                     }

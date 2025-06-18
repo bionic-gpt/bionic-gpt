@@ -33,7 +33,7 @@ dump-schema:
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
     CHUNKING_ENGINE=http://localhost:8000 \
-    WORKFLOWS_FEATURE=1 \
+    AUTOMATIONS_FEATURE=1 \
     LICENCE='{"user_count":2, "end_date": "2028-12-31T00:00:00Z", "signature":""}' \
     mold -run cargo watch --workdir /workspace/ \
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
