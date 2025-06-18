@@ -129,7 +129,9 @@ pub async fn create_action(
                     client_secret: oauth_client_form.client_secret,
                     provider: oauth_client_form.provider,
                     provider_url: oauth_client_form.provider_url,
-                    error: Some("An OAuth client with this provider URL already exists".to_string()),
+                    error: Some(
+                        "An OAuth client with this provider URL already exists".to_string(),
+                    ),
                 };
                 let html = web_pages::oauth_clients::upsert::page(team_id, rbac, oauth_client);
                 return Ok(Html(html).into_response());
