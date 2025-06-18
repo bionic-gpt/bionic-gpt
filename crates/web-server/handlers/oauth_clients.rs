@@ -117,6 +117,24 @@ pub async fn create_action(
 
     match oauth_client_form.validate() {
         Ok(_) => {
+            // Check if an OAuth client already exists for this provider URL
+            let existing = queries::oauth_clients::oauth_client_by_provider_url()
+                .bind(&transaction, &oauth_client_form.provider_url)
+                .all()
+                .await?;
+
+            if !existing.is_empty() {
+                let oauth_client = web_pages::oauth_clients::upsert::OauthClientForm {
+                    client_id: oauth_client_form.client_id,
+                    client_secret: oauth_client_form.client_secret,
+                    provider: oauth_client_form.provider,
+                    provider_url: oauth_client_form.provider_url,
+                    error: Some("An OAuth client with this provider URL already exists".to_string()),
+                };
+                let html = web_pages::oauth_clients::upsert::page(team_id, rbac, oauth_client);
+                return Ok(Html(html).into_response());
+            }
+
             queries::oauth_clients::insert_oauth_client()
                 .bind(
                     &transaction,
