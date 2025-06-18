@@ -5,7 +5,9 @@ use crate::routes;
 use crate::ConfirmModal;
 use crate::SectionIntroduction;
 use assets::files::*;
-use daisy_rsx::{Button, ButtonScheme, ButtonType, TabContainer, TabPanel};
+use daisy_rsx::{
+    Breadcrumb, BreadcrumbItem, Button, ButtonScheme, ButtonType, TabContainer, TabPanel,
+};
 use db::authz::Rbac;
 
 use db::{queries::prompts::Prompt, Category};
@@ -24,11 +26,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
             rbac: rbac.clone(),
             title: "Assistants",
             header: rsx!(
-                h3 {
-                    span {
-                        class: "hidden lg:block",
-                        "Assistants"
-                    }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Assistants".into(),
+                        href: None
+                    }]
                 }
                 div {
                     a {

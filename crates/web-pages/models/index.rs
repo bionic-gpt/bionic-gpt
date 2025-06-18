@@ -22,7 +22,12 @@ pub fn page(
             rbac: rbac,
             title: "Models",
             header: rsx!(
-                h3 { "Models" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Models".into(),
+                        href: None
+                    }]
+                }
                 Button {
                     button_type: ButtonType::Link,
                     prefix_image_src: "{button_plus_svg.name}",
