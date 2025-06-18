@@ -59,7 +59,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
 
                 if ! prompts.is_empty() {
                     TabContainer {
-                        class: "w-full",
+                        class: "mt-5 w-full",
                         if prompts.len() < 20 {
                             // Create an All tab showing everything
                             AssistantTab {
