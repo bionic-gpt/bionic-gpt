@@ -5,6 +5,7 @@ pub mod api_keys;
 pub mod app_layout;
 pub mod assistants;
 pub mod audit_trail;
+pub mod automations;
 pub mod base_layout;
 pub mod charts;
 pub mod confirm_modal;
@@ -24,10 +25,11 @@ pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;
 pub mod rate_limits;
+pub mod section_introduction;
+pub use section_introduction::SectionIntroduction;
 pub mod snackbar;
 pub mod team;
 pub mod teams;
-pub mod workflows;
 
 pub fn render(page: Element) -> String {
     let html = dioxus_ssr::render_element(page);

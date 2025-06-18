@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::ConfirmModal;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -16,7 +17,18 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
             rbac: rbac,
             title: "{dataset.name} / Documents",
             header: rsx!(
-                h3 { "{dataset.name} / Documents" }
+                Breadcrumb {
+                    items: vec![
+                        BreadcrumbItem {
+                            text: dataset.name,
+                            href: None
+                        },
+                        BreadcrumbItem {
+                            text: "Documents".into(),
+                            href: None
+                        }
+                    ]
+                }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "upload-form",
@@ -24,74 +36,69 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                     "Add Document"
                 }
             ),
+            div {
+                class: "p-4 max-w-3xl w-full mx-auto",
 
-            if documents.is_empty() {
-                BlankSlate {
-                    heading: "Looks like this dataset doesn't have any documents yet",
-                    visual: nav_ccsds_data_svg.name,
-                    description: "Here you can upload documents in a range of formats",
-                    primary_action_drawer: (
-                        "Add a Document".to_string(),
-                        "upload-form".to_string()
-                    )
+                SectionIntroduction {
+                    header: "Documents".to_string(),
+                    subtitle: "Upload and manage documents in various formats for this dataset.".to_string(),
+                    is_empty: documents.is_empty(),
+                    empty_text: "This dataset doesn't have any documents yet. Upload your first document to get started.".to_string(),
                 }
 
-                // The form to create an invitation
-                super::upload::Upload {
-                    upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
-                }
-            } else {
-                Card {
-                    class: "has-data-table",
-                    CardHeader {
-                        title: "Documents"
-                    }
-                    CardBody {
-                        table {
-                            id: "documents",
-                            class: "table table-sm",
-                            thead {
-                                th { "Name" }
-                                th {
-                                    class: "max-sm:hidden",
-                                    "No. Chunks"
+                if !documents.is_empty() {
+                    Card {
+                        class: "mt-5 has-data-table",
+                        CardHeader {
+                            title: "Documents"
+                        }
+                        CardBody {
+                            table {
+                                id: "documents",
+                                class: "table table-sm",
+                                thead {
+                                    th { "Name" }
+                                    th {
+                                        class: "max-sm:hidden",
+                                        "No. Chunks"
+                                    }
+                                    th { "Content Size (Bytes)" }
+                                    th { "Status" }
+                                    th {
+                                        class: "text-right",
+                                        "Action"
+                                    }
                                 }
-                                th { "Content Size (Bytes)" }
-                                th { "Status" }
-                                th {
-                                    class: "text-right",
-                                    "Action"
-                                }
-                            }
-                            tbody {
-                                for doc in &documents {
-                                        Row {
-                                            document: doc.clone(),
-                                            team_id: team_id,
-                                            first_time: true
-                                        }
+                                tbody {
+                                    for doc in &documents {
+                                            Row {
+                                                document: doc.clone(),
+                                                team_id: team_id,
+                                                first_time: true
+                                            }
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                for doc in documents {
-                    ConfirmModal {
-                        action: crate::routes::documents::Delete{team_id, document_id: doc.id}.to_string(),
-                        trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, team_id),
-                        submit_label: "Delete Document".to_string(),
-                        heading: "Delete this document?".to_string(),
-                        warning: "Are you sure you want to delete this document?".to_string(),
-                        hidden_fields: vec![
-                            ("team_id".into(), team_id.to_string()),
-                            ("document_id".into(), doc.id.to_string()),
-                            ("dataset_id".into(), doc.dataset_id.to_string()),
-                        ],
+                    for doc in documents {
+                        ConfirmModal {
+                            action: crate::routes::documents::Delete{team_id, document_id: doc.id}.to_string(),
+                            trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, team_id),
+                            submit_label: "Delete Document".to_string(),
+                            heading: "Delete this document?".to_string(),
+                            warning: "Are you sure you want to delete this document?".to_string(),
+                            hidden_fields: vec![
+                                ("team_id".into(), team_id.to_string()),
+                                ("document_id".into(), doc.id.to_string()),
+                                ("dataset_id".into(), doc.dataset_id.to_string()),
+                            ],
+                        }
                     }
                 }
 
-                // The form to create an invitation
+                // The form to create an invitation - always available
                 super::upload::Upload {
                     upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
                 }

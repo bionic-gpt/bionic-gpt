@@ -2,6 +2,7 @@
 use super::integration_cards::IntegrationSummary;
 use crate::app_layout::{Layout, SideBar};
 use crate::routes;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -35,9 +36,17 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> 
 
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
-                super::integration_cards::IntegrationCards {
-                    integrations,
-                    team_id: team_id
+                SectionIntroduction {
+                    header: "Integrations".to_string(),
+                    subtitle: "Connect external tools to retrieve data, take actions, and more.".to_string(),
+                    is_empty: integrations.is_empty(),
+                    empty_text: "No integrations have been configured yet. Add your first integration to get started.".to_string(),
+                }
+                if !integrations.is_empty() {
+                    super::integration_cards::IntegrationCards {
+                        integrations,
+                        team_id: team_id
+                    }
                 }
             }
         }

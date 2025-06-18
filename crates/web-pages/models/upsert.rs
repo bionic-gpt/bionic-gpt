@@ -40,7 +40,21 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
             rbac: rbac,
             title: "Models",
             header: rsx!(
-                h3 { if form.id.is_some() { "Edit Model" } else { "Create Model" } }
+                Breadcrumb {
+                    items: vec![
+                        BreadcrumbItem {
+                            text: "Models".into(),
+                            href: Some(crate::routes::models::Index{team_id}.to_string())
+                        },
+                        BreadcrumbItem {
+                            text: if form.id.is_some() { "Edit Model".into() } else { "New Model".into() },
+                            href: None
+                        }
+                    ]
+                }
+                h3 {
+                    if form.id.is_some() { "Edit Model" } else { "Create Model" }
+                }
             ),
             div {
                 class: "p-4 max-w-4xl w-full mx-auto",
