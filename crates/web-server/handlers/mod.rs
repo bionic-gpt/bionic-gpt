@@ -2,6 +2,7 @@ pub mod api_keys;
 pub mod api_pipeline;
 pub mod assistants;
 pub mod audit_trail;
+pub mod automations;
 pub mod console;
 pub mod datasets;
 pub mod documents;

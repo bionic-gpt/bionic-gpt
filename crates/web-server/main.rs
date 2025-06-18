@@ -83,6 +83,7 @@ async fn main() {
         .typed_get(handlers::oidc_endpoint::index)
         .merge(handlers::api_pipeline::routes(&config))
         .merge(handlers::api_keys::routes())
+        .merge(handlers::automations::routes())
         .merge(handlers::audit_trail::routes())
         .merge(handlers::console::routes())
         .merge(handlers::datasets::routes())

@@ -1,6 +1,17 @@
 // All the routes of the application are mapped here and are typesafe
 // https://docs.rs/axum-extra/latest/axum_extra/routing/trait.TypedPath.html
 
+pub mod automations {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automations")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+}
+
 pub mod history {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
