@@ -27,7 +27,6 @@ pub mod rate_limits;
 pub mod snackbar;
 pub mod team;
 pub mod teams;
-pub mod workflows;
 
 pub fn render(page: Element) -> String {
     let html = dioxus_ssr::render_element(page);

@@ -100,7 +100,6 @@ async fn main() {
         .merge(handlers::rate_limits::routes())
         .merge(handlers::team::routes())
         .merge(handlers::teams::routes())
-        .merge(handlers::workflows::routes())
         .layer(Extension(config.clone()))
         .layer(Extension(pool.clone()));
 

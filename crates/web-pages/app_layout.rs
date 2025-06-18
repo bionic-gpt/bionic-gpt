@@ -12,6 +12,7 @@ pub enum SideBar {
     None,
     ApiKeys,
     AuditTrail,
+    Automations,
     Console,
     Datasets,
     DocumentPipelines,
@@ -27,7 +28,6 @@ pub enum SideBar {
     Switch,
     Team,
     Security,
-    Workflows,
 }
 
 impl std::fmt::Display for SideBar {
@@ -128,11 +128,11 @@ pub fn Layout(props: LayoutProps) -> Element {
                             }
                             if show_integrations_menu {
                                 NavItem {
-                                    id: SideBar::Workflows.to_string(),
+                                    id: SideBar::Automations.to_string(),
                                     selected_item_id: props.selected_item.to_string(),
-                                    href: super::routes::workflows::Index { team_id: props.team_id },
+                                    href: super::routes::api_keys::Index { team_id: props.team_id },
                                     icon: nav_audit_svg.name,
-                                    title: "Workflows"
+                                    title: "Automations"
                                 }
                             }
                             NavItem {

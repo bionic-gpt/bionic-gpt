@@ -114,6 +114,13 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
                 "Assistant"
             }
         ),
+        DBPromptType::Automation => rsx!(
+            Badge {
+                class: "mr-2 truncate",
+                badge_color: BadgeColor::Accent,
+                "Assistant"
+            }
+        ),
     }
 }
 
