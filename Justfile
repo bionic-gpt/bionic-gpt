@@ -25,6 +25,11 @@ expose-chunking-engine:
 get-config:
     k3d kubeconfig write k3s-default --kubeconfig-merge-default
 
+# Good for feeding the schema into the AI.
+dump-schema:
+    pg_dump --schema-only --no-owner --no-privileges --file=schema.sql $DATABASE_URL
+
+
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
     CHUNKING_ENGINE=http://localhost:8000 \
