@@ -5,6 +5,7 @@ pub mod api_keys;
 pub mod app_layout;
 pub mod assistants;
 pub mod audit_trail;
+pub mod automations;
 pub mod base_layout;
 pub mod charts;
 pub mod confirm_modal;
