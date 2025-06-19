@@ -27,7 +27,12 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
             rbac: rbac.clone(),
             title: "Integrations",
             header: rsx!(
-                h3 { "Integrations" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Integrations".into(),
+                        href: None
+                    }]
+                }
             ),
 
             Card {

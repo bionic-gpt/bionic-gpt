@@ -24,7 +24,12 @@ pub fn page(
             rbac: rbac.clone(),
             title: "Team Members",
             header: rsx!(
-                h3 { "Team Members" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Team Members".into(),
+                        href: None
+                    }]
+                }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "create-invite-form",

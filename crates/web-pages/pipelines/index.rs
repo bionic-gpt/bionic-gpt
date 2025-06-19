@@ -21,7 +21,12 @@ pub fn page(
             rbac: rbac,
             title: "Document Pipelines",
             header: rsx!(
-                h3 { "Document Pipelines" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Document Pipelines".into(),
+                        href: None
+                    }]
+                }
                 Button {
                     popover_target: "create-api-key",
                     button_scheme: ButtonScheme::Primary,

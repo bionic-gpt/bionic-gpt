@@ -23,7 +23,12 @@ pub fn page(
             rbac: rbac,
             title: "Your Teams",
             header: rsx!(
-                h3 { "Your Teams" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Your Teams".into(),
+                        href: None
+                    }]
+                }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "create-new-team",

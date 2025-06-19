@@ -26,7 +26,12 @@ pub fn page(
             rbac: rbac,
             title: "API Keys",
             header: rsx! {
-                h3 { "API Keys" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "API Keys".into(),
+                        href: None
+                    }]
+                }
                 div {
                     class: "flex gap-4",
                     Button {
