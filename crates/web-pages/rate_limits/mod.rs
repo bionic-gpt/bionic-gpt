@@ -1,5 +1,5 @@
 pub mod form;
-pub mod index;
+pub mod page;
 pub mod rate_table;
 
 pub use rate_table::RateTable;

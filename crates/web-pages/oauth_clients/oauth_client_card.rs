@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::confirm_modal::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
 use daisy_rsx::*;
 use db::authz::Rbac;

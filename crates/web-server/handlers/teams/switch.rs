@@ -31,7 +31,7 @@ pub async fn switch(
         .all()
         .await?;
 
-    let html = teams::index::page(rbac, team.id, teams, invites, current_user_email);
+    let html = teams::page::page(rbac, team.id, teams, invites, current_user_email);
 
     Ok(Html(html))
 }

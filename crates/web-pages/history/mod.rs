@@ -1,6 +1,6 @@
 pub mod form;
 pub mod history_table;
-pub mod index;
+pub mod page;
 pub mod results;
 use db::History;
 use std::collections::HashMap;

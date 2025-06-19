@@ -49,7 +49,7 @@ pub async fn loader(
         .one()
         .await?;
 
-    let html = web_pages::documents::index::page(rbac, team_id, dataset, documents);
+    let html = web_pages::documents::page::page(rbac, team_id, dataset, documents);
 
     Ok(Html(html))
 }

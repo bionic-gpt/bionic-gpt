@@ -50,7 +50,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = pipelines::index::page(team_id, rbac, pipelines, datasets);
+    let html = pipelines::page::page(team_id, rbac, pipelines, datasets);
 
     Ok(Html(html))
 }

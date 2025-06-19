@@ -27,7 +27,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = history::index::page(rbac, team_id, history);
+    let html = history::page::page(rbac, team_id, history);
 
     Ok(Html(html))
 }

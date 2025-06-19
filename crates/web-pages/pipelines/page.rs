@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use daisy_rsx::*;
 use db::authz::Rbac;

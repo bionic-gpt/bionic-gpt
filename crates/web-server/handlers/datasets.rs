@@ -48,7 +48,7 @@ pub async fn loader(
 
     let can_set_visibility_to_company = rbac.is_sys_admin;
 
-    let html = web_pages::datasets::index::page(
+    let html = web_pages::datasets::page::page(
         rbac,
         team_id,
         datasets,

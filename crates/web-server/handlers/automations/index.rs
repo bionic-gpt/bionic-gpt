@@ -20,7 +20,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = automations::index::page(team_id, rbac, prompts);
+    let html = automations::page::page(team_id, rbac, prompts);
 
     Ok(Html(html))
 }

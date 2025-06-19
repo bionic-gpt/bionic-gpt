@@ -75,7 +75,7 @@ pub async fn loader(
         }
     }
 
-    let html = web_pages::integrations::index::page(team_id, rbac, integrations);
+    let html = web_pages::integrations::page::page(team_id, rbac, integrations);
 
     Ok(Html(html))
 }

@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use super::model_card::ModelCard;
 use crate::app_layout::{Layout, SideBar};
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;

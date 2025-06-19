@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 
 pub fn status(document: Document, team_id: i32, first_time: bool) -> String {
     let row = rsx! {
-        super::index::Row {
+        super::page::Row {
             team_id,
             document,
             first_time

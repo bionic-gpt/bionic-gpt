@@ -60,7 +60,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = api_keys::index::page(
+    let html = api_keys::page::page(
         rbac,
         team_id,
         api_keys,

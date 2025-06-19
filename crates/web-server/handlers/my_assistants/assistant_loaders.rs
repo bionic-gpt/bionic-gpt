@@ -19,7 +19,7 @@ pub async fn my_assistants(
         .all()
         .await?;
 
-    let html = my_assistants::index::page(team_id, rbac, prompts);
+    let html = my_assistants::page::page(team_id, rbac, prompts);
 
     Ok(Html(html))
 }

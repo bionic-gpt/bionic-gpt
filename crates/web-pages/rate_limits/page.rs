@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::charts::{ApiRequestChartCard, TokenUsageChartCard};
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, Model, RateLimit};

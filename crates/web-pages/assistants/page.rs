@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use crate::assistants::prompt_card::PromptCard;
 use crate::routes;
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::{
