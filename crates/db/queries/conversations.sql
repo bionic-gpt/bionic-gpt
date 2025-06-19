@@ -57,3 +57,12 @@ WHERE
     c.id = :conversation_id
 AND
     c.user_id = current_app_user();
+--: ConversationContextSize()
+--! conversation_context_size : ConversationContextSize
+SELECT m.context_size
+FROM conversations c
+JOIN prompts p ON c.prompt_id = p.id
+JOIN models m ON p.model_id = m.id
+WHERE c.id = :conversation_id
+  AND c.user_id = current_app_user();
+
