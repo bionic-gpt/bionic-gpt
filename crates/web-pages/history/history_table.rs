@@ -9,7 +9,7 @@ pub fn HistoryTable(team_id: i32, buckets: Vec<super::HistoryBucket>) -> Element
         for bucket in buckets {
             if ! bucket.histories.is_empty() {
                 Card {
-                    class: "has-data-table mb-6",
+                    class: "has-data-table mt-6",
                     CardHeader {
                         title: "{bucket.name}"
                     }
