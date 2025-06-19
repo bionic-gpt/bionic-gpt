@@ -56,7 +56,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = rate_limits::index::page(
+    let html = rate_limits::page::page(
         rbac,
         team_id,
         rate_limits,

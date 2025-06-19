@@ -39,7 +39,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = web_pages::oauth_clients::index::page(team_id, rbac, oauth_clients);
+    let html = web_pages::oauth_clients::page::page(team_id, rbac, oauth_clients);
 
     Ok(Html(html))
 }

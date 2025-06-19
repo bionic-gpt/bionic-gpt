@@ -57,7 +57,7 @@ pub async fn index(
     // Get available tools from the integrations crate
     let available_tools = integrations::get_tools(ToolScope::UserSelectable);
 
-    let html = console::index::new_conversation(
+    let html = console::page::new_conversation(
         team_id,
         prompts,
         prompt,

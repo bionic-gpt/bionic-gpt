@@ -43,7 +43,7 @@ pub async fn loader(
         .all()
         .await?;
 
-    let html = web_pages::audit_trail::index::page(team_users, audits, team_id, rbac, true);
+    let html = web_pages::audit_trail::page::page(team_users, audits, team_id, rbac, true);
 
     Ok(Html(html))
 }
@@ -120,7 +120,7 @@ pub async fn filter_action(
         .all()
         .await?;
 
-    let html = web_pages::audit_trail::index::page(team_users, audits, team_id, rbac, false);
+    let html = web_pages::audit_trail::page::page(team_users, audits, team_id, rbac, false);
 
     Ok(Html(html))
 }

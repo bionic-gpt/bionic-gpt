@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use crate::my_assistants::assistant_card::MyAssistantCard;
 use crate::routes;
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
@@ -17,23 +17,32 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Automations",
+            title: "My Assistants",
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "Automations".into(),
+                            text: "Assistants".into(),
+                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
+                        },
+                        BreadcrumbItem {
+                            text: "My Assistants".into(),
                             href: None
                         }
                     ]
                 }
                 div {
+                    a {
+                        href: crate::routes::prompts::Index{team_id}.to_string(),
+                        class: "btn btn-ghost btn-sm font-bold! mr-4",
+                        "Explore Assistants"
+                    }
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::automations::New{team_id}.to_string(),
+                        href: routes::prompts::New{team_id}.to_string(),
                         button_scheme: ButtonScheme::Primary,
-                        "New Automation"
+                        "New Assistant"
                     }
                 }
             ),
@@ -43,10 +52,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
 
 
                 SectionIntroduction {
-                    header: "Your Automations".to_string(),
-                    subtitle: "Automate essential business processes and improve productivity.".to_string(),
+                    header: "Your Assistants".to_string(),
+                    subtitle: "Discover and create custom chat bots that combine instructions,
+                        extra knowledge, and any combination of skills.".to_string(),
                     is_empty: prompts.is_empty(),
-                    empty_text: "You haven't created any automations yet.".to_string(),
+                    empty_text: "You haven't created any assistants yet.".to_string(),
                 }
 
                 div {
@@ -63,11 +73,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
 
             for item in &prompts {
                 ConfirmModal {
-                    action: crate::routes::automations::Delete{team_id, id: item.id}.to_string(),
+                    action: crate::routes::prompts::Delete{team_id, id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                     submit_label: "Delete".to_string(),
-                    heading: "Delete this Automation?".to_string(),
-                    warning: "Are you sure you want to delete this Automation?".to_string(),
+                    heading: "Delete this Assistant?".to_string(),
+                    warning: "Are you sure you want to delete this Assistant?".to_string(),
                     hidden_fields: vec![
                         ("team_id".into(), team_id.to_string()),
                         ("id".into(), item.id.to_string()),

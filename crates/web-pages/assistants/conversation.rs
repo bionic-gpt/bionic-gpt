@@ -3,7 +3,7 @@
 use super::assistant_console::AssistantConsole;
 use crate::app_layout::SideBar;
 use crate::console::{ChatWithChunks, PendingChatState};
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;

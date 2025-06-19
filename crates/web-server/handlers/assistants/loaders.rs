@@ -30,7 +30,7 @@ pub async fn index_loader(
         .all()
         .await?;
 
-    let html = assistants::index::page(team_id, rbac, prompts, categories);
+    let html = assistants::page::page(team_id, rbac, prompts, categories);
 
     Ok(Html(html))
 }

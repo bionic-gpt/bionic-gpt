@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::assistants::visibility::VisLabel;
 use crate::routes;
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use assets::files::menu_delete_svg;
 use daisy_rsx::*;
 use db::ApiKeyConnection;

@@ -1,5 +1,5 @@
 pub mod filter;
-pub mod index;
+pub mod page;
 pub mod table;
 
 use db::{AuditAccessType, AuditAction};

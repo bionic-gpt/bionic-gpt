@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use super::member_card::{InvitePendingCard, MemberCard};
 use crate::app_layout::{Layout, SideBar};
-use crate::ConfirmModal;
+use crate::components::confirm_modal::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;

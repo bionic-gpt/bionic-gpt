@@ -66,7 +66,7 @@ pub async fn loader(
         models_with_capabilities.push((model, has_function_calling, has_vision, has_tool_use));
     }
 
-    let html = web_pages::models::index::page(team_id, rbac, models_with_capabilities);
+    let html = web_pages::models::page::page(team_id, rbac, models_with_capabilities);
 
     Ok(Html(html))
 }
