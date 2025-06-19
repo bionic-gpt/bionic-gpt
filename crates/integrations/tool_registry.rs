@@ -41,10 +41,12 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
             title: "Tools to retrieve documents and read their contents.".into(),
             definitions: vec![
                 tools::list_documents::get_tool_definition(),
+                tools::read_document::get_tool_definition(),
                 tools::read_document_section::get_tool_definition(),
             ],
             definitions_json: serde_json::to_string_pretty(&vec![
                 tools::list_documents::get_tool_definition(),
+                tools::read_document::get_tool_definition(),
                 tools::read_document_section::get_tool_definition(),
             ])
             .expect("Failed to serialize attachment tools to JSON"),
