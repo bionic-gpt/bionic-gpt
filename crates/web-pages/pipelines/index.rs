@@ -22,12 +22,10 @@ pub fn page(
             title: "Document Pipelines",
             header: rsx!(
                 h3 { "Document Pipelines" }
-                if !pipelines.is_empty() {
-                    Button {
-                        popover_target: "create-api-key",
-                        button_scheme: ButtonScheme::Primary,
-                        "New Pipeline"
-                    }
+                Button {
+                    popover_target: "create-api-key",
+                    button_scheme: ButtonScheme::Primary,
+                    "New Pipeline"
                 }
             ),
 
