@@ -98,6 +98,11 @@ pub async fn get_tools(
             conversation_id,
         ),
     ));
+    tools.push(Arc::new(tools::read_document::ReadDocumentTool::new(
+        pool.clone(),
+        sub.clone(),
+        conversation_id,
+    )));
 
     // Get external integration tools
     debug!("Getting external integration tools");
