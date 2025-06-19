@@ -4,31 +4,8 @@ use axum::response::Html;
 use db::authz;
 use db::Pool;
 use db::{queries, ModelType};
+use web_pages::routes::automations::{Edit, New};
 use web_pages::visibility_to_string;
-use web_pages::{
-    automations,
-    routes::automations::{Edit, Index, New},
-};
-
-pub async fn index_loader(
-    Index { team_id }: Index,
-    current_user: Jwt,
-    Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Automation)
-        .all()
-        .await?;
-
-    let html = automations::index::page(team_id, rbac, prompts);
-
-    Ok(Html(html))
-}
 
 pub async fn new_automation_loader(
     New { team_id }: New,
