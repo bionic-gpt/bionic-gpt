@@ -2,7 +2,7 @@ use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use db::Pool;
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
-use rag_engine::unstructured::{document_to_chunks, MetaData, Unstructured};
+use rag_engine::unstructured::{document_to_chunks, Unstructured};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -61,7 +61,7 @@ fn accumulate_sections(
 
     while end_index < sections.len() {
         let section = &sections[end_index];
-        let section_tokens = llm_proxy::token_count::token_count_from_string(&section.text);
+        let section_tokens = openai_api::token_count::token_count_from_string(&section.text);
         if tokens_so_far + section_tokens > max_tokens {
             break;
         }
@@ -144,6 +144,7 @@ impl ToolInterface for ReadDocumentTool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rag_engine::unstructured::MetaData;
 
     fn dummy(text: &str) -> Unstructured {
         Unstructured {
@@ -167,7 +168,7 @@ mod tests {
     #[test]
     fn test_accumulate_sections_limit() {
         let sections = vec![dummy("one"), dummy("two three"), dummy("four five six")];
-        let tokens = llm_proxy::token_count::token_count_from_string("one two three");
+        let tokens = openai_api::token_count::token_count_from_string("one two three");
         let (text, count, has_more) = accumulate_sections(&sections, 0, tokens);
         assert_eq!(count, 2);
         assert!(has_more);

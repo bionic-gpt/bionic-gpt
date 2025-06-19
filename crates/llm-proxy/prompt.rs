@@ -1,5 +1,4 @@
 use crate::errors::CustomError;
-use crate::token_count::{token_count, token_count_from_string};
 use db::queries::{chats_chunks, prompt_integrations, prompts};
 use db::{RelatedContext, Transaction};
 use integrations::create_tools_from_integrations;
@@ -173,7 +172,8 @@ pub async fn generate_prompt(
     while size_so_far < size_allowed {
         // Add some relevant context
         if let Some(rel_context) = related_context.pop() {
-            let size_rel_context = token_count_from_string(&rel_context.chunk_text) as usize;
+            let size_rel_context =
+                openai_api::token_count_from_string(&rel_context.chunk_text) as usize;
 
             if size_so_far + size_rel_context < size_allowed {
                 context_so_far.push_str(&rel_context.chunk_text);
@@ -212,7 +212,7 @@ fn add_message(
     size_so_far: usize,
     size_allowed: usize,
 ) -> usize {
-    let size: usize = token_count(vec![message_to_add.clone()]) as usize;
+    let size: usize = openai_api::token_count(vec![message_to_add.clone()]) as usize;
 
     if (size + size_so_far) < size_allowed {
         messages.push(message_to_add);

@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+pub mod token_count;
+
+pub use token_count::{token_count, token_count_from_string};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BionicChatCompletionRequest {

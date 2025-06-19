@@ -9,3 +9,7 @@ path = "lib.rs"
 [dependencies]
 serde_json = { version = "1" }
 serde = { version = "1", features = ["derive"] }
+
+
+# Tiktoken counts our token usage for prompts
+tiktoken-rs = { version = "0.7.0" }

@@ -178,7 +178,7 @@ async fn save_results(
     let tool_calls_json = serde_json::to_string(&tool_calls).ok();
 
     // Calculate completion tokens from the response
-    let completion_tokens = super::token_count::token_count_from_string(snapshot);
+    let completion_tokens = openai_api::token_count_from_string(snapshot);
 
     tracing::debug!(
         "save_results: Executing chat query with chat_id: {}",
@@ -357,7 +357,7 @@ async fn create_request(
     )
     .await?;
 
-    let size = super::token_count::token_count(messages.clone());
+    let size = openai_api::token_count(messages.clone());
 
     // Track prompt tokens in the new token_usage_metrics table
     queries::token_usage_metrics::create_token_usage_metric()

@@ -388,7 +388,7 @@ async fn test_tool_call_id_linking() {
 
 #[tokio::test]
 async fn test_history_truncation_keeps_latest() {
-    use crate::token_count::token_count;
+    use openai_api::token_count::token_count;
 
     fn mk_msg(content: &str) -> ChatCompletionMessage {
         ChatCompletionMessage {

@@ -201,7 +201,7 @@ async fn log_initial_chat(
     completion_json: &str,
     completion: &BionicChatCompletionRequest,
 ) -> Result<(), CustomError> {
-    let size = super::token_count::token_count(completion.messages.clone());
+    let size = openai_api::token_count(completion.messages.clone());
 
     // Create the API chat entry with new structure
     queries::api_keys::new_api_chat()
@@ -236,7 +236,7 @@ async fn log_end_of_chat(
     snapshot: &str,
     api_key: &str,
 ) -> Result<(), CustomError> {
-    let completion_tokens = super::token_count::token_count_from_string(snapshot);
+    let completion_tokens = openai_api::token_count_from_string(snapshot);
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
 

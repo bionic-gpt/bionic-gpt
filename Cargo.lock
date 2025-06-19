@@ -502,9 +502,9 @@ dependencies = [
 
 [[package]]
 name = "bstr"
-version = "1.11.1"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "786a307d683a5bf92e6fd5fd69a7eb613751668d1d8d67d802846dfe367c62c8"
+checksum = "234113d19d0d7d613b40e86fb654acf958910802bcceab913a4f9e7cda03b1a4"
 dependencies = [
  "memchr",
  "regex-automata 0.4.9",
@@ -1381,12 +1381,13 @@ dependencies = [
 
 [[package]]
 name = "fancy-regex"
-version = "0.12.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7493d4c459da9f84325ad297371a6b2b8a162800873a22e3b6b6512e61d18c05"
+checksum = "531e46835a22af56d1e3b66f04844bed63158bc094a628bec1d321d9b4c44bf2"
 dependencies = [
  "bit-set",
- "regex",
+ "regex-automata 0.4.9",
+ "regex-syntax 0.8.5",
 ]
 
 [[package]]
@@ -2554,7 +2555,6 @@ dependencies = [
  "reqwest-eventsource",
  "serde",
  "serde_json",
- "tiktoken-rs",
  "time",
  "tokio",
  "tokio-stream",
@@ -2946,6 +2946,7 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+ "tiktoken-rs",
 ]
 
 [[package]]
@@ -4515,16 +4516,16 @@ dependencies = [
 
 [[package]]
 name = "tiktoken-rs"
-version = "0.5.9"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c314e7ce51440f9e8f5a497394682a57b7c323d0f4d0a6b1b13c429056e0e234"
+checksum = "25563eeba904d770acf527e8b370fe9a5547bacd20ff84a0b6c3bc41288e5625"
 dependencies = [
  "anyhow",
- "base64 0.21.7",
+ "base64 0.22.1",
  "bstr",
- "fancy-regex 0.12.0",
+ "fancy-regex 0.13.0",
  "lazy_static",
- "parking_lot",
+ "regex",
  "rustc-hash",
 ]
 
