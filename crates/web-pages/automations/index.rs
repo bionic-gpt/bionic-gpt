@@ -31,7 +31,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::prompts::New{team_id}.to_string(),
+                        href: routes::automations::New{team_id}.to_string(),
                         button_scheme: ButtonScheme::Primary,
                         "New Automation"
                     }
@@ -43,7 +43,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
 
 
                 SectionIntroduction {
-                    header: "Your Assistants".to_string(),
+                    header: "Your Automations".to_string(),
                     subtitle: "Automate essential business processes and improve productivity.".to_string(),
                     is_empty: prompts.is_empty(),
                     empty_text: "You haven't created any automations yet.".to_string(),
@@ -63,7 +63,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
 
             for item in &prompts {
                 ConfirmModal {
-                    action: crate::routes::prompts::Delete{team_id, id: item.id}.to_string(),
+                    action: crate::routes::automations::Delete{team_id, id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                     submit_label: "Delete".to_string(),
                     heading: "Delete this Automation?".to_string(),

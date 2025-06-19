@@ -10,6 +10,32 @@ pub mod automations {
     pub struct Index {
         pub team_id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automations/new")]
+    pub struct New {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automations/edit/{prompt_id}")]
+    pub struct Edit {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automations/upsert")]
+    pub struct Upsert {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automations/delete/{id}")]
+    pub struct Delete {
+        pub team_id: i32,
+        pub id: i32,
+    }
 }
 
 pub mod history {
