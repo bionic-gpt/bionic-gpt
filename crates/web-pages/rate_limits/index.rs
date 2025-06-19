@@ -23,7 +23,12 @@ pub fn page(
             rbac: rbac,
             title: "Rate Limits",
             header: rsx! {
-                h3 { "Rate Limits" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Rate Limits".into(),
+                        href: None
+                    }]
+                }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "create-limit",

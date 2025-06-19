@@ -41,7 +41,12 @@ pub fn page(
             enabled_tools,
             available_tools,
             header: rsx!(
-                h3 { "{prompt.name}" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: prompt.name.clone(),
+                        href: None
+                    }]
+                }
                 if ! chat_history.is_empty() {
                     div {
                         class: "flex flex-row",

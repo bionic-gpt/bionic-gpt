@@ -16,7 +16,12 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
             rbac: rbac,
             title: "Chat History",
             header: rsx!(
-                h3 { "Chat History" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Chat History".into(),
+                        href: None
+                    }]
+                }
                 Button {
                     popover_target: "search-history",
                     button_scheme: ButtonScheme::Primary,

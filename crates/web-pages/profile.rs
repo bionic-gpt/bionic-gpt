@@ -23,7 +23,12 @@ fn Page(
             team_id: team_id,
             rbac: rbac,
             header: rsx!(
-                h3 { "Your Profile" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Your Profile".into(),
+                        href: None
+                    }]
+                }
             ),
             BlankSlate {
                 heading: "Welcome, {users_name_or_email}",

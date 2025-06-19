@@ -24,7 +24,12 @@ pub fn page(
             rbac: rbac,
             title: "Audit Trail",
             header: rsx! {
-                h3 { "Audit Trail" }
+                Breadcrumb {
+                    items: vec![BreadcrumbItem {
+                        text: "Audit Trail".into(),
+                        href: None
+                    }]
+                }
                 Button {
                     popover_target: super::filter::DRAW_TRIGGER,
                     button_scheme: ButtonScheme::Neutral,
