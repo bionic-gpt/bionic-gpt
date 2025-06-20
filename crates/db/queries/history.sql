@@ -39,7 +39,7 @@ WITH summary AS (
 )
 SELECT
     c.id,
-    c.prompt_id,
+    summary.prompt_id,
     CASE
         WHEN LENGTH(decrypt_text(summary.content)) > 150 THEN
             LEFT(decrypt_text(summary.content), 150) || '...'
@@ -58,7 +58,7 @@ ON
     c.id = summary.conversation_id
 JOIN
     prompts p ON summary.prompt_id = p.id
-AND
+WHERE
     c.user_id = current_app_user()
 AND
     -- Make sure the user has access to this conversation

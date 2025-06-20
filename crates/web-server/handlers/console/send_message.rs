@@ -106,7 +106,7 @@ pub async fn send_message(
             conversation_id
         } else {
             conversations::create_conversation()
-                .bind(&transaction, &team_id, &None)
+                .bind(&transaction, &team_id)
                 .one()
                 .await?
         };

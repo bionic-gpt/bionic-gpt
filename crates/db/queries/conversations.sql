@@ -16,11 +16,11 @@ AND
 ORDER BY created_at DESC
 LIMIT 1;
 
---! create_conversation(prompt_id?)
+--! create_conversation
 INSERT INTO conversations 
-    (user_id, team_id, prompt_id)
+    (user_id, team_id)
 VALUES
-    (current_app_user(), :team_id, :prompt_id)
+    (current_app_user(), :team_id)
 RETURNING id;
 
 --! get_conversation_from_chat : Conversation
@@ -57,11 +57,20 @@ WHERE
     c.id = :conversation_id
 AND
     c.user_id = current_app_user();
+
 --: ConversationContextSize()
 --! conversation_context_size : ConversationContextSize
-SELECT m.context_size
-FROM conversations c
-JOIN prompts p ON c.prompt_id = p.id
+SELECT
+    m.context_size
+FROM
+    conversations c
+JOIN chats ch ON c.id = ch.conversation_id
+    AND ch.id = (
+        SELECT MAX(id)
+        FROM chats
+        WHERE conversation_id = :conversation_id
+    )
+JOIN prompts p ON ch.prompt_id = p.id
 JOIN models m ON p.model_id = m.id
 WHERE c.id = :conversation_id
   AND c.user_id = current_app_user();

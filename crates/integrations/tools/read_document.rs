@@ -70,6 +70,8 @@ fn accumulate_sections(
         end_index += 1;
     }
 
+    tracing::debug!("Accumulated {} tokens", tokens_so_far);
+
     (
         text_parts.join("\n\n"),
         end_index - start_index,
@@ -110,6 +112,8 @@ impl ToolInterface for ReadDocumentTool {
             })?
             .context_size;
 
+        let max_tokens = context_size / 2;
+
         let content = db::queries::attachments::get_content()
             .bind(&transaction, &params.file_id)
             .one()
@@ -132,7 +136,7 @@ impl ToolInterface for ReadDocumentTool {
         .map_err(|e| json!({"error": "Document processing failed", "details": e.to_string()}))?;
 
         let start = params.section_index.min(sections.len());
-        let (text, sections_read, has_more) = accumulate_sections(&sections, start, context_size);
+        let (text, sections_read, has_more) = accumulate_sections(&sections, start, max_tokens);
 
         Ok(json!({
             "text": text,

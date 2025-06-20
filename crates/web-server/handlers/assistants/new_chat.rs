@@ -16,7 +16,7 @@ pub async fn new_chat(
     let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     let conversation_id = conversations::create_conversation()
-        .bind(&transaction, &team_id, &Some(prompt_id))
+        .bind(&transaction, &team_id)
         .one()
         .await?;
 
