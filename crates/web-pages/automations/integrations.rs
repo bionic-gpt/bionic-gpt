@@ -18,12 +18,8 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "Assistants".into(),
-                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
-                        },
-                        BreadcrumbItem {
-                            text: "My Assistants".into(),
-                            href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
+                            text: "Automations".into(),
+                            href: Some(crate::routes::automations::Index{team_id}.to_string())
                         },
                         BreadcrumbItem {
                             text: {form.prompt_name},
@@ -36,7 +32,6 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
             div {
                 class: "p-4 max-w-4xl w-full mx-auto",
 
-                // Display error if present
                 if let Some(error) = &form.error {
                     div {
                         class: "alert alert-error mb-4",
@@ -44,7 +39,6 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                     }
                 }
 
-                // Integrations Section
                 Card {
                     class: "mb-6",
                     CardHeader {
@@ -53,7 +47,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                     CardBody {
                         Alert {
                             class: "mb-4",
-                            "Manage which integrations this assistant can use"
+                            "Manage which integrations this automation can use"
                         }
 
                         if !form.integrations.is_empty() {
@@ -81,9 +75,8 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                 }
                                                 td {
                                                     if form.selected_integration_ids.contains(&integration_info.integration.id) {
-                                                        // Show Remove button
                                                         form {
-                                                            action: crate::routes::prompts::RemoveIntegration {
+                                                            action: crate::routes::automations::RemoveIntegration {
                                                                 team_id,
                                                                 prompt_id: form.prompt_id,
                                                                 integration_id: integration_info.integration.id
@@ -97,12 +90,11 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                             }
                                                         }
                                                     } else {
-                                                        // Show Add button (with modal if connection required)
                                                         ConnectionModal {
                                                             team_id: team_id,
                                                             prompt_id: form.prompt_id,
                                                             integration_info: integration_info.clone(),
-                                                            target: TargetRoute::Assistants,
+                                                            target: TargetRoute::Automations,
                                                         }
                                                     }
                                                 }
@@ -120,14 +112,13 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                     }
                 }
 
-                // Navigation Actions
                 Card {
                     CardBody {
                         div {
                             class: "flex justify-between",
                             Button {
                                 button_type: ButtonType::Link,
-                                href: crate::routes::prompts::MyAssistants { team_id }.to_string(),
+                                href: crate::routes::automations::Index { team_id }.to_string(),
                                 button_scheme: ButtonScheme::Error,
                                 "Cancel"
                             }

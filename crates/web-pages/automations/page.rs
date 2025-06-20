@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::automations::automation_card::AutomationCard;
 use crate::components::confirm_modal::ConfirmModal;
-use crate::my_assistants::assistant_card::MyAssistantCard;
 use crate::routes;
 use crate::SectionIntroduction;
 use assets::files::*;
@@ -52,7 +52,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
                 div {
                     class: "space-y-2",
                         for prompt in &prompts {
-                        MyAssistantCard {
+                        AutomationCard {
                             team_id,
                             prompt: prompt.clone()
                         }

@@ -1,24 +1,41 @@
-use crate::my_assistants::integrations::IntegrationWithAuthInfo;
+use crate::shared::integrations::IntegrationWithAuthInfo;
 use daisy_rsx::*;
 use dioxus::prelude::*;
+
+#[derive(Clone, Eq, PartialEq)]
+pub enum TargetRoute {
+    Assistants,
+    Automations,
+}
 
 #[component]
 pub fn ConnectionModal(
     team_id: i32,
     prompt_id: i32,
     integration_info: IntegrationWithAuthInfo,
+    target: TargetRoute,
 ) -> Element {
     let integration = &integration_info.integration;
 
-    // If no authentication is required simply post the form without opening a modal
+    let action = match target {
+        TargetRoute::Assistants => crate::routes::prompts::AddIntegration {
+            team_id,
+            prompt_id,
+            integration_id: integration.id,
+        }
+        .to_string(),
+        TargetRoute::Automations => crate::routes::automations::AddIntegration {
+            team_id,
+            prompt_id,
+            integration_id: integration.id,
+        }
+        .to_string(),
+    };
+
     if !integration_info.requires_api_key && !integration_info.requires_oauth2 {
         return rsx!(
             form {
-                action: crate::routes::prompts::AddIntegration {
-                    team_id,
-                    prompt_id,
-                    integration_id: integration.id,
-                }.to_string(),
+                action: action.clone(),
                 method: "post",
                 Button {
                     button_type: ButtonType::Submit,
@@ -43,11 +60,7 @@ pub fn ConnectionModal(
 
         Modal {
             trigger_id: modal_id,
-            submit_action: crate::routes::prompts::AddIntegration {
-                team_id,
-                prompt_id,
-                integration_id: integration.id
-            }.to_string(),
+            submit_action: action,
             ModalBody {
                 if integration_info.requires_api_key {
                     Fieldset {

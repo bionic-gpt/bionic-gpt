@@ -5,18 +5,16 @@ use axum_extra::extract::Form;
 use db::{authz, queries, Pool};
 use serde::Deserialize;
 use web_pages::{
-    my_assistants,
-    routes::prompts::{AddIntegration, ManageIntegrations, RemoveIntegration},
+    automations,
+    routes::automations::{AddIntegration, ManageIntegrations, RemoveIntegration},
 };
 
 fn analyze_integration_auth(integration: &db::Integration) -> Result<(bool, bool), CustomError> {
     if let Some(definition) = &integration.definition {
         let bionic_api = integrations::bionic_openapi::BionicOpenAPI::new(definition)
             .map_err(|e| CustomError::FaultySetup(format!("Invalid OpenAPI spec: {}", e)))?;
-
         let requires_api_key = bionic_api.has_api_key_security();
         let requires_oauth2 = bionic_api.has_oauth2_security();
-
         Ok((requires_api_key, requires_oauth2))
     } else {
         Ok((false, false))
@@ -38,7 +36,6 @@ pub async fn manage_integrations(
         .all()
         .await?;
 
-    // Analyze each integration for auth requirements
     let mut integrations_with_auth: Vec<web_pages::shared::integrations::IntegrationWithAuthInfo> =
         Vec::new();
 
@@ -79,14 +76,13 @@ pub async fn manage_integrations(
                 integration,
                 requires_api_key: false,
                 requires_oauth2: false,
-                has_connections: true, // No auth required, so always "available"
+                has_connections: true,
                 api_key_connections: Vec::new(),
                 oauth2_connections: Vec::new(),
             });
         }
     }
 
-    // Get existing prompt integrations with connections
     let existing_connections =
         queries::prompt_integrations::get_prompt_integrations_with_connections()
             .bind(&transaction, &prompt_id)
@@ -112,7 +108,7 @@ pub async fn manage_integrations(
         error: None,
     };
 
-    let html = my_assistants::integrations::page(team_id, rbac, form);
+    let html = automations::integrations::page(team_id, rbac, form);
 
     Ok(Html(html))
 }
@@ -140,7 +136,6 @@ pub async fn add_integration_action(
 
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    // Add the integration with connection info
     queries::prompt_integrations::insert_prompt_integration_with_connection()
         .bind(
             &transaction,
@@ -154,7 +149,7 @@ pub async fn add_integration_action(
     transaction.commit().await?;
 
     Ok(crate::layout::redirect_and_snackbar(
-        &web_pages::routes::prompts::ManageIntegrations { team_id, prompt_id }.to_string(),
+        &web_pages::routes::automations::ManageIntegrations { team_id, prompt_id }.to_string(),
         "Integration added successfully",
     )
     .into_response())
@@ -174,7 +169,6 @@ pub async fn remove_integration_action(
 
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    // Remove the specific integration
     queries::prompt_integrations::delete_specific_prompt_integration()
         .bind(&transaction, &prompt_id, &integration_id)
         .await?;
@@ -182,7 +176,7 @@ pub async fn remove_integration_action(
     transaction.commit().await?;
 
     Ok(crate::layout::redirect_and_snackbar(
-        &web_pages::routes::prompts::ManageIntegrations { team_id, prompt_id }.to_string(),
+        &web_pages::routes::automations::ManageIntegrations { team_id, prompt_id }.to_string(),
         "Integration removed successfully",
     )
     .into_response())
