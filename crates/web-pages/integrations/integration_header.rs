@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
-use crate::routes;
 use crate::components::confirm_modal::ConfirmModal;
+use crate::routes;
 use assets::files::{button_edit_svg, menu_delete_svg};
 use daisy_rsx::*;
 use db::{authz::Rbac, Integration};

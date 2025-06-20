@@ -1,23 +1,10 @@
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
-use axum::Router;
-use axum_extra::routing::RouterExt;
 use db::authz;
 use db::queries;
 use db::Pool;
-use web_pages::routes::oauth_clients::{Delete, Index, New};
-use validator::Validate;
-use axum::Form;
-use axum::response::IntoResponse;
-use serde::Deserialize;
-
-    Router::new()
-        .typed_get(loader)
-        .typed_get(new_loader)
-        .typed_post(create_action)
-        .typed_post(delete_action)
-}
+use web_pages::routes::oauth_clients::{Index, New};
 
 pub async fn loader(
     Index { team_id }: Index,
@@ -62,4 +49,3 @@ pub async fn new_loader(
 
     Ok(Html(html))
 }
-

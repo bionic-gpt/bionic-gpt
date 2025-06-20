@@ -1,20 +1,19 @@
+use crate::config::Config;
+use crate::{CustomError, Jwt};
 use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
 use db::authz;
-use db::queries::{self, datasets, models};
+use db::queries;
 use db::types::public::ChunkingStrategy;
-use db::{ModelType, Pool, Visibility};
+use db::{Pool, Visibility};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::{
-    routes::datasets::{Delete, Index, Upsert},
+    routes::datasets::{Delete, Upsert},
     string_to_visibility,
 };
-use crate::config::Config;
-use crate::{CustomError, Jwt};
-
 
 // Delete function
 pub async fn action_delete(

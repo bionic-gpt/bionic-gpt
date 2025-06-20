@@ -8,9 +8,8 @@ use rand::distr::Alphanumeric;
 use rand::{rng, Rng};
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::api_keys::{Delete, New};
 use web_pages::routes::api_keys::Index;
-
+use web_pages::routes::api_keys::{Delete, New};
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct NewApiKey {

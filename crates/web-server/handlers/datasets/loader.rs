@@ -1,28 +1,9 @@
-use axum::{
-    extract::{Extension, Form},
-    response::Html,
-    Router,
-};
-use axum_extra::routing::RouterExt;
-use db::authz;
-use db::queries::{self, datasets, models};
-use db::types::public::ChunkingStrategy;
-use db::{ModelType, Pool, Visibility};
-use serde::Deserialize;
-use validator::Validate;
-use web_pages::{
-    routes::datasets::{Delete, Index, Upsert},
-    string_to_visibility,
-};
-use crate::config::Config;
 use crate::{CustomError, Jwt};
-
-pub fn routes() -> Router {
-    Router::new()
-        .typed_get(loader)
-        .typed_post(upsert_action)
-        .typed_post(delete_action)
-}
+use axum::{extract::Extension, response::Html};
+use db::authz;
+use db::queries::{datasets, models};
+use db::{ModelType, Pool};
+use web_pages::routes::datasets::Index;
 
 // Index function
 pub async fn loader(

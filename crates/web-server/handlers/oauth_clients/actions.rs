@@ -7,7 +7,7 @@ use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::oauth_clients::{Delete, Index, New};
+use web_pages::routes::oauth_clients::{Delete, New};
 
 pub async fn action_delete(
     Delete { id, team_id }: Delete,
