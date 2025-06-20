@@ -98,16 +98,17 @@ impl ToolInterface for ReadDocumentTool {
             .await
             .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
 
-        let context_row = transaction
-            .query_one(
-                "SELECT context_size FROM conversations WHERE id = $1",
-                &[&self.conversation_id],
-            )
+        let context_size = db::queries::conversations::conversation_context_size()
+            .bind(&transaction, &self.conversation_id)
+            .one()
             .await
-            .map_err(
-                |e| json!({"error": "Failed to fetch conversation", "details": e.to_string()}),
-            )?;
-        let context_size: i32 = context_row.get(0);
+            .map_err(|e| {
+                json!({
+                    "error": "Failed to fetch conversation",
+                    "details": e.to_string()
+                })
+            })?
+            .context_size;
 
         let content = db::queries::attachments::get_content()
             .bind(&transaction, &params.file_id)
