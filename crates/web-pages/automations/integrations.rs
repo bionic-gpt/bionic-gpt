@@ -1,9 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::shared::connection_modal::{ConnectionModal, TargetRoute};
-use crate::shared::integrations::{
-    determine_status, IntegrationForm, IntegrationStatus, IntegrationWithAuthInfo, Status,
-};
+use crate::shared::integrations::{determine_status, IntegrationForm, Status};
 use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;

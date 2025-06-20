@@ -2,6 +2,7 @@ use crate::shared::integrations::IntegrationWithAuthInfo;
 use daisy_rsx::*;
 use dioxus::prelude::*;
 
+#[derive(Clone, Eq, PartialEq)]
 pub enum TargetRoute {
     Assistants,
     Automations,
