@@ -1,0 +1,156 @@
+{
+	"components": {
+		"schemas": {
+			"Error": {
+				"properties": {
+					"error": {
+						"type": "object"
+					},
+					"error_summary": {
+						"type": "string"
+					}
+				},
+				"type": "object"
+			},
+			"FileRequest": {
+				"properties": {
+					"created": {
+						"description": "The time this file request was created.",
+						"format": "date-time",
+						"type": "string"
+					},
+					"file_count": {
+						"description": "The number of files uploaded to the file request.",
+						"type": "integer"
+					},
+					"id": {
+						"description": "The ID of the file request.",
+						"type": "string"
+					},
+					"is_open": {
+						"description": "Whether or not the file request is currently open.",
+						"type": "boolean"
+					},
+					"title": {
+						"description": "The title of the file request.",
+						"type": "string"
+					},
+					"url": {
+						"description": "The URL of the file request.",
+						"format": "uri",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"url",
+					"title",
+					"created",
+					"is_open",
+					"file_count"
+				],
+				"type": "object"
+			}
+		},
+		"securitySchemes": {
+			"OAuth2": {
+				"description": "OAuth2 authentication for Dropbox API",
+				"flows": {
+					"authorizationCode": {
+						"authorizationUrl": "https://www.dropbox.com/oauth2/authorize",
+						"scopes": {
+							"file_requests.read": "Read file requests",
+							"file_requests.write": "Create and manage file requests",
+							"files.content.read": "Read file metadata and content"
+						},
+						"tokenUrl": "https://api.dropboxapi.com/oauth2/token"
+					}
+				},
+				"type": "oauth2"
+			}
+		}
+	},
+	"info": {
+		"description": "OpenAPI specification for the Dropbox API endpoint `file_requests/list`.",
+		"title": "Dropbox API - File Requests",
+		"version": "1.0.0"
+	},
+	"openapi": "3.0.3",
+	"paths": {
+		"/2/file_requests/list": {
+			"post": {
+				"description": "Returns a list of file requests owned by this user.",
+				"operationId": "listFileRequests",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"example": {},
+							"schema": {
+								"additionalProperties": false,
+								"type": "object"
+							}
+						}
+					},
+					"description": "Empty JSON object",
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"file_requests": {
+											"items": {
+												"$ref": "#/components/schemas/FileRequest"
+											},
+											"type": "array"
+										}
+									},
+									"required": [
+										"file_requests"
+									],
+									"type": "object"
+								}
+							}
+						},
+						"description": "List of file requests"
+					},
+					"default": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						},
+						"description": "Unexpected error"
+					}
+				},
+				"security": [
+					{
+						"OAuth2": [
+							"file_requests.read"
+						]
+					}
+				],
+				"summary": "List File Requests",
+				"tags": [
+					"file_requests"
+				]
+			}
+		}
+	},
+	"security": [
+		{
+			"OAuth2": [
+				"file_requests.read"
+			]
+		}
+	],
+	"servers": [
+		{
+			"url": "https://api.dropboxapi.com"
+		}
+	]
+}
