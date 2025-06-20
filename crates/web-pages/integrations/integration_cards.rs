@@ -115,8 +115,10 @@ pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> 
                 }
             }
             if integration.openapi.get_oauth2_config().is_some() && !integration.oauth_client_configured {
+                let oauth_config = integration.openapi.get_oauth2_config().unwrap();
                 MissingOauthClientModal {
-                    trigger_id: format!("missing-oauth-client-{}", integration.id)
+                    trigger_id: format!("missing-oauth-client-{}", integration.id),
+                    authorization_url: oauth_config.authorization_url
                 }
             }
         }
@@ -124,7 +126,7 @@ pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> 
 }
 
 #[component]
-fn MissingOauthClientModal(trigger_id: String) -> Element {
+fn MissingOauthClientModal(trigger_id: String, authorization_url: String) -> Element {
     rsx! {
         Modal {
             trigger_id: &trigger_id,
@@ -135,7 +137,7 @@ fn MissingOauthClientModal(trigger_id: String) -> Element {
                     Alert {
                         alert_color: AlertColor::Warn,
                         class: "mb-3",
-                        p { "Your sys admin needs to setup an Oauth2 Client" }
+                        p { "Your sys admin needs to setup an Oauth2 Client for {authorization_url}" }
                     }
                 }
             }
