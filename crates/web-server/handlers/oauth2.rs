@@ -36,6 +36,11 @@ pub async fn connect_loader(
     Extension(config): Extension<Config>,
     Extension(pool): Extension<Pool>,
 ) -> Result<(CookieJar, Redirect), CustomError> {
+    tracing::debug!(
+        "Starting OAuth2 connect loader for team {} and integration {}",
+        team_id,
+        integration_id
+    );
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
@@ -67,7 +72,12 @@ pub async fn connect_loader(
         .map_err(|_| CustomError::FaultySetup("Invalid token endpoint URL".to_string()))?;
 
     // Set up the config for the OAuth2 process using dynamic configuration
-    let redirect_uri = format!("{}/app/oauth2/callback", config.base_url);
+    let redirect_uri = format!(
+        "{}{}",
+        config.base_url,
+        OAuth2Callback {}.to_string()
+    );
+    tracing::debug!("Redirect URI set to {}", redirect_uri);
     let client = BasicClient::new(client_id)
         .set_client_secret(client_secret)
         .set_auth_uri(auth_url)
@@ -88,6 +98,7 @@ pub async fn connect_loader(
     }
 
     let (authorize_url, csrf_state) = auth_request.url();
+    tracing::debug!("Generated OAuth2 authorize URL: {}", authorize_url);
 
     // Store verifier and state in cookies
     let mut jar = jar;
@@ -135,6 +146,7 @@ pub async fn oauth2_callback(
     Extension(config): Extension<Config>,
     Extension(pool): Extension<Pool>,
 ) -> Result<(CookieJar, Redirect), CustomError> {
+    tracing::debug!("Received OAuth2 callback with code {}", query.code);
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let team_id_cookie = jar
@@ -143,6 +155,11 @@ pub async fn oauth2_callback(
     let integration_cookie = jar
         .get("oauth_integration_id")
         .ok_or_else(|| CustomError::FaultySetup("Missing integration id".into()))?;
+    tracing::debug!(
+        "OAuth2 callback cookies team_id={} integration_id={}",
+        team_id_cookie.value(),
+        integration_cookie.value()
+    );
     let team_id: i32 = team_id_cookie
         .value()
         .parse()
@@ -203,6 +220,7 @@ pub async fn oauth2_callback(
         .request_async(&http_client)
         .await
         .map_err(|e| CustomError::FaultySetup(format!("Token exchange failed: {e}")))?;
+    tracing::debug!("OAuth2 token retrieved");
 
     let refresh_token = token.refresh_token().map(|t| t.secret().to_string());
     let expires_at = token
@@ -224,6 +242,7 @@ pub async fn oauth2_callback(
         .await?;
 
     transaction.commit().await?;
+    tracing::debug!("OAuth2 connection saved to database");
 
     let jar = jar.clone().remove(Cookie::build("oauth_csrf_state"));
     let jar = jar.clone().remove(Cookie::build("oauth_pkce_verifier"));
@@ -232,9 +251,12 @@ pub async fn oauth2_callback(
 
     Ok((
         jar,
-        Redirect::to(&format!(
-            "/app/team/{}/integrations/{}",
-            team_id, integration_id
-        )),
+        Redirect::to(
+            &web_pages::routes::integrations::View {
+                team_id,
+                id: integration_id,
+            }
+            .to_string(),
+        ),
     ))
 }
