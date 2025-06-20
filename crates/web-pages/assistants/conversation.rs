@@ -2,8 +2,8 @@
 #![allow(clippy::too_many_arguments)]
 use super::assistant_console::AssistantConsole;
 use crate::app_layout::SideBar;
-use crate::console::{ChatWithChunks, PendingChatState};
 use crate::components::confirm_modal::ConfirmModal;
+use crate::console::{ChatWithChunks, PendingChatState};
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;

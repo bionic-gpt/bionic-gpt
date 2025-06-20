@@ -1,10 +1,10 @@
 #![allow(non_snake_case)]
+use crate::components::confirm_modal::ConfirmModal;
 use crate::{
     app_layout::{Layout, SideBar},
     charts::{ApiRequestChartCard, TokenUsageChartCard},
     render,
 };
-use crate::components::confirm_modal::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKey, Prompt, PromptType as DBPromptType};

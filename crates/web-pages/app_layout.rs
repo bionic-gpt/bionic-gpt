@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
-use crate::components::logout_form::LogoutForm;
 use super::snackbar::Snackbar;
+use crate::components::logout_form::LogoutForm;
 use crate::menu::{NavGroup, NavItem};
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;

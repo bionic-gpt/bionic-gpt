@@ -1,70 +1,15 @@
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
-use axum::response::Html;
-use axum::response::IntoResponse;
-use axum::Form;
-use axum::Router;
-use axum_extra::routing::RouterExt;
+use axum::response::{Html, IntoResponse};
+use axum_extra::extract::Form;
 use db::authz;
 use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::oauth_clients::{Delete, Index, New};
+use web_pages::routes::oauth_clients::{Delete, New};
 
-pub fn routes() -> Router {
-    Router::new()
-        .typed_get(loader)
-        .typed_get(new_loader)
-        .typed_post(create_action)
-        .typed_post(delete_action)
-}
-
-pub async fn loader(
-    Index { team_id }: Index,
-    current_user: Jwt,
-    Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    if !rbac.is_sys_admin {
-        return Err(CustomError::Authorization);
-    }
-
-    let oauth_clients = queries::oauth_clients::oauth_clients()
-        .bind(&transaction)
-        .all()
-        .await?;
-
-    let html = web_pages::oauth_clients::page::page(team_id, rbac, oauth_clients);
-
-    Ok(Html(html))
-}
-
-pub async fn new_loader(
-    New { team_id }: New,
-    current_user: Jwt,
-    Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    if !rbac.is_sys_admin {
-        return Err(CustomError::Authorization);
-    }
-
-    let oauth_client = web_pages::oauth_clients::upsert::OauthClientForm::default();
-    let html = web_pages::oauth_clients::upsert::page(team_id, rbac, oauth_client);
-
-    Ok(Html(html))
-}
-
-pub async fn delete_action(
+pub async fn action_delete(
     Delete { id, team_id }: Delete,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
@@ -101,7 +46,7 @@ pub struct OauthClientForm {
     pub provider_url: String,
 }
 
-pub async fn create_action(
+pub async fn action_create(
     New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
