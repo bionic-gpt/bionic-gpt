@@ -10,6 +10,7 @@ pub use deadpool_postgres::{Pool, PoolError, Transaction};
 pub use licence::Licence;
 pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::AuditTrail;
+pub use queries::automation_triggers::CronTrigger;
 pub use queries::categories::Category;
 pub use queries::chats::Chat;
 pub use queries::connections::{ApiKeyConnection, Oauth2Connection};
