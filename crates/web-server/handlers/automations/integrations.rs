@@ -36,7 +36,7 @@ pub async fn manage_integrations(
         .all()
         .await?;
 
-    let mut integrations_with_auth: Vec<automations::integrations::IntegrationWithAuthInfo> =
+    let mut integrations_with_auth: Vec<web_pages::shared::integrations::IntegrationWithAuthInfo> =
         Vec::new();
 
     for integration in integrations {
@@ -63,7 +63,7 @@ pub async fn manage_integrations(
 
             let has_connections = !api_connections.is_empty() || !oauth2_connections.is_empty();
 
-            integrations_with_auth.push(automations::integrations::IntegrationWithAuthInfo {
+            integrations_with_auth.push(web_pages::shared::integrations::IntegrationWithAuthInfo {
                 integration,
                 requires_api_key,
                 requires_oauth2,
@@ -72,7 +72,7 @@ pub async fn manage_integrations(
                 oauth2_connections,
             });
         } else {
-            integrations_with_auth.push(automations::integrations::IntegrationWithAuthInfo {
+            integrations_with_auth.push(web_pages::shared::integrations::IntegrationWithAuthInfo {
                 integration,
                 requires_api_key: false,
                 requires_oauth2: false,
@@ -100,7 +100,7 @@ pub async fn manage_integrations(
         .one()
         .await?;
 
-    let form = automations::integrations::IntegrationForm {
+    let form = web_pages::shared::integrations::IntegrationForm {
         prompt_id: prompt.id,
         prompt_name: prompt.name,
         integrations: integrations_with_auth,
