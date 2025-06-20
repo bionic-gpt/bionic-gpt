@@ -16,7 +16,7 @@ chunking-engine-setup:
         -n bionic-gpt
     kubectl patch deployment chunking-engine -n bionic-gpt \
         --type='json' \
-        -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/command"}]'y
+        -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/command"}]'
 
 expose-chunking-engine:
     kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/chunking-engine 8000:8000
