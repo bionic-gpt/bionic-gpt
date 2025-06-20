@@ -420,11 +420,8 @@ pub mod integrations {
     }
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/app/team/{team_id}/integrations/{integration_id}/oauth2/callback")]
-    pub struct OAuth2Callback {
-        pub team_id: i32,
-        pub integration_id: i32,
-    }
+    #[typed_path("/app/oauth2/callback")]
+    pub struct OAuth2Callback {}
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/{integration_id}/configure_api_key")]

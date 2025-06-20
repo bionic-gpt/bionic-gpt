@@ -141,6 +141,10 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 
 follow [our guide](https://bionic-gpt.com/docs/) to running Bionic-GPT in production.
 
+### Configuration
+
+Set the `APP_BASE_URL` environment variable to the public URL of your Bionic server. This value is used when constructing OAuth2 callback URLs.
+
 ## Architecture
 
 

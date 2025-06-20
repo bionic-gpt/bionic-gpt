@@ -51,6 +51,10 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
             "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
         }),
         json!({
+            "name": "APP_BASE_URL",
+            "value": spec.hostname_url.clone()
+        }),
+        json!({
             "name":
             INVITE_DOMAIN,
             "valueFrom": {

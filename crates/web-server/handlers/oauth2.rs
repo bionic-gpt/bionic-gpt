@@ -1,4 +1,4 @@
-use crate::{CustomError, Jwt};
+use crate::{config::Config, CustomError, Jwt};
 use axum::extract::{Extension, Query};
 use axum::response::Redirect;
 use axum::Router;
@@ -33,6 +33,7 @@ pub async fn connect_loader(
     }: Connect,
     current_user: Jwt,
     jar: CookieJar,
+    Extension(config): Extension<Config>,
     Extension(pool): Extension<Pool>,
 ) -> Result<(CookieJar, Redirect), CustomError> {
     let mut client = pool.get().await?;
@@ -66,10 +67,7 @@ pub async fn connect_loader(
         .map_err(|_| CustomError::FaultySetup("Invalid token endpoint URL".to_string()))?;
 
     // Set up the config for the OAuth2 process using dynamic configuration
-    let redirect_uri = format!(
-        "http://localhost:7703/app/team/{}/integrations/{}/oauth2/callback",
-        team_id, integration_id
-    );
+    let redirect_uri = format!("{}/app/oauth2/callback", config.base_url);
     let client = BasicClient::new(client_id)
         .set_client_secret(client_secret)
         .set_auth_uri(auth_url)
@@ -100,6 +98,12 @@ pub async fn connect_loader(
     let mut state_cookie = Cookie::new("oauth_csrf_state", csrf_state.secret().clone());
     state_cookie.set_path("/");
     jar = jar.add(state_cookie);
+    let mut team_cookie = Cookie::new("oauth_team_id", team_id.to_string());
+    team_cookie.set_path("/");
+    jar = jar.add(team_cookie);
+    let mut integration_cookie = Cookie::new("oauth_integration_id", integration_id.to_string());
+    integration_cookie.set_path("/");
+    jar = jar.add(integration_cookie);
 
     Ok((jar, Redirect::to(authorize_url.as_str())))
 }
@@ -124,17 +128,30 @@ fn get_oauth2_config_from_integration(
 
 /// Handle OAuth2 callback
 pub async fn oauth2_callback(
-    OAuth2Callback {
-        team_id,
-        integration_id,
-    }: OAuth2Callback,
+    _path: OAuth2Callback,
     Query(query): Query<CallbackQuery>,
     current_user: Jwt,
     jar: CookieJar,
+    Extension(config): Extension<Config>,
     Extension(pool): Extension<Pool>,
 ) -> Result<(CookieJar, Redirect), CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
+    let team_id_cookie = jar
+        .get("oauth_team_id")
+        .ok_or_else(|| CustomError::FaultySetup("Missing team id".into()))?;
+    let integration_cookie = jar
+        .get("oauth_integration_id")
+        .ok_or_else(|| CustomError::FaultySetup("Missing integration id".into()))?;
+    let team_id: i32 = team_id_cookie
+        .value()
+        .parse()
+        .map_err(|_| CustomError::FaultySetup("Invalid team id".into()))?;
+    let integration_id: i32 = integration_cookie
+        .value()
+        .parse()
+        .map_err(|_| CustomError::FaultySetup("Invalid integration id".into()))?;
+
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     // Load OAuth client credentials
@@ -153,11 +170,7 @@ pub async fn oauth2_callback(
         .set_auth_uri(AuthUrl::new(oauth2_config.authorization_url).unwrap())
         .set_token_uri(TokenUrl::new(oauth2_config.token_url).unwrap())
         .set_redirect_uri(
-            RedirectUrl::new(format!(
-                "http://localhost:7703/app/team/{}/integrations/{}/oauth2/callback",
-                team_id, integration_id
-            ))
-            .unwrap(),
+            RedirectUrl::new(format!("{}/app/oauth2/callback", config.base_url)).unwrap(),
         );
 
     // Validate CSRF state
@@ -214,6 +227,8 @@ pub async fn oauth2_callback(
 
     let jar = jar.clone().remove(Cookie::build("oauth_csrf_state"));
     let jar = jar.clone().remove(Cookie::build("oauth_pkce_verifier"));
+    let jar = jar.clone().remove(Cookie::build("oauth_team_id"));
+    let jar = jar.clone().remove(Cookie::build("oauth_integration_id"));
 
     Ok((
         jar,
