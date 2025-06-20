@@ -1,5 +1,8 @@
 use crate::{CustomError, Jwt};
-use axum::{extract::Extension, response::{Html, IntoResponse}};
+use axum::{
+    extract::Extension,
+    response::{Html, IntoResponse},
+};
 use axum_extra::extract::Form;
 use db::{authz, queries, Pool};
 use serde::Deserialize;
@@ -25,7 +28,8 @@ pub async fn manage_triggers(
         .one()
         .await?;
 
-    let html = web_pages::automations::triggers::page(team_id, prompt_id, prompt.name, rbac, triggers);
+    let html =
+        web_pages::automations::triggers::page(team_id, prompt_id, prompt.name, rbac, triggers);
 
     Ok(Html(html))
 }
@@ -50,7 +54,10 @@ pub async fn add_cron_trigger(
 
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let cron = format!("{} {} {} {} {}", form.minute, form.hour, form.day, form.month, form.weekday);
+    let cron = format!(
+        "{} {} {} {} {}",
+        form.minute, form.hour, form.day, form.month, form.weekday
+    );
 
     queries::automation_triggers::insert_cron_trigger()
         .bind(&transaction, &prompt_id, &cron)
@@ -62,11 +69,16 @@ pub async fn add_cron_trigger(
     Ok(crate::layout::redirect_and_snackbar(
         &web_pages::routes::automations::ManageTriggers { team_id, prompt_id }.to_string(),
         "Cron trigger added",
-    ).into_response())
+    )
+    .into_response())
 }
 
 pub async fn remove_cron_trigger(
-    RemoveCronTrigger { team_id, prompt_id, trigger_id }: RemoveCronTrigger,
+    RemoveCronTrigger {
+        team_id,
+        prompt_id,
+        trigger_id,
+    }: RemoveCronTrigger,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -84,5 +96,6 @@ pub async fn remove_cron_trigger(
     Ok(crate::layout::redirect_and_snackbar(
         &web_pages::routes::automations::ManageTriggers { team_id, prompt_id }.to_string(),
         "Cron trigger removed",
-    ).into_response())
+    )
+    .into_response())
 }

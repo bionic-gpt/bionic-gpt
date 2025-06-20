@@ -5,7 +5,13 @@ use db::authz::Rbac;
 use db::queries::automation_triggers::CronTrigger;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, prompt_id: i32, prompt_name: String, rbac: Rbac, triggers: Vec<CronTrigger>) -> String {
+pub fn page(
+    team_id: i32,
+    prompt_id: i32,
+    prompt_name: String,
+    rbac: Rbac,
+    triggers: Vec<CronTrigger>,
+) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -33,26 +39,36 @@ pub fn page(team_id: i32, prompt_id: i32, prompt_name: String, rbac: Rbac, trigg
                             method: "post",
                             action: crate::routes::automations::AddCronTrigger { team_id, prompt_id }.to_string(),
 
-                            div { class: "grid grid-cols-5 gap-2", 
-                                Select { name: "minute", 
+                            div { class: "grid grid-cols-5 gap-2",
+                                Select { name: "minute",
                                     option { value: "*", "*" }
-                                    (0..60).for_each(|i| rsx!( option { value: "{i}", "{i}" } ));
+                                    for i in 0..60 {
+                                        option { value: "{i}", "{i}" }
+                                    }
                                 }
-                                Select { name: "hour", 
+                                Select { name: "hour",
                                     option { value: "*", "*" }
-                                    (0..24).for_each(|i| rsx!( option { value: "{i}", "{i}" } ));
+                                    for i in 0..24 {
+                                        option { value: "{i}", "{i}" }
+                                    }
                                 }
-                                Select { name: "day", 
+                                Select { name: "day",
                                     option { value: "*", "*" }
-                                    (1..32).for_each(|i| rsx!( option { value: "{i}", "{i}" } ));
+                                    for i in 1..32 {
+                                        option { value: "{i}", "{i}" }
+                                    }
                                 }
-                                Select { name: "month", 
+                                Select { name: "month",
                                     option { value: "*", "*" }
-                                    (1..13).for_each(|i| rsx!( option { value: "{i}", "{i}" } ));
+                                    for i in 1..13 {
+                                        option { value: "{i}", "{i}" }
+                                    }
                                 }
-                                Select { name: "weekday", 
+                                Select { name: "weekday",
                                     option { value: "*", "*" }
-                                    (0..7).for_each(|i| rsx!( option { value: "{i}", "{i}" } ));
+                                    for i in 0..7 {
+                                        option { value: "{i}", "{i}" }
+                                    }
                                 }
                             }
                             Button { button_type: ButtonType::Submit, button_scheme: ButtonScheme::Primary, "Add Trigger" }
