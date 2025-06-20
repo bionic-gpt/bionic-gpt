@@ -28,6 +28,11 @@ SELECT
     p.description,
     (SELECT count(*) FROM prompt_dataset WHERE prompt_id = id) AS dataset_count,
     (SELECT count(*) FROM prompt_integration WHERE prompt_id = id) AS integration_count,
+    (
+        SELECT count(*) FROM automation_cron_triggers WHERE prompt_id = id
+    ) + (
+        SELECT count(*) FROM automation_webhook_triggers WHERE prompt_id = id
+    ) AS trigger_count,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,

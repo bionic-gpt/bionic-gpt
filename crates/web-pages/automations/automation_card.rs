@@ -84,6 +84,17 @@ pub fn AutomationCard(team_id: i32, prompt: MyPrompt) -> Element {
                     }
                 }
                 div {
+                    class: "flex flex-col justify-center text-center",
+                    div { "{prompt.trigger_count}" }
+                    div {
+                        class: "text-base-content/70",
+                        "Trigger"
+                        if prompt.trigger_count != 1 {
+                            "s"
+                        }
+                    }
+                }
+                div {
                     class: "flex flex-col justify-center ml-4 gap-2",
                     DropDown {
                         direction: Direction::Bottom,
@@ -95,6 +106,10 @@ pub fn AutomationCard(team_id: i32, prompt: MyPrompt) -> Element {
                         DropDownLink {
                             href: crate::routes::automations::ManageIntegrations{team_id, prompt_id: prompt.id}.to_string(),
                             "Manage Integrations"
+                        }
+                        DropDownLink {
+                            href: crate::routes::automations::ManageTriggers{team_id, prompt_id: prompt.id}.to_string(),
+                            "Manage Triggers"
                         }
                         DropDownLink {
                             popover_target: format!("delete-trigger-{}-{}", prompt.id, team_id),

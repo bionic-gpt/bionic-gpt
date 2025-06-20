@@ -23,6 +23,7 @@ pub use queries::models::{Model, ModelWithPrompt};
 pub use queries::oauth_clients::OauthClient;
 pub use queries::object_storage::ObjectStorage;
 pub use queries::prompt_integrations::{PromptIntegration, PromptIntegrationWithConnection};
+pub use queries::automation_triggers::CronTrigger;
 pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};
 pub use queries::rate_limits::RateLimit;
 pub use queries::teams::GetUsers as Member;

@@ -59,6 +59,28 @@ pub mod automations {
         pub prompt_id: i32,
         pub integration_id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automation/{prompt_id}/triggers")]
+    pub struct ManageTriggers {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automation/{prompt_id}/triggers/add")]
+    pub struct AddCronTrigger {
+        pub team_id: i32,
+        pub prompt_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/automation/{prompt_id}/triggers/remove/{trigger_id}")]
+    pub struct RemoveCronTrigger {
+        pub team_id: i32,
+        pub prompt_id: i32,
+        pub trigger_id: i32,
+    }
 }
 
 pub mod history {
