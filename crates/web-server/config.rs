@@ -55,6 +55,8 @@ pub struct Config {
     pub saas: bool,
     // Are we using barricade?
     pub enable_barricade: bool,
+    // Public base URL for redirects
+    pub base_url: String,
 }
 
 impl Default for Config {
@@ -90,6 +92,9 @@ impl Config {
 
         let enable_barricade = env::var("ENABLE_BARRICADE").is_ok();
 
+        let base_url =
+            env::var("APP_BASE_URL").unwrap_or_else(|_| "http://localhost:7703".to_string());
+
         let app_database_url = env::var("APP_DATABASE_URL").expect("APP_DATABASE_URL not set");
 
         Config {
@@ -100,6 +105,7 @@ impl Config {
             version,
             saas,
             enable_barricade,
+            base_url,
         }
     }
 }
