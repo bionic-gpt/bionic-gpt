@@ -72,11 +72,7 @@ pub async fn connect_loader(
         .map_err(|_| CustomError::FaultySetup("Invalid token endpoint URL".to_string()))?;
 
     // Set up the config for the OAuth2 process using dynamic configuration
-    let redirect_uri = format!(
-        "{}{}",
-        config.base_url,
-        OAuth2Callback {}.to_string()
-    );
+    let redirect_uri = format!("{}{}", config.base_url, OAuth2Callback {});
     tracing::debug!("Redirect URI set to {}", redirect_uri);
     let client = BasicClient::new(client_id)
         .set_client_secret(client_secret)
