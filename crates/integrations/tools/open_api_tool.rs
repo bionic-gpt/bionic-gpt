@@ -69,6 +69,8 @@ impl OpenApiTool {
         request: reqwest::RequestBuilder,
     ) -> reqwest::RequestBuilder {
         if let Some(ref token) = self.bearer_token {
+            let preview = &token[..6.min(token.len())]; // safe slice
+            tracing::debug!("Adding bearer token {}...", preview);
             request.header(AUTHORIZATION, format!("Bearer {}", token))
         } else {
             request
