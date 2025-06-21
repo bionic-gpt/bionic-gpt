@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use integrations::BionicOpenAPI;
+use integrations::{BionicOpenAPI, OAuth2Config};
 
 #[derive(Clone, PartialEq)]
 pub struct IntegrationSummary {
@@ -116,7 +116,8 @@ pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> 
             }
             if integration.openapi.get_oauth2_config().is_some() && !integration.oauth_client_configured {
                 MissingOauthClientModal {
-                    trigger_id: format!("missing-oauth-client-{}", integration.id)
+                    trigger_id: format!("missing-oauth-client-{}", integration.id),
+                    oauth2_config: integration.openapi.get_oauth2_config()
                 }
             }
         }
@@ -124,7 +125,12 @@ pub fn IntegrationCards(integrations: Vec<IntegrationSummary>, team_id: i32) -> 
 }
 
 #[component]
-fn MissingOauthClientModal(trigger_id: String) -> Element {
+fn MissingOauthClientModal(trigger_id: String, oauth2_config: Option<OAuth2Config>) -> Element {
+    let authorization_url = if let Some(oauth2_config) = oauth2_config {
+        oauth2_config.authorization_url
+    } else {
+        "NOT FOUND".to_string()
+    };
     rsx! {
         Modal {
             trigger_id: &trigger_id,
@@ -135,7 +141,7 @@ fn MissingOauthClientModal(trigger_id: String) -> Element {
                     Alert {
                         alert_color: AlertColor::Warn,
                         class: "mb-3",
-                        p { "Your sys admin needs to setup an Oauth2 Client" }
+                        p { "Your sys admin needs to setup an Oauth2 Client for {authorization_url}" }
                     }
                 }
             }
