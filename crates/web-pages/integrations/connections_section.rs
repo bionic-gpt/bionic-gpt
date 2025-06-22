@@ -8,6 +8,7 @@ use db::authz::Rbac;
 use db::{ApiKeyConnection, Oauth2Connection};
 use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
+use integrations::OAuth2Config;
 
 #[component]
 pub fn ConnectionsSection(
@@ -17,6 +18,7 @@ pub fn ConnectionsSection(
     openapi: BionicOpenAPI,
     api_key_connections: Vec<ApiKeyConnection>,
     oauth2_connections: Vec<Oauth2Connection>,
+    oauth_client_configured: bool,
 ) -> Element {
     let has_api_key = openapi.has_api_key_security();
     let has_oauth2 = openapi.has_oauth2_security();
@@ -81,12 +83,21 @@ pub fn ConnectionsSection(
                             class: "text-lg font-medium",
                             "OAuth2 Connections"
                         }
-                        Button {
-                            button_type: ButtonType::Link,
-                            href: routes::integrations::Connect { team_id, integration_id }.to_string(),
-                            button_style: ButtonStyle::Outline,
-                            button_scheme: ButtonScheme::Primary,
-                            "Add OAuth2 Connection"
+                        if oauth_client_configured {
+                            Button {
+                                button_type: ButtonType::Link,
+                                href: routes::integrations::Connect { team_id, integration_id }.to_string(),
+                                button_style: ButtonStyle::Outline,
+                                button_scheme: ButtonScheme::Primary,
+                                "Add OAuth2 Connection"
+                            }
+                        } else {
+                            Button {
+                                popover_target: format!("missing-oauth-client-{}", integration_id),
+                                button_style: ButtonStyle::Outline,
+                                button_scheme: ButtonScheme::Primary,
+                                "Add OAuth2 Connection"
+                            }
                         }
                     }
 
@@ -111,6 +122,37 @@ pub fn ConnectionsSection(
                 team_id,
                 integration_id,
                 integration_name: openapi.get_title().to_string()
+            }
+        }
+        if has_oauth2 && !oauth_client_configured {
+            MissingOauthClientModal {
+                trigger_id: format!("missing-oauth-client-{}", integration_id),
+                oauth2_config: openapi.get_oauth2_config()
+            }
+        }
+    }
+}
+
+#[component]
+fn MissingOauthClientModal(trigger_id: String, oauth2_config: Option<OAuth2Config>) -> Element {
+    let authorization_url = if let Some(oauth2_config) = oauth2_config {
+        oauth2_config.authorization_url
+    } else {
+        "NOT FOUND".to_string()
+    };
+    rsx! {
+        Modal {
+            trigger_id: &trigger_id,
+            ModalBody {
+                h3 { class: "font-bold text-lg mb-4", "OAuth2 Client Not Configured" }
+                div {
+                    class: "flex flex-col",
+                    Alert {
+                        alert_color: AlertColor::Warn,
+                        class: "mb-3",
+                        p { "Your sys admin needs to setup an Oauth2 Client for {authorization_url}" }
+                    }
+                }
             }
         }
     }
