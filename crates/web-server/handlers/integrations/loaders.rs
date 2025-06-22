@@ -101,29 +101,30 @@ pub async fn view_loader(
         api_key_connections,
         oauth2_connections,
         oauth_client_configured,
-    ) =
-        if let Some(definition) = &integration.definition {
-            match BionicOpenAPI::new(definition) {
-                Ok(openapi_helper) => {
-                    let integration_tools = openapi_helper.create_tool_definitions();
+    ) = if let Some(definition) = &integration.definition {
+        match BionicOpenAPI::new(definition) {
+            Ok(openapi_helper) => {
+                let integration_tools = openapi_helper.create_tool_definitions();
 
-                    // Fetch connections based on security type
-                    let api_key_connections = if openapi_helper.has_api_key_security() {
-                        queries::connections::get_api_key_connections_for_integration()
-                            .bind(&transaction, &id, &team_id)
-                            .all()
-                            .await
-                            .unwrap_or_default()
-                    } else {
-                        vec![]
-                    };
+                // Fetch connections based on security type
+                let api_key_connections = if openapi_helper.has_api_key_security() {
+                    queries::connections::get_api_key_connections_for_integration()
+                        .bind(&transaction, &id, &team_id)
+                        .all()
+                        .await
+                        .unwrap_or_default()
+                } else {
+                    vec![]
+                };
 
-                    let (oauth2_connections, oauth_client_configured) = if openapi_helper.has_oauth2_security() {
-                        let connections = queries::connections::get_oauth2_connections_for_integration()
-                            .bind(&transaction, &id, &team_id)
-                            .all()
-                            .await
-                            .unwrap_or_default();
+                let (oauth2_connections, oauth_client_configured) =
+                    if openapi_helper.has_oauth2_security() {
+                        let connections =
+                            queries::connections::get_oauth2_connections_for_integration()
+                                .bind(&transaction, &id, &team_id)
+                                .all()
+                                .await
+                                .unwrap_or_default();
 
                         let has_client = if let Some(config) = openapi_helper.get_oauth2_config() {
                             !queries::oauth_clients::oauth_client_by_provider_url()
@@ -140,36 +141,36 @@ pub async fn view_loader(
                         (vec![], false)
                     };
 
-                    (
-                        integration_tools.tool_definitions,
-                        openapi_helper,
-                        api_key_connections,
-                        oauth2_connections,
-                        oauth_client_configured,
-                    )
-                }
-                Err(_) => {
-                    // If parsing fails, use defaults
-                    (
-                        vec![],
-                        BionicOpenAPI::new(&serde_json::json!({}))
-                            .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
-                        vec![],
-                        vec![],
-                        false,
-                    )
-                }
+                (
+                    integration_tools.tool_definitions,
+                    openapi_helper,
+                    api_key_connections,
+                    oauth2_connections,
+                    oauth_client_configured,
+                )
             }
-        } else {
-            (
-                vec![],
-                BionicOpenAPI::new(&serde_json::json!({}))
-                    .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
-                vec![],
-                vec![],
-                false,
-            )
-        };
+            Err(_) => {
+                // If parsing fails, use defaults
+                (
+                    vec![],
+                    BionicOpenAPI::new(&serde_json::json!({}))
+                        .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
+                    vec![],
+                    vec![],
+                    false,
+                )
+            }
+        }
+    } else {
+        (
+            vec![],
+            BionicOpenAPI::new(&serde_json::json!({}))
+                .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
+            vec![],
+            vec![],
+            false,
+        )
+    };
 
     let html = web_pages::integrations::view::view(
         team_id,

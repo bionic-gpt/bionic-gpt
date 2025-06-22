@@ -62,6 +62,7 @@ fn accumulate_sections(
     while end_index < sections.len() {
         let section = &sections[end_index];
         let section_tokens = openai_api::token_count::token_count_from_string(&section.text);
+        dbg!(&section.text, tokens_so_far, section_tokens, max_tokens);
         if tokens_so_far + section_tokens > max_tokens {
             break;
         }
@@ -173,7 +174,8 @@ mod tests {
     #[test]
     fn test_accumulate_sections_limit() {
         let sections = vec![dummy("one"), dummy("two three"), dummy("four five six")];
-        let tokens = openai_api::token_count::token_count_from_string("one two three");
+        let tokens = openai_api::token_count::token_count_from_string("one");
+        let tokens = tokens + openai_api::token_count::token_count_from_string("two three");
         let (text, count, has_more) = accumulate_sections(&sections, 0, tokens);
         assert_eq!(count, 2);
         assert!(has_more);

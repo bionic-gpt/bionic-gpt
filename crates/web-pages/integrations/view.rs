@@ -9,6 +9,7 @@ use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
 use openai_api::BionicToolDefinition;
 
+#[allow(clippy::too_many_arguments)]
 pub fn view(
     team_id: i32,
     rbac: Rbac,

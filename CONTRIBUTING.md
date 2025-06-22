@@ -83,6 +83,11 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
    compiled automatically as part of the build process.
 1. You can now access the front end on `http://localhost:7703`.
 
+## Running the unit tests
+
+- Use `just test` or `cargo test --workspace --exclude integration-testing --exclude rag-engine`
+- This will exclude the integration-testing which requires an environment with selenium.
+
 ## Running the integration tests
 
 Selenium is configured as part of our `devcontainer` and is accessible via `http://localhost:7706/`
