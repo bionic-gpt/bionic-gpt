@@ -118,12 +118,15 @@ pub async fn deployment(
     deployment_api.restart(&service_deployment.name).await?;
 
     service(
-        client,
+        client.clone(),
         &service_deployment.name,
         service_deployment.port,
         namespace,
     )
     .await?;
+
+    crate::services::network_policy::default_deny(client, &service_deployment.name, namespace)
+        .await?;
 
     Ok(())
 }
