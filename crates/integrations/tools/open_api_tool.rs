@@ -10,7 +10,7 @@ use oas3::{
     spec::{ObjectOrReference, Operation, Parameter, ParameterIn},
 };
 use openai_api::BionicToolDefinition;
-use reqwest::{header::AUTHORIZATION, Client, Method};
+use reqwest::{header::AUTHORIZATION, Client, Method, Url};
 use serde_json::Value;
 use std::collections::HashSet;
 
@@ -100,22 +100,39 @@ impl ToolInterface for OpenApiTool {
         let args: Value = serde_json::from_str(arguments)
             .map_err(|e| crate::json_error("Failed to parse arguments", e))?;
 
-        // Separate path/query parameters from request body parameters
-        let (path_query_params, request_body_params) = separate_parameters(&args, operation)
-            .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
+        // Separate path, query, and request body parameters
+        let (path_params, query_params, request_body_params) =
+            separate_parameters(&args, operation)
+                .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
 
         tracing::debug!(
-            "Separated parameters - Path/Query: {}, Request Body: {}",
-            serde_json::to_string(&path_query_params).unwrap_or_default(),
+            "Separated parameters - Path: {}, Query: {}, Request Body: {}",
+            serde_json::to_string(&path_params).unwrap_or_default(),
+            serde_json::to_string(&query_params).unwrap_or_default(),
             serde_json::to_string(&request_body_params).unwrap_or_default()
         );
 
-        // Substitute path parameters in the URL using only path/query params
-        let path_with_params = substitute_path_parameters(&path, &path_query_params, operation)
+        // Substitute path parameters in the URL using only path params
+        let path_with_params = substitute_path_parameters(&path, &path_params, operation)
             .map_err(|e| crate::json_error("Failed to substitute path parameters", e))?;
 
-        // Construct the final URL
-        let url = format!("{}{}", self.base_url, path_with_params);
+        // Construct the final URL and append query parameters
+        let mut url = Url::parse(&format!("{}{}", self.base_url, path_with_params))
+            .map_err(|e| crate::json_error("Invalid URL", e))?;
+        if let Some(obj) = query_params.as_object() {
+            if !obj.is_empty() {
+                let mut pairs = url.query_pairs_mut();
+                for (k, v) in obj {
+                    let value = match v {
+                        Value::String(s) => s.clone(),
+                        Value::Number(n) => n.to_string(),
+                        Value::Bool(b) => b.to_string(),
+                        _ => v.to_string(),
+                    };
+                    pairs.append_pair(k, &value);
+                }
+            }
+        }
         tracing::debug!("Making request to URL: {} using method: {}", url, method);
 
         // Determine if we should send a request body
@@ -133,7 +150,7 @@ impl ToolInterface for OpenApiTool {
             .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
 
         // Build the request
-        let mut request = self.client.request(http_method, &url);
+        let mut request = self.client.request(http_method, url);
         request = self.add_auth_header_if_present(request);
         if has_request_body {
             request = request.json(&request_body_params);
@@ -170,36 +187,50 @@ impl ToolInterface for OpenApiTool {
     }
 }
 
-/// Separate path/query parameters from request body parameters
-fn separate_parameters(args: &Value, operation: &Operation) -> Result<(Value, Value), String> {
-    let mut path_query_params = serde_json::Map::new();
+/// Separate path, query, and request body parameters
+fn separate_parameters(
+    args: &Value,
+    operation: &Operation,
+) -> Result<(Value, Value, Value), String> {
+    let mut path_params = serde_json::Map::new();
+    let mut query_params = serde_json::Map::new();
     let mut request_body_params = serde_json::Map::new();
 
     // Get all arguments as an object
     let args_obj = args.as_object().ok_or("Arguments must be a JSON object")?;
 
     // Collect path and query parameter names from the operation
-    let mut path_query_param_names = HashSet::new();
+    let mut path_param_names = HashSet::new();
+    let mut query_param_names = HashSet::new();
 
     for param in &operation.parameters {
         if let ObjectOrReference::Object(Parameter { name, location, .. }) = param {
-            if *location == ParameterIn::Path || *location == ParameterIn::Query {
-                path_query_param_names.insert(name.clone());
+            match *location {
+                ParameterIn::Path => {
+                    path_param_names.insert(name.clone());
+                }
+                ParameterIn::Query => {
+                    query_param_names.insert(name.clone());
+                }
+                _ => {}
             }
         }
     }
 
     // Separate the arguments based on parameter type
     for (key, value) in args_obj {
-        if path_query_param_names.contains(key) {
-            path_query_params.insert(key.clone(), value.clone());
+        if path_param_names.contains(key) {
+            path_params.insert(key.clone(), value.clone());
+        } else if query_param_names.contains(key) {
+            query_params.insert(key.clone(), value.clone());
         } else {
             request_body_params.insert(key.clone(), value.clone());
         }
     }
 
     Ok((
-        Value::Object(path_query_params),
+        Value::Object(path_params),
+        Value::Object(query_params),
         Value::Object(request_body_params),
     ))
 }
@@ -463,5 +494,43 @@ mod tests {
         assert!(result
             .unwrap_err()
             .contains("Missing required path parameter: id"));
+    }
+
+    #[test]
+    fn test_separate_parameters_with_query() {
+        let spec_json = json!({
+            "openapi": "3.0.0",
+            "info": {"title": "Query API", "version": "1.0"},
+            "paths": {
+                "/items/{id}": {
+                    "get": {
+                        "operationId": "getItem",
+                        "parameters": [
+                            {"in": "path", "name": "id", "required": true, "schema": {"type": "string"}},
+                            {"in": "query", "name": "filter", "schema": {"type": "string"}}
+                        ],
+                        "responses": {"200": {"description": "ok"}}
+                    }
+                }
+            }
+        });
+
+        let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
+        let mut operation = None;
+        for (_p, _m, op) in spec.operations() {
+            if op.operation_id.as_deref() == Some("getItem") {
+                operation = Some(op);
+                break;
+            }
+        }
+        let operation = operation.expect("operation not found");
+        let args = json!({"id": "123", "filter": "all", "name": "bob"});
+
+        let (path_params, query_params, body_params) =
+            separate_parameters(&args, operation).expect("separate params");
+
+        assert_eq!(path_params, json!({"id": "123"}));
+        assert_eq!(query_params, json!({"filter": "all"}));
+        assert_eq!(body_params, json!({"name": "bob"}));
     }
 }
