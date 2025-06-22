@@ -117,7 +117,7 @@ impl ToolInterface for OpenApiTool {
             .map_err(|e| crate::json_error("Failed to substitute path parameters", e))?;
 
         // Construct the final URL and append query parameters
-        let mut url = reqwest::Url::parse(&format!("{}{}", self.base_url, path_with_params))
+        let mut url = Url::parse(&format!("{}{}", self.base_url, path_with_params))
             .map_err(|e| crate::json_error("Invalid URL", e))?;
         if let Some(obj) = query_params.as_object() {
             if !obj.is_empty() {
@@ -150,7 +150,7 @@ impl ToolInterface for OpenApiTool {
             .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
 
         // Build the request
-        let mut request = self.client.request(http_method, &url);
+        let mut request = self.client.request(http_method, url);
         request = self.add_auth_header_if_present(request);
         if has_request_body {
             request = request.json(&request_body_params);
