@@ -95,7 +95,13 @@ pub async fn view_loader(
         .one()
         .await?;
 
-    let (tool_definitions, openapi, api_key_connections, oauth2_connections) =
+    let (
+        tool_definitions,
+        openapi,
+        api_key_connections,
+        oauth2_connections,
+        oauth_client_configured,
+    ) =
         if let Some(definition) = &integration.definition {
             match BionicOpenAPI::new(definition) {
                 Ok(openapi_helper) => {
@@ -112,14 +118,26 @@ pub async fn view_loader(
                         vec![]
                     };
 
-                    let oauth2_connections = if openapi_helper.has_oauth2_security() {
-                        queries::connections::get_oauth2_connections_for_integration()
+                    let (oauth2_connections, oauth_client_configured) = if openapi_helper.has_oauth2_security() {
+                        let connections = queries::connections::get_oauth2_connections_for_integration()
                             .bind(&transaction, &id, &team_id)
                             .all()
                             .await
-                            .unwrap_or_default()
+                            .unwrap_or_default();
+
+                        let has_client = if let Some(config) = openapi_helper.get_oauth2_config() {
+                            !queries::oauth_clients::oauth_client_by_provider_url()
+                                .bind(&transaction, &config.authorization_url)
+                                .all()
+                                .await?
+                                .is_empty()
+                        } else {
+                            false
+                        };
+
+                        (connections, has_client)
                     } else {
-                        vec![]
+                        (vec![], false)
                     };
 
                     (
@@ -127,6 +145,7 @@ pub async fn view_loader(
                         openapi_helper,
                         api_key_connections,
                         oauth2_connections,
+                        oauth_client_configured,
                     )
                 }
                 Err(_) => {
@@ -137,6 +156,7 @@ pub async fn view_loader(
                             .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
                         vec![],
                         vec![],
+                        false,
                     )
                 }
             }
@@ -147,6 +167,7 @@ pub async fn view_loader(
                     .unwrap_or_else(|_| panic!("Failed to create default BionicOpenAPI")),
                 vec![],
                 vec![],
+                false,
             )
         };
 
@@ -158,6 +179,7 @@ pub async fn view_loader(
         openapi,
         api_key_connections,
         oauth2_connections,
+        oauth_client_configured,
     );
 
     Ok(Html(html))

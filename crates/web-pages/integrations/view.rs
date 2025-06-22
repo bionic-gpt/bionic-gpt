@@ -17,6 +17,7 @@ pub fn view(
     openapi: BionicOpenAPI,
     api_key_connections: Vec<ApiKeyConnection>,
     oauth2_connections: Vec<Oauth2Connection>,
+    oauth_client_configured: bool,
 ) -> String {
     let page = rsx! {
         Layout {
@@ -61,7 +62,8 @@ pub fn view(
                     rbac,
                     openapi: openapi.clone(),
                     api_key_connections,
-                    oauth2_connections
+                    oauth2_connections,
+                    oauth_client_configured
                 }
 
                 ActionsSection {
