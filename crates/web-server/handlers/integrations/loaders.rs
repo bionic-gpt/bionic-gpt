@@ -4,7 +4,7 @@ use axum::response::Html;
 use axum::response::IntoResponse;
 use db::{authz, queries, Pool};
 use integrations::bionic_openapi::BionicOpenAPI;
-use web_pages::integrations::integration_cards::IntegrationSummary;
+use web_pages::integrations::integration_card::IntegrationSummary;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::View;
 use web_pages::routes::integrations::{Edit, Index, New};
