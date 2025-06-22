@@ -73,7 +73,10 @@
 	"info": {
 		"description": "OpenAPI specification for the Dropbox API endpoint `file_requests/list`.",
 		"title": "Dropbox API - File Requests",
-		"version": "1.0.0"
+		"version": "1.0.0",
+		"x-logo": {
+			"url": "data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNDIuNCAzOS41Ij48c3R5bGU+LnN0MHtmaWxsOiMwMDYyZmZ9PC9zdHlsZT48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTAuNiAxLjdMMCA4LjVsMTAuNiA2LjcgMTAuNi02Ljd6bTIxLjIgMEwyMS4yIDguNWwxMC42IDYuNyAxMC42LTYuN3pNMCAyMmwxMC42IDYuOEwyMS4yIDIybC0xMC42LTYuOHptMzEuOC02LjhMMjEuMiAyMmwxMC42IDYuOEw0Mi40IDIyek0xMC42IDMxbDEwLjYgNi44TDMxLjggMzFsLTEwLjYtNi43eiIvPjwvc3ZnPg=="
+		}
 	},
 	"openapi": "3.0.3",
 	"paths": {
