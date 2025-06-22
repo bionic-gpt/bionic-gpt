@@ -6,7 +6,7 @@ use db::queries::prompts::Prompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
+pub fn AssistantCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
     let description: String = prompt
         .description
         .chars()
@@ -35,8 +35,8 @@ pub fn PromptCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                         }
                     } else {
                         Avatar {
-                            avatar_size: AvatarSize::Large,
-                            avatar_type: AvatarType::User
+                            avatar_size: AvatarSize::Medium,
+                            name: "{prompt.name}"
                         }
                     }
                     div {

@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
-use crate::assistants::prompt_card::PromptCard;
+use crate::assistants::assistant_card::AssistantCard;
 use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
 use crate::SectionIntroduction;
@@ -141,10 +141,9 @@ fn AssistantTab(
                     "{category.description}"
                 }
                 div {
-                    class: "grid grid-cols-1 gap-x-1.5 gap-y-1 md:gap-x-2 md:gap-y-1.5 lg:grid-cols-2 lg:gap-x-3 lg:gap-y-2.5",
-
+                    class: "space-y-2",
                     for prompt in &prompts {
-                        PromptCard {
+                        AssistantCard {
                             team_id,
                             prompt: prompt.clone(),
                             rbac: rbac.clone()

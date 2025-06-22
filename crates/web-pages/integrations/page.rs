@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use super::integration_cards::IntegrationSummary;
+use super::integration_card::IntegrationSummary;
 use crate::app_layout::{Layout, SideBar};
 use crate::routes;
 use crate::SectionIntroduction;
@@ -43,9 +43,11 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> 
                     empty_text: "No integrations have been configured yet. Add your first integration to get started.".to_string(),
                 }
                 if !integrations.is_empty() {
-                    super::integration_cards::IntegrationCards {
-                        integrations,
-                        team_id: team_id
+                    for integration in integrations {
+                        super::integration_card::IntegrationCard {
+                            integration,
+                            team_id: team_id
+                        }
                     }
                 }
             }
