@@ -43,9 +43,12 @@ export function fileUpload() {
   // File selection handler
   fileInput.addEventListener('change', () => {
     if (fileInput.files && fileInput.files.length > 0) {
-      // Add each file to our collection
-      Array.from(fileInput.files).forEach(file => {
-        // Use a unique key combining name and last modified time
+      const availableSlots = Math.max(0, 5 - selectedFiles.size);
+      const files = Array.from(fileInput.files);
+      if (files.length > availableSlots) {
+        alert('You can only upload up to 5 files.');
+      }
+      files.slice(0, availableSlots).forEach(file => {
         const key = `${file.name}-${file.lastModified}`;
         if (!selectedFiles.has(key)) {
           selectedFiles.set(key, file);
