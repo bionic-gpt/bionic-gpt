@@ -1,8 +1,9 @@
 use crate::errors::CustomError;
 use db::queries::{chats_chunks, prompt_integrations, prompts};
 use db::{RelatedContext, Transaction};
-use integrations::create_tools_from_integrations;
+use integrations::{create_tools_from_integrations, get_tools, ToolScope};
 use openai_api::{BionicToolDefinition, ChatCompletionMessage, ChatCompletionMessageRole};
+use std::env;
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
 // that's why chat is a Vec<Message>
@@ -19,33 +20,10 @@ pub async fn execute_prompt(
         "".to_string()
     };
 
-    // Turn the users message into something the vector database can use
-    let mut related_context = Default::default();
-    if let (Some(embeddings_base_url), Some(embeddings_model)) =
-        (prompt.embeddings_base_url, prompt.embeddings_model)
-    {
-        let embeddings = embeddings_api::get_embeddings(
-            &question,
-            &embeddings_base_url,
-            &embeddings_model,
-            prompt.model_context_size,
-            &prompt.embeddings_api_key,
-        )
-        .await
-        .map_err(|e| {
-            tracing::error!(
-                "Problem getting embeddings {} {}",
-                embeddings_base_url,
-                embeddings_model
-            );
-            CustomError::ExternalApi(e.to_string())
-        })?;
-
-        tracing::info!(prompt.name);
-        // Get related context
-        related_context =
-            db::get_related_context(transaction, prompt.id, prompt.max_chunks, embeddings).await?;
-        tracing::info!("Retrieved {} chunks", related_context.len());
+    // Determine if we should use legacy RAG vector search
+    let mut related_context = Vec::new();
+    if env::var("LEGACY_RAG").is_ok() {
+        related_context = legacy_related_context(transaction, &prompt, &question).await?;
     }
 
     tracing::info!("Retrieved {} history items", chat_history.len());
@@ -93,11 +71,26 @@ pub async fn get_prompt_integration_tools(
     // Create tools from the integrations
     let external_tools = create_tools_from_integrations(prompt_integrations).await;
 
-    // Convert to BionicToolDefinition
-    let filtered_tools: Vec<BionicToolDefinition> = external_tools
+    let mut filtered_tools: Vec<BionicToolDefinition> = external_tools
         .into_iter()
         .map(|tool| tool.get_tool())
         .collect();
+
+    if env::var("LEGACY_RAG").is_err() {
+        let datasets = prompts::prompt_datasets()
+            .bind(transaction, &prompt_id)
+            .all()
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to get datasets for prompt {}: {}", prompt_id, e);
+                CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
+            })?;
+
+        if !datasets.is_empty() {
+            filtered_tools.extend(get_tools(ToolScope::DocumentIntelligence));
+            filtered_tools.extend(get_tools(ToolScope::Rag));
+        }
+    }
 
     tracing::info!(
         "Retrieved {} integration tools for prompt {}",
@@ -220,4 +213,40 @@ fn add_message(
     }
 
     size_so_far
+}
+
+async fn legacy_related_context(
+    transaction: &Transaction<'_>,
+    prompt: &prompts::SinglePrompt,
+    question: &str,
+) -> Result<Vec<RelatedContext>, CustomError> {
+    let mut related_context = Vec::new();
+    if let (Some(embeddings_base_url), Some(embeddings_model)) = (
+        prompt.embeddings_base_url.clone(),
+        prompt.embeddings_model.clone(),
+    ) {
+        let embeddings = embeddings_api::get_embeddings(
+            question,
+            &embeddings_base_url,
+            &embeddings_model,
+            prompt.model_context_size,
+            &prompt.embeddings_api_key,
+        )
+        .await
+        .map_err(|e| {
+            tracing::error!(
+                "Problem getting embeddings {} {}",
+                embeddings_base_url,
+                embeddings_model
+            );
+            CustomError::ExternalApi(e.to_string())
+        })?;
+
+        tracing::info!(prompt.name);
+        related_context =
+            db::get_related_context(transaction, prompt.id, prompt.max_chunks, embeddings).await?;
+        tracing::info!("Retrieved {} chunks", related_context.len());
+    }
+
+    Ok(related_context)
 }
