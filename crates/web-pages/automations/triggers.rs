@@ -34,40 +34,59 @@ pub fn page(
                 Card {
                     CardHeader { title: "Add Cron Trigger" }
                     CardBody {
+                        p {
+                            class: "text-sm text-base-content/70 mb-2",
+                            "Format: Minute Hour Day-of-Month Month Day-of-Week"
+                        }
                         form {
                             class: "flex flex-col gap-4",
                             method: "post",
                             action: crate::routes::automations::AddCronTrigger { team_id, prompt_id }.to_string(),
 
                             div { class: "grid grid-cols-5 gap-2",
-                                Select { name: "minute",
-                                    option { value: "*", "*" }
-                                    for i in 0..60 {
-                                        option { value: "{i}", "{i}" }
+                                Fieldset {
+                                    legend: "Minute",
+                                    Select { name: "minute",
+                                        option { value: "*", "*" }
+                                        for i in 0..60 {
+                                            option { value: "{i}", "{i}" }
+                                        }
                                     }
                                 }
-                                Select { name: "hour",
-                                    option { value: "*", "*" }
-                                    for i in 0..24 {
-                                        option { value: "{i}", "{i}" }
+                                Fieldset {
+                                    legend: "Hour",
+                                    Select { name: "hour",
+                                        option { value: "*", "*" }
+                                        for i in 0..24 {
+                                            option { value: "{i}", "{i}" }
+                                        }
                                     }
                                 }
-                                Select { name: "day",
-                                    option { value: "*", "*" }
-                                    for i in 1..32 {
-                                        option { value: "{i}", "{i}" }
+                                Fieldset {
+                                    legend: "Day",
+                                    Select { name: "day",
+                                        option { value: "*", "*" }
+                                        for i in 1..32 {
+                                            option { value: "{i}", "{i}" }
+                                        }
                                     }
                                 }
-                                Select { name: "month",
-                                    option { value: "*", "*" }
-                                    for i in 1..13 {
-                                        option { value: "{i}", "{i}" }
+                                Fieldset {
+                                    legend: "Month",
+                                    Select { name: "month",
+                                        option { value: "*", "*" }
+                                        for i in 1..13 {
+                                            option { value: "{i}", "{i}" }
+                                        }
                                     }
                                 }
-                                Select { name: "weekday",
-                                    option { value: "*", "*" }
-                                    for i in 0..7 {
-                                        option { value: "{i}", "{i}" }
+                                Fieldset {
+                                    legend: "Weekday",
+                                    Select { name: "weekday",
+                                        option { value: "*", "*" }
+                                        for i in 0..7 {
+                                            option { value: "{i}", "{i}" }
+                                        }
                                     }
                                 }
                             }
