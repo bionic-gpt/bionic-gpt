@@ -35,7 +35,7 @@ pub fn AssistantCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                         }
                     } else {
                         Avatar {
-                            avatar_size: AvatarSize::Large,
+                            avatar_size: AvatarSize::Medium,
                             name: "{prompt.name}"
                         }
                     }

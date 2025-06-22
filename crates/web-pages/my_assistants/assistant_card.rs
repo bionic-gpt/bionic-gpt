@@ -30,7 +30,7 @@ pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt) -> Element {
                     } else {
                         Avatar {
                             avatar_size: AvatarSize::Medium,
-                            avatar_type: AvatarType::User
+                            name: "{prompt.name}"
                         }
                     }
                     div {
