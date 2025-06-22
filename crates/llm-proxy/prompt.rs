@@ -87,7 +87,6 @@ pub async fn get_prompt_integration_tools(
             })?;
 
         if !datasets.is_empty() {
-            filtered_tools.extend(get_tools(ToolScope::DocumentIntelligence));
             filtered_tools.extend(get_tools(ToolScope::Rag));
         }
     }

@@ -53,12 +53,18 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
         },
         IntegrationTool {
             scope: ToolScope::Rag,
-            title: "Tools to search RAG context".into(),
-            definitions: vec![tools::search_context::get_tool_definition()],
+            title: "Tools to work with datasets".into(),
+            definitions: vec![
+                tools::list_datasets::get_tool_definition(),
+                tools::list_dataset_files::get_tool_definition(),
+                tools::search_context::get_tool_definition(),
+            ],
             definitions_json: serde_json::to_string_pretty(&vec![
+                tools::list_datasets::get_tool_definition(),
+                tools::list_dataset_files::get_tool_definition(),
                 tools::search_context::get_tool_definition(),
             ])
-            .expect("Failed to serialize search_context tool to JSON"),
+            .expect("Failed to serialize RAG tools to JSON"),
         },
     ];
 

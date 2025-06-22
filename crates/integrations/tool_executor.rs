@@ -104,6 +104,22 @@ pub async fn get_tools(
         conversation_id,
     )));
 
+    debug!("Adding dataset tools with database pool");
+    tools.push(Arc::new(tools::list_datasets::ListDatasetsTool::new(
+        pool.clone(),
+        sub.clone(),
+        prompt_id,
+    )));
+    tools.push(Arc::new(
+        tools::list_dataset_files::ListDatasetFilesTool::new(pool.clone(), sub.clone()),
+    ));
+    tools.push(Arc::new(tools::search_context::SearchContextTool::new(
+        pool.clone(),
+        sub.clone(),
+        conversation_id,
+        prompt_id,
+    )));
+
     // Get external integration tools
     debug!("Getting external integration tools");
     let external_tools = match get_external_integration_tools(pool, sub, prompt_id).await {
