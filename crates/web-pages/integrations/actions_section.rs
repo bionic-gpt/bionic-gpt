@@ -35,9 +35,7 @@ pub fn ActionsSection(logo_url: String, tool_definitions: Vec<BionicToolDefiniti
                                         "{tool.function.name}"
                                     }
                                     p {
-                                        if let Some(description) = &tool.function.description {
-                                            "{description}"
-                                        }
+                                        "{tool.function.description}"
                                     }
                                 }
                             }
@@ -45,37 +43,25 @@ pub fn ActionsSection(logo_url: String, tool_definitions: Vec<BionicToolDefiniti
 
                         // Enhanced parameter display content
                         {
-                            if let Some(parameters) = &tool.function.parameters {
-                                // Parse the JSON schema parameters
-                                if let Some(properties) = parameters.get("properties") {
-                                    if let Some(properties_obj) = properties.as_object() {
-                                        let required_params = parameters.get("required")
-                                            .and_then(|r| r.as_array())
-                                            .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<std::collections::HashSet<_>>())
-                                            .unwrap_or_default();
+                            // Parse the JSON schema parameters
+                            if let Some(properties) = tool.function.parameters.get("properties") {
+                                if let Some(properties_obj) = properties.as_object() {
+                                    let required_params = tool.function.parameters.get("required")
+                                        .and_then(|r| r.as_array())
+                                        .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<std::collections::HashSet<_>>())
+                                        .unwrap_or_default();
 
-                                        rsx! {
-                                            div {
-                                                class: "p-4",
-                                                h4 {
-                                                    class: "font-semibold text-sm text-gray-700 mb-3",
-                                                    "API Parameters"
-                                                }
-                                                div {
-                                                    class: "space-y-4",
-                                                    for (param_name, param_schema) in properties_obj {
-                                                        {render_parameter(param_name, param_schema, &required_params, 0)}
-                                                    }
-                                                }
+                                    rsx! {
+                                        div {
+                                            class: "p-4",
+                                            h4 {
+                                                class: "font-semibold text-sm text-gray-700 mb-3",
+                                                "API Parameters"
                                             }
-                                        }
-                                    } else {
-                                        rsx! {
                                             div {
-                                                class: "p-4",
-                                                p {
-                                                    class: "text-gray-500 italic",
-                                                    "No parameters required"
+                                                class: "space-y-4",
+                                                for (param_name, param_schema) in properties_obj {
+                                                    {render_parameter(param_name, param_schema, &required_params, 0)}
                                                 }
                                             }
                                         }

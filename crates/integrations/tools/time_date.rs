@@ -26,10 +26,10 @@ pub fn get_time_date_tool() -> BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
             name: "get_current_time_and_date".to_string(),
-            description: Some(
-                "Get the current time and date, optionally for a specific timezone".to_string(),
-            ),
-            parameters: Some(json!({
+            description: "Get the current time and date, optionally for a specific timezone"
+                .to_string(),
+
+            parameters: json!({
                 "type": "object",
                 "properties": {
                     "timezone": {
@@ -43,7 +43,7 @@ pub fn get_time_date_tool() -> BionicToolDefinition {
                     }
                 },
                 "required": []
-            })),
+            }),
         },
     }
 }

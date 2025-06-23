@@ -35,17 +35,15 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
             name: "search_context".to_string(),
-            description: Some(
-                "Search the knowledge base for text related to the given query and return relevant document chunks.".to_string(),
-            ),
-            parameters: Some(json!({
+            description: "Search the knowledge base for text related to the given query and return relevant document chunks.".to_string(),
+            parameters: json!({
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "The search query"},
                     "limit": {"type": "integer", "description": "Maximum number of chunks to return"}
                 },
                 "required": ["query"]
-            })),
+            }),
         },
     }
 }

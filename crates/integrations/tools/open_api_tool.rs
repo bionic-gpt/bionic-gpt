@@ -381,8 +381,8 @@ mod tests {
             r#type: "function".to_string(),
             function: ChatCompletionFunctionDefinition {
                 name: "getUsers".to_string(),
-                description: Some("Get all users".to_string()),
-                parameters: None,
+                description: "Get all users".to_string(),
+                parameters: json!({}),
             },
         };
 
@@ -410,8 +410,8 @@ mod tests {
             r#type: "function".to_string(),
             function: ChatCompletionFunctionDefinition {
                 name: "nonExistentOperation".to_string(),
-                description: Some("Non-existent operation".to_string()),
-                parameters: None,
+                description: "Non-existent operation".to_string(),
+                parameters: json!({}),
             },
         };
 
@@ -437,8 +437,8 @@ mod tests {
             r#type: "function".to_string(),
             function: ChatCompletionFunctionDefinition {
                 name: "createUser".to_string(),
-                description: Some("Create a user".to_string()),
-                parameters: None,
+                description: "Create a user".to_string(),
+                parameters: json!({}),
             },
         };
 

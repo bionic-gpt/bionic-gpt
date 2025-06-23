@@ -23,8 +23,6 @@ pub struct BionicChatCompletionRequest {
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub struct BionicToolDefinition {
     pub r#type: String,
-    /// The function that the model called.
-    #[serde(flatten)]
     pub function: ChatCompletionFunctionDefinition,
 }
 
@@ -33,13 +31,11 @@ pub struct ChatCompletionFunctionDefinition {
     /// The name of the function
     pub name: String,
     /// The description of the function
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
+    pub description: String,
     /// The parameters of the function formatted in JSON Schema
     /// [API Reference](https://platform.openai.com/docs/api-reference/chat/create#chat/create-parameters)
     /// [See more information about JSON Schema.](https://json-schema.org/understanding-json-schema/)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parameters: Option<Value>,
+    pub parameters: Value,
 }
 
 /// A delta chat completion, which is streamed token by token.

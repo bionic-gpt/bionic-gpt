@@ -37,10 +37,8 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
             name: "read_document_section".to_string(),
-            description: Some(
-                "Reads one or more consecutive text sections from a document attachment and returns them with pagination metadata. Sections represent coherent parts of the original document, automatically extracted and converted to plain text.".to_string(),
-            ),
-            parameters: Some(json!({
+            description: "Reads one or more consecutive text sections from a document attachment and returns them with pagination metadata. Sections represent coherent parts of the original document, automatically extracted and converted to plain text.".to_string(),
+            parameters: json!({
                 "type": "object",
                 "properties": {
                     "file_id": {
@@ -59,7 +57,7 @@ pub fn get_tool_definition() -> BionicToolDefinition {
                     }
                 },
                 "required": ["file_id"]
-            })),
+            }),
         },
     }
 }

@@ -34,18 +34,18 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
             name: "read_document".to_string(),
-            description: Some(
+            description:
                 "Read sections from a document attachment respecting the model context size."
                     .to_string(),
-            ),
-            parameters: Some(json!({
+
+            parameters: json!({
                 "type": "object",
                 "properties": {
                     "file_id": {"type": "integer", "description": "ID of the attachment"},
                     "section_index": {"type": "integer", "minimum": 0, "description": "Index of the first section (default 0)"}
                 },
                 "required": ["file_id"]
-            })),
+            }),
         },
     }
 }

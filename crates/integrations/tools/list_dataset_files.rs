@@ -26,14 +26,14 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
             name: "list_dataset_files".to_string(),
-            description: Some("List all files within a specific dataset.".to_string()),
-            parameters: Some(json!({
+            description: "List all files within a specific dataset.".to_string(),
+            parameters: json!({
                 "type": "object",
                 "properties": {
                     "dataset_id": {"type": "integer", "description": "ID of the dataset"}
                 },
                 "required": ["dataset_id"]
-            })),
+            }),
         },
     }
 }

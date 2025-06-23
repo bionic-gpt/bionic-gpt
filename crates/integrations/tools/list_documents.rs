@@ -33,12 +33,12 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
             name: "list_documents".to_string(),
-            description: Some("List all available documents for this conversation, including uploaded files and previously indexed materials.".to_string()),
-            parameters: Some(json!({
+            description: "List all available documents for this conversation, including uploaded files and previously indexed materials.".to_string(),
+            parameters: json!({
                 "type": "object",
                 "properties": {},
                 "required": []
-            })),
+            }),
         },
     }
 }

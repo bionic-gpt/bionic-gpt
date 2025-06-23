@@ -25,12 +25,12 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         r#type: "function".to_string(),
         function: ChatCompletionFunctionDefinition {
             name: "list_datasets".to_string(),
-            description: Some("List all datasets connected to this assistant.".to_string()),
-            parameters: Some(json!({
+            description: "List all datasets connected to this assistant.".to_string(),
+            parameters: json!({
                 "type": "object",
                 "properties": {},
                 "required": []
-            })),
+            }),
         },
     }
 }
