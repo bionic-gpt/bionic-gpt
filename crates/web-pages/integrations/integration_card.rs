@@ -70,11 +70,11 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
                 div {
                     class: "flex flex-col justify-center ml-4",
                     if integration.oauth_client_configured {
-                        a {
-                            class: "btn btn-secondary btn-sm ",
-                            "data-turbo": "false",
-                            href: crate::routes::integrations::Connect { team_id, integration_id: integration.id }.to_string(),
-                            "Connect"
+                        super::oauth_connect_button::OauthConnectButton {
+                            team_id,
+                            integration_id: integration.id,
+                            class: "btn btn-secondary btn-sm ".to_string(),
+                            label: "Connect".to_string(),
                         }
                     } else {
                         Button {
