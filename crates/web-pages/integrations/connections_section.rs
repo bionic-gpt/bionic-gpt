@@ -2,7 +2,6 @@
 use super::api_key_cards::ApiKeyCards;
 use super::api_key_form::ApiKeyForm;
 use super::oauth2_cards::Oauth2Cards;
-use crate::routes;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{ApiKeyConnection, Oauth2Connection};
@@ -84,12 +83,11 @@ pub fn ConnectionsSection(
                             "OAuth2 Connections"
                         }
                         if oauth_client_configured {
-                            Button {
-                                button_type: ButtonType::Link,
-                                href: routes::integrations::Connect { team_id, integration_id }.to_string(),
-                                button_style: ButtonStyle::Outline,
-                                button_scheme: ButtonScheme::Primary,
-                                "Add OAuth2 Connection"
+                            super::oauth_connect_button::OauthConnectButton {
+                                team_id,
+                                integration_id,
+                                class: "btn btn-primary btn-sm btn-outline".to_string(),
+                                label: "Add OAuth2 Connection".to_string(),
                             }
                         } else {
                             Button {
