@@ -87,6 +87,9 @@ impl BionicOpenAPI {
         // Process each operation in the OpenAPI spec
         for (_path, _method, operation) in self.spec.operations() {
             if let Some(operation_id) = &operation.operation_id {
+                if operation_id.trim().is_empty() {
+                    continue;
+                }
                 let function_name = operation_id.clone();
                 let schema_key = format!("{}_form_model", function_name);
 
@@ -659,5 +662,21 @@ mod tests {
         assert_eq!(oauth2_config.scopes.len(), 2);
         assert!(oauth2_config.scopes.contains(&"read".to_string()));
         assert!(oauth2_config.scopes.contains(&"write".to_string()));
+    }
+
+    #[test]
+    fn test_skip_empty_operation_id() {
+        let spec_json = json!({
+            "openapi": "3.0.0",
+            "info": {"title": "Empty ID API", "version": "1.0"},
+            "paths": {
+                "/items": {"get": {"operationId": "", "description": "ignored"}} 
+            }
+        });
+
+        let bionic_api = BionicOpenAPI::new(&spec_json).unwrap();
+        let integration_tools = bionic_api.create_tool_definitions();
+
+        assert!(integration_tools.tool_definitions.is_empty());
     }
 }
