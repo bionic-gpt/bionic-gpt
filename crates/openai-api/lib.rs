@@ -24,6 +24,7 @@ pub struct BionicChatCompletionRequest {
 pub struct BionicToolDefinition {
     pub r#type: String,
     /// The function that the model called.
+    #[serde(flatten)]
     pub function: ChatCompletionFunctionDefinition,
 }
 
