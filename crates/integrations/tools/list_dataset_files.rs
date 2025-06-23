@@ -4,7 +4,6 @@ use db::{queries, Pool, Transaction};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde::Deserialize;
 use serde_json::json;
-use tracing;
 
 #[derive(Debug, Deserialize)]
 struct ListDatasetFilesParams {

@@ -22,7 +22,7 @@ pub async fn execute_prompt(
 
     // Determine if we should use legacy RAG vector search
     let mut related_context = Vec::new();
-    if env::var("LEGACY_RAG").is_ok() {
+    if env::var("AGENTIC_RAG").is_err() {
         related_context = legacy_related_context(transaction, &prompt, &question).await?;
     }
 
@@ -76,7 +76,7 @@ pub async fn get_prompt_integration_tools(
         .map(|tool| tool.get_tool())
         .collect();
 
-    if env::var("LEGACY_RAG").is_err() {
+    if env::var("AGENTIC_RAG").is_ok() {
         let datasets = prompts::prompt_datasets()
             .bind(transaction, &prompt_id)
             .all()

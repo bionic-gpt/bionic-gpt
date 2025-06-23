@@ -3,7 +3,6 @@ use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::json;
-use tracing;
 
 pub struct ListDatasetsTool {
     pool: Pool,
