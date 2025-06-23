@@ -7,12 +7,28 @@ use serde_json::json;
 pub async fn default_deny(client: Client, name: &str, namespace: &str) -> Result<(), Error> {
     let policy_name = format!("{}-network-policy", name);
 
-    // Allow bionic-gpt to reach the internet while keeping all other services
-    // locked down to the namespace.
+    // Allow bionic-gpt to reach the internet; others are locked to namespace + DNS
     let egress = if name == "bionic-gpt" {
-        json!([{ "to": [{ "ipBlock": { "cidr": "0.0.0.0/0" } }] }])
+        json!([
+            { "to": [{ "ipBlock": { "cidr": "0.0.0.0/0" } }] }
+        ])
     } else {
-        json!([{ "to": [{ "namespaceSelector": { "matchLabels": { "kubernetes.io/metadata.name": namespace } } }] }])
+        json!([
+            {
+                "to": [
+                    { "namespaceSelector": { "matchLabels": { "kubernetes.io/metadata.name": namespace } } }
+                ]
+            },
+            {
+                "to": [
+                    { "namespaceSelector": { "matchLabels": { "kubernetes.io/metadata.name": "kube-system" } } }
+                ],
+                "ports": [
+                    { "protocol": "UDP", "port": 53 },
+                    { "protocol": "TCP", "port": 53 }
+                ]
+            }
+        ])
     };
 
     let policy = json!({
