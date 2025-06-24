@@ -331,10 +331,18 @@ async fn create_request(
         chat.prompt_id,
         conversation.team_id
     );
-    let prompt = queries::prompts::prompt()
+    let mut prompt = queries::prompts::prompt()
         .bind(&transaction, &chat.prompt_id, &conversation.team_id)
         .one()
         .await?;
+
+    if attachment_count > 0 {
+        let attachment_hint = "Attachments were added to this conversation. Use the `list_documents` tool to see available file IDs and `read_document` to read a document.";
+        prompt.system_prompt = match prompt.system_prompt {
+            Some(existing) => Some(format!("{}\n{}", existing, attachment_hint)),
+            None => Some(attachment_hint.to_string()),
+        };
+    }
     // Get the maximum required amount of chat history
     let chat_history = queries::chats::chat_history()
         .bind(
