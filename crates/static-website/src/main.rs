@@ -35,6 +35,10 @@ pub mod routes {
         pub struct Index {}
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/chat")]
+        pub struct ProductChat {}
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/terms/")]
         pub struct Terms {}
 
@@ -77,6 +81,7 @@ async fn main() {
 
     fs::create_dir_all("dist").expect("Couldn't create dist folder");
     generator::generate_marketing().await;
+    generator::generate_product().await;
     generator::generate_docs(docs_summary::summary());
     generator::generate(blog_summary::summary());
     generator::generate_pages(pages_summary::summary()).await;

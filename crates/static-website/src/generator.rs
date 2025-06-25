@@ -39,6 +39,16 @@ impl Page {
     }
 }
 
+pub async fn generate_product() {
+    let html = pages::product::assistants::page();
+
+    fs::create_dir_all("dist/product/assistants").expect("Couyldn't create folder");
+    let mut file =
+        File::create("dist/product/assistants/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
+}
+
 pub async fn generate_marketing() {
     let html = pages::pricing::pricing();
 
