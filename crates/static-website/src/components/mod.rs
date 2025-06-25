@@ -1,5 +1,6 @@
 pub mod benefits;
 pub mod customer_logos;
+pub mod drop_down;
 pub mod extra_footer;
 pub mod faq_accordian;
 pub mod features;

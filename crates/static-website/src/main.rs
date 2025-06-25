@@ -26,6 +26,31 @@ pub mod routes {
         pub struct Index {}
     }
 
+    pub mod product {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/chat")]
+        pub struct Chat {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/assistants")]
+        pub struct Assistants {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/integrations")]
+        pub struct Integrations {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/automations")]
+        pub struct Automations {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/developers")]
+        pub struct Developers {}
+    }
+
     pub mod marketing {
         use axum_extra::routing::TypedPath;
         use serde::Deserialize;
@@ -77,6 +102,7 @@ async fn main() {
 
     fs::create_dir_all("dist").expect("Couldn't create dist folder");
     generator::generate_marketing().await;
+    generator::generate_product().await;
     generator::generate_docs(docs_summary::summary());
     generator::generate(blog_summary::summary());
     generator::generate_pages(pages_summary::summary()).await;
