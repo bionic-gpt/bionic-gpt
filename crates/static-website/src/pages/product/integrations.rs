@@ -16,8 +16,8 @@ pub fn page() -> String {
                 class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
 
                 ImageFeature {
-                    title: "String".to_string(),
-                    sub_title: "String".to_string(),
+                    title: "Integrate with your internal or external systems".to_string(),
+                    sub_title: "Integrations give you a new way to access legacy data and systems".to_string(),
                     image: "/product/integrations.png"
                 }
             }

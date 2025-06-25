@@ -16,9 +16,9 @@ pub fn page() -> String {
                 class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
 
                 ImageFeature {
-                    title: "String".to_string(),
-                    sub_title: "String".to_string(),
-                    image: "/product/integrations.png"
+                    title: "Chat privately with AI all data under your control.".to_string(),
+                    sub_title: "Meet data governance controls and requirements".to_string(),
+                    image: "/product/chat.png"
                 }
             }
 

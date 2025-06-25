@@ -18,7 +18,7 @@ pub fn page() -> String {
                 ImageFeature {
                     title: "String".to_string(),
                     sub_title: "String".to_string(),
-                    image: "/product/integrations.png"
+                    image: "/product/assistants.png"
                 }
             }
 
