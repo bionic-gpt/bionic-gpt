@@ -35,7 +35,10 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         function: ChatCompletionFunctionDefinition {
             name: "read_document".to_string(),
             description:
-                "Read sections from a document attachment respecting the model context size."
+                "Reads the content of a specific document using its ID. 
+                Only call this if you know the exact document ID. 
+                Document ID's can be retrieved by calling the function list_attachments. 
+                This function uses the model context size to decide how much of the document to return."
                     .to_string(),
 
             parameters: json!({
