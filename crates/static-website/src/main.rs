@@ -26,6 +26,31 @@ pub mod routes {
         pub struct Index {}
     }
 
+    pub mod product {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/chat")]
+        pub struct Chat {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/assistants")]
+        pub struct Assistants {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/integrations")]
+        pub struct Integrations {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/automations")]
+        pub struct Automations {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/developers")]
+        pub struct Developers {}
+    }
+
     pub mod marketing {
         use axum_extra::routing::TypedPath;
         use serde::Deserialize;
@@ -33,10 +58,6 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/")]
         pub struct Index {}
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/chat")]
-        pub struct ProductChat {}
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/terms/")]
