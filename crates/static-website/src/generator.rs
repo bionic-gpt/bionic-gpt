@@ -41,10 +41,36 @@ impl Page {
 
 pub async fn generate_product() {
     let html = pages::product::assistants::page();
-
     fs::create_dir_all("dist/product/assistants").expect("Couyldn't create folder");
     let mut file =
         File::create("dist/product/assistants/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
+
+    let html = pages::product::automations::page();
+    fs::create_dir_all("dist/product/automations").expect("Couyldn't create folder");
+    let mut file =
+        File::create("dist/product/automations/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
+
+    let html = pages::product::chat::page();
+    fs::create_dir_all("dist/product/chat").expect("Couyldn't create folder");
+    let mut file = File::create("dist/product/chat/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
+
+    let html = pages::product::developers::page();
+    fs::create_dir_all("dist/product/developers").expect("Couyldn't create folder");
+    let mut file =
+        File::create("dist/product/developers/index.html").expect("Unable to create file");
+    file.write_all(html.as_bytes())
+        .expect("Unable to write to file");
+
+    let html = pages::product::integrations::page();
+    fs::create_dir_all("dist/product/integrations").expect("Couyldn't create folder");
+    let mut file =
+        File::create("dist/product/integrations/index.html").expect("Unable to create file");
     file.write_all(html.as_bytes())
         .expect("Unable to write to file");
 }
