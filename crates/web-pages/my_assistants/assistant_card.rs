@@ -16,7 +16,7 @@ pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt) -> Element {
         Card {
             class: "p-3 mt-5 flex flex-row justify-between",
             div {
-                class: "flex flex-row",
+                class: "flex flex-row  min-w-0",
                 // Left section: Image/Avatar
                 div {
                     class: "flex flex-col content-center",
@@ -42,14 +42,14 @@ pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt) -> Element {
                 }
                 // Middle section: Info
                 div {
-                    class: "ml-4 text-sm flex flex-col justify-center flex-1 min-w-0",
+                    class: "mx-4 flex flex-col space-between flex-1 min-w-0",
                     h2 {
                         class: "font-semibold text-base mb-1",
                         "{prompt.name}"
                     }
                     if !description.is_empty() {
                         p {
-                            class: "text-sm text-base-content/70 truncate mb-2",
+                            class: "truncate overflow-hidden whitespace-nowrap",
                             "{description}"
                         }
                     }
