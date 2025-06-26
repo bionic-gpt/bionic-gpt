@@ -326,6 +326,22 @@ impl BionicOpenAPI {
         })
     }
 
+    /// Get the header name for an API key security scheme if present
+    pub fn get_api_key_header_name(&self) -> Option<String> {
+        self.spec.components.as_ref().and_then(|c| {
+            c.security_schemes.values().find_map(|s| match s {
+                oas3::spec::ObjectOrReference::Object(SecurityScheme::ApiKey { name, location, .. }) => {
+                    if location == "header" {
+                        Some(name.clone())
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            })
+        })
+    }
+
     /// Check if the OpenAPI spec has OAuth2 security schemes
     pub fn has_oauth2_security(&self) -> bool {
         self.spec.components.as_ref().is_some_and(|c| {
@@ -336,6 +352,12 @@ impl BionicOpenAPI {
                 )
             })
         })
+    }
+
+    /// Determine which HTTP header should be used for authentication
+    pub fn get_auth_header_name(&self) -> String {
+        self.get_api_key_header_name()
+            .unwrap_or_else(|| "Authorization".to_string())
     }
 
     /// Retrieve OAuth2 configuration from the OpenAPI spec
@@ -369,6 +391,7 @@ impl BionicOpenAPI {
         let base_url = integration_tools
             .base_url
             .unwrap_or_else(|| "http://localhost".to_string());
+        let auth_header_name = self.get_auth_header_name();
 
         // Create tools for each tool definition
         for tool_def in integration_tools.tool_definitions {
@@ -381,6 +404,7 @@ impl BionicOpenAPI {
                 self.spec.clone(),
                 operation_id,
                 bearer_token.clone(),
+                auth_header_name.clone(),
             );
             tools.push(Arc::new(tool));
         }
