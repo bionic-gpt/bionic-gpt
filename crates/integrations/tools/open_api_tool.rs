@@ -10,7 +10,7 @@ use oas3::{
     spec::{ObjectOrReference, Operation, Parameter, ParameterIn},
 };
 use openai_api::BionicToolDefinition;
-use reqwest::{header::AUTHORIZATION, Client, Method, Url};
+use reqwest::{Client, Method, Url};
 use serde_json::Value;
 use std::collections::HashSet;
 
@@ -28,6 +28,8 @@ pub struct OpenApiTool {
     operation_id: String,
     /// Does this API need an API key.
     bearer_token: Option<String>,
+    /// The header name to pass the token in
+    auth_header_name: String,
 }
 
 impl OpenApiTool {
@@ -37,6 +39,7 @@ impl OpenApiTool {
         spec: oas3::OpenApiV3Spec,
         operation_id: String,
         bearer_token: Option<String>,
+        auth_header_name: String,
     ) -> Self {
         Self {
             definition,
@@ -45,6 +48,7 @@ impl OpenApiTool {
             spec,
             operation_id,
             bearer_token,
+            auth_header_name,
         }
     }
 
@@ -71,7 +75,12 @@ impl OpenApiTool {
         if let Some(ref token) = self.bearer_token {
             let preview = &token[..6.min(token.len())]; // safe slice
             tracing::debug!("Adding bearer token {}...", preview);
-            request.header(AUTHORIZATION, format!("Bearer {}", token))
+            let header_value = if self.auth_header_name.eq_ignore_ascii_case("Authorization") {
+                format!("Bearer {}", token)
+            } else {
+                token.to_string()
+            };
+            request.header(self.auth_header_name.as_str(), header_value)
         } else {
             request
         }
@@ -280,6 +289,7 @@ fn substitute_path_parameters(
 mod tests {
     use super::*;
     use openai_api::ChatCompletionFunctionDefinition;
+    use reqwest::Client;
     use serde_json::json;
 
     fn create_test_openapi_spec() -> oas3::OpenApiV3Spec {
@@ -392,6 +402,7 @@ mod tests {
             spec,
             "getUsers".to_string(),
             None,
+            "Authorization".to_string(),
         );
 
         let result = tool.find_operation_details();
@@ -421,6 +432,7 @@ mod tests {
             spec,
             "nonExistentOperation".to_string(),
             None,
+            "Authorization".to_string(),
         );
 
         let result = tool.find_operation_details();
@@ -448,6 +460,7 @@ mod tests {
             spec,
             "createUser".to_string(),
             None,
+            "Authorization".to_string(),
         );
 
         assert_eq!(tool.name(), "createUser");
@@ -532,5 +545,33 @@ mod tests {
         assert_eq!(path_params, json!({"id": "123"}));
         assert_eq!(query_params, json!({"filter": "all"}));
         assert_eq!(body_params, json!({"name": "bob"}));
+    }
+
+    #[test]
+    fn test_add_auth_header_custom_name() {
+        let spec = create_test_openapi_spec();
+        let tool_def = BionicToolDefinition {
+            r#type: "function".to_string(),
+            function: ChatCompletionFunctionDefinition {
+                name: "getUsers".to_string(),
+                description: "Get all users".to_string(),
+                parameters: json!({}),
+            },
+        };
+
+        let tool = OpenApiTool::new(
+            tool_def,
+            "https://api.example.com".to_string(),
+            spec,
+            "getUsers".to_string(),
+            Some("abc123".to_string()),
+            "x-api-key".to_string(),
+        );
+
+        let client = Client::new();
+        let req = client.get("https://api.example.com/data");
+        let req = tool.add_auth_header_if_present(req);
+        let built = req.build().unwrap();
+        assert_eq!(built.headers().get("x-api-key").unwrap(), "abc123");
     }
 }
