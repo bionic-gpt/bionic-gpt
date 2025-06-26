@@ -91,13 +91,6 @@ pub async fn get_tools(
         sub.clone(),
         conversation_id,
     )));
-    tools.push(Arc::new(
-        tools::read_document_section::ReadDocumentSectionTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-        ),
-    ));
     tools.push(Arc::new(tools::read_document::ReadDocumentTool::new(
         pool.clone(),
         sub.clone(),

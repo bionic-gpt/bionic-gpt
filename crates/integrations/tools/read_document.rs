@@ -8,7 +8,7 @@ use serde_json::json;
 
 #[derive(Debug, Deserialize)]
 struct ReadDocumentParams {
-    file_id: i32,
+    file_id: Option<i32>,
     #[serde(default)]
     section_index: usize,
 }
@@ -47,7 +47,7 @@ pub fn get_tool_definition() -> BionicToolDefinition {
                     "file_id": {"type": "integer", "description": "ID of the attachment"},
                     "section_index": {"type": "integer", "minimum": 0, "description": "Index of the first section (default 0)"}
                 },
-                "required": ["file_id"]
+                "required": []
             }),
         },
     }
@@ -118,13 +118,22 @@ impl ToolInterface for ReadDocumentTool {
 
         let max_tokens = context_size / 2;
 
-        let content = db::queries::attachments::get_content()
-            .bind(&transaction, &params.file_id)
-            .one()
-            .await
-            .map_err(
-                |e| json!({"error": "Failed to get attachment content", "details": e.to_string()}),
-            )?;
+        let content = if let Some(file_id) = params.file_id {
+            db::queries::attachments::get_content()
+                .bind(&transaction, &file_id)
+                .one()
+                .await
+                .map_err(|e| json!({"error": "Failed to get attachment content", "details": e.to_string()}))?
+        } else {
+            match db::queries::attachments::get_latest_content()
+                .bind(&transaction, &self.conversation_id)
+                .opt()
+                .await
+                .map_err(|e| json!({"error": "Failed to get attachment content", "details": e.to_string()}))? {
+                Some(content) => content,
+                None => return Err(json!({"error": "No attachments found"})),
+            }
+        };
 
         let bytes = content.object_data;
         let config = rag_engine::config::Config::new();
@@ -183,5 +192,21 @@ mod tests {
         assert_eq!(count, 2);
         assert!(has_more);
         assert!(text.contains("one"));
+    }
+
+    #[test]
+    fn test_params_optional_file_id_none() {
+        let json = r#"{"section_index": 2}"#;
+        let params: ReadDocumentParams = serde_json::from_str(json).unwrap();
+        assert_eq!(params.file_id, None);
+        assert_eq!(params.section_index, 2);
+    }
+
+    #[test]
+    fn test_params_optional_file_id_some() {
+        let json = r#"{"file_id": 7}"#;
+        let params: ReadDocumentParams = serde_json::from_str(json).unwrap();
+        assert_eq!(params.file_id, Some(7));
+        assert_eq!(params.section_index, 0);
     }
 }
