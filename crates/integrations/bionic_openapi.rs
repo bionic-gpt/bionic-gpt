@@ -330,7 +330,11 @@ impl BionicOpenAPI {
     pub fn get_api_key_header_name(&self) -> Option<String> {
         self.spec.components.as_ref().and_then(|c| {
             c.security_schemes.values().find_map(|s| match s {
-                oas3::spec::ObjectOrReference::Object(SecurityScheme::ApiKey { name, location, .. }) => {
+                oas3::spec::ObjectOrReference::Object(SecurityScheme::ApiKey {
+                    name,
+                    location,
+                    ..
+                }) => {
                     if location == "header" {
                         Some(name.clone())
                     } else {
