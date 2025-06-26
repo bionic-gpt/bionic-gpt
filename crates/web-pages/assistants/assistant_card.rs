@@ -40,9 +40,9 @@ pub fn AssistantCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                         }
                     }
                     div {
-                        class: "ml-6 flex flex-col space-between",
+                        class: "ml-6 flex flex-col space-between min-w-0",
                         p {
-                            class: "text-sm line-clamp-3",
+                            class: "truncate overflow-hidden whitespace-nowrap",
                             "{description}"
                         }
                         div {
