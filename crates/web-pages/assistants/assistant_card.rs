@@ -29,8 +29,8 @@ pub fn AssistantCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
                     class: "flex w-full",
                     if let Some(object_id) = prompt.image_icon_object_id {
                         img {
-                            width: "96",
-                            height: "96",
+                            width: "48",
+                            height: "48",
                             src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
