@@ -1,0 +1,122 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Google Drive Tool",
+    "version": "1.0.0",
+    "description": "Access Google Drive to allow AI models to search, list, and read files.",
+    "x-logo": {
+        "url": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIC0xMy41IDI1NiAyNTYiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQiIGZpbGw9IiMwMDAwMDAiPjxnIGlkPSJTVkdSZXBvX2JnQ2FycmllciIgc3Ryb2tlLXdpZHRoPSIwIj48L2c+PGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L2c+PGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8Zz4gPHBhdGggZD0iTTE5LjM1NDIzMTIsMTk2LjAzMzkyOCBMMzAuNjQ0MTcyLDIxNS41MzQ4MTYgQzMyLjk5MDAyODcsMjE5LjY0MDE0IDM2LjM2MjIxNjQsMjIyLjg2NTg4IDQwLjMyMTA5MjksMjI1LjIxMTczNyBDNTEuNjYwMjQyMSwyMTAuODE4Mzc2IDU5LjU1MzQyMjUsMTk5Ljc3Mjg2NCA2NC4wMDA2MzQsMTkyLjA3NTIwMSBDNjguNTEzNzExOSwxODQuMjYzNTI5IDc0LjA2MDk2NTcsMTcyLjA0NTAzOSA4MC42NDIzOTU0LDE1NS40MTk3MyBDNjIuOTA2NDMxNSwxNTMuMDg1MjgyIDQ5LjQ2NTk5NzQsMTUxLjkxODA1OCA0MC4zMjEwOTI5LDE1MS45MTgwNTggQzMxLjU0NTQ2NSwxNTEuOTE4MDU4IDE4LjEwNTEwMDcsMTUzLjA4NTI4MiAwLDE1NS40MTk3MyBDMCwxNTkuOTY0OTk2IDEuMTcyOTg4MjUsMTY0LjUxMDI2MSAzLjUxODkzNDc5LDE2OC42MTU1ODYgTDE5LjM1NDIzMTIsMTk2LjAzMzkyOCBaIiBmaWxsPSIjMDA2NkRBIj4gPC9wYXRoPiA8cGF0aCBkPSJNMjE1LjY4MTQ0MywyMjUuMjExNzM3IEMyMTkuNjQwMzIsMjIyLjg2NTg4IDIyMy4wMTI1MDcsMjE5LjY0MDE0IDIyNS4zNTgzNjQsMjE1LjUzNDgxNiBMMjMwLjA1MDM3NywyMDcuNDcwNjE1IEwyNTIuNDgzNTExLDE2OC42MTU1ODYgQzI1NC44MjkzNjgsMTY0LjUxMDI2MSAyNTYuMDAyNDQ2LDE1OS45NjQ5OTYgMjU2LjAwMjQ0NiwxNTUuNDE5NzMgQzIzNy43OTI1NCwxNTMuMDg1MjgyIDIyNC4zNzY2MTMsMTUxLjkxODA1OCAyMTUuNzU0NjY3LDE1MS45MTgwNTggQzIwNi40ODg3MTIsMTUxLjkxODA1OCAxOTMuMDcyNzg1LDE1My4wODUyODIgMTc1LjUwNjg4OCwxNTUuNDE5NzMgQzE4Mi4wMTA0NzksMTcyLjEzNjA5MyAxODcuNDg0Mzk0LDE4NC4zNTQ1ODQgMTkxLjkyODYzMywxOTIuMDc1MjAxIEMxOTYuNDEyMDczLDE5OS44NjM5MTkgMjA0LjMyOTY3NywyMTAuOTA5NDMxIDIxNS42ODE0NDMsMjI1LjIxMTczNyBaIiBmaWxsPSIjRUE0MzM1Ij4gPC9wYXRoPiA8cGF0aCBkPSJNMTI4LjAwMTI2OCw3My4zMTExNTE1IEMxNDEuMTIxMTgyLDU3LjQ2NTUyNjMgMTUwLjE2Mjg5OCw0NS4yNDcwMDExIDE1NS4xMjY0MTUsMzYuNjU1NTc1NyBDMTU5LjEyMzEyMSwyOS43Mzc2MTk2IDE2My41MjE3MzksMTguNjkyMDcyNiAxNjguMzIyMjcxLDMuNTE4OTM0NzkgQzE2NC4zNjMzOTUsMS4xNzI5NTgzIDE1OS44MTgxMjksMCAxNTUuMTI2NDE1LDAgTDEwMC44NzYxMjEsMCBDOTYuMTg0MTA3OSwwIDkxLjYzODg0MiwxLjMxOTU4NTU3IDg3LjY3OTk2NTUsMy41MTg5MzQ3OSBDOTMuNzg2MTk0MywyMC45MjEwMDY1IDk4Ljk2NzU0MjgsMzMuMzA1ODA2NyAxMDMuMjI0MDExLDQwLjY3MzMzNTQgQzEwNy45Mjc4MzIsNDguODE1MTg4MSAxMTYuMTg2OTE4LDU5LjY5NDQ2MDIgMTI4LjAwMTI2OCw3My4zMTExNTE1IFoiIGZpbGw9IiMwMDgzMkQiPiA8L3BhdGg+IDxwYXRoIGQ9Ik0xNzUuMzYwMTQxLDE1NS40MTk3MyBMODAuNjQyMDk1OSwxNTUuNDE5NzMgTDQwLjMyMTA5MjksMjI1LjIxMTczNyBDNDQuMjc5OTY5NCwyMjcuNTU3ODkzIDQ4LjgyNTIzNTIsMjI4LjczMDY3MiA1My41MTcyNDgxLDIyOC43MzA2NzIgTDIwMi40ODUyODgsMjI4LjczMDY3MiBDMjA3LjE3NzMwMSwyMjguNzMwNjcyIDIxMS43MjI1NjcsMjI3LjQxMTE0NiAyMTUuNjgxNDQzLDIyNS4yMTE3MzcgTDE3NS4zNjAxNDEsMTU1LjQxOTczIFoiIGZpbGw9IiMyNjg0RkMiPiA8L3BhdGg+IDxwYXRoIGQ9Ik0xMjguMDAxMjY4LDczLjMxMTE1MTUgTDg3LjY4MDI2NSwzLjUxODkzNDc5IEM4My43MjEzODg1LDUuODY0ODgxMzQgODAuMzQ4OTAxMyw5LjA5MDQ0MTc5IDc4LjAwMzA0NDYsMTMuMTk2MDY1NCBMMy41MTg5MzQ3OSwxNDIuMjIzNTc1IEMxLjE3Mjk4ODI1LDE0Ni4zMjkxOTggMCwxNTAuODc0NDY0IDAsMTU1LjQxOTczIEw4MC42NDIzOTU0LDE1NS40MTk3MyBMMTI4LjAwMTI2OCw3My4zMTExNTE1IFoiIGZpbGw9IiMwMEFDNDciPiA8L3BhdGg+IDxwYXRoIGQ9Ik0yMTUuMjQxNTAxLDc3LjcwOTk2OTcgTDE3Ny45OTk0OTIsMTMuMTk2MDY1NCBDMTc1LjY1MzYzNSw5LjA5MDQ0MTc5IDE3Mi4yODExNDgsNS44NjQ4ODEzNCAxNjguMzIyMjcxLDMuNTE4OTM0NzkgTDEyOC4wMDEyNjgsNzMuMzExMTUxNSBMMTc1LjM2MDE0MSwxNTUuNDE5NzMgTDI1NS44NTU5OTksMTU1LjQxOTczIEMyNTUuODU1OTk5LDE1MC44NzQ0NjQgMjU0LjY4MjkyMSwxNDYuMzI5MTk4IDI1Mi4zMzcwNjQsMTQyLjIyMzU3NSBMMjE1LjI0MTUwMSw3Ny43MDk5Njk3IFoiIGZpbGw9IiNGRkJBMDAiPiA8L3BhdGg+IDwvZz4gPC9nPjwvc3ZnPg=="
+    }
+  },
+  "paths": {
+    "/gdrive_search": {
+      "post": {
+        "summary": "Search files in Google Drive",
+        "operationId": "gdrive_search",
+        "security": [
+          { "OAuth2": ["https://www.googleapis.com/auth/drive.readonly"] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query string"
+                  }
+                },
+                "required": ["query"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of matching files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "file_name": { "type": "string" },
+                      "mime_type": { "type": "string" },
+                      "file_id": { "type": "string" },
+                      "last_modified": { "type": "string", "format": "date-time" },
+                      "file_size": { "type": "integer", "description": "Size in bytes" }
+                    },
+                    "required": ["file_name", "mime_type", "file_id", "last_modified", "file_size"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gdrive_read_file": {
+      "post": {
+        "summary": "Read file contents by Google Drive file ID",
+        "operationId": "gdrive_read_file",
+        "security": [
+          { "OAuth2": ["https://www.googleapis.com/auth/drive.readonly"] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_id": {
+                    "type": "string",
+                    "description": "The Google Drive file ID"
+                  }
+                },
+                "required": ["file_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File contents with automatic format handling",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "type": "string", "description": "Markdown, CSV, plain text, or UTF-8 content" },
+                    { "type": "string", "format": "byte", "description": "Base64 encoded content for binary files" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+            "tokenUrl": "https://oauth2.googleapis.com/token",
+            "scopes": {
+              "https://www.googleapis.com/auth/drive.readonly": "View files in your Google Drive"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    { "OAuth2": ["https://www.googleapis.com/auth/drive.readonly"] }
+  ]
+}
