@@ -3,7 +3,6 @@ use db::queries::{chats::Chat, chats_chunks};
 use db::{ChatRole, ChatStatus, Transaction};
 use openai_api::ToolCall;
 use serde_json::from_str;
-use time::{Duration, OffsetDateTime};
 use web_pages::console::{ChatWithChunks, PendingChat, PendingChatState};
 
 pub fn determine_pending_chat_state(chats: Vec<Chat>) -> (Vec<Chat>, PendingChatState) {
@@ -97,18 +96,10 @@ pub async fn process_chats(
     Ok((chat_history, pending_chat_state))
 }
 
-/// Helper function to check if a chat is too old to be considered pending.
-/// Chats older than 5 seconds (based on created_at) should not be pending.
-fn _is_chat_too_old_for_pending(chat: &Chat) -> bool {
-    let now = OffsetDateTime::now_utc();
-    let five_seconds_ago = now - Duration::seconds(5);
-    chat.created_at < five_seconds_ago
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use time::OffsetDateTime;
+    use time::{Duration, OffsetDateTime};
 
     // Helper function to create a mock Chat for testing
     fn create_mock_chat(
