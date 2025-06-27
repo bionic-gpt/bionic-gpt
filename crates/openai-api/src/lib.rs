@@ -141,9 +141,12 @@ fn merge_tool_calls(target_tool_calls: &mut Vec<ToolCall>, incoming_tool_calls: 
     for incoming in incoming_tool_calls {
         // Try to find an existing matching tool call
         let maybe_target = target_tool_calls.iter_mut().find(|existing| {
-            existing.index == incoming.index
-                && !existing.id.is_empty()
-                && existing.id == incoming.id
+            match (&existing.id[..], &incoming.id[..]) {
+                ("", "") => existing.index == incoming.index,
+                (_, "") => existing.index == incoming.index, // id missing in incoming
+                ("", _) => false, // id missing in existing but present in incoming
+                _ => existing.id == incoming.id,
+            }
         });
 
         let target = if let Some(existing) = maybe_target {

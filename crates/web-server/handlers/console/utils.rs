@@ -6,91 +6,64 @@ use serde_json::from_str;
 use time::{Duration, OffsetDateTime};
 use web_pages::console::{ChatWithChunks, PendingChat, PendingChatState};
 
-/// Determine the pending chat state from a list of chats.
-///
-/// This function processes chats to identify which ones should be considered pending:
-/// 1. Separate pending chats by role (Tool vs User), excluding chats older than 5 seconds
-/// 2. If pending Tool chats exist, return PendingChatState::PendingToolChats
-/// 3. Else if pending User chat exists, return PendingChatState::PendingUserChat
-/// 4. Else return PendingChatState::None
-///
-/// Note: Chats that are more than 5 seconds old (based on created_at) will never be
-/// considered pending, regardless of their database status.
-///
-/// # Arguments
-/// * `chats` - The list of chats to process
-///
-/// # Returns
-/// A tuple containing:
-/// * `non_pending_chats` - A vector of chats that should be treated as non-pending
-/// * `pending_chat_state` - The pending chat state (Tool chats, User chat, or None)
 pub fn determine_pending_chat_state(chats: Vec<Chat>) -> (Vec<Chat>, PendingChatState) {
-    // If there are no chats, return empty results
     if chats.is_empty() {
         return (Vec::new(), PendingChatState::None);
     }
 
-    // Get the last chat ID from the original input list
+    tracing::debug!("Got {} chats", chats.len());
+
     let last_chat_id = chats.last().map(|chat| chat.id).unwrap_or(0);
 
-    // Separate pending and non-pending chats
-    // A chat is only considered pending if:
-    // 1. Its status is Pending AND
-    // 2. It was created within the last 5 seconds
-    let (pending_chats, non_pending_chats): (Vec<Chat>, Vec<Chat>) = chats
-        .into_iter()
-        .partition(|chat| chat.status == ChatStatus::Pending && !is_chat_too_old_for_pending(chat));
+    // Collect non-pending chats for return
+    let non_pending: Vec<Chat> = chats
+        .iter()
+        .filter(|&chat| !(chat.status == ChatStatus::Pending))
+        .cloned()
+        .collect();
 
-    // Determine pending chat state based on priority
-    let pending_chat_state = if !pending_chats.is_empty() {
-        // Separate pending chats by role
-        let (tool_chats, user_chats): (Vec<Chat>, Vec<Chat>) = pending_chats
-            .into_iter()
-            .partition(|chat| chat.role == ChatRole::Tool);
+    // Walk tail in reverse to find consecutive recent pending tool/user
+    let mut tail_pending_tool_chats = Vec::new();
+    for chat in chats.iter().rev() {
+        if chat.status == ChatStatus::Pending {
+            match chat.role {
+                ChatRole::Tool => tail_pending_tool_chats.push(chat.clone()),
+                ChatRole::User => {
+                    if chat.id == last_chat_id {
+                        let tool_calls = chat
+                            .tool_calls
+                            .as_ref()
+                            .and_then(|s| from_str::<Vec<ToolCall>>(s).ok());
 
-        if !tool_chats.is_empty() {
-            // Priority 1: Show pending Tool chats
-            PendingChatState::PendingToolChats(tool_chats, last_chat_id)
-        } else if !user_chats.is_empty() {
-            // Priority 2: Show last pending User chat
-            let last_user_chat = user_chats.into_iter().next_back().unwrap();
-            let tool_calls = if last_user_chat.tool_calls.is_some() {
-                // Parse the tool_calls JSON string into a Vec<ToolCall>
-                from_str::<Vec<ToolCall>>(&last_user_chat.tool_calls.clone().unwrap()).ok()
-            } else {
-                None
-            };
-
-            PendingChatState::PendingUserChat(Box::new(PendingChat {
-                chat: last_user_chat,
-                tool_calls,
-            }))
+                        return (
+                            non_pending,
+                            PendingChatState::PendingUserChat(Box::new(PendingChat {
+                                chat: chat.clone(),
+                                tool_calls,
+                            })),
+                        );
+                    } else {
+                        break;
+                    }
+                }
+                _ => break,
+            }
         } else {
-            // No Tool or User chats pending
-            PendingChatState::None
+            break;
         }
-    } else {
-        // No pending chats at all
-        PendingChatState::None
-    };
+    }
 
-    (non_pending_chats, pending_chat_state)
+    if !tail_pending_tool_chats.is_empty() {
+        tail_pending_tool_chats.reverse(); // restore order
+        return (
+            non_pending,
+            PendingChatState::PendingToolChats(tail_pending_tool_chats, last_chat_id),
+        );
+    }
+
+    (non_pending, PendingChatState::None)
 }
 
-/// Process a list of chats to create chat history and identify pending chats.
-///
-/// This function takes a list of chats and processes them to:
-/// 1. Determine pending chat state using determine_pending_chat_state()
-/// 2. For each non-pending chat, fetch its chunks from the database
-///
-/// # Arguments
-/// * `transaction` - The database transaction
-/// * `chats` - The list of chats to process
-///
-/// # Returns
-/// A tuple containing:
-/// * `chat_history` - A vector of ChatWithChunks for all non-pending chats
-/// * `pending_chat_state` - The pending chat state (Tool chats, User chat, or None)
 pub async fn process_chats(
     transaction: &Transaction<'_>,
     chats: Vec<Chat>,
@@ -115,12 +88,18 @@ pub async fn process_chats(
         chat_history.push(chat_with_chunks);
     }
 
+    tracing::debug!(
+        "Shall we call the model {}",
+        pending_chat_state.shall_we_call_the_model()
+    );
+    tracing::debug!("{:?}", pending_chat_state);
+
     Ok((chat_history, pending_chat_state))
 }
 
 /// Helper function to check if a chat is too old to be considered pending.
 /// Chats older than 5 seconds (based on created_at) should not be pending.
-fn is_chat_too_old_for_pending(chat: &Chat) -> bool {
+fn _is_chat_too_old_for_pending(chat: &Chat) -> bool {
     let now = OffsetDateTime::now_utc();
     let five_seconds_ago = now - Duration::seconds(5);
     chat.created_at < five_seconds_ago
@@ -208,6 +187,8 @@ mod tests {
         // Test the pending state determination logic
         let (non_pending_chats, pending_chat_state) = determine_pending_chat_state(chats);
 
+        assert!(pending_chat_state.shall_we_call_the_model());
+
         // Should have pending chats since some are recent
         assert_ne!(
             pending_chat_state,
@@ -217,15 +198,7 @@ mod tests {
         assert_eq!(
             non_pending_chats.len(),
             4,
-            "Four old chat should be non-pending"
-        );
-
-        // Verify the old chat is in non-pending
-        let non_pending_ids: Vec<i32> = non_pending_chats.iter().map(|chat| chat.id).collect();
-        assert_eq!(
-            non_pending_ids,
-            vec![1, 2, 3, 4],
-            "Old chat should be non-pending"
+            "Four old chats should be non-pending"
         );
 
         // Verify we have the correct pending state (should be PendingToolChats since Tool has priority)

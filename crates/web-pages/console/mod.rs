@@ -30,3 +30,13 @@ pub enum PendingChatState {
     PendingUserChat(Box<PendingChat>),
     None,
 }
+
+impl PendingChatState {
+    pub fn shall_we_call_the_model(&self) -> bool {
+        match self {
+            PendingChatState::PendingToolChats(_, _) => true,
+            PendingChatState::PendingUserChat(_) => true,
+            PendingChatState::None => false,
+        }
+    }
+}
