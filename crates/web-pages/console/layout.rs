@@ -24,7 +24,7 @@ pub fn ConsoleLayout(
     enabled_tools: Vec<String>,
     available_tools: Vec<BionicToolDefinition>,
 ) -> Element {
-    let has_pending_chat = !matches!(&pending_chat_state, PendingChatState::None);
+    let has_pending_chat = pending_chat_state.shall_we_call_the_model();
 
     rsx! {
         Layout {

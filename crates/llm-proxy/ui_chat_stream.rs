@@ -189,6 +189,15 @@ async fn save_results(
         .one()
         .await
     {
+        // Set any pending chats to success. We don't want to loop.
+        if let Err(e) = queries::conversations::set_pending_to_success()
+            .bind(&transaction, &chat.conversation_id)
+            .await
+        {
+            tracing::error!("Error creating chat: {:?}", e);
+            return;
+        }
+
         if let Err(e) = queries::chats::new_chat()
             .bind(
                 &transaction,

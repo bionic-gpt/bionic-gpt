@@ -1,5 +1,15 @@
 --: Conversation()
 
+--! set_pending_to_success
+UPDATE
+    chats
+SET 
+    status = 'Success'
+WHERE
+    status = 'Pending'
+AND
+    conversation_id = :id;
+
 --! get_latest_conversation : Conversation
 SELECT
     id,
