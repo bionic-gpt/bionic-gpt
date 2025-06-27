@@ -3,16 +3,20 @@ use db::queries::{chats::Chat, chats_chunks};
 use db::{ChatRole, ChatStatus, Transaction};
 use openai_api::ToolCall;
 use serde_json::from_str;
+use time::{Duration, OffsetDateTime};
 use web_pages::console::{ChatWithChunks, PendingChat, PendingChatState};
 
 /// Process a list of chats to create chat history and identify pending chats.
 ///
 /// This function takes a list of chats and processes them to:
-/// 1. Separate pending chats by role (Tool vs User)
+/// 1. Separate pending chats by role (Tool vs User), excluding chats older than 5 seconds
 /// 2. If pending Tool chats exist, return PendingChatState::PendingToolChats
 /// 3. Else if pending User chat exists, return PendingChatState::PendingUserChat
 /// 4. Else return PendingChatState::None
 /// 5. For each chat in chat_history, fetch its chunks
+///
+/// Note: Chats that are more than 5 seconds old (based on created_at) will never be
+/// considered pending, regardless of their database status.
 ///
 /// # Arguments
 /// * `transaction` - The database transaction
@@ -37,10 +41,13 @@ pub async fn process_chats(
     let last_chat_id = chats.last().map(|chat| chat.id).unwrap_or(0);
 
     // Separate pending and non-pending chats
+    // A chat is only considered pending if:
+    // 1. Its status is Pending AND
+    // 2. It was created within the last 5 seconds
     let (pending_chats, non_pending_chats): (Vec<Chat>, Vec<Chat>) = chats
         .clone()
         .into_iter()
-        .partition(|chat| chat.status == ChatStatus::Pending);
+        .partition(|chat| chat.status == ChatStatus::Pending && !is_chat_too_old_for_pending(chat));
 
     // Determine pending chat state based on priority
     let pending_chat_state = if !pending_chats.is_empty() {
@@ -91,4 +98,12 @@ pub async fn process_chats(
     }
 
     Ok((chat_history, pending_chat_state))
+}
+
+/// Helper function to check if a chat is too old to be considered pending.
+/// Chats older than 5 seconds (based on created_at) should not be pending.
+fn is_chat_too_old_for_pending(chat: &Chat) -> bool {
+    let now = OffsetDateTime::now_utc();
+    let five_seconds_ago = now - Duration::seconds(5);
+    chat.created_at < five_seconds_ago
 }
