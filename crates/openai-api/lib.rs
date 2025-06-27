@@ -123,54 +123,37 @@ impl ChatCompletionChoiceDelta {
         match self.delta.tool_calls.as_mut() {
             Some(tool_calls) => {
                 if let Some(other_tool_calls) = &other.delta.tool_calls {
-                    // Ensure we have enough tool calls in our vector
-                    while tool_calls.len() < other_tool_calls.len() {
-                        // Add empty tool calls to match the length
-                        tool_calls.push(ToolCall {
-                            id: String::new(),
-                            r#type: "function".to_string(),
-                            function: ToolCallFunction {
-                                name: String::new(),
-                                arguments: String::new(),
-                            },
-                        });
-                    }
-
-                    // Merge tool calls by index
                     for (i, other_tool_call) in other_tool_calls.iter().enumerate() {
-                        if i < tool_calls.len() {
-                            // If the ID is set in the other tool call but not in ours, copy it
-                            if tool_calls[i].id.is_empty() && !other_tool_call.id.is_empty() {
-                                tool_calls[i].id = other_tool_call.id.clone();
-                            }
-
-                            // If the type is empty in ours but set in the other, copy it
-                            if tool_calls[i].r#type.is_empty() && !other_tool_call.r#type.is_empty()
-                            {
-                                tool_calls[i].r#type = other_tool_call.r#type.clone();
-                            }
-
-                            // If the function name is empty in ours but set in the other, copy it
-                            if tool_calls[i].function.name.is_empty()
-                                && !other_tool_call.function.name.is_empty()
-                            {
-                                tool_calls[i].function.name = other_tool_call.function.name.clone();
-                            }
-
-                            // Merge the arguments
-                            if !other_tool_call.function.arguments.is_empty() {
-                                tool_calls[i]
-                                    .function
-                                    .arguments
-                                    .push_str(&other_tool_call.function.arguments);
-                            }
+                        let target_index = other_tool_call.index.unwrap_or(i as u32) as usize;
+                        if tool_calls.len() <= target_index {
+                            tool_calls.resize_with(target_index + 1, ToolCall::default);
+                        }
+                        let target = &mut tool_calls[target_index];
+                        if target.id.is_empty() && !other_tool_call.id.is_empty() {
+                            target.id = other_tool_call.id.clone();
+                        }
+                        if target.index.is_none() && other_tool_call.index.is_some() {
+                            target.index = other_tool_call.index;
+                        }
+                        if target.r#type.is_empty() && !other_tool_call.r#type.is_empty() {
+                            target.r#type = other_tool_call.r#type.clone();
+                        }
+                        if target.function.name.is_empty()
+                            && !other_tool_call.function.name.is_empty()
+                        {
+                            target.function.name = other_tool_call.function.name.clone();
+                        }
+                        if !other_tool_call.function.arguments.is_empty() {
+                            target
+                                .function
+                                .arguments
+                                .push_str(&other_tool_call.function.arguments);
                         }
                     }
                 }
             }
             None => {
                 if let Some(other_tool_calls) = &other.delta.tool_calls {
-                    // Set this tool_calls to other tool_calls
                     self.delta.tool_calls = Some(other_tool_calls.clone());
                 }
             }
@@ -254,6 +237,9 @@ pub struct ToolCall {
     /// The ID of the tool call.
     #[serde(default)]
     pub id: String,
+    /// The index of the tool call in the list of calls. Optional when not streamed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub index: Option<u32>,
     /// The type of the tool. Currently, only `function` is supported.
     pub r#type: String,
     /// The function that the model called.
@@ -281,6 +267,26 @@ pub struct ToolCallFunction {
     /// hallucinate parameters not defined by your function schema.
     /// Validate the arguments in your code before calling your function.
     pub arguments: String,
+}
+
+impl Default for ToolCallFunction {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            arguments: String::new(),
+        }
+    }
+}
+
+impl Default for ToolCall {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            index: None,
+            r#type: "function".to_string(),
+            function: ToolCallFunction::default(),
+        }
+    }
 }
 
 fn is_none_or_empty_vec<T>(opt: &Option<Vec<T>>) -> bool {
