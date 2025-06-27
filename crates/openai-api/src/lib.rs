@@ -146,7 +146,7 @@ fn merge_tool_calls(target_tool_calls: &mut Vec<ToolCall>, incoming_tool_calls: 
                 (_, "") => existing.index == incoming.index, // id missing in incoming
                 ("", _) => false, // id missing in existing but present in incoming
                 _ => existing.id == incoming.id,
-            }
+            } && existing.id == incoming.id
         });
 
         let target = if let Some(existing) = maybe_target {
