@@ -45,7 +45,6 @@ static_resources:
                     response_handle:headers():add("X-Frame-Options", "deny");
                     response_handle:headers():add("X-XSS-Protection", "1; mode=block");
                     response_handle:headers():add("X-Content-Type-Options", "nosniff");
-                    response_handle:headers():add("Referrer-Policy", "no-referrer");
                     response_handle:headers():add("X-Download-Options", "noopen");
                     response_handle:headers():add("X-DNS-Prefetch-Control", "off");
                     response_handle:headers():add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
