@@ -164,9 +164,14 @@ async fn create_request(
         .one()
         .await?;
 
-    let messages =
-        super::prompt::execute_prompt(transaction, prompt.clone(), None, completion.messages)
-            .await?;
+    let messages = super::prompt::execute_prompt(
+        transaction,
+        prompt.clone(),
+        None,
+        completion.messages,
+        Vec::new(),
+    )
+    .await?;
     let completion = BionicChatCompletionRequest {
         messages,
         ..completion

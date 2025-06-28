@@ -2551,6 +2551,7 @@ dependencies = [
  "http 1.1.0",
  "integrations",
  "openai-api",
+ "rag-engine",
  "reqwest",
  "reqwest-eventsource",
  "serde",

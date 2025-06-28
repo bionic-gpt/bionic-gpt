@@ -11,6 +11,7 @@ db = { path = "../db" }
 embeddings-api = { path = "../embeddings-api" }
 integrations = { path = "../integrations" }
 openai-api = { path = "../openai-api" }
+rag-engine = { path = "../rag-engine" }
 
 axum = { version = "0.8", features = ["multipart"] }
 axum-extra = { version = "0.10", features = ["form", "typed-routing", "cookie"] }

@@ -13,6 +13,7 @@ pub async fn execute_prompt(
     prompt: prompts::SinglePrompt,
     conversation_id: Option<i64>,
     chat_history: Vec<ChatCompletionMessage>,
+    mut additional_context: Vec<RelatedContext>,
 ) -> Result<Vec<ChatCompletionMessage>, CustomError> {
     let question = if let Some(q) = chat_history.last() {
         q.content.clone().unwrap_or("".to_string())
@@ -24,6 +25,10 @@ pub async fn execute_prompt(
     let mut related_context = Vec::new();
     if env::var("AGENTIC_RAG").is_err() {
         related_context = legacy_related_context(transaction, &prompt, &question).await?;
+    }
+    // Prepend any additional context provided by the caller
+    if !additional_context.is_empty() {
+        related_context.extend(additional_context);
     }
 
     tracing::info!("Retrieved {} history items", chat_history.len());
@@ -44,9 +49,11 @@ pub async fn execute_prompt(
     // We assume, given a list that the last item is the one used for lookup
     if let Some(id) = conversation_id {
         for chunk_id in chunk_ids {
-            chats_chunks::create_chunks_chats()
-                .bind(transaction, &chunk_id, &id)
-                .await?;
+            if chunk_id > 0 {
+                chats_chunks::create_chunks_chats()
+                    .bind(transaction, &chunk_id, &id)
+                    .await?;
+            }
         }
     }
 
@@ -248,4 +255,65 @@ async fn legacy_related_context(
     }
 
     Ok(related_context)
+}
+
+/// Retrieve the most recent document for the conversation and convert it into
+/// related context chunks. This is used when the model does not support tool
+/// use and we want to inline the document text directly into the prompt.
+pub async fn latest_attachment_context(
+    transaction: &Transaction<'_>,
+    conversation_id: i64,
+) -> Result<Vec<RelatedContext>, CustomError> {
+    use rag_engine::unstructured::document_to_chunks;
+
+    let context_size = db::queries::conversations::conversation_context_size()
+        .bind(transaction, &conversation_id)
+        .one()
+        .await?
+        .context_size;
+
+    let max_tokens = context_size / 2;
+
+    let content = match db::queries::attachments::get_latest_content()
+        .bind(transaction, &conversation_id)
+        .opt()
+        .await?
+    {
+        Some(c) => c,
+        None => return Ok(Vec::new()),
+    };
+
+    let bytes = content.object_data;
+    let config = rag_engine::config::Config::new();
+    let sections = document_to_chunks(
+        bytes,
+        &content.file_name,
+        500,
+        1500,
+        true,
+        &config.unstructured_endpoint,
+    )
+    .await
+    .map_err(|e| CustomError::ExternalApi(e.to_string()))?;
+
+    let mut tokens_so_far = 0;
+    let mut text_parts = Vec::new();
+    for section in sections {
+        let section_tokens = openai_api::token_count::token_count_from_string(&section.text);
+        if tokens_so_far + section_tokens > max_tokens {
+            break;
+        }
+        tokens_so_far += section_tokens;
+        text_parts.push(section.text);
+    }
+
+    let text = text_parts.join("\n\n");
+    if text.is_empty() {
+        Ok(Vec::new())
+    } else {
+        Ok(vec![RelatedContext {
+            chunk_id: -1,
+            chunk_text: text,
+        }])
+    }
 }

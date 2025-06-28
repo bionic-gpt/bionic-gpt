@@ -358,11 +358,22 @@ async fn create_request(
 
     let chat_history = chat_converter::convert_chat_to_messages(chat_history);
 
+    let mut extra_context = Vec::new();
+    if !capabilities
+        .iter()
+        .any(|c| c.capability == db::ModelCapability::tool_use)
+        && attachment_count > 0
+    {
+        extra_context =
+            super::prompt::latest_attachment_context(&transaction, conversation.id).await?;
+    }
+
     let messages = super::prompt::execute_prompt(
         &transaction,
         prompt.clone(),
         Some(conversation.id),
         chat_history,
+        extra_context,
     )
     .await?;
 
