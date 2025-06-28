@@ -8,7 +8,7 @@ use serde_json::json;
 
 #[derive(Debug, Deserialize)]
 struct ReadDocumentParams {
-    file_id: Option<i32>,
+    file_id: Option<String>,
     #[serde(default)]
     section_index: usize,
 }
@@ -41,7 +41,7 @@ pub fn get_tool_definition() -> BionicToolDefinition {
             parameters: json!({
                 "type": "object",
                 "properties": {
-                    "file_id": {"type": "integer", "description": "ID of the attachment"},
+                    "file_id": {"type": "string", "description": "ID of the attachment"},
                     "section_index": {"type": "integer", "minimum": 0, "description": "Index of the first section (default 0)"}
                 },
                 "required": []
@@ -115,7 +115,10 @@ impl ToolInterface for ReadDocumentTool {
 
         let max_tokens = context_size / 2;
 
-        let content = if let Some(file_id) = params.file_id {
+        let content = if let Some(file_id_str) = params.file_id {
+            let file_id: i32 = file_id_str
+                .parse()
+                .map_err(|_| json!({"error": "file_id must be an integer"}))?;
             db::queries::attachments::get_content()
                 .bind(&transaction, &file_id)
                 .one()
@@ -201,9 +204,9 @@ mod tests {
 
     #[test]
     fn test_params_optional_file_id_some() {
-        let json = r#"{"file_id": 7}"#;
+        let json = r#"{"file_id": "7"}"#;
         let params: ReadDocumentParams = serde_json::from_str(json).unwrap();
-        assert_eq!(params.file_id, Some(7));
+        assert_eq!(params.file_id.as_deref(), Some("7"));
         assert_eq!(params.section_index, 0);
     }
 }
