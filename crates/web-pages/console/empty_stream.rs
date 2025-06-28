@@ -1,12 +1,10 @@
 #![allow(non_snake_case)]
-use crate::routes;
-
 use assets::files::*;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
+pub fn EmptyStream(prompt: SinglePrompt, team_id: i32) -> Element {
     let examples: Vec<Option<String>> = vec![
         prompt.example1,
         prompt.example2,
@@ -26,8 +24,6 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: 
                     if let Some(example) = example {
                         if ! example.is_empty() {
                             ExampleForm {
-                                team_id,
-                                prompt_id: prompt.id,
                                 example: example
                             }
                         }
@@ -39,34 +35,19 @@ pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: 
 }
 
 #[component]
-pub fn ExampleForm(prompt_id: i32, team_id: i32, example: String) -> Element {
+pub fn ExampleForm(example: String) -> Element {
     rsx! {
-        form {
-            class: "w-full",
-            method: "post",
-            action: routes::console::SendMessage{team_id}.to_string(),
-            enctype: "multipart/form-data",
-            input {
-                "type": "hidden",
-                name: "prompt_id",
-                value: "{prompt_id}"
+        button {
+            class: "example-prompt flex flex-col h-full w-full rounded-2xl border p-3 text-start",
+            "type": "button",
+            "data-example": "{example}",
+            img {
+                height: "16",
+                width: "16",
+                class: "svg-icon mb-2",
+                src: ai_svg.name
             }
-            input {
-                "type": "hidden",
-                name: "message",
-                value: "{example}"
-            }
-            button {
-                class: "flex flex-col h-full w-full rounded-2xl border p-3 text-start",
-                "type": "submit",
-                img {
-                    height: "16",
-                    width: "16",
-                    class: "svg-icon mb-2",
-                    src: ai_svg.name
-                }
-                "{example}"
-            }
+            "{example}"
         }
     }
 }

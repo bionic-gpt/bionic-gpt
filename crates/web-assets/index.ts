@@ -26,6 +26,7 @@ import { disableSubmitButton } from './typescript/disable-submit-button'
 import { themeSwitcher, setTheme } from './typescript/layout/theme-switcher'
 import { speechToText } from './typescript/console/speach-to-text';
 import { fileUpload } from './typescript/console/file-upload';
+import { examplePrompts } from './typescript/console/example-prompts';
 
 // Hotwired Turbo
 import '@hotwired/turbo'
@@ -37,6 +38,7 @@ function loadEverything() {
     modalTriggers()
     toggleVisibility()
     autoExpand()
+    examplePrompts()
     formatter()
     streamingChat()
     copyPaste()

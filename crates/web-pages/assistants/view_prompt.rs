@@ -55,8 +55,6 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                             if let Some(example) = example {
                                 if ! example.is_empty() {
                                     ExampleForm {
-                                        team_id,
-                                        prompt_id: prompt.id,
                                         example: example
                                     }
                                 }
