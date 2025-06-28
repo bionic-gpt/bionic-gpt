@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use crate::components::card_item::CardItem;
 use crate::routes::prompts::Image;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -13,49 +14,16 @@ pub fn AssistantCard(team_id: i32, rbac: Rbac, prompt: Prompt) -> Element {
         .filter(|&c| c != '\n' && c != '\t' && c != '\r')
         .collect();
     rsx! {
-        Card {
-            class: "cursor-pointer hover:bg-base-200 w-full",
-            popover_target: format!("view-trigger-{}-{}", prompt.id, team_id),
-            CardHeader {
-                class: "truncate ellipses flex justify-between p-2",
-                title: "{prompt.name}",
-                super::visibility::VisLabel {
-                    visibility: prompt.visibility
-                }
-            }
-            CardBody {
-                class: "m-0 p-2",
-                div {
-                    class: "flex w-full",
-                    if let Some(object_id) = prompt.image_icon_object_id {
-                        img {
-                            width: "48",
-                            height: "48",
-                            src: Image { team_id, id: object_id }.to_string()
-                        }
-                    } else {
-                        Avatar {
-                            avatar_size: AvatarSize::Medium,
-                            name: "{prompt.name}"
-                        }
-                    }
-                    div {
-                        class: "ml-6 flex flex-col space-between min-w-0",
-                        p {
-                            class: "truncate overflow-hidden whitespace-nowrap",
-                            "{description}"
-                        }
-                        div {
-                            class: "text-xs",
-                            "Last update ",
-                            RelativeTime {
-                                format: RelativeTimeFormat::Relative,
-                                datetime: "{prompt.updated_at}"
-                            }
-                        }
-                    }
-                }
-            }
+        CardItem {
+            class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
+            popover_target: Some(format!("view-trigger-{}-{}", prompt.id, team_id)),
+            image_src: prompt.image_icon_object_id.map(|id| Image { team_id, id }.to_string()),
+            avatar_name: Some(prompt.name.clone()),
+            title: prompt.name.clone(),
+            description: Some(rsx!(span { "{description}" } )),
+            footer: Some(rsx!( span { "Last update " RelativeTime { format: RelativeTimeFormat::Relative, datetime: "{prompt.updated_at}" } } )),
+            count_labels: vec![],
+            action: Some(rsx!(super::visibility::VisLabel { visibility: prompt.visibility })),
         }
     }
 }
