@@ -4,7 +4,7 @@ use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn EmptyStream(prompt: SinglePrompt, team_id: i32) -> Element {
+pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
     let examples: Vec<Option<String>> = vec![
         prompt.example1,
         prompt.example2,
@@ -24,7 +24,7 @@ pub fn EmptyStream(prompt: SinglePrompt, team_id: i32) -> Element {
                     if let Some(example) = example {
                         if ! example.is_empty() {
                             ExampleForm {
-                                example: example
+                                example
                             }
                         }
                     }
@@ -38,7 +38,7 @@ pub fn EmptyStream(prompt: SinglePrompt, team_id: i32) -> Element {
 pub fn ExampleForm(example: String) -> Element {
     rsx! {
         button {
-            class: "example-prompt flex flex-col h-full w-full rounded-2xl border p-3 text-start",
+            class: "example-prompt cursor-pointer hover:bg-base-200 flex flex-col h-full w-full rounded-2xl border p-3 text-start",
             "type": "button",
             "data-example": "{example}",
             img {

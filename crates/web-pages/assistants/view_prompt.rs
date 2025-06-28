@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
-use crate::{console::empty_stream::ExampleForm, routes::prompts::Image};
+use crate::routes::prompts::Image;
+use assets::files::*;
 use daisy_rsx::*;
 use db::queries::prompts::Prompt;
 use dioxus::prelude::*;
@@ -55,6 +56,8 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                             if let Some(example) = example {
                                 if ! example.is_empty() {
                                     ExampleForm {
+                                        prompt_id: prompt.id,
+                                        team_id,
                                         example: example
                                     }
                                 }
@@ -76,6 +79,39 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                         "Cancel"
                     }
                 }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn ExampleForm(prompt_id: i32, team_id: i32, example: String) -> Element {
+    rsx! {
+        form {
+            class: "w-full",
+            method: "post",
+            action: crate::routes::console::SendMessage{team_id}.to_string(),
+            enctype: "multipart/form-data",
+            input {
+                "type": "hidden",
+                name: "prompt_id",
+                value: "{prompt_id}"
+            }
+            input {
+                "type": "hidden",
+                name: "message",
+                value: "{example}"
+            }
+            button {
+                class: "cursor-pointer hover:bg-base-200 flex flex-col h-full w-full rounded-2xl border p-3 text-start",
+                "type": "submit",
+                img {
+                    height: "16",
+                    width: "16",
+                    class: "svg-icon mb-2",
+                    src: ai_svg.name
+                }
+                "{example}"
             }
         }
     }

@@ -85,7 +85,7 @@ document.addEventListener('turbo:frame-load', (event: Event) => {
 // Reload the turbo frame when the browser history changes
 window.addEventListener('popstate', () => {
     const frame = document.getElementById('main-content')
-    if (frame instanceof FrameElement) {
+    if (frame instanceof FrameElement && frame) {
         frame.src = location.href
     }
 })
