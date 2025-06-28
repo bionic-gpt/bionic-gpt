@@ -19,6 +19,7 @@ pub fn Upload(upload_action: String) -> Element {
 
                     FileInput {
                         name: "payload",
+                        required: true,
                         multiple: true
                     }
 
