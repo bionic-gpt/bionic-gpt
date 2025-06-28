@@ -25,9 +25,9 @@ pub fn SectionIntroduction(
                     class: "mt-4",
                     CardBody {
                         div {
-                            class: "text-center mt-4",
+                            class: "text-center",
                             p {
-                                class: "text-sm text-base-content/70",
+                                class: "text-base-content/70",
                                 "{empty_text}"
                             }
                         }

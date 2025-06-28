@@ -37,6 +37,10 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                 content: "true"
             }
             meta {
+                "http-equiv": "Content-Security-Policy",
+                content: "media-src blob:; default-src 'none'; script-src 'self'; img-src 'self' data:; style-src 'self'; connect-src 'self'"
+            }
+            meta {
                 name: "viewport",
                 content: "width=device-width, initial-scale=1"
             }

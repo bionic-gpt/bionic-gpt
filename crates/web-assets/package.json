@@ -11,7 +11,7 @@
     },
     "devDependencies": {
         "@github/relative-time-element": "4.4.8",
-        "@hotwired/turbo": "^7.2.4",
+        "@hotwired/turbo": "8.0.13",
         "@parcel/reporter-bundle-buddy": "2.15.2",
         "@parcel/transformer-sass": "2.15.2",
         "@types/highlightjs": "^9.12.6",
