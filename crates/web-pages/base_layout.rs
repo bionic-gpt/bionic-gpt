@@ -33,6 +33,10 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                 content: "IE=edge"
             }
             meta {
+                name: "turbo-prefetch",
+                content: "true"
+            }
+            meta {
                 name: "viewport",
                 content: "width=device-width, initial-scale=1"
             }
