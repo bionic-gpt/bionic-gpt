@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use crate::components::card_item::{CardItem, CountLabel};
 use daisy_rsx::*;
 use dioxus::prelude::*;
 use integrations::{BionicOpenAPI, OAuth2Config};
@@ -24,51 +25,22 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
         0
     };
 
+    let description = integration.openapi.get_description().unwrap_or_default();
+
     rsx! {
-        Card {
-            class: "p-3 mt-5 flex flex-row",
-            a {
-                href: crate::routes::integrations::View { team_id, id: integration.id }.to_string(),
-                class: "no-underline flex-1 min-w-0",
-                div {
-                    class: "flex flex-row",
-                    img {
-                        class: "border border-neutral-content rounded p-2",
-                        src: integration.openapi.get_logo_url(),
-                        width: "48",
-                        height: "48"
-                    }
-                    div {
-                        class: "ml-4 text-sm flex flex-col justify-center flex-1 min-w-0",
-                        h2 { class: "font-semibold", "{integration.openapi.get_title()}" }
-                        p {
-                            class: "truncate overflow-hidden whitespace-nowrap",
-                            if let Some(description) = integration.openapi.get_description() {
-                                "{description}"
-                            }
-                        }
-                    }
-                }
-            }
-            if has_oauth2 || has_api_key {
-                div {
-                    class: "flex flex-col justify-center text-center ml-4",
-                    div { "{count}" }
-                    div {
-                        class: "text-base-content/70 text-sm",
-                        if has_oauth2 {
-                            "Connection"
-                            if count != 1 { "s" }
-                        } else if has_api_key {
-                            "Key"
-                            if count != 1 { "s" }
-                        }
-                    }
-                }
-            }
-            if has_oauth2 {
-                div {
-                    class: "flex flex-col justify-center ml-4",
+        CardItem {
+            image_src: Some(integration.openapi.get_logo_url()),
+            avatar_name: None,
+            title: integration.openapi.get_title().to_string(),
+            description: if description.is_empty() { None } else { Some(rsx!(span { "{description}" })) },
+            footer: None,
+            count_labels: if has_oauth2 || has_api_key {
+                vec![CountLabel { count, label: if has_oauth2 { "Connection".into() } else { "Key".into() } }]
+            } else {
+                vec![]
+            },
+            action: Some(rsx!(
+                if has_oauth2 {
                     if integration.oauth_client_configured {
                         super::oauth_connect_button::OauthConnectButton {
                             team_id,
@@ -83,18 +55,16 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
                             "Connect"
                         }
                     }
-                }
-            }
-            if has_api_key {
-                div {
-                    class: "flex flex-col justify-center ml-4",
+                } else if has_api_key {
                     Button {
                         popover_target: format!("configure-api-key-{}", integration.id),
                         button_scheme: ButtonScheme::Secondary,
                         "Configure"
                     }
                 }
-            }
+            )),
+            class: None,
+            popover_target: None,
         }
 
         if integration.openapi.has_api_key_security() {

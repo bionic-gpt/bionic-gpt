@@ -28,7 +28,13 @@ pub struct CardItemProps {
 pub fn CardItem(props: CardItemProps) -> Element {
     rsx! {
         Card {
-            class: props.class.clone().unwrap_or_else(|| "p-3 mt-5 flex flex-row justify-between".to_string()),
+            class: {
+                let base = "p-3 mt-5 flex flex-row justify-between";
+                match props.class.clone() {
+                    Some(extra) => format!("{base} {extra}"),
+                    None => base.to_string(),
+                }
+            },
             popover_target: props.popover_target.clone(),
             div {
                 class: "flex flex-col items-center",
