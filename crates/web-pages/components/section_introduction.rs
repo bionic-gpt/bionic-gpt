@@ -16,6 +16,7 @@ pub fn SectionIntroduction(
                 "{header}"
             }
             p {
+                class: "text-sm text-base-content/70 mt-4",
                 "{subtitle}"
             }
 
@@ -24,9 +25,9 @@ pub fn SectionIntroduction(
                     class: "mt-4",
                     CardBody {
                         div {
-                            class: "text-center py-8",
+                            class: "text-center mt-4",
                             p {
-                                class: "text-base-content/70",
+                                class: "text-sm text-base-content/70",
                                 "{empty_text}"
                             }
                         }

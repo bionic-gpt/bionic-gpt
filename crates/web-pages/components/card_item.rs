@@ -37,7 +37,7 @@ pub fn CardItem(props: CardItemProps) -> Element {
             },
             popover_target: props.popover_target.clone(),
             div {
-                class: "flex flex-col items-center",
+                class: "flex flex-col justify-center",
                 if let Some(src) = props.image_src.clone() {
                     img {
                         class: "border border-neutral-content rounded p-2",
@@ -53,8 +53,8 @@ pub fn CardItem(props: CardItemProps) -> Element {
                 }
             }
             div {
-                class: "mx-4 flex flex-col flex-1 min-w-0",
-                h2 { class: "font-semibold text-base mb-1 truncate", "{props.title}" }
+                class: "mx-3 flex flex-col flex-1 min-w-0 space-between",
+                h2 { class: "font-semibold text-base truncate", "{props.title}" }
                 if let Some(desc) = props.description.clone() {
                     div { class: "text-sm text-base-content/70 truncate", {desc} }
                 }
