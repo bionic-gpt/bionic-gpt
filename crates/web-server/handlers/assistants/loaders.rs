@@ -3,7 +3,7 @@ use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
 use db::Pool;
-use db::{queries, ModelType};
+use db::{queries, PromptType};
 use web_pages::visibility_to_string;
 use web_pages::{
     assistants,
@@ -55,8 +55,8 @@ pub async fn new_assistant_loader(
         .all()
         .await?;
 
-    let models = queries::models::models()
-        .bind(&transaction, &ModelType::LLM)
+    let models = queries::prompts::prompts()
+        .bind(&transaction, &team_id, &PromptType::Model)
         .all()
         .await?;
 
@@ -113,8 +113,8 @@ pub async fn edit_assistant_loader(
         .all()
         .await?;
 
-    let models = queries::models::models()
-        .bind(&transaction, &ModelType::LLM)
+    let models = queries::prompts::prompts()
+        .bind(&transaction, &team_id, &PromptType::Model)
         .all()
         .await?;
 

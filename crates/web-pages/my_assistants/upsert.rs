@@ -2,7 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::{Category, Model, Visibility};
+use db::{Category, Prompt, Visibility};
 use dioxus::prelude::*;
 use serde::Deserialize;
 use validator::Validate;
@@ -31,7 +31,7 @@ pub struct PromptForm {
     #[serde(skip)]
     pub categories: Vec<Category>,
     #[serde(skip)]
-    pub models: Vec<Model>,
+    pub models: Vec<Prompt>,
 }
 
 pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
@@ -184,11 +184,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                                 name: "model_id",
                                                 value: "{prompt.model_id}",
                                                 required: true,
-                                                for model in &prompt.models {
+                                                for model_prompt in &prompt.models {
                                                     SelectOption {
-                                                        value: "{model.id}",
+                                                        value: "{model_prompt.model_id}",
                                                         selected_value: "{prompt.model_id}",
-                                                        "{model.name}"
+                                                        "{model_prompt.name}"
                                                     }
                                                 }
                                             }
