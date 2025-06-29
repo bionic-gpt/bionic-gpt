@@ -41,6 +41,8 @@ pub fn Status(status: IntegrationStatus) -> Element {
             Badge {
                 class: "truncate",
                 badge_color: BadgeColor::Info,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Active"
             }
         ),
@@ -48,6 +50,8 @@ pub fn Status(status: IntegrationStatus) -> Element {
             Badge {
                 class: "truncate",
                 badge_color: BadgeColor::Warning,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Missing API Key"
             }
         ),
@@ -55,6 +59,8 @@ pub fn Status(status: IntegrationStatus) -> Element {
             Badge {
                 class: "truncate",
                 badge_color: BadgeColor::Warning,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Missing Oauth2"
             }
         ),
@@ -62,6 +68,8 @@ pub fn Status(status: IntegrationStatus) -> Element {
             Badge {
                 class: "truncate",
                 badge_color: BadgeColor::Info,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Available"
             }
         ),

@@ -43,6 +43,8 @@ pub fn AuditTable(audits: Vec<AuditTrail>) -> Element {
                                     Badge {
                                         class: "mr-2",
                                         badge_color: BadgeColor::Neutral,
+                                        badge_style: BadgeStyle::Outline,
+                                        badge_size: BadgeSize::Sm,
                                         {super::access_type_to_string(audit.access_type)}
                                     }
                                 }
@@ -50,6 +52,8 @@ pub fn AuditTable(audits: Vec<AuditTrail>) -> Element {
                                     class: "text-right",
                                     Badge {
                                         badge_color: BadgeColor::Neutral,
+                                        badge_style: BadgeStyle::Outline,
+                                        badge_size: BadgeSize::Sm,
                                         {super::audit_action_to_string(audit.action)}
                                     }
                                 }

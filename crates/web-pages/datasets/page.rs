@@ -98,6 +98,8 @@ pub fn page(
                                                 class: "max-sm:hidden",
                                                 Badge {
                                                     badge_color: BadgeColor::Accent,
+                                                    badge_style: BadgeStyle::Outline,
+                                                    badge_size: BadgeSize::Sm,
                                                     "By Title"
                                                 }
                                                 }

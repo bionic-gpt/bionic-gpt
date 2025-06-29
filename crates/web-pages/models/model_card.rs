@@ -23,9 +23,9 @@ pub fn ModelCard(
         description: Some(rsx!(div {
             class: "flex gap-2 mt-1 text-xs",
             super::model_type::Model { model_type: model.model_type }
-            if has_function_calling { Badge { badge_style: BadgeStyle::Ghost, "Functions" } }
-            if has_vision { Badge { badge_style: BadgeStyle::Ghost, "Vision" } }
-            if has_tool_use { Badge { badge_style: BadgeStyle::Ghost, "Tools" } }
+            if has_function_calling { Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Functions" } }
+            if has_vision { Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Vision" } }
+            if has_tool_use { Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Tools" } }
         })),
         footer: None,
         image_src: None,

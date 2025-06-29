@@ -32,12 +32,16 @@ pub fn RateTable(rate_limits: Vec<db::RateLimit>, team_id: i32) -> Element {
                                 td {
                                     Badge {
                                         badge_color: BadgeColor::Success,
+                                        badge_style: BadgeStyle::Outline,
+                                        badge_size: BadgeSize::Sm,
                                         "{limit.tpm_limit}"
                                     }
                                 }
                                 td {
                                     Badge {
                                         badge_color: BadgeColor::Success,
+                                        badge_style: BadgeStyle::Outline,
+                                        badge_size: BadgeSize::Sm,
                                         "{limit.rpm_limit}"
                                     }
                                 }

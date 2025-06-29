@@ -150,6 +150,8 @@ fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32, pending: bool)
             }
             TimeLineBody {
                 Badge {
+                    badge_style: BadgeStyle::Outline,
+                    badge_size: BadgeSize::Sm,
                     "Function Call:"
                     strong {
                         class: "ml-2",
