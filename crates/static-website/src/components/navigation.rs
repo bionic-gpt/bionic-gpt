@@ -1,8 +1,4 @@
-use crate::components::drop_down::DropDown;
-use crate::{
-    components::drop_down::DropDownLink,
-    routes::{blog, docs, marketing, product, SIGN_IN_UP},
-};
+use crate::routes::{blog, docs, marketing, product, SIGN_IN_UP};
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Clone, Eq, Debug)]
@@ -70,28 +66,45 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
 
                     // Desktop menu (left aligned)
                     div { class: "hidden lg:flex",
-                        ul { class: "menu menu-horizontal px-1",
-                            DropDown {
-                                button_text: "Product",
-                                DropDownLink {
-                                    href: product::Chat {},
-                                    "Chat"
-                                }
-                                DropDownLink {
-                                    href: product::Assistants {},
-                                    "Assistants"
-                                }
-                                DropDownLink {
-                                    href: product::Integrations {},
-                                    "Integrations"
-                                }
-                                DropDownLink {
-                                    href: product::Automations {},
-                                    "Automations"
-                                }
-                                DropDownLink {
-                                    href: product::Developers {},
-                                    "Developers"
+                        ul { class: "menu menu-horizontal px-1 dropdown-content",
+                            li {
+                                details {
+                                    summary {
+                                        "Product"
+                                    }
+                                    ul {
+                                        class: "p-2",
+                                        li {
+                                            a {
+                                                href: product::Chat {}.to_string(),
+                                                "Chat"
+                                            }
+                                        }
+                                        li {
+                                            a {
+                                                href: product::Assistants {}.to_string(),
+                                                "Assistants"
+                                            }
+                                        }
+                                        li {
+                                            a {
+                                                href: product::Integrations {}.to_string(),
+                                                "Integrations"
+                                            }
+                                        }
+                                        li {
+                                            a {
+                                                href: product::Automations {}.to_string(),
+                                                "Automations"
+                                            }
+                                        }
+                                        li {
+                                            a {
+                                                href: product::Developers {}.to_string(),
+                                                "Developers"
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             NavItem {
