@@ -32,6 +32,10 @@ pub struct DropDownProps {
     button_text: String,
     class: Option<String>,
     direction: Option<Direction>,
+    /// When set the dropdown trigger will render like a navigation link
+    link_style: Option<bool>,
+    /// When set the dropdown will open on hover
+    hover: Option<bool>,
     prefix_image_src: Option<String>,
     suffix_image_src: Option<String>,
 }
@@ -40,11 +44,23 @@ pub struct DropDownProps {
 pub fn DropDown(props: DropDownProps) -> Element {
     let direction = props.direction.unwrap_or_default();
 
+    let hover_class = if props.hover.unwrap_or(false) {
+        "dropdown-hover"
+    } else {
+        ""
+    };
+
+    let label_classes = if props.link_style.unwrap_or(false) {
+        "link link-hover m-1 w-full flex flex-nowrap justify-between"
+    } else {
+        "btn btn-default btn-sm m-1 w-full flex flex-nowrap justify-between"
+    };
+
     rsx!(
-        div { class: "dropdown {props.class.clone().unwrap_or_default()} {direction}",
+        div { class: "dropdown {props.class.clone().unwrap_or_default()} {direction} {hover_class}",
             label {
                 tabindex: "0",
-                class: "btn btn-default btn-sm m-1 w-full flex flex-nowrap justify-between",
+                class: "{label_classes}",
                 "aria-haspopup": "true",
                 if let Some(img_src) = props.prefix_image_src {
                     img { src: "{img_src}", class: "mr-2", width: "16" }

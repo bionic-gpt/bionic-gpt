@@ -73,6 +73,8 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                         ul { class: "menu menu-horizontal px-1",
                             DropDown {
                                 button_text: "Product",
+                                hover: Some(true),
+                                link_style: Some(true),
                                 DropDownLink {
                                     href: product::Chat {},
                                     "Chat"
