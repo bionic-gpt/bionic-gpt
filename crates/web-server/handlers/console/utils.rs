@@ -5,12 +5,51 @@ use openai_api::ToolCall;
 use serde_json::from_str;
 use web_pages::console::{ChatWithChunks, PendingChat, PendingChatState};
 
-pub fn determine_pending_chat_state(chats: Vec<Chat>) -> (Vec<Chat>, PendingChatState) {
+/// Detect if the assistant message is an error returned from the provider when a
+/// tool call fails validation. Groq will intercept invalid function calls and
+/// return a message containing `tool_use_failed`. In this case we want to ignore
+/// the message and call the model again.
+fn is_tool_call_error(chat: &Chat) -> bool {
+    if chat.role != ChatRole::Assistant {
+        return false;
+    }
+
+    chat
+        .content
+        .as_ref()
+        .map(|c| c.contains("tool_use_failed") || c.contains("Failed to call a function"))
+        .unwrap_or(false)
+}
+
+pub fn determine_pending_chat_state(mut chats: Vec<Chat>) -> (Vec<Chat>, PendingChatState) {
     if chats.is_empty() {
         return (Vec::new(), PendingChatState::None);
     }
 
     tracing::debug!("Got {} chats", chats.len());
+
+    // Detect provider tool call error on the last chat. If found we remove that
+    // chat from the history and mark the preceding user chat as pending so we
+    // call the model again.
+    if let Some(last) = chats.last() {
+        if is_tool_call_error(last) {
+            chats.pop();
+            if let Some(user_chat) = chats.iter().rev().find(|c| c.role == ChatRole::User) {
+                let tool_calls = user_chat
+                    .tool_calls
+                    .as_ref()
+                    .and_then(|s| from_str::<Vec<ToolCall>>(s).ok());
+
+                return (
+                    chats,
+                    PendingChatState::PendingUserChat(Box::new(PendingChat {
+                        chat: user_chat.clone(),
+                        tool_calls,
+                    })),
+                );
+            }
+        }
+    }
 
     let last_chat_id = chats.last().map(|chat| chat.id).unwrap_or(0);
 
@@ -199,6 +238,32 @@ mod tests {
                 assert_eq!(tool_chats[0].id, 5, "Should be the recent tool chat");
             }
             _ => panic!("Expected PendingToolChats state"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_detect_tool_call_error_and_retry() {
+        let now = OffsetDateTime::now_utc();
+
+        let mut chats = vec![
+            create_mock_chat(1, ChatStatus::Success, ChatRole::User, now),
+            create_mock_chat(2, ChatStatus::Success, ChatRole::Assistant, now),
+        ];
+
+        let mut error_chat = create_mock_chat(3, ChatStatus::Success, ChatRole::Assistant, now);
+        error_chat.content = Some("tool_use_failed".to_string());
+        chats.push(error_chat);
+
+        let (non_pending, state) = determine_pending_chat_state(chats);
+
+        assert!(state.shall_we_call_the_model());
+        assert_eq!(non_pending.len(), 2, "Error chat should be removed");
+
+        match state {
+            PendingChatState::PendingUserChat(pending) => {
+                assert_eq!(pending.chat.id, 1);
+            }
+            _ => panic!("Expected PendingUserChat state"),
         }
     }
 }
