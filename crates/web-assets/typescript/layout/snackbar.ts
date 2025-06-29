@@ -13,19 +13,25 @@ export const snackBar = () => {
             messageElement.textContent = message;
         }
 
+        const hideSnackbar = () => {
+            snackbar.classList.remove('translate-y-0', 'opacity-100');
+            snackbar.classList.add('translate-y-full', 'opacity-0');
+        };
+
         // Show the snackbar by removing the classes that hide it
-        snackbar.classList.remove('translate-y-full', 'opacity-0'); // Show
-        snackbar.classList.add('translate-y-0', 'opacity-100'); // Make it fully visible
+        snackbar.classList.remove('translate-y-full', 'opacity-0');
+        snackbar.classList.add('translate-y-0', 'opacity-100');
+
+        const dismiss = snackbar.querySelector<HTMLButtonElement>('button.action');
+        if (dismiss) {
+            dismiss.addEventListener('click', hideSnackbar, { once: true });
+        }
 
         // Delete the cookie after reading its value
         deleteCookie(COOKIE_NAME);
 
         // Automatically hide the snackbar after 4 seconds
-        setTimeout(() => {
-            // Slide up and hide the snackbar
-            snackbar.classList.remove('translate-y-0', 'opacity-100'); // Hide
-            snackbar.classList.add('translate-y-full', 'opacity-0'); // Slide up
-        }, 4000);
+        setTimeout(hideSnackbar, 4000);
     }
 };
 
