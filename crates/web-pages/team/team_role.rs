@@ -10,6 +10,8 @@ pub fn Role(role: DBRole) -> Element {
             Badge {
                 class: "mr-2",
                 badge_color: BadgeColor::Accent,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "System Administrator"
             }
         ),
@@ -17,6 +19,8 @@ pub fn Role(role: DBRole) -> Element {
             Badge {
                 class: "mr-2",
                 badge_color: BadgeColor::Neutral,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Team Manager"
             }
         ),
@@ -24,6 +28,8 @@ pub fn Role(role: DBRole) -> Element {
             Badge {
                 class: "mr-2",
                 badge_color: BadgeColor::Neutral,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Collaborator"
             }
         ),

@@ -10,6 +10,8 @@ pub fn Integration(integration_type: IntegrationType) -> Element {
             Badge {
                 class: "truncate",
                 badge_color: BadgeColor::Info,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "MCP Server"
             }
         ),
@@ -17,6 +19,8 @@ pub fn Integration(integration_type: IntegrationType) -> Element {
             Badge {
                 class: "truncate",
                 badge_color: BadgeColor::Info,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Built In"
             }
         ),
@@ -24,6 +28,8 @@ pub fn Integration(integration_type: IntegrationType) -> Element {
             Badge {
                 class: "truncate",
                 badge_color: BadgeColor::Info,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Open API"
             }
         ),

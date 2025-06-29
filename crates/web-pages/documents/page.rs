@@ -152,6 +152,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                         src,
                         Badge {
                             class: class,
+                            badge_style: BadgeStyle::Outline,
+                            badge_size: BadgeSize::Sm,
                             "Processing ({document.waiting} remaining)"
                         }
                     }
@@ -164,6 +166,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                             text: "{text}",
                             Badge {
                                 badge_color: BadgeColor::Error,
+                                badge_style: BadgeStyle::Outline,
+                                badge_size: BadgeSize::Sm,
                                 "Failed"
                             }
                         }
@@ -173,7 +177,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                         id,
                         src,
 
-                        Badge { "Queued" }
+                        Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Queued" }
                     }
                 } else if document.fail_count > 0 {
                     turbo-frame {
@@ -182,6 +186,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
 
                         Badge {
                             badge_color: BadgeColor::Error,
+                            badge_style: BadgeStyle::Outline,
+                            badge_size: BadgeSize::Sm,
                             "Processed ({document.fail_count} failed)"
                         }
                     }
@@ -192,6 +198,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
 
                         Badge {
                             badge_color: BadgeColor::Error,
+                            badge_style: BadgeStyle::Outline,
+                            badge_size: BadgeSize::Sm,
                             "Failed"
                         }
                     }
@@ -202,6 +210,8 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
 
                         Badge {
                             badge_color: BadgeColor::Success,
+                            badge_style: BadgeStyle::Outline,
+                            badge_size: BadgeSize::Sm,
                             "Processed"
                         }
                     }
