@@ -75,6 +75,8 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                                 button_text: "Product",
                                 hover: Some(true),
                                 link_style: Some(true),
+                                carat: Some(true),
+                                class: Some("m-1".to_string()),
                                 DropDownLink {
                                     href: product::Chat {},
                                     "Chat"

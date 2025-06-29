@@ -50,14 +50,30 @@ pub fn DropDown(props: DropDownProps) -> Element {
         ""
     };
 
-    let label_classes = if props.link_style.unwrap_or(false) {
-        "link link-hover m-1 w-full flex flex-nowrap justify-between"
+    let (container_classes, label_classes) = if props.link_style.unwrap_or(false) {
+        (
+            format!(
+                "dropdown {} {} {} m-1",
+                props.class.clone().unwrap_or_default(),
+                direction,
+                hover_class
+            ),
+            "link link-hover w-full flex flex-nowrap justify-between",
+        )
     } else {
-        "btn btn-default btn-sm m-1 w-full flex flex-nowrap justify-between"
+        (
+            format!(
+                "dropdown {} {} {}",
+                props.class.clone().unwrap_or_default(),
+                direction,
+                hover_class
+            ),
+            "btn btn-default btn-sm m-1 w-full flex flex-nowrap justify-between",
+        )
     };
 
     rsx!(
-        div { class: "dropdown {props.class.clone().unwrap_or_default()} {direction} {hover_class}",
+        div { class: "{container_classes}",
             label {
                 tabindex: "0",
                 class: "{label_classes}",
@@ -68,8 +84,14 @@ pub fn DropDown(props: DropDownProps) -> Element {
                 span { class: "truncate", "{props.button_text}" }
                 if let Some(img_src) = props.suffix_image_src {
                     img { src: "{img_src}", class: "ml-2", width: "12" }
-                } else if props.carat.is_some() && props.carat.unwrap() {
-                    div { class: "dropdown-caret" }
+                } else if props.carat.unwrap_or(false) {
+                    svg {
+                        class: "ml-2 w-3 h-3 inline-block",
+                        xmlns: "http://www.w3.org/2000/svg",
+                        view_box: "0 0 20 20",
+                        fill: "currentColor",
+                        path { d: "M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z", fill_rule: "evenodd", clip_rule: "evenodd" }
+                    }
                 }
             }
             ul {
