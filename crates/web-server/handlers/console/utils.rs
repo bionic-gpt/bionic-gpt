@@ -14,8 +14,7 @@ fn is_tool_call_error(chat: &Chat) -> bool {
         return false;
     }
 
-    chat
-        .content
+    chat.content
         .as_ref()
         .map(|c| c.contains("tool_use_failed") || c.contains("Failed to call a function"))
         .unwrap_or(false)
@@ -28,26 +27,22 @@ pub fn determine_pending_chat_state(mut chats: Vec<Chat>) -> (Vec<Chat>, Pending
 
     tracing::debug!("Got {} chats", chats.len());
 
-    // Detect provider tool call error on the last chat. If found we remove that
-    // chat from the history and mark the preceding user chat as pending so we
-    // call the model again.
+    // Detect provider tool call error on the last chat. If found we send the
+    // error message back to the model as a user chat so the model can attempt
+    // to correct itself.
     if let Some(last) = chats.last() {
         if is_tool_call_error(last) {
-            chats.pop();
-            if let Some(user_chat) = chats.iter().rev().find(|c| c.role == ChatRole::User) {
-                let tool_calls = user_chat
-                    .tool_calls
-                    .as_ref()
-                    .and_then(|s| from_str::<Vec<ToolCall>>(s).ok());
+            let mut retry_chat = last.clone();
+            retry_chat.role = ChatRole::User;
+            retry_chat.status = ChatStatus::Pending;
 
-                return (
-                    chats,
-                    PendingChatState::PendingUserChat(Box::new(PendingChat {
-                        chat: user_chat.clone(),
-                        tool_calls,
-                    })),
-                );
-            }
+            return (
+                chats,
+                PendingChatState::PendingUserChat(Box::new(PendingChat {
+                    chat: retry_chat,
+                    tool_calls: None,
+                })),
+            );
         }
     }
 
@@ -257,11 +252,12 @@ mod tests {
         let (non_pending, state) = determine_pending_chat_state(chats);
 
         assert!(state.shall_we_call_the_model());
-        assert_eq!(non_pending.len(), 2, "Error chat should be removed");
+        assert_eq!(non_pending.len(), 3, "History should remain intact");
 
         match state {
             PendingChatState::PendingUserChat(pending) => {
-                assert_eq!(pending.chat.id, 1);
+                assert_eq!(pending.chat.role, ChatRole::User);
+                assert_eq!(pending.chat.content.as_deref(), Some("tool_use_failed"));
             }
             _ => panic!("Expected PendingUserChat state"),
         }
