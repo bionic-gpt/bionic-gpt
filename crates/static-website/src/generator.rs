@@ -92,8 +92,7 @@ pub fn generate(summary: Summary) {
             };
 
             let html = crate::render(page_ele);
-            write_page(&format!("dist/{}", page.folder), html)
-                .expect("Unable to write page");
+            write_page(&format!("dist/{}", page.folder), html).expect("Unable to write page");
         }
     }
 }
@@ -116,8 +115,7 @@ pub fn generate_docs(summary: Summary) {
             };
 
             let html = crate::render(page_ele);
-            write_page(&format!("dist/{}", page.folder), html)
-                .expect("Unable to write page");
+            write_page(&format!("dist/{}", page.folder), html).expect("Unable to write page");
         }
     }
 }
@@ -131,8 +129,7 @@ pub async fn generate_pages(summary: Summary) {
                 }
             };
             let html = crate::render(page_ele);
-            write_page(&format!("dist/{}", page.folder), html)
-                .expect("Unable to write page");
+            write_page(&format!("dist/{}", page.folder), html).expect("Unable to write page");
         }
     }
 }

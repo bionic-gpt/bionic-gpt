@@ -22,14 +22,14 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     class: "flex justify-center",
                     if let Some(object_id) = prompt.image_icon_object_id {
                         img {
-                            width: "96",
-                            height: "96",
+                            width: "48",
+                            height: "48",
                             src: Image { team_id, id: object_id }.to_string()
                         }
                     } else {
                         Avatar {
-                            avatar_size: AvatarSize::ExtraLarge,
-                            avatar_type: AvatarType::User
+                            avatar_size: AvatarSize::Medium,
+                            name: "{prompt.name}"
                         }
                     }
                 }
