@@ -1,5 +1,5 @@
 use std::fs::{self, File};
-use std::io::Write;
+use std::io::{self, Write};
 use std::path::Path;
 
 use dioxus::prelude::*;
@@ -39,69 +39,41 @@ impl Page {
     }
 }
 
+fn write_page(dest_folder: &str, html: String) -> io::Result<()> {
+    fs::create_dir_all(dest_folder)?;
+    let mut file = File::create(format!("{}/index.html", dest_folder))?;
+    file.write_all(html.as_bytes())
+}
+
 pub async fn generate_product() {
     let html = pages::product::assistants::page();
-    fs::create_dir_all("dist/product/assistants").expect("Couyldn't create folder");
-    let mut file =
-        File::create("dist/product/assistants/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/product/assistants", html).expect("Unable to write page");
 
     let html = pages::product::automations::page();
-    fs::create_dir_all("dist/product/automations").expect("Couyldn't create folder");
-    let mut file =
-        File::create("dist/product/automations/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/product/automations", html).expect("Unable to write page");
 
     let html = pages::product::chat::page();
-    fs::create_dir_all("dist/product/chat").expect("Couyldn't create folder");
-    let mut file = File::create("dist/product/chat/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/product/chat", html).expect("Unable to write page");
 
     let html = pages::product::developers::page();
-    fs::create_dir_all("dist/product/developers").expect("Couyldn't create folder");
-    let mut file =
-        File::create("dist/product/developers/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/product/developers", html).expect("Unable to write page");
 
     let html = pages::product::integrations::page();
-    fs::create_dir_all("dist/product/integrations").expect("Couyldn't create folder");
-    let mut file =
-        File::create("dist/product/integrations/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/product/integrations", html).expect("Unable to write page");
 }
 
 pub async fn generate_marketing() {
     let html = pages::pricing::pricing();
-
-    fs::create_dir_all("dist/pricing").expect("Couyldn't create folder");
-    let mut file = File::create("dist/pricing/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/pricing", html).expect("Unable to write page");
 
     let html = pages::partners::partners_page();
-
-    fs::create_dir_all("dist/partners").expect("Couyldn't create folder");
-    let mut file = File::create("dist/partners/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/partners", html).expect("Unable to write page");
 
     let html = pages::contact::contact_page();
-
-    fs::create_dir_all("dist/contact").expect("Couyldn't create folder");
-    let mut file = File::create("dist/contact/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/contact", html).expect("Unable to write page");
 
     let html = pages::home::home_page();
-
-    let mut file = File::create("dist/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist", html).expect("Unable to write page");
 }
 
 pub fn generate(summary: Summary) {
@@ -120,11 +92,8 @@ pub fn generate(summary: Summary) {
             };
 
             let html = crate::render(page_ele);
-            let file = format!("dist/{}/index.html", page.folder);
-
-            let mut file = File::create(&file).expect("Unable to create file");
-            file.write_all(html.as_bytes())
-                .expect("Unable to write to file");
+            write_page(&format!("dist/{}", page.folder), html)
+                .expect("Unable to write page");
         }
     }
 }
@@ -147,11 +116,8 @@ pub fn generate_docs(summary: Summary) {
             };
 
             let html = crate::render(page_ele);
-            let file = format!("dist/{}/index.html", page.folder);
-
-            let mut file = File::create(&file).expect("Unable to create file");
-            file.write_all(html.as_bytes())
-                .expect("Unable to write to file");
+            write_page(&format!("dist/{}", page.folder), html)
+                .expect("Unable to write page");
         }
     }
 }
@@ -165,16 +131,8 @@ pub async fn generate_pages(summary: Summary) {
                 }
             };
             let html = crate::render(page_ele);
-
-            let file = format!("dist/{}", page.folder);
-
-            fs::create_dir_all(&file).expect("Could not create directory");
-
-            let file = format!("dist/{}/index.html", page.folder);
-
-            let mut file = File::create(&file).expect("Unable to create file");
-            file.write_all(html.as_bytes())
-                .expect("Unable to write to file");
+            write_page(&format!("dist/{}", page.folder), html)
+                .expect("Unable to write page");
         }
     }
 }
@@ -186,10 +144,7 @@ pub async fn generate_blog_list(summary: Summary) {
         }
     };
     let html = crate::render(page_ele);
-
-    let mut file = File::create("dist/blog/index.html").expect("Unable to create file");
-    file.write_all(html.as_bytes())
-        .expect("Unable to write to file");
+    write_page("dist/blog", html).expect("Unable to write page");
 }
 
 pub fn copy_folder(src: &Path, dst: &Path) -> std::io::Result<()> {
