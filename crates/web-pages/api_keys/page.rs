@@ -110,6 +110,8 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
             Badge {
                 class: "mr-2 truncate",
                 badge_color: BadgeColor::Info,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Model"
             }
         ),
@@ -117,6 +119,8 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
             Badge {
                 class: "mr-2 truncate",
                 badge_color: BadgeColor::Accent,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Assistant"
             }
         ),
@@ -124,6 +128,8 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
             Badge {
                 class: "mr-2 truncate",
                 badge_color: BadgeColor::Accent,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
                 "Assistant"
             }
         ),
