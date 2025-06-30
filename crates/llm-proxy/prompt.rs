@@ -14,11 +14,14 @@ pub async fn execute_prompt(
     conversation_id: Option<i64>,
     chat_history: Vec<ChatCompletionMessage>,
 ) -> Result<Vec<ChatCompletionMessage>, CustomError> {
-    let question = if let Some(q) = chat_history.last() {
-        q.content.clone().unwrap_or("".to_string())
-    } else {
-        "".to_string()
-    };
+    // Find the most recent user message. The last message may be a tool
+    // response, so we search backwards for a message from the user.
+    let question = chat_history
+        .iter()
+        .rev()
+        .find(|m| m.role == ChatCompletionMessageRole::User)
+        .and_then(|m| m.content.clone())
+        .unwrap_or_default();
 
     // Determine if we should use legacy RAG vector search
     let mut related_context = Vec::new();
