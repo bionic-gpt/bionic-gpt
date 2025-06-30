@@ -8,6 +8,7 @@ import '@github/relative-time-element';
 
 // Misc.
 import { modalTriggers } from './typescript/components/modal-trigger'
+import { clickableCard } from './typescript/components/clickable-card'
 import { toggleVisibility } from './typescript/api-keys/toggle-visibility'
 import { autoExpand } from './typescript/console/auto-expand'
 import { initializeSidebar } from './typescript/layout/responsive-nav'
@@ -36,6 +37,7 @@ import { FrameElement } from '@hotwired/turbo'
 function loadEverything() {
     hljs.highlightAll()
     modalTriggers()
+    clickableCard()
     toggleVisibility()
     autoExpand()
     examplePrompts()

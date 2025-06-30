@@ -12,6 +12,7 @@ pub struct CountLabel {
 pub struct CardItemProps {
     pub class: Option<String>,
     pub popover_target: Option<String>,
+    pub clickable_link: Option<String>,
     pub image_src: Option<String>,
     pub avatar_name: Option<String>,
 
@@ -36,6 +37,7 @@ pub fn CardItem(props: CardItemProps) -> Element {
                 }
             },
             popover_target: props.popover_target.clone(),
+            clickable_link: props.clickable_link.clone(),
             div {
                 class: "flex flex-col justify-center",
                 if let Some(src) = props.image_src.clone() {

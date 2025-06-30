@@ -28,46 +28,41 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
     let description = integration.openapi.get_description().unwrap_or_default();
 
     rsx! {
-        a {
-            href: crate::routes::integrations::View { team_id, id: integration.id }.to_string(),
-            CardItem {
-                class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
-                image_src: Some(integration.openapi.get_logo_url()),
-                avatar_name: None,
-                title: integration.openapi.get_title().to_string(),
-                description: if description.is_empty() { None } else { Some(rsx!(span { "{description}" })) },
-                footer: None,
-                count_labels: if has_oauth2 || has_api_key {
-                    vec![CountLabel { count, label: if has_oauth2 { "Connection".into() } else { "Key".into() } }]
-                } else {
-                    vec![]
-                },
-                action: Some(rsx!(
-                    if has_oauth2 {
-                        if integration.oauth_client_configured {
-                            super::oauth_connect_button::OauthConnectButton {
-                                team_id,
-                                integration_id: integration.id,
-                                class: "btn btn-secondary btn-sm ".to_string(),
-                                label: "Connect".to_string(),
-                            }
-                        } else {
-                            Button {
-                                button_scheme: ButtonScheme::Secondary,
-                                popover_target: format!("missing-oauth-client-{}", integration.id),
-                                "Connect"
-                            }
+        CardItem {
+            class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
+            clickable_link: crate::routes::integrations::View { team_id, id: integration.id }.to_string(),
+            image_src: Some(integration.openapi.get_logo_url()),
+            title: integration.openapi.get_title().to_string(),
+            description: if description.is_empty() { None } else { Some(rsx!(span { "{description}" })) },
+            count_labels: if has_oauth2 || has_api_key {
+                vec![CountLabel { count, label: if has_oauth2 { "Connection".into() } else { "Key".into() } }]
+            } else {
+                vec![]
+            },
+            action: Some(rsx!(
+                if has_oauth2 {
+                    if integration.oauth_client_configured {
+                        super::oauth_connect_button::OauthConnectButton {
+                            team_id,
+                            integration_id: integration.id,
+                            class: "btn btn-secondary btn-sm ".to_string(),
+                            label: "Connect".to_string(),
                         }
-                    } else if has_api_key {
+                    } else {
                         Button {
-                            popover_target: format!("configure-api-key-{}", integration.id),
                             button_scheme: ButtonScheme::Secondary,
-                            "Configure"
+                            popover_target: format!("missing-oauth-client-{}", integration.id),
+                            "Connect"
                         }
                     }
-                )),
-                popover_target: None,
-            }
+                } else if has_api_key {
+                    Button {
+                        popover_target: format!("configure-api-key-{}", integration.id),
+                        button_scheme: ButtonScheme::Secondary,
+                        "Configure"
+                    }
+                }
+            )),
         }
 
         if integration.openapi.has_api_key_security() {
