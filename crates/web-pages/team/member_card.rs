@@ -25,8 +25,10 @@ pub fn MemberCard(member: Member, rbac: Rbac) -> Element {
                         class: "font-semibold text-base mb-1",
                         "{name}"
                     }
-                    Label {
-                        label_role: LabelRole::Success,
+                    Badge {
+                        badge_style: BadgeStyle::Outline,
+                        badge_size: BadgeSize::Sm,
+                        badge_color: BadgeColor::Success,
                         class: "w-fit",
                         "Active"
                     }
@@ -75,9 +77,10 @@ pub fn InvitePendingCard(invite: Invitation, rbac: Rbac) -> Element {
                         class: "font-semibold text-base mb-1",
                         "{name}"
                     }
-                    Label {
-                        label_role: LabelRole::Highlight,
-                        class: "w-fit",
+                    Badge {
+                        badge_style: BadgeStyle::Outline,
+                        badge_size: BadgeSize::Sm,
+                        badge_color: BadgeColor::Success,
                         "Invite Pending"
                     }
                 }
