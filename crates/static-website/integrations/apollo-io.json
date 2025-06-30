@@ -79,7 +79,10 @@
 	"info": {
 		"description": "Search organizations using Apollo.io via a saved URL from the Apollo UI. This endpoint parses and executes searches from saved Apollo links. ⚠️ Consumes one credit per call.",
 		"title": "Apollo.io Organization Search via URL",
-		"version": "1.0.1"
+		"version": "1.0.1",
+		"x-logo": {
+			"url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiBmaWxsPSJub25lIj4KICA8cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgZmlsbD0iI0ZFQ0Y0MCIgcng9IjgiIC8+CiAgPHBhdGggZmlsbD0iIzAwMCIKICAgIGQ9Ik05MS4wNDQgMzYuMTM1SDc4LjQ4OWw2LjUxIDExLjEzNCA2LjA0NS0xMS4xMzRaTTEwOC40OTQgOTguOTg3IDYzLjkyMiAyNSAxOS41IDk4LjgzMmgyMy43OTJjMy4xNzQgMCA2LjI5Ny0uOCA5LjA1OC0yLjMxNiAyLjk4LTEuNjM4IDUuMjMtNC4wMTIgNi45ODktNi44OSAyLjA1Ni0zLjM2NyA0LjA1My02Ljc3MyA2LjA3Ny0xMC4xNmw1LjE3OC04LjY3LTYuNjc4LTExLjE2Ny0yLjk2MSA0Ljc1NWMtMy4zNzUgNS42MzEtNi41NjkgMTEuMzkyLTEwLjA2NiAxNi45NDctMS43NTkgMi43ODYtNC4wNTQgNS40MTgtNy40NDIgNi4wOTZhOS42ODYgOS42ODYgMCAwIDEtMS41NTguMTc0Yy0uNjk4LjAyNi0xLjM5Ny4wMTMtMi4wODguMDEzbDI0LjEyMS00MC45OSAzMC45NzUgNTIuMzYzaDEzLjU5N1oiIC8+Cjwvc3ZnPgo="
+		}
 	},
 	"openapi": "3.0.3",
 	"paths": {
