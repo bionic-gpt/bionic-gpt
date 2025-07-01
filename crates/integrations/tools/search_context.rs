@@ -85,7 +85,7 @@ async fn search_context(
         query,
         &base_url,
         &model,
-        prompt.model_context_size,
+        prompt.embeddings_context_size.unwrap_or(256),
         &Some(api_key),
     )
     .await

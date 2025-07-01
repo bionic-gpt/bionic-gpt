@@ -231,7 +231,7 @@ async fn legacy_related_context(
             question,
             &embeddings_base_url,
             &embeddings_model,
-            prompt.model_context_size,
+            prompt.embeddings_context_size.unwrap_or(256),
             &prompt.embeddings_api_key,
         )
         .await
