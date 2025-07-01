@@ -72,7 +72,7 @@ pub async fn get_prompt_integration_tools(
         })?;
 
     // Create tools from the integrations
-    let external_tools = create_tools_from_integrations(prompt_integrations).await;
+    let external_tools = create_tools_from_integrations(prompt_integrations, None, None).await;
 
     let mut filtered_tools: Vec<BionicToolDefinition> = external_tools
         .into_iter()

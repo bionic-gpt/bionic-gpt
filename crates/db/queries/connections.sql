@@ -22,6 +22,30 @@ INSERT INTO oauth2_connections (
     :scopes
 ) RETURNING id;
 
+--! update_oauth2_connection(refresh_token?, expires_at?)
+UPDATE oauth2_connections
+SET
+    access_token = encrypt_text(:access_token),
+    refresh_token = encrypt_text(:refresh_token),
+    expires_at = :expires_at
+WHERE id = :connection_id;
+
+--: Oauth2RefreshCandidate(connection_id, integration_id, user_id, team_id, refresh_token?, expires_at?, definition?)
+--! oauth2_connections_needing_refresh : Oauth2RefreshCandidate
+SELECT
+    oc.id AS connection_id,
+    oc.integration_id,
+    oc.user_id,
+    oc.team_id,
+    decrypt_text(oc.refresh_token) AS refresh_token,
+    oc.expires_at,
+    i.definition
+FROM oauth2_connections oc
+JOIN integrations i ON oc.integration_id = i.id
+WHERE
+    oc.refresh_token IS NOT NULL
+    AND (oc.expires_at IS NULL OR oc.expires_at <= NOW() + INTERVAL '1 day');
+
 --! insert_api_key_connection
 INSERT INTO api_key_connections (
     integration_id,

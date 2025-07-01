@@ -1,5 +1,5 @@
 --: PromptIntegration()
---: PromptIntegrationWithConnection(api_connection_id?, oauth2_connection_id?,  definition?, bearer_token?)
+--: PromptIntegrationWithConnection(api_connection_id?, oauth2_connection_id?,  definition?, bearer_token?, refresh_token?, expires_at?)
 
 --! prompt_integrations : PromptIntegration
 SELECT
@@ -68,6 +68,8 @@ SELECT
         WHEN o2c.access_token IS NOT NULL THEN decrypt_text(o2c.access_token)
         ELSE NULL
     END AS bearer_token
+    , decrypt_text(o2c.refresh_token) AS refresh_token
+    , o2c.expires_at
 FROM prompt_integration pi
 JOIN integrations i ON pi.integration_id = i.id
 LEFT JOIN api_key_connections akc ON pi.api_connection_id = akc.id

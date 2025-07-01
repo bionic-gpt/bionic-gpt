@@ -2210,6 +2210,7 @@ dependencies = [
  "chrono",
  "db",
  "embeddings-api",
+ "futures",
  "futures-util",
  "oas3",
  "oauth2",
@@ -2218,6 +2219,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "time",
  "tokio",
  "tracing",
 ]
