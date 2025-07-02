@@ -2,12 +2,15 @@ use base64::decode;
 use ed25519_dalek::{pkcs8::DecodePublicKey, Signature, Verifier, VerifyingKey, SIGNATURE_LENGTH};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::sync::OnceLock;
 use time::{format_description::well_known::Rfc3339, Date, Month, OffsetDateTime, Time, UtcOffset};
 
 const PUBLIC_KEY: &str = "\
 -----BEGIN PUBLIC KEY-----\n\
 MCowBQYDK2VwAyEAJguqlxohUamZpCPUGY8k5oBYlHSnCY66eTyothyPJM0=\n\
 -----END PUBLIC KEY-----";
+
+static LICENCE: OnceLock<Licence> = OnceLock::new();
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Licence {
@@ -41,7 +44,13 @@ impl Default for Licence {
 }
 
 impl Licence {
-    pub fn from_env() -> Self {
+    /// Returns the global cached licence
+    pub fn global() -> &'static Self {
+        LICENCE.get_or_init(Self::from_env)
+    }
+
+    /// Tries to load, verify, and return the licence from environment
+    fn from_env() -> Self {
         if let Ok(json) = std::env::var("LICENCE") {
             match serde_json::from_str::<Self>(&json) {
                 Ok(licence) => {
@@ -75,7 +84,7 @@ impl Licence {
         };
 
         let Ok(signature_bytes) = <[u8; SIGNATURE_LENGTH]>::try_from(signature_bytes_vec) else {
-            tracing::error!("Invalid signature");
+            tracing::error!("Invalid signature length");
             return false;
         };
 
@@ -89,10 +98,10 @@ impl Licence {
             "end_date": formatted_date,
         });
 
-        tracing::debug!("{}", serde_json::to_string(&value).unwrap());
+        tracing::debug!("Signed payload: {}", serde_json::to_string(&value).unwrap());
 
         let Ok(data) = serde_json::to_vec(&value) else {
-            tracing::error!("Unable to parse JSON");
+            tracing::error!("Unable to convert JSON to bytes");
             return false;
         };
 
