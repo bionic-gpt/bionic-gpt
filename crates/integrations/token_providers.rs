@@ -1,9 +1,11 @@
+use crate::bionic_openapi::OAuth2Config;
 use async_trait::async_trait;
 use db::{self, Pool};
-use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RefreshToken, TokenResponse, TokenUrl};
+use oauth2::{
+    basic::BasicClient, AuthUrl, ClientId, ClientSecret, RefreshToken, TokenResponse, TokenUrl,
+};
 use reqwest::Client;
 use time::{Duration, OffsetDateTime};
-use crate::bionic_openapi::OAuth2Config;
 
 #[async_trait]
 pub trait TokenProvider: Send + Sync {
@@ -73,7 +75,9 @@ impl OAuth2TokenProvider {
             return;
         }
 
-        let Some(refresh_token) = refresh_guard.as_ref() else { return; };
+        let Some(refresh_token) = refresh_guard.as_ref() else {
+            return;
+        };
 
         let mut client = match self.pool.get().await {
             Ok(c) => c,
@@ -90,7 +94,9 @@ impl OAuth2TokenProvider {
             }
         };
 
-        if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, self.sub.clone()).await {
+        if let Err(e) =
+            db::authz::set_row_level_security_user_id(&transaction, self.sub.clone()).await
+        {
             tracing::error!("Failed to set RLS: {}", e);
             return;
         }
@@ -131,7 +137,13 @@ impl OAuth2TokenProvider {
             .map(|dur| OffsetDateTime::now_utc() + Duration::seconds(dur.as_secs() as i64));
 
         if let Err(e) = db::queries::connections::update_oauth2_connection()
-            .bind(&transaction, &new_token, &new_refresh.as_deref(), &new_expiry, &self.connection_id)
+            .bind(
+                &transaction,
+                &new_token,
+                &new_refresh.as_deref(),
+                &new_expiry,
+                &self.connection_id,
+            )
             .await
         {
             tracing::error!("Failed to update connection: {}", e);
@@ -155,4 +167,3 @@ impl TokenProvider for OAuth2TokenProvider {
         self.token.lock().await.clone()
     }
 }
-

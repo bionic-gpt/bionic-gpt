@@ -14,11 +14,8 @@ pub use queries::automation_triggers::CronTrigger;
 pub use queries::categories::Category;
 pub use queries::chats::Chat;
 pub use queries::connections::{
-    oauth2_connections_needing_refresh,
-    update_oauth2_connection,
-    ApiKeyConnection,
-    Oauth2Connection,
-    Oauth2RefreshCandidate,
+    oauth2_connections_needing_refresh, update_oauth2_connection, ApiKeyConnection,
+    Oauth2Connection, Oauth2RefreshCandidate,
 };
 pub use queries::conversations::{Conversation, ConversationContextSize};
 pub use queries::datasets::Dataset;

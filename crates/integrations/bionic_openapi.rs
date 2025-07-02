@@ -4,7 +4,6 @@
 //! extracting tool definitions and handling parameter parsing.
 
 use crate::tool::ToolInterface;
-use crate::token_providers::{OAuth2TokenProvider, StaticTokenProvider, TokenProvider};
 use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
@@ -441,20 +440,27 @@ pub fn create_tools_from_integration(
                                 integration.refresh_token.clone(),
                                 integration.expires_at,
                                 config,
-                            )) as Arc<dyn crate::token_providers::TokenProvider>)
+                            ))
+                                as Arc<dyn crate::token_providers::TokenProvider>)
                         } else {
-                            Some(Arc::new(crate::token_providers::StaticTokenProvider::new(token.clone())) as Arc<_>)
+                            Some(Arc::new(crate::token_providers::StaticTokenProvider::new(
+                                token.clone(),
+                            )) as Arc<_>)
                         }
                     } else {
-                        Some(Arc::new(crate::token_providers::StaticTokenProvider::new(token.clone())) as Arc<_>)
+                        Some(Arc::new(crate::token_providers::StaticTokenProvider::new(
+                            token.clone(),
+                        )) as Arc<_>)
                     }
                 } else {
                     None
                 }
-            } else if let Some(token) = &integration.bearer_token {
-                Some(Arc::new(crate::token_providers::StaticTokenProvider::new(token.clone())) as Arc<_>)
             } else {
-                None
+                integration.bearer_token.as_ref().map(|token| {
+                    Arc::new(crate::token_providers::StaticTokenProvider::new(
+                        token.clone(),
+                    )) as Arc<_>
+                })
             };
         bionic_api.create_tools(token_provider)
     } else {
