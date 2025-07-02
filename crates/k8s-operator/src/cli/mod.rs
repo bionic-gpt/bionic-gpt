@@ -1,5 +1,6 @@
 pub mod apply;
 pub mod install;
+pub mod licence;
 
 use clap::{Parser, Subcommand};
 
@@ -77,4 +78,6 @@ pub enum Commands {
     Operator {},
     /// Run the Bionic Kubernetes Operator
     Cloudflare(CloudflareInstaller),
+    /// Sign a licence JSON using a private key
+    SignLicence(licence::SignerOpts),
 }

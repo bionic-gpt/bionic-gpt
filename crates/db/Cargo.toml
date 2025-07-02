@@ -23,3 +23,5 @@ tracing = { version = "0.1" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["raw_value"] }
 futures = "0.3"
+base64 = "0.13"
+ed25519-dalek = "1"
