@@ -33,7 +33,12 @@ async fn get_external_integration_tools(
         external_integrations.len()
     );
 
-    let tools = create_tools_from_integrations(external_integrations).await;
+    let tools = create_tools_from_integrations(
+        external_integrations,
+        Some(pool.clone()),
+        Some(sub.clone()),
+    )
+    .await;
     debug!("Created {} external integration tools", tools.len());
 
     Ok(tools)

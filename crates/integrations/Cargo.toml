@@ -21,6 +21,9 @@ async-trait = { version = "0.1" }
 oas3 = "0.16.1"
 oauth2 = "5.0.0"
 reqwest = { version = "0", default-features = false, features = ["json", "rustls-tls", "stream"] }
+time = { version = "0.3", features = ["parsing", "formatting"] }
+# Used by tests
+futures = "0.3"
 
 # Used by the web tool to stream responses
 futures-util = "0.3"

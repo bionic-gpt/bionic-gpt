@@ -7,6 +7,7 @@ pub mod tool;
 pub mod tool_executor;
 pub mod tool_registry;
 pub mod tools;
+pub mod token_providers;
 
 #[cfg(test)]
 mod test_async;
@@ -30,3 +31,4 @@ pub use tool_registry::{
     get_chat_tools_user_selected, get_integrations, get_tools, IntegrationTool, ToolScope,
 };
 pub use tools::open_api_tool::OpenApiTool;
+pub use token_providers::{OAuth2TokenProvider, StaticTokenProvider, TokenProvider};

@@ -3,16 +3,19 @@
 //! This module provides the OpenApiTool struct that executes HTTP requests
 //! based on OpenAPI operation definitions.
 
+use crate::token_providers::TokenProvider;
 use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use oas3::{
     self,
     spec::{ObjectOrReference, Operation, Parameter, ParameterIn},
 };
+
 use openai_api::BionicToolDefinition;
 use reqwest::{Client, Method, Url};
 use serde_json::Value;
 use std::collections::HashSet;
+use std::sync::Arc;
 
 /// A tool that executes external integrations based on OpenAPI definitions
 pub struct OpenApiTool {
@@ -26,20 +29,21 @@ pub struct OpenApiTool {
     spec: oas3::OpenApiV3Spec,
     /// The operation ID for this tool
     operation_id: String,
-    /// Does this API need an API key.
-    bearer_token: Option<String>,
     /// The header name to pass the token in
     auth_header_name: String,
+    /// Token provider for authenticated requests
+    token_provider: Option<Arc<dyn TokenProvider>>,
 }
 
+/// Start a simple scheduler that logs token refresh events
 impl OpenApiTool {
     pub fn new(
         definition: BionicToolDefinition,
         base_url: String,
         spec: oas3::OpenApiV3Spec,
         operation_id: String,
-        bearer_token: Option<String>,
         auth_header_name: String,
+        token_provider: Option<Arc<dyn TokenProvider>>,
     ) -> Self {
         Self {
             definition,
@@ -47,8 +51,8 @@ impl OpenApiTool {
             client: Client::new(),
             spec,
             operation_id,
-            bearer_token,
             auth_header_name,
+            token_provider,
         }
     }
 
@@ -68,22 +72,26 @@ impl OpenApiTool {
     }
 
     /// Add Authorization header to request if bearer token is present
-    fn add_auth_header_if_present(
+    async fn add_auth_header_if_present(
         &self,
         request: reqwest::RequestBuilder,
     ) -> reqwest::RequestBuilder {
-        if let Some(ref token) = self.bearer_token {
-            let preview = &token[..6.min(token.len())]; // safe slice
-            tracing::debug!("Adding bearer token {}...", preview);
-            let header_value = if self.auth_header_name.eq_ignore_ascii_case("Authorization") {
-                format!("Bearer {}", token)
-            } else {
-                token.to_string()
-            };
-            request.header(self.auth_header_name.as_str(), header_value)
-        } else {
-            request
+        if let Some(provider) = &self.token_provider {
+            if let Some(token) = provider.token().await {
+                let preview = &token[..6.min(token.len())];
+                tracing::debug!("Adding bearer token {}...", preview);
+                let header_value = if self
+                    .auth_header_name
+                    .eq_ignore_ascii_case("Authorization")
+                {
+                    format!("Bearer {}", token)
+                } else {
+                    token
+                };
+                return request.header(self.auth_header_name.as_str(), header_value);
+            }
         }
+        request
     }
 }
 
@@ -99,6 +107,7 @@ impl ToolInterface for OpenApiTool {
             self.name(),
             arguments
         );
+
 
         // Find operation details by operation_id
         let (path, method, operation) = self
@@ -160,7 +169,7 @@ impl ToolInterface for OpenApiTool {
 
         // Build the request
         let mut request = self.client.request(http_method, url);
-        request = self.add_auth_header_if_present(request);
+        request = self.add_auth_header_if_present(request).await;
         if has_request_body {
             request = request.json(&request_body_params);
         }
@@ -288,9 +297,11 @@ fn substitute_path_parameters(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::token_providers::StaticTokenProvider;
     use openai_api::ChatCompletionFunctionDefinition;
     use reqwest::Client;
     use serde_json::json;
+    use std::sync::Arc;
 
     fn create_test_openapi_spec() -> oas3::OpenApiV3Spec {
         let spec_json = json!({
@@ -401,8 +412,8 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "getUsers".to_string(),
-            None,
             "Authorization".to_string(),
+            None,
         );
 
         let result = tool.find_operation_details();
@@ -431,8 +442,8 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "nonExistentOperation".to_string(),
-            None,
             "Authorization".to_string(),
+            None,
         );
 
         let result = tool.find_operation_details();
@@ -459,8 +470,8 @@ mod tests {
             "https://api.example.com".to_string(),
             spec,
             "createUser".to_string(),
-            None,
             "Authorization".to_string(),
+            None,
         );
 
         assert_eq!(tool.name(), "createUser");
@@ -559,18 +570,19 @@ mod tests {
             },
         };
 
+        let provider = StaticTokenProvider::new("abc123".to_string());
         let tool = OpenApiTool::new(
             tool_def,
             "https://api.example.com".to_string(),
             spec,
             "getUsers".to_string(),
-            Some("abc123".to_string()),
             "x-api-key".to_string(),
+            Some(Arc::new(provider)),
         );
 
         let client = Client::new();
         let req = client.get("https://api.example.com/data");
-        let req = tool.add_auth_header_if_present(req);
+        let req = futures::executor::block_on(tool.add_auth_header_if_present(req));
         let built = req.build().unwrap();
         assert_eq!(built.headers().get("x-api-key").unwrap(), "abc123");
     }
