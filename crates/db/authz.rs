@@ -55,7 +55,7 @@ pub async fn get_permissions(
         .bind(transaction)
         .one()
         .await?;
-    let licence = crate::Licence::from_env();
+    let licence = crate::Licence::global();
     let unlicensed = user_count as usize > licence.user_count;
 
     let rbac = Rbac {

@@ -34,7 +34,7 @@ dump-schema:
 wa:
     CHUNKING_ENGINE=http://localhost:8000 \
     AUTOMATIONS_FEATURE=1 \
-    LICENCE='{"user_count":2, "end_date": "2028-12-31T00:00:00Z", "signature":""}' \
+    LICENCE='{"end_date":"2028-12-31T00:00:00Z","hostname_url":"http://localhost:7703","signature":"lMWJJdsUGKepbp7SNCI3Zldl9l0kLOXGbgziBDHk3Q0Jm/ilI4ueDFLx1x/gVmm3xBWHJVCg21OuAm/UlTE5BQ==","user_count":2}' \
     mold -run cargo watch --workdir /workspace/ \
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \

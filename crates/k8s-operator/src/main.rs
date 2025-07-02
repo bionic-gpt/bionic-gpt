@@ -21,6 +21,9 @@ async fn main() -> Result<()> {
         cli::Commands::Cloudflare(installer) => {
             services::cloudflare::install(installer).await?;
         }
+        cli::Commands::SignLicence(opts) => {
+            cli::licence::sign(opts)?;
+        }
     }
 
     Ok(())
