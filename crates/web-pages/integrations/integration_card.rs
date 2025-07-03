@@ -31,6 +31,7 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
         CardItem {
             class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
             clickable_link: crate::routes::integrations::View { team_id, id: integration.id }.to_string(),
+            turbo_frame: Some("main-content".into()),
             image_src: Some(integration.openapi.get_logo_url()),
             title: integration.openapi.get_title().to_string(),
             description: if description.is_empty() { None } else { Some(rsx!(span { "{description}" })) },

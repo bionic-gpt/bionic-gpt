@@ -13,6 +13,7 @@ pub struct CardItemProps {
     pub class: Option<String>,
     pub popover_target: Option<String>,
     pub clickable_link: Option<String>,
+    pub turbo_frame: Option<String>,
     pub image_src: Option<String>,
     pub avatar_name: Option<String>,
 
@@ -38,6 +39,9 @@ pub fn CardItem(props: CardItemProps) -> Element {
             },
             popover_target: props.popover_target.clone(),
             clickable_link: props.clickable_link.clone(),
+            if let Some(frame) = props.turbo_frame.clone() {
+                "data-turbo-frame": "{frame}",
+            }
             div {
                 class: "flex flex-col justify-center",
                 if let Some(src) = props.image_src.clone() {
