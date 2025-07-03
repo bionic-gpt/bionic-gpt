@@ -38,7 +38,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
             section_class: "p-4",
             selected_item: SideBar::Models,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Models",
             header: rsx!(
                 Breadcrumb {
