@@ -1,8 +1,8 @@
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
-use axum_extra::routing::RouterExt;
 use axum::Router;
+use axum_extra::routing::RouterExt;
 use db::{authz, Pool};
 use web_pages::{licence, routes::licence::Index};
 

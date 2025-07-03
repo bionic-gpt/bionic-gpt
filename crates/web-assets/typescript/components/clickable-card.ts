@@ -18,7 +18,7 @@ export const clickableCard = () => {
                 // Use Turbo for navigation if available
                 const turbo = (window as any).Turbo;
                 if (turbo?.visit) {
-                    turbo.visit(url);
+                    turbo.visit(url, { frame: 'main-content' });
                 } else {
                     window.location.href = url;
                 }

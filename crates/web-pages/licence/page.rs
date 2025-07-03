@@ -20,10 +20,22 @@ fn get_version() -> String {
 
 pub fn page(team_id: i32, rbac: Rbac) -> String {
     let licence = Licence::global();
-    let encryption = if customer_keys::get_customer_key().is_some() { "Enabled" } else { "Disabled" };
+    let encryption = if customer_keys::get_customer_key().is_some() {
+        "Enabled"
+    } else {
+        "Disabled"
+    };
     let version = get_version();
-    let rag_mode = if std::env::var("AGENTIC_RAG").is_ok() { "Agentic RAG" } else { "Contextual RAG" };
-    let automations = if std::env::var("AUTOMATIONS_FEATURE").is_ok() { "Enabled" } else { "Disabled" };
+    let rag_mode = if std::env::var("AGENTIC_RAG").is_ok() {
+        "Agentic RAG"
+    } else {
+        "Contextual RAG"
+    };
+    let automations = if std::env::var("AUTOMATIONS_FEATURE").is_ok() {
+        "Enabled"
+    } else {
+        "Disabled"
+    };
 
     let page = rsx! {
         Layout {
