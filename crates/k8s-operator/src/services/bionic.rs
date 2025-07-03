@@ -19,6 +19,9 @@ static SMTP_PASSWORD: &str = "SMTP_PASSWORD";
 static SMTP_TLS_OFF: &str = "SMTP_TLS_OFF";
 static SMTP_SECRETS: &str = "smtp-secrets";
 
+static LICENCE: &str = "LICENCE";
+static LICENCE_SECRET: &str = "bionic-gpt-licence";
+
 // The web user interface
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     let mut env = vec![
@@ -53,6 +56,16 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         json!({
             "name": "APP_BASE_URL",
             "value": spec.hostname_url.clone()
+        }),
+        json!({
+            "name":
+            LICENCE,
+            "valueFrom": {
+                "secretKeyRef": {
+                    "name": LICENCE_SECRET,
+                    "key": LICENCE
+                }
+            }
         }),
         json!({
             "name":
@@ -182,8 +195,35 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
     )
     .await?;
 
-    email_secret(namespace, spec, client).await?;
+    email_secret(namespace, spec.clone(), client.clone()).await?;
 
+    licence_secret(namespace, client).await?;
+
+    Ok(())
+}
+
+// Create a dummy licence if it doesn't exist
+async fn licence_secret(namespace: &str, client: Client) -> Result<(), Error> {
+    let secret_api: Api<Secret> = Api::namespaced(client, namespace);
+    let secret = secret_api.get(LICENCE_SECRET).await;
+    if secret.is_err() {
+        let mut secret_data = BTreeMap::new();
+        secret_data.insert(
+            LICENCE.to_string(),
+            "Contact https://bionic-gpt.com for a licence.".to_string(),
+        );
+
+        let secret = Secret {
+            metadata: ObjectMeta {
+                name: Some(LICENCE_SECRET.to_string()),
+                namespace: Some(namespace.to_string()),
+                ..ObjectMeta::default()
+            },
+            string_data: Some(secret_data),
+            ..Default::default()
+        };
+        secret_api.create(&PostParams::default(), &secret).await?;
+    }
     Ok(())
 }
 

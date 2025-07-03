@@ -52,6 +52,7 @@ impl Licence {
     /// Tries to load, verify, and return the licence from environment
     fn from_env() -> Self {
         if let Ok(json) = std::env::var("LICENCE") {
+            tracing::debug!("Licence: {}", json);
             match serde_json::from_str::<Self>(&json) {
                 Ok(licence) => {
                     if !licence.verify() {
