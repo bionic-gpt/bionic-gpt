@@ -199,6 +199,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     icon: nav_api_keys_svg.name,
                                     title: "OAuth Clients"
                                 }
+                                NavItem {
+                                    id: SideBar::Licence.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::licence::Index { team_id: props.team_id },
+                                    icon: nav_audit_svg.name,
+                                    title: "System Info"
+                                }
                             }
                         )
                     }

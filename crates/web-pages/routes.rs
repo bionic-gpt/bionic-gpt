@@ -662,3 +662,14 @@ pub mod oauth_clients {
         pub id: i32,
     }
 }
+
+pub mod licence {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/licence")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+}
