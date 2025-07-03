@@ -35,14 +35,14 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         function: ChatCompletionFunctionDefinition {
             name: "read_document".to_string(),
             description:
-                "Reads text from a document attachment. Specify 'file_id' to read that file, or omit it to read the most recent document in this conversation. Document IDs can be obtained with list_documents. The tool returns as many sections as fit within the model’s context window, starting at 'section_index' (default 0)."
+                "Reads the content of a document attachment. You must provide a valid 'file_id' from 'list_documents'. Never guess or hard-code the ID. The tool returns one or more sections from the document starting at the 'section_index' (default is 0). Always pass the file_id as an integer. Include an 'id' field in the tool call JSON structure."
                     .to_string(),
 
             parameters: json!({
                 "type": "object",
                 "properties": {
-                    "file_id": {"type": "integer", "description": "ID of the attachment"},
-                    "section_index": {"type": "integer", "minimum": 0, "description": "Index of the first section (default 0)"}
+                    "file_id": {"type": "integer", "description": "The ID of the document to read. Must be obtained from 'list_documents'."},
+                    "section_index": {"type": "integer", "minimum": 0, "description": "Section index to start reading from. Default is 0."}
                 },
                 "required": []
             }),

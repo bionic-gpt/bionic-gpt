@@ -34,9 +34,7 @@ pub fn get_tool_definition() -> BionicToolDefinition {
         function: ChatCompletionFunctionDefinition {
             name: "list_documents".to_string(),
             description:
-                "List all available documents for this conversation and retrieve their ID's, 
-            includes uploaded files and previously indexed materials.
-            Use this if the user refers to an attachment or document but doesn’t specify which one."
+                "Use this tool to list all documents attached in the current conversation. Always call this before attempting to read or summarize a document. Do not guess file IDs. This returns real 'file_id' values that are required for calling 'read_attachment'."
                     .to_string(),
             parameters: json!({
                 "type": "object",
