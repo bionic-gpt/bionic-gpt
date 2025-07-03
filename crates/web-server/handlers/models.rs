@@ -19,6 +19,7 @@ use serde::Deserialize;
 use validator::Validate;
 use web_pages::models::upsert as model_page;
 use web_pages::routes::models::{Delete, Edit, Index, New, Upsert};
+use web_pages::{string_to_visibility, visibility_to_string};
 
 pub fn routes() -> Router {
     Router::new()
@@ -96,6 +97,7 @@ pub async fn new_loader(
         tpm_limit: 10_000,
         rpm_limit: 10_000,
         context_size_bytes: 2048,
+        visibility: visibility_to_string(Visibility::Team),
         description: "".to_string(),
         disclaimer: "AI can make mistakes. Check important information.".to_string(),
         example1: "".to_string(),
@@ -165,6 +167,7 @@ pub async fn edit_loader(
         tpm_limit: model.tpm_limit,
         rpm_limit: model.rpm_limit,
         context_size_bytes: model.context_size,
+        visibility: visibility_to_string(model.visibility),
         description: model.description,
         disclaimer: model.disclaimer,
         example1: model.example1,
@@ -221,6 +224,7 @@ pub struct ModelForm {
     pub tpm_limit: i32,
     pub rpm_limit: i32,
     pub context_size: i32,
+    pub visibility: String,
     pub disclaimer: String,
     pub description: String,
     pub example1: String,
@@ -258,6 +262,7 @@ pub async fn upsert_action(
     match (model_form.validate(), model_form.id) {
         (Ok(_), Some(model_id)) => {
             // The form is valid save to the database
+            let visibility = string_to_visibility(&model_form.visibility);
             queries::models::update()
                 .bind(
                     &transaction,
@@ -268,6 +273,7 @@ pub async fn upsert_action(
                     &model_form.tpm_limit,
                     &model_form.rpm_limit,
                     &model_form.context_size,
+                    &visibility,
                     &model_id,
                 )
                 .await?;
@@ -337,9 +343,12 @@ pub async fn upsert_action(
         }
         (Ok(_), None) => {
             // The form is valid save to the database
+            let visibility = string_to_visibility(&model_form.visibility);
             let model_id = queries::models::insert()
                 .bind(
                     &transaction,
+                    &team_id,
+                    &visibility,
                     &model_form.name,
                     &model_type,
                     &model_form.base_url,

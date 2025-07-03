@@ -18,6 +18,7 @@ pub struct ModelForm {
     pub tpm_limit: i32,
     pub rpm_limit: i32,
     pub context_size_bytes: i32,
+    pub visibility: String,
     pub disclaimer: String,
     pub description: String,
     pub example1: String,
@@ -168,6 +169,29 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                                         input_type: InputType::Text,
                                         name: "api_key",
                                         value: form.api_key.clone()
+                                    }
+                                }
+                            }
+                            div {
+                                class: "flex flex-col",
+                                Fieldset {
+                                    legend: "Visibility",
+                                    help_text: "Who can use this model",
+                                    Select {
+                                        name: "visibility",
+                                        value: form.visibility.clone(),
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(db::Visibility::Team)}",
+                                            selected_value: form.visibility.clone(),
+                                            {crate::visibility_to_string(db::Visibility::Team)}
+                                        }
+                                        if rbac.can_make_assistant_public() {
+                                            SelectOption {
+                                                value: "{crate::visibility_to_string(db::Visibility::Company)}",
+                                                selected_value: form.visibility.clone(),
+                                                {crate::visibility_to_string(db::Visibility::Company)}
+                                            }
+                                        }
                                     }
                                 }
                             }
