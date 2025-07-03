@@ -47,7 +47,8 @@ pub async fn loader(
     let models = models::all_models().bind(&transaction).all().await?;
 
     // For each model, fetch its capabilities
-    let mut models_with_capabilities = Vec::new();
+    let mut team_models = Vec::new();
+    let mut system_models = Vec::new();
     for model in models {
         let capabilities = capabilities::get_model_capabilities()
             .bind(&transaction, &model.id)
@@ -64,10 +65,14 @@ pub async fn loader(
             .iter()
             .any(|c| c.capability == ModelCapability::tool_use);
 
-        models_with_capabilities.push((model, has_function_calling, has_vision, has_tool_use));
+        if model.visibility == Visibility::Company {
+            system_models.push((model, has_function_calling, has_vision, has_tool_use));
+        } else if model.team_id == team_id {
+            team_models.push((model, has_function_calling, has_vision, has_tool_use));
+        }
     }
 
-    let html = web_pages::models::page::page(team_id, rbac, models_with_capabilities);
+    let html = web_pages::models::page::page(team_id, rbac, team_models, system_models);
 
     Ok(Html(html))
 }
