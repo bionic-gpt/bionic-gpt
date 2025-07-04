@@ -25,10 +25,7 @@ pub async fn index(
     let prompts = queries::prompts::prompts()
         .bind(&transaction, &team_id, &db::PromptType::Model)
         .all()
-        .await?
-        .into_iter()
-        .filter(|p| matches!(p.visibility, db::Visibility::Team | db::Visibility::Private))
-        .collect::<Vec<_>>();
+        .await?;
 
     let prompt_id = if let Some(default_prompt) = user_config.default_prompt {
         default_prompt
