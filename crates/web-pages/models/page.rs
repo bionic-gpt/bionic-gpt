@@ -12,8 +12,7 @@ use dioxus::prelude::*;
 pub fn page(
     team_id: i32,
     rbac: Rbac,
-    team_models: Vec<(ModelWithPrompt, bool, bool, bool)>,
-    system_models: Vec<(ModelWithPrompt, bool, bool, bool)>,
+    models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool)>,
 ) -> String {
     let page = rsx! {
         Layout {
@@ -43,31 +42,13 @@ pub fn page(
                 SectionIntroduction {
                     header: "Models".to_string(),
                     subtitle: "Configure and manage AI models for your assistants and applications.".to_string(),
-                    is_empty: team_models.is_empty() && system_models.is_empty(),
+                    is_empty: models_with_capabilities.is_empty(),
                     empty_text: "No models configured yet. Add your first model to start building assistants.".to_string(),
                 }
-
-                if !team_models.is_empty() {
-                    h2 { class: "font-semibold text-lg mt-6", "Team Models" }
+                if !models_with_capabilities.is_empty() {
                     div {
-                        class: "space-y-2 mt-2",
-                        for (model, fc, vis, tool) in &team_models {
-                            ModelCard {
-                                team_id,
-                                model: model.clone(),
-                                has_function_calling: *fc,
-                                has_vision: *vis,
-                                has_tool_use: *tool
-                            }
-                        }
-                    }
-                }
-
-                if !system_models.is_empty() {
-                    h2 { class: "font-semibold text-lg mt-6", "System Models" }
-                    div {
-                        class: "space-y-2 mt-2",
-                        for (model, fc, vis, tool) in &system_models {
+                        class: "space-y-2",
+                        for (model, fc, vis, tool) in &models_with_capabilities {
                             ModelCard {
                                 team_id,
                                 model: model.clone(),
@@ -80,21 +61,7 @@ pub fn page(
                 }
             }
 
-            for (item, _, _, _) in &team_models {
-                ConfirmModal {
-                    action: crate::routes::models::Delete{team_id, id: item.id}.to_string(),
-                    trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
-                    submit_label: "Delete".to_string(),
-                    heading: "Delete this Model?".to_string(),
-                    warning: "Are you sure you want to delete this Model? Deleting a model will also delete any Assistants that use the model".to_string(),
-                    hidden_fields: vec![
-                        ("team_id".into(), team_id.to_string()),
-                        ("id".into(), item.id.to_string()),
-                    ],
-                }
-            }
-
-            for (item, _, _, _) in &system_models {
+            for (item, _, _, _) in &models_with_capabilities {
                 ConfirmModal {
                     action: crate::routes::models::Delete{team_id, id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),

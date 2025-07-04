@@ -18,7 +18,6 @@ pub struct ModelForm {
     pub tpm_limit: i32,
     pub rpm_limit: i32,
     pub context_size_bytes: i32,
-    pub visibility: String,
     pub disclaimer: String,
     pub description: String,
     pub example1: String,
@@ -32,18 +31,13 @@ pub struct ModelForm {
     pub error: Option<String>,
 }
 
-pub fn page(
-    team_id: i32,
-    rbac: Rbac,
-    form: ModelForm,
-    can_set_visibility_to_company: bool,
-) -> String {
+pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Models,
             team_id: team_id,
-            rbac: rbac.clone(),
+            rbac: rbac,
             title: "Models",
             header: rsx!(
                 Breadcrumb {
@@ -174,29 +168,6 @@ pub fn page(
                                         input_type: InputType::Text,
                                         name: "api_key",
                                         value: form.api_key.clone()
-                                    }
-                                }
-                            }
-                            div {
-                                class: "flex flex-col",
-                                Fieldset {
-                                    legend: "Visibility",
-                                    help_text: "Who can use this model",
-                                    Select {
-                                        name: "visibility",
-                                        value: form.visibility.clone(),
-                                        SelectOption {
-                                            value: "{crate::visibility_to_string(db::Visibility::Team)}",
-                                            selected_value: form.visibility.clone(),
-                                            {crate::visibility_to_string(db::Visibility::Team)}
-                                        }
-                                        if can_set_visibility_to_company {
-                                            SelectOption {
-                                                value: "{crate::visibility_to_string(db::Visibility::Company)}",
-                                                selected_value: form.visibility.clone(),
-                                                {crate::visibility_to_string(db::Visibility::Company)}
-                                            }
-                                        }
                                     }
                                 }
                             }
