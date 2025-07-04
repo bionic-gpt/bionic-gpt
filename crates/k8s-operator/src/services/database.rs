@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::error::Error;
+use crate::services::bionic::BIONIC_NAME;
 use k8s_openapi::api::core::v1::Secret;
 use kube::api::{DeleteParams, ObjectMeta};
 use kube::CustomResource;
@@ -81,7 +82,7 @@ pub async fn deploy(
             instances: 1,
             bootstrap: BootstrapSpec {
                 initdb: InitDBSpec {
-                    database: "bionic-gpt".to_string(),
+                    database: BIONIC_NAME.to_string(),
                     owner: "db-owner".to_string(),
                     secret: SecretSpec {
                         name: "db-owner".to_string(),
