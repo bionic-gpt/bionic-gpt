@@ -2,6 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use daisy_rsx::{select::SelectOption, *};
 use db::authz::Rbac;
+use db::Visibility;
 use dioxus::prelude::*;
 use serde::Deserialize;
 use validator::Validate;
@@ -18,6 +19,7 @@ pub struct ModelForm {
     pub tpm_limit: i32,
     pub rpm_limit: i32,
     pub context_size_bytes: i32,
+    pub visibility: String,
     pub disclaimer: String,
     pub description: String,
     pub example1: String,
@@ -37,7 +39,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
             section_class: "p-4",
             selected_item: SideBar::Models,
             team_id: team_id,
-            rbac: rbac,
+            rbac: rbac.clone(),
             title: "Models",
             header: rsx!(
                 Breadcrumb {
@@ -155,6 +157,35 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                                         name: "base_url",
                                         value: form.base_url.clone(),
                                         required: true
+                                    }
+                                }
+                            }
+                            div {
+                                class: "flex flex-col",
+                                Fieldset {
+                                    legend: "Visibility",
+                                    legend_class: "mt-4",
+                                    help_text: "Who can use this model",
+                                    Select {
+                                        name: "visibility",
+                                        value: form.visibility.clone(),
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Private)}",
+                                            selected_value: form.visibility.clone(),
+                                            {crate::visibility_to_string(Visibility::Private)}
+                                        }
+                                        SelectOption {
+                                            value: "{crate::visibility_to_string(Visibility::Team)}",
+                                            selected_value: form.visibility.clone(),
+                                            {crate::visibility_to_string(Visibility::Team)}
+                                        }
+                                        if rbac.is_sys_admin {
+                                            SelectOption {
+                                                value: "{crate::visibility_to_string(Visibility::Company)}",
+                                                selected_value: form.visibility.clone(),
+                                                {crate::visibility_to_string(Visibility::Company)}
+                                            }
+                                        }
                                     }
                                 }
                             }

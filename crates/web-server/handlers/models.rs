@@ -18,6 +18,7 @@ use db::queries::capabilities;
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::models::upsert as model_page;
+use web_pages::{string_to_visibility, visibility_to_string};
 use web_pages::routes::models::{Delete, Edit, Index, New, Upsert};
 
 pub fn routes() -> Router {
@@ -96,6 +97,7 @@ pub async fn new_loader(
         tpm_limit: 10_000,
         rpm_limit: 10_000,
         context_size_bytes: 2048,
+        visibility: visibility_to_string(Visibility::Team),
         description: "".to_string(),
         disclaimer: "AI can make mistakes. Check important information.".to_string(),
         example1: "".to_string(),
@@ -132,6 +134,16 @@ pub async fn edit_loader(
         .one()
         .await?;
 
+    let visibility = if let Some(prompt_id) = model.prompt_id {
+        let prompt = queries::prompts::prompt()
+            .bind(&transaction, &prompt_id, &team_id)
+            .one()
+            .await?;
+        visibility_to_string(prompt.visibility)
+    } else {
+        visibility_to_string(Visibility::Team)
+    };
+
     let capabilities = capabilities::get_model_capabilities()
         .bind(&transaction, &id)
         .all()
@@ -165,6 +177,7 @@ pub async fn edit_loader(
         tpm_limit: model.tpm_limit,
         rpm_limit: model.rpm_limit,
         context_size_bytes: model.context_size,
+        visibility,
         description: model.description,
         disclaimer: model.disclaimer,
         example1: model.example1,
@@ -221,6 +234,7 @@ pub struct ModelForm {
     pub tpm_limit: i32,
     pub rpm_limit: i32,
     pub context_size: i32,
+    pub visibility: String,
     pub disclaimer: String,
     pub description: String,
     pub example1: String,
@@ -255,6 +269,11 @@ pub async fn upsert_action(
         _ => ModelType::Embeddings,
     };
 
+    let mut visibility = string_to_visibility(&model_form.visibility);
+    if visibility == Visibility::Company && !rbac.is_sys_admin {
+        visibility = Visibility::Team;
+    }
+
     match (model_form.validate(), model_form.id) {
         (Ok(_), Some(model_id)) => {
             // The form is valid save to the database
@@ -281,7 +300,7 @@ pub async fn upsert_action(
                         &model_id,
                         &0, // Set category to uncategorized
                         &model_form.display_name,
-                        &db::Visibility::Company,
+                        &visibility,
                         &system_prompt,
                         &99,
                         &10,
@@ -369,7 +388,7 @@ pub async fn upsert_action(
                         &0, // Set category to uncategorized
                         &model_form.display_name,
                         &image_icon,
-                        &Visibility::Company,
+                        &visibility,
                         &system_prompt,
                         &99,
                         &10,
