@@ -22,6 +22,8 @@ static SMTP_SECRETS: &str = "smtp-secrets";
 static LICENCE: &str = "LICENCE";
 static LICENCE_SECRET: &str = "bionic-gpt-licence";
 
+pub const BIONIC_NAME: &str = "bionic-gpt";
+
 // The web user interface
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
     let mut env = vec![
@@ -170,7 +172,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
-            name: "bionic-gpt".to_string(),
+            name: BIONIC_NAME.to_string(),
             image_name,
             replicas: spec.replicas,
             port: 7903,
@@ -266,14 +268,14 @@ fn lower_dash(s: &str) -> String {
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    if api.get("bionic-gpt").await.is_ok() {
-        api.delete("bionic-gpt", &DeleteParams::default()).await?;
+    if api.get(BIONIC_NAME).await.is_ok() {
+        api.delete(BIONIC_NAME, &DeleteParams::default()).await?;
     }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client, namespace);
-    if api.get("bionic-gpt").await.is_ok() {
-        api.delete("bionic-gpt", &DeleteParams::default()).await?;
+    if api.get(BIONIC_NAME).await.is_ok() {
+        api.delete(BIONIC_NAME, &DeleteParams::default()).await?;
     }
     Ok(())
 }

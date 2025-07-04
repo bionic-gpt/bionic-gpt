@@ -1,6 +1,7 @@
 use super::deployment;
 use crate::error::Error;
 use crate::operator::crd::BionicSpec;
+use crate::services::bionic::BIONIC_NAME;
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Secret, Service};
 use kube::api::{DeleteParams, PostParams};
@@ -126,10 +127,10 @@ async fn oauthproxy_secret(namespace: &str, spec: BionicSpec, client: Client) ->
                 "namespace": namespace
             },
             "stringData": {
-                "client-id": "bionic-gpt",
+                "client-id": BIONIC_NAME,
                 "client-secret": "69b26b08-12fe-48a2-85f0-6ab223f45777",
                 "redirect-uri": format!("{}/oauth2/callback", spec.hostname_url),
-                "issuer-url": "http://keycloak:7910/oidc/realms/bionic-gpt",
+                "issuer-url": format!("http://keycloak:7910/oidc/realms/{}", BIONIC_NAME),
                 "cookie-secret": rand_base64()
             }
         }))?;
