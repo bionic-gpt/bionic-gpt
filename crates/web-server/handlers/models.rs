@@ -102,7 +102,11 @@ pub async fn new_loader(
         tpm_limit: 10_000,
         rpm_limit: 10_000,
         context_size_bytes: 2048,
-        visibility: visibility_to_string(Visibility::Team),
+        visibility: visibility_to_string(if rbac.is_sys_admin {
+            Visibility::Company
+        } else {
+            Visibility::Team
+        }),
         description: "".to_string(),
         disclaimer: "AI can make mistakes. Check important information.".to_string(),
         example1: "".to_string(),
@@ -115,7 +119,8 @@ pub async fn new_loader(
         error: None,
     };
 
-    let html = model_page::page(team_id, rbac, form);
+    let is_sys_admin = rbac.is_sys_admin;
+    let html = model_page::page(team_id, rbac, form, is_sys_admin);
 
     Ok(Html(html))
 }
@@ -185,7 +190,8 @@ pub async fn edit_loader(
         error: None,
     };
 
-    let html = model_page::page(team_id, rbac, form);
+    let is_sys_admin = rbac.is_sys_admin;
+    let html = model_page::page(team_id, rbac, form, is_sys_admin);
 
     Ok(Html(html))
 }

@@ -32,7 +32,12 @@ pub struct ModelForm {
     pub error: Option<String>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
+pub fn page(
+    team_id: i32,
+    rbac: Rbac,
+    form: ModelForm,
+    can_set_visibility_to_company: bool,
+) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -185,7 +190,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                                             selected_value: form.visibility.clone(),
                                             {crate::visibility_to_string(db::Visibility::Team)}
                                         }
-                                        if rbac.can_make_assistant_public() {
+                                        if can_set_visibility_to_company {
                                             SelectOption {
                                                 value: "{crate::visibility_to_string(db::Visibility::Company)}",
                                                 selected_value: form.visibility.clone(),
