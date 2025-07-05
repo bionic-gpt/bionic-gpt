@@ -58,7 +58,8 @@ pub fn Form(
                             rows: "1",
                             placeholder: "Ask a question...",
                             name: "message",
-                            disabled: lock_console
+                            disabled: lock_console,
+                            required: true
                         }
                     }
                     div {
