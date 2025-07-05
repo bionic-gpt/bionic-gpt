@@ -84,10 +84,6 @@ pub fn Layout(props: LayoutProps) -> Element {
 
             }
             script {
-                "async": "true",
-                src: "https://unpkg.com/htmx.org@2.0.3"
-            }
-            script {
                 "type": "module",
                 src: "https://cdn.jsdelivr.net/npm/@justinribeiro/lite-youtube@1/lite-youtube.min.js"
             }
@@ -99,6 +95,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                 section: props.section
             }
             {props.children}
+            script {
+                "defer": "true",
+                src: "https://cdn.jsdelivr.net/npm/quicklink@3.0.1/dist/quicklink.umd.js"
+            }
+            script {
+                dangerous_inner_html: "window.addEventListener('load', () => {{quicklink.listen();}});"
+            }
         }
     )
 }

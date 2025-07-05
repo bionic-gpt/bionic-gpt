@@ -18,8 +18,8 @@ use db::queries::capabilities;
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::models::upsert as model_page;
-use web_pages::{string_to_visibility, visibility_to_string};
 use web_pages::routes::models::{Delete, Edit, Index, New, Upsert};
+use web_pages::{string_to_visibility, visibility_to_string};
 
 pub fn routes() -> Router {
     Router::new()
