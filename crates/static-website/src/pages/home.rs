@@ -24,7 +24,7 @@ pub fn home_page() -> String {
                 class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
                 VideoHero {
                     video_id: "slRiOOM17tM",
-                    title: "Boost productivity across every team — without compromising data privacy.",
+                    title: "The all-in-one platform for private and secure AI",
                     subtitle: "Deploy anywhere — on-prem, private cloud, or fully managed by us",
                     claim: "Join hundreds of teams already powering AI with Bionic-GPT"
                 }
