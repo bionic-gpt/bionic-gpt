@@ -51,21 +51,18 @@ pub fn home_page() -> String {
                 }
 
                 SmallImageFeature {
-                    title: "Data Governance",
-                    sub_title: "Empower Your Teams with Secure AI",
-                    text: "No steep learning curves, no complexity — just instant productivity.
-    Bionic's intuitive interface gets your teams up and running fast, with a familiar user experience and secure foundation.",
-                    image: "/landing-page/bionic-console.png",
+                    title: "Agentic AI",
+                    sub_title: "Create AI Agents in seconds",
+                    text: "Use default agents or create new ones tuned to your specific workflows across finance, legal, healthcare, retail, and beyond.",
+                    image: "/river/assistants.png",
                     flip: false
                 }
 
                 SmallImageFeature {
-                    title: "Retrieval Augmented Generation",
-                    sub_title: "Transform Your Data into a Competitive Advantage",
-                    text: "Build AI assistants tailored to your needs by training on your unique datasets.
-                        Bionic provides accurate, context-aware insights and automates tasks specific to your
-                        business—all securely within your environment.",
-                    image: "/landing-page/assistants.png",
+                    title: "Integrations",
+                    sub_title: "Seamlessly connect internal and external systems",
+                    text: "Our LLM tools integrate effortlessly with your enterprise systems, ensuring smooth, secure, and intelligent automation across your entire workflow.",
+                    image: "/river/integrations.png",
                     flip: true
                 }
 
@@ -75,7 +72,7 @@ pub fn home_page() -> String {
                     text: "Empower your teams with AI that works where they do. Bionic integrates
                         seamlessly into your workflows, providing advanced capabilities without sacrificing security. 
                         Your data stays private, enabling trustworthy collaboration and innovation.",
-                    image: "/landing-page/teams.png",
+                    image: "/river/teams.png",
                     flip: false
                 }
 
