@@ -27,3 +27,6 @@ futures = "0.3"
 
 # Used by the web tool to stream responses
 futures-util = "0.3"
+
+[dev-dependencies]
+hyper = { version = "0.14", features = ["full"] }

@@ -164,17 +164,33 @@ impl ToolInterface for OpenApiTool {
             .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
 
         // Build the request
-        let mut request = self.client.request(http_method, url);
+        let mut request = self.client.request(http_method.clone(), url.clone());
         request = self.add_auth_header_if_present(request).await;
         if has_request_body {
             request = request.json(&request_body_params);
         }
 
         // Send the request
-        let response = request
+        let mut response = request
             .send()
             .await
             .map_err(|e| crate::json_error("Failed to make request", e))?;
+
+        if response.status() == reqwest::StatusCode::UNAUTHORIZED {
+            if let Some(provider) = &self.token_provider {
+                tracing::info!("Received 401 response; forcing token refresh and retrying");
+                provider.force_refresh().await;
+                let mut retry = self.client.request(http_method, url);
+                retry = self.add_auth_header_if_present(retry).await;
+                if has_request_body {
+                    retry = retry.json(&request_body_params);
+                }
+                response = retry
+                    .send()
+                    .await
+                    .map_err(|e| crate::json_error("Failed to make request", e))?;
+            }
+        }
 
         // Check if the request was successful
         if !response.status().is_success() {
@@ -581,5 +597,111 @@ mod tests {
         let req = futures::executor::block_on(tool.add_auth_header_if_present(req));
         let built = req.build().unwrap();
         assert_eq!(built.headers().get("x-api-key").unwrap(), "abc123");
+    }
+
+    #[tokio::test]
+    async fn test_execute_refresh_and_retry_on_401() {
+        use hyper::service::{make_service_fn, service_fn};
+        use hyper::{Body, Request, Response, Server};
+        use serde_json::json;
+        use std::convert::Infallible;
+        use std::net::SocketAddr;
+
+        let make_svc = make_service_fn(|_| async {
+            let mut first = true;
+            Ok::<_, Infallible>(service_fn(move |req: Request<Body>| {
+                let auth = req
+                    .headers()
+                    .get("Authorization")
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+                let status = if first {
+                    first = false;
+                    assert_eq!(auth, "Bearer first");
+                    hyper::StatusCode::UNAUTHORIZED
+                } else {
+                    assert_eq!(auth, "Bearer second");
+                    hyper::StatusCode::OK
+                };
+                let body = if status == hyper::StatusCode::OK {
+                    Body::from("{\"ok\":true}")
+                } else {
+                    Body::empty()
+                };
+                async move {
+                    Ok::<_, Infallible>(Response::builder().status(status).body(body).unwrap())
+                }
+            }))
+        });
+
+        let addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
+        let server = Server::bind(&addr).serve(make_svc);
+        let addr = server.local_addr();
+        let handle = tokio::spawn(server);
+
+        let spec_json = json!({
+            "openapi": "3.0.0",
+            "info": {"title": "Test", "version": "1.0"},
+            "paths": {"/protected": {"get": {"operationId": "getProtected"}}}
+        });
+        let spec: oas3::OpenApiV3Spec = serde_json::from_value(spec_json).unwrap();
+
+        struct MockTokenProvider {
+            tokens: Vec<String>,
+            idx: tokio::sync::Mutex<usize>,
+        }
+
+        impl MockTokenProvider {
+            fn new(tokens: Vec<String>) -> Self {
+                Self {
+                    tokens,
+                    idx: tokio::sync::Mutex::new(0),
+                }
+            }
+        }
+
+        #[async_trait]
+        impl TokenProvider for MockTokenProvider {
+            async fn token(&self) -> Option<String> {
+                let idx = *self.idx.lock().await;
+                Some(self.tokens[idx].clone())
+            }
+
+            async fn force_refresh(&self) {
+                let mut idx = self.idx.lock().await;
+                if *idx + 1 < self.tokens.len() {
+                    *idx += 1;
+                }
+            }
+        }
+
+        let provider = Arc::new(MockTokenProvider::new(vec![
+            "first".into(),
+            "second".into(),
+        ]));
+        let tool_def = BionicToolDefinition {
+            r#type: "function".to_string(),
+            function: ChatCompletionFunctionDefinition {
+                name: "getProtected".to_string(),
+                description: "".to_string(),
+                parameters: json!({}),
+            },
+        };
+
+        let tool = OpenApiTool::new(
+            tool_def,
+            format!("http://{}", addr),
+            spec,
+            "getProtected".to_string(),
+            "Authorization".to_string(),
+            Some(provider),
+        );
+
+        let result = tool.execute("{}").await.unwrap();
+        assert_eq!(result, json!({"ok": true}));
+
+        handle.abort();
     }
 }
