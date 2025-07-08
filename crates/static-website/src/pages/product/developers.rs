@@ -1,3 +1,5 @@
+use crate::components::extra_footer::ExtraFooter;
+use crate::components::features::BionicFeatures;
 use crate::components::footer::Footer;
 use crate::components::image_feature::ImageFeature;
 use crate::components::navigation::Section;
@@ -20,9 +22,20 @@ pub fn page() -> String {
                     sub_title: "Manage resource usage and access controls".to_string(),
                     image: "/product/developers.png"
                 }
+
+                BionicFeatures {}
             }
 
+            ExtraFooter {
+                title: "The secure open source Chat-GPT replacement
+                that runs in a trusted execution environment for
+                maximum data security and compliance",
+                image: "/landing-page/bionic-console.png",
+                cta: "Find out more",
+                cta_url: crate::routes::marketing::Index {}.to_string()
+            }
             Footer {
+                margin_top: "mt-0"
             }
         }
     };
