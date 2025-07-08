@@ -10,6 +10,7 @@ use time::{Duration, OffsetDateTime};
 #[async_trait]
 pub trait TokenProvider: Send + Sync {
     async fn token(&self) -> Option<String>;
+    async fn force_refresh(&self);
 }
 
 pub struct StaticTokenProvider {
@@ -26,6 +27,10 @@ impl StaticTokenProvider {
 impl TokenProvider for StaticTokenProvider {
     async fn token(&self) -> Option<String> {
         Some(self.token.clone())
+    }
+
+    async fn force_refresh(&self) {
+        tracing::debug!("StaticTokenProvider::force_refresh called - no action taken");
     }
 }
 
@@ -63,17 +68,14 @@ impl OAuth2TokenProvider {
         }
     }
 
-    async fn refresh_if_needed(&self) {
+    async fn refresh(&self) {
+        tracing::info!(
+            "Refreshing OAuth token for connection {}",
+            self.connection_id
+        );
         let mut token_guard = self.token.lock().await;
         let mut refresh_guard = self.refresh_token.lock().await;
         let mut expiry_guard = self.expires_at.lock().await;
-
-        if expiry_guard
-            .as_ref()
-            .is_some_and(|e| *e > OffsetDateTime::now_utc())
-        {
-            return;
-        }
 
         let Some(refresh_token) = refresh_guard.as_ref() else {
             return;
@@ -154,9 +156,26 @@ impl OAuth2TokenProvider {
             return;
         }
 
+        tracing::info!(
+            "OAuth token refreshed for connection {}",
+            self.connection_id
+        );
+
         *token_guard = Some(new_token);
         *refresh_guard = new_refresh;
         *expiry_guard = new_expiry;
+    }
+
+    async fn refresh_if_needed(&self) {
+        let expiry_guard = self.expires_at.lock().await;
+        if expiry_guard
+            .as_ref()
+            .is_some_and(|e| *e > OffsetDateTime::now_utc())
+        {
+            return;
+        }
+        drop(expiry_guard);
+        self.refresh().await;
     }
 }
 
@@ -165,5 +184,9 @@ impl TokenProvider for OAuth2TokenProvider {
     async fn token(&self) -> Option<String> {
         self.refresh_if_needed().await;
         self.token.lock().await.clone()
+    }
+
+    async fn force_refresh(&self) {
+        self.refresh().await;
     }
 }
