@@ -147,7 +147,7 @@ pub fn pricing() -> String {
                 cta_url: crate::routes::marketing::Index {}.to_string()
             }
             Footer {
-                extra_class: ""
+                margin_top: "mt-0"
             }
         }
     };

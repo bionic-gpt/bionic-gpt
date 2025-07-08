@@ -60,7 +60,7 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                         href: marketing::Index {}.to_string(),
                         span {
                             class: "pl-3 flex flex-row gap-2",
-                            strong { "Bionic-GPT" }
+                            strong { "Bionic" }
                         }
                     }
 

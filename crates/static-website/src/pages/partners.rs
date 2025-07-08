@@ -1,5 +1,5 @@
 use crate::components::benefits::Benefits;
-use crate::components::features::{Feature, Features};
+use crate::components::features::BionicFeatures;
 use crate::components::footer::Footer;
 use crate::components::hero::Hero;
 use crate::components::navigation::Section;
@@ -14,15 +14,14 @@ pub fn partners_page() -> String {
             description: "Partners",
             section: Section::Partners,
             div {
-                class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
+                class: "lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
 
                 Hero {
-                    title: "Become a Bionic-GPT Partner",
+                    title: "Become a Bionic Partner",
                     subtitle: "Unlock Revenue with Secure, Enterprise-Grade AI Solutions"
                 }
 
                 Benefits {
-                    class: "mt-24",
                     title: "Partners",
                     subtitle: "Why Partner with Us?",
                     benefit1: "Revenue Growth",
@@ -36,38 +35,7 @@ pub fn partners_page() -> String {
                         support to ensure a seamless experience for you and your clients.",
                 }
 
-                Features {
-                    class: "mt-24",
-                    title: "Bionic-GPT Features",
-                    description: "As a bionicGPT partner, you can tap into a growing market of businesses seeking safe,
-                        private, and powerful AI solutions.",
-                    features: vec![
-                        Feature {
-                            title: String::from("No Code Rag"),
-                            description: String::from("Including no-code RAG pipelines"),
-                        },
-                        Feature {
-                            title: String::from("Team-based permissions"),
-                            description: String::from("Data is siloed at the team level"),
-                        },
-                        Feature {
-                            title: String::from("Full Observability"),
-                            description: String::from("Auto-assign tasks, send Slack messages, and much more..."),
-                        },
-                        Feature {
-                            title: String::from("Rate limiting"),
-                            description: String::from("Audit-proof software built for critical financial..."),
-                        },
-                        Feature {
-                            title: String::from("Military Grade Security"),
-                            description: String::from("Craft beautiful, delightful experiences for both..."),
-                        },
-                        Feature {
-                            title: String::from("Operations"),
-                            description: String::from("Keep your company’s lights on with customizable..."),
-                        },
-                    ]
-                }
+                BionicFeatures {}
 
                 Testamonials {
                     class: "mt-24",
@@ -76,11 +44,11 @@ pub fn partners_page() -> String {
                     job1: "CEO GTEdge.ai",
                     img1: "/partners/tom-bendien.png",
                     person1: "Tom",
-                    text2: "The new, clean, and intuitive interface has made adopting bionicGPT across teams effortless.
-                        It’s a joy to use and has lowered the learning curve significantly.",
+                    text2: "The new, clean, and intuitive interface has made adopting Bionic across teams effortless.
+                        It’s a joy to use and has lowered the learning curve significantly. We're excited for the new possbilities.",
                     job2: "Digital Adoption Specialist",
-                    person2: "Patrick",
-                    img2: "https://dummyimage.com/106x106"
+                    person2: "Aisha",
+                    img2: "/partners/aisha.png"
                 }
 
                 section {
@@ -97,7 +65,6 @@ pub fn partners_page() -> String {
             }
         }
         Footer {
-            extra_class: "mt-24"
         }
     };
 

@@ -41,10 +41,10 @@ pub fn render_parameter(
 
                 // Type and format
                 span {
-                    class: "bg-primary/20 text-primary text-xs px-2 py-0.5 rounded",
+                    class: "bg-primary/20 font-display text-xs px-2 py-0.5 rounded",
                     "{param_type}"
                     if let Some(fmt) = format {
-                        span { class: "text-primary", ", {fmt}" }
+                        span { class: "font-display", ", {fmt}" }
                     }
                 }
 

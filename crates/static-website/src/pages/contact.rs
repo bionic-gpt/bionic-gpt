@@ -46,11 +46,11 @@ pub fn contact_page() -> String {
                 }
 
                 Testamonials {
-                    text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic-GPT’s support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
+                    text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic's support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
                     job1: "Data Scientist",
                     person1: "Emma",
                     img1: "https://dummyimage.com/106x106",
-                    text2: "Bionic-GPT’s observability feature, which logs all messages into and out of the models, has been critical for ensuring compliance in our organization. It gives us peace of mind and robust accountability.",
+                    text2: "Bionic's observability feature, which logs all messages into and out of the models, has been critical for ensuring compliance in our organization. It gives us peace of mind and robust accountability.",
                     job2: "Compliance Officer",
                     person2: "Patrick",
                     img2: "https://dummyimage.com/106x106",
@@ -70,7 +70,6 @@ pub fn contact_page() -> String {
                 cta_url: crate::routes::marketing::Index {}.to_string()
             }
             Footer {
-                extra_class: ""
             }
         }
     };

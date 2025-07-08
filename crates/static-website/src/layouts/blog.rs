@@ -88,7 +88,7 @@ pub fn BlogPost(post: Page) -> Element {
                 cta_url: "/"
             }
             Footer {
-                extra_class: ""
+                margin_top: "mt-0"
             }
         }
     }
@@ -155,7 +155,6 @@ pub fn BlogList(summary: Summary) -> Element {
                 }
             }
             Footer {
-                extra_class: ""
             }
         }
     }

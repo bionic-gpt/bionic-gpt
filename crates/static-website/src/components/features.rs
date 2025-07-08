@@ -1,30 +1,10 @@
 use dioxus::prelude::*;
 
-#[component]
-pub fn GraphSvg() -> Element {
-    rsx! {
-        svg {
-            fill: "currentColor",
-            width: "50",
-            height: "50",
-            view_box: "0 0 20 20",
-            xmlns: "http://www.w3.org/2000/svg",
-            path {
-                fill_rule: "evenodd",
-                d: "M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10
-                15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 
-                100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 
-                00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z",
-                clip_rule: "evenodd",
-            }
-        }
-    }
-}
-
 #[derive(Clone, PartialEq)]
 pub struct Feature {
     pub title: String,
     pub description: String,
+    pub icon: String,
 }
 
 #[component]
@@ -43,7 +23,7 @@ pub fn Features(
                 div {
                     class: "mb-8 lg:mb-16",
                     h2 {
-                        class: "mb-4 text-4xl tracking-tight text-primary",
+                        class: "mb-4 text-4xl tracking-tight font-display",
                         "{title}"
                     }
                     p {
@@ -57,10 +37,13 @@ pub fn Features(
                         div {
                             div {
                                 class: "mb-4 w-10 h-10 lg:h-12 lg:w-12",
-                                GraphSvg {}
+                                img {
+                                    alt: "testimonial",
+                                    src: "{feature.icon}"
+                                }
                             }
                             h3 {
-                                class: "mb-2 text-primary text-xl font-bold",
+                                class: "mb-2 font-display text-xl font-bold",
                                 "{feature.title}"
                             }
                             p {
@@ -70,6 +53,61 @@ pub fn Features(
                     }
                 }
             }
+        }
+    }
+}
+
+#[component]
+pub fn BionicFeatures(class: Option<String>) -> Element {
+    let features = vec![
+        Feature {
+            title: String::from("Agentic Assistants"),
+            description: String::from("Connect assistants to your systems and your data."),
+            icon: "/features/systems.svg".to_string(),
+        },
+        Feature {
+            title: String::from("Team-Based Permissions"),
+            description: String::from(
+                "Control data access and ensure security by allowing teams to manage permissions.",
+            ),
+            icon: "/features/team.svg".to_string(),
+        },
+        Feature {
+            title: String::from("Full Observability"),
+            description: String::from(
+                "Gain insights into usage and compliance with detailed dashboards and logs.",
+            ),
+            icon: "/features/graph.svg".to_string(),
+        },
+        Feature {
+            title: String::from("Cost Control"),
+            description: String::from(
+                "Set usage limits by user and team to manage costs effectively.",
+            ),
+            icon: "/features/costs.svg".to_string(),
+        },
+        Feature {
+            title: String::from("Advanced Encryption"),
+            description: String::from(
+                "Ensure data security with encryption at rest, in transit, and during runtime.",
+            ),
+            icon: "/features/encryption.svg".to_string(),
+        },
+        Feature {
+            title: String::from("Scalable Architecture"),
+            description: String::from(
+                "Built on Kubernetes for maximum scalability and reliability.",
+            ),
+            icon: "/features/kubernetes.svg".to_string(),
+        },
+    ];
+
+    rsx! {
+        Features {
+            title: "Bionic Features",
+            description: "A comprehensive solution for all your AI needs.",
+            features: features,
+            class: class
         }
     }
 }

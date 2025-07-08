@@ -4,18 +4,18 @@ We have a very lightweight version of Bionic for running locally for for limited
 
 ## Prerequisites
 
-The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
+The easiest way to get running with Bionic is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 ### OSX and Linux
 
 ```sh
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/321fb19cc6819a9e294eaae254d0689a13f9bdd9/infra-as-code/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/abe4016d1135cae79afeb27f8a580612b0251860/infra-as-code/docker-compose.yml
 ```
 
 ### Windows
 
 ```sh
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/321fb19cc6819a9e294eaae254d0689a13f9bdd9/infra-as-code/docker-compose.yml -OutFile docker-compose.yml
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/abe4016d1135cae79afeb27f8a580612b0251860/infra-as-code/docker-compose.yml -OutFile docker-compose.yml
 ```
 
 ### And run

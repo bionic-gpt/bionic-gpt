@@ -1,5 +1,28 @@
-<svg viewBox="0 0 48 48" id="Layer_2" data-name="Layer 2" 
-xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" 
-stroke-width="2"></g><g id="SVGRepo_tracerCarrier" 
-stroke-linecap="round" stroke-linejoin="round"></g><g 
-id="SVGRepo_iconCarrier"><defs><style>.cls-1{stroke:#000000;stroke-linecap:round;stroke-linejoin:round;}</style></defs><path class="cls-1" d="M4.5,35.48,14.78,24,4.5,12.51h7.09L21.88,24,11.59,35.48Zm35.51,0H25.13a3.2,3.2,0,0,1,0-6.38H40a3.2,3.2,0,1,1,.57,6.38A5.42,5.42,0,0,1,40,35.48Z"></path></g></svg>
+<svg width="144" height="144" viewBox="0 0 144 144" xmlns="http://www.w3.org/2000/svg">
+  <!-- Radial gradient background -->
+  <defs>
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#4e7eff"/>
+      <stop offset="100%" stop-color="#1f3ccf"/>
+    </radialGradient>
+
+    <!-- Drop shadow filter -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="black" flood-opacity="0.7"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded background -->
+  <rect width="144" height="144" rx="24" ry="24" fill="url(#bgGradient)" />
+  <style>
+    .small { 
+        font: normal 120px sans-serif; 
+        fill: white;
+    }
+  </style>
+  <!-- Bigger, bolder B with drop shadow -->
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" class="small" fill="white"
+        filter="url(#dropShadow)">
+    B
+  </text>
+</svg>

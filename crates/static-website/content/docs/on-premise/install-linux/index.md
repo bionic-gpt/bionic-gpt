@@ -28,7 +28,7 @@ kubectl get pods
 ## 4. Install the Bionic CLI
 
 ```sh
-export BIONIC_VERSION=v1.9.1
+export BIONIC_VERSION=v1.11.3
 curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/${BIONIC_VERSION}/bionic-cli-linux && chmod +x ./bionic-cli-linux && sudo mv ./bionic-cli-linux /usr/local/bin/bionic
 ```
 
@@ -63,7 +63,7 @@ You can then access the front end from `http://localhost` and you'll be redirect
 
 ## Registration
 
-The first user to register with **BionicGPT** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
+The first user to register with **Bionic** will become the system administrator. The information is kept local to your machine and your data is not sent anywhere.
 
 ![Alt text](/landing-page/bionic-console.png "Start Screen")
 

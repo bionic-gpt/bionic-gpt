@@ -19,7 +19,7 @@ pub fn QuadFeature(
         div { class: "mx-auto max-w-7xl px-6 lg:px-8",
             div { class: "mx-auto max-w-2xl lg:text-center",
                 h2 { class: "badge badge-outline", "{title}" }
-                p { class: "mt-2 text-3xl font-bold tracking-tight sm:text-4xl text-primary",
+                p { class: "mt-2 text-3xl font-bold tracking-tight sm:text-4xl font-display",
                     "{sub_title}"
                 }
                 p { class: "mt-6 text-lg leading-8", "{text}" }

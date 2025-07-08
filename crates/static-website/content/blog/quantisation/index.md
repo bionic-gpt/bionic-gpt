@@ -1,4 +1,4 @@
-The default setup for BionicGPT allows you to run a proof of concept on your laptop, but given the much publicised large resource requirements for LLMs how do we achieve this. Step forward quantisation.	
+The default setup for Bionic allows you to run a proof of concept on your laptop, but given the much publicised large resource requirements for LLMs how do we achieve this. Step forward quantisation.	
 
 ## What is Quantisation?
 
@@ -17,5 +17,5 @@ While quantisation offers numerous benefits, it's important to note that there's
 
 In conclusion, quantisation in LLMs is a clever technique that simplifies the way these models handle data. It's all about balancing the need for efficiency with maintaining the quality of responses. As LLMs continue to evolve and become a more integral part of our digital lives, understanding concepts like quantisation becomes increasingly important. It's one of the behind-the-scenes tricks that make these models so powerful and versatile.
 
-BionicGPT has the flexibility for you to change up your LLM to fit in with your requirements and available infrastructure.
+Bionic has the flexibility for you to change up your LLM to fit in with your requirements and available infrastructure.
 

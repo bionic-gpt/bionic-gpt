@@ -1,6 +1,6 @@
 # Your Private Coding CoPilot
 
-This guide will use the open source [Continue](https://github.com/continuedev/continue) Visual Studio Code extension configured to work with **bionicGPT**
+This guide will use the open source [Continue](https://github.com/continuedev/continue) Visual Studio Code extension configured to work with **Bionic**
 
 1. **Install Continue extension**
 
