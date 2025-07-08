@@ -10,7 +10,7 @@ pub fn Customers(class: Option<String>) -> Element {
                 "Trusted by the World's Best Companies"
             }
             h3 {
-                class: "mt-4 mb-4",
+                class: "mb-4",
                 "Built with support from our partners"
             }
             div {

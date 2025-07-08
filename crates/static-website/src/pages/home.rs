@@ -21,7 +21,7 @@ pub fn home_page() -> String {
             section: Section::Home,
 
             div {
-                class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
+                class: "lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
                 VideoHero {
                     video_id: "slRiOOM17tM",
                     title: "The all-in-one platform for private and secure AI",
