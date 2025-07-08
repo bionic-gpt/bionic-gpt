@@ -1,5 +1,5 @@
 use crate::components::benefits::Benefits;
-use crate::components::features::{Feature, Features};
+use crate::components::features::BionicFeatures;
 use crate::components::footer::Footer;
 use crate::components::hero::Hero;
 use crate::components::navigation::Section;
@@ -35,42 +35,7 @@ pub fn partners_page() -> String {
                         support to ensure a seamless experience for you and your clients.",
                 }
 
-                Features {
-                    title: "Bionic Features",
-                    description: "A comprehensive solution for all your AI needs.",
-                    features: vec![
-                        Feature {
-                            title: String::from("Agentic Assistants"),
-                            description: String::from("Connect assistants to your systems and your data."),
-                            icon: "/features/systems.svg".to_string()
-                        },
-                        Feature {
-                            title: String::from("Team-Based Permissions"),
-                            description: String::from("Control data access and ensure security by allowing teams to manage permissions."),
-                            icon: "/features/team.svg".to_string()
-                        },
-                        Feature {
-                            title: String::from("Full Observability"),
-                            description: String::from("Gain insights into usage and compliance with detailed dashboards and logs."),
-                            icon: "/features/graph.svg".to_string()
-                        },
-                        Feature {
-                            title: String::from("Cost Control"),
-                            description: String::from("Set usage limits by user and team to manage costs effectively."),
-                            icon: "/features/costs.svg".to_string()
-                        },
-                        Feature {
-                            title: String::from("Advanced Encryption"),
-                            description: String::from("Ensure data security with encryption at rest, in transit, and during runtime."),
-                            icon: "/features/encryption.svg".to_string()
-                        },
-                        Feature {
-                            title: String::from("Scalable Architecture"),
-                            description: String::from("Built on Kubernetes for maximum scalability and reliability."),
-                            icon: "/features/kubernetes.svg".to_string()
-                        },
-                    ]
-                }
+                BionicFeatures {}
 
                 Testamonials {
                     class: "mt-24",
