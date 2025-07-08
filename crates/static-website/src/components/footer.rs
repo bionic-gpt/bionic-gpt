@@ -11,7 +11,7 @@ pub fn Footer(margin_top: Option<String>) -> Element {
         footer {
             class: "{extra_class} bg-neutral text-neutral-content p-10",
             div {
-                class: "lg:max-w-5xl flex flex-row justify-between",
+                class: "mx-auto lg:max-w-5xl flex flex-row justify-between",
                 nav {
                     h6 {
                         class: "footer-title",
