@@ -4,7 +4,6 @@ use crate::components::faq_accordian::{Faq, FaqText};
 use crate::components::features::BionicFeatures;
 use crate::components::footer::Footer;
 use crate::components::navigation::Section;
-use crate::components::problem_solution::ProblemSolution;
 use crate::components::security::Security;
 use crate::components::small_image_feature::SmallImageFeature;
 use crate::components::testamonials::Testamonials;
@@ -30,24 +29,6 @@ pub fn home_page() -> String {
                 }
 
                 Customers {
-                }
-
-                ProblemSolution {
-                    image: "/landing-page/private-deployment.svg",
-                    title: "Private, Compliant, and Powerful: AI for the Enterprise",
-                    problem: "ChatGPT is powerful — but sending sensitive enterprise data to external servers introduces unacceptable risks: breaches, leaks, and compliance violations.",
-                    solution: "Bionic gives you the power of ChatGPT — with none of the risks. Run advanced AI privately, stay compliant, and retain full control over your data."
-                }
-
-                Benefits {
-                    title: "Benefits",
-                    subtitle: "AI Your Teams Will Actually Use — and Trust",
-                    benefit1: "Accelerate Generative AI Adoption",
-                    benefit1_desc: "Boost productivity with a solution that's simple to implement and use securely.",
-                    benefit2: "Custom AI Assistants (RAG)",
-                    benefit2_desc: "Utilize your data to create AI assistants that deliver smarter, tailored responses.",
-                    benefit3: "Data Compliance and Auditability",
-                    benefit3_desc: "Enjoy the advantages of generative AI with robust data governance and compliance.",
                 }
 
                 SmallImageFeature {
@@ -96,6 +77,17 @@ pub fn home_page() -> String {
                     job2: "Compliance Officer",
                     person2: "Patrick",
                     img2: "/partners/patrick.png"
+                }
+
+                Benefits {
+                    title: "Benefits",
+                    subtitle: "AI Your Teams Will Actually Use — and Trust",
+                    benefit1: "Accelerate Generative AI Adoption",
+                    benefit1_desc: "Boost productivity with a solution that's simple to implement and use securely.",
+                    benefit2: "Custom AI Assistants (RAG)",
+                    benefit2_desc: "Utilize your data to create AI assistants that deliver smarter, tailored responses.",
+                    benefit3: "Data Compliance and Auditability",
+                    benefit3_desc: "Enjoy the advantages of generative AI with robust data governance and compliance.",
                 }
 
                 Faq {
