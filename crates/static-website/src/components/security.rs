@@ -1,41 +1,74 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn Shield(text: String) -> Element {
+pub fn Shield(title: String, subtitle: String, footer: String) -> Element {
     rsx! {
         svg {
-            view_box: "0 0 16 16",
-            fill: "currentColor",
-            stroke: "currentColor",
+            view_box: "0 0 200 200",
+            width: "100",
+            height: "100",
             xmlns: "http://www.w3.org/2000/svg",
-            width: "60",
-            height: "60",
-            g {
-                id: "SVGRepo_bgCarrier",
-                stroke_width: "0"
-            }
-            g {
-                id: "SVGRepo_tracerCarrier",
-                stroke_linecap: "round",
-                stroke_linejoin: "round"
-            }
-            g {
-                id: "SVGRepo_iconCarrier",
+
+            defs {
                 path {
-                    fill_rule: "evenodd",
-                    clip_rule: "evenodd",
-                    d: "M8 16L4.35009 13.3929C2.24773 11.8912 1 9.46667 1
-                    6.88306V3L8 0L15 3V6.88306C15 9.46667 13.7523 11.8912 
-                    11.6499 13.3929L8 16ZM12.2071 5.70711L10.7929 4.29289L7
-                     8.08579L5.20711 6.29289L3.79289 7.70711L7 10.9142L12.2071 
-                     5.70711Z",
-                    fill: "currentColor"
+                    id: "curve",
+                    d: "M20,98a80,80 0 0,0 160,0",
+                    fill: "none"
                 }
             }
-        }
-        h3 {
-            class: "mt-4",
-            "{text}"
+
+            circle {
+                cx: "100",
+                cy: "100",
+                r: "95",
+                stroke: "currentColor",
+                stroke_width: "3",
+                fill: "none"
+            }
+            circle {
+                cx: "100",
+                cy: "100",
+                r: "75",
+                stroke: "currentColor",
+                stroke_width: "3",
+                fill: "none"
+            }
+
+            text {
+                x: "100",
+                y: "105",
+                text_anchor: "middle",
+                font_size: "32",
+                font_family: "Arial",
+                fill: "currentColor",
+                font_weight: "bold",
+                "{title}"
+            }
+
+            text {
+                x: "100",
+                y: "135",
+                text_anchor: "middle",
+                font_size: "20",
+                font_family: "Arial",
+                fill: "currentColor",
+                font_weight: "bold",
+                "{subtitle}"
+            }
+
+            text {
+                font_size: "14",
+                font_family: "Arial",
+                fill: "currentColor",
+                font_weight: "bold",
+                textPath {
+                    href: "#curve",
+                    start_offset: "50%",
+                    text_anchor: "middle",
+                    dominant_baseline: "hanging",
+                    "{footer}"
+                }
+            }
         }
     }
 }
@@ -65,25 +98,33 @@ pub fn Security(class: Option<String>) -> Element {
                 div {
                     class: "text-center block mx-auto",
                     Shield {
-                        text: "ISO 27001"
+                        title: "SOC 2",
+                        subtitle: "Type II",
+                        footer: "Service Organisations"
                     }
                 }
                 div {
                     class: "text-center block mx-auto",
                     Shield {
-                        text: "SOC II"
+                        title: "ISO",
+                        subtitle: "27001",
+                        footer: "Information Security"
                     }
                 }
                 div {
                     class: "text-center block mx-auto",
                     Shield {
-                        text: "GDPR"
+                        title: "ISO",
+                        subtitle: "27017",
+                        footer: "Cloud Security"
                     }
                 }
                 div {
                     class: "text-center block mx-auto",
                     Shield {
-                        text: "Compliance"
+                        title: "GDPR",
+                        subtitle: "",
+                        footer: "GDPR Compliant"
                     }
                 }
             }
