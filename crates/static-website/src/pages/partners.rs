@@ -37,34 +37,38 @@ pub fn partners_page() -> String {
                 }
 
                 Features {
-                    class: "mt-24",
                     title: "Bionic-GPT Features",
-                    description: "As a bionicGPT partner, you can tap into a growing market of businesses seeking safe,
-                        private, and powerful AI solutions.",
+                    description: "A comprehensive solution for all your AI needs.",
                     features: vec![
                         Feature {
-                            title: String::from("No Code Rag"),
-                            description: String::from("Including no-code RAG pipelines"),
+                            title: String::from("Agentic Assistants"),
+                            description: String::from("Connect assistants to your systems and your data."),
+                            icon: "/features/systems.svg".to_string()
                         },
                         Feature {
-                            title: String::from("Team-based permissions"),
-                            description: String::from("Data is siloed at the team level"),
+                            title: String::from("Team-Based Permissions"),
+                            description: String::from("Control data access and ensure security by allowing teams to manage permissions."),
+                            icon: "/features/team.svg".to_string()
                         },
                         Feature {
                             title: String::from("Full Observability"),
-                            description: String::from("Auto-assign tasks, send Slack messages, and much more..."),
+                            description: String::from("Gain insights into usage and compliance with detailed dashboards and logs."),
+                            icon: "/features/graph.svg".to_string()
                         },
                         Feature {
-                            title: String::from("Rate limiting"),
-                            description: String::from("Audit-proof software built for critical financial..."),
+                            title: String::from("Cost Control"),
+                            description: String::from("Set usage limits by user and team to manage costs effectively."),
+                            icon: "/features/costs.svg".to_string()
                         },
                         Feature {
-                            title: String::from("Military Grade Security"),
-                            description: String::from("Craft beautiful, delightful experiences for both..."),
+                            title: String::from("Advanced Encryption"),
+                            description: String::from("Ensure data security with encryption at rest, in transit, and during runtime."),
+                            icon: "/features/encryption.svg".to_string()
                         },
                         Feature {
-                            title: String::from("Operations"),
-                            description: String::from("Keep your company’s lights on with customizable..."),
+                            title: String::from("Scalable Architecture"),
+                            description: String::from("Built on Kubernetes for maximum scalability and reliability."),
+                            icon: "/features/kubernetes.svg".to_string()
                         },
                     ]
                 }
