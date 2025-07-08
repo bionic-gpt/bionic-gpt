@@ -128,8 +128,8 @@ pub fn summary() -> Summary {
                 },
                 Page {
                     date: "2023-12-04",
-                    title: "bionicGPT Integration with Jupyter",
-                    description: "Integrate bionicGPT with Jupyter notebooks for enhanced data science workflows and AI-powered analysis capabilities.",
+                    title: "Bionic Integration with Jupyter",
+                    description: "Integrate Bionic with Jupyter notebooks for enhanced data science workflows and AI-powered analysis capabilities.",
                     folder: "blog/jupyter/",
                     markdown: include_str!("../content/blog/jupyter/index.md"),
                     image: Some("/blog/jupyter/llama-jupyter.jpg"),

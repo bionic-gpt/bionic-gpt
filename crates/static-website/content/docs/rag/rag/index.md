@@ -18,4 +18,4 @@ Once you've uploaded your documents go to the chat window and in the prompt drop
 
 ## Collecting Questions
 
-It's probably a good idea to track your questions with an without the datasets to give you some idea of how BionicGPT is working with your data.
+It's probably a good idea to track your questions with an without the datasets to give you some idea of how Bionic is working with your data.

@@ -1,16 +1,16 @@
 # Privacy Policy
 
-We take your privacy very seriously. We are delighted that you have shown interest in our enterprise. Data protection is of a particularly high priority for the management of **Bionic-GPT**. The use of the Internet pages of **Bionic-GPT** is possible without any indication of personal data; however, if a data subject wants to use special enterprise services via our website, processing of personal data could become necessary. If the processing of personal data is necessary and there is no statutory basis for such processing, we generally obtain consent from the data subject.
+We take your privacy very seriously. We are delighted that you have shown interest in our enterprise. Data protection is of a particularly high priority for the management of **Bionic**. The use of the Internet pages of **Bionic** is possible without any indication of personal data; however, if a data subject wants to use special enterprise services via our website, processing of personal data could become necessary. If the processing of personal data is necessary and there is no statutory basis for such processing, we generally obtain consent from the data subject.
 
-The processing of personal data, such as the name, address, email address, or telephone number of a data subject, shall always be in line with the General Data Protection Regulation (GDPR), and in accordance with the country-specific data protection regulations applicable to **Bionic-GPT**. By means of this data protection declaration, our enterprise aims to inform the general public of the nature, scope, and purpose of the personal data we collect, use, and process. Furthermore, data subjects are informed of the rights to which they are entitled.
+The processing of personal data, such as the name, address, email address, or telephone number of a data subject, shall always be in line with the General Data Protection Regulation (GDPR), and in accordance with the country-specific data protection regulations applicable to **Bionic**. By means of this data protection declaration, our enterprise aims to inform the general public of the nature, scope, and purpose of the personal data we collect, use, and process. Furthermore, data subjects are informed of the rights to which they are entitled.
 
-As the controller, **Bionic-GPT** has implemented numerous technical and organizational measures to ensure the most complete protection of personal data processed through this website. However, Internet-based data transmissions may, in principle, have security gaps, so absolute protection cannot be guaranteed. For this reason, every data subject is free to transfer personal data to us via alternative means, such as by telephone.
+As the controller, **Bionic** has implemented numerous technical and organizational measures to ensure the most complete protection of personal data processed through this website. However, Internet-based data transmissions may, in principle, have security gaps, so absolute protection cannot be guaranteed. For this reason, every data subject is free to transfer personal data to us via alternative means, such as by telephone.
 
 ---
 
 ## Definitions
 
-The data protection declaration of **Bionic-GPT** is based on the terms used by the European legislator for the adoption of the GDPR. Our data protection declaration should be legible and understandable for the general public, as well as our customers and business partners. To ensure this, we first explain the terminology used.
+The data protection declaration of **Bionic** is based on the terms used by the European legislator for the adoption of the GDPR. Our data protection declaration should be legible and understandable for the general public, as well as our customers and business partners. To ensure this, we first explain the terminology used.
 
 In this data protection declaration, we use, inter alia, the following terms:
 
@@ -63,25 +63,25 @@ Consent of the data subject is a freely given, specific, informed, and unambiguo
 ## Name and Address of the Controller
 
 **Controller:**  
-**Bionic-GPT**  
+**Bionic**  
 71-75 Shelton Street  
 WC2H 9JQ, London, UK  
 
 Phone: +77918118055  
-Email: support@Bionic-GPT  
-Website: [Bionic-GPT](#)
+Email: support@Bionic  
+Website: [Bionic](#)
 
 ---
 
 ## Cookies
 
-The Internet pages of **Bionic-GPT** use cookies. Cookies are text files stored on a computer system via an Internet browser. They enable user-friendly services, including session management and shopping cart functionality. Users can disable cookies in their browsers, but some website features may become unavailable.
+The Internet pages of **Bionic** use cookies. Cookies are text files stored on a computer system via an Internet browser. They enable user-friendly services, including session management and shopping cart functionality. Users can disable cookies in their browsers, but some website features may become unavailable.
 
 ---
 
 ## Collection of General Data and Information
 
-**Bionic-GPT** collects general data such as browser type, IP address, and time of access. This data helps optimize website content, ensure security, and provide law enforcement information if necessary. The data is stored separately from personal data.
+**Bionic** collects general data such as browser type, IP address, and time of access. This data helps optimize website content, ensure security, and provide law enforcement information if necessary. The data is stored separately from personal data.
 
 ---
 
@@ -93,7 +93,7 @@ Users can register on our website by providing personal data. This data is store
 
 ## Contact via the Website
 
-Users may contact **Bionic-GPT** via email or contact forms. Personal data provided will be stored securely and not shared with third parties.
+Users may contact **Bionic** via email or contact forms. Personal data provided will be stored securely and not shared with third parties.
 
 ---
 
@@ -163,4 +163,4 @@ Providing personal data may be required by law or necessary to fulfill a contrac
 
 ## Automated Decision-Making
 
-**Bionic-GPT** does not use automated decision-making or profiling.
+**Bionic** does not use automated decision-making or profiling.

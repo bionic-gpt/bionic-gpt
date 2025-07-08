@@ -12,7 +12,7 @@ Imagine having a single, searchable source of truth for your entire codebase, in
 comments, issues, and more. With a vector database, you can consolidate all relevant information into one place, making 
 it easy to identify areas that need attention.
 
-That's where bionicGPT comes in. Our no-code RAG pipeline allows you to create a single dataset, load it with multiple data sources, and access specialised models to test and refine your approach in just days. Could this get you to 80% at very little cost and risk
+That's where Bionic comes in. Our no-code RAG pipeline allows you to create a single dataset, load it with multiple data sources, and access specialised models to test and refine your approach in just days. Could this get you to 80% at very little cost and risk
 
 Don't let legacy software hold your business back. If you're struggling with outdated systems, get in touch to discover how our RAG approach can help you:
 

@@ -1,12 +1,12 @@
-Are you tired of clunky chatbot interfaces that limit your creativity? Do you want to harness the power of artificial intelligence to build a conversational app that meets your unique needs? Look no further! With bionicGPT's OpenAI-compatible API, you can create a simple yet powerful chatbot in just a few lines of code.
+Are you tired of clunky chatbot interfaces that limit your creativity? Do you want to harness the power of artificial intelligence to build a conversational app that meets your unique needs? Look no further! With Bionic's OpenAI-compatible API, you can create a simple yet powerful chatbot in just a few lines of code.
 
 **The Ultimate Flexibility**
 
-bionicGPT offers a vast range of options, but what if you want to create a minimalist interface that still leverages the models and RAG functionality already implemented? That's where bionicGPT's API comes in! With just two libraries - Streamlit and OpenAI - you can unlock the full potential of AI-powered chatbots.
+Bionic offers a vast range of options, but what if you want to create a minimalist interface that still leverages the models and RAG functionality already implemented? That's where Bionic's API comes in! With just two libraries - Streamlit and OpenAI - you can unlock the full potential of AI-powered chatbots.
 
 **Get Started in Minutes**
 
-1. Obtain an API key from bionicGPT and unlock access to a world of AI possibilities.
+1. Obtain an API key from Bionic and unlock access to a world of AI possibilities.
 ![alt text](api-key.png "Bring Your Own Keys")
 
 2. Install the required libraries: Streamlit and OpenAI.
@@ -19,7 +19,7 @@ bionicGPT offers a vast range of options, but what if you want to create a minim
 import streamlit as st
 from openai import OpenAI
 
-st.title("bionicGPT API example")
+st.title("Bionic API example")
 
 # Set OpenAI API key from Streamlit secrets
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"],base_url=st.secrets["OPENAI_API_BASE"])
@@ -60,7 +60,7 @@ For the above to work you need to create a secrets.toml file under a folder call
 
 ```
 OPENAI_API_KEY = "bionicAPIKey"
-OPENAI_API_BASE= "URL of your bionicGPT instance /v1"
+OPENAI_API_BASE= "URL of your Bionic instance /v1"
 ```
 
 You run the code using ```streamlit run app.py``` and you now have a web enabled chatbot for your specific needs
@@ -69,11 +69,11 @@ For further details on using Streamlit to build LLM chat apps see
 [Build a basic LLM chat app](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)
 
 
-Note : A bionicGPT API key gives you full access to an AI Assistant that you create. The AI Assistant in turn specifies a model and optionally a Dataset that has been populated with your documents
+Note : A Bionic API key gives you full access to an AI Assistant that you create. The AI Assistant in turn specifies a model and optionally a Dataset that has been populated with your documents
 
 ![alt text](bionic-structure.png "Bring Your Own Keys")
 
-The beauty of having an OpenAI compatible API means we can cut down on the code we need to write. You just have to be aware of specifying a different base address so it accesses your version of bionicGPT or even our SaaS offering.
+The beauty of having an OpenAI compatible API means we can cut down on the code we need to write. You just have to be aware of specifying a different base address so it accesses your version of Bionic or even our SaaS offering.
 
 
 

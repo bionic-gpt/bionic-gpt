@@ -4,7 +4,7 @@ We have a very lightweight version of Bionic for running locally for for limited
 
 ## Prerequisites
 
-The easiest way to get running with BionicGPT is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
+The easiest way to get running with Bionic is with our `docker-compose.yml` file. You'll need [Docker](https://docs.docker.com/engine/install/) installed on your machine.
 
 ### OSX and Linux
 

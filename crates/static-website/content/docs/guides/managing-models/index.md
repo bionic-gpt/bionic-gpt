@@ -1,6 +1,6 @@
 # Managing Models
 
-**bionicGPT** is designed with flexibility and extensibility at its core, allowing you to configure as many models as you need. You can integrate both locally deployed models and externally hosted models, such as ChatGPT. This flexibility enables you to select and deploy the "best model for the job," whether that means different models for various teams or functions within your organization, or even multiple models for each team.
+**Bionic** is designed with flexibility and extensibility at its core, allowing you to configure as many models as you need. You can integrate both locally deployed models and externally hosted models, such as ChatGPT. This flexibility enables you to select and deploy the "best model for the job," whether that means different models for various teams or functions within your organization, or even multiple models for each team.
 
 
 For externally hosted model, one that's not running in your Kubernetes cluster. You have 2 options.
@@ -24,7 +24,7 @@ Luckily the guys at [Lite LLM](https://litellm.ai/) have got you covered. They b
 
 1. **Model Name** - This is the name of the model and must match exactly as specified in the inference engine
 
-2. **LLM, Embeddings or Text-to-Speech** - bionicGPT allows for 3 different types of models, LLMs are used for normal 'chat' mode, Embedding models are used for the RAG functionality to convert uploaded text into Embeddings for RAG searching and text to speech models. Once a text-to-speech model has been added you will see an extra icon appear under each chat, clicking on this will 'speak' the returned text.
+2. **LLM, Embeddings or Text-to-Speech** - Bionic allows for 3 different types of models, LLMs are used for normal 'chat' mode, Embedding models are used for the RAG functionality to convert uploaded text into Embeddings for RAG searching and text to speech models. Once a text-to-speech model has been added you will see an extra icon appear under each chat, clicking on this will 'speak' the returned text.
 
 3. **Model URL** - this is the address of the deployed model, example http://api.groq.com/v1
 

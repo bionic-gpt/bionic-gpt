@@ -8,7 +8,7 @@ jupyter_ai. But what about all the data scientists working at any of those compa
 have banned the use of publicly hosted LLMs such as ChatGPT? Mainly for security and
 cost reasons.
 
-Step forward bionicGPT. bionicGPT provides a way to run generative AI on premise without
+Step forward Bionic. Bionic provides a way to run generative AI on premise without
 the security and cost concerns of using publicly hosted LLMs. Now why shouldn’t those
 same data scientists have access to these same locally deployed LLMs for use from within
 Jupyter.
@@ -17,21 +17,21 @@ JupyterAI is built upon langchain and comes with a number of provider classes al
 access to several different remote LLMs. You can even extend JupyterAI and write your own
 provider. That all sounds like a little bit too much when there is a much simpler answer.
 
-bionicGPT provides an API that is an OpenAI compatible interface allowing a standard
-interface to any model registered within bionicGPT, be it local or remote.
+Bionic provides an API that is an OpenAI compatible interface allowing a standard
+interface to any model registered within Bionic, be it local or remote.
 
-bionicGPT allows you to create an API key that is directly associated with an LLM.
-The first step thus is to create your own bionicGPT API key
+Bionic allows you to create an API key that is directly associated with an LLM.
+The first step thus is to create your own Bionic API key
 
 
 ![alt text](screenshot1.png "Screen Shot 1")
 
-Since bionicGPT’s API is OpenAI compatible we can cheat and use an existing provider
+Since Bionic’s API is OpenAI compatible we can cheat and use an existing provider
 from within Jupyter AI, in fact we can use any that are OpenAI compatible.
 
 First we need to set a couple of environment parameters.  
-**OPENAI_API_KEY** to the key generated in bionicGPT, and  
-**OPENAI_API_BASE** to the address of our locally running version of bionicGPT
+**OPENAI_API_KEY** to the key generated in Bionic, and  
+**OPENAI_API_BASE** to the address of our locally running version of Bionic
 
 ![alt text](screenshot2.png "Screen Shot 2")
 
@@ -39,18 +39,18 @@ And that is all. We can now start to call our LLM using the %%ai magic
 
 ![alt text](screenshot3.png "Screen Shot 3")
 
-Since bionicGPT allows you to register multiple LLMs we can use multiple different LLMs
+Since Bionic allows you to register multiple LLMs we can use multiple different LLMs
 within the notebook merely by updating the OPENAI_API_KEY value.
 
-One of the other advantages of using bionicGPT is that the API key relates to a prompt that
+One of the other advantages of using Bionic is that the API key relates to a prompt that
 relates to a dataset, meaning you can use RAG directly from within your notebook.
 Here is an example of RAG after I had uploaded The Bank of England’s Annual Report and
 Accounts published earlier in 2023.
 
 ![alt text](screenshot4.png "Screen Shot 4")
 
-#### bionicGPT
-bionicGPT provides a way to run generative AI on premise for the 1000's of companies that
+#### Bionic
+Bionic provides a way to run generative AI on premise for the 1000's of companies that
 have banned ChatGPT due to security and cost concerns.
 
 We do this in 4 ways:

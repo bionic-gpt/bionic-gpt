@@ -69,7 +69,7 @@ This is for another system that only expects the category.
 ```
 
 Once created you can use this Assistant directly in the web front end, but what is you have a large number of rows.
-For this you can use bionicGPT's API. Below is a Python application using Pandas to load a set of data and create a new
+For this you can use Bionic's API. Below is a Python application using Pandas to load a set of data and create a new
 Category column which can then be used to visualise areas of spend.
 
 

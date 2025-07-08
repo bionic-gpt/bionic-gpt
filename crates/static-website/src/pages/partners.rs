@@ -17,7 +17,7 @@ pub fn partners_page() -> String {
                 class: "lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
 
                 Hero {
-                    title: "Become a Bionic-GPT Partner",
+                    title: "Become a Bionic Partner",
                     subtitle: "Unlock Revenue with Secure, Enterprise-Grade AI Solutions"
                 }
 
@@ -36,7 +36,7 @@ pub fn partners_page() -> String {
                 }
 
                 Features {
-                    title: "Bionic-GPT Features",
+                    title: "Bionic Features",
                     description: "A comprehensive solution for all your AI needs.",
                     features: vec![
                         Feature {
@@ -79,7 +79,7 @@ pub fn partners_page() -> String {
                     job1: "CEO GTEdge.ai",
                     img1: "/partners/tom-bendien.png",
                     person1: "Tom",
-                    text2: "The new, clean, and intuitive interface has made adopting bionicGPT across teams effortless.
+                    text2: "The new, clean, and intuitive interface has made adopting Bionic across teams effortless.
                         It’s a joy to use and has lowered the learning curve significantly. We're excited for the new possbilities.",
                     job2: "Digital Adoption Specialist",
                     person2: "Aisha",
