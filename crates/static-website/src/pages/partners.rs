@@ -14,7 +14,7 @@ pub fn partners_page() -> String {
             description: "Partners",
             section: Section::Partners,
             div {
-                class: "lg:max-w-5xl p-5 mt-8 md:mt-24 mx-auto",
+                class: "lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
 
                 Hero {
                     title: "Become a Bionic-GPT Partner",
@@ -22,7 +22,6 @@ pub fn partners_page() -> String {
                 }
 
                 Benefits {
-                    class: "mt-24",
                     title: "Partners",
                     subtitle: "Why Partner with Us?",
                     benefit1: "Revenue Growth",

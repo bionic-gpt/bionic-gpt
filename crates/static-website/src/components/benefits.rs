@@ -14,7 +14,7 @@ pub fn Benefits(
 ) -> Element {
     rsx! {
         section {
-            class: format!("lg:max-w-5xl {}", class.unwrap_or("".to_string())),
+            class: format!("{}", class.unwrap_or("".to_string())),
             div {
                 class: "container mx-auto",
                 div {
