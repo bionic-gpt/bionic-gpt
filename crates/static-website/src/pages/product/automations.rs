@@ -25,7 +25,6 @@ pub fn page() -> String {
             }
 
             Footer {
-                extra_class: "mt-24"
             }
         }
     };

@@ -100,7 +100,6 @@ pub fn partners_page() -> String {
             }
         }
         Footer {
-            extra_class: "mt-24"
         }
     };
 

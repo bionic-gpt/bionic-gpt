@@ -165,7 +165,6 @@ pub fn home_page() -> String {
                 }
             }
             Footer {
-                extra_class: "mt-24"
             }
         }
     };

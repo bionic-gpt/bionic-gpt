@@ -18,7 +18,6 @@ pub fn MarkdownPage(post: Page) -> Element {
                 }
             }
             Footer {
-                extra_class: ""
             }
         }
     }
