@@ -77,10 +77,10 @@ pub fn partners_page() -> String {
                     img1: "/partners/tom-bendien.png",
                     person1: "Tom",
                     text2: "The new, clean, and intuitive interface has made adopting bionicGPT across teams effortless.
-                        It’s a joy to use and has lowered the learning curve significantly.",
+                        It’s a joy to use and has lowered the learning curve significantly. We're excited for the new possbilities.",
                     job2: "Digital Adoption Specialist",
-                    person2: "Patrick",
-                    img2: "https://dummyimage.com/106x106"
+                    person2: "Aisha",
+                    img2: "/partners/aisha.png"
                 }
 
                 section {
