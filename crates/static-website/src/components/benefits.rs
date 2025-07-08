@@ -20,11 +20,11 @@ pub fn Benefits(
                 div {
                     class: "flex flex-col text-center w-full mb-20",
                     h2 {
-                        class: "text-primary tracking-widest font-medium title-font mb-1",
+                        class: "font-display tracking-widest font-medium title-font mb-1",
                         "{title}"
                     }
                     h1 {
-                        class: "sm:text-3xl text-2xl font-medium title-font text-primary",
+                        class: "sm:text-3xl text-2xl font-medium title-font font-display",
                         "{subtitle}"
                     }
                 }

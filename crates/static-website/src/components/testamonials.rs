@@ -60,7 +60,7 @@ pub fn Testamonials(
             div {
                 class: "container mx-auto",
                 h1 {
-                    class: "text-3xl font-medium text-primary title-font mb-12 text-center",
+                    class: "text-3xl font-medium font-display title-font mb-12 text-center",
                     "Testimonials"
                 }
                 div {
