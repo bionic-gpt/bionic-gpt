@@ -14,7 +14,7 @@ pub fn partners_page() -> String {
             description: "Partners",
             section: Section::Partners,
             div {
-                class: "lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
+                class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-36",
 
                 Hero {
                     title: "Become a Bionic Partner",

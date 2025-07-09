@@ -158,7 +158,7 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                 }
 
                 // Mobile menu (hamburger)
-                div { class: "dropdown lg:hidden",
+                div { class: "dropdown lg:hidden dropdown-end",
                     div {
                         tabindex: "0",
                         role: "button",
