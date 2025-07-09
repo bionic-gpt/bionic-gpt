@@ -64,9 +64,8 @@ pub fn Testamonials(
                     "Testimonials"
                 }
                 div {
-                    class: "flex gap-8",
+                    class: "flex flex-col md:flex-row gap-8",
                     div {
-                        class: "md:w-1/2 w-full",
                         Testamonial {
                             person: person1,
                             text: text1,
@@ -75,7 +74,6 @@ pub fn Testamonials(
                         }
                     }
                     div {
-                        class: "md:w-1/2 w-full",
                         Testamonial {
                             person: person2,
                             text: text2,
@@ -85,6 +83,40 @@ pub fn Testamonials(
                     }
                 }
             }
+        }
+    }
+}
+
+#[component]
+pub fn Testamonial1() -> Element {
+    rsx! {
+        Testamonials {
+            text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic's support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
+            job1: "Data Scientist",
+            person1: "Emmat",
+            img1: "/partners/emmat.png",
+            text2: "Bionic's observability feature, which logs all messages into and out of the models, has been critical for ensuring compliance in our organization. It gives us peace of mind and robust accountability.",
+            job2: "Compliance Officer",
+            person2: "Patrick",
+            img2: "/partners/patrick.png"
+        }
+    }
+}
+
+#[component]
+pub fn Testamonial2() -> Element {
+    rsx! {
+        Testamonials {
+            text1: "The no-code RAG pipeline, combined with the team-based privacy model, has revolutionized
+                how we handle sensitive data and collaboration, making deployment secure and seamless.",
+            job1: "CEO GTEdge.ai",
+            img1: "/partners/tom-bendien.png",
+            person1: "Tom",
+            text2: "The new, clean, and intuitive interface has made adopting Bionic across teams effortless.
+                It’s a joy to use and has lowered the learning curve significantly. We're excited for the new possbilities.",
+            job2: "Digital Adoption Specialist",
+            person2: "Aisha",
+            img2: "/partners/aisha.png"
         }
     }
 }
