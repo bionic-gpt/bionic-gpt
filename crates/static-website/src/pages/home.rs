@@ -6,7 +6,7 @@ use crate::components::footer::Footer;
 use crate::components::navigation::Section;
 use crate::components::security::Security;
 use crate::components::small_image_feature::SmallImageFeature;
-use crate::components::testamonials::Testamonials;
+use crate::components::testamonials::Testamonial1;
 use crate::components::video_hero::VideoHero;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
@@ -20,7 +20,7 @@ pub fn home_page() -> String {
             section: Section::Home,
 
             div {
-                class: "lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
+                class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-36",
                 VideoHero {
                     video_id: "slRiOOM17tM",
                     title: "The all-in-one platform for private and secure AI",
@@ -68,16 +68,7 @@ pub fn home_page() -> String {
 
                 BionicFeatures {}
 
-                Testamonials {
-                    text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic's support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
-                    job1: "Data Scientist",
-                    person1: "Emmat",
-                    img1: "/partners/emmat.png",
-                    text2: "Bionic's observability feature, which logs all messages into and out of the models, has been critical for ensuring compliance in our organization. It gives us peace of mind and robust accountability.",
-                    job2: "Compliance Officer",
-                    person2: "Patrick",
-                    img2: "/partners/patrick.png"
-                }
+                Testamonial1 { }
 
                 Benefits {
                     title: "Benefits",

@@ -3,7 +3,7 @@ use crate::components::features::BionicFeatures;
 use crate::components::footer::Footer;
 use crate::components::hero::Hero;
 use crate::components::navigation::Section;
-use crate::components::testamonials::Testamonials;
+use crate::components::testamonials::Testamonial2;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
 
@@ -14,7 +14,7 @@ pub fn partners_page() -> String {
             description: "Partners",
             section: Section::Partners,
             div {
-                class: "lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
+                class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-36",
 
                 Hero {
                     title: "Become a Bionic Partner",
@@ -37,19 +37,7 @@ pub fn partners_page() -> String {
 
                 BionicFeatures {}
 
-                Testamonials {
-                    class: "mt-24",
-                    text1: "The no-code RAG pipeline, combined with the team-based privacy model, has revolutionized
-                        how we handle sensitive data and collaboration, making deployment secure and seamless.",
-                    job1: "CEO GTEdge.ai",
-                    img1: "/partners/tom-bendien.png",
-                    person1: "Tom",
-                    text2: "The new, clean, and intuitive interface has made adopting Bionic across teams effortless.
-                        It’s a joy to use and has lowered the learning curve significantly. We're excited for the new possbilities.",
-                    job2: "Digital Adoption Specialist",
-                    person2: "Aisha",
-                    img2: "/partners/aisha.png"
-                }
+                Testamonial2 {}
 
                 section {
                     div {

@@ -3,7 +3,7 @@ use crate::components::footer::Footer;
 use crate::components::navigation::Section;
 use crate::components::security::Security;
 use crate::components::team::Team;
-use crate::components::testamonials::Testamonials;
+use crate::components::testamonials::Testamonial1;
 use crate::layouts::layout::Layout;
 use dioxus::prelude::*;
 
@@ -45,16 +45,7 @@ pub fn contact_page() -> String {
 
                 }
 
-                Testamonials {
-                    text1: "Having the flexibility to use the best model for the job has been a game-changer. Bionic's support for multiple models ensures we can tailor solutions to specific challenges, delivering optimal results every time.",
-                    job1: "Data Scientist",
-                    person1: "Emma",
-                    img1: "https://dummyimage.com/106x106",
-                    text2: "Bionic's observability feature, which logs all messages into and out of the models, has been critical for ensuring compliance in our organization. It gives us peace of mind and robust accountability.",
-                    job2: "Compliance Officer",
-                    person2: "Patrick",
-                    img2: "https://dummyimage.com/106x106",
-                }
+                Testamonial1 {}
 
                 Security {
                     class: "mt-24"
@@ -70,6 +61,7 @@ pub fn contact_page() -> String {
                 cta_url: crate::routes::marketing::Index {}.to_string()
             }
             Footer {
+                margin_top: "mt-0"
             }
         }
     };
