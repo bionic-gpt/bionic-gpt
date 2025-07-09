@@ -6,15 +6,11 @@ pub fn Customers(class: Option<String>) -> Element {
         section {
             class: format!("flex flex-col items-center {}", class.unwrap_or("".to_string())),
             span {
-                class: "badge badge-primary badge-outline",
-                "Trusted by the World's Best Companies"
-            }
-            h3 {
-                class: "mb-4",
-                "Built with support from our partners"
+                class: "badge badge-outline",
+                "Trusted by industry leaders worldwide"
             }
             div {
-                class: "flex gap-6 space-between",
+                class: "mt-4 flex gap-6 space-between",
                 svg {
                     xmlns: "http://www.w3.org/2000/svg",
                     view_box: "0 0 120 60",
