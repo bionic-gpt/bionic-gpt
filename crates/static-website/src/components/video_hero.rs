@@ -10,7 +10,7 @@ pub fn VideoHero(title: String, subtitle: String, video_id: String, claim: Strin
     rsx! {
         section {
             div {
-                class: "md:flex flex-row gap-8 text-center md:text-left",
+                class: "flex flex-col md:flex-row gap-8 text-center md:text-left",
                 div {
                     class: "flex-1",
                     div {

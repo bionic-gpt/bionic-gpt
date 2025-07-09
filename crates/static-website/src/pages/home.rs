@@ -20,7 +20,7 @@ pub fn home_page() -> String {
             section: Section::Home,
 
             div {
-                class: "px-4 md:px-0 w-full lg:max-w-5xl mt-36 mx-auto grid gap-y-36",
+                class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-36",
                 VideoHero {
                     video_id: "slRiOOM17tM",
                     title: "The all-in-one platform for private and secure AI",
