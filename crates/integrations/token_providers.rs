@@ -7,6 +7,17 @@ use oauth2::{
 use reqwest::Client;
 use time::{Duration, OffsetDateTime};
 
+#[cfg(test)]
+use once_cell::sync::Lazy;
+#[cfg(test)]
+use oauth2::{basic::BasicTokenType, EmptyExtraTokenFields, StandardTokenResponse};
+#[cfg(test)]
+use tokio::sync::Mutex;
+
+#[cfg(test)]
+static TEST_TOKEN_RESPONSE: Lazy<Mutex<Option<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>>>> =
+    Lazy::new(|| Mutex::new(None));
+
 #[async_trait]
 pub trait TokenProvider: Send + Sync {
     async fn token(&self) -> Option<String>;
@@ -132,6 +143,8 @@ impl OAuth2TokenProvider {
             }
         };
 
+        let existing_refresh = refresh_guard.clone().unwrap();
+
         let new_token = token.access_token().secret().to_string();
         let new_refresh = token.refresh_token().map(|t| t.secret().to_string());
         let new_expiry = token
@@ -142,7 +155,7 @@ impl OAuth2TokenProvider {
             .bind(
                 &transaction,
                 &new_token,
-                &new_refresh.as_deref(),
+                &Some(new_refresh.as_deref().unwrap_or(&existing_refresh)),
                 &new_expiry,
                 &self.connection_id,
             )
@@ -155,14 +168,15 @@ impl OAuth2TokenProvider {
             tracing::error!("Failed to commit token update: {}", e);
             return;
         }
-
         tracing::info!(
             "OAuth token refreshed for connection {}",
             self.connection_id
         );
 
         *token_guard = Some(new_token);
-        *refresh_guard = new_refresh;
+        if let Some(r) = new_refresh {
+            *refresh_guard = Some(r);
+        }
         *expiry_guard = new_expiry;
     }
 
@@ -187,6 +201,66 @@ impl TokenProvider for OAuth2TokenProvider {
     }
 
     async fn force_refresh(&self) {
+        #[cfg(test)]
+        if let Some(token) = TEST_TOKEN_RESPONSE.lock().await.take() {
+            let new_token = token.access_token().secret().to_string();
+            let new_refresh = token.refresh_token().map(|t| t.secret().to_string());
+            let new_expiry = token
+                .expires_in()
+                .map(|dur| OffsetDateTime::now_utc() + Duration::seconds(dur.as_secs() as i64));
+
+            let mut token_guard = self.token.lock().await;
+            let mut refresh_guard = self.refresh_token.lock().await;
+            let mut expiry_guard = self.expires_at.lock().await;
+
+            *token_guard = Some(new_token);
+            if let Some(r) = new_refresh {
+                *refresh_guard = Some(r);
+            }
+            *expiry_guard = new_expiry;
+            return;
+        }
+
         self.refresh().await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn force_refresh_keeps_existing_refresh_token() {
+        let pool = db::create_pool("postgres://ignored");
+        let provider = OAuth2TokenProvider::new(
+            pool,
+            "sub".into(),
+            1,
+            Some("old_access".into()),
+            Some("old_refresh".into()),
+            None,
+            OAuth2Config {
+                authorization_url: "https://auth".into(),
+                token_url: "https://token".into(),
+                scopes: vec![],
+            },
+        );
+
+        let mut token = StandardTokenResponse::new(
+            oauth2::AccessToken::new("new_access".into()),
+            BasicTokenType::Bearer,
+            EmptyExtraTokenFields {},
+        );
+        token.set_refresh_token(None);
+
+        *TEST_TOKEN_RESPONSE.lock().await = Some(token);
+
+        provider.force_refresh().await;
+
+        let access = provider.token.lock().await.clone();
+        let refresh = provider.refresh_token.lock().await.clone();
+
+        assert_eq!(access.as_deref(), Some("new_access"));
+        assert_eq!(refresh.as_deref(), Some("old_refresh"));
     }
 }
