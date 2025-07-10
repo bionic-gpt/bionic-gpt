@@ -30,3 +30,4 @@ futures-util = "0.3"
 
 [dev-dependencies]
 hyper = { version = "0.14", features = ["full"] }
+once_cell = "1"
