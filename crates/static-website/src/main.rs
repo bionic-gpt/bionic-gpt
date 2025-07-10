@@ -31,23 +31,23 @@ pub mod routes {
         use serde::Deserialize;
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/chat")]
+        #[typed_path("/product/chat/")]
         pub struct Chat {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/assistants")]
+        #[typed_path("/product/assistants/")]
         pub struct Assistants {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/integrations")]
+        #[typed_path("/product/integrations/")]
         pub struct Integrations {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/automations")]
+        #[typed_path("/product/automations/")]
         pub struct Automations {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/developers")]
+        #[typed_path("/product/developers/")]
         pub struct Developers {}
     }
 
