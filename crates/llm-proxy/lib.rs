@@ -4,6 +4,7 @@ mod chat_converter;
 mod errors;
 mod jwt;
 pub mod limits;
+pub mod moderation;
 mod prompt;
 pub mod sse_chat_enricher;
 pub mod sse_chat_error;

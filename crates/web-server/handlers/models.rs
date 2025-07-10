@@ -168,6 +168,7 @@ pub async fn edit_loader(
         ModelType::Image => "Image".to_string(),
         ModelType::Embeddings => "Embeddings".to_string(),
         ModelType::TextToSpeech => "TextToSpeech".to_string(),
+        ModelType::Guard => "Guard".to_string(),
     };
 
     let form = model_page::ModelForm {
@@ -270,6 +271,7 @@ pub async fn upsert_action(
         "LLM" => ModelType::LLM,
         "Image" => ModelType::Image,
         "TextToSpeech" => ModelType::TextToSpeech,
+        "Guard" => ModelType::Guard,
         _ => ModelType::Embeddings,
     };
 

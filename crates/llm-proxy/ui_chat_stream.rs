@@ -8,6 +8,7 @@ use super::sse_chat_error::error_to_chat;
 use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
+use crate::moderation::{moderate_chat, ModerationVerdict};
 use crate::user_config::UserConfig;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
@@ -420,6 +421,51 @@ async fn create_request(
     } else {
         None
     };
+
+    if capabilities
+        .iter()
+        .any(|c| c.capability == db::ModelCapability::Guarded)
+    {
+        let guard_model = queries::models::models()
+            .bind(&transaction, &db::ModelType::Guard)
+            .one()
+            .await?;
+
+        match moderate_chat(
+            &guard_model.base_url,
+            guard_model.api_key.as_deref(),
+            &guard_model.name,
+            messages.clone(),
+        )
+        .await
+        {
+            Ok(ModerationVerdict::Safe) => {}
+            Ok(ModerationVerdict::Unsafe(code)) => {
+                queries::chats::new_chat()
+                    .bind(
+                        &transaction,
+                        &conversation.id,
+                        &chat.prompt_id,
+                        &None::<String>,
+                        &None::<String>,
+                        &"Your question violated our guidelines",
+                        &ChatRole::Assistant,
+                        &ChatStatus::Error,
+                    )
+                    .one()
+                    .await?;
+                queries::prompt_flags::insert_prompt_flag()
+                    .bind(&transaction, &chat_id, &code)
+                    .await?;
+                transaction.commit().await?;
+                return Err(CustomError::FaultySetup("Moderation failed".into()));
+            }
+            Err(status) => {
+                transaction.commit().await?;
+                return Err(CustomError::FaultySetup(format!("Moderation failed: {status}")));
+            }
+        }
+    }
 
     transaction.commit().await?;
 

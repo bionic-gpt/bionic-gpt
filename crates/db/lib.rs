@@ -26,6 +26,7 @@ pub use queries::invitations::{Invitation, InviteSummary};
 pub use queries::models::{Model, ModelWithPrompt};
 pub use queries::oauth_clients::OauthClient;
 pub use queries::object_storage::ObjectStorage;
+pub use queries::prompt_flags::insert_prompt_flag;
 pub use queries::prompt_integrations::{PromptIntegration, PromptIntegrationWithConnection};
 pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};
 pub use queries::rate_limits::RateLimit;
@@ -36,7 +37,7 @@ pub use tokio_postgres::types::Json;
 pub use tokio_postgres::Error as TokioPostgresError;
 pub use types::public::{
     AuditAccessType, AuditAction, ChatRole, ChatStatus, IntegrationType, ModelCapability,
-    ModelType, Permission, PromptType, Role, TokenUsageType, Visibility,
+    ModelType, Permission, PromptFlagType, PromptType, Role, TokenUsageType, Visibility,
 };
 pub use vector_search::{get_related_context, RelatedContext};
 

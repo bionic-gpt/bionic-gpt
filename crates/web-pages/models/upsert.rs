@@ -143,6 +143,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                                         SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
                                         SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
                                         SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
+                                        SelectOption { value: "Guard", selected_value: form.model_type.clone(), "Guard" }
                                     }
                                 }
                             }
