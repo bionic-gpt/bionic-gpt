@@ -86,7 +86,9 @@ pub async fn connect_loader(
     // Generate the authorization URL to which we'll redirect the user.
     let mut auth_request = client
         .authorize_url(CsrfToken::new_random)
-        .set_pkce_challenge(pkce_code_challenge);
+        .set_pkce_challenge(pkce_code_challenge)
+        .add_extra_param("access_type", "offline")
+        .add_extra_param("prompt", "consent");
 
     // Add scopes from the OAuth2 configuration
     for scope in oauth2_config.scopes {
