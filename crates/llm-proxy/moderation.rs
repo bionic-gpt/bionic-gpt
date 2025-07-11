@@ -6,6 +6,19 @@ use reqwest::{
 };
 use serde::Deserialize;
 
+/// Remove tool call related data from chat messages.
+pub fn strip_tool_data(messages: &[ChatCompletionMessage]) -> Vec<ChatCompletionMessage> {
+    messages
+        .iter()
+        .cloned()
+        .map(|mut m| {
+            m.tool_calls = None;
+            m.tool_call_id = None;
+            m
+        })
+        .collect()
+}
+
 /// Result of running chat moderation.
 pub enum ModerationVerdict {
     Safe,

@@ -3,6 +3,7 @@ use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use time::OffsetDateTime;
 
 use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
+use crate::moderation::strip_tool_data;
 
 #[tokio::test]
 async fn test_convert_chat_to_messages_tool_calling_fallback() {
@@ -390,7 +391,7 @@ async fn test_tool_call_id_linking() {
 async fn test_history_truncation_keeps_latest() {
     use openai_api::token_count::token_count;
 
-    fn mk_msg(content: &str) -> ChatCompletionMessage {
+fn mk_msg(content: &str) -> ChatCompletionMessage {
         ChatCompletionMessage {
             role: ChatCompletionMessageRole::User,
             content: Some(content.to_string()),
@@ -432,4 +433,40 @@ async fn test_history_truncation_keeps_latest() {
     assert_eq!(contents[1], Some("m4".to_string()));
     assert_eq!(contents[2], Some("m5".to_string()));
     assert_eq!(contents[3], Some(large_content));
+}
+
+#[test]
+fn test_strip_tool_data_removes_all_tool_fields() {
+    use openai_api::{ChatCompletionMessageRole, ToolCall, ToolCallFunction};
+
+    let messages = vec![
+        ChatCompletionMessage {
+            role: ChatCompletionMessageRole::Assistant,
+            content: None,
+            tool_call_id: None,
+            tool_calls: Some(vec![ToolCall {
+                id: "call1".to_string(),
+                index: None,
+                r#type: "function".to_string(),
+                function: ToolCallFunction {
+                    name: "do_it".to_string(),
+                    arguments: "{}".to_string(),
+                },
+            }]),
+            name: None,
+        },
+        ChatCompletionMessage {
+            role: ChatCompletionMessageRole::Tool,
+            content: Some("{}".to_string()),
+            tool_call_id: Some("call1".to_string()),
+            tool_calls: None,
+            name: None,
+        },
+    ];
+
+    let sanitized = strip_tool_data(&messages);
+
+    assert!(sanitized.iter().all(|m| m.tool_calls.is_none() && m.tool_call_id.is_none()));
+    assert_eq!(sanitized.len(), 2);
+    assert_eq!(sanitized[1].content, Some("{}".to_string()));
 }
