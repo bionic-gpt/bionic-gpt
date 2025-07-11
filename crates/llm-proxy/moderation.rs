@@ -6,6 +6,37 @@ use reqwest::{
 };
 use serde::Deserialize;
 
+/// Remove tool call related data from chat messages and drop any
+/// messages that were solely used for tool calling.
+pub fn strip_tool_data(messages: &[ChatCompletionMessage]) -> Vec<ChatCompletionMessage> {
+    use openai_api::ChatCompletionMessageRole;
+
+    messages
+        .iter()
+        .cloned()
+        .filter_map(|mut m| {
+            // Drop tool call messages entirely.
+            if m.role == ChatCompletionMessageRole::Tool {
+                return None;
+            }
+
+            let had_tool_calls = m.tool_calls.is_some();
+            m.tool_calls = None;
+            m.tool_call_id = None;
+
+            // Drop assistant messages that had only tool calls and no content.
+            if had_tool_calls
+                && m.role == ChatCompletionMessageRole::Assistant
+                && m.content.as_deref().map(str::trim).unwrap_or("").is_empty()
+            {
+                return None;
+            }
+
+            Some(m)
+        })
+        .collect()
+}
+
 /// Result of running chat moderation.
 pub enum ModerationVerdict {
     Safe,

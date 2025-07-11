@@ -8,7 +8,7 @@ use super::sse_chat_error::error_to_chat;
 use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
-use crate::moderation::{moderate_chat, ModerationVerdict};
+use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
 use crate::user_config::UserConfig;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
@@ -433,11 +433,12 @@ async fn create_request(
             .await?;
         tracing::info!("Using {}", guard_model.name);
 
+        let sanitized = strip_tool_data(&messages);
         match moderate_chat(
             &guard_model.base_url,
             guard_model.api_key.as_deref(),
             &guard_model.name,
-            messages.clone(),
+            sanitized,
         )
         .await
         {

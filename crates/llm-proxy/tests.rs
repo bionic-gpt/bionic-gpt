@@ -2,6 +2,7 @@ use db::{Chat, ChatRole, ChatStatus};
 use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use time::OffsetDateTime;
 
+use crate::moderation::strip_tool_data;
 use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
 
 #[tokio::test]
@@ -432,4 +433,49 @@ async fn test_history_truncation_keeps_latest() {
     assert_eq!(contents[1], Some("m4".to_string()));
     assert_eq!(contents[2], Some("m5".to_string()));
     assert_eq!(contents[3], Some(large_content));
+}
+
+#[test]
+fn test_strip_tool_data_removes_tool_messages() {
+    use openai_api::{ChatCompletionMessageRole, ToolCall, ToolCallFunction};
+
+    let messages = vec![
+        ChatCompletionMessage {
+            role: ChatCompletionMessageRole::User,
+            content: Some("hi".to_string()),
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
+        },
+        ChatCompletionMessage {
+            role: ChatCompletionMessageRole::Assistant,
+            content: None,
+            tool_call_id: None,
+            tool_calls: Some(vec![ToolCall {
+                id: "call1".to_string(),
+                index: None,
+                r#type: "function".to_string(),
+                function: ToolCallFunction {
+                    name: "do_it".to_string(),
+                    arguments: "{}".to_string(),
+                },
+            }]),
+            name: None,
+        },
+        ChatCompletionMessage {
+            role: ChatCompletionMessageRole::Tool,
+            content: Some("{}".to_string()),
+            tool_call_id: Some("call1".to_string()),
+            tool_calls: None,
+            name: None,
+        },
+    ];
+
+    let sanitized = strip_tool_data(&messages);
+
+    assert_eq!(sanitized.len(), 1);
+    assert_eq!(sanitized[0].role, ChatCompletionMessageRole::User);
+    assert_eq!(sanitized[0].content, Some("hi".to_string()));
+    assert!(sanitized[0].tool_calls.is_none());
+    assert!(sanitized[0].tool_call_id.is_none());
 }
