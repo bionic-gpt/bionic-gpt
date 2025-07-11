@@ -2,8 +2,8 @@ use db::{Chat, ChatRole, ChatStatus};
 use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use time::OffsetDateTime;
 
-use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
 use crate::moderation::strip_tool_data;
+use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
 
 #[tokio::test]
 async fn test_convert_chat_to_messages_tool_calling_fallback() {
@@ -391,7 +391,7 @@ async fn test_tool_call_id_linking() {
 async fn test_history_truncation_keeps_latest() {
     use openai_api::token_count::token_count;
 
-fn mk_msg(content: &str) -> ChatCompletionMessage {
+    fn mk_msg(content: &str) -> ChatCompletionMessage {
         ChatCompletionMessage {
             role: ChatCompletionMessageRole::User,
             content: Some(content.to_string()),
@@ -436,10 +436,17 @@ fn mk_msg(content: &str) -> ChatCompletionMessage {
 }
 
 #[test]
-fn test_strip_tool_data_removes_all_tool_fields() {
+fn test_strip_tool_data_removes_tool_messages() {
     use openai_api::{ChatCompletionMessageRole, ToolCall, ToolCallFunction};
 
     let messages = vec![
+        ChatCompletionMessage {
+            role: ChatCompletionMessageRole::User,
+            content: Some("hi".to_string()),
+            tool_call_id: None,
+            tool_calls: None,
+            name: None,
+        },
         ChatCompletionMessage {
             role: ChatCompletionMessageRole::Assistant,
             content: None,
@@ -466,7 +473,9 @@ fn test_strip_tool_data_removes_all_tool_fields() {
 
     let sanitized = strip_tool_data(&messages);
 
-    assert!(sanitized.iter().all(|m| m.tool_calls.is_none() && m.tool_call_id.is_none()));
-    assert_eq!(sanitized.len(), 2);
-    assert_eq!(sanitized[1].content, Some("{}".to_string()));
+    assert_eq!(sanitized.len(), 1);
+    assert_eq!(sanitized[0].role, ChatCompletionMessageRole::User);
+    assert_eq!(sanitized[0].content, Some("hi".to_string()));
+    assert!(sanitized[0].tool_calls.is_none());
+    assert!(sanitized[0].tool_call_id.is_none());
 }
