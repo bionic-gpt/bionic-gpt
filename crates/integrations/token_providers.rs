@@ -8,15 +8,16 @@ use reqwest::Client;
 use time::{Duration, OffsetDateTime};
 
 #[cfg(test)]
-use once_cell::sync::Lazy;
-#[cfg(test)]
 use oauth2::{basic::BasicTokenType, EmptyExtraTokenFields, StandardTokenResponse};
+#[cfg(test)]
+use once_cell::sync::Lazy;
 #[cfg(test)]
 use tokio::sync::Mutex;
 
 #[cfg(test)]
-static TEST_TOKEN_RESPONSE: Lazy<Mutex<Option<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>>>> =
-    Lazy::new(|| Mutex::new(None));
+static TEST_TOKEN_RESPONSE: Lazy<
+    Mutex<Option<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>>>,
+> = Lazy::new(|| Mutex::new(None));
 
 #[async_trait]
 pub trait TokenProvider: Send + Sync {
