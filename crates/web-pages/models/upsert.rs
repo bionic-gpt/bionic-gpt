@@ -29,6 +29,7 @@ pub struct ModelForm {
     pub has_capability_function_calling: bool,
     pub has_capability_vision: bool,
     pub has_capability_tool_use: bool,
+    pub has_capability_guard: bool,
     #[serde(skip)]
     pub error: Option<String>,
 }
@@ -143,6 +144,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                                         SelectOption { value: "Embeddings", selected_value: form.model_type.clone(), "Embeddings Model" }
                                         SelectOption { value: "Image", selected_value: form.model_type.clone(), "Image Generation" }
                                         SelectOption { value: "TextToSpeech", selected_value: form.model_type.clone(), "Text To Speech" }
+                                        SelectOption { value: "Guard", selected_value: form.model_type.clone(), "Guard" }
                                     }
                                 }
                             }
@@ -276,6 +278,14 @@ pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
                                         class: "label cursor-pointer",
                                         span { class: "label-text", "Tool Use" }
                                         input { "type": "checkbox", name: "capability_tool_use", class: "checkbox", checked: form.has_capability_tool_use }
+                                    }
+                                }
+                                div {
+                                    class: "form-control",
+                                    label {
+                                        class: "label cursor-pointer",
+                                        span { class: "label-text", "Guarded" }
+                                        input { "type": "checkbox", name: "capability_guard", class: "checkbox", checked: form.has_capability_guard }
                                     }
                                 }
                             } else {

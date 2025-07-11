@@ -42,5 +42,14 @@ pub fn Model(model_type: ModelType) -> Element {
                 "Image Generation"
             }
         ),
+        ModelType::Guard => rsx!(
+            Badge {
+                class: "truncate",
+                badge_color: BadgeColor::Error,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
+                "Guard"
+            }
+        ),
     }
 }

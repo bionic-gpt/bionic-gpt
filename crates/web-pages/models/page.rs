@@ -12,7 +12,7 @@ use dioxus::prelude::*;
 pub fn page(
     team_id: i32,
     rbac: Rbac,
-    models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool)>,
+    models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool, bool)>,
 ) -> String {
     let page = rsx! {
         Layout {
@@ -48,20 +48,21 @@ pub fn page(
                 if !models_with_capabilities.is_empty() {
                     div {
                         class: "space-y-2",
-                        for (model, fc, vis, tool) in &models_with_capabilities {
+                        for (model, fc, vis, tool, guard) in &models_with_capabilities {
                             ModelCard {
                                 team_id,
                                 model: model.clone(),
                                 has_function_calling: *fc,
                                 has_vision: *vis,
-                                has_tool_use: *tool
+                                has_tool_use: *tool,
+                                has_guard: *guard
                             }
                         }
                     }
                 }
             }
 
-            for (item, _, _, _) in &models_with_capabilities {
+            for (item, _, _, _, _) in &models_with_capabilities {
                 ConfirmModal {
                     action: crate::routes::models::Delete{team_id, id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),

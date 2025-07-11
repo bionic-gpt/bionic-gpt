@@ -11,6 +11,7 @@ pub fn ModelCard(
     has_function_calling: bool,
     has_vision: bool,
     has_tool_use: bool,
+    has_guard: bool,
 ) -> Element {
     let display_name = if model.display_name.is_empty() {
         model.name.clone()
@@ -26,6 +27,7 @@ pub fn ModelCard(
             if has_function_calling { Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Functions" } }
             if has_vision { Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Vision" } }
             if has_tool_use { Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Tools" } }
+            if has_guard { Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Guarded" } }
         })),
         footer: None,
         image_src: None,
