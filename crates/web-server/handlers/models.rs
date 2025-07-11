@@ -63,8 +63,11 @@ pub async fn loader(
         let has_tool_use = capabilities
             .iter()
             .any(|c| c.capability == ModelCapability::tool_use);
+        let has_guard = capabilities
+            .iter()
+            .any(|c| c.capability == ModelCapability::Guarded);
 
-        models_with_capabilities.push((model, has_function_calling, has_vision, has_tool_use));
+        models_with_capabilities.push((model, has_function_calling, has_vision, has_tool_use, has_guard));
     }
 
     let html = web_pages::models::page::page(team_id, rbac, models_with_capabilities);
@@ -111,6 +114,7 @@ pub async fn new_loader(
         has_capability_function_calling: false,
         has_capability_vision: false,
         has_capability_tool_use: false,
+        has_capability_guard: false,
         error: None,
     };
 
@@ -162,6 +166,9 @@ pub async fn edit_loader(
     let has_tool_use = capabilities
         .iter()
         .any(|c| c.capability == ModelCapability::tool_use);
+    let has_guard = capabilities
+        .iter()
+        .any(|c| c.capability == ModelCapability::Guarded);
 
     let model_type = match model.model_type {
         ModelType::LLM => "LLM".to_string(),
@@ -192,6 +199,7 @@ pub async fn edit_loader(
         has_capability_function_calling: has_function_calling,
         has_capability_vision: has_vision,
         has_capability_tool_use: has_tool_use,
+        has_capability_guard: has_guard,
         error: None,
     };
 
@@ -250,6 +258,7 @@ pub struct ModelForm {
     pub capability_function_calling: Option<String>,
     pub capability_vision: Option<String>,
     pub capability_tool_use: Option<String>,
+    pub capability_guard: Option<String>,
 }
 
 pub async fn upsert_action(
@@ -350,6 +359,11 @@ pub async fn upsert_action(
                         .bind(&transaction, &model_id, &ModelCapability::tool_use)
                         .await?;
                 }
+                if model_form.capability_guard.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::Guarded)
+                        .await?;
+                }
             }
 
             transaction.commit().await?;
@@ -430,6 +444,11 @@ pub async fn upsert_action(
                 if model_form.capability_tool_use.is_some() {
                     capabilities::set_model_capability()
                         .bind(&transaction, &model_id, &ModelCapability::tool_use)
+                        .await?;
+                }
+                if model_form.capability_guard.is_some() {
+                    capabilities::set_model_capability()
+                        .bind(&transaction, &model_id, &ModelCapability::Guarded)
                         .await?;
                 }
             }
