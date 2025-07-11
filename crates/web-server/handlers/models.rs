@@ -67,7 +67,13 @@ pub async fn loader(
             .iter()
             .any(|c| c.capability == ModelCapability::Guarded);
 
-        models_with_capabilities.push((model, has_function_calling, has_vision, has_tool_use, has_guard));
+        models_with_capabilities.push((
+            model,
+            has_function_calling,
+            has_vision,
+            has_tool_use,
+            has_guard,
+        ));
     }
 
     let html = web_pages::models::page::page(team_id, rbac, models_with_capabilities);

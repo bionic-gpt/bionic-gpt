@@ -426,10 +426,12 @@ async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::Guarded)
     {
+        tracing::info!("This model is guarded. Sending chat to moderation model");
         let guard_model = queries::models::models()
             .bind(&transaction, &db::ModelType::Guard)
             .one()
             .await?;
+        tracing::info!("Using {}", guard_model.name);
 
         match moderate_chat(
             &guard_model.base_url,
@@ -462,7 +464,9 @@ async fn create_request(
             }
             Err(status) => {
                 transaction.commit().await?;
-                return Err(CustomError::FaultySetup(format!("Moderation failed: {status}")));
+                return Err(CustomError::FaultySetup(format!(
+                    "Moderation failed: {status}"
+                )));
             }
         }
     }

@@ -1,10 +1,10 @@
+use db::PromptFlagType;
 use openai_api::{BionicChatCompletionRequest, ChatCompletionMessage};
 use reqwest::{
     header::{AUTHORIZATION, CONTENT_TYPE},
     StatusCode,
 };
 use serde::Deserialize;
-use db::PromptFlagType;
 
 /// Result of running chat moderation.
 pub enum ModerationVerdict {
@@ -61,7 +61,7 @@ pub async fn moderate_chat(
     let CompletionResponse { choices } = resp.json().await.map_err(|_| StatusCode::BAD_GATEWAY)?;
 
     let content = choices
-        .get(0)
+        .first()
         .and_then(|c| c.message.content.clone())
         .unwrap_or_default();
     let content = content.trim();
@@ -70,10 +70,7 @@ pub async fn moderate_chat(
         Ok(ModerationVerdict::Safe)
     } else {
         // Expect format "unsafe\nS1" etc
-        let code = content
-            .split_whitespace()
-            .last()
-            .unwrap_or("");
+        let code = content.split_whitespace().last().unwrap_or("");
         let flag = match code {
             "S1" => PromptFlagType::S1,
             "S2" => PromptFlagType::S2,

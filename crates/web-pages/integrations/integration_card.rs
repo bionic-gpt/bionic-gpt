@@ -101,6 +101,14 @@ fn MissingOauthClientModal(trigger_id: String, oauth2_config: Option<OAuth2Confi
                         p { "Your sys admin needs to setup an Oauth2 Client for {authorization_url}" }
                     }
                 }
+                ModalAction {
+                    Button {
+                        class: "cancel-modal",
+                        button_scheme: ButtonScheme::Warning,
+                        button_size: ButtonSize::Small,
+                        "Cancel"
+                    }
+                }
             }
         }
     }
