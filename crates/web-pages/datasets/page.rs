@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use super::dataset_card::DatasetCard;
 use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
 use crate::components::confirm_modal::ConfirmModal;
@@ -51,92 +52,12 @@ pub fn page(
                 }
 
                 if !datasets.is_empty() {
-                    Card {
-                        class: "mt-5 has-data-table",
-                        CardHeader {
-                            title: "Datasets"
+                    div {
+                        class: "space-y-2",
+                        for dataset in &datasets {
+                            DatasetCard { team_id, rbac: rbac.clone(), dataset: dataset.clone() }
                         }
-                        CardBody {
-                            table {
-                                class: "table table-sm",
-                                thead {
-                                    th { "Name" }
-                                    th { "Visibility" }
-                                    th {
-                                        class: "max-sm:hidden",
-                                        "Document Count"
-                                    }
-                                    th {
-                                        class: "max-sm:hidden",
-                                        "Chunking Strategy"
-                                    }
-                                    th {
-                                        class: "text-right",
-                                        "Action"
-                                    }
-                                }
-                                tbody {
-
-                                    for dataset in &datasets {
-                                        tr {
-                                            td {
-                                                a {
-                                                    href: crate::routes::documents::Index{team_id, dataset_id: dataset.id}.to_string(),
-                                                    "{dataset.name}"
-                                                }
-                                            }
-                                            td {
-                                                crate::assistants::visibility::VisLabel {
-                                                    visibility: dataset.visibility
-                                                }
-                                            }
-                                            td {
-                                                class: "max-sm:hidden",
-                                                "{dataset.count}"
-                                            }
-                                            td {
-                                                class: "max-sm:hidden",
-                                                Badge {
-                                                    badge_color: BadgeColor::Accent,
-                                                    badge_style: BadgeStyle::Outline,
-                                                    badge_size: BadgeSize::Sm,
-                                                    "By Title"
-                                                }
-                                                }
-                                            td {
-                                                class: "text-right",
-                                                DropDown {
-                                                    direction: Direction::Left,
-                                                    button_text: "...",
-                                                    DropDownLink {
-                                                        href: crate::routes::documents::Index{team_id, dataset_id: dataset.id}.to_string(),
-                                                        target: "_top",
-                                                        "View"
-                                                    }
-
-                                                    if rbac.can_edit_dataset(dataset) {
-                                                        DropDownLink {
-                                                            popover_target: format!("edit-trigger-{}-{}",
-                                                                dataset.id, team_id),
-                                                            href: "#",
-                                                            target: "_top",
-                                                            "Edit"
-                                                        }
-                                                    }
-                                                    DropDownLink {
-                                                        popover_target: format!("delete-trigger-{}-{}",
-                                                            dataset.id, team_id),
-                                                        href: "#",
-                                                        target: "_top",
-                                                        "Delete"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    }
 
                         for dataset in datasets {
                             ConfirmModal {
@@ -164,7 +85,6 @@ pub fn page(
                                 can_set_visibility_to_company
                             }
                         }
-                    }
                 }
 
                 super::upsert::Upsert {
