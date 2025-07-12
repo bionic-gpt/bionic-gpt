@@ -32,6 +32,10 @@ pub fn strip_tool_data(messages: &[ChatCompletionMessage]) -> Vec<ChatCompletion
                 return None;
             }
 
+            if m.role == ChatCompletionMessageRole::System {
+                m.role = ChatCompletionMessageRole::User;
+            }
+
             Some(m)
         })
         .collect()

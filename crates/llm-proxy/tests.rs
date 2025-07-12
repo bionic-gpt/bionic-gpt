@@ -479,3 +479,22 @@ fn test_strip_tool_data_removes_tool_messages() {
     assert!(sanitized[0].tool_calls.is_none());
     assert!(sanitized[0].tool_call_id.is_none());
 }
+
+#[test]
+fn test_strip_tool_data_changes_system_to_user() {
+    use openai_api::ChatCompletionMessageRole;
+
+    let messages = vec![ChatCompletionMessage {
+        role: ChatCompletionMessageRole::System,
+        content: Some("hi".to_string()),
+        tool_call_id: None,
+        tool_calls: None,
+        name: None,
+    }];
+
+    let sanitized = strip_tool_data(&messages);
+
+    assert_eq!(sanitized.len(), 1);
+    assert_eq!(sanitized[0].role, ChatCompletionMessageRole::User);
+    assert_eq!(sanitized[0].content, Some("hi".to_string()));
+}
