@@ -21,10 +21,22 @@ pub async fn switch(
         .one()
         .await?;
 
-    let teams = queries::teams::get_teams()
+    let raw_teams = queries::teams::get_teams()
         .bind(&transaction, &rbac.user_id)
         .all()
         .await?;
+
+    let mut teams = Vec::new();
+    for team in raw_teams {
+        let members = queries::teams::get_users()
+            .bind(&transaction, &team.id)
+            .all()
+            .await?;
+        teams.push(teams::TeamSummary {
+            team,
+            member_count: members.len(),
+        });
+    }
 
     let invites = queries::invitations::get_by_user()
         .bind(&transaction)
