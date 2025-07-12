@@ -8,10 +8,16 @@ use db::authz::Rbac;
 use db::{InviteSummary, TeamOwner};
 use dioxus::prelude::*;
 
+#[derive(Clone)]
+pub struct TeamSummary {
+    pub team: TeamOwner,
+    pub member_count: usize,
+}
+
 pub fn page(
     rbac: Rbac,
     team_id: i32,
-    teams: Vec<TeamOwner>,
+    teams: Vec<TeamSummary>,
     invites: Vec<InviteSummary>,
     current_user_email: String,
 ) -> String {
@@ -49,9 +55,10 @@ pub fn page(
 
                 div {
                     class: "mt-5 space-y-2",
-                    for team in &teams {
+                    for summary in &teams {
                         TeamCard {
-                            team: team.clone(),
+                            team: summary.team.clone(),
+                            member_count: summary.member_count,
                             current_team_id: team_id,
                             teams_len: teams.len(),
                             current_user_email: current_user_email.clone(),
@@ -83,15 +90,15 @@ pub fn page(
                 }
                 }
 
-                for team in teams {
+                for summary in teams {
                     ConfirmModal {
-                        action: crate::routes::teams::Delete {team_id: team.id}.to_string(),
-                        trigger_id: format!("delete-trigger-{}", team.id),
+                        action: crate::routes::teams::Delete {team_id: summary.team.id}.to_string(),
+                        trigger_id: format!("delete-trigger-{}", summary.team.id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete this Team?".to_string(),
                         warning: "Are you sure you want to delete this Team?".to_string(),
                         hidden_fields: vec![
-                            ("team_id".into(), team.id.to_string()),
+                            ("team_id".into(), summary.team.id.to_string()),
                         ],
                     }
                 }
