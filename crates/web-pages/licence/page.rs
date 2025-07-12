@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::components::card_item::CardItem;
+use crate::routes::integrations::OAuth2Callback;
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, customer_keys, Licence};
@@ -40,6 +41,10 @@ pub fn page(team_id: i32, rbac: Rbac) -> String {
     } else {
         "Disabled"
     };
+
+    let base_url =
+        std::env::var("APP_BASE_URL").unwrap_or_else(|_| "http://localhost:7703".to_string());
+    let callback_url = format!("{}{}", base_url, OAuth2Callback {});
 
     let page = rsx! {
         Layout {
@@ -109,6 +114,18 @@ pub fn page(team_id: i32, rbac: Rbac) -> String {
                     avatar_name: None,
                     title: "Automations".to_string(),
                     description: Some(rsx!( span { "{automations}" } )),
+                    footer: None,
+                    count_labels: vec![],
+                    action: None,
+                }
+                CardItem {
+                    class: None,
+                    popover_target: None,
+                    clickable_link: None,
+                    image_src: Some(nav_api_keys_svg.name.to_string()),
+                    avatar_name: None,
+                    title: "OAuth Callback URL".to_string(),
+                    description: Some(rsx!( span { "{callback_url}" } )),
                     footer: None,
                     count_labels: vec![],
                     action: None,
