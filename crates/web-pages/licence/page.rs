@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::components::card_item::CardItem;
-use crate::routes::integrations::OAuth2Callback;
+
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, customer_keys, Licence};
@@ -23,7 +23,7 @@ fn get_version() -> String {
         .to_string()
 }
 
-pub fn page(team_id: i32, rbac: Rbac) -> String {
+pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
     let licence = Licence::global();
     let encryption = if customer_keys::get_customer_key().is_some() {
         "Enabled"
@@ -42,9 +42,6 @@ pub fn page(team_id: i32, rbac: Rbac) -> String {
         "Disabled"
     };
 
-    let base_url =
-        std::env::var("APP_BASE_URL").unwrap_or_else(|_| "http://localhost:7703".to_string());
-    let callback_url = format!("{}{}", base_url, OAuth2Callback {});
 
     let page = rsx! {
         Layout {

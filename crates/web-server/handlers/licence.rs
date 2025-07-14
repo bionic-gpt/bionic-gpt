@@ -1,4 +1,4 @@
-use crate::{CustomError, Jwt};
+use crate::{config::Config, CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use axum::Router;
@@ -13,6 +13,7 @@ pub fn routes() -> Router {
 pub async fn loader(
     Index { team_id }: Index,
     current_user: Jwt,
+    Extension(config): Extension<Config>,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
@@ -23,7 +24,8 @@ pub async fn loader(
         return Err(CustomError::Authorization);
     }
 
-    let html = licence::page::page(team_id, rbac);
+    let callback_url = config.oauth2_redirect_uri();
+    let html = licence::page::page(team_id, rbac, callback_url);
 
     Ok(Html(html))
 }

@@ -72,8 +72,8 @@ pub async fn connect_loader(
         .map_err(|_| CustomError::FaultySetup("Invalid token endpoint URL".to_string()))?;
 
     // Set up the config for the OAuth2 process using dynamic configuration
-    let redirect_uri = format!("{}{}", config.base_url, OAuth2Callback {});
-    tracing::debug!("Redirect URI set to {}", redirect_uri);
+    let redirect_uri = config.oauth2_redirect_uri();
+    tracing::info!("Redirect URI set to {}", redirect_uri);
     let client = BasicClient::new(client_id)
         .set_client_secret(client_secret)
         .set_auth_uri(auth_url)
@@ -185,7 +185,7 @@ pub async fn oauth2_callback(
         .set_auth_uri(AuthUrl::new(oauth2_config.authorization_url).unwrap())
         .set_token_uri(TokenUrl::new(oauth2_config.token_url).unwrap())
         .set_redirect_uri(
-            RedirectUrl::new(format!("{}/app/oauth2/callback", config.base_url)).unwrap(),
+            RedirectUrl::new(config.oauth2_redirect_uri()).unwrap(),
         );
 
     // Validate CSRF state
