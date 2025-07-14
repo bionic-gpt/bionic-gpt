@@ -1,5 +1,6 @@
 use lettre::message;
 use std::env;
+use web_pages::routes::integrations::OAuth2Callback;
 
 #[derive(Clone, Debug)]
 pub struct SmtpConfig {
@@ -107,5 +108,10 @@ impl Config {
             enable_barricade,
             base_url,
         }
+    }
+
+    /// Return the OAuth2 redirect URI used for integrations
+    pub fn oauth2_redirect_uri(&self) -> String {
+        format!("{}{}", self.base_url, OAuth2Callback {}.to_string())
     }
 }
