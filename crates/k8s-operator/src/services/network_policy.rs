@@ -71,7 +71,7 @@ pub async fn default_deny(client: Client, name: &str, namespace: &str) -> Result
     policies
         .patch(
             &policy_name,
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(policy),
         )
         .await?;

@@ -53,7 +53,7 @@ pub async fn deploy(
     if api.get(PGADMIN).await.is_err() {
         api.patch(
             PGADMIN,
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(config_map),
         )
         .await?;

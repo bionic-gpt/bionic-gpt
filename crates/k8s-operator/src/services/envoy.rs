@@ -27,7 +27,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
     api.patch(
         "envoy",
-        &PatchParams::apply(crate::MANAGER),
+        &PatchParams::apply(crate::MANAGER).force(),
         &Patch::Apply(config_map),
     )
     .await?;

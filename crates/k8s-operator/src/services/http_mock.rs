@@ -31,7 +31,7 @@ pub async fn deploy(client: Client, name: &str, port: u16, namespace: &str) -> R
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
     api.patch(
         name,
-        &PatchParams::apply(crate::MANAGER),
+        &PatchParams::apply(crate::MANAGER).force(),
         &Patch::Apply(config_map),
     )
     .await?;

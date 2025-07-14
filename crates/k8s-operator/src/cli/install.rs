@@ -162,7 +162,7 @@ async fn create_bionic_operator(client: &Client, namespace: &str) -> Result<()> 
     deployment_api
         .patch(
             "bionic-gpt-operator-deployment",
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(deployment),
         )
         .await?;
@@ -185,7 +185,7 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
     sa_api
         .patch(
             "bionic-gpt-operator-service-account",
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(service_account),
         )
         .await?;
@@ -206,7 +206,7 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
     role_api
         .patch(
             "bionic-gpt-operator-cluster-role",
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(role),
         )
         .await?;
@@ -233,7 +233,7 @@ async fn create_roles(client: &Client, installer: &super::Installer) -> Result<(
     role_binding_api
         .patch(
             "bionic-gpt-operator-cluster-role-binding",
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(role_binding),
         )
         .await?;
@@ -272,7 +272,7 @@ async fn create_bionic(client: &Client, installer: &super::Installer) -> Result<
     bionic_api
         .patch(
             "bionic-gpt",
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(bionic),
         )
         .await?;
@@ -285,7 +285,7 @@ async fn create_crd(client: &Client) -> Result<(), Error> {
     let crds: Api<CustomResourceDefinition> = Api::all(client.clone());
     crds.patch(
         "bionics.bionic-gpt.com",
-        &PatchParams::apply(crate::MANAGER),
+        &PatchParams::apply(crate::MANAGER).force(),
         &Patch::Apply(crd),
     )
     .await?;
@@ -317,7 +317,7 @@ async fn create_namespace(client: &Client, namespace: &str) -> Result<Namespace>
     let ns = namespaces
         .patch(
             namespace,
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(new_namespace),
         )
         .await?;

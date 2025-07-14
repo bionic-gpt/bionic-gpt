@@ -66,7 +66,7 @@ pub async fn deploy(client: Client, namespace: &str) -> Result<(), Error> {
     let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
     api.patch(
         MODEL_NAME,
-        &PatchParams::apply(crate::MANAGER),
+        &PatchParams::apply(crate::MANAGER).force(),
         &kube::api::Patch::Apply(pod),
     )
     .await?;

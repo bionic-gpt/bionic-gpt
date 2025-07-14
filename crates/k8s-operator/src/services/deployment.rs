@@ -108,7 +108,7 @@ pub async fn deployment(
     let _deployment = deployment_api
         .patch(
             &service_deployment.name,
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(deployment),
         )
         .await?;
@@ -165,7 +165,7 @@ pub async fn service(
     let service = service_api
         .patch(
             name,
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(service),
         )
         .await?;
