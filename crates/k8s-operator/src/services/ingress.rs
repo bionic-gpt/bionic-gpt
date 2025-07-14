@@ -130,7 +130,7 @@ pub async fn deploy(
     ingress_api
         .patch(
             INGRESS,
-            &PatchParams::apply(crate::MANAGER),
+            &PatchParams::apply(crate::MANAGER).force(),
             &Patch::Apply(ingress),
         )
         .await?;

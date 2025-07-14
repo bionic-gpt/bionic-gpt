@@ -32,7 +32,7 @@ pub async fn deploy(
     let api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
     api.patch(
         CONFIG_NAME,
-        &PatchParams::apply(crate::MANAGER),
+        &PatchParams::apply(crate::MANAGER).force(),
         &Patch::Apply(config_map),
     )
     .await?;
