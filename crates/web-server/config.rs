@@ -112,6 +112,6 @@ impl Config {
 
     /// Return the OAuth2 redirect URI used for integrations
     pub fn oauth2_redirect_uri(&self) -> String {
-        format!("{}{}", self.base_url, OAuth2Callback {}.to_string())
+        format!("{}{}", self.base_url, OAuth2Callback {})
     }
 }

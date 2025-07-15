@@ -184,9 +184,7 @@ pub async fn oauth2_callback(
         .set_client_secret(ClientSecret::new(oauth_client.client_secret))
         .set_auth_uri(AuthUrl::new(oauth2_config.authorization_url).unwrap())
         .set_token_uri(TokenUrl::new(oauth2_config.token_url).unwrap())
-        .set_redirect_uri(
-            RedirectUrl::new(config.oauth2_redirect_uri()).unwrap(),
-        );
+        .set_redirect_uri(RedirectUrl::new(config.oauth2_redirect_uri()).unwrap());
 
     // Validate CSRF state
     let state_cookie = jar.get("oauth_csrf_state");

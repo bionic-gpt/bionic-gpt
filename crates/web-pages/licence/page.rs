@@ -42,7 +42,6 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
         "Disabled"
     };
 
-
     let page = rsx! {
         Layout {
             section_class: "p-4",

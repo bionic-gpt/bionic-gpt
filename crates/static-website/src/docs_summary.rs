@@ -241,8 +241,8 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Encryption at Rest",
-                        description: "Encryption at Rest",
+                        title: "Runtime Encryption",
+                        description: "Runtime Encryption",
                         folder: "docs/guides/encryption-at-rest/",
                         markdown: include_str!(
                             "../content/docs/guides/encryption-at-rest/index.md"
@@ -277,16 +277,28 @@ pub fn summary() -> Summary {
             },
             Category {
                 name: "Admin".to_string(),
-                pages: vec![Page {
-                    date: "",
-                    title: "Managing Models",
-                    description: "Managing Models",
-                    folder: "docs/guides/managing-models/",
-                    markdown: include_str!("../content/docs/guides/managing-models/index.md"),
-                    image: None,
-                    author_image: None,
-                    author: None,
-                }],
+                pages: vec![
+                    Page {
+                        date: "",
+                        title: "Managing Models",
+                        description: "Managing Models",
+                        folder: "docs/guides/managing-models/",
+                        markdown: include_str!("../content/docs/guides/managing-models/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Guard Models",
+                        description: "Guard Models",
+                        folder: "docs/guides/guard-models/",
+                        markdown: include_str!("../content/docs/guides/guard-models/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
             },
             Category {
                 name: "How-To".to_string(),
