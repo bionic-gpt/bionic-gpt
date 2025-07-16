@@ -27,9 +27,6 @@ pub struct OAuth2Config {
     pub scopes: Vec<String>,
 }
 
-// Default placeholder SVG for integrations without logos
-const DEFAULT_INTEGRATION_LOGO: &str = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iIzZCNzI4MCIvPgo8cGF0aCBkPSJNMTYgMTZIMzJWMjBIMTZWMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTYgMjRIMzJWMjhIMTZWMjRaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTYgMzJIMjhWMzZIMTZWMzJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K";
-
 /// A wrapper around an OpenAPI v3 specification that provides methods
 /// for extracting tool definitions and handling OpenAPI operations
 #[derive(Clone, PartialEq, Debug)]
@@ -66,7 +63,7 @@ impl BionicOpenAPI {
     }
 
     /// Safely extracts the logo URL from integration extensions
-    pub fn get_logo_url(&self) -> String {
+    pub fn get_logo_url(&self) -> Option<String> {
         self.spec
             .info
             .extensions
@@ -76,7 +73,6 @@ impl BionicOpenAPI {
             .and_then(|url| url.as_str())
             .filter(|url| !url.is_empty())
             .map(|url| url.to_string())
-            .unwrap_or_else(|| DEFAULT_INTEGRATION_LOGO.to_string())
     }
 
     /// Create tool definitions from the OpenAPI specification
