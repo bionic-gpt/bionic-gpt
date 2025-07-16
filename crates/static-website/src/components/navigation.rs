@@ -1,4 +1,4 @@
-use crate::routes::{blog, docs, marketing, product, SIGN_IN_UP};
+use crate::routes::{blog, docs, marketing, product, solutions, SIGN_IN_UP};
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Clone, Eq, Debug)]
@@ -107,23 +107,49 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                                     }
                                 }
                             }
+                            li {
+                                details {
+                                    summary {
+                                        "Solutions"
+                                    }
+                                    ul {
+                                        class: "p-2",
+                                        li {
+                                            a {
+                                                href: solutions::Education {}.to_string(),
+                                                "Education"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             NavItem {
                                 link: marketing::Pricing {}.to_string(),
                                 name: "Pricing".to_string(),
                                 section: Section::Pricing,
                                 current_section: section.clone(),
                             }
-                            NavItem {
-                                link: blog::Index {}.to_string(),
-                                name: "Blog".to_string(),
-                                section: Section::Blog,
-                                current_section: section.clone(),
-                            }
-                            NavItem {
-                                link: docs::Index {}.to_string(),
-                                name: "Documentation".to_string(),
-                                section: Section::Docs,
-                                current_section: section.clone(),
+                            li {
+                                details {
+                                    summary {
+                                        "Resources"
+                                    }
+                                    ul {
+                                        class: "p-2",
+                                        li {
+                                            a {
+                                                href: blog::Index {}.to_string(),
+                                                "Blog"
+                                            }
+                                        }
+                                        li {
+                                            a {
+                                                href: docs::Index {}.to_string(),
+                                                "Documentation"
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             NavItem {
                                 link: marketing::PartnersPage {}.to_string(),

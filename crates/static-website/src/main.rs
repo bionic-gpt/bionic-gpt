@@ -51,6 +51,15 @@ pub mod routes {
         pub struct Developers {}
     }
 
+    pub mod solutions {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/solutions/education/")]
+        pub struct Education {}
+    }
+
     pub mod marketing {
         use axum_extra::routing::TypedPath;
         use serde::Deserialize;
@@ -103,6 +112,7 @@ async fn main() {
     fs::create_dir_all("dist").expect("Couldn't create dist folder");
     generator::generate_marketing().await;
     generator::generate_product().await;
+    generator::generate_solutions().await;
     generator::generate_docs(docs_summary::summary());
     generator::generate(blog_summary::summary());
     generator::generate_pages(pages_summary::summary()).await;
