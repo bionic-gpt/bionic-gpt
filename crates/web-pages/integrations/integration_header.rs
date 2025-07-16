@@ -11,7 +11,7 @@ pub fn IntegrationHeader(
     team_id: i32,
     rbac: Rbac,
     integration: Integration,
-    logo_url: String,
+    logo_url: Option<String>,
     description: Option<String>,
 ) -> Element {
     let popover_target = format!("delete-integration-{}", integration.id);
@@ -21,11 +21,18 @@ pub fn IntegrationHeader(
             class: "flex justify-between",
             div {
                 class: "flex items-center",
-                img {
-                    class: "w-12 h-12 object-contain border border-neutral-content rounded p-2",
-                    src: "{logo_url}",
-                    width: "48",
-                    height: "48"
+                if let Some(url) = logo_url.clone() {
+                    img {
+                        class: "w-12 h-12 object-contain border border-neutral-content rounded p-2",
+                        src: "{url}",
+                        width: "48",
+                        height: "48"
+                    }
+                } else {
+                    Avatar {
+                        avatar_size: AvatarSize::Medium,
+                        name: "{integration.name.clone()}"
+                    }
                 }
                 div {
                     class: "ml-4",

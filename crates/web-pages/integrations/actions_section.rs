@@ -1,10 +1,14 @@
 #![allow(non_snake_case)]
 use super::parameter_renderer::render_parameter;
+use daisy_rsx::*;
 use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
 
 #[component]
-pub fn ActionsSection(logo_url: String, tool_definitions: Vec<BionicToolDefinition>) -> Element {
+pub fn ActionsSection(
+    logo_url: Option<String>,
+    tool_definitions: Vec<BionicToolDefinition>,
+) -> Element {
     rsx! {
         div {
             h2 {
@@ -21,11 +25,18 @@ pub fn ActionsSection(logo_url: String, tool_definitions: Vec<BionicToolDefiniti
                                 class: "flex",
                                 div {
                                     class: "flex flex-col justify-center",
-                                    img {
-                                        class: "border border-neutral-content  rounded p-1",
-                                        src: "{logo_url}",
-                                        width: "32",
-                                        height: "32"
+                                    if let Some(url) = logo_url.clone() {
+                                        img {
+                                            class: "border border-neutral-content  rounded p-1",
+                                            src: "{url}",
+                                            width: "32",
+                                            height: "32"
+                                        }
+                                    } else {
+                                        Avatar {
+                                            avatar_size: AvatarSize::Medium,
+                                            name: "{tool.function.name}"
+                                        }
                                     }
                                 }
                                 div {

@@ -27,11 +27,13 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
 
     let description = integration.openapi.get_description().unwrap_or_default();
 
+    let logo_url = integration.openapi.get_logo_url();
     rsx! {
         CardItem {
             class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
             clickable_link: crate::routes::integrations::View { team_id, id: integration.id }.to_string(),
-            image_src: Some(integration.openapi.get_logo_url()),
+            image_src: logo_url.clone(),
+            avatar_name: if logo_url.is_none() { Some(integration.openapi.get_title()) } else { None },
             title: integration.openapi.get_title().to_string(),
             description: if description.is_empty() { None } else { Some(rsx!(span { "{description}" })) },
             count_labels: if has_oauth2 || has_api_key {
