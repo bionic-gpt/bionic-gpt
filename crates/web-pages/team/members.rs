@@ -30,11 +30,13 @@ pub fn page(
                         href: None
                     }]
                 }
-                Button {
-                    prefix_image_src: "{button_plus_svg.name}",
-                    popover_target: "create-invite-form",
-                    button_scheme: ButtonScheme::Primary,
-                    "Invite New Team Member"
+                if rbac.can_make_invitations() && user.first_name.is_some() && team.name.is_some() {
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        popover_target: "create-invite-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "Invite New Team Member"
+                    }
                 }
             ),
             div {
@@ -132,7 +134,8 @@ pub fn page(
 
                 // Form to set he org name
                 super::team_name_form::TeamNameForm {
-                    submit_action: crate::routes::team::SetName{team_id:team.id}.to_string()
+                    submit_action: crate::routes::team::SetName{team_id:team.id}.to_string(),
+                    trigger_id: "set-name-drawer".to_string(),
                 }
             }
         }

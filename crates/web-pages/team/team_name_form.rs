@@ -3,14 +3,14 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn TeamNameForm(submit_action: String) -> Element {
+pub fn TeamNameForm(submit_action: String, trigger_id: String) -> Element {
     rsx! {
         form {
             method: "post",
             "data-turbo-frame": "_top",
             action: "{submit_action}",
             Modal {
-                trigger_id: "set-name-drawer",
+                trigger_id: &trigger_id,
                 ModalBody {
                     h3 {
                         class: "font-bold text-lg mb-4",
