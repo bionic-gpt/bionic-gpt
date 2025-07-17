@@ -15,63 +15,71 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = pool.get().await?;
 
     loop {
-        let unprocessed_docs = queries::documents::unprocessed_documents()
-            .bind(&client)
-            .all()
-            .await?;
-
-        for document in unprocessed_docs {
-            let dataset = queries::datasets::pipeline_dataset()
-                .bind(&client, &document.dataset_id)
-                .one()
+        // Process unprocessed documents in batches until none remain
+        loop {
+            let docs = queries::documents::unprocessed_documents()
+                .bind(&client, &config.batch_size)
+                .all()
                 .await?;
 
-            let structured_data = crate::unstructured::document_to_chunks(
-                document.content,
-                &document.file_name,
-                dataset.combine_under_n_chars as u32,
-                dataset.new_after_n_chars as u32,
-                dataset.multipage_sections,
-                &config.unstructured_endpoint,
-            )
-            .await;
+            if docs.is_empty() {
+                break;
+            }
 
-            match structured_data {
-                Ok(structured_data) => {
-                    for text in structured_data {
-                        client
-                            .execute(
-                                "
+            for document in docs {
+                let dataset = queries::datasets::pipeline_dataset()
+                    .bind(&client, &document.dataset_id)
+                    .one()
+                    .await?;
+
+                let structured_data = crate::unstructured::document_to_chunks(
+                    document.content,
+                    &document.file_name,
+                    dataset.combine_under_n_chars as u32,
+                    dataset.new_after_n_chars as u32,
+                    dataset.multipage_sections,
+                    &config.unstructured_endpoint,
+                )
+                .await;
+
+                match structured_data {
+                    Ok(structured_data) => {
+                        for text in structured_data {
+                            client
+                                .execute(
+                                    "
                                 INSERT INTO chunks (
                                     document_id,
                                     page_number,
                                     text
-                                ) 
-                                VALUES 
+                                )
+                                VALUES
                                     ($1, $2, encrypt_text($3))",
-                                &[
-                                    &document.id,
-                                    &text.metadata.page_number.unwrap_or(0),
-                                    &text.text,
-                                ],
-                            )
-                            .await?;
+                                    &[
+                                        &document.id,
+                                        &text.metadata.page_number.unwrap_or(0),
+                                        &text.text,
+                                    ],
+                                )
+                                .await?;
+                        }
                     }
-                }
-                Err(error) => {
-                    let error = format!("Not able to parse document {}", error);
-                    queries::documents::fail_document()
-                        .bind(&client, &error, &document.id)
-                        .await?;
+                    Err(error) => {
+                        let error = format!("Not able to parse document {}", error);
+                        queries::documents::fail_document()
+                            .bind(&client, &error, &document.id)
+                            .await?;
 
-                    tracing::error!(error);
+                        tracing::error!(error);
+                    }
                 }
             }
         }
 
+        // Process embeddings in batches until none remain
         loop {
             let unprocessed = queries::chunks::unprocessed_chunks()
-                .bind(&client)
+                .bind(&client, &config.batch_size)
                 .all()
                 .await?;
 
@@ -79,7 +87,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 break;
             }
 
-            if let Some(embedding) = unprocessed.first() {
+            for embedding in unprocessed {
                 match embeddings_api::get_embeddings(
                     &embedding.text,
                     &embedding.base_url,
@@ -122,7 +130,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        // Run this every 5 seconds
         tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
     }
 }
