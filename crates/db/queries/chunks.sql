@@ -37,7 +37,10 @@ SELECT
 FROM
     chunks
 WHERE
-    processed IS NOT TRUE;
+    processed IS NOT TRUE
+ORDER BY
+    id
+LIMIT :limit;
 
 --! delete
 DELETE FROM chunks WHERE id = :embedding_id;
