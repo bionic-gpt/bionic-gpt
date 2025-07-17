@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Licence Signer (PEM supported)</title>
+</head>
+<body>
+  <h2>Licence Generator</h2>
+
+  <label><b>JSON Licence (input):</b></label><br>
+  <textarea id="jsonInput" rows="10" cols="80">{"end_date":"2028-12-31T00:00:00Z","hostname_url":"http://localhost:7703","user_count":3}</textarea><br><br>
+
+  <label><b>Private Key (PKCS#8 PEM or raw base64 seed):</b></label><br>
+  <textarea id="privateKey" rows="6" cols="80">
+  </textarea><br><br>
+
+  <button onclick="signLicence()">Generate Signed Output</button>
+
+  <h3>Signed JSON (one line):</h3>
+  <textarea id="signedJson" rows="3" cols="80" readonly style="background:#f6f6f6;"></textarea>
+
+  <h3>Kubernetes Secret YAML:</h3>
+  <textarea id="output" rows="12" cols="80" readonly style="background:#f6f6f6;"></textarea>
+
+  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+  <script>
+    function signLicence() {
+      const jsonStr = document.getElementById("jsonInput").value;
+      const privateKeyInput = document.getElementById("privateKey").value;
+      const signedJson = document.getElementById("signedJson");
+      const output = document.getElementById("output");
+
+      try {
+        // Clean PEM or base64 key
+        const b64 = privateKeyInput
+          .replace(/-----.*-----/g, '')
+          .replace(/\s+/g, '');
+        const keyBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+
+        // Extract Ed25519 seed
+        let seed;
+        if (keyBytes.length === 48 && keyBytes[0] === 0x30) {
+          seed = keyBytes.slice(-32);
+        } else if (keyBytes.length === 32) {
+          seed = keyBytes;
+        } else {
+          throw new Error("Key must be a raw 32-byte seed or a 48-byte PKCS#8 Ed25519 key");
+        }
+
+        const secretKey = nacl.sign.keyPair.fromSeed(seed).secretKey;
+
+        // Sign the input
+        const licence = JSON.parse(jsonStr);
+        delete licence.signature;
+        const encoded = new TextEncoder().encode(JSON.stringify(licence));
+        const sig = nacl.sign.detached(encoded, secretKey);
+        const sigB64 = btoa(String.fromCharCode(...sig));
+        licence.signature = sigB64;
+
+        const signedStr = JSON.stringify(licence);
+        signedJson.value = signedStr;
+
+        const licenceB64 = btoa(signedStr);
+        const yaml = `apiVersion: v1
+kind: Secret
+metadata:
+  name: bionic-gpt-licence
+type: Opaque
+data:
+  LICENCE: ${licenceB64}`;
+
+        output.value = yaml;
+      } catch (e) {
+        signedJson.value = "";
+        output.value = "❌ Error: " + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
