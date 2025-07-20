@@ -9,7 +9,10 @@ FROM
 WHERE
     failure_reason IS NULL
     AND
-    id NOT IN (SELECT document_id FROM chunks WHERE document_id = d.id);
+    id NOT IN (SELECT document_id FROM chunks WHERE document_id = d.id)
+ORDER BY
+    id
+LIMIT :limit;
 
 --! fail_document
 UPDATE documents SET failure_reason = :failure_reason WHERE id = :id;

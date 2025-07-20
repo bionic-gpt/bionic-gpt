@@ -4,6 +4,7 @@ use std::env;
 pub struct Config {
     pub app_database_url: String,
     pub unstructured_endpoint: String,
+    pub batch_size: i64,
 }
 
 impl Default for Config {
@@ -22,9 +23,15 @@ impl Config {
             "http://chunking-engine:8000".to_string()
         };
 
+        let batch_size = std::env::var("RAG_BATCH_SIZE")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(10);
+
         Config {
             app_database_url,
             unstructured_endpoint,
+            batch_size,
         }
     }
 }
