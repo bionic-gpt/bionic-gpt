@@ -113,11 +113,17 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                                         "Solutions"
                                     }
                                     ul {
-                                        class: "p-2",
+                                        class: "w-60 p-2",
                                         li {
                                             a {
                                                 href: solutions::Education {}.to_string(),
-                                                "Education"
+                                                "Bionic in Education"
+                                            }
+                                        },
+                                        li {
+                                            a {
+                                                href: solutions::Support {}.to_string(),
+                                                "Bionic for Technical Support"
                                             }
                                         }
                                     }

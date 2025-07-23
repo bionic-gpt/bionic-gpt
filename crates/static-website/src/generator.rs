@@ -65,6 +65,9 @@ pub async fn generate_product() {
 pub async fn generate_solutions() {
     let html = pages::solutions::education::page();
     write_page("dist/solutions/education", html).expect("Unable to write page");
+
+    let html = pages::solutions::support::page();
+    write_page("dist/solutions/support", html).expect("Unable to write page");
 }
 
 pub async fn generate_marketing() {
