@@ -7,6 +7,7 @@ pub mod assistants;
 pub mod audit_trail;
 pub mod automations;
 pub mod base_layout;
+pub mod categories;
 pub mod charts;
 pub mod components;
 pub mod console;

@@ -21,6 +21,7 @@ pub enum SideBar {
     Integrations,
     Licence,
     Models,
+    Categories,
     OauthClients,
     Prompts,
     Profile,
@@ -198,6 +199,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     href: super::routes::oauth_clients::Index { team_id: props.team_id },
                                     icon: nav_api_keys_svg.name,
                                     title: "OAuth Clients"
+                                }
+                                NavItem {
+                                    id: SideBar::Categories.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::categories::Index { team_id: props.team_id },
+                                    icon: nav_audit_svg.name,
+                                    title: "Categories"
                                 }
                                 NavItem {
                                     id: SideBar::Licence.to_string(),
