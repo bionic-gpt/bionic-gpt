@@ -137,13 +137,20 @@ fn SpeechToTextButton(lock_console: bool) -> Element {
 
 #[component]
 fn AttachButton(lock_console: bool, id: &'static str) -> Element {
+    let max_files: usize = std::env::var("MAX_ATTACHMENTS")
+        .unwrap_or_else(|_| "5".to_string())
+        .parse()
+        .unwrap_or(5);
     rsx! {
-        Button {
+        button {
             id: id,
-            button_style: ButtonStyle::Outline,
-            button_shape: ButtonShape::Circle,
+            class: "btn btn-outline btn-circle",
             disabled: lock_console,
-            prefix_image_src: attach_svg.name
+            "data-max-files": "{max_files}",
+            img {
+                class: "svg-icon",
+                src: attach_svg.name,
+            }
         }
     }
 }

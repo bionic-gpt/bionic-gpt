@@ -10,6 +10,10 @@ export function fileUpload() {
   const attachButton = document.getElementById('attach-button');
   if (!attachButton) return;
 
+  // Read the maximum number of files from a data attribute
+  const maxFilesAttr = attachButton.getAttribute('data-max-files');
+  const MAX_FILES = maxFilesAttr ? parseInt(maxFilesAttr, 10) : 5;
+
   // Create a hidden file input element
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
@@ -43,10 +47,10 @@ export function fileUpload() {
   // File selection handler
   fileInput.addEventListener('change', () => {
     if (fileInput.files && fileInput.files.length > 0) {
-      const availableSlots = Math.max(0, 5 - selectedFiles.size);
+      const availableSlots = Math.max(0, MAX_FILES - selectedFiles.size);
       const files = Array.from(fileInput.files);
       if (files.length > availableSlots) {
-        alert('You can only upload up to 5 files.');
+        alert(`You can only upload up to ${MAX_FILES} files.`);
       }
       files.slice(0, availableSlots).forEach(file => {
         const key = `${file.name}-${file.lastModified}`;
