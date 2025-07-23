@@ -58,6 +58,10 @@ pub mod routes {
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/solutions/education/")]
         pub struct Education {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/solutions/support/")]
+        pub struct Support {}
     }
 
     pub mod marketing {
