@@ -34,7 +34,7 @@ pub struct PromptForm {
     pub models: Vec<Prompt>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
+pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibility: bool) -> String {
     let example1 = prompt.example1.clone().unwrap_or_default();
     let example2 = prompt.example2.clone().unwrap_or_default();
     let example3 = prompt.example3.clone().unwrap_or_default();
@@ -164,7 +164,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                                     selected_value: "{prompt.visibility}",
                                                     {crate::visibility_to_string(Visibility::Team)}
                                                 },
-                                                if rbac.can_make_assistant_public() {
+                                                if show_company_visibility {
                                                     SelectOption {
                                                         value: "{crate::visibility_to_string(Visibility::Company)}",
                                                         selected_value: "{prompt.visibility}",
