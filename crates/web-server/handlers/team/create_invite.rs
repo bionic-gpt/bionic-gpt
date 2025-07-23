@@ -102,7 +102,7 @@ pub async fn create(
 
     let roles = if new_invite.admin.is_some() {
         vec![
-            types::public::Role::SystemAdministrator,
+            types::public::Role::TeamManager,
             types::public::Role::Collaborator,
         ]
     } else {
