@@ -4,8 +4,8 @@ use crate::error::Error;
 use crate::operator::crd::BionicSpec;
 use crate::services::deployment;
 use k8s_openapi::api::apps::v1::Deployment;
-use k8s_openapi::api::core::v1::{Secret, Service};
-use kube::api::{DeleteParams, ObjectMeta, PostParams};
+use k8s_openapi::api::core::v1::{ConfigMap, Secret, Service};
+use kube::api::{DeleteParams, ObjectMeta, Patch, PatchParams, PostParams};
 use kube::{Api, Client};
 use serde_json::json;
 
@@ -23,6 +23,9 @@ static LICENCE: &str = "LICENCE";
 static LICENCE_SECRET: &str = "bionic-gpt-licence";
 
 pub const BIONIC_NAME: &str = "bionic-gpt";
+static CONFIG_MAP_NAME: &str = "bionic-config";
+static MAX_UPLOAD_SIZE_MB_KEY: &str = "MAX_UPLOAD_SIZE_MB";
+static MAX_ATTACHMENTS_KEY: &str = "MAX_ATTACHMENTS";
 
 // The web user interface
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
@@ -58,6 +61,24 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
         json!({
             "name": "APP_BASE_URL",
             "value": spec.hostname_url.clone()
+        }),
+        json!({
+            "name": MAX_UPLOAD_SIZE_MB_KEY,
+            "valueFrom": {
+                "configMapKeyRef": {
+                    "name": CONFIG_MAP_NAME,
+                    "key": MAX_UPLOAD_SIZE_MB_KEY
+                }
+            }
+        }),
+        json!({
+            "name": MAX_ATTACHMENTS_KEY,
+            "valueFrom": {
+                "configMapKeyRef": {
+                    "name": CONFIG_MAP_NAME,
+                    "key": MAX_ATTACHMENTS_KEY
+                }
+            }
         }),
         json!({
             "name":
@@ -151,6 +172,28 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
             }));
         }
     }
+
+    let config_map = serde_json::json!({
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+            "name": CONFIG_MAP_NAME,
+            "namespace": namespace
+        },
+        "data": {
+            MAX_UPLOAD_SIZE_MB_KEY: "1000",
+            MAX_ATTACHMENTS_KEY: "5"
+        }
+    });
+
+    let config_api: Api<ConfigMap> = Api::namespaced(client.clone(), namespace);
+    config_api
+        .patch(
+            CONFIG_MAP_NAME,
+            &PatchParams::apply(crate::MANAGER).force(),
+            &Patch::Apply(config_map),
+        )
+        .await?;
 
     let image_name = if spec.hash_bionicgpt.is_empty() {
         format!("{}:{}", super::BIONICGPT_IMAGE, spec.version)
@@ -273,9 +316,16 @@ pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     }
 
     // Remove services
-    let api: Api<Service> = Api::namespaced(client, namespace);
+    let api: Api<Service> = Api::namespaced(client.clone(), namespace);
     if api.get(BIONIC_NAME).await.is_ok() {
         api.delete(BIONIC_NAME, &DeleteParams::default()).await?;
+    }
+
+    // Remove configmap
+    let api: Api<ConfigMap> = Api::namespaced(client, namespace);
+    if api.get(CONFIG_MAP_NAME).await.is_ok() {
+        api.delete(CONFIG_MAP_NAME, &DeleteParams::default())
+            .await?;
     }
     Ok(())
 }
