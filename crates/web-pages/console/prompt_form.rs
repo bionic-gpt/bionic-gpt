@@ -144,12 +144,13 @@ fn AttachButton(lock_console: bool, id: &'static str) -> Element {
     rsx! {
         button {
             id: id,
-            class: "btn btn-outline btn-circle",
+            class: "btn btn-outline btn-circle btn-sm",
             disabled: lock_console,
             "data-max-files": "{max_files}",
             img {
                 class: "svg-icon",
                 src: attach_svg.name,
+                width: "16"
             }
         }
     }
