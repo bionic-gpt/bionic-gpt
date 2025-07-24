@@ -1,6 +1,4 @@
-use super::{
-    bionic::BIONIC_NAME, embeddings_engine::NAME as EMBEDDINGS_NAME, keycloak::KEYCLOAK_NAME,
-};
+use super::{bionic::BIONIC_NAME, keycloak::KEYCLOAK_NAME, rag_engine::NAME as RAG_ENGINE_NAME};
 use crate::error::Error;
 use k8s_openapi::api::networking::v1::NetworkPolicy;
 use kube::api::{Patch, PatchParams};
@@ -31,7 +29,7 @@ pub async fn default_deny(client: Client, name: &str, namespace: &str) -> Result
     }]);
 
     // Egress: allow DNS + namespace-local traffic
-    let egress = if name == BIONIC_NAME || name == KEYCLOAK_NAME || name == EMBEDDINGS_NAME {
+    let egress = if name == BIONIC_NAME || name == KEYCLOAK_NAME || name == RAG_ENGINE_NAME {
         json!([
             { "to": [{ "ipBlock": { "cidr": "0.0.0.0/0" } }] }
         ])

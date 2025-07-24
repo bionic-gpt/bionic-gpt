@@ -7,7 +7,7 @@ use kube::api::DeleteParams;
 use kube::{Api, Client};
 use serde_json::json;
 
-const RAG_ENGINE: &str = "bionic-rag-engine";
+pub const NAME: &str = "bionic-rag-engine";
 
 // The RAG Engine
 pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result<(), Error> {
@@ -28,7 +28,7 @@ pub async fn deploy(client: Client, spec: BionicSpec, namespace: &str) -> Result
     deployment::deployment(
         client.clone(),
         deployment::ServiceDeployment {
-            name: RAG_ENGINE.to_string(),
+            name: NAME.to_string(),
             image_name,
             replicas: spec.replicas,
             port: 3000,
@@ -84,14 +84,14 @@ pub async fn delete_old_pipeline_job(client: Client, namespace: &str) -> Result<
 pub async fn delete(client: Client, namespace: &str) -> Result<(), Error> {
     // Remove deployments
     let api: Api<Deployment> = Api::namespaced(client.clone(), namespace);
-    if api.get(RAG_ENGINE).await.is_ok() {
-        api.delete(RAG_ENGINE, &DeleteParams::default()).await?;
+    if api.get(NAME).await.is_ok() {
+        api.delete(NAME, &DeleteParams::default()).await?;
     }
 
     // Remove services
     let api: Api<Service> = Api::namespaced(client.clone(), namespace);
-    if api.get(RAG_ENGINE).await.is_ok() {
-        api.delete(RAG_ENGINE, &DeleteParams::default()).await?;
+    if api.get(NAME).await.is_ok() {
+        api.delete(NAME, &DeleteParams::default()).await?;
     }
 
     Ok(())
