@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2025-07-23",
+                    title: "Beyond MCP: The Future of Enterprise AI Integrations with OpenAPI",
+                    description: "Explore how bionicGPT have introduced Integrations and slid stepped the limitations of MCP",
+                    folder: "blog/integrations/",
+                    markdown: include_str!("../content/blog/integrations/index.md"),
+                    image: Some("/blog/integrations/integrations.png"),
+                    author_image: Some("/blog-authors/dio.jpeg"),
+                    author: Some("Kulbinder Dio")
+                },
+                Page {
                     date: "2025-02-08",
                     title: "The Future Opportunities for Junior Developers in the Age of AI Coding",
                     description: "Explore how AI coding tools create new opportunities for junior developers, from an architect's perspective on career growth.",
