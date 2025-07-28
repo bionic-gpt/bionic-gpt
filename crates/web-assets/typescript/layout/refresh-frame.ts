@@ -1,5 +1,8 @@
 import { FrameElement } from "@hotwired/turbo";
 
+// Store the interval so we don't create multiple instances
+let refreshInterval: number | null = null;
+
 // If we have any elements with the class 'processing' then
 // kick off a timer that will refresh the parent turbo frame 
 export const refreshFrame = () => {
@@ -7,17 +10,22 @@ export const refreshFrame = () => {
     if(itemsCurrentlyProcessing.length > 0) {
         const item = itemsCurrentlyProcessing[0]
 
-        let clostestParentTurboFrame = item.closest('turbo-frame')
+        let closestParentTurboFrame = item.closest('turbo-frame')
 
-        if(clostestParentTurboFrame instanceof FrameElement) {
-            const intId = setInterval(() => {
-                if(clostestParentTurboFrame instanceof FrameElement) {
-                    clostestParentTurboFrame.reload()
-                    if(document.querySelectorAll('.processing').length == 0) {
-                        clearInterval(intId)
+        if(closestParentTurboFrame instanceof FrameElement) {
+            if (refreshInterval === null) {
+                refreshInterval = window.setInterval(() => {
+                    if(closestParentTurboFrame instanceof FrameElement) {
+                        closestParentTurboFrame.reload()
+                        if(document.querySelectorAll('.processing').length == 0) {
+                            if (refreshInterval !== null) {
+                                clearInterval(refreshInterval)
+                                refreshInterval = null
+                            }
+                        }
                     }
-                }
-            }, 1000);
+                }, 5000);
+            }
         }
     }
 }
