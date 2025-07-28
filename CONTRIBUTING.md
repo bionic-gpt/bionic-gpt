@@ -74,13 +74,13 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 
 1. Run `just dev-init` to setup `k3d`
 1. Run `just dev-setup` to run the kubernetes operator that install Bionic into the locally running `k3d`.
-1. If you get a Permission denied (os error 13) run `sudo chmod -R 777 target`
 1. If you get a *service unavailable* error wait a bit longer for *k3d* to start.
 1. Use `k9s` to check the status of the services.
 1. When all the services are loaded you can check by running `db` you should now have access to the database.
 1. `dbmate up` to create the database tables
-1. Run `wa` to build and watch the Bionic server. The web assets are now
-   compiled automatically as part of the build process.
+1. Run `wa` to build and watch the Bionic server. 
+1. In another terminal run `wp` to watch and compile the web assets i.e. JS and Css.
+1. In another terminal run `wt` to watch and compile the tailwind assets.
 1. You can now access the front end on `http://localhost:7703`.
 
 ## Running the unit tests
