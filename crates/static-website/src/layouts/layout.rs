@@ -15,6 +15,7 @@ pub struct LayoutProps {
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
+    let image = props.image.unwrap_or("/open-graph.png".to_string());
     rsx!(
         head {
             title {
@@ -35,33 +36,15 @@ pub fn Layout(props: LayoutProps) -> Element {
                 name: "description",
                 content: "{props.description}"
             }
-            meta {
-                "property": "og:description",
-                content: "{props.description}"
-            }
-            meta {
-                "property": "og:title",
-                content: "{props.title}"
-            }
 
-            // Open Graph tags
+            // The four required Open Graph tags for every page are og:title, og:type, og:image, and og:url.
             meta { property: "og:title", content: "{props.title}" }
             meta { property: "og:description", content: "{props.description}" }
             meta { property: "og:type", content: "article" }
             meta { property: "og:site_name", content: "Bionic GPT" }
+            meta { property: "og:image", content: "{image}" }
+            meta { property: "twitter:image", content: "{image}" }
 
-            if let Some(image) = props.image {
-                {rsx!(
-                    meta {
-                        "property": "og:image",
-                        content: "{image}"
-                    }
-                    meta {
-                        "name": "twitter:image",
-                        content: "{image}"
-                    }
-                )}
-            }
             link {
                 rel: "stylesheet",
                 href: "/tailwind.css",

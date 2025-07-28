@@ -1,4 +1,4 @@
-use crate::{CustomError, Jwt};
+use crate::{config::Config, CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
@@ -39,6 +39,7 @@ pub async fn new_assistant_loader(
     New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Extension(config): Extension<Config>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -88,7 +89,9 @@ pub async fn new_assistant_loader(
         error: None,
     };
 
-    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form);
+    let show_company_visibility = rbac.can_make_assistant_public() && !config.saas;
+
+    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form, show_company_visibility);
 
     Ok(Html(html))
 }
@@ -97,6 +100,7 @@ pub async fn edit_assistant_loader(
     Edit { team_id, prompt_id }: Edit,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Extension(config): Extension<Config>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -173,7 +177,9 @@ pub async fn edit_assistant_loader(
         error: None,
     };
 
-    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form);
+    let show_company_visibility = rbac.can_make_assistant_public() && !config.saas;
+
+    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form, show_company_visibility);
 
     Ok(Html(html))
 }

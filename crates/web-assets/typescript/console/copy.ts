@@ -9,10 +9,10 @@ export const copy = () => {
             const previousElement = parent?.parentElement?.previousElementSibling;
 
             const clickedImage = copyIcon.getAttribute("clicked-img")
-    
+
             if (previousElement && clickedImage && copyIcon instanceof HTMLImageElement) {
-                const previousElementContent = previousElement.innerHTML;
-                copyToClipboard(previousElementContent);
+                const previousElementContent = previousElement.textContent ?? "";
+                copyToClipboard(previousElementContent.trim());
                 const originalImage = copyIcon.src
                 copyIcon.src = clickedImage
 

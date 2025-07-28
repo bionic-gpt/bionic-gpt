@@ -96,7 +96,7 @@ pub fn pricing() -> String {
                             hr {}
                             h3 { class: "font-extrabold", "Custom Pricing" }
                             a {
-                                href: "/contact",
+                                href: crate::routes::marketing::Contact {}.to_string(),
                                 class: "btn btn-secondary btn-outline",
                                 "\n            Book a Call\n          "
                             }

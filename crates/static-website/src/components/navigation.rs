@@ -173,7 +173,10 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                         li {
                             a {
                                 href: "https://github.com/bionic-gpt/bionic-gpt",
-                                img { src: "https://img.shields.io/github/stars/bionic-gpt/bionic-gpt" }
+                                img {
+                                    src: "https://img.shields.io/github/stars/bionic-gpt/bionic-gpt",
+                                    alt: "Github"
+                                }
                             }
                         }
                         li {

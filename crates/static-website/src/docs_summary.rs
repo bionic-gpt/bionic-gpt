@@ -347,64 +347,16 @@ pub fn summary() -> Summary {
             },
             Category {
                 name: "Reference".to_string(),
-                pages: vec![
-                    Page {
-                        date: "",
-                        title: "Glossary",
-                        description: "Glossary",
-                        folder: "docs/guides/glossary/",
-                        markdown: include_str!("../content/docs/guides/glossary/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Open Source Models",
-                        description: "Open Source Models",
-                        folder: "docs/guides/opensourcemodels/",
-                        markdown: include_str!("../content/docs/guides/opensourcemodels/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "IBM Models",
-                        description: "",
-                        folder: "docs/guides/opensourcemodels/ibm",
-                        markdown: include_str!(
-                            "../content/docs/guides/opensourcemodels/ibm/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Mistral Models",
-                        description: "",
-                        folder: "docs/guides/opensourcemodels/mistral",
-                        markdown: include_str!(
-                            "../content/docs/guides/opensourcemodels/mistral/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Meta Llama Models",
-                        description: "",
-                        folder: "docs/guides/opensourcemodels/meta",
-                        markdown: include_str!(
-                            "../content/docs/guides/opensourcemodels/meta/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                ],
+                pages: vec![Page {
+                    date: "",
+                    title: "Glossary",
+                    description: "Glossary",
+                    folder: "docs/guides/glossary/",
+                    markdown: include_str!("../content/docs/guides/glossary/index.md"),
+                    image: None,
+                    author_image: None,
+                    author: None,
+                }],
             },
         ],
     }

@@ -80,7 +80,9 @@ impl OpenApiTool {
             if let Some(token) = provider.token().await {
                 let preview = &token[..6.min(token.len())];
                 tracing::debug!("Adding bearer token {}...", preview);
-                let header_value = if self.auth_header_name.eq_ignore_ascii_case("Authorization") {
+                let header_value = if self.auth_header_name.eq_ignore_ascii_case("Authorization")
+                    && !token.to_lowercase().starts_with("basic ")
+                {
                     format!("Bearer {}", token)
                 } else {
                     token
