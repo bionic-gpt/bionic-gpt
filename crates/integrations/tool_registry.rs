@@ -31,6 +31,15 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
         },
         IntegrationTool {
             scope: ToolScope::UserSelectable,
+            title: "Code execution".into(),
+            definitions: vec![tools::code_interpreter::get_code_interpreter_tool()],
+            definitions_json: serde_json::to_string_pretty(&vec![
+                tools::code_interpreter::get_code_interpreter_tool(),
+            ])
+            .expect("Failed to serialize code interpreter tool to JSON"),
+        },
+        IntegrationTool {
+            scope: ToolScope::UserSelectable,
             title: "Web tools".into(),
             definitions: vec![tools::web::get_open_url_tool()],
             definitions_json: serde_json::to_string_pretty(&vec![tools::web::get_open_url_tool()])

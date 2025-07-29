@@ -7,6 +7,7 @@ pub mod embeddings_engine;
 pub mod envoy;
 pub mod http_mock;
 pub mod ingress;
+pub mod job;
 pub mod keycloak;
 pub mod keycloak_db;
 pub mod llm;

@@ -1,3 +1,4 @@
+pub mod code_interpreter;
 pub mod list_dataset_files;
 pub mod list_datasets;
 pub mod list_documents;

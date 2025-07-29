@@ -22,6 +22,13 @@ oas3 = "0.16.1"
 oauth2 = "5.0.0"
 reqwest = { version = "0", default-features = false, features = ["json", "rustls-tls", "stream"] }
 time = { version = "0.3", features = ["parsing", "formatting"] }
+# For sandbox execution
+k8s-operator = { path = "../k8s-operator" }
+base64 = "0.21"
+rand = "0.8"
+kube = "0.99"
+k8s-openapi = { version = "0.24", features = ["latest"] }
+object-storage = { path = "../object-storage" }
 # Used by tests
 futures = "0.3"
 
