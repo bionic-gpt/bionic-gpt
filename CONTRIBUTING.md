@@ -75,7 +75,8 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 1. Run `just dev-init` to setup `k3d`
 1. Run `just dev-setup` to run the kubernetes operator that install Bionic into the locally running `k3d`.
 1. If you get a *service unavailable* error wait a bit longer for *k3d* to start.
-1. Use `k9s` to check the status of the services.
+1. Once you see the message `Reconciliation successful.` you can CTRL+C the `just dev-setup`. 
+1. Use `k9s` to check the status of the services in `k3d`.
 1. When all the services are loaded you can check by running `db` you should now have access to the database.
 1. `dbmate up` to create the database tables
 1. Run `wa` to build and watch the Bionic server. 

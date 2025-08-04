@@ -12,7 +12,10 @@
 	"info": {
 		"description": "API for accessing public data from Companies House including company profiles, officers, filings, and more.",
 		"title": "Companies House Public Data API",
-		"version": "1.0.0"
+		"version": "1.0.0",
+		"x-logo": {
+			"url": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8c3R5bGU+CiAgICAuYmcgeyBmaWxsOiAjMDAyMTQ3OyB9CiAgICAuYmFyMSwgLmJhcjIsIC5iYXIzIHsgZmlsbDogI0ZGRkZGRjsgcng6IDI7IH0KICA8L3N0eWxlPgogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCBjbGFzcz0iYmciIHg9IjAiIHk9IjAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcng9IjEyIiAvPgoKICA8IS0tIFN0eWxpemVkICJidWlsZGluZyIgLyBiYXIgY2hhcnQgc3ltYm9sIC0tPgogIDxyZWN0IGNsYXNzPSJiYXIxIiB4PSIyMCIgeT0iMjAiIHdpZHRoPSIxMCIgaGVpZ2h0PSI0MCIgLz4KICA8cmVjdCBjbGFzcz0iYmFyMiIgeD0iMzUiIHk9IjE1IiB3aWR0aD0iMTAiIGhlaWdodD0iNDUiIC8+CiAgPHJlY3QgY2xhc3M9ImJhcjMiIHg9IjUwIiB5PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjUwIiAvPgo8L3N2Zz4K"
+		}
 	},
 	"openapi": "3.0.0",
 	"paths": {

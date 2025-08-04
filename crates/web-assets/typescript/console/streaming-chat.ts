@@ -1,7 +1,4 @@
 import { Markdown } from "./markdown"
-import { Stream } from 'openai/streaming';
-import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
-import { OpenAIError } from "openai/error.mjs";
 
 export const streamingChat = () => {
     const chat = document.getElementById('streaming-chat')
@@ -60,14 +57,17 @@ async function streamResult(chatId: string, element: HTMLElement) {
         signal,
     });
 
-    const stream = Stream.fromSSEResponse(res, abortController);
-    const runner = ChatCompletionStream.fromReadableStream(stream.toReadableStream());
+    if (!res.body) {
+        console.error('No response body');
+        return;
+    }
 
     let isFunctionCall = false;
     let functionCall = {
         name: '',
         arguments: '',
     };
+
     interface DeltaChunk {
         content?: string;
         tool_calls?: {
@@ -76,33 +76,81 @@ async function streamResult(chatId: string, element: HTMLElement) {
         };
     }
 
-    runner.on('content', (_delta, snapshot) => {
-        const delta = _delta as DeltaChunk;
-        console.log(delta);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let snapshot = '';
 
-        if (delta.tool_calls) {
-            console.log('Got a function call')
-            isFunctionCall = true;
-            if (delta.tool_calls.name) functionCall.name = delta.tool_calls.name;
-            if (delta.tool_calls.arguments) functionCall.arguments += delta.tool_calls.arguments;
+    const parseEvent = (chunk: string) => {
+        const lines = chunk.split(/\n/);
+        let data = '';
+        for (const line of lines) {
+            if (line.startsWith('data:')) {
+                data += line.slice(5).trim();
+            }
         }
+        return data;
+    };
 
-        if (!isFunctionCall) {
-            element.innerHTML = markdown.markdown(snapshot);
-            result = snapshot;
+    try {
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+
+            let boundary: number;
+            while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+                const raw = buffer.slice(0, boundary).trim();
+                buffer = buffer.slice(boundary + 2);
+                if (!raw) continue;
+
+                const data = parseEvent(raw);
+                if (data === '[DONE]') {
+                    console.log('Streaming ended.');
+                    submitResults();
+                    return;
+                }
+
+                try {
+                    const json = JSON.parse(data);
+                    const delta = json.choices?.[0]?.delta || {};
+                    if (delta.content) {
+                        snapshot += delta.content;
+                    }
+                    const deltaChunk: DeltaChunk = {};
+                    if (delta.content) deltaChunk.content = delta.content;
+                    const tool = delta.tool_calls?.[0];
+                    if (tool && tool.function) {
+                        deltaChunk.tool_calls = {
+                            name: tool.function.name,
+                            arguments: tool.function.arguments || '',
+                        };
+                    }
+
+                    if (deltaChunk.tool_calls) {
+                        console.log('Got a function call');
+                        isFunctionCall = true;
+                        if (deltaChunk.tool_calls.name) functionCall.name = deltaChunk.tool_calls.name;
+                        if (deltaChunk.tool_calls.arguments) functionCall.arguments += deltaChunk.tool_calls.arguments;
+                    }
+
+                    if (!isFunctionCall && delta.content) {
+                        element.innerHTML = markdown.markdown(snapshot);
+                        result = snapshot;
+                    }
+                } catch (e) {
+                    console.error('Error parsing chunk', e);
+                }
+            }
         }
-    });
-
-    runner.on('error', (err: OpenAIError) => {
-        console.log(err)
-        element.innerHTML += `${err}`;
-        result += err.toString();
-    });
-
-    runner.on('end', () => {
         console.log('Streaming ended.');
         submitResults();
-    });
+    } catch (err) {
+        console.log(err);
+        element.innerHTML += `${err}`;
+        result += String(err);
+        submitResults();
+    }
 
 }
 
