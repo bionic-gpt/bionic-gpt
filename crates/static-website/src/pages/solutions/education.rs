@@ -32,7 +32,7 @@ pub fn page() -> String {
                     title: "Agentic AI",
                     sub_title: "Designed for true learning",
                     text: "We build tools that promote critical thinking and deep understanding over easy shortcuts.",
-                    image: "/river/assistants.png",
+                    image: "/river/education_assistants.png",
                     flip: false
                 }
 
