@@ -6,6 +6,8 @@ Store your licence in a file called `licence.yaml`
 
 ```sh
 kubectl -n bionic-gpt apply -f licence.yaml
+
+kubectl rollout restart deployment bionic-gpt -n bionic-gpt
 ```
 
 
