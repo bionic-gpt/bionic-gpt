@@ -188,7 +188,8 @@ pub async fn edit_loader(
         id: Some(model.id),
         prompt_id: model.prompt_id,
         name: model.name,
-        display_name: model.display_name,
+        // Preserve existing form values when editing
+        display_name: model.display_name.clone(),
         model_type,
         base_url: model.base_url,
         api_key: model.api_key.unwrap_or_default(),
@@ -196,7 +197,7 @@ pub async fn edit_loader(
         rpm_limit: model.rpm_limit,
         context_size_bytes: model.context_size,
         visibility,
-        description: model.description,
+        description: model.description.clone(),
         disclaimer: model.disclaimer,
         example1: model.example1,
         example2: model.example2,
