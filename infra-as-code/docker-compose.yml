@@ -35,7 +35,7 @@ services:
 
   # Sets up our database tables
   migrations:
-    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.11.24
+    image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.11.25
     platform: linux/amd64
     environment:
       DATABASE_URL: postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
@@ -45,7 +45,7 @@ services:
   
   # Parses documents into chunks and creates embeddings.
   rag-engine:
-    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.11.24
+    image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.11.25
     platform: linux/amd64
     environment:
       APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
@@ -57,7 +57,7 @@ services:
   
   # Our axum server delivering our user interface
   app:
-    image: ghcr.io/bionic-gpt/bionicgpt:1.11.24
+    image: ghcr.io/bionic-gpt/bionicgpt:1.11.25
     platform: linux/amd64
     environment:
       DANGER_JWT_OVERRIDE: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc

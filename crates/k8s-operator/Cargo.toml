@@ -1,6 +1,6 @@
 [package]
 name = "k8s-operator"
-version = "1.11.24"
+version = "1.11.25"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
