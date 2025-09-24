@@ -87,6 +87,10 @@ pub mod routes {
         pub struct Pricing {}
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/mcp-servers/")]
+        pub struct McpServers {}
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/contact/")]
         pub struct Contact {}
 
@@ -107,6 +111,17 @@ pub mod routes {
         #[typed_path("/docs/")]
         pub struct Index {}
     }
+
+    pub mod mcp_servers {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/mcp-servers/{slug}/")]
+        pub struct Detail {
+            pub slug: String,
+        }
+    }
 }
 
 #[tokio::main]
@@ -117,6 +132,7 @@ async fn main() {
 
     fs::create_dir_all("dist").expect("Couldn't create dist folder");
     generator::generate_marketing();
+    generator::generate_mcp_servers();
     generator::generate_docs(docs_summary::summary());
     generator::generate_blog_posts(blog_summary::summary());
     generator::generate_pages(pages_summary::summary());

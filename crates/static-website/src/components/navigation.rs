@@ -7,6 +7,7 @@ pub enum Section {
     Home,
     Enterprise,
     Partners,
+    McpServers,
     Pricing,
     Blog,
     Docs,

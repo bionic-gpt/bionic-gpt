@@ -41,6 +41,11 @@ pub fn Layout(mut props: LayoutProps) -> Element {
             marketing::PartnersPage {}.to_string(),
             "Partners",
         ),
+        (
+            Section::McpServers,
+            marketing::McpServers {}.to_string(),
+            "MCP Servers",
+        ),
         (Section::Blog, blog::Index {}.to_string(), "Blog"),
         (Section::Docs, docs::Index {}.to_string(), "Docs"),
         (
