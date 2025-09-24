@@ -1021,6 +1021,7 @@ dependencies = [
  "dioxus-ssr",
  "pulldown-cmark",
  "serde",
+ "serde_json",
  "syntect",
  "tokio",
  "tower-http 0.6.2",

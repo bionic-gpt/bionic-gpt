@@ -55,6 +55,22 @@ pub fn generate_marketing() {
         .expect("Unable to write partners page");
 }
 
+pub fn generate_mcp_servers() {
+    let integrations = pages::mcp_servers::load_integration_specs();
+
+    write_page(
+        "dist/mcp-servers",
+        pages::mcp_servers::index_page(&integrations),
+    )
+    .expect("Unable to write MCP servers page");
+
+    for integration in integrations {
+        let folder = format!("dist/{}", integration.folder_name());
+        write_page(&folder, pages::mcp_servers::detail_page(&integration))
+            .expect("Unable to write MCP server detail page");
+    }
+}
+
 pub fn generate_docs(summary: Summary) {
     let src = format!("content/{}", summary.source_folder);
     let src = Path::new(&src);
