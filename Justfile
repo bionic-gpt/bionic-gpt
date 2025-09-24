@@ -55,6 +55,12 @@ ws:
 wts:
     cd /workspace/crates/static-website && tailwind-extra -i ./input.css -o ./dist/tailwind.css --watch
 
+wds:
+    cd /workspace/crates/deploy-mcp && cargo watch --workdir /workspace/crates/deploy-mcp -w ./content -w ./src --no-gitignore -x "run --bin deploy-mcp"
+
+wdts:
+    cd /workspace/crates/deploy-mcp && tailwind-extra -i ./input.css -o ./dist/tailwind.css --watch
+
 spell:
     docker run --rm -ti -v /workspace/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
 
