@@ -44,8 +44,8 @@ pub fn home_page() -> String {
             class: "mt-16",
             section { class: "mx-auto lg:max-w-5xl p-6 text-center",
                 Hero {
-                    title: "Deploy AI assistants your teams trust".to_string(),
-                    subtitle: "Deploy combines orchestration, governance, and observability so platform teams can roll out AI assistants safely.".to_string(),
+                    title: "Safely and Securely deploy MCP servers".to_string(),
+                    subtitle: "Production-ready MCP servers that extend AI capabilities through file access, database connections, API integrations, and other contextual services.".to_string(),
                 }
             }
             section { class: "mx-auto lg:max-w-5xl p-6",
