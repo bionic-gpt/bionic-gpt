@@ -1012,6 +1012,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "deploy-mcp"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "axum-extra",
+ "dioxus",
+ "dioxus-ssr",
+ "pulldown-cmark",
+ "serde",
+ "syntect",
+ "tokio",
+ "tower-http 0.6.2",
+ "tower-livereload",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "der"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
