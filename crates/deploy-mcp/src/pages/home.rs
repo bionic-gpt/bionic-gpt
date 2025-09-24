@@ -41,7 +41,7 @@ pub fn home_page() -> String {
 
     let body = rsx! {
         main {
-            class: "mt-16",
+            class: "mt-16 grid gap-y-36",
             section { class: "mx-auto lg:max-w-5xl p-6 text-center",
                 Hero {
                     title: "Safely and Securely deploy MCP servers".to_string(),

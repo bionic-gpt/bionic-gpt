@@ -105,7 +105,7 @@ pub fn Layout(mut props: LayoutProps) -> Element {
         body {
             class: "min-h-screen bg-base-100 text-base-content",
             header {
-                class: "px-6 md:px-12 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between",
+                class: "px-6 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between",
                 a { class: "text-2xl font-bold", href: marketing::Index {}.to_string(), "Deploy" }
                 ul {
                     class: "flex flex-wrap gap-4",
@@ -125,7 +125,7 @@ pub fn Layout(mut props: LayoutProps) -> Element {
                     {menu}
                 }
             }
-            main { class: "px-6 md:px-12", {props.children} }
+            main { class: "", {props.children} }
         }
     )
 }
