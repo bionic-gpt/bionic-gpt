@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
 
+use crate::components::customer_logos::Customers;
 use crate::components::features::{Feature, Features};
 use crate::components::hero::Hero;
 use crate::components::testamonials::Testamonials;
@@ -48,6 +49,10 @@ pub fn home_page() -> String {
                     subtitle: "Production-ready MCP servers that extend AI capabilities through file access, database connections, API integrations, and other contextual services.".to_string(),
                 }
             }
+
+            Customers {
+            }
+
             section { class: "mx-auto lg:max-w-5xl p-6",
                 Features {
                     features: features.clone(),
