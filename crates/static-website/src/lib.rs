@@ -1,19 +1,14 @@
 pub mod blog_summary;
+pub mod components;
 pub mod docs_summary;
 pub mod generator;
 pub mod layouts;
+pub mod markdown;
 pub mod pages;
 pub mod pages_summary;
 
-pub use static_website::{components, markdown, render};
-
-use axum::Router;
-use std::{fs, net::SocketAddr, path::Path};
-use tower_http::services::ServeDir;
-use tower_livereload::LiveReloadLayer;
-
 pub mod routes {
-    pub const SIGN_IN_UP: &str = "https://app.deploy.run";
+    pub const SIGN_IN_UP: &str = "https://app.bionic-gpt.com";
 
     pub mod blog {
         use axum_extra::routing::TypedPath;
@@ -83,10 +78,6 @@ pub mod routes {
         pub struct Pricing {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/mcp-servers/")]
-        pub struct McpServers {}
-
-        #[derive(TypedPath, Deserialize)]
         #[typed_path("/contact/")]
         pub struct Contact {}
 
@@ -107,47 +98,11 @@ pub mod routes {
         #[typed_path("/docs/")]
         pub struct Index {}
     }
-
-    pub mod mcp_servers {
-        use axum_extra::routing::TypedPath;
-        use serde::Deserialize;
-
-        #[derive(TypedPath, Deserialize)]
-        #[typed_path("/mcp-servers/{slug}/")]
-        pub struct Detail {
-            pub slug: String,
-        }
-    }
 }
 
-#[tokio::main]
-async fn main() {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .init();
+use dioxus::prelude::Element;
 
-    fs::create_dir_all("dist").expect("Couldn't create dist folder");
-    generator::generate_marketing();
-    generator::generate_mcp_servers();
-    generator::generate_docs(docs_summary::summary());
-    generator::generate_blog_posts(blog_summary::summary());
-    generator::generate_pages(pages_summary::summary());
-
-    let src = Path::new("assets");
-    let dst = Path::new("dist");
-    generator::copy_folder(src, dst).expect("Couldn't copy assets");
-
-    if std::env::var("DO_NOT_RUN_SERVER").is_err() {
-        let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-
-        let app = Router::new()
-            .fallback_service(ServeDir::new("dist"))
-            .layer(LiveReloadLayer::new());
-
-        let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-        tracing::info!("listening on http://{}", &addr);
-        axum::serve(listener, app.into_make_service())
-            .await
-            .unwrap();
-    }
+pub fn render(page: Element) -> String {
+    let html = dioxus_ssr::render_element(page);
+    format!("<!DOCTYPE html><html lang='en'>{}</html>", html)
 }

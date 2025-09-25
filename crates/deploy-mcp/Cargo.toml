@@ -18,3 +18,4 @@ tower-http = { version = "0.6", features = ["fs", "trace"] }
 syntect = "5.0"
 pulldown-cmark = "0.12.2"
 tower-livereload = "0.9.5"
+static-website = { path = "../static-website" }
