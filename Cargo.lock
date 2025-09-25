@@ -1019,6 +1019,8 @@ dependencies = [
  "axum-extra",
  "dioxus",
  "dioxus-ssr",
+ "integrations",
+ "mcp",
  "pulldown-cmark",
  "serde",
  "serde_json",
@@ -2756,6 +2758,10 @@ dependencies = [
  "cfg-if",
  "rayon",
 ]
+
+[[package]]
+name = "mcp"
+version = "0.1.0"
 
 [[package]]
 name = "md-5"

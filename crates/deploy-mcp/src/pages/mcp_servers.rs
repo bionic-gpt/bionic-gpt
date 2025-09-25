@@ -1,9 +1,9 @@
-use std::fs;
-use std::path::PathBuf;
-
 use dioxus::prelude::*;
 use serde_json::Value;
 use tracing::warn;
+
+use integrations::BionicOpenAPI;
+use mcp::all_specs;
 
 use crate::components::extra_footer::ExtraFooter;
 use crate::components::footer::Footer;
@@ -58,83 +58,38 @@ pub struct Response {
 
 pub fn load_integration_specs() -> Vec<IntegrationSpec> {
     let mut specs = Vec::new();
-    let base: PathBuf = env!("CARGO_MANIFEST_DIR").into();
-    let dir = base.join("integrations");
 
-    if !dir.exists() {
-        warn!("integration directory not found: {}", dir.display());
-        return specs;
-    }
-
-    let entries = match fs::read_dir(&dir) {
-        Ok(entries) => entries,
-        Err(err) => {
-            warn!(
-                "failed to read integration directory {}: {}",
-                dir.display(),
-                err
-            );
-            return specs;
-        }
-    };
-
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path
-            .extension()
-            .and_then(|ext| ext.to_str())
-            .unwrap_or_default()
-            != "json"
-        {
-            continue;
-        }
-
-        let slug = match path.file_stem().and_then(|stem| stem.to_str()) {
-            Some(stem) => stem.to_string(),
-            None => continue,
-        };
-
-        let contents = match fs::read_to_string(&path) {
-            Ok(contents) => contents,
+    for spec in all_specs() {
+        let value: Value = match serde_json::from_str(spec.json) {
+            Ok(value) => value,
             Err(err) => {
-                warn!("failed to read integration {}: {}", path.display(), err);
+                warn!("failed to parse integration {}: {}", spec.slug, err);
                 continue;
             }
         };
 
-        let value: Value = match serde_json::from_str(&contents) {
-            Ok(value) => value,
+        let api = match BionicOpenAPI::new(&value) {
+            Ok(api) => api,
             Err(err) => {
-                warn!("failed to parse integration {}: {}", path.display(), err);
+                warn!("failed to load integration {}: {}", spec.slug, err);
                 continue;
             }
         };
 
         let info = value.get("info").and_then(|info| info.as_object());
-        let title = info
-            .and_then(|info| info.get("title"))
-            .and_then(|title| title.as_str())
-            .map(|title| title.to_string())
-            .unwrap_or_else(|| slug.replace('-', " ").to_string());
-        let description = info
-            .and_then(|info| info.get("description"))
-            .and_then(|desc| desc.as_str())
-            .map(|desc| desc.to_string());
+        let title = api.get_title();
+        let description = api.get_description();
         let version = info
             .and_then(|info| info.get("version"))
             .and_then(|version| version.as_str())
             .map(|version| version.to_string());
-        let logo_url = info
-            .and_then(|info| info.get("x-logo"))
-            .and_then(|logo| logo.get("url"))
-            .and_then(|url| url.as_str())
-            .map(|url| url.to_string());
+        let logo_url = api.get_logo_url();
 
         let mut endpoints = parse_endpoints(&value);
         endpoints.sort_by(|a, b| a.path.cmp(&b.path).then(a.method.cmp(&b.method)));
 
         specs.push(IntegrationSpec {
-            slug,
+            slug: spec.slug.to_string(),
             title,
             description,
             version,
