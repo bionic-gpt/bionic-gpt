@@ -1019,7 +1019,6 @@ dependencies = [
  "axum-extra",
  "dioxus",
  "dioxus-ssr",
- "integrations",
  "mcp",
  "pulldown-cmark",
  "serde",
