@@ -77,7 +77,10 @@ pub fn load_integration_specs() -> Vec<IntegrationSpec> {
         let metadata = match parse_metadata(&value, spec.slug) {
             Some(metadata) => metadata,
             None => {
-                warn!("failed to load integration {}: unable to read metadata", spec.slug);
+                warn!(
+                    "failed to load integration {}: unable to read metadata",
+                    spec.slug
+                );
                 continue;
             }
         };
