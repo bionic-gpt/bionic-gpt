@@ -19,5 +19,4 @@ syntect = "5.0"
 pulldown-cmark = "0.12.2"
 tower-livereload = "0.9.5"
 static-website = { path = "../static-website" }
-integrations = { path = "../integrations" }
 mcp = { path = "../mcp" }

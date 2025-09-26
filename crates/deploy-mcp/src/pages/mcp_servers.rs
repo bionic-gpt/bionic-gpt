@@ -2,7 +2,6 @@ use dioxus::prelude::*;
 use serde_json::Value;
 use tracing::warn;
 
-use integrations::BionicOpenAPI;
 use mcp::all_specs;
 
 use crate::components::extra_footer::ExtraFooter;
@@ -18,6 +17,13 @@ pub struct IntegrationSpec {
     pub version: Option<String>,
     pub logo_url: Option<String>,
     pub endpoints: Vec<Endpoint>,
+}
+
+struct IntegrationMetadata {
+    title: String,
+    description: Option<String>,
+    version: Option<String>,
+    logo_url: Option<String>,
 }
 
 impl IntegrationSpec {
@@ -68,38 +74,65 @@ pub fn load_integration_specs() -> Vec<IntegrationSpec> {
             }
         };
 
-        let api = match BionicOpenAPI::new(&value) {
-            Ok(api) => api,
-            Err(err) => {
-                warn!("failed to load integration {}: {}", spec.slug, err);
+        let metadata = match parse_metadata(&value, spec.slug) {
+            Some(metadata) => metadata,
+            None => {
+                warn!("failed to load integration {}: unable to read metadata", spec.slug);
                 continue;
             }
         };
-
-        let info = value.get("info").and_then(|info| info.as_object());
-        let title = api.get_title();
-        let description = api.get_description();
-        let version = info
-            .and_then(|info| info.get("version"))
-            .and_then(|version| version.as_str())
-            .map(|version| version.to_string());
-        let logo_url = api.get_logo_url();
 
         let mut endpoints = parse_endpoints(&value);
         endpoints.sort_by(|a, b| a.path.cmp(&b.path).then(a.method.cmp(&b.method)));
 
         specs.push(IntegrationSpec {
             slug: spec.slug.to_string(),
-            title,
-            description,
-            version,
-            logo_url,
+            title: metadata.title,
+            description: metadata.description,
+            version: metadata.version,
+            logo_url: metadata.logo_url,
             endpoints,
         });
     }
 
     specs.sort_by(|a, b| a.title.to_lowercase().cmp(&b.title.to_lowercase()));
     specs
+}
+
+fn parse_metadata(spec: &Value, fallback_title: &str) -> Option<IntegrationMetadata> {
+    let info = spec.get("info")?.as_object()?;
+
+    let title = info
+        .get("title")
+        .and_then(|title| title.as_str())
+        .map(|title| title.to_string())
+        .unwrap_or_else(|| fallback_title.to_string());
+
+    let description = info
+        .get("description")
+        .and_then(|description| description.as_str())
+        .map(|description| description.to_string());
+
+    let version = info
+        .get("version")
+        .and_then(|version| version.as_str())
+        .map(|version| version.to_string());
+
+    let logo_url = info
+        .get("x-logo")
+        .and_then(|logo| match logo {
+            Value::Object(obj) => obj.get("url").and_then(|url| url.as_str()),
+            Value::String(url) => Some(url.as_str()),
+            _ => None,
+        })
+        .map(|url| url.to_string());
+
+    Some(IntegrationMetadata {
+        title,
+        description,
+        version,
+        logo_url,
+    })
 }
 
 fn parse_endpoints(spec: &Value) -> Vec<Endpoint> {
