@@ -37,11 +37,6 @@ pub fn Layout(mut props: LayoutProps) -> Element {
             "Pricing",
         ),
         (
-            Section::Partners,
-            marketing::PartnersPage {}.to_string(),
-            "Partners",
-        ),
-        (
             Section::McpServers,
             marketing::McpServers {}.to_string(),
             "MCP Servers",
@@ -120,8 +115,8 @@ pub fn Layout(mut props: LayoutProps) -> Element {
                 }
                 a {
                     class: "btn btn-primary",
-                    href: marketing::Contact {}.to_string(),
-                    "Talk to us"
+                    href: crate::routes::SIGN_IN_UP,
+                    "Get started"
                 }
             }
             if let Some(menu) = mobile_menu {

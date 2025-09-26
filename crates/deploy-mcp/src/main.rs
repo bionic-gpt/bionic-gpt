@@ -91,10 +91,6 @@ pub mod routes {
         pub struct Contact {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/partners/")]
-        pub struct PartnersPage {}
-
-        #[derive(TypedPath, Deserialize)]
         #[typed_path("/services/")]
         pub struct ServicesPage {}
     }
