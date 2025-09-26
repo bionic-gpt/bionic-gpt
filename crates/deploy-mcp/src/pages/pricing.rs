@@ -12,40 +12,43 @@ pub fn pricing_page() -> String {
                 h1 { class: "text-4xl font-bold", "Deploy Pricing" }
                 p {
                     class: "mt-4 text-lg",
-                    "Simple plans that scale as your team ships more assistants."
+                    "Usage-based pricing so you only pay for the API calls you make."
                 }
             }
             section {
                 class: "mt-12 grid gap-6 md:grid-cols-3",
                 PricingCard {
-                    title: "Builder",
+                    title: "Free Trial",
                     price: "Free",
-                    description: "Launch pilots with up to 5 team members.",
+                    description: "Start building with 100 API calls every month to explore Deploy.",
                     features: vec![
-                        "Unlimited development projects",
-                        "Access to Deploy sandbox connectors",
+                        "No credit card required",
+                        "Full access to MCP server catalog",
                         "Community support",
                     ],
+                    cta_href: crate::routes::SIGN_IN_UP.to_string(),
                 }
                 PricingCard {
-                    title: "Growth",
-                    price: "$299/mo",
-                    description: "Production governance and automation.",
+                    title: "Pay as you go",
+                    price: "$0.05 per call",
+                    description: "Scale usage-based billing as you automate more workflows.",
                     features: vec![
-                        "Role-based access controls",
-                        "Managed retrieval pipelines",
-                        "Usage analytics and guardrails",
+                        "Unlimited production assistants",
+                        "Real-time usage analytics",
+                        "Email support",
                     ],
+                    cta_href: crate::routes::SIGN_IN_UP.to_string(),
                 }
                 PricingCard {
                     title: "Enterprise",
-                    price: "Talk to us",
-                    description: "Tailored deployments with dedicated support.",
+                    price: "Custom",
+                    description: "Deploy at scale with dedicated support and advanced security controls.",
                     features: vec![
-                        "Private cloud or on-premise options",
-                        "Custom SLAs",
-                        "Enterprise integrations",
+                        "Single Sign-On (SSO) & SCIM provisioning",
+                        "Dedicated success manager",
+                        "Custom contracts and SLAs",
                     ],
+                    cta_href: crate::routes::marketing::Contact {}.to_string(),
                 }
             }
         }
@@ -72,6 +75,7 @@ fn PricingCard(
     price: &'static str,
     description: &'static str,
     features: Vec<&'static str>,
+    cta_href: String,
 ) -> Element {
     rsx! {
         div {
@@ -87,8 +91,8 @@ fn PricingCard(
             }
             a {
                 class: "btn btn-primary mt-6",
-                href: crate::routes::marketing::Contact {}.to_string(),
-                "Contact sales"
+                href: cta_href,
+                "Get started"
             }
         }
     }
