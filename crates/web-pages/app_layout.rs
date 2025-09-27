@@ -84,7 +84,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                         }
                     )
                 }
-                if props.rbac.can_view_datasets() {
+                if props.rbac.can_view_datasets() || props.rbac.can_view_integrations() {
                     NavGroup {
                         heading: "AI Assistants",
                         content:  rsx!(
@@ -106,12 +106,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     title: "Integrations"
                                 }
                             }
-                            NavItem {
-                                id: SideBar::Datasets.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::datasets::Index{team_id: props.team_id},
-                                icon: nav_ccsds_data_svg.name,
-                                title: "Datasets & Documents"
+                            if props.rbac.can_view_datasets() {
+                                NavItem {
+                                    id: SideBar::Datasets.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::datasets::Index{team_id: props.team_id},
+                                    icon: nav_ccsds_data_svg.name,
+                                    title: "Datasets & Documents"
+                                }
                             }
                         )
                     }

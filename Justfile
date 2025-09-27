@@ -43,6 +43,17 @@ wa:
         -w crates/web-assets/input.css \
         --no-gitignore -x "run --bin web-server"
 
+wad:
+    CHUNKING_ENGINE=http://localhost:8000 \
+    LICENCE='{"end_date": "2028-12-31T00:00:00Z", "hostname_url": "http://localhost:7703", "signature": "lMWJJdsUGKepbp7SNCI3Zldl9l0kLOXGbgziBDHk3Q0Jm/ilI4ueDFLx1x/gVmm3xBWHJVCg21OuAm/UlTE5BQ==", "user_count": 2, "app_name": "Deploy", "app_logo_svg": "PHN2ZyBmaWxsPSIjMDAwMDAwIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGlkPSJpY29uIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCI+PC9nPgo8ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz4KPGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPgo8ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6bm9uZTt9PC9zdHlsZT48L2RlZnM+Cjx0aXRsZT5kZXBsb3ktcnVsZXM8L3RpdGxlPgo8cG9seWdvbiBwb2ludHM9IjE4IDQgMTIgMTAgMTMuNDEgMTEuNDEgMTcgNy44MyAxNyAyMCAxOSAyMCAxOSA3LjgzIDIyLjU5IDExLjQxIDI0IDEwIDE4IDQiPjwvcG9seWdvbj4KPHJlY3QgeD0iOCIgeT0iMTgiIHdpZHRoPSI3IiBoZWlnaHQ9IjIiPjwvcmVjdD4KPHJlY3QgeD0iOCIgeT0iMjIiIHdpZHRoPSIxNiIgaGVpZ2h0PSIyIj48L3JlY3Q+CjxyZWN0IHg9IjgiIHk9IjI2IiB3aWR0aD0iMTYiIGhlaWdodD0iMiI+PC9yZWN0Pgo8cmVjdCBpZD0iX1RyYW5zcGFyZW50X1JlY3RhbmdsZV8iIGRhdGEtbmFtZT0iJmx0O1RyYW5zcGFyZW50IFJlY3RhbmdsZSZndDsiIGNsYXNzPSJjbHMtMSIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48L3JlY3Q+CjwvZz4KPC9zdmc+"}' \
+    mold -run cargo watch --workdir /workspace/ \
+        -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
+        -w crates/web-server -w crates/db -w crates/web-assets/dist \
+        -w crates/web-assets/images -w crates/web-assets/typescript \
+        -w crates/web-assets/scss -w crates/web-assets/index.ts \
+        -w crates/web-assets/input.css \
+        --no-gitignore -x "run --bin web-server"
+
 wp:
     npm install --prefix /workspace/crates/web-assets && npm run start --prefix /workspace/crates/web-assets
 
