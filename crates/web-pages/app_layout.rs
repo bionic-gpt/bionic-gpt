@@ -65,24 +65,26 @@ pub fn Layout(props: LayoutProps) -> Element {
                 {props.header}
             ),
             sidebar: rsx!(
-                NavGroup {
-                    heading: "Generative AI",
-                    content:  rsx!(
-                        NavItem {
-                            id: SideBar::Console.to_string(),
-                            selected_item_id: props.selected_item.to_string(),
-                            href: super::routes::console::Index { team_id: props.team_id },
-                            icon: nav_service_requests_svg.name,
-                            title: "Chat"
-                        }
-                        NavItem {
-                            id: SideBar::History.to_string(),
-                            selected_item_id: props.selected_item.to_string(),
-                            href: super::routes::history::Index { team_id: props.team_id },
-                            icon: nav_history_svg.name,
-                            title: "Chat History"
-                        }
-                    )
+                if props.rbac.can_view_chats() {
+                    NavGroup {
+                        heading: "Generative AI",
+                        content:  rsx!(
+                            NavItem {
+                                id: SideBar::Console.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::console::Index { team_id: props.team_id },
+                                icon: nav_service_requests_svg.name,
+                                title: "Chat"
+                            }
+                            NavItem {
+                                id: SideBar::History.to_string(),
+                                selected_item_id: props.selected_item.to_string(),
+                                href: super::routes::history::Index { team_id: props.team_id },
+                                icon: nav_history_svg.name,
+                                title: "Chat History"
+                            }
+                        )
+                    }
                 }
                 if props.rbac.can_view_datasets() || props.rbac.can_view_integrations() {
                     NavGroup {
@@ -138,12 +140,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     title: "Automations"
                                 }
                             }
-                            NavItem {
-                                id: SideBar::DocumentPipelines.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::document_pipelines::Index { team_id: props.team_id },
-                                icon: nav_ccsds_data_svg.name,
-                                title: "Document Pipelines"
+                            if props.rbac.can_manage_document_pipelines() {
+                                NavItem {
+                                    id: SideBar::DocumentPipelines.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::document_pipelines::Index { team_id: props.team_id },
+                                    icon: nav_ccsds_data_svg.name,
+                                    title: "Document Pipelines"
+                                }
                             }
                         )
                     }
