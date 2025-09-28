@@ -13,3 +13,10 @@ pub fn integrations() -> &'static str {
         _ => "Integrations",
     }
 }
+
+pub fn integration() -> &'static str {
+    match Licence::global().default_lang.as_str() {
+        "en-US" => "MCP Server",
+        _ => "Integration",
+    }
+}
