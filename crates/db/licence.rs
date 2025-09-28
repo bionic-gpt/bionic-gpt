@@ -21,6 +21,8 @@ pub struct Licence {
     pub signature: String,
     pub app_name: String,
     pub app_logo_svg: String,
+    #[serde(default)]
+    pub default_lang: String,
 }
 
 fn deserialize_rfc3339<'de, D>(deserializer: D) -> Result<OffsetDateTime, D::Error>
@@ -43,6 +45,7 @@ impl Default for Licence {
             signature: String::new(),
             app_name: String::new(),
             app_logo_svg: String::new(),
+            default_lang: String::new(),
         }
     }
 }
