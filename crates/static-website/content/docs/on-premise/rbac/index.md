@@ -30,7 +30,7 @@ SELECT enum_range(NULL::permission);
 
 {InvitePeopleToTeam,ViewCurrentTeam,ViewPrompts,ManagePipelines,
 ViewDatasets,ManageDatasets,CreateApiKeys,ViewAuditTrail,SetupMod
-els}
+els,ViewChats,ManageDocumentPipelines}
 ```
 
 ### View all the roles
@@ -49,7 +49,7 @@ bionicgpt=#
 
 ```sql
 bionicgpt=# select * from roles_permissions;
-        role         |     permission     
+        role         |     permission
 ---------------------+--------------------
  TeamManager         | InvitePeopleToTeam
  SystemAdministrator | ViewAuditTrail
@@ -59,7 +59,9 @@ bionicgpt=# select * from roles_permissions;
  Collaborator        | ManageDatasets
  Collaborator        | ViewDatasets
  Collaborator        | CreateApiKeys
-(8 rows)
+ Collaborator        | ViewChats
+ Collaborator        | ManageDocumentPipelines
+(10 rows)
 ```
 
 So finally, any permissions you don't want **Team Collaborators** to have, you could transfer to the **System Administrator**.

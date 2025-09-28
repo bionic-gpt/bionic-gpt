@@ -181,6 +181,10 @@ impl Rbac {
         self.permissions.contains(&Permission::DeleteChat)
     }
 
+    pub fn can_view_chats(&self) -> bool {
+        self.permissions.contains(&Permission::ViewChats)
+    }
+
     pub fn can_make_invitations(&self) -> bool {
         self.permissions.contains(&Permission::InvitePeopleToTeam)
     }
@@ -191,6 +195,11 @@ impl Rbac {
 
     pub fn can_manage_datasets(&self) -> bool {
         self.permissions.contains(&Permission::ManageDatasets)
+    }
+
+    pub fn can_manage_document_pipelines(&self) -> bool {
+        self.permissions
+            .contains(&Permission::ManageDocumentPipelines)
     }
 
     pub fn can_view_prompts(&self) -> bool {
