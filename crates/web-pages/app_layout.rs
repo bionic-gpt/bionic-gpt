@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use super::snackbar::Snackbar;
 use crate::components::logout_form::LogoutForm;
+use crate::i18n;
 use crate::menu::{NavGroup, NavItem};
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
@@ -88,7 +89,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                 }
                 if props.rbac.can_view_datasets() || props.rbac.can_view_integrations() {
                     NavGroup {
-                        heading: "AI Assistants",
+                        heading: i18n::ai_assistants().to_string(),
                         content:  rsx!(
                             if props.rbac.can_view_prompts() {
                                 NavItem {
@@ -105,7 +106,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     selected_item_id: props.selected_item.to_string(),
                                     href: super::routes::integrations::Index { team_id: props.team_id },
                                     icon: nav_audit_svg.name,
-                                    title: "Integrations"
+                                    title: i18n::integrations().to_string()
                                 }
                             }
                             if props.rbac.can_view_datasets() {

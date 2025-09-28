@@ -14,6 +14,7 @@ pub mod console;
 pub mod datasets;
 pub mod documents;
 pub mod history;
+pub mod i18n;
 pub mod integrations;
 pub mod licence;
 pub mod menu;
