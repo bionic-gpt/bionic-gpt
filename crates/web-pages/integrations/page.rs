@@ -15,11 +15,11 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> 
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Integrations",
+            title: crate::i18n::integrations().to_string(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: "Integrations".into(),
+                        text: crate::i18n::integrations().into(),
                         href: Some(crate::routes::integrations::Index { team_id }.to_string())
                     }]
                 }
@@ -37,7 +37,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> 
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
                 SectionIntroduction {
-                    header: "Integrations".to_string(),
+                    header: crate::i18n::integrations().to_string(),
                     subtitle: "Connect external tools to retrieve data, take actions, and more.".to_string(),
                     is_empty: integrations.is_empty(),
                     empty_text: "No integrations have been configured yet. Add your first integration to get started.".to_string(),

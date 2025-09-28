@@ -26,12 +26,12 @@ pub fn view(
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Integrations",
+            title: crate::i18n::integrations().to_string(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                             BreadcrumbItem {
-                            text: "Integrations".into(),
+                            text: crate::i18n::integrations().into(),
                             href: Some(crate::routes::integrations::Index { team_id }.to_string())
                         },
                         BreadcrumbItem {

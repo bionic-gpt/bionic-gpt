@@ -25,11 +25,11 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Integrations",
+            title: crate::i18n::integrations().to_string(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: "Integrations".into(),
+                        text: crate::i18n::integrations().into(),
                         href: None
                     }]
                 }
@@ -37,7 +37,7 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm) -> String {
 
             Card {
                 CardHeader {
-                    title: "Integrations"
+                    title: crate::i18n::integrations().to_string()
                 }
                 CardBody {
                     form {
