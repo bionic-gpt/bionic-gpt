@@ -1,4 +1,6 @@
 #![allow(non_snake_case)]
+use std::borrow::Cow;
+
 use super::snackbar::Snackbar;
 use crate::components::logout_form::LogoutForm;
 use crate::i18n;
@@ -6,6 +8,7 @@ use crate::menu::{NavGroup, NavItem};
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
 use db::authz::Rbac;
+use db::Licence;
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Clone, Eq, Debug)]
@@ -54,13 +57,23 @@ pub fn Layout(props: LayoutProps) -> Element {
 
     let show_automations_menu = std::env::var("AUTOMATIONS_FEATURE").is_ok();
 
+    let licence = Licence::global();
+    let app_logo_src: Cow<'static, str> = if licence.app_logo_svg.is_empty() {
+        Cow::Borrowed(bionic_logo_svg.name)
+    } else {
+        Cow::Owned(format!(
+            "data:image/svg+xml;base64,{}",
+            licence.app_logo_svg
+        ))
+    };
+
     rsx! {
         super::base_layout::BaseLayout {
             title: props.title,
             stylesheets: stylesheets,
             js_href: index_js.name,
             section_class: props.section_class,
-            fav_icon_src: bionic_logo_svg.name,
+            fav_icon_src: app_logo_src,
             collapse_svg_src: collapse_svg.name,
             header: rsx!(
                 {props.header}
