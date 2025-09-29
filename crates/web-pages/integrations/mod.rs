@@ -9,5 +9,6 @@ pub mod oauth2_cards;
 pub mod oauth_connect_button;
 pub mod page;
 pub mod parameter_renderer;
+pub mod select;
 pub mod upsert;
 pub mod view;

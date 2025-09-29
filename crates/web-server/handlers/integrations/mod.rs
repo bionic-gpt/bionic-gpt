@@ -14,7 +14,7 @@ pub use configuration_actions::{
     ApiKeyForm,
 };
 pub use helpers::parse_openapi_spec;
-pub use loaders::{edit_loader, loader, new_loader, view_loader};
+pub use loaders::{edit_loader, loader, new_loader, select_loader, view_loader};
 
 pub fn routes() -> Router {
     Router::new()
@@ -22,6 +22,7 @@ pub fn routes() -> Router {
         .typed_get(loader)
         .typed_get(view_loader)
         .typed_get(new_loader)
+        .typed_get(select_loader)
         .typed_get(edit_loader)
         // Actions
         .typed_post(new_action)

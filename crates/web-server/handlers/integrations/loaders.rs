@@ -3,11 +3,16 @@ use axum::extract::Extension;
 use axum::response::Html;
 use axum::response::IntoResponse;
 use db::{authz, queries, Pool};
+use include_dir::{include_dir, Dir};
 use integrations::bionic_openapi::BionicOpenAPI;
+use serde_json::Value;
 use web_pages::integrations::integration_card::IntegrationSummary;
+use web_pages::integrations::select::PrebuiltSpec;
 use web_pages::integrations::upsert::IntegrationForm;
 use web_pages::routes::integrations::View;
-use web_pages::routes::integrations::{Edit, Index, New};
+use web_pages::routes::integrations::{Edit, Index, New, Select};
+
+static PREBUILT_SPECS: Dir = include_dir!("$CARGO_MANIFEST_DIR/../mcp/specs");
 
 pub async fn loader(
     Index { team_id }: Index,
@@ -202,6 +207,70 @@ pub async fn new_loader(
     };
 
     let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
+
+    Ok(Html(html))
+}
+
+pub async fn select_loader(
+    Select { team_id }: Select,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<Html<String>, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    let mut specs: Vec<PrebuiltSpec> = PREBUILT_SPECS
+        .files()
+        .filter_map(|file| file.contents_utf8().map(|contents| (file, contents)))
+        .filter_map(|(file, contents)| {
+            serde_json::from_str::<Value>(contents)
+                .map_err(|error| {
+                    tracing::warn!("Failed to parse spec {}: {}", file.path().display(), error);
+                    error
+                })
+                .ok()
+                .and_then(|value| {
+                    let title = value
+                        .get("info")
+                        .and_then(|info| info.get("title"))
+                        .and_then(|title| title.as_str())
+                        .map(|title| title.to_string())
+                        .or_else(|| {
+                            file.path()
+                                .file_stem()
+                                .map(|stem| stem.to_string_lossy().to_string())
+                        });
+
+                    title.map(|title| {
+                        let description = value
+                            .get("info")
+                            .and_then(|info| info.get("description"))
+                            .and_then(|desc| desc.as_str())
+                            .map(|desc| desc.to_string());
+
+                        let spec_json =
+                            serde_json::to_string(&value).unwrap_or_else(|_| contents.to_string());
+
+                        PrebuiltSpec {
+                            file_name: file
+                                .path()
+                                .file_stem()
+                                .map(|stem| stem.to_string_lossy().to_string())
+                                .unwrap_or_else(|| "integration".to_string()),
+                            title,
+                            description,
+                            spec_json,
+                        }
+                    })
+                })
+        })
+        .collect();
+
+    specs.sort_by(|a, b| a.title.cmp(&b.title));
+
+    let html = web_pages::integrations::select::page(team_id, rbac, specs);
 
     Ok(Html(html))
 }

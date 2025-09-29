@@ -399,6 +399,12 @@ pub mod integrations {
     }
 
     #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/integrations/select")]
+    pub struct Select {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/edit/{id}")]
     pub struct Edit {
         pub team_id: i32,
