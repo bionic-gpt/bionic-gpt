@@ -3,7 +3,8 @@
   "info": {
     "title": "Reddit API",
     "version": "v1",
-    "description": "Community-maintained Reddit API endpoints."
+    "description": "Community-maintained Reddit API endpoints.",
+    "x-bionic-slug": "reddit"
   },
   "servers": [
     {
