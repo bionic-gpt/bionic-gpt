@@ -10,6 +10,7 @@ pub mod documents;
 pub mod history;
 pub mod integrations;
 pub mod licence;
+pub mod mcp;
 pub mod metrics;
 pub mod models;
 pub mod my_assistants;

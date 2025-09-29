@@ -5485,6 +5485,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "url",
+ "uuid",
  "validator",
  "web-pages",
 ]
