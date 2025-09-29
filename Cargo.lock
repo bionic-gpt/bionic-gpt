@@ -5228,6 +5228,7 @@ version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "458f7a779bf54acc9f347480ac654f68407d3aab21269a6e3c9f922acd9e2da9"
 dependencies = [
+ "getrandom 0.3.2",
  "serde",
 ]
 
@@ -5461,10 +5462,13 @@ dependencies = [
  "db",
  "embeddings-api",
  "http 1.1.0",
+ "http-body-util",
+ "hyper 1.6.0",
  "include_dir",
  "integrations",
  "lettre",
  "llm-proxy",
+ "mcp",
  "mime",
  "oas3",
  "oauth2",

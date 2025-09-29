@@ -21,6 +21,7 @@ assets = { path = "../web-assets" }
 web-pages = { path = "../web-pages" }
 embeddings-api = { path = "../embeddings-api" }
 openai-api = { path = "../openai-api" }
+mcp = { path = "../mcp" }
 
 axum = { version = "0.8", features = ["multipart"] }
 axum-extra = { version = "0.10.0", features = ["form", "typed-routing", "cookie"] }
@@ -55,8 +56,10 @@ chrono = { version = "0.4", features = ["serde"] }
 time = { version = "0.3", features = ["serde"] }
 url = "2.4"
 include_dir = "0.7"
-uuid = { version = "1", features = ["serde"] }
+uuid = { version = "1", features = ["serde", "v4"] }
 
 [dev-dependencies]
 time = "0.3.36"
+hyper = "1"
+http-body-util = "0.1"
 

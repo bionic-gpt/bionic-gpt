@@ -1,6 +1,9 @@
 --: Oauth2Connection()
 --: ApiKeyConnection()
 --: Oauth2RefreshCandidate(connection_id, integration_id, user_id, team_id, refresh_token?, expires_at?, definition?)
+--: McpConnectionContext(connection_type, connection_id, integration_id, user_id, user_openid_sub?, definition?)
+--: McpApiKeySecret(connection_id, integration_id, user_id, user_openid_sub?, api_key?, definition?)
+--: McpOauth2Secret(connection_id, integration_id, user_id, user_openid_sub?, access_token?, refresh_token?, expires_at?, definition?)
 
 --! insert_oauth2_connection(refresh_token?, expires_at?)
 INSERT INTO oauth2_connections (
@@ -88,3 +91,74 @@ WHERE team_id = :team_id AND integration_id = :integration_id;
 SELECT id, integration_id, user_id, team_id, visibility, external_id, expires_at, scopes, created_at
 FROM oauth2_connections
 WHERE team_id = :team_id AND integration_id = :integration_id;
+
+--! mcp_connection_context : McpConnectionContext
+SELECT
+    ctx.connection_type,
+    ctx.connection_id,
+    ctx.integration_id,
+    ctx.user_id,
+    ctx.user_openid_sub,
+    ctx.definition
+FROM (
+    SELECT
+        'api_key'::text AS connection_type,
+        c.id AS connection_id,
+        c.integration_id,
+        c.user_id,
+        u.openid_sub AS user_openid_sub,
+        i.definition
+    FROM integrations i
+    JOIN api_key_connections c ON c.integration_id = i.id
+    JOIN users u ON u.id = c.user_id
+    WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
+      AND c.external_id = :external_id
+
+    UNION ALL
+
+    SELECT
+        'oauth2'::text AS connection_type,
+        c.id AS connection_id,
+        c.integration_id,
+        c.user_id,
+        u.openid_sub AS user_openid_sub,
+        i.definition
+    FROM integrations i
+    JOIN oauth2_connections c ON c.integration_id = i.id
+    JOIN users u ON u.id = c.user_id
+    WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
+      AND c.external_id = :external_id
+) AS ctx
+LIMIT 1;
+
+--! mcp_api_key_connection_secret : McpApiKeySecret
+SELECT
+    c.id AS connection_id,
+    c.integration_id,
+    c.user_id,
+    u.openid_sub AS user_openid_sub,
+    decrypt_text(c.api_key) AS api_key,
+    i.definition
+FROM integrations i
+JOIN api_key_connections c ON c.integration_id = i.id
+JOIN users u ON u.id = c.user_id
+WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
+  AND c.external_id = :external_id
+LIMIT 1;
+
+--! mcp_oauth2_connection_secret : McpOauth2Secret
+SELECT
+    c.id AS connection_id,
+    c.integration_id,
+    c.user_id,
+    u.openid_sub AS user_openid_sub,
+    decrypt_text(c.access_token) AS access_token,
+    decrypt_text(c.refresh_token) AS refresh_token,
+    c.expires_at,
+    i.definition
+FROM integrations i
+JOIN oauth2_connections c ON c.integration_id = i.id
+JOIN users u ON u.id = c.user_id
+WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
+  AND c.external_id = :external_id
+LIMIT 1;
