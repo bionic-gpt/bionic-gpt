@@ -12,6 +12,7 @@ pub struct PrebuiltSpec {
     pub title: String,
     pub description: Option<String>,
     pub spec_json: String,
+    pub logo_data_url: Option<String>,
 }
 
 pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
@@ -65,6 +66,16 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
                                     }
                                     CardBody {
                                         class: "flex-1 flex flex-col gap-4",
+                                        if let Some(logo_url) = spec.logo_data_url.clone() {
+                                            div {
+                                                class: "flex justify-center",
+                                                img {
+                                                    class: "h-16 w-auto object-contain",
+                                                    src: "{logo_url}",
+                                                    alt: format!("{} logo", spec.title),
+                                                }
+                                            }
+                                        }
                                         if let Some(description) = spec.description.clone() {
                                             p {
                                                 class: "text-sm text-base-content/80",

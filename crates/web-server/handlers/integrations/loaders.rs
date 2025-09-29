@@ -250,6 +250,16 @@ pub async fn select_loader(
                             .and_then(|desc| desc.as_str())
                             .map(|desc| desc.to_string());
 
+                        let logo_data_url = value
+                            .get("info")
+                            .and_then(|info| info.get("x-logo"))
+                            .and_then(|logo| {
+                                logo.get("url")
+                                    .and_then(|url| url.as_str())
+                                    .map(|url| url.to_string())
+                                    .or_else(|| logo.as_str().map(|url| url.to_string()))
+                            });
+
                         let spec_json =
                             serde_json::to_string(&value).unwrap_or_else(|_| contents.to_string());
 
@@ -262,6 +272,7 @@ pub async fn select_loader(
                             title,
                             description,
                             spec_json,
+                            logo_data_url,
                         }
                     })
                 })
