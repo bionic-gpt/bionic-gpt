@@ -10,7 +10,7 @@ use db::authz::Rbac;
 use dioxus::prelude::*;
 
 pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> String {
-    let button_name = format!("Add {}", i18n::integration());
+    let button_name = format!("Select {}", i18n::integration());
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -29,7 +29,7 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> 
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::integrations::New{team_id}.to_string(),
+                        href: routes::integrations::Select { team_id }.to_string(),
                         button_scheme: ButtonScheme::Primary,
                         "{button_name}"
                     }
