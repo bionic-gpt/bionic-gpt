@@ -55,6 +55,7 @@ chrono = { version = "0.4", features = ["serde"] }
 time = { version = "0.3", features = ["serde"] }
 url = "2.4"
 include_dir = "0.7"
+uuid = { version = "1", features = ["serde"] }
 
 [dev-dependencies]
 time = "0.3.36"
