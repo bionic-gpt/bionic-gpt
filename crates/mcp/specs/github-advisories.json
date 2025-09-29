@@ -3,7 +3,8 @@
   "info": {
     "title": "GitHub Global Security Advisories API",
     "version": "2022-11-28",
-    "description": "API to view global security advisories from the GitHub Advisory Database."
+    "description": "API to view global security advisories from the GitHub Advisory Database.",
+    "x-bionic-slug": "github-adv"
   },
   "servers": [
     {

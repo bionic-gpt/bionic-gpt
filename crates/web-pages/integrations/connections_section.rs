@@ -21,6 +21,7 @@ pub fn ConnectionsSection(
 ) -> Element {
     let has_api_key = openapi.has_api_key_security();
     let has_oauth2 = openapi.has_oauth2_security();
+    let mcp_slug = openapi.get_mcp_slug();
 
     if !has_api_key && !has_oauth2 {
         return rsx! {
@@ -68,7 +69,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {ApiKeyCards(team_id, integration_id, api_key_connections)}
+                        {ApiKeyCards(team_id, integration_id, mcp_slug.clone(), api_key_connections)}
                     }
                 }
             }
@@ -108,7 +109,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {Oauth2Cards(team_id, integration_id, oauth2_connections)}
+                        {Oauth2Cards(team_id, integration_id, mcp_slug.clone(), oauth2_connections)}
                     }
                 }
             }

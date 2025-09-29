@@ -75,6 +75,17 @@ impl BionicOpenAPI {
             .map(|url| url.to_string())
     }
 
+    /// Retrieve the MCP slug from the OpenAPI specification extensions.
+    pub fn get_mcp_slug(&self) -> Option<String> {
+        self.spec
+            .info
+            .extensions
+            .get("bionic-slug")
+            .and_then(|slug| slug.as_str())
+            .filter(|slug| !slug.trim().is_empty())
+            .map(|slug| slug.to_string())
+    }
+
     /// Create tool definitions from the OpenAPI specification
     pub fn create_tool_definitions(&self) -> IntegrationTools {
         let mut tool_definitions: Vec<BionicToolDefinition> = vec![];

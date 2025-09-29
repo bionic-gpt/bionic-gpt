@@ -10,6 +10,7 @@ use dioxus::prelude::*;
 pub fn ApiKeyCards(
     team_id: i32,
     integration_id: i32,
+    mcp_slug: Option<String>,
     connections: Vec<ApiKeyConnection>,
 ) -> Element {
     rsx! {
@@ -18,6 +19,11 @@ pub fn ApiKeyCards(
             for connection in connections {
                 {
                     let popover_target = format!("delete-api-key-{}", connection.id);
+                    let slug_modal = mcp_slug.clone().map(|slug| {
+                        let modal_id = format!("mcp-url-api-{}", connection.id);
+                        let mcp_url = format!("/v1/mcp/{}/{}", slug, connection.external_id);
+                        (modal_id, mcp_url)
+                    });
                     rsx! {
                         Card {
                             key: "{connection.id}",
@@ -39,7 +45,41 @@ pub fn ApiKeyCards(
                                     }
                                 }
                                 div {
-                                    class: "flex flex-col justify-center",
+                                    class: "flex flex-col justify-center items-end gap-2",
+                                    if let Some((modal_id, mcp_url)) = slug_modal {
+                                        Button {
+                                            popover_target: modal_id.clone(),
+                                            button_style: ButtonStyle::Outline,
+                                            button_scheme: ButtonScheme::Primary,
+                                            button_size: ButtonSize::Small,
+                                            "View MCP URL"
+                                        }
+                                        Modal {
+                                            trigger_id: &modal_id,
+                                            ModalBody {
+                                                h3 {
+                                                    class: "font-bold text-lg mb-2",
+                                                    "Machine Connection Protocol URL"
+                                                }
+                                                p {
+                                                    class: "text-sm text-base-content/70 mb-3",
+                                                    "Use this URL to connect your MCP client to this API key connection."
+                                                }
+                                                pre {
+                                                    class: "bg-base-200 rounded p-3 text-sm break-all",
+                                                    "{mcp_url}"
+                                                }
+                                                ModalAction {
+                                                    Button {
+                                                        class: "cancel-modal",
+                                                        button_scheme: ButtonScheme::Primary,
+                                                        button_size: ButtonSize::Small,
+                                                        "Close"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     Button {
                                         prefix_image_src: "{menu_delete_svg.name}",
                                         popover_target: popover_target.clone(),

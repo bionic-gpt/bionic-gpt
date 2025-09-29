@@ -6,7 +6,8 @@
     "description": "Returns current Bitcoin price in various currencies.",
     "x-logo": {
       "url": "data:image/svg+xml;base64,ICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjQ4IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+CiAgICBCCiAgPC90ZXh0Pgo8L3N2Zz4="
-    }
+    },
+    "x-bionic-slug": "blockchain"
   },
   "servers": [
     {
