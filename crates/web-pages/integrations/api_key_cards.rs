@@ -65,8 +65,10 @@ pub fn ApiKeyCards(
                                                     class: "text-sm text-base-content/70 mb-3",
                                                     "Use this URL to connect your MCP client to this API key connection."
                                                 }
-                                                pre {
-                                                    class: "bg-base-200 rounded p-3 text-sm break-all",
+                                                textarea {
+                                                    class: "textarea textarea-bordered w-full text-sm font-mono bg-base-200",
+                                                    readonly: true,
+                                                    rows: "3",
                                                     "{mcp_url}"
                                                 }
                                                 ModalAction {
