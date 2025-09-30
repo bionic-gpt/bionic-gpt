@@ -5,6 +5,7 @@ pub mod connections_section;
 pub mod integration_card;
 pub mod integration_header;
 pub mod integration_type;
+pub mod mcp_url_modal;
 pub mod oauth2_cards;
 pub mod oauth_connect_button;
 pub mod page;

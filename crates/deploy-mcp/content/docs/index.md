@@ -25,5 +25,6 @@ Here you need to add API keys from the relevant provider or use Oauth2. In the c
 
 ## 4. Get your MCP server URL
 
-Ship changes through staging environments, set usage guardrails, and track every interaction from the activity feed. When
-you are ready to scale, Deploy auto-tunes infrastructure so your assistants stay fast and reliable.
+![Alt text](mcp-connection-url.png "MCP Connection URL")
+
+You can now add the URL to the remote MCP servers section in your client.
