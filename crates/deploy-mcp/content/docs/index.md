@@ -1,24 +1,29 @@
-# Getting started with Deploy
+# Run Your First MCP Server
 
-Deploy gives platform teams a managed runtime for building and operating AI assistants. This quickstart walks through the
-core steps to launch your first workflow.
+Deploy lets you run MCP servers on our infrastructure and takes away the pain of authentication and resource management.
 
-## 1. Create a project
+## 1. From the MCP Servers
 
-1. Sign in to the Deploy console and create a new project.
-2. Invite teammates so they can configure data sources and monitor runs.
+Select the option to "Select MCP Server"
 
-## 2. Connect your knowledge
+![Alt text](mcp-servers.png "MCP Servers")
 
-Use Deploy connectors to sync documents from S3, SharePoint, or your product knowledge base. Deploy handles chunking and
-embeddings so the data is ready for retrieval immediately.
 
-## 3. Design assistant workflows
+## 2. Select an MCP Server
 
-Compose assistants from steps like retrieval, function calling, and evaluation. Deploy lets you mix and match models from
-OpenAI, Anthropic, and self-hosted runtimes.
+Run a server by clicking the "Run MCP Server" button.
 
-## 4. Launch with confidence
+![Alt text](select-server.png "MCP Servers")
+
+You can choose any but for this case let's choose the Blockchain MCP server.
+
+## 3. Connect and Configure your MCP Server
+
+![Alt text](configure-server.png "Configure MCP Servers")
+
+Here you need to add API keys from the relevant provider or use Oauth2. In the case of the Blockchain MCP server you can enter anything as an API key.
+
+## 4. Get your MCP server URL
 
 Ship changes through staging environments, set usage guardrails, and track every interaction from the activity feed. When
 you are ready to scale, Deploy auto-tunes infrastructure so your assistants stay fast and reliable.
