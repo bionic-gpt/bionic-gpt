@@ -28,6 +28,9 @@ static RESOLVER_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
 const JSONRPC_VERSION: &str = "2.0";
 const DEFAULT_PROTOCOL_VERSION: &str = "2024-05-30";
+const SUPPORTED_PROTOCOL_VERSIONS: &[&str] = &[DEFAULT_PROTOCOL_VERSION, "2025-06-18"];
+const SERVER_NAME: &str = env!("CARGO_PKG_NAME");
+const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/v1/mcp/{slug}/{connection_id}")]
@@ -111,6 +114,24 @@ struct ToolCallParams {
     arguments: Value,
 }
 
+#[derive(Default, Deserialize)]
+struct InitializeParams {
+    #[serde(rename = "protocolVersion")]
+    protocol_version: Option<String>,
+    #[serde(default, rename = "capabilities")]
+    _capabilities: Value,
+    #[serde(rename = "clientInfo")]
+    _client_info: Option<ClientInfo>,
+}
+
+#[derive(Deserialize)]
+struct ClientInfo {
+    #[serde(rename = "name")]
+    _name: String,
+    #[serde(default, rename = "version")]
+    _version: Option<String>,
+}
+
 #[cfg_attr(test, derive(Clone))]
 struct IntegrationContext {
     definition: Value,
@@ -175,6 +196,17 @@ fn default_params() -> Value {
 
 fn default_arguments() -> Value {
     Value::Object(Map::new())
+}
+
+fn negotiate_protocol_version(requested: Option<&str>) -> Result<&'static str, String> {
+    match requested {
+        Some(version) => SUPPORTED_PROTOCOL_VERSIONS
+            .iter()
+            .copied()
+            .find(|supported| *supported == version)
+            .ok_or_else(|| format!("Unsupported protocol version: {}", version)),
+        None => Ok(DEFAULT_PROTOCOL_VERSION),
+    }
 }
 
 pub async fn handle_json_rpc(
@@ -345,6 +377,52 @@ pub async fn handle_json_rpc(
     let tool_definitions = openapi.create_tool_definitions();
 
     match request.method.as_str() {
+        "initialize" => {
+            let params: InitializeParams = match serde_json::from_value(request.params.clone()) {
+                Ok(p) => p,
+                Err(err) => {
+                    let response = JsonRpcResponse::failure(
+                        request_id.clone(),
+                        -32602,
+                        "Invalid parameters for initialize".to_string(),
+                        Some(json!({ "details": err.to_string() })),
+                    );
+                    return Ok(json_response(response));
+                }
+            };
+
+            let negotiated_protocol =
+                match negotiate_protocol_version(params.protocol_version.as_deref()) {
+                    Ok(version) => version,
+                    Err(message) => {
+                        let response =
+                            JsonRpcResponse::failure(request_id.clone(), -32602, message, None);
+                        return Ok(json_response(response));
+                    }
+                };
+
+            let response = JsonRpcResponse::success(
+                request_id.clone(),
+                json!({
+                    "protocolVersion": negotiated_protocol,
+                    "capabilities": {
+                        "tools": {
+                            "listChanged": false
+                        }
+                    },
+                    "serverInfo": {
+                        "name": SERVER_NAME,
+                        "version": SERVER_VERSION,
+                    },
+                    "metadata": {
+                        "integrationId": context.integration_id,
+                        "connectionId": context.connection.internal_id(),
+                        "slug": slug,
+                    }
+                }),
+            );
+            Ok(json_response(response))
+        }
         "session.initialize" => {
             let response = JsonRpcResponse::success(
                 request_id.clone(),
@@ -744,7 +822,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn initialize_returns_capabilities() {
+    async fn session_initialize_returns_capabilities() {
         let pool = create_test_pool();
         let slug = "test".to_string();
         let connection_id = Uuid::new_v4();
@@ -803,6 +881,79 @@ mod tests {
             false
         );
         assert_eq!(json["result"]["metadata"]["integrationId"], 7);
+    }
+
+    #[tokio::test]
+    async fn initialize_returns_server_info() {
+        let pool = create_test_pool();
+        let slug = "test".to_string();
+        let connection_id = Uuid::new_v4();
+        let spec = sample_spec("http://example.com", &slug);
+
+        let context = IntegrationContext {
+            definition: spec,
+            integration_id: 12,
+            user_id: 44,
+            user_openid_sub: Some("user-7".to_string()),
+            connection: ConnectionAuth::ApiKey {
+                connection_id: 88,
+                api_key: "stu".to_string(),
+            },
+        };
+
+        let slug_for_guard = slug.clone();
+        let _guard = ResolverGuard::new(move |requested_slug, requested_id| {
+            assert_eq!(requested_slug, slug_for_guard);
+            assert_eq!(requested_id, connection_id);
+            context.clone()
+        });
+
+        let app = test_router(pool.clone());
+
+        let payload = json!({
+            "jsonrpc": "2.0",
+            "id": 99,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {
+                    "elicitation": {}
+                },
+                "clientInfo": {
+                    "name": "example-client",
+                    "version": "1.0.0"
+                }
+            }
+        });
+
+        let response = app
+            .oneshot(
+                axum::http::Request::builder()
+                    .method("POST")
+                    .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
+                    .header("content-type", "application/json")
+                    .body(axum::body::Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        let json: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(json["result"]["protocolVersion"], "2025-06-18");
+        assert_eq!(
+            json["result"]["capabilities"]["tools"]["listChanged"],
+            false
+        );
+        assert_eq!(json["result"]["serverInfo"]["name"], SERVER_NAME);
+        assert_eq!(json["result"]["serverInfo"]["version"], SERVER_VERSION);
+        assert_eq!(json["result"]["metadata"]["integrationId"], 12);
     }
 
     #[tokio::test]
