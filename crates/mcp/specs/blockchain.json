@@ -39,6 +39,14 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Use the format `Authorization: Bearer <API_KEY>`"
+      }
+    },
     "schemas": {
       "CurrencyInfo": {
         "type": "object",
