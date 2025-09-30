@@ -40,7 +40,7 @@ pub fn routes() -> Router {
     Router::new().typed_post(handle_json_rpc)
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct JsonRpcRequest {
     #[serde(default = "default_jsonrpc", rename = "jsonrpc")]
     jsonrpc: String,
@@ -51,7 +51,7 @@ struct JsonRpcRequest {
     params: Value,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct JsonRpcResponse {
     jsonrpc: &'static str,
     id: Value,
@@ -85,7 +85,7 @@ impl JsonRpcResponse {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct JsonRpcError {
     code: i32,
     message: String,
@@ -185,7 +185,10 @@ pub async fn handle_json_rpc(
     Extension(pool): Extension<Pool>,
     Json(payload): Json<Value>,
 ) -> Result<Response, CustomError> {
+    tracing::debug!("{:?}", payload);
+
     if payload.get("id").is_none() {
+        tracing::debug!("Payload doesn't have an id");
         return Ok(StatusCode::NO_CONTENT.into_response());
     }
 
@@ -598,6 +601,7 @@ fn resolve_integration_context<'a>(
 }
 
 fn json_response(response: JsonRpcResponse) -> Response {
+    tracing::debug!("{:?}", response);
     (StatusCode::OK, Json(response)).into_response()
 }
 
@@ -608,7 +612,6 @@ fn arguments_to_string(value: Value) -> Result<String, serde_json::Error> {
     }
 }
 
-#[cfg(test)]
 #[cfg(test)]
 fn maybe_mock_resolver(slug: &str, connection_id: Uuid) -> Option<IntegrationContext> {
     let lock = MOCK_RESOLVER.get_or_init(|| Mutex::new(None));
@@ -1092,6 +1095,9 @@ mod tests {
             .to_bytes();
         let json: Value = serde_json::from_slice(&body).unwrap();
         assert_eq!(json["error"]["code"], -32602);
-        assert_eq!(json["error"]["message"], "Invalid parameters for tools/call");
+        assert_eq!(
+            json["error"]["message"],
+            "Invalid parameters for tools/call"
+        );
     }
 }
