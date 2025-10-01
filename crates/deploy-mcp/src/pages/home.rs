@@ -92,6 +92,7 @@ pub fn home_page() -> String {
         Layout {
             title: "Deploy".to_string(),
             description: "Deploy helps platform teams launch AI assistants with governance and observability.".to_string(),
+            url: Some("https://deploy.run/".to_string()),
             section: crate::components::navigation::Section::Home,
             mobile_menu: None,
             image: Some("https://placehold.co/1200x630".to_string()),

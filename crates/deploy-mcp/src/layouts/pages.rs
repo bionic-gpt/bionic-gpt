@@ -12,6 +12,7 @@ pub fn MarkdownPage(post: Page) -> Element {
         Layout {
             title: "{post.title}",
             description: "{post.description}",
+            url: Some(post.permalink()),
             section: Section::None,
             article {
                 class: "mx-auto max-w-2xl p-5",

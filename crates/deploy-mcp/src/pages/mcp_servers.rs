@@ -330,6 +330,7 @@ pub fn index_page(integrations: &[IntegrationSpec]) -> String {
         Layout {
             title: "Managed MCP Servers | Deploy".to_string(),
             description: "Discover managed MCP servers maintained by Deploy for production AI assistants.".to_string(),
+            url: Some("https://deploy.run/mcp-servers".to_string()),
             section: Section::McpServers,
             mobile_menu: None,
             image: None,
@@ -397,6 +398,7 @@ pub fn detail_page(integration: &IntegrationSpec) -> String {
         Layout {
             title: format!("{} | MCP Server | Deploy", integration.title),
             description: description.to_string(),
+            url: Some(format!("https://deploy.run{}", integration.detail_path())),
             section: Section::McpServers,
             mobile_menu: None,
             image: integration.logo_url.clone(),

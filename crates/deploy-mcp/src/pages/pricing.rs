@@ -65,6 +65,7 @@ pub fn pricing_page() -> String {
         Layout {
             title: "Deploy Pricing".to_string(),
             description: "Choose a Deploy plan that fits your automation roadmap.".to_string(),
+            url: Some("https://deploy.run/pricing".to_string()),
             section: crate::components::navigation::Section::Pricing,
             mobile_menu: None,
             image: None,

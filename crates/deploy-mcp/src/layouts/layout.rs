@@ -4,14 +4,28 @@ use crate::components::navigation::Section;
 use crate::routes::{blog, docs, marketing};
 use dioxus::prelude::*;
 
+const BASE_URL: &str = "https://deploy.run";
+
 #[derive(Props, Clone, PartialEq)]
 pub struct LayoutProps {
     pub title: String,
     pub description: String,
     pub image: Option<String>,
+    pub url: Option<String>,
     pub children: Element,
     pub mobile_menu: Option<Element>,
     pub section: Section,
+}
+
+fn absolute_url(value: &str) -> String {
+    if value.starts_with("http://") || value.starts_with("https://") {
+        value.to_string()
+    } else if value.starts_with('/') {
+        format!("{BASE_URL}{value}")
+    } else {
+        let trimmed = value.trim_start_matches('/');
+        format!("{BASE_URL}/{trimmed}")
+    }
 }
 
 fn nav_link(current: Section, target: Section, href: &str, label: &str) -> Element {
@@ -51,10 +65,13 @@ pub fn Layout(mut props: LayoutProps) -> Element {
     ];
 
     let mobile_menu = props.mobile_menu.take();
-    let image = props
+    let image_path = props
         .image
         .clone()
         .unwrap_or_else(|| "/open-graph.png".to_string());
+    let image_meta = absolute_url(&image_path);
+    let page_url = props.url.clone().unwrap_or_else(|| BASE_URL.to_string());
+    let page_url = absolute_url(&page_url);
 
     rsx!(
         head {
@@ -76,8 +93,12 @@ pub fn Layout(mut props: LayoutProps) -> Element {
             meta { property: "og:description", content: "{props.description}" }
             meta { property: "og:type", content: "article" }
             meta { property: "og:site_name", content: "Deploy" }
-            meta { property: "og:image", content: "{image}" }
-            meta { property: "twitter:image", content: "{image}" }
+            meta { property: "og:url", content: "{page_url}" }
+            meta { property: "og:image", content: "{image_meta}" }
+            meta { name: "twitter:card", content: "summary_large_image" }
+            meta { name: "twitter:title", content: "{props.title}" }
+            meta { name: "twitter:description", content: "{props.description}" }
+            meta { property: "twitter:image", content: "{image_meta}" }
             link {
                 rel: "stylesheet",
                 href: "/tailwind.css",

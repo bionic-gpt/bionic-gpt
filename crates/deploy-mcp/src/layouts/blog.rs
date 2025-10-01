@@ -13,6 +13,7 @@ pub fn BlogPost(post: Page) -> Element {
         Layout {
             title: "{post.title}",
             description: "{post.description}",
+            url: Some(post.permalink()),
             image: if image.is_empty() { None } else { Some(image.clone()) },
             section: Section::Blog,
             article {
@@ -77,6 +78,7 @@ pub fn BlogList(summary: Summary) -> Element {
         Layout {
             title: "Deploy Blog",
             description: "Stories, experiments, and lessons from the Deploy team.",
+            url: Some("https://deploy.run/blog".to_string()),
             mobile_menu: None,
             section: Section::Blog,
             section {

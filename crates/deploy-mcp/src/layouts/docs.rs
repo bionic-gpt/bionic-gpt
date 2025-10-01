@@ -12,6 +12,7 @@ pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
         Layout {
             title: "{doc.title}",
             description: "{doc.description}",
+            url: Some(doc.permalink()),
             section: Section::Docs,
             mobile_menu: rsx!(MobileMenu { summary: summary.clone() }),
             div {

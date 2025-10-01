@@ -47,6 +47,7 @@ pub fn contact_page() -> String {
         Layout {
             title: "Contact Deploy".to_string(),
             description: "Connect with the Deploy team to design your AI automation rollout.".to_string(),
+            url: Some("https://deploy.run/contact".to_string()),
             section: crate::components::navigation::Section::Contact,
             mobile_menu: None,
             image: None,
