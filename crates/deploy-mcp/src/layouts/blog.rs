@@ -99,7 +99,7 @@ pub fn BlogList(summary: Summary) -> Element {
                                     a {
                                         href: "/{page.folder}",
                                         if let Some(image) = page.image {
-                                            img { class: "object-cover h-24 w-full", src: image }
+                                            img { class: "object-cover h-48 w-full", src: image }
                                         }
                                     }
                                     div {
