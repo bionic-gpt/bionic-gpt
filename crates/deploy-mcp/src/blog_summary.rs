@@ -6,14 +6,15 @@ pub fn summary() -> Summary {
         categories: vec![Category {
             name: "Launches".to_string(),
             pages: vec![Page {
-                date: "2024-05-07",
-                title: "Launching Deploy",
-                description: "Introducing Deploy, the governance-first AI automation platform.",
-                folder: "blog/launching-deploy/",
-                markdown: include_str!("../content/blog/launching-deploy.md"),
-                image: Some("https://placehold.co/1200x630"),
+                date: "2025-10-01",
+                title: "Deep Dive: The MCP protocol using curl",
+                description:
+                    "ILooking at how the MCP protocol works with LLMs from first principals.",
+                folder: "blog/mcp-explained-with-curl/",
+                markdown: include_str!("../content/blog/mcp-explained-with-curl/index.md"),
+                image: Some("/blog/mcp-explained-with-curl/curl-and-mcp.webp"),
                 author: Some("Alex Rivera"),
-                author_image: Some("https://placehold.co/88x88"),
+                author_image: Some("/blog-authors/alex-rivera.png"),
             }],
         }],
     }
