@@ -1,3 +1,5 @@
+Thanks to [Josh beckman](https://www.joshbeckman.org/blog/practicing/dont-forget-remote-mcp-servers-are-just-curl-calls) for the inspiration for this artice.
+
 ## LLM's and Tool Calls
 
 Modern language models can call external tools when you describe those tools in the request. Before we look at the Model Context Protocol (MCP), let's review a plain chat completion with [Groq](https://groq.com/) to set the baseline.
