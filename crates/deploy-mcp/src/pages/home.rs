@@ -11,31 +11,31 @@ use crate::routes;
 pub fn home_page() -> String {
     let features = vec![
         Feature {
-            title: "Model observability".to_string(),
-            description: "Track latency, cost, and quality with out-of-the-box dashboards."
-                .to_string(),
+            title: "Curated server catalog".to_string(),
+            description:
+                "Launch popular MCP servers—or bring your own binary—with a single click.".to_string(),
             icon: "https://placehold.co/48x48".to_string(),
         },
         Feature {
-            title: "Governed autonomy".to_string(),
-            description: "Deploy assistants with policy controls and scoped credentials."
-                .to_string(),
+            title: "Managed credentials".to_string(),
+            description:
+                "Store API keys and OAuth tokens securely with scoped environment variables per server.".to_string(),
             icon: "https://placehold.co/48x48".to_string(),
         },
         Feature {
-            title: "Unified orchestration".to_string(),
-            description: "Mix commercial and self-hosted models without touching infrastructure."
-                .to_string(),
+            title: "Instant connection URLs".to_string(),
+            description:
+                "Share ready-to-use MCP endpoints with teammates—no networking setup required.".to_string(),
             icon: "https://placehold.co/48x48".to_string(),
         },
     ];
 
     let testimonials = rsx! {
         Testamonials {
-            text1: "Deploy keeps our AI workflows compliant without slowing experimentation.",
-            job1: "Head of Platform", person1: "Jamie", img1: "https://placehold.co/96x96",
-            text2: "We shipped internal copilots twice as fast after moving to Deploy's automation tooling.",
-            job2: "Director of Operations", person2: "Priya", img2: "https://placehold.co/96x96",
+            text1: "Deploy MCP let us spin up the blockchain server we needed for a hackathon in under ten minutes.",
+            job1: "Developer Advocate", person1: "Sasha", img1: "https://placehold.co/96x96",
+            text2: "Sharing Deploy's remote MCP URLs made onboarding our analysts trivial—no local setup required.",
+            job2: "Data Engineer", person2: "Marcus", img2: "https://placehold.co/96x96",
             class: None,
         }
     };
@@ -45,8 +45,8 @@ pub fn home_page() -> String {
             class: "mt-16 grid gap-y-36",
             section { class: "mx-auto lg:max-w-5xl p-6 text-center",
                 Hero {
-                    title: "Safely and Securely deploy MCP servers".to_string(),
-                    subtitle: "Production-ready MCP servers that extend AI capabilities through file access, database connections, API integrations, and other contextual services.".to_string(),
+                    title: "Run managed MCP servers in minutes".to_string(),
+                    subtitle: "Deploy MCP hosts Model Context Protocol servers for you, handles authentication, and gives you shareable connection URLs for any client.".to_string(),
                 }
             }
 
@@ -56,23 +56,36 @@ pub fn home_page() -> String {
             section { class: "mx-auto lg:max-w-5xl p-6",
                 Features {
                     features: features.clone(),
-                    title: "Why teams choose Deploy".to_string(),
-                    description: "The Deploy platform ships with the controls enterprises expect.".to_string(),
+                    title: "Why builders choose Deploy MCP".to_string(),
+                    description: "Everything you need to run Model Context Protocol servers without provisioning infrastructure.".to_string(),
                     class: Some("".to_string()),
                 }
             }
             section { class: "mx-auto lg:max-w-5xl p-6",
                 div {
                     class: "grid gap-6 md:grid-cols-2 items-center",
-                    img { class: "rounded-lg shadow-lg", src: "https://placehold.co/540x360", alt: "Deploy playbooks" }
+                    img { class: "rounded-lg shadow-lg", src: "/docs/mcp-servers.png", alt: "Deploy MCP server catalog" }
                     div {
-                        h2 { class: "text-3xl font-bold", "Automate the boring work" }
-                        p { class: "mt-4 text-lg", "Deploy orchestrates retrieval, function calling, and approvals so assistants can close the loop." }
-                        ul {
-                            class: "mt-6 space-y-2 text-left",
-                            li { "• Trigger workflows from chat, APIs, or scheduled events." }
-                            li { "• Route requests through approval queues when humans need to review." }
-                            li { "• Log every decision so compliance teams stay informed." }
+                        h2 { class: "text-3xl font-bold", "Launch your first server fast" }
+                        p { class: "mt-4 text-lg", "Follow the four-step quickstart from our docs to go from zero to a running MCP endpoint." }
+                        ol {
+                            class: "mt-6 space-y-3 text-left list-decimal list-inside",
+                            li {
+                                strong { "Pick a server." }
+                                " Browse the Deploy catalog and choose a curated MCP server to run."
+                            }
+                            li {
+                                strong { "Configure credentials." }
+                                " Add API keys or OAuth details right in the console—secrets stay scoped to that server."
+                            }
+                            li {
+                                strong { "Provision instantly." }
+                                " Hit \"Run MCP Server\" and Deploy starts the infrastructure for you."
+                            }
+                            li {
+                                strong { "Copy the connection URL." }
+                                " Drop the generated remote URL into your MCP-compatible client and start building."
+                            }
                         }
                     }
                 }
@@ -80,10 +93,10 @@ pub fn home_page() -> String {
             section { class: "mx-auto lg:max-w-5xl p-6", {testimonials} }
         }
         ExtraFooter {
-            title: "See Deploy in action in under five minutes".to_string(),
-            image: "/docs/mcp-servers.png".to_string(),
-            cta: "Get Started".to_string(),
-            cta_url: routes::marketing::Index {}.to_string(),
+            title: "Run your first MCP server with the quickstart".to_string(),
+            image: "/docs/mcp-connection-url.png".to_string(),
+            cta: "Open the docs".to_string(),
+            cta_url: routes::docs::Index {}.to_string(),
         }
         Footer { margin_top: "mt-0" }
     };
@@ -91,11 +104,11 @@ pub fn home_page() -> String {
     let page = rsx! {
         Layout {
             title: "Deploy".to_string(),
-            description: "Deploy helps platform teams launch AI assistants with governance and observability.".to_string(),
+            description: "Deploy MCP hosts Model Context Protocol servers with managed auth and shareable URLs.".to_string(),
             url: Some("https://deploy.run/".to_string()),
             section: crate::components::navigation::Section::Home,
             mobile_menu: None,
-            image: Some("https://placehold.co/1200x630".to_string()),
+            image: Some("/docs/mcp-servers.png".to_string()),
             children: body,
         }
     };
