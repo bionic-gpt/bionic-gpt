@@ -1,12 +1,14 @@
 ## LLM's and Tool Calls
 
-Before we look at MCP we need to understand the concept of tool calls with LLM's. For this I'm using [Groq](https://groq.com/) as they provide a more or less free API which we can access.
+Modern language models can call external tools when you describe those tools in the request. Before we look at the Model Context Protocol (MCP), let's review a plain chat completion with [Groq](https://groq.com/) to set the baseline.
 
-Get yourself an API key from Groq or any provider and store it in an env VAR.
+Grab an API key from Groq (or a compatible OpenAI-style provider) and export it for later use.
 
 ```sh
-export API_KEY=12435......
+export API_KEY=sk-your-key-here
 ```
+
+This first request is a regular chat completion: the model only sees text and there is no tool access yet.
 
 ```sh
 curl https://api.groq.com/openai/v1/chat/completions \
@@ -15,16 +17,16 @@ curl https://api.groq.com/openai/v1/chat/completions \
   -d '{
     "model": "meta-llama/llama-4-maverick-17b-128e-instruct",
     "messages": [
-      {"role": "user", "content": "Whats the price of bitcoin?"}
+      {"role": "user", "content": "What is the current price of bitcoin?"}
     ]
   }'
 ```
 
-```
-{"id":"chatcmpl-8e59efde-ffe3-4dff-8dc9-a9ac0d790475","object":"chat.completion","created":1759303720,"model":"meta-llama/llama-4-maverick-17b-128e-instruct","choices":[{"index":0,"message":{"role":"assistant","content":"The price of Bitcoin is constantly changing, so I'll give you the current price. According to the current data, the price of 1 Bitcoin is around $63,000. However, please note that cryptocurrency prices are highly volatile, and the price may fluctuate rapidly. For the most up-to-date price, I recommend checking a reliable cryptocurrency exchange or a financial website, such as Coinbase, Binance, or Yahoo Finance."},"logprobs":null,"finish_reason":"stop"}],"usage":{"queue_time":0.175443542,"prompt_tokens":16,"prompt_time":0.000240366,"completion_tokens":84,"completion_time":0.126543503,"total_tokens":100,"total_time":0.126783869},"usage_breakdown":null,"system_fingerprint":"fp_565109a0df","x_groq":{"id":"req_01k6farqj0fvbbs5wes79em332"},"service_tier":"on_demand"}
-```
+The response contains the assistant's best guess taken from its training data, plus usage metadata. No live price lookup happens because the model was not allowed to call anything.
 
 ### Adding Tool Call Definitions
+
+To let the model call a tool, we describe the function contract in the `tools` array. The model will decide if it needs to call it, and it will return a `tool_calls` block instead of a final answer when it does.
 
 ```sh
 curl https://api.groq.com/openai/v1/chat/completions \
@@ -33,21 +35,21 @@ curl https://api.groq.com/openai/v1/chat/completions \
   -d '{
     "model": "meta-llama/llama-4-maverick-17b-128e-instruct",
     "messages": [
-      {"role": "user", "content": "Whats the price of bitcoin?"}
+      {"role": "user", "content": "What is the current price of bitcoin?"}
     ],
     "tools": [
       {
         "type": "function",
         "function": {
           "name": "get_bitcoin_price",
-          "description": "Get the current price of Bitcoin in USD.",
+          "description": "Get the current price of Bitcoin in the requested fiat currency.",
           "parameters": {
             "type": "object",
             "properties": {
               "currency": {
                 "type": "string",
                 "enum": ["USD", "EUR", "GBP"],
-                "description": "The fiat currency to convert the price of Bitcoin into"
+                "description": "Fiat currency to quote the price in"
               }
             },
             "required": ["currency"]
@@ -58,48 +60,151 @@ curl https://api.groq.com/openai/v1/chat/completions \
   }'
 ```
 
+This time the JSON response looks like this (edited to show the important bits):
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "tool_calls": [
+          {
+            "id": "tool-call-id",
+            "function": {
+              "name": "get_bitcoin_price",
+              "arguments": "{\"currency\":\"USD\"}"
+            }
+          }
+        ]
+      },
+      "finish_reason": "tool_calls"
+    }
+  ]
+}
 ```
-{"id":"chatcmpl-3cd32d57-0419-4f18-a467-d0ed9127dc3b","object":"chat.completion","created":1759303895,"model":"meta-llama/llama-4-maverick-17b-128e-instruct","choices":[{"index":0,"message":{"role":"assistant","tool_calls":[{"id":"5bqm6jjj7","type":"function","function":{"name":"get_bitcoin_price","arguments":"{\"currency\":\"USD\"}"}}]},"logprobs":null,"finish_reason":"tool_calls"}],"usage":{"queue_time":0.09003323,"prompt_tokens":699,"prompt_time":0.015107538,"completion_tokens":25,"completion_time":0.041136215,"total_tokens":724,"total_time":0.056243753},"usage_breakdown":null,"system_fingerprint":"fp_c527aa4474","x_groq":{"id":"req_01k6fay2gbe1mbvar8nxxm2mt9"},"service_tier":"on_demand"}
-```
 
-### Let's run a Bitcoin MCP server
+The model has stopped so we can run the requested function. Now we need something that can actually resolve `get_bitcoin_price`. That is where MCP comes in.
 
-Use deploy to create an MCP server and retrieve your MCP url.
+### Running a Bitcoin MCP server
 
-### Getting lists of tools from an MCP server
+The Model Context Protocol standardises how tools are exposed to language models. Deploy spins up an MCP server for us; for example the blockchain server exposes a `getTicker` tool. When Deploy finishes provisioning you'll get a base URL such as `http://localhost:7703/v1/mcp/blockchain/<connection-id>`.
+
+### Listing tools from the MCP server
+
+The MCP interface is JSON-RPC. We can enumerate tools to confirm what the server offers.
 
 ```sh
-curl -v \
+curl \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
-  http://localhost:7703/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1
+  http://localhost:7703/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
+  | jq '{tools: [.result.tools[] | {name, description}]}'
 ```
 
-```sh
-{"jsonrpc":"2.0","id":1,"result":{"tools":[{"description":"Get Bitcoin prices by currency","inputSchema":{"properties":{},"required":[],"type":"object"},"metadata":{"connectionId":5,"integrationId":9},"name":"getTicker"}]}}/workspace
+```json
+{
+  "tools": [
+    {
+      "name": "getTicker",
+      "description": "Get Bitcoin prices by currency"
+    }
+  ]
+}
 ```
 
-### Calling a tool in an MCP server
+We now know the tool name we need to call to fulfil the model's request.
+
+### Calling a tool on the MCP server
+
+Next, trigger the tool and ask the server for a live quote. The raw response includes prices for many fiat currencies, so we trim it to the few we care about.
 
 ```sh
 curl -X POST http://localhost:7703/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
-    -H "Content-Type: application/json" \
-    -H "Accept: application/json" \
-    -d '{
-      "jsonrpc": "2.0",
-      "id": "example-session-id",
-      "method": "tools/call",
-      "params": {
-        "name": "getTicker"
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "example-session-id",
+    "method": "tools/call",
+    "params": {
+      "name": "getTicker"
+    }
+  }' \
+  | jq '{
+      id,
+      price: {
+        USD: .result.output.USD,
+        EUR: .result.output.EUR,
+        GBP: .result.output.GBP
       }
     }'
 ```
 
-```sh
-{"jsonrpc":"2.0","id":"example-session-id","result":{"output":{"ARS":{"15m":158108901.58,"buy":158108901.58,"last":158108901.58,"sell":158108901.58,"symbol":"ARS"},"AUD":{"15m":173185.7,"buy":173185.7,"last":173185.7,"sell":173185.7,"symbol":"AUD"},"BRL":{"15m":609674.12,"buy":609674.12,"last":609674.12,"sell":609674.12,"symbol":"BRL"},"CAD":{"15m":159445.11,"buy":159445.11,"last":159445.11,"sell":159445.11,"symbol":"CAD"},"CHF":{"15m":91056.15,"buy":91056.15,"last":91056.15,"sell":91056.15,"symbol":"CHF"},"CLP":{"15m":110201507.32,"buy":110201507.32,"last":110201507.32,"sell":110201507.32,"symbol":"CLP"},"CNY":{"15m":815774.86,"buy":815774.86,"last":815774.86,"sell":815774.86,"symbol":"CNY"},"CZK":{"15m":2367784.85,"buy":2367784.85,"last":2367784.85,"sell":2367784.85,"symbol":"CZK"},"DKK":{"15m":727265.09,"buy":727265.09,"last":727265.09,"sell":727265.09,"symbol":"DKK"},"EUR":{"15m":97422.73,"buy":97422.73,"last":97422.73,"sell":97422.73,"symbol":"EUR"},"GBP":{"15m":85049.36,"buy":85049.36,"last":85049.36,"sell":85049.36,"symbol":"GBP"},"HKD":{"15m":891636.37,"buy":891636.37,"last":891636.37,"sell":891636.37,"symbol":"HKD"},"HRK":{"15m":528533.76,"buy":528533.76,"last":528533.76,"sell":528533.76,"symbol":"HRK"},"HUF":{"15m":37913724.7,"buy":37913724.7,"last":37913724.7,"sell":37913724.7,"symbol":"HUF"},"INR":{"15m":10163745.02,"buy":10163745.02,"last":10163745.02,"sell":10163745.02,"symbol":"INR"},"ISK":{"15m":14979950.46,"buy":14979950.46,"last":14979950.46,"sell":14979950.46,"symbol":"ISK"},"JPY":{"15m":16853999.94,"buy":16853999.94,"last":16853999.94,"sell":16853999.94,"symbol":"JPY"},"KRW":{"15m":160773360.24,"buy":160773360.24,"last":160773360.24,"sell":160773360.24,"symbol":"KRW"},"NGN":{"15m":168824779.28,"buy":168824779.28,"last":168824779.28,"sell":168824779.28,"symbol":"NGN"},"NZD":{"15m":197008.57,"buy":197008.57,"last":197008.57,"sell":197008.57,"symbol":"NZD"},"PLN":{"15m":415172.29,"buy":415172.29,"last":415172.29,"sell":415172.29,"symbol":"PLN"},"RON":{"15m":494999.28,"buy":494999.28,"last":494999.28,"sell":494999.28,"symbol":"RON"},"RUB":{"15m":9366340.94,"buy":9366340.94,"last":9366340.94,"sell":9366340.94,"symbol":"RUB"},"SEK":{"15m":1073886.62,"buy":1073886.62,"last":1073886.62,"sell":1073886.62,"symbol":"SEK"},"SGD":{"15m":147576.13,"buy":147576.13,"last":147576.13,"sell":147576.13,"symbol":"SGD"},"THB":{"15m":3703900.89,"buy":3703900.89,"last":3703900.89,"sell":3703900.89,"symbol":"THB"},"TRY":{"15m":4764322.39,"buy":4764322.39,"last":4764322.39,"sell":4764322.39,"symbol":"TRY"},"TWD":{"15m":3489573.08,"buy":3489573.08,"last":3489573.08,"sell":3489573.08,"symbol":"TWD"},"USD":{"15m":114583.17,"buy":114583.17,"last":114583.17,"sell":114583.17,"symbol":"USD"}}}}
+```json
+{
+  "id": "example-session-id",
+  "price": {
+    "USD": {"last": 114583.17, "symbol": "USD"},
+    "EUR": {"last": 97422.73, "symbol": "EUR"},
+    "GBP": {"last": 85049.36, "symbol": "GBP"}
+  }
+}
 ```
 
-### Passing the results back to the model
+The `price` block above is exactly what we need to hand back to the LLM so it can finish answering the user.
+
+### Passing the tool result back to the model
+
+We now resume the chat, providing the tool output as a `tool` role message keyed by the `tool_call_id` the model gave us. The messages array mirrors the full conversation: user question → assistant tool call → tool response → assistant final answer. Swap in the actual `tool_call_id` you received from the first response.
+
+```sh
+curl https://api.groq.com/openai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $API_KEY" \
+  -d '{
+    "model": "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "messages": [
+      {"role": "user", "content": "What is the current price of bitcoin?"},
+      {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "tool-call-id",
+            "type": "function",
+            "function": {
+              "name": "get_bitcoin_price",
+              "arguments": "{\"currency\":\"USD\"}"
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_call_id": "tool-call-id",
+        "name": "get_bitcoin_price",
+        "content": "{\"USD\":{\"last\":114583.17,\"symbol\":\"USD\"},\"EUR\":{\"last\":97422.73,\"symbol\":\"EUR\"},\"GBP\":{\"last\":85049.36,\"symbol\":\"GBP\"}}"
+      }
+    ]
+  }'
+```
+
+The final response will look similar to:
+
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "The current price of bitcoin is $114,583.17 USD. Please note that cryptocurrency prices are highly volatile and can change rapidly. For the most up-to-date information, I recommend checking a reliable cryptocurrency exchange or price tracking website."
+      },
+      "finish_reason": "stop"
+    }
+  ]
+}
+```
 
 ### That's Agentic AI Folks!
+
+This tool-calling dance is how most agentic systems are stitched together today. The model orchestrates the workflow: detect a need, request tool execution, ingest the result, and finally communicate an answer. MCP standardises the tooling side so your agents can discover capabilities at runtime and call them over a single JSON-RPC channel. Chain a few of these steps—planning, tool execution, reflection—and you have the core loop behind modern AI assistants, copilots, and automation bots.
