@@ -207,6 +207,15 @@ The final response will look similar to:
 }
 ```
 
+### The MCP Clients
+
+So claude code and other MCP clients manage taking the tool call requests from the models, passing those to the relevant MCP server and returning the results back to the model.
+
+
+![Alt text](claude-cli.webp "MCP Servers")
+
+It's the same for any tools or services that connect to external systems.
+
 ### That's Agentic AI Folks!
 
 This tool-calling dance is how most agentic systems are stitched together today. The model orchestrates the workflow: detect a need, request tool execution, ingest the result, and finally communicate an answer. MCP standardises the tooling side so your agents can discover capabilities at runtime and call them over a single JSON-RPC channel. Chain a few of these steps—planning, tool execution, reflection—and you have the core loop behind modern AI assistants, copilots, and automation bots.
