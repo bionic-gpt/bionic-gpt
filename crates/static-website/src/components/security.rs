@@ -87,10 +87,10 @@ pub fn Security(class: Option<String>) -> Element {
                 }
                 p {
                     class: "mb-4",
-                    "Bionic was built with enterprise security, privacy, and compliance in mind from day one."
+                    "Deploy MCP is designed with enterprise-grade security, privacy, and compliance controls from day one."
                 }
                 p {
-                    "Choose Between On Premise or Private Cloud Deployment and keep your data 100% safe."
+                    "Run fully managed in our cloud or deploy on premise to keep sensitive data inside your perimeter."
                 }
             }
             div {

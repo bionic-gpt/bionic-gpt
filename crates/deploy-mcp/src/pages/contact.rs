@@ -1,44 +1,64 @@
 use dioxus::prelude::*;
 
-use crate::components::{extra_footer::ExtraFooter, footer::Footer};
+use crate::components::{
+    customer_logos::Customers, extra_footer::ExtraFooter, footer::Footer, security::Security,
+    testamonials::Testamonials,
+};
 use crate::layouts::layout::Layout;
 
 pub fn contact_page() -> String {
+    let testimonials = rsx! {
+        Testamonials {
+            text1: "Deploy MCP helped us deliver a compliant on-premise assistant without rebuilding our entire platform tooling.",
+            job1: "Head of Platform", person1: "Lena", img1: "https://placehold.co/96x96",
+            text2: "The operator integrates with our RBAC and observability stack, so our security team signed off quickly.",
+            job2: "Director of Security", person2: "Rahul", img2: "https://placehold.co/96x96",
+            class: Some("".to_string()),
+        }
+    };
+
     let body = rsx! {
         div {
-            class: "mt-20 mx-auto lg:max-w-3xl p-6",
-            section {
-                h1 { class: "text-4xl font-bold", "Talk with Deploy" }
-                p {
-                    class: "mt-4 text-lg",
-                    "Tell us about your use case and we'll schedule a walkthrough with the Deploy team."
-                }
-                form {
-                    class: "mt-8 space-y-4",
-                    fieldset {
-                        class: "flex flex-col",
-                        label { class: "mb-1 font-semibold", "Work email" }
-                        input { class: "input input-bordered", "type": "email", required: "true", placeholder: "you@company.com" }
-                    }
-                    fieldset {
-                        class: "flex flex-col",
-                        label { class: "mb-1 font-semibold", "Company" }
-                        input { class: "input input-bordered", "type": "text", required: "true", placeholder: "Company" }
-                    }
-                    fieldset {
-                        class: "flex flex-col",
-                        label { class: "mb-1 font-semibold", "How can we help?" }
-                        textarea { class: "textarea textarea-bordered", rows: "4", placeholder: "Share what you want to build" }
-                    }
-                    button { class: "btn btn-primary", "Request a call" }
+            class: "mt-20 mx-auto space-y-16 lg:max-w-5xl p-6",
+
+            section { class: "text-center space-y-4",
+                h1 { class: "text-4xl font-extrabold", "Talk with the Deploy team" }
+                h2 { class: "text-2xl font-semibold", "Design a secure MCP rollout with us" }
+                p { class: "text-lg", "Share your objectives and our engineers will map the fastest way to production—cloud or on premise." }
+                p { class: "text-base", "Grab time on our calendar and we’ll tailor a session for your environment." }
+                a {
+                    class: "btn btn-primary",
+                    href: "https://calendly.com/bionicgpt",
+                    "Book a Calendly session"
                 }
             }
+
+            section { class: "grid gap-6 md:grid-cols-3",
+                div { class: "rounded-lg border p-6 text-left shadow-sm",
+                    h3 { class: "text-xl font-semibold", "Platform assessments" }
+                    p { class: "mt-3", "Audit how Deploy MCP fits your clusters, identity, and compliance controls." }
+                }
+                div { class: "rounded-lg border p-6 text-left shadow-sm",
+                    h3 { class: "text-xl font-semibold", "On-premise pilots" }
+                    p { class: "mt-3", "Plan proof-of-concept timelines, image mirroring strategies, and success metrics." }
+                }
+                div { class: "rounded-lg border p-6 text-left shadow-sm",
+                    h3 { class: "text-xl font-semibold", "Enterprise support" }
+                    p { class: "mt-3", "Review SLAs, incident response, and long-term partnership programs." }
+                }
+            }
+
+            Customers {}
+
+            section { class: "", {testimonials} }
+
+            section { class: "", Security { class: Some("".to_string()) } }
         }
         ExtraFooter {
-            title: "See Deploy in action in under five minutes".to_string(),
-            image: "/docs/mcp-servers.png".to_string(),
-            cta: "Get Started".to_string(),
-            cta_url: crate::routes::marketing::Index {}.to_string(),
+            title: "Explore the secure on-premise playbooks".to_string(),
+            image: "/docs/mcp-connection-url.png".to_string(),
+            cta: "Open deployment docs".to_string(),
+            cta_url: "/docs/on-premise/".to_string(),
         }
         Footer { margin_top: "mt-0" }
     };

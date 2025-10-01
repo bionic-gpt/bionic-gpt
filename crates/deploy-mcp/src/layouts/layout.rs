@@ -46,6 +46,11 @@ pub fn Layout(mut props: LayoutProps) -> Element {
     let links = vec![
         (Section::Home, marketing::Index {}.to_string(), "Home"),
         (
+            Section::Enterprise,
+            marketing::Enterprise {}.to_string(),
+            "Enterprise",
+        ),
+        (
             Section::Pricing,
             marketing::Pricing {}.to_string(),
             "Pricing",

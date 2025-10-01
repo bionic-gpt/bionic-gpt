@@ -51,6 +51,8 @@ pub fn generate_marketing() {
         .expect("Unable to write pricing page");
     write_page("dist/contact", pages::contact::contact_page())
         .expect("Unable to write contact page");
+    write_page("dist/enterprise", pages::enterprise::enterprise_page())
+        .expect("Unable to write enterprise page");
 }
 
 pub fn generate_mcp_servers() {

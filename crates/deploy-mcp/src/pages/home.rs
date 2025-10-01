@@ -14,19 +14,19 @@ pub fn home_page() -> String {
             title: "Curated server catalog".to_string(),
             description:
                 "Launch popular MCP servers—or bring your own binary—with a single click.".to_string(),
-            icon: "https://placehold.co/48x48".to_string(),
+            icon: "/features/systems.svg".to_string(),
         },
         Feature {
             title: "Managed credentials".to_string(),
             description:
                 "Store API keys and OAuth tokens securely with scoped environment variables per server.".to_string(),
-            icon: "https://placehold.co/48x48".to_string(),
+            icon: "/features/encryption.svg".to_string(),
         },
         Feature {
             title: "Instant connection URLs".to_string(),
             description:
                 "Share ready-to-use MCP endpoints with teammates—no networking setup required.".to_string(),
-            icon: "https://placehold.co/48x48".to_string(),
+            icon: "/features/graph.svg".to_string(),
         },
     ];
 
@@ -47,6 +47,8 @@ pub fn home_page() -> String {
                 Hero {
                     title: "Run managed MCP servers in minutes".to_string(),
                     subtitle: "Deploy MCP hosts Model Context Protocol servers for you, handles authentication, and gives you shareable connection URLs for any client.".to_string(),
+                    cta_label: Some("Get started".to_string()),
+                    cta_href: Some(crate::routes::SIGN_IN_UP.to_string()),
                 }
             }
 

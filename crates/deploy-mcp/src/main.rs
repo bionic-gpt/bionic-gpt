@@ -71,6 +71,10 @@ pub mod routes {
         pub struct Index {}
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/enterprise/")]
+        pub struct Enterprise {}
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/terms/")]
         pub struct Terms {}
 
