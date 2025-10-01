@@ -1,5 +1,8 @@
 use super::layout::Layout;
-use crate::{components::footer::Footer, components::navigation::Section, generator::Page};
+use crate::{
+    components::{extra_footer::ExtraFooter, footer::Footer, navigation::Section},
+    generator::Page,
+};
 use dioxus::prelude::*;
 
 #[component]
@@ -17,7 +20,13 @@ pub fn MarkdownPage(post: Page) -> Element {
                     dangerous_inner_html: "{content}"
                 }
             }
-            Footer { }
+            ExtraFooter {
+                title: "See Deploy in action in under five minutes",
+                image: "/docs/mcp-servers.png",
+                cta: "Get Started",
+                cta_url: crate::routes::marketing::Index {}.to_string(),
+            }
+            Footer { margin_top: "mt-0" }
         }
     }
 }

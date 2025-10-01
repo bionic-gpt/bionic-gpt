@@ -41,7 +41,7 @@ pub fn home_page() -> String {
     };
 
     let body = rsx! {
-        main {
+        div {
             class: "mt-16 grid gap-y-36",
             section { class: "mx-auto lg:max-w-5xl p-6 text-center",
                 Hero {
@@ -78,16 +78,14 @@ pub fn home_page() -> String {
                 }
             }
             section { class: "mx-auto lg:max-w-5xl p-6", {testimonials} }
-            section { class: "mx-auto lg:max-w-5xl p-6 text-center",
-                ExtraFooter {
-                    title: "Ready to orchestrate production AI?".to_string(),
-                    image: "https://placehold.co/600x360".to_string(),
-                    cta: "Schedule a Deploy demo".to_string(),
-                    cta_url: routes::marketing::Contact {}.to_string(),
-                }
-            }
         }
-        Footer { }
+        ExtraFooter {
+            title: "See Deploy in action in under five minutes".to_string(),
+            image: "/docs/mcp-servers.png".to_string(),
+            cta: "Get Started".to_string(),
+            cta_url: routes::marketing::Index {}.to_string(),
+        }
+        Footer { margin_top: "mt-0" }
     };
 
     let page = rsx! {

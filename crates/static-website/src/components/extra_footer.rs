@@ -4,22 +4,25 @@ use dioxus::prelude::*;
 pub fn ExtraFooter(title: String, image: String, cta: String, cta_url: String) -> Element {
     rsx! {
         section {
-            class: "mt-24 flex flex-col items-center text-center p-4 bg-secondary-content",
-            h2 {
-                class: "mt-4 mb-4 max-w-lg text-2xl font-bold",
-                "{title}"
-            }
-            img {
-                class: "lg:max-w-md",
-                alt: "Product Screenshot",
-                src: "{image}"
-            }
+            class: "p-6 mt-24 w-full bg-secondary-content mb-0",
             div {
-                class: "mt-4 flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4",
-                a {
-                    href: "{cta_url}",
-                    class: "btn btn-primary",
-                    "{cta}"
+                class: "mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 text-center",
+                h2 {
+                    class: "text-3xl font-bold",
+                    "{title}"
+                }
+                img {
+                    class: "w-full max-w-3xl",
+                    alt: "Product Screenshot",
+                    src: "{image}"
+                }
+                div {
+                    class: "flex flex-col gap-4 sm:flex-row sm:justify-center",
+                    a {
+                        href: "{cta_url}",
+                        class: "btn btn-primary",
+                        "{cta}"
+                    }
                 }
             }
         }

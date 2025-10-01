@@ -62,9 +62,9 @@ pub fn BlogPost(post: Page) -> Element {
             }
             ExtraFooter {
                 title: "See Deploy in action in under five minutes",
-                image: "https://placehold.co/600x400",
-                cta: "Book a walkthrough",
-                cta_url: crate::routes::marketing::Contact {}.to_string(),
+                image: "/docs/mcp-servers.png",
+                cta: "Get Started",
+                cta_url: crate::routes::marketing::Index {}.to_string(),
             }
             Footer { margin_top: "mt-0" }
         }
@@ -113,7 +113,13 @@ pub fn BlogList(summary: Summary) -> Element {
                     }
                 }
             }
-            Footer { }
+            ExtraFooter {
+                title: "See Deploy in action in under five minutes",
+                image: "/docs/mcp-servers.png",
+                cta: "Get Started",
+                cta_url: crate::routes::marketing::Index {}.to_string(),
+            }
+            Footer { margin_top: "mt-0" }
         }
     }
 }

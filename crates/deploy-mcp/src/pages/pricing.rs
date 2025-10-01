@@ -1,11 +1,11 @@
 use dioxus::prelude::*;
 
-use crate::components::footer::Footer;
+use crate::components::{extra_footer::ExtraFooter, footer::Footer};
 use crate::layouts::layout::Layout;
 
 pub fn pricing_page() -> String {
     let body = rsx! {
-        main {
+        div {
             class: "mt-20 mx-auto lg:max-w-5xl p-6",
             section {
                 class: "text-center",
@@ -52,7 +52,13 @@ pub fn pricing_page() -> String {
                 }
             }
         }
-        Footer { }
+        ExtraFooter {
+            title: "See Deploy in action in under five minutes".to_string(),
+            image: "/docs/mcp-servers.png".to_string(),
+            cta: "Get Started".to_string(),
+            cta_url: crate::routes::marketing::Index {}.to_string(),
+        }
+        Footer { margin_top: "mt-0" }
     };
 
     let page = rsx! {

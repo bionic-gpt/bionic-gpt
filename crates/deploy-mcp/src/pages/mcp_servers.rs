@@ -266,7 +266,7 @@ fn parse_responses(operation: &serde_json::Map<String, Value>) -> Vec<Response> 
 
 pub fn index_page(integrations: &[IntegrationSpec]) -> String {
     let body = rsx! {
-        main {
+        div {
             class: "mt-20 mx-auto lg:max-w-5xl p-6 space-y-12",
             section {
                 class: "space-y-4 text-center",
@@ -316,17 +316,14 @@ pub fn index_page(integrations: &[IntegrationSpec]) -> String {
                     }
                 }
             }
-            section {
-                class: "mt-12",
-                ExtraFooter {
-                    title: "Need a custom MCP server for your stack?".to_string(),
-                    image: "https://placehold.co/600x360".to_string(),
-                    cta: "Talk to Deploy".to_string(),
-                    cta_url: crate::routes::marketing::Contact {}.to_string(),
-                }
-            }
         }
-        Footer { }
+        ExtraFooter {
+            title: "See Deploy in action in under five minutes".to_string(),
+            image: "/docs/mcp-servers.png".to_string(),
+            cta: "Get Started".to_string(),
+            cta_url: crate::routes::marketing::Index {}.to_string(),
+        }
+        Footer { margin_top: "mt-0" }
     };
 
     let page = rsx! {
@@ -354,7 +351,7 @@ pub fn detail_page(integration: &IntegrationSpec) -> String {
         .unwrap_or_else(|| "N/A".to_string());
 
     let body = rsx! {
-        main {
+        div {
             class: "mt-16 mx-auto lg:max-w-5xl p-6 space-y-12",
             nav {
                 a { class: "link link-primary", href: crate::routes::marketing::McpServers {}.to_string(), "← Back to MCP servers" }
@@ -386,17 +383,14 @@ pub fn detail_page(integration: &IntegrationSpec) -> String {
                     }
                 }
             }
-            section {
-                class: "mt-12",
-                ExtraFooter {
-                    title: "Need help deploying this MCP server?".to_string(),
-                    image: "https://placehold.co/600x360".to_string(),
-                    cta: "Contact Deploy".to_string(),
-                    cta_url: crate::routes::marketing::Contact {}.to_string(),
-                }
-            }
         }
-        Footer { }
+        ExtraFooter {
+            title: "See Deploy in action in under five minutes".to_string(),
+            image: "/docs/mcp-servers.png".to_string(),
+            cta: "Get Started".to_string(),
+            cta_url: crate::routes::marketing::Index {}.to_string(),
+        }
+        Footer { margin_top: "mt-0" }
     };
 
     let page = rsx! {

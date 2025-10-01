@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use super::layout::Layout;
 use crate::{
-    components::navigation::Section,
+    components::{extra_footer::ExtraFooter, footer::Footer, navigation::Section},
     generator::{Category, Page, Summary},
 };
 
@@ -14,7 +14,7 @@ pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
             description: "{doc.description}",
             section: Section::Docs,
             mobile_menu: rsx!(MobileMenu { summary: summary.clone() }),
-            main {
+            div {
                 class: "flex-1",
                 div {
                     class: "flex flex-row relative",
@@ -22,6 +22,13 @@ pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
                     Content { doc }
                 }
             }
+            ExtraFooter {
+                title: "See Deploy in action in under five minutes",
+                image: "/docs/mcp-servers.png",
+                cta: "Get Started",
+                cta_url: crate::routes::marketing::Index {}.to_string(),
+            }
+            Footer { margin_top: "mt-0" }
         }
     }
 }
