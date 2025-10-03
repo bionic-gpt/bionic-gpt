@@ -52,7 +52,23 @@
         // Sign the input
         const licence = JSON.parse(jsonStr);
         delete licence.signature;
-        const encoded = new TextEncoder().encode(JSON.stringify(licence));
+
+        // Only sign the canonical fields that the server verifies against
+        const canonicalPayload = {
+          user_count: licence.user_count,
+          hostname_url: licence.hostname_url,
+          end_date: licence.end_date,
+        };
+
+        if (
+          canonicalPayload.user_count === undefined ||
+          canonicalPayload.hostname_url === undefined ||
+          canonicalPayload.end_date === undefined
+        ) {
+          throw new Error("Licence JSON must include user_count, hostname_url, and end_date");
+        }
+
+        const encoded = new TextEncoder().encode(JSON.stringify(canonicalPayload));
         const sig = nacl.sign.detached(encoded, secretKey);
         const sigB64 = btoa(String.fromCharCode(...sig));
         licence.signature = sigB64;
