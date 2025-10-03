@@ -4,7 +4,7 @@ use axum::{
     Extension,
 };
 use axum_extra::routing::TypedPath;
-use db::{authz, queries, Pool};
+use db::{authz, queries, Licence, Pool};
 use http::StatusCode;
 use serde::Deserialize;
 
@@ -54,7 +54,13 @@ pub async fn setup_user(
         .one()
         .await?;
 
-    let console_url = web_pages::routes::console::Index { team_id: team.id }.to_string();
+    let default_console_url = web_pages::routes::console::Index { team_id: team.id }.to_string();
+    let redirect_url = Licence::global()
+        .redirect_url
+        .as_ref()
+        .map(|template| template.replace("{team_id}", &team.id.to_string()))
+        .filter(|url| !url.is_empty())
+        .unwrap_or(default_console_url);
 
     let _rbac = authz::get_permissions(&transaction, &authentication, team.id).await?;
 
@@ -62,7 +68,7 @@ pub async fn setup_user(
 
     let builder = Response::builder()
         .status(StatusCode::SEE_OTHER)
-        .header("location", console_url)
+        .header("location", redirect_url)
         .body(Body::empty());
     let response =
         builder.map_err(|_| CustomError::FaultySetup("Could not build redirect".to_string()))?;

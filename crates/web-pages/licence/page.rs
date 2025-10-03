@@ -41,6 +41,13 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
     } else {
         "Disabled"
     };
+    let default_redirect_url = crate::routes::console::Index { team_id }.to_string();
+    let redirect_url = licence
+        .redirect_url
+        .as_ref()
+        .map(|template| template.replace("{team_id}", &team_id.to_string()))
+        .filter(|url| !url.is_empty())
+        .unwrap_or(default_redirect_url);
 
     let page = rsx! {
         Layout {
@@ -122,6 +129,18 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
                     avatar_name: None,
                     title: "OAuth Callback URL".to_string(),
                     description: Some(rsx!( span { "{callback_url}" } )),
+                    footer: None,
+                    count_labels: vec![],
+                    action: None,
+                }
+                CardItem {
+                    class: None,
+                    popover_target: None,
+                    clickable_link: None,
+                    image_src: Some(nav_api_keys_svg.name.to_string()),
+                    avatar_name: None,
+                    title: "Redirect URL".to_string(),
+                    description: Some(rsx!( span { "{redirect_url}" } )),
                     footer: None,
                     count_labels: vec![],
                     action: None,
