@@ -13,7 +13,7 @@ use tower_http::services::ServeDir;
 use tower_livereload::LiveReloadLayer;
 
 pub mod routes {
-    pub const SIGN_IN_UP: &str = "https://app.deploy.run";
+    pub const SIGN_IN_UP: &str = "https://app.deploy-mcp.com";
 
     pub mod blog {
         use axum_extra::routing::TypedPath;

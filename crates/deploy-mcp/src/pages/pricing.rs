@@ -89,7 +89,7 @@ fn PricingCard(
             class: "rounded-lg border p-6 shadow-sm flex flex-col",
             h2 { class: "text-2xl font-semibold", "{title}" }
             p { class: "mt-4 text-3xl font-bold", "{price}" }
-            p { class: "mt-2 text-sm text-gray-500", "{description}" }
+            p { class: "mt-2 text-sm text-base-content/70", "{description}" }
             ul {
                 class: "mt-4 flex-1 space-y-2 text-left",
                 for feature in features {

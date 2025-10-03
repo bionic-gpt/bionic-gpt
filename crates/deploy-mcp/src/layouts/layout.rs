@@ -67,6 +67,11 @@ pub fn Layout(mut props: LayoutProps) -> Element {
             marketing::Contact {}.to_string(),
             "Contact",
         ),
+        (
+            Section::None,
+            crate::routes::SIGN_IN_UP.to_string(),
+            "Login",
+        ),
     ];
 
     let mobile_menu = props.mobile_menu.take();
