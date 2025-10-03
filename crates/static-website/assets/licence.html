@@ -91,14 +91,20 @@
           user_count: licence.user_count,
           hostname_url: licence.hostname_url,
           end_date: licence.end_date,
+          app_name: licence.app_name,
+          app_logo_svg: licence.app_logo_svg,
         };
 
         if (
           canonicalPayload.user_count === undefined ||
           canonicalPayload.hostname_url === undefined ||
-          canonicalPayload.end_date === undefined
+          canonicalPayload.end_date === undefined ||
+          canonicalPayload.app_name === undefined ||
+          canonicalPayload.app_logo_svg === undefined
         ) {
-          throw new Error("Licence JSON must include user_count, hostname_url, and end_date");
+          throw new Error(
+            "Licence JSON must include user_count, hostname_url, end_date, app_name, and app_logo_svg",
+          );
         }
 
         const encoded = new TextEncoder().encode(JSON.stringify(canonicalPayload));

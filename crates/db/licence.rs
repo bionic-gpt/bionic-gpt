@@ -1,7 +1,6 @@
 use base64::decode;
 use ed25519_dalek::{pkcs8::DecodePublicKey, Signature, Verifier, VerifyingKey, SIGNATURE_LENGTH};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::sync::OnceLock;
 use time::{format_description::well_known::Rfc3339, Date, Month, OffsetDateTime, Time, UtcOffset};
 
@@ -25,6 +24,15 @@ pub struct Licence {
     pub default_lang: String,
     #[serde(default)]
     pub redirect_url: Option<String>,
+}
+
+#[derive(Serialize)]
+struct SignableLicence<'a> {
+    user_count: usize,
+    hostname_url: &'a str,
+    end_date: &'a str,
+    app_name: &'a str,
+    app_logo_svg: &'a str,
 }
 
 fn deserialize_rfc3339<'de, D>(deserializer: D) -> Result<OffsetDateTime, D::Error>
@@ -103,19 +111,57 @@ impl Licence {
 
         let formatted_date = self.end_date.format(&Rfc3339).expect("valid date");
 
-        let value = json!({
-            "user_count": self.user_count,
-            "hostname_url": self.hostname_url,
-            "end_date": formatted_date,
-        });
+        let signable = SignableLicence {
+            user_count: self.user_count,
+            hostname_url: &self.hostname_url,
+            end_date: &formatted_date,
+            app_name: &self.app_name,
+            app_logo_svg: &self.app_logo_svg,
+        };
 
-        tracing::debug!("Signed payload: {}", serde_json::to_string(&value).unwrap());
+        tracing::debug!(
+            "Signed payload: {}",
+            serde_json::to_string(&signable).expect("serializable payload"),
+        );
 
-        let Ok(data) = serde_json::to_vec(&value) else {
+        let Ok(data) = serde_json::to_vec(&signable) else {
             tracing::error!("Unable to convert JSON to bytes");
             return false;
         };
 
         public_key.verify(&data, &signature).is_ok()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn canonical_payload_matches_js_signer() {
+        let licence = Licence {
+            user_count: 42,
+            hostname_url: "https://example.com".to_string(),
+            end_date: OffsetDateTime::parse("2028-12-31T00:00:00Z", &Rfc3339).unwrap(),
+            signature: String::new(),
+            app_name: "Deploy".to_string(),
+            app_logo_svg: "logo".to_string(),
+            default_lang: "en-US".to_string(),
+            redirect_url: None,
+        };
+
+        let formatted_date = licence.end_date.format(&Rfc3339).expect("valid date");
+        let signable = SignableLicence {
+            user_count: licence.user_count,
+            hostname_url: &licence.hostname_url,
+            end_date: &formatted_date,
+            app_name: &licence.app_name,
+            app_logo_svg: &licence.app_logo_svg,
+        };
+
+        let payload = serde_json::to_string(&signable).unwrap();
+        assert_eq!(
+            payload,
+            "{\"user_count\":42,\"hostname_url\":\"https://example.com\",\"end_date\":\"2028-12-31T00:00:00Z\",\"app_name\":\"Deploy\",\"app_logo_svg\":\"logo\"}"
+        );
     }
 }
