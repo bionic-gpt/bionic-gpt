@@ -58,6 +58,9 @@ data:
     - hostname: "*"
       path: /oidc
       service: http://keycloak:7910
+      originRequest:
+        headers:
+          X-Forwarded-Proto: https
     - hostname: "*"
       path: /observability
       service: http://grafana:3000
@@ -66,3 +69,6 @@ data:
       service: http://pgadmin:80
     - hostname: "*"
       service: http://oauth2-proxy:7900
+      originRequest:
+        headers:
+          X-Forwarded-Proto: https
