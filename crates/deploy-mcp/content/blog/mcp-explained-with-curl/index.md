@@ -100,7 +100,7 @@ curl \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
-  http://localhost:7703/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
+  https://app.deploy-mcp.com/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
   | jq '{tools: [.result.tools[] | {name, description}]}'
 ```
 
@@ -122,7 +122,7 @@ We now know the tool name we need to call to fulfil the model's request.
 Next, trigger the tool and ask the server for a live quote. The raw response includes prices for many fiat currencies, so we trim it to the few we care about.
 
 ```sh
-curl -X POST http://localhost:7703/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
+curl -X POST https://app.deploy-mcp.com3/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   -d '{
