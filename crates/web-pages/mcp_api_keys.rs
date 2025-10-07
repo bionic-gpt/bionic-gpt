@@ -24,7 +24,7 @@ pub struct GeneratedKey {
 }
 
 #[derive(Clone, PartialEq)]
-struct McpKeyDisplay {
+struct ApiKeyDisplay {
     id: i32,
     name: String,
     created_at: String,
@@ -71,9 +71,9 @@ pub fn page(
     form: NewKeyForm,
     generated_key: Option<GeneratedKey>,
 ) -> String {
-    let mut displays: Vec<McpKeyDisplay> = keys
+    let mut displays: Vec<ApiKeyDisplay> = keys
         .into_iter()
-        .map(|key| McpKeyDisplay {
+        .map(|key| ApiKeyDisplay {
             id: key.id,
             name: key.name,
             created_at: format_created_at(key.created_at),
@@ -89,7 +89,7 @@ pub fn page(
             selected_item: SideBar::McpApiKeys,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "MCP API Keys",
+            title: "API Keys",
             header: rsx!(
                 Breadcrumb {
                     items: vec![
@@ -104,18 +104,18 @@ pub fn page(
                     Button {
                         prefix_image_src: button_plus_svg.name,
                         button_scheme: ButtonScheme::Primary,
-                        popover_target: "create-mcp-key",
-                        "Create MCP API Key"
+                        popover_target: "create-api-key",
+                        "Create API Key"
                     }
                 }
             ),
             div {
                 class: "p-4 max-w-3xl w-full mx-auto space-y-6",
                 SectionIntroduction {
-                    header: "MCP API Keys".to_string(),
-                    subtitle: "Create and manage API keys that your MCP servers use to authenticate with Bionic.".to_string(),
+                    header: "API Keys".to_string(),
+                    subtitle: "Create and manage API keys that your integrations use to authenticate with Bionic.".to_string(),
                     is_empty: displays.is_empty(),
-                    empty_text: "No MCP API keys yet. Generate a key to start connecting your MCP servers.".to_string(),
+                    empty_text: "No API keys yet. Generate a key to start connecting your integrations.".to_string(),
                 }
                 if let Some(error) = &form.error {
                     Alert {
@@ -136,7 +136,7 @@ pub fn page(
                             readonly: true,
                             name: "generated-api-key",
                         }
-                        div { class: "text-xs opacity-75", "Available to all MCP servers" }
+                        div { class: "text-xs opacity-75", "Available to all integrations" }
                     }
                 }
 
@@ -144,7 +144,7 @@ pub fn page(
                     div {
                         class: "space-y-2",
                         for key in displays.iter() {
-                            McpKeyCard { team_id, item: key.clone() }
+                            ApiKeyCard { team_id, item: key.clone() }
                         }
                     }
                 }
@@ -153,9 +153,9 @@ pub fn page(
                     method: "post",
                     action: routes::mcp_api_keys::Create { team_id }.to_string(),
                     Modal {
-                        trigger_id: "create-mcp-key",
+                        trigger_id: "create-api-key",
                         ModalBody {
-                            h3 { class: "font-bold text-lg mb-4", "New MCP API Key" }
+                            h3 { class: "font-bold text-lg mb-4", "New API Key" }
                             div {
                                 class: "flex flex-col gap-4",
                                 Fieldset {
@@ -170,7 +170,7 @@ pub fn page(
                                 }
                                 Fieldset {
                                     legend: "Usage",
-                                    help_text: "Keys apply to every MCP integration. We'll validate the key on each MCP request."
+                                    help_text: "Keys apply to every integration. We'll validate the key on each request."
                                 }
                             }
                             ModalAction {
@@ -196,7 +196,7 @@ pub fn page(
                         trigger_id: delete_trigger_id(team_id, key.id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete API Key?".to_string(),
-                        warning: "This will revoke access for MCP requests using this key.".to_string(),
+                        warning: "This will revoke access for requests using this key.".to_string(),
                         hidden_fields: vec![
                             ("team_id".into(), team_id.to_string()),
                             ("id".into(), key.id.to_string()),
@@ -211,7 +211,7 @@ pub fn page(
 }
 
 #[component]
-fn McpKeyCard(team_id: i32, item: McpKeyDisplay) -> Element {
+fn ApiKeyCard(team_id: i32, item: ApiKeyDisplay) -> Element {
     let trigger_id = delete_trigger_id(team_id, item.id);
 
     rsx! {
@@ -239,5 +239,5 @@ fn McpKeyCard(team_id: i32, item: McpKeyDisplay) -> Element {
 }
 
 fn delete_trigger_id(team_id: i32, key_id: i32) -> String {
-    format!("delete-mcp-key-{}-{}", team_id, key_id)
+    format!("delete-api-key-{}-{}", team_id, key_id)
 }
