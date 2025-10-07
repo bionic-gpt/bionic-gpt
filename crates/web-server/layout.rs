@@ -6,9 +6,10 @@ use serde::{Deserialize, Deserializer};
 
 pub fn redirect_and_snackbar(
     url: &str,
-    message: &'static str,
+    message: impl Into<String>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut response = Redirect::to(url).into_response();
+    let message: String = message.into();
     let cookie_value = format!("flash_aargh={}; Path=/", message);
     response
         .headers_mut()

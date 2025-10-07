@@ -11,6 +11,7 @@ pub mod history;
 pub mod integrations;
 pub mod licence;
 pub mod mcp;
+pub mod mcp_api_keys;
 pub mod metrics;
 pub mod models;
 pub mod my_assistants;

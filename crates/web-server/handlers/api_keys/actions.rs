@@ -1,6 +1,6 @@
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
-use axum::response::IntoResponse;
+use axum::response::{Html, IntoResponse};
 use axum_extra::extract::Form;
 use db::authz;
 use db::{queries, Pool};
@@ -8,7 +8,7 @@ use rand::distr::Alphanumeric;
 use rand::{rng, Rng};
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::api_keys::Index;
+use web_pages::api_keys::page::GeneratedKey;
 use web_pages::routes::api_keys::{Delete, New};
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -29,10 +29,12 @@ pub async fn action_new_api_key(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    let mut generated_key: Option<GeneratedKey> = None;
+
     if new_api_key.validate().is_ok() {
-        let api_key: String = rng()
+        let api_key_value: String = rng()
             .sample_iter(&Alphanumeric)
-            .take(30)
+            .take(40)
             .map(char::from)
             .collect();
 
@@ -43,14 +45,70 @@ pub async fn action_new_api_key(
                 &rbac.user_id,
                 &team_id,
                 &new_api_key.name,
-                &api_key,
+                &api_key_value,
             )
             .await?;
+
+        if let Ok(prompt) = queries::prompts::prompt()
+            .bind(&transaction, &new_api_key.prompt_id, &team_id)
+            .one()
+            .await
+        {
+            generated_key = Some(GeneratedKey {
+                name: new_api_key.name.clone(),
+                value: api_key_value,
+                prompt_name: Some(prompt.name),
+                prompt_type: Some(prompt.prompt_type),
+            });
+        } else {
+            generated_key = Some(GeneratedKey {
+                name: new_api_key.name.clone(),
+                value: api_key_value,
+                prompt_name: None,
+                prompt_type: None,
+            });
+        }
     }
+
+    let api_keys = queries::api_keys::api_keys()
+        .bind(&transaction, &team_id)
+        .all()
+        .await?;
+
+    let assistants = queries::prompts::prompts()
+        .bind(&transaction, &team_id, &db::PromptType::Assistant)
+        .all()
+        .await?;
+
+    let models = queries::prompts::prompts()
+        .bind(&transaction, &team_id, &db::PromptType::Model)
+        .all()
+        .await?;
+
+    let token_usage_data = queries::token_usage_metrics::get_daily_token_usage_for_team()
+        .bind(&transaction, &team_id, &"7")
+        .all()
+        .await?;
+
+    let api_request_data = queries::token_usage_metrics::get_daily_api_request_count_for_team()
+        .bind(&transaction, &team_id, &"7")
+        .all()
+        .await?;
 
     transaction.commit().await?;
 
-    crate::layout::redirect_and_snackbar(&Index { team_id }.to_string(), "Api Key Created")
+    let html = web_pages::api_keys::page::page(
+        rbac,
+        team_id,
+        api_keys,
+        assistants,
+        models,
+        token_usage_data,
+        api_request_data,
+        generated_key,
+    );
+
+    Ok(Html(html))
 }
 
 pub async fn action_delete_api_key(

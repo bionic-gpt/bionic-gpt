@@ -453,6 +453,23 @@ pub mod integrations {
     }
 }
 
+pub mod mcp_api_keys {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/mcp_api_keys")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/mcp_api_keys/new")]
+    pub struct Create {
+        pub team_id: i32,
+    }
+}
+
 pub mod workflows {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

@@ -25,8 +25,8 @@ pub async fn chat_generate(
     Extension(pool): Extension<Pool>,
     req: Request<Body>,
 ) -> Result<Response<Body>, CustomError> {
-    if let Some(api_key) = req.headers().get("Authorization") {
-        let api_key = api_key
+    if let Some(api_key_header) = req.headers().get("Authorization") {
+        let api_key_value = api_key_header
             .to_str()
             .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?
             .replace("Bearer ", "");
@@ -40,9 +40,14 @@ pub async fn chat_generate(
         let completion: BionicChatCompletionRequest = serde_json::from_str(&body)?;
         let streaming = completion.stream.unwrap_or(false);
 
-        let (api_key, request) = create_request(&transaction, api_key, completion).await?;
+        let (api_key_record, request) =
+            create_request(&transaction, &api_key_value, completion).await?;
 
-        if limits::is_limit_exceeded(&transaction, api_key.model_id, api_key.user_id).await? {
+        let model_id = api_key_record
+            .model_id
+            .ok_or_else(|| CustomError::FaultySetup("API key missing model".to_string()))?;
+
+        if limits::is_limit_exceeded(&transaction, model_id, api_key_record.user_id).await? {
             return Err(CustomError::Limits(
                 "You have exceededs the token limits for this user and model".to_string(),
             ));
@@ -66,7 +71,7 @@ pub async fn chat_generate(
 
             let receiver_stream = ReceiverStream::new(receiver);
             let pool_arc = Arc::new(pool);
-            let api_key_arc = Arc::new(api_key.api_key);
+            let api_key_arc = Arc::new(api_key_value.clone());
 
             // For every Server Side Event we get from the model process it
             // and return it to the caller.
@@ -131,14 +136,22 @@ pub async fn chat_generate(
 
 async fn create_request(
     transaction: &Transaction<'_>,
-    api_key: String,
+    api_key_value: &str,
     completion: BionicChatCompletionRequest,
 ) -> Result<(db::ApiKey, reqwest::RequestBuilder), CustomError> {
     let api_key = queries::api_keys::find_api_key()
-        .bind(transaction, &api_key)
+        .bind(transaction, &api_key_value)
         .one()
         .await
         .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?;
+
+    let prompt_id = api_key
+        .prompt_id
+        .ok_or_else(|| CustomError::Authentication("Invalid API Key".to_string()))?;
+
+    let model_id = api_key
+        .model_id
+        .ok_or_else(|| CustomError::FaultySetup("API key missing model".to_string()))?;
 
     // Now we have an API Key we can kick off RLS
     transaction
@@ -148,19 +161,14 @@ async fn create_request(
         )
         .await?;
 
-    // First get the prompt ID from the API key
-    let prompt_info = queries::prompts::prompt_by_api_key()
-        .bind(transaction, &api_key.api_key)
+    // Load the model and prompt details directly by their identifiers
+    let model = queries::models::model()
+        .bind(transaction, &model_id)
         .one()
         .await?;
 
-    // Then get the full prompt details using the SinglePrompt query
     let prompt = queries::prompts::prompt()
-        .bind(transaction, &prompt_info.id, &prompt_info.team_id)
-        .one()
-        .await?;
-    let model = queries::models::model()
-        .bind(transaction, &prompt.model_id)
+        .bind(transaction, &prompt_id, &api_key.team_id)
         .one()
         .await?;
 

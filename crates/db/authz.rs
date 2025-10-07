@@ -237,4 +237,8 @@ impl Rbac {
     pub fn can_manage_integrations(&self) -> bool {
         self.permissions.contains(&Permission::ManageIntegrations)
     }
+
+    pub fn can_manage_mcp_keys(&self) -> bool {
+        self.permissions.contains(&Permission::ManageMcpKeys)
+    }
 }

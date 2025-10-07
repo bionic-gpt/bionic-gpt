@@ -13,8 +13,8 @@ pub async fn handler(
     Extension(pool): Extension<Pool>,
     req: Request<Body>,
 ) -> Result<Response, CustomError> {
-    if let Some(api_key) = req.headers().get("Authorization") {
-        let api_key = api_key
+    if let Some(api_key_header) = req.headers().get("Authorization") {
+        let api_key_value = api_key_header
             .to_str()
             .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?
             .replace("Bearer ", "");
@@ -22,19 +22,27 @@ pub async fn handler(
         let transaction = db_client.transaction().await?;
 
         // Check this first, if we have a false API key then return auth error
-        let api_key = queries::api_keys::find_api_key()
-            .bind(&transaction, &api_key)
+        let api_key_record = queries::api_keys::find_api_key()
+            .bind(&transaction, &api_key_value)
             .one()
             .await
             .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?;
 
-        let prompt = queries::prompts::prompt_by_api_key()
-            .bind(&transaction, &api_key.api_key)
+        let prompt_id = api_key_record
+            .prompt_id
+            .ok_or_else(|| CustomError::Authentication("Invalid API Key".to_string()))?;
+
+        let model_id = api_key_record
+            .model_id
+            .ok_or_else(|| CustomError::FaultySetup("API key missing model".to_string()))?;
+
+        let model = queries::models::model()
+            .bind(&transaction, &model_id)
             .one()
             .await?;
 
-        let model = queries::models::model()
-            .bind(&transaction, &prompt.model_id)
+        let prompt = queries::prompts::prompt()
+            .bind(&transaction, &prompt_id, &api_key_record.team_id)
             .one()
             .await?;
 
@@ -46,8 +54,8 @@ pub async fn handler(
             .unwrap_or(path);
 
         let mut headers = header::HeaderMap::new();
-        if let Some(api_key) = model.api_key {
-            let api_key = format!("Bearer {}", api_key);
+        if let Some(model_api_key) = model.api_key {
+            let api_key = format!("Bearer {}", model_api_key);
             headers.insert(
                 "Authorization",
                 header::HeaderValue::from_str(&api_key)

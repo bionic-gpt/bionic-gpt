@@ -151,14 +151,14 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
     driver.find(By::LinkText("API Keys")).await?.click().await?;
 
     driver
-        .find(By::XPath("//button[text()='New API Key']"))
+        .find(By::XPath("//button[text()='Create Assistant Key']"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='New API Key']"))
+        .find(By::XPath("//button[text()='Create Assistant Key']"))
         .await?
         .click()
         .await?;
@@ -186,10 +186,13 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
     driver
         .find(By::XPath("//td[text()='Test Key']"))
         .await?
-        .click()
+        .wait_until()
+        .displayed()
         .await?;
 
-    let api_key_input = driver.find(By::XPath("//input[@name='api_key']")).await?;
+    let api_key_input = driver
+        .find(By::XPath("//input[@name='generated-api-key']"))
+        .await?;
 
     let api_key = api_key_input.value().await?.unwrap();
 

@@ -53,6 +53,7 @@ pub async fn loader(
         models,
         token_usage_data,
         api_request_data,
+        None,
     );
 
     Ok(Html(html))

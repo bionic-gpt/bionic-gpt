@@ -23,6 +23,7 @@ pub enum SideBar {
     Guardrails,
     History,
     Integrations,
+    McpApiKeys,
     Licence,
     Models,
     Categories,
@@ -120,6 +121,15 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     href: super::routes::integrations::Index { team_id: props.team_id },
                                     icon: nav_audit_svg.name,
                                     title: i18n::integrations().to_string()
+                                }
+                                if props.rbac.can_manage_mcp_keys() {
+                                    NavItem {
+                                        id: SideBar::McpApiKeys.to_string(),
+                                        selected_item_id: props.selected_item.to_string(),
+                                        href: super::routes::mcp_api_keys::Index { team_id: props.team_id },
+                                        icon: nav_api_keys_svg.name,
+                                        title: "API Keys"
+                                    }
                                 }
                             }
                             if props.rbac.can_view_datasets() {

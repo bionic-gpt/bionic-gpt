@@ -10,6 +10,15 @@ use daisy_rsx::*;
 use db::{authz::Rbac, ApiKey, Prompt, PromptType as DBPromptType};
 use dioxus::prelude::*;
 
+#[derive(Clone)]
+pub struct GeneratedKey {
+    pub name: String,
+    pub value: String,
+    pub prompt_name: Option<String>,
+    pub prompt_type: Option<DBPromptType>,
+}
+
+#[allow(clippy::too_many_arguments)]
 pub fn page(
     rbac: Rbac,
     team_id: i32,
@@ -18,6 +27,7 @@ pub fn page(
     models: Vec<Prompt>,
     token_usage_data: Vec<db::queries::token_usage_metrics::DailyTokenUsage>,
     api_request_data: Vec<db::queries::token_usage_metrics::DailyApiRequests>,
+    generated_key: Option<GeneratedKey>,
 ) -> String {
     let page = rsx! {
         Layout {
@@ -51,6 +61,27 @@ pub fn page(
             },
             // Add graphs section - always show regardless of API keys
             div {
+                if let Some(created) = generated_key.clone() {
+                    Alert {
+                        alert_color: AlertColor::Success,
+                        class: "mb-6 flex flex-col gap-2",
+                        div { class: "font-semibold", "API Key Created" }
+                        if let Some(name) = created.prompt_name.clone() {
+                            div { class: "text-sm opacity-90", "Copy and store this key for {name}. This is the only time it will be shown." }
+                        } else {
+                            div { class: "text-sm opacity-90", "Copy and store this key. This is the only time it will be shown." }
+                        }
+                        if let Some(prompt_type) = created.prompt_type {
+                            div { class: "flex items-center gap-2 text-xs", "Type:" PromptType { prompt_type: Some(prompt_type) } }
+                        }
+                        Input {
+                            input_type: InputType::Text,
+                            value: created.value.clone(),
+                            readonly: true,
+                            name: "generated-api-key",
+                        }
+                    }
+                }
                 div {
                     class: "grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8",
 
@@ -104,9 +135,9 @@ pub fn page(
 }
 
 #[component]
-pub fn PromptType(prompt_type: DBPromptType) -> Element {
+pub fn PromptType(prompt_type: Option<DBPromptType>) -> Element {
     match prompt_type {
-        DBPromptType::Model => rsx!(
+        Some(DBPromptType::Model) => rsx!(
             Badge {
                 class: "mr-2 truncate",
                 badge_color: BadgeColor::Info,
@@ -115,7 +146,7 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
                 "Model"
             }
         ),
-        DBPromptType::Assistant => rsx!(
+        Some(DBPromptType::Assistant) => rsx!(
             Badge {
                 class: "mr-2 truncate",
                 badge_color: BadgeColor::Accent,
@@ -124,13 +155,22 @@ pub fn PromptType(prompt_type: DBPromptType) -> Element {
                 "Assistant"
             }
         ),
-        DBPromptType::Automation => rsx!(
+        Some(DBPromptType::Automation) => rsx!(
             Badge {
                 class: "mr-2 truncate",
                 badge_color: BadgeColor::Accent,
                 badge_style: BadgeStyle::Outline,
                 badge_size: BadgeSize::Sm,
                 "Assistant"
+            }
+        ),
+        None => rsx!(
+            Badge {
+                class: "mr-2 truncate",
+                badge_color: BadgeColor::Neutral,
+                badge_style: BadgeStyle::Outline,
+                badge_size: BadgeSize::Sm,
+                "Unknown"
             }
         ),
     }
@@ -150,7 +190,7 @@ fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: i32) -> Element {
                     thead {
                         th { "Name" }
                         th { "Type" }
-                        th { "API Key" }
+                        th { "Key Suffix" }
                         th { "Assistant/Model" }
                         th {
                             class: "text-right",
@@ -169,21 +209,14 @@ fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: i32) -> Element {
                                     }
                                 }
                                 td {
-                                    div {
-                                        class: "flex w-full",
-                                        Input {
-                                            value: key.api_key.clone(),
-                                            name: "api_key",
-                                            input_type: InputType::Password
-                                        }
-                                        Button {
-                                            class: "api-keys-toggle-visibility",
-                                            "Show"
-                                        }
-                                    }
+                                    span { class: "font-mono text-sm", "{mask_hash(&key.api_key)}" }
                                 }
                                 td {
-                                    "{key.prompt_name}"
+                                    if let Some(name) = key.prompt_name.clone() {
+                                        "{name}"
+                                    } else {
+                                        "-"
+                                    }
                                 }
                                 td {
                                     class: "text-right",
@@ -206,4 +239,23 @@ fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: i32) -> Element {
             }
         }
     }
+}
+
+fn mask_hash(hash: &str) -> String {
+    if hash.is_empty() {
+        return "Unknown".to_string();
+    }
+
+    let len = hash.chars().count();
+    let suffix_len = if len <= 8 { len.min(4) } else { 6 };
+    let suffix: String = hash
+        .chars()
+        .rev()
+        .take(suffix_len)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect();
+
+    format!("••••{}", suffix)
 }

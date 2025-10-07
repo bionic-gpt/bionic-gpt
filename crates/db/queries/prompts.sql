@@ -293,7 +293,7 @@ FROM
     prompts p
 WHERE
     p.id IN (
-        SELECT prompt_id FROM api_keys WHERE api_key = :api_key
+        SELECT prompt_id FROM api_keys WHERE api_key = encode(digest(:api_key, 'sha256'), 'hex')
     )
 ORDER BY updated_at;
 
@@ -448,5 +448,3 @@ WHERE
 AND
     team_id
     IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
-
-
