@@ -7,7 +7,7 @@ pub fn summary() -> Summary {
             name: "Launches".to_string(),
             pages: vec![Page {
                 date: "2025-10-01",
-                title: "Deep Dive: The MCP protocol using curl",
+                title: "Deep Dive: Understanding the MCP protocol using curl",
                 description:
                     "ILooking at how the MCP protocol works with LLMs from first principals.",
                 folder: "blog/mcp-explained-with-curl/",
