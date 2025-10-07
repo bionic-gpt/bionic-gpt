@@ -468,6 +468,13 @@ pub mod mcp_api_keys {
     pub struct Create {
         pub team_id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/mcp_api_keys/{id}/delete")]
+    pub struct Delete {
+        pub team_id: i32,
+        pub id: i32,
+    }
 }
 
 pub mod workflows {

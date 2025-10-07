@@ -1,8 +1,10 @@
 #![allow(non_snake_case)]
 
 use crate::app_layout::{Layout, SideBar};
+use crate::components::card_item::CardItem;
 use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
+use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKey};
@@ -89,20 +91,16 @@ pub fn page(
             rbac: rbac.clone(),
             title: "MCP API Keys",
             header: rsx!(
+                Breadcrumb {
+                    items: vec![
+                        BreadcrumbItem {
+                            text: "API Keys".into(),
+                            href: None,
+                        }
+                    ]
+                }
                 div {
-                    class: "flex flex-col gap-4 md:flex-row md:items-center md:justify-between",
-                    Breadcrumb {
-                        items: vec![
-                            BreadcrumbItem {
-                                text: crate::i18n::integrations().into(),
-                                href: Some(routes::integrations::Index { team_id }.to_string()),
-                            },
-                            BreadcrumbItem {
-                                text: "API Keys".into(),
-                                href: Some(routes::mcp_api_keys::Index { team_id }.to_string()),
-                            }
-                        ]
-                    }
+                    class: "flex gap-4",
                     Button {
                         prefix_image_src: button_plus_svg.name,
                         button_scheme: ButtonScheme::Primary,
@@ -112,7 +110,13 @@ pub fn page(
                 }
             ),
             div {
-                class: "space-y-6",
+                class: "p-4 max-w-3xl w-full mx-auto space-y-6",
+                SectionIntroduction {
+                    header: "MCP API Keys".to_string(),
+                    subtitle: "Create and manage API keys that your MCP servers use to authenticate with Bionic.".to_string(),
+                    is_empty: displays.is_empty(),
+                    empty_text: "No MCP API keys yet. Generate a key to start connecting your MCP servers.".to_string(),
+                }
                 if let Some(error) = &form.error {
                     Alert {
                         alert_color: AlertColor::Error,
@@ -136,24 +140,11 @@ pub fn page(
                     }
                 }
 
-                if displays.is_empty() {
-                    div { class: "text-sm text-base-content/70", "No MCP API keys created yet." }
-                } else {
+                if !displays.is_empty() {
                     div {
-                        class: "overflow-x-auto",
-                        table {
-                            class: "table table-sm",
-                            thead {
-                                th { "Name" }
-                                th { "Key Suffix" }
-                                th { "Created" }
-                                th { class: "text-right", "Action" }
-                            }
-                            tbody {
-                                for key in displays.iter() {
-                                    McpKeyRow { team_id, item: key.clone() }
-                                }
-                            }
+                        class: "space-y-2",
+                        for key in displays.iter() {
+                            McpKeyCard { team_id, item: key.clone() }
                         }
                     }
                 }
@@ -201,7 +192,7 @@ pub fn page(
 
                 for key in displays.iter() {
                     ConfirmModal {
-                        action: routes::api_keys::Delete { team_id, id: key.id }.to_string(),
+                        action: routes::mcp_api_keys::Delete { team_id, id: key.id }.to_string(),
                         trigger_id: delete_trigger_id(team_id, key.id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete API Key?".to_string(),
@@ -220,16 +211,21 @@ pub fn page(
 }
 
 #[component]
-fn McpKeyRow(team_id: i32, item: McpKeyDisplay) -> Element {
+fn McpKeyCard(team_id: i32, item: McpKeyDisplay) -> Element {
     let trigger_id = delete_trigger_id(team_id, item.id);
 
     rsx! {
-        tr {
-            td { "{item.name}" }
-            td { span { class: "font-mono text-sm", "{item.hash_suffix}" } }
-            td { class: "text-sm", "{item.created_at}" }
-            td {
-                class: "text-right",
+        CardItem {
+            class: None,
+            popover_target: None,
+            clickable_link: None,
+            image_src: None,
+            avatar_name: None,
+            title: item.name.clone(),
+            description: Some(rsx!(span { class: "font-mono text-sm", "Key suffix: {item.hash_suffix}" })),
+            footer: Some(rsx!(span { "Created {item.created_at}" })),
+            count_labels: vec![],
+            action: Some(rsx!(
                 Button {
                     button_scheme: ButtonScheme::Error,
                     button_size: ButtonSize::Small,
@@ -237,7 +233,7 @@ fn McpKeyRow(team_id: i32, item: McpKeyDisplay) -> Element {
                     popover_target: trigger_id,
                     "Delete"
                 }
-            }
+            )),
         }
     }
 }

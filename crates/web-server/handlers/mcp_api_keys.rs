@@ -8,7 +8,7 @@ use rand::{rng, Rng};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::mcp_api_keys::{GeneratedKey, NewKeyForm};
-use web_pages::routes::mcp_api_keys::{Create, Index};
+use web_pages::routes::mcp_api_keys::{Create, Delete, Index};
 
 async fn load_page_data(
     transaction: &db::Transaction<'_>,
@@ -109,5 +109,31 @@ pub async fn create_action(
 }
 
 pub fn routes() -> Router {
-    Router::new().typed_get(loader).typed_post(create_action)
+    Router::new()
+        .typed_get(loader)
+        .typed_post(create_action)
+        .typed_post(delete_action)
+}
+
+pub async fn delete_action(
+    Delete { team_id, id }: Delete,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_manage_mcp_keys() {
+        return Err(CustomError::Authorization);
+    }
+
+    queries::api_keys::delete().bind(&transaction, &id).await?;
+
+    transaction.commit().await?;
+
+    crate::layout::redirect_and_snackbar(
+        &web_pages::routes::mcp_api_keys::Index { team_id }.to_string(),
+        "API Key Deleted",
+    )
 }
