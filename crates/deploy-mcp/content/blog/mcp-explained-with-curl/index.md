@@ -89,7 +89,21 @@ The model has stopped so we can run the requested function. Now we need somethin
 
 ### Running a Bitcoin MCP server
 
-The Model Context Protocol standardises how tools are exposed to language models. Deploy spins up an MCP server for us; for example the blockchain server exposes a `getTicker` tool. When Deploy finishes provisioning you'll get a base URL such as `http://localhost:7703/v1/mcp/blockchain/<connection-id>`.
+The Model Context Protocol standardises how tools are exposed to language models. Deploy spins up an MCP server for us; for example the blockchain server exposes a `getTicker` tool. When Deploy finishes provisioning you'll get a base URL such as `https://app.deploy-mcp.com/v1/mcp/blockchain/<connection-id>`.
+
+```sh
+export MCP_URL=https://app.deploy-mcp.com/v1/mcp/blockchain/e4a99bcf-82c2-4b26-a979-0ff668da42b6
+```
+
+### Authenticate with Deploy
+
+Generate an MCP API key from the Deploy dashboard (App -> API Keys) and export it so `curl` can send it on every request.
+
+```sh
+export DEPLOY_API_KEY=deploy_your-key-here
+```
+
+Each call to the MCP endpoint must now include the key as a bearer token.
 
 ### Listing tools from the MCP server
 
@@ -99,8 +113,9 @@ The MCP interface is JSON-RPC. We can enumerate tools to confirm what the server
 curl \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
+  -H "Authorization: Bearer $DEPLOY_API_KEY" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
-  https://app.deploy-mcp.com/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
+  $MCP_URL \
   | jq '{tools: [.result.tools[] | {name, description}]}'
 ```
 
@@ -122,9 +137,10 @@ We now know the tool name we need to call to fulfil the model's request.
 Next, trigger the tool and ask the server for a live quote. The raw response includes prices for many fiat currencies, so we trim it to the few we care about.
 
 ```sh
-curl -X POST https://app.deploy-mcp.com3/v1/mcp/blockchain/cd66871f-af4d-4461-ac60-9d72f0aa2fd1 \
+curl -X POST $MCP_URL \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
+  -H "Authorization: Bearer $DEPLOY_API_KEY" \
   -d '{
     "jsonrpc": "2.0",
     "id": "example-session-id",

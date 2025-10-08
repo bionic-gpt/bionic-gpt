@@ -1,7 +1,7 @@
 use crate::CustomError;
 use axum::{
     extract::Extension,
-    http::StatusCode,
+    http::{header::AUTHORIZATION, HeaderMap, StatusCode},
     response::{IntoResponse, Response},
     Json, Router,
 };
@@ -138,6 +138,7 @@ struct IntegrationContext {
     integration_id: i32,
     #[allow(dead_code)]
     user_id: i32,
+    team_id: i32,
     user_openid_sub: Option<String>,
     connection: ConnectionAuth,
 }
@@ -198,6 +199,69 @@ fn default_arguments() -> Value {
     Value::Object(Map::new())
 }
 
+#[cfg(test)]
+type MockApiKeyStore = std::collections::HashMap<String, i32>;
+
+#[cfg(test)]
+static MOCK_API_KEYS: OnceLock<Mutex<MockApiKeyStore>> = OnceLock::new();
+
+#[cfg(test)]
+fn mock_api_key_store() -> &'static Mutex<MockApiKeyStore> {
+    MOCK_API_KEYS.get_or_init(|| Mutex::new(MockApiKeyStore::new()))
+}
+
+#[cfg(test)]
+fn maybe_mock_api_key_team(api_key: &str) -> Option<i32> {
+    mock_api_key_store()
+        .lock()
+        .ok()
+        .and_then(|store| store.get(api_key).copied())
+}
+
+#[cfg(test)]
+fn register_mock_api_key(api_key: &str, team_id: i32) {
+    if let Ok(mut store) = mock_api_key_store().lock() {
+        store.insert(api_key.to_string(), team_id);
+    }
+}
+
+#[cfg(test)]
+fn remove_mock_api_key(api_key: &str) {
+    if let Ok(mut store) = mock_api_key_store().lock() {
+        store.remove(api_key);
+    }
+}
+
+async fn validate_api_key(pool: &Pool, api_key_value: &str) -> Result<i32, CustomError> {
+    #[cfg(test)]
+    if let Some(team_id) = maybe_mock_api_key_team(api_key_value) {
+        return Ok(team_id);
+    }
+
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let api_key_record = db::queries::api_keys::find_api_key()
+        .bind(&transaction, &api_key_value)
+        .opt()
+        .await
+        .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?
+        .ok_or_else(|| CustomError::Authentication("Invalid API Key".to_string()))?;
+
+    if api_key_record.prompt_id.is_some() {
+        return Err(CustomError::Authentication(
+            "API key is not enabled for MCP".to_string(),
+        ));
+    }
+
+    let team_id = api_key_record.team_id;
+
+    drop(transaction);
+    drop(client);
+
+    Ok(team_id)
+}
+
 fn negotiate_protocol_version(requested: Option<&str>) -> Result<&'static str, String> {
     match requested {
         Some(version) => SUPPORTED_PROTOCOL_VERSIONS
@@ -215,8 +279,26 @@ pub async fn handle_json_rpc(
         connection_id,
     }: JsonRpcPath,
     Extension(pool): Extension<Pool>,
+    headers: HeaderMap,
     Json(payload): Json<Value>,
 ) -> Result<Response, CustomError> {
+    let authorization_header = headers
+        .get(AUTHORIZATION)
+        .ok_or_else(|| CustomError::Authentication("You need an API key".to_string()))?;
+    let authorization_value = authorization_header
+        .to_str()
+        .map_err(|_| CustomError::Authentication("Invalid API Key".to_string()))?;
+    let api_key_value = authorization_value
+        .strip_prefix("Bearer ")
+        .unwrap_or(authorization_value)
+        .trim();
+
+    if api_key_value.is_empty() {
+        return Err(CustomError::Authentication("Invalid API Key".to_string()));
+    }
+
+    let api_key_team_id = validate_api_key(&pool, api_key_value).await?;
+
     tracing::debug!("{:?}", payload);
 
     if payload.get("id").is_none() {
@@ -307,6 +389,12 @@ pub async fn handle_json_rpc(
             return Ok(json_response(response));
         }
     };
+
+    if context.team_id != api_key_team_id {
+        return Err(CustomError::Authentication(
+            "API key is not authorized for this connection".to_string(),
+        ));
+    }
 
     let context_definition = context.definition.clone();
     let integration_openapi = match BionicOpenAPI::new(&context_definition) {
@@ -630,7 +718,7 @@ fn resolve_integration_context<'a>(
                 .await?;
         }
 
-        let connection = match base_context.connection_type.as_str() {
+        let (team_id, connection) = match base_context.connection_type.as_str() {
             "api_key" => {
                 let api_key_secret = db::queries::connections::mcp_api_key_connection_secret()
                     .bind(&transaction, &slug_param, &connection_id)
@@ -641,10 +729,21 @@ fn resolve_integration_context<'a>(
                     .api_key
                     .ok_or(ResolveError::MissingSecret("api_key"))?;
 
-                ConnectionAuth::ApiKey {
-                    connection_id: api_key_secret.connection_id,
-                    api_key,
-                }
+                let team_id_row = transaction
+                    .query_one(
+                        "SELECT team_id FROM api_key_connections WHERE id = $1",
+                        &[&api_key_secret.connection_id],
+                    )
+                    .await?;
+                let team_id: i32 = team_id_row.get(0);
+
+                (
+                    team_id,
+                    ConnectionAuth::ApiKey {
+                        connection_id: api_key_secret.connection_id,
+                        api_key,
+                    },
+                )
             }
             "oauth2" => {
                 let oauth_secret = db::queries::connections::mcp_oauth2_connection_secret()
@@ -656,12 +755,23 @@ fn resolve_integration_context<'a>(
                     .access_token
                     .ok_or(ResolveError::MissingSecret("access_token"))?;
 
-                ConnectionAuth::OAuth2 {
-                    connection_id: oauth_secret.connection_id,
-                    access_token,
-                    refresh_token: oauth_secret.refresh_token,
-                    expires_at: oauth_secret.expires_at,
-                }
+                let team_id_row = transaction
+                    .query_one(
+                        "SELECT team_id FROM oauth2_connections WHERE id = $1",
+                        &[&oauth_secret.connection_id],
+                    )
+                    .await?;
+                let team_id: i32 = team_id_row.get(0);
+
+                (
+                    team_id,
+                    ConnectionAuth::OAuth2 {
+                        connection_id: oauth_secret.connection_id,
+                        access_token,
+                        refresh_token: oauth_secret.refresh_token,
+                        expires_at: oauth_secret.expires_at,
+                    },
+                )
             }
             other => return Err(ResolveError::UnsupportedConnection(other.to_string())),
         };
@@ -672,6 +782,7 @@ fn resolve_integration_context<'a>(
             definition,
             integration_id: base_context.integration_id,
             user_id: base_context.user_id,
+            team_id,
             user_openid_sub: base_context.user_openid_sub.clone(),
             connection,
         })
@@ -744,6 +855,25 @@ mod tests {
     impl Drop for ResolverGuard {
         fn drop(&mut self) {
             clear_mock_resolver();
+        }
+    }
+
+    struct ApiKeyGuard {
+        key: String,
+    }
+
+    impl ApiKeyGuard {
+        fn new(key: &str, team_id: i32) -> Self {
+            register_mock_api_key(key, team_id);
+            Self {
+                key: key.to_string(),
+            }
+        }
+    }
+
+    impl Drop for ApiKeyGuard {
+        fn drop(&mut self) {
+            remove_mock_api_key(&self.key);
         }
     }
 
@@ -828,16 +958,21 @@ mod tests {
         let connection_id = Uuid::new_v4();
         let spec = sample_spec("http://example.com", &slug);
 
+        let api_key_value = "test-capabilities-key";
+
         let context = IntegrationContext {
             definition: spec,
             integration_id: 7,
             user_id: 11,
+            team_id: 21,
             user_openid_sub: Some("user-1".to_string()),
             connection: ConnectionAuth::ApiKey {
                 connection_id: 42,
                 api_key: "abc".to_string(),
             },
         };
+
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
 
         let slug_for_guard = slug.clone();
         let _guard = ResolverGuard::new(move |requested_slug, requested_id| {
@@ -861,6 +996,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
@@ -890,16 +1026,21 @@ mod tests {
         let connection_id = Uuid::new_v4();
         let spec = sample_spec("http://example.com", &slug);
 
+        let api_key_value = "test-initialize-key";
+
         let context = IntegrationContext {
             definition: spec,
             integration_id: 12,
             user_id: 44,
+            team_id: 33,
             user_openid_sub: Some("user-7".to_string()),
             connection: ConnectionAuth::ApiKey {
                 connection_id: 88,
                 api_key: "stu".to_string(),
             },
         };
+
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
 
         let slug_for_guard = slug.clone();
         let _guard = ResolverGuard::new(move |requested_slug, requested_id| {
@@ -932,6 +1073,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
@@ -963,10 +1105,13 @@ mod tests {
         let connection_id = Uuid::new_v4();
         let spec = sample_spec("http://example.com", &slug);
 
+        let api_key_value = "test-tools-list-key";
+
         let context = IntegrationContext {
             definition: spec,
             integration_id: 9,
             user_id: 22,
+            team_id: 44,
             user_openid_sub: Some("user-2".to_string()),
             connection: ConnectionAuth::ApiKey {
                 connection_id: 55,
@@ -974,6 +1119,7 @@ mod tests {
             },
         };
 
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
         let _guard = ResolverGuard::new(move |_, _| context.clone());
         let app = test_router(pool.clone());
 
@@ -990,6 +1136,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
@@ -1015,10 +1162,13 @@ mod tests {
         let connection_id = Uuid::new_v4();
         let spec = minimal_spec(&slug);
 
+        let api_key_value = "test-canonical-key";
+
         let context = IntegrationContext {
             definition: spec,
             integration_id: 10,
             user_id: 33,
+            team_id: 52,
             user_openid_sub: Some("user-4".to_string()),
             connection: ConnectionAuth::ApiKey {
                 connection_id: 70,
@@ -1026,6 +1176,7 @@ mod tests {
             },
         };
 
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
         let _guard = ResolverGuard::new(move |_, _| context.clone());
         let app = test_router(pool.clone());
 
@@ -1042,6 +1193,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
@@ -1068,10 +1220,13 @@ mod tests {
         let (base_url, handle) = spawn_ping_service(json!({ "ok": true })).await;
         let spec = sample_spec(&base_url, &slug);
 
+        let api_key_value = "test-tools-call-key";
+
         let context = IntegrationContext {
             definition: spec,
             integration_id: 3,
             user_id: 12,
+            team_id: 65,
             user_openid_sub: Some("user-3".to_string()),
             connection: ConnectionAuth::ApiKey {
                 connection_id: 60,
@@ -1079,6 +1234,7 @@ mod tests {
             },
         };
 
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
         let _guard = ResolverGuard::new(move |_, _| context.clone());
         let app = test_router(pool.clone());
 
@@ -1098,6 +1254,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
@@ -1124,6 +1281,9 @@ mod tests {
         let connection_id = Uuid::new_v4();
         let app = test_router(pool.clone());
 
+        let api_key_value = "test-notification-key";
+        let _api_guard = ApiKeyGuard::new(api_key_value, 77);
+
         let payload = json!({
             "jsonrpc": "2.0",
             "method": "session.initialize",
@@ -1136,6 +1296,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
@@ -1152,10 +1313,13 @@ mod tests {
         let connection_id = Uuid::new_v4();
         let spec = sample_spec("http://example.com", &slug);
 
+        let api_key_value = "test-unknown-method-key";
+
         let context = IntegrationContext {
             definition: spec,
             integration_id: 8,
             user_id: 22,
+            team_id: 80,
             user_openid_sub: Some("user-5".to_string()),
             connection: ConnectionAuth::ApiKey {
                 connection_id: 75,
@@ -1163,6 +1327,7 @@ mod tests {
             },
         };
 
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
         let _guard = ResolverGuard::new(move |_, _| context.clone());
         let app = test_router(pool.clone());
 
@@ -1179,6 +1344,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
@@ -1204,10 +1370,13 @@ mod tests {
         let connection_id = Uuid::new_v4();
         let spec = sample_spec("http://example.com", &slug);
 
+        let api_key_value = "test-invalid-params-key";
+
         let context = IntegrationContext {
             definition: spec,
             integration_id: 5,
             user_id: 18,
+            team_id: 84,
             user_openid_sub: Some("user-6".to_string()),
             connection: ConnectionAuth::ApiKey {
                 connection_id: 81,
@@ -1215,6 +1384,7 @@ mod tests {
             },
         };
 
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
         let _guard = ResolverGuard::new(move |_, _| context.clone());
         let app = test_router(pool.clone());
 
@@ -1231,6 +1401,7 @@ mod tests {
                     .method("POST")
                     .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
                     .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
                     .body(axum::body::Body::from(payload.to_string()))
                     .unwrap(),
             )
