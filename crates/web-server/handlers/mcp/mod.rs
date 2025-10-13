@@ -28,7 +28,8 @@ static RESOLVER_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
 const JSONRPC_VERSION: &str = "2.0";
 const DEFAULT_PROTOCOL_VERSION: &str = "2024-05-30";
-const SUPPORTED_PROTOCOL_VERSIONS: &[&str] = &[DEFAULT_PROTOCOL_VERSION, "2025-06-18"];
+const SUPPORTED_PROTOCOL_VERSIONS: &[&str] =
+    &[DEFAULT_PROTOCOL_VERSION, "2025-03-26", "2025-06-18"];
 const SERVER_NAME: &str = env!("CARGO_PKG_NAME");
 const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -1096,6 +1097,85 @@ mod tests {
         assert_eq!(json["result"]["serverInfo"]["name"], SERVER_NAME);
         assert_eq!(json["result"]["serverInfo"]["version"], SERVER_VERSION);
         assert_eq!(json["result"]["metadata"]["integrationId"], 12);
+    }
+
+    #[tokio::test]
+    async fn initialize_supports_march_2025_protocol() {
+        let pool = create_test_pool();
+        let slug = "test".to_string();
+        let connection_id = Uuid::new_v4();
+        let spec = sample_spec("http://example.com", &slug);
+
+        let api_key_value = "test-initialize-march-key";
+
+        let context = IntegrationContext {
+            definition: spec,
+            integration_id: 13,
+            user_id: 45,
+            team_id: 34,
+            user_openid_sub: Some("user-8".to_string()),
+            connection: ConnectionAuth::ApiKey {
+                connection_id: 89,
+                api_key: "vwx".to_string(),
+            },
+        };
+
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
+
+        let slug_for_guard = slug.clone();
+        let _guard = ResolverGuard::new(move |requested_slug, requested_id| {
+            assert_eq!(requested_slug, slug_for_guard);
+            assert_eq!(requested_id, connection_id);
+            context.clone()
+        });
+
+        let app = test_router(pool.clone());
+
+        let payload = json!({
+            "jsonrpc": "2.0",
+            "id": 101,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2025-03-26",
+                "capabilities": {
+                    "elicitation": {}
+                },
+                "clientInfo": {
+                    "name": "example-client",
+                    "version": "1.0.0"
+                }
+            }
+        });
+
+        let response = app
+            .oneshot(
+                axum::http::Request::builder()
+                    .method("POST")
+                    .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
+                    .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
+                    .body(axum::body::Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        let json: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(json["result"]["protocolVersion"], "2025-03-26");
+        assert_eq!(
+            json["result"]["capabilities"]["tools"]["listChanged"],
+            false
+        );
+        assert_eq!(json["result"]["serverInfo"]["name"], SERVER_NAME);
+        assert_eq!(json["result"]["serverInfo"]["version"], SERVER_VERSION);
+        assert_eq!(json["result"]["metadata"]["integrationId"], 13);
     }
 
     #[tokio::test]
