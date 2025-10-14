@@ -289,6 +289,8 @@ pub async fn handle_json_rpc(
     headers: HeaderMap,
     Json(payload): Json<Value>,
 ) -> Result<Response, CustomError> {
+    tracing::debug!("{:?}", headers);
+
     let authorization_header = headers
         .get(AUTHORIZATION)
         .ok_or_else(|| CustomError::Authentication("You need an API key".to_string()))?;
@@ -307,11 +309,6 @@ pub async fn handle_json_rpc(
     let api_key_team_id = validate_api_key(&pool, api_key_value).await?;
 
     tracing::debug!("{:?}", payload);
-
-    if payload.get("id").is_none() {
-        tracing::debug!("Payload doesn't have an id");
-        return Ok(StatusCode::NO_CONTENT.into_response());
-    }
 
     let id_from_payload = payload.get("id").cloned().unwrap_or(Value::Null);
     let request: JsonRpcRequest = match serde_json::from_value(payload.clone()) {
@@ -536,6 +533,19 @@ pub async fn handle_json_rpc(
                 }),
             );
             Ok(json_response(response))
+        }
+        "notifications/initialized" => {
+            if request.id.is_some() {
+                let response = JsonRpcResponse::failure(
+                    request_id.clone(),
+                    -32600,
+                    "notifications/initialized must not include an id".to_string(),
+                    None,
+                );
+                Ok(json_response(response))
+            } else {
+                Ok(StatusCode::NO_CONTENT.into_response())
+            }
         }
         "tools/list" => {
             let tools: Vec<McpTool> = tool_definitions
@@ -1182,6 +1192,134 @@ mod tests {
         assert_eq!(json["result"]["serverInfo"]["name"], SERVER_NAME);
         assert_eq!(json["result"]["serverInfo"]["version"], SERVER_VERSION);
         assert_eq!(json["result"]["metadata"]["integrationId"], 13);
+    }
+
+    #[tokio::test]
+    async fn notifications_initialized_returns_no_content() {
+        let pool = create_test_pool();
+        let slug = "test".to_string();
+        let connection_id = Uuid::new_v4();
+        let spec = sample_spec("http://example.com", &slug);
+
+        let api_key_value = "test-notification-key";
+
+        let context = IntegrationContext {
+            definition: spec,
+            integration_id: 19,
+            user_id: 55,
+            team_id: 43,
+            user_openid_sub: Some("user-19".to_string()),
+            connection: ConnectionAuth::ApiKey {
+                connection_id: 101,
+                api_key: "xyz".to_string(),
+            },
+        };
+
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
+
+        let slug_for_guard = slug.clone();
+        let _guard = ResolverGuard::new(move |requested_slug, requested_id| {
+            assert_eq!(requested_slug, slug_for_guard);
+            assert_eq!(requested_id, connection_id);
+            context.clone()
+        });
+
+        let app = test_router(pool.clone());
+
+        let payload = json!({
+            "jsonrpc": "2.0",
+            "method": "notifications/initialized",
+            "params": {}
+        });
+
+        let response = app
+            .oneshot(
+                axum::http::Request::builder()
+                    .method("POST")
+                    .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
+                    .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
+                    .body(axum::body::Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
+        let body = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        assert!(body.is_empty());
+    }
+
+    #[tokio::test]
+    async fn notifications_initialized_with_id_returns_error() {
+        let pool = create_test_pool();
+        let slug = "test".to_string();
+        let connection_id = Uuid::new_v4();
+        let spec = sample_spec("http://example.com", &slug);
+
+        let api_key_value = "test-notification-id-key";
+
+        let context = IntegrationContext {
+            definition: spec,
+            integration_id: 20,
+            user_id: 56,
+            team_id: 44,
+            user_openid_sub: Some("user-20".to_string()),
+            connection: ConnectionAuth::ApiKey {
+                connection_id: 102,
+                api_key: "xyz".to_string(),
+            },
+        };
+
+        let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
+
+        let slug_for_guard = slug.clone();
+        let _guard = ResolverGuard::new(move |requested_slug, requested_id| {
+            assert_eq!(requested_slug, slug_for_guard);
+            assert_eq!(requested_id, connection_id);
+            context.clone()
+        });
+
+        let app = test_router(pool.clone());
+
+        let payload = json!({
+            "jsonrpc": "2.0",
+            "id": 7,
+            "method": "notifications/initialized",
+            "params": {}
+        });
+
+        let response = app
+            .oneshot(
+                axum::http::Request::builder()
+                    .method("POST")
+                    .uri(format!("/v1/mcp/{}/{}", slug, connection_id))
+                    .header("content-type", "application/json")
+                    .header("authorization", format!("Bearer {}", api_key_value))
+                    .body(axum::body::Body::from(payload.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        let json: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(json["error"]["code"], -32600);
+        assert_eq!(
+            json["error"]["message"],
+            "notifications/initialized must not include an id"
+        );
     }
 
     #[tokio::test]
