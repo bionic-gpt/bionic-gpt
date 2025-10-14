@@ -544,7 +544,7 @@ pub async fn handle_json_rpc(
                 );
                 Ok(json_response(response))
             } else {
-                Ok(StatusCode::NO_CONTENT.into_response())
+                Ok(StatusCode::ACCEPTED.into_response())
             }
         }
         "tools/list" => {
