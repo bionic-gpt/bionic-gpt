@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use std::{future::Future, pin::Pin, sync::Arc};
 use time::OffsetDateTime;
+use tower_http::cors::{Any, CorsLayer};
 use uuid::Uuid;
 
 #[cfg(test)]
@@ -41,7 +42,12 @@ pub struct JsonRpcPath {
 }
 
 pub fn routes() -> Router {
-    Router::new().typed_post(handle_json_rpc)
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
+    Router::new().typed_post(handle_json_rpc).layer(cors)
 }
 
 #[derive(Deserialize, Debug)]

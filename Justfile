@@ -9,6 +9,9 @@ dev-setup:
     cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000
     cargo run --bin k8s-operator -- operator
 
+codex: 
+    sudo npm install -g @openai/codex
+
 # Upgrade the testing chunking engine to the real one
 chunking-engine-setup:
     kubectl set image deployment/chunking-engine \
