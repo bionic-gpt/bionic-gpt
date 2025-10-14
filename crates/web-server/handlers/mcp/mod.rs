@@ -807,7 +807,7 @@ fn resolve_integration_context<'a>(
 }
 
 fn json_response(response: JsonRpcResponse) -> Response {
-    tracing::debug!("{:?}", response);
+    tracing::info!("{:?}", response);
     (StatusCode::OK, Json(response)).into_response()
 }
 
