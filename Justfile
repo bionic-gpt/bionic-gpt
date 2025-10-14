@@ -2,8 +2,8 @@ list:
     just --list
 
 dev-init:
-    k3d cluster delete
-    k3d cluster create --agents 1 -p "30000-30001:30000-30001@agent:0"
+    k3d cluster delete k3d-bionic
+    k3d cluster create k3d-bionic --agents 1 -p "30000-30001:30000-30001@agent:0"
 
 dev-setup:
     cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000
@@ -23,7 +23,13 @@ expose-chunking-engine:
 
 # Retrieve the cluster kube config - so kubectl and k9s work.
 get-config:
-    k3d kubeconfig write k3s-default --kubeconfig-merge-default
+    sudo apt-get update -qq && sudo apt-get install -y -qq iproute2
+    k3d kubeconfig write k3d-bionic --kubeconfig-merge-default
+    sed -i "s/127\.0\.0\.1/$(ip route | awk '/default/ {print $3}')/g; s/0\.0\.0\.0/$(ip route | awk '/default/ {print $3}')/g" "$HOME/.kube/config"
+    # Disable TLS verification for local dev
+    sed -i '/certificate-authority-data/d' "$HOME/.kube/config"
+    sed -i '/cluster:/a \ \ \ \ insecure-skip-tls-verify: true' "$HOME/.kube/config"
+    echo "✅ kubeconfig updated and TLS verification disabled"
 
 # Good for feeding the schema into the AI.
 dump-schema:

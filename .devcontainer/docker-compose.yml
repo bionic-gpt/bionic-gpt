@@ -22,8 +22,12 @@ services:
       context: .
       dockerfile: Dockerfile
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     volumes:
       - ..:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker.sock
       - target:/workspace/target/ # Set target as a volume for performance. 
 
     environment:
@@ -31,8 +35,8 @@ services:
       # For tracing_subscriber
       LOG_LEVEL: DEBUG
       ENABLE_BARRICADE: 1
-      DATABASE_URL: postgresql://db-owner:testpassword@localhost:30001/bionic-gpt?sslmode=disable
-      APP_DATABASE_URL: postgresql://bionic_application:testpassword@localhost:30001/bionic-gpt?sslmode=disable
+      DATABASE_URL: postgresql://db-owner:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable
+      APP_DATABASE_URL: postgresql://bionic_application:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable
       SIGNOUT_URL: /auth/sign_out
       # Use https://10015.io/tools/jwt-encoder-decoder and the option for a sample key
       # i.e. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwMSIsIm5hbWUiOiJKb2huIERvZTIiLCJpYXQiOjE1MTY1MzkwMjIsImVtYWlsIjoiam9objJAYWNtZS5vcmcifQ.r35Nh4YaKG-0ylJTZUTC1nlg_EMWozK2kYFlhEY4ewY

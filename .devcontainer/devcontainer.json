@@ -5,11 +5,12 @@
 	"service": "development",
 	"workspaceFolder": "/workspace",
 	"mounts": [
-    	"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
 	],
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
+	"overrideCommand": false,
 	// Set *default* container specific settings.json values on container create.
 	"customizations": {
 		"vscode": {
@@ -21,8 +22,8 @@
 				},
 				// Stop rust analyzer blocking the main build
 				"rust-analyzer.check.extraArgs": [
-				  "--target-dir",
-				  "/tmp/rust-analyzer-check"
+					"--target-dir",
+					"/tmp/rust-analyzer-check"
 				]
 			},
 			// Add the IDs of extensions you want installed when the container is created.
