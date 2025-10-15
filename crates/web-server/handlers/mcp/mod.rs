@@ -670,24 +670,19 @@ pub async fn handle_json_rpc(
 
             match tool.execute(&argument_payload).await {
                 Ok(result) => {
-                    let response_payload = match result {
-                        Value::String(text) => json!({
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": text,
-                                }
-                            ]
-                        }),
-                        other => json!({
-                            "content": [
-                                {
-                                    "type": "json",
-                                    "json": other,
-                                }
-                            ]
-                        }),
+                    let text = match result {
+                        Value::String(text) => text,
+                        other => other.to_string(),
                     };
+
+                    let response_payload = json!({
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": text,
+                            }
+                        ]
+                    });
 
                     let response = JsonRpcResponse::success(request_id.clone(), response_payload);
                     Ok(json_response(response))
