@@ -32,7 +32,7 @@ async fn test_convert_chat_to_messages_tool_calling_fallback() {
 
 #[tokio::test]
 async fn test_generate_prompt() {
-    let (messages, _chunk_ids) = generate_prompt(
+    let messages = generate_prompt(
         2048,
         1024,
         1.0,
@@ -44,7 +44,6 @@ async fn test_generate_prompt() {
             tool_calls: None,
             name: None,
         }],
-        Default::default(),
     )
     .await;
 
@@ -421,8 +420,7 @@ async fn test_history_truncation_keeps_latest() {
         large_msg.clone(),
     ];
 
-    let (messages, _chunk_ids) =
-        generate_prompt(context_size, 0, 1.0, None, history, Default::default()).await;
+    let messages = generate_prompt(context_size, 0, 1.0, None, history).await;
 
     let contents: Vec<_> = messages.iter().map(|m| m.content.clone()).collect();
 

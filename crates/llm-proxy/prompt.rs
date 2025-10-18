@@ -1,57 +1,30 @@
 use crate::errors::CustomError;
-use db::queries::{chats_chunks, prompt_integrations, prompts};
-use db::{RelatedContext, Transaction};
+use db::queries::{prompt_integrations, prompts};
+use db::Transaction;
 use integrations::{create_tools_from_integrations, get_tools, ToolScope};
 use openai_api::{BionicToolDefinition, ChatCompletionMessage, ChatCompletionMessageRole};
-use std::env;
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
 // that's why chat is a Vec<Message>
 // For the UI they'll be just one.
 pub async fn execute_prompt(
-    transaction: &Transaction<'_>,
+    _transaction: &Transaction<'_>,
     prompt: prompts::SinglePrompt,
-    conversation_id: Option<i64>,
+    _conversation_id: Option<i64>,
     chat_history: Vec<ChatCompletionMessage>,
 ) -> Result<Vec<ChatCompletionMessage>, CustomError> {
-    // Find the most recent user message. The last message may be a tool
-    // response, so we search backwards for a message from the user.
-    let question = chat_history
-        .iter()
-        .rev()
-        .find(|m| m.role == ChatCompletionMessageRole::User)
-        .and_then(|m| m.content.clone())
-        .unwrap_or_default();
-
-    // Determine if we should use legacy RAG vector search
-    let mut related_context = Vec::new();
-    if env::var("AGENTIC_RAG").is_err() {
-        related_context = legacy_related_context(transaction, &prompt, &question).await?;
-    }
-
     tracing::info!("Retrieved {} history items", chat_history.len());
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
 
-    let (messages, chunk_ids) = generate_prompt(
+    let messages = generate_prompt(
         prompt.model_context_size as usize,
         prompt.max_tokens as usize,
         trim_ratio,
         prompt.system_prompt,
         chat_history,
-        related_context,
     )
     .await;
-
-    // Store the id's of the chunks we used for this particular chat
-    // We assume, given a list that the last item is the one used for lookup
-    if let Some(id) = conversation_id {
-        for chunk_id in chunk_ids {
-            chats_chunks::create_chunks_chats()
-                .bind(transaction, &chunk_id, &id)
-                .await?;
-        }
-    }
 
     Ok(messages)
 }
@@ -79,19 +52,17 @@ pub async fn get_prompt_integration_tools(
         .map(|tool| tool.get_tool())
         .collect();
 
-    if env::var("AGENTIC_RAG").is_ok() {
-        let datasets = prompts::prompt_datasets()
-            .bind(transaction, &prompt_id)
-            .all()
-            .await
-            .map_err(|e| {
-                tracing::error!("Failed to get datasets for prompt {}: {}", prompt_id, e);
-                CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
-            })?;
+    let datasets = prompts::prompt_datasets()
+        .bind(transaction, &prompt_id)
+        .all()
+        .await
+        .map_err(|e| {
+            tracing::error!("Failed to get datasets for prompt {}: {}", prompt_id, e);
+            CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
+        })?;
 
-        if !datasets.is_empty() {
-            filtered_tools.extend(get_tools(ToolScope::Rag));
-        }
+    if !datasets.is_empty() {
+        filtered_tools.extend(get_tools(ToolScope::Rag));
     }
 
     tracing::info!(
@@ -108,26 +79,8 @@ pub async fn generate_prompt(
     trim_ratio: f32,
     system_prompt: Option<String>,
     history: Vec<ChatCompletionMessage>,
-    related_context: Vec<RelatedContext>,
-) -> (Vec<ChatCompletionMessage>, Vec<i32>) {
+) -> Vec<ChatCompletionMessage> {
     let mut messages: Vec<ChatCompletionMessage> = Default::default();
-    // We need to remember which chunks are used in the chat.
-    let mut chunk_ids: Vec<i32> = Default::default();
-
-    let system_prompt = match (system_prompt, related_context.is_empty()) {
-        (Some(prompt), false) => {
-            Some(format!("{}\n\nContext information is below.\n--------------------\n{{context_str}}\n--------------------", prompt))
-        }
-        (Some(prompt), true) => {
-            Some(prompt)
-        }
-        (None, false) => {
-            Some("Context information is below.\n--------------------\n{{context_str}}\n--------------------".to_string())
-        }
-        (None, true) => {
-            None
-        }
-    };
 
     // This is the space we have to fill
     let size_allowed = if max_tokens < model_context_size {
@@ -155,8 +108,6 @@ pub async fn generate_prompt(
             size_allowed,
         );
     }
-    let mut related_context: Vec<&RelatedContext> = related_context.iter().rev().collect();
-    let mut context_so_far: String = Default::default();
 
     // Newest history messages are processed first so they fill the budget before older ones
     let mut history = history;
@@ -164,29 +115,12 @@ pub async fn generate_prompt(
 
     // Keep adding history and context until meet the requirements of the prompt
     while size_so_far < size_allowed {
-        // Add some relevant context
-        if let Some(rel_context) = related_context.pop() {
-            let size_rel_context =
-                openai_api::token_count_from_string(&rel_context.chunk_text) as usize;
-
-            if size_so_far + size_rel_context < size_allowed {
-                context_so_far.push_str(&rel_context.chunk_text);
-                chunk_ids.push(rel_context.chunk_id);
-                context_so_far += "\n";
-                if let Some(prompt) = &system_prompt {
-                    let replaced = prompt.replace("{context_str}", &context_so_far);
-                    messages[0].content = Some(replaced);
-                }
-                size_so_far += size_rel_context;
-            }
-        }
-
         // Expand all the chats we have into the corresponding Messages
         if let Some(hist) = history.pop() {
             size_so_far = add_message(&mut history_messages, hist, size_so_far, size_allowed);
         }
 
-        if history.is_empty() && related_context.is_empty() {
+        if history.is_empty() {
             break;
         }
     }
@@ -196,7 +130,7 @@ pub async fn generate_prompt(
 
     tracing::debug!("{:?}", &messages);
 
-    (messages, chunk_ids)
+    messages
 }
 
 // Only add a message if the context doesn't overflow
@@ -214,40 +148,4 @@ fn add_message(
     }
 
     size_so_far
-}
-
-async fn legacy_related_context(
-    transaction: &Transaction<'_>,
-    prompt: &prompts::SinglePrompt,
-    question: &str,
-) -> Result<Vec<RelatedContext>, CustomError> {
-    let mut related_context = Vec::new();
-    if let (Some(embeddings_base_url), Some(embeddings_model)) = (
-        prompt.embeddings_base_url.clone(),
-        prompt.embeddings_model.clone(),
-    ) {
-        let embeddings = embeddings_api::get_embeddings(
-            question,
-            &embeddings_base_url,
-            &embeddings_model,
-            prompt.embeddings_context_size.unwrap_or(256),
-            &prompt.embeddings_api_key,
-        )
-        .await
-        .map_err(|e| {
-            tracing::error!(
-                "Problem getting embeddings {} {}",
-                embeddings_base_url,
-                embeddings_model
-            );
-            CustomError::ExternalApi(e.to_string())
-        })?;
-
-        tracing::info!(prompt.name);
-        related_context =
-            db::get_related_context(transaction, prompt.id, prompt.max_chunks, embeddings).await?;
-        tracing::info!("Retrieved {} chunks", related_context.len());
-    }
-
-    Ok(related_context)
 }
