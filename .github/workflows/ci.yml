@@ -87,6 +87,15 @@ jobs:
         else
           echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
         fi
+        mkdir -p out
+        cp SUMMARY.md out/summary.md || true
+        
+    - name: Sticky PR Comment
+      if: ${{ github.event.pull_request.number }}
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: "Earthly CI Summary"
+        path: out/summary.md
         
     - name: Semantic Release
       run: | 
