@@ -40,6 +40,7 @@ pull-request:
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
+    BUILD +quality-checks
 
 all:
     BUILD +migration-container
@@ -47,6 +48,7 @@ all:
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
+    BUILD +quality-checks
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
