@@ -155,7 +155,6 @@ pub async fn generate_prompt(
             size_allowed,
         );
     }
-
     let mut related_context: Vec<&RelatedContext> = related_context.iter().rev().collect();
     let mut context_so_far: String = Default::default();
 
