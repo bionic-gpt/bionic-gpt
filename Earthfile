@@ -35,20 +35,20 @@ dev:
     #BUILD +check-selenium-failure
 
 pull-request:
-    BUILD +quality-checks
     BUILD +migration-container
     BUILD +app-container
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
+    BUILD +quality-checks
 
 all:
-    BUILD +quality-checks
     BUILD +migration-container
     BUILD +app-container
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
+    BUILD +quality-checks
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -66,29 +66,8 @@ npm-build:
     SAVE ARTIFACT $PIPELINE_FOLDER/dist
 
 quality-checks:
-    COPY --dir crates crates
-    COPY --dir Cargo.lock Cargo.toml .
-    COPY --dir +npm-build/dist $PIPELINE_FOLDER/
-    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
-    USER root
-    WITH DOCKER \
-        --pull ankane/pgvector
-        RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
-            && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
-            && cargo fmt --all -- --check \
-            && cargo clippy --workspace --all-targets -- -D warnings \
-            && cargo test --workspace --exclude integration-testing --exclude rag-engine
-    END
-    USER vscode
-    RUN printf '%s\n' \
-        '## Quality Checks' \
-        '' \
-        '- ✅ Started temporary Postgres (ankane/pgvector) for database-backed checks' \
-        "- ✅ Applied migrations with \`dbmate --wait --migrations-dir ${DB_FOLDER}/migrations up\`" \
-        '- ✅ `cargo fmt --all -- --check`' \
-        '- ✅ `cargo clippy --workspace --all-targets -- -D warnings`' \
-        '- ✅ `cargo test --workspace --exclude integration-testing --exclude rag-engine`' \
-        > SUMMARY.md
+    FROM scratch
+    COPY +build/SUMMARY.md SUMMARY.md
     SAVE ARTIFACT SUMMARY.md AS LOCAL ./SUMMARY.md
 
 rag-engine-container:
@@ -120,12 +99,29 @@ build:
         --pull ankane/pgvector
         RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
             && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
+            && cargo fmt --all -- --check \
+            && cargo clippy --workspace --all-targets -- -D warnings \
+            && cargo test --workspace --exclude integration-testing --exclude rag-engine \
             && cargo build --release --target x86_64-unknown-linux-musl
     END
+    USER vscode
+    RUN printf '%s\n' \
+        '## Quality Checks' \
+        '' \
+        '- ✅ Started temporary Postgres (ankane/pgvector) for database-backed checks' \
+        "- ✅ Applied migrations with \`dbmate --wait --migrations-dir ${DB_FOLDER}/migrations up\`" \
+        '- ✅ `cargo fmt --all -- --check`' \
+        '- ✅ `cargo clippy --workspace --all-targets -- -D warnings`' \
+        '- ✅ `cargo test --workspace --exclude integration-testing --exclude rag-engine`' \
+        '- ✅ `cargo build --release --target x86_64-unknown-linux-musl`' \
+        '' \
+        'Tests ran via `cargo test --workspace --exclude integration-testing --exclude rag-engine`.' \
+        > SUMMARY.md
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$APP_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$RAG_ENGINE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$AIRBYTE_EXE_NAME
     SAVE ARTIFACT target/x86_64-unknown-linux-musl/release/$OPERATOR_EXE_NAME
+    SAVE ARTIFACT SUMMARY.md AS LOCAL ./SUMMARY.md
 
 migration-container:
     FROM alpine
