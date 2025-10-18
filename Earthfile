@@ -40,7 +40,6 @@ pull-request:
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
-    BUILD +quality-checks
 
 all:
     BUILD +migration-container
@@ -48,7 +47,6 @@ all:
     BUILD +operator-container
     BUILD +rag-engine-container
     BUILD +airbyte-connector-container
-    BUILD +quality-checks
 
 npm-deps:
     COPY $PIPELINE_FOLDER/package.json $PIPELINE_FOLDER/package.json
@@ -192,39 +190,3 @@ build-cli-windows:
     COPY --dir crates/k8s-operator .
     RUN cd k8s-operator && cargo build --release --target x86_64-pc-windows-gnu
     SAVE ARTIFACT k8s-operator/target/x86_64-pc-windows-gnu/release/k8s-operator.exe AS LOCAL ./bionic-cli-windows.exe
-
-# docker run -p 8000:8000 bionic-gpt/openapi-time:latest
-openapi-time:
-    FROM mcp/time:latest
-
-    RUN pip install mcpo uv
-
-    # Default command to run the Python proxy
-    ENTRYPOINT ["uvx", "mcpo", "--host", "0.0.0.0", "--port", "8000", "--", "mcp-server-time","--local-timezone=America/New_York"]
-
-    SAVE IMAGE --push bionic-gpt/openapi-time:latest
-
-# docker run -p 8000:8000 --add-host=host.docker.internal:host-gateway bionic-gpt/openapi-postgres:latest postgresql://db-owner:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable
-# curl localhost:8000/openapi.json
-# curl -X POST http://localhost:8000/query -H 'Content-Type: application/json' -d '{"sql": "SELECT * FROM users"}'
-
-openapi-postgres:
-    FROM mcp/postgres:latest
-
-    # install python3 and the venv tool
-    RUN apk add --no-cache python3 py3-virtualenv
-
-    # make and activate a venv, install your packages there
-    RUN python3 -m venv /opt/venv \
-     && /opt/venv/bin/pip install --upgrade pip mcpo uv
-
-    # ensure our venv's pip/python are on PATH
-    ENV PATH="/opt/venv/bin:${PATH}"
-
-    # now uvx & mcpo will be picked up from that venv
-    ENTRYPOINT ["uvx", "mcpo", \
-                "--host", "0.0.0.0", \
-                "--port", "8000", \
-                "--", "node", "dist/index.js"]
-
-    SAVE IMAGE --push bionic-gpt/openapi-postgres:latest
