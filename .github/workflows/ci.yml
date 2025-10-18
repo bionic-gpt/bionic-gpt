@@ -79,6 +79,15 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: earthly --allow-privileged --output --ci +all
         
+    - name: Publish quality summary
+      if: always()
+      run: |
+        if [ -f SUMMARY.md ]; then
+          cat SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
+        fi
+        
     - name: Semantic Release
       run: | 
         npm i -D @semantic-release/exec

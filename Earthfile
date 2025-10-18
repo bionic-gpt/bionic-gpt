@@ -35,6 +35,7 @@ dev:
     #BUILD +check-selenium-failure
 
 pull-request:
+    BUILD +quality-checks
     BUILD +migration-container
     BUILD +app-container
     BUILD +operator-container
@@ -42,6 +43,7 @@ pull-request:
     BUILD +airbyte-connector-container
 
 all:
+    BUILD +quality-checks
     BUILD +migration-container
     BUILD +app-container
     BUILD +operator-container
@@ -62,6 +64,32 @@ npm-build:
     COPY --dir crates/web-pages crates/web-pages
     RUN cd $PIPELINE_FOLDER && npm run release
     SAVE ARTIFACT $PIPELINE_FOLDER/dist
+
+quality-checks:
+    COPY --dir crates crates
+    COPY --dir Cargo.lock Cargo.toml .
+    COPY --dir +npm-build/dist $PIPELINE_FOLDER/
+    ARG DATABASE_URL=postgresql://postgres:testpassword@localhost:5432/postgres?sslmode=disable
+    USER root
+    WITH DOCKER \
+        --pull ankane/pgvector
+        RUN docker run -d --rm --network=host -e POSTGRES_PASSWORD=testpassword ankane/pgvector \
+            && dbmate --wait --migrations-dir $DB_FOLDER/migrations up \
+            && cargo fmt --all -- --check \
+            && cargo clippy --workspace --all-targets -- -D warnings \
+            && cargo test --workspace --exclude integration-testing --exclude rag-engine
+    END
+    USER vscode
+    RUN printf '%s\n' \
+        '## Quality Checks' \
+        '' \
+        '- ✅ Started temporary Postgres (ankane/pgvector) for database-backed checks' \
+        "- ✅ Applied migrations with \`dbmate --wait --migrations-dir ${DB_FOLDER}/migrations up\`" \
+        '- ✅ `cargo fmt --all -- --check`' \
+        '- ✅ `cargo clippy --workspace --all-targets -- -D warnings`' \
+        '- ✅ `cargo test --workspace --exclude integration-testing --exclude rag-engine`' \
+        > SUMMARY.md
+    SAVE ARTIFACT SUMMARY.md AS LOCAL ./SUMMARY.md
 
 rag-engine-container:
     FROM scratch
