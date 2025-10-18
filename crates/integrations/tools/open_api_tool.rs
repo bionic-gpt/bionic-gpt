@@ -12,10 +12,101 @@ use oas3::{
 };
 
 use openai_api::BionicToolDefinition;
-use reqwest::{Client, Method, Url};
+use reqwest::{Client, Method, StatusCode, Url};
 use serde_json::Value;
 use std::collections::HashSet;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, OnceLock};
+
+#[async_trait]
+pub trait HttpClient: Send + Sync + 'static {
+    async fn send(
+        &self,
+        method: Method,
+        url: Url,
+        headers: Vec<(String, String)>,
+        body: Option<Value>,
+    ) -> Result<HttpResponse, String>;
+}
+
+#[derive(Clone, Debug)]
+pub struct HttpResponse {
+    pub status: StatusCode,
+    pub body: String,
+}
+
+#[derive(Clone)]
+struct ReqwestHttpClient {
+    client: Client,
+}
+
+static HTTP_CLIENT_OVERRIDE: OnceLock<Mutex<Option<Arc<dyn HttpClient>>>> = OnceLock::new();
+static DEFAULT_HTTP_CLIENT: OnceLock<Arc<dyn HttpClient>> = OnceLock::new();
+
+impl ReqwestHttpClient {
+    fn new() -> Self {
+        Self {
+            client: Client::new(),
+        }
+    }
+}
+
+#[async_trait]
+impl HttpClient for ReqwestHttpClient {
+    async fn send(
+        &self,
+        method: Method,
+        url: Url,
+        headers: Vec<(String, String)>,
+        body: Option<Value>,
+    ) -> Result<HttpResponse, String> {
+        let mut request = self.client.request(method, url);
+        for (name, value) in headers {
+            request = request.header(name, value);
+        }
+        if let Some(body) = body {
+            request = request.json(&body);
+        }
+        let response = request.send().await.map_err(|e| e.to_string())?;
+        let status = response.status();
+        let text = response.text().await.map_err(|e| e.to_string())?;
+        Ok(HttpResponse { status, body: text })
+    }
+}
+
+fn current_http_client() -> Arc<dyn HttpClient> {
+    if let Some(override_lock) = HTTP_CLIENT_OVERRIDE.get() {
+        if let Some(client) = override_lock.lock().unwrap().clone() {
+            return client;
+        }
+    }
+
+    DEFAULT_HTTP_CLIENT
+        .get_or_init(|| Arc::new(ReqwestHttpClient::new()) as Arc<dyn HttpClient>)
+        .clone()
+}
+
+/// Guard that clears the global HTTP client override when dropped.
+pub struct HttpClientOverrideGuard;
+
+impl Drop for HttpClientOverrideGuard {
+    fn drop(&mut self) {
+        clear_http_client_override();
+    }
+}
+
+/// Override the HTTP client used by OpenApiTool. Primarily for tests.
+pub fn set_http_client_override(client: Arc<dyn HttpClient>) -> HttpClientOverrideGuard {
+    let lock = HTTP_CLIENT_OVERRIDE.get_or_init(|| Mutex::new(None));
+    *lock.lock().unwrap() = Some(client);
+    HttpClientOverrideGuard
+}
+
+/// Clear the global HTTP client override if one is set.
+pub fn clear_http_client_override() {
+    if let Some(lock) = HTTP_CLIENT_OVERRIDE.get() {
+        *lock.lock().unwrap() = None;
+    }
+}
 
 /// A tool that executes external integrations based on OpenAPI definitions
 pub struct OpenApiTool {
@@ -24,7 +115,7 @@ pub struct OpenApiTool {
     /// The base URL for the API
     base_url: String,
     /// The HTTP client
-    client: Client,
+    client: Arc<dyn HttpClient>,
     /// The OpenAPI specification
     spec: oas3::OpenApiV3Spec,
     /// The operation ID for this tool
@@ -45,10 +136,31 @@ impl OpenApiTool {
         auth_header_name: String,
         token_provider: Option<Arc<dyn TokenProvider>>,
     ) -> Self {
+        let client = current_http_client();
+        Self::with_http_client(
+            definition,
+            base_url,
+            spec,
+            operation_id,
+            auth_header_name,
+            token_provider,
+            client,
+        )
+    }
+
+    pub fn with_http_client(
+        definition: BionicToolDefinition,
+        base_url: String,
+        spec: oas3::OpenApiV3Spec,
+        operation_id: String,
+        auth_header_name: String,
+        token_provider: Option<Arc<dyn TokenProvider>>,
+        client: Arc<dyn HttpClient>,
+    ) -> Self {
         Self {
             definition,
             base_url,
-            client: Client::new(),
+            client,
             spec,
             operation_id,
             auth_header_name,
@@ -71,11 +183,8 @@ impl OpenApiTool {
         ))
     }
 
-    /// Add Authorization header to request if bearer token is present
-    async fn add_auth_header_if_present(
-        &self,
-        request: reqwest::RequestBuilder,
-    ) -> reqwest::RequestBuilder {
+    /// Produce Authorization header if bearer token is present
+    async fn build_auth_header(&self) -> Option<(String, String)> {
         if let Some(provider) = &self.token_provider {
             if let Some(token) = provider.token().await {
                 let preview = &token[..6.min(token.len())];
@@ -87,10 +196,18 @@ impl OpenApiTool {
                 } else {
                     token
                 };
-                return request.header(self.auth_header_name.as_str(), header_value);
+                return Some((self.auth_header_name.clone(), header_value));
             }
         }
-        request
+        None
+    }
+
+    async fn collect_headers(&self) -> Vec<(String, String)> {
+        let mut headers = Vec::new();
+        if let Some(header) = self.build_auth_header().await {
+            headers.push(header);
+        }
+        headers
     }
 }
 
@@ -165,48 +282,45 @@ impl ToolInterface for OpenApiTool {
             .parse()
             .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
 
-        // Build the request
-        let mut request = self.client.request(http_method.clone(), url.clone());
-        request = self.add_auth_header_if_present(request).await;
-        if has_request_body {
-            request = request.json(&request_body_params);
-        }
+        let body = if has_request_body {
+            Some(request_body_params.clone())
+        } else {
+            None
+        };
 
-        // Send the request
-        let mut response = request
-            .send()
+        let mut response = self
+            .client
+            .send(
+                http_method.clone(),
+                url.clone(),
+                self.collect_headers().await,
+                body.clone(),
+            )
             .await
             .map_err(|e| crate::json_error("Failed to make request", e))?;
 
-        if response.status() == reqwest::StatusCode::UNAUTHORIZED {
+        if response.status == StatusCode::UNAUTHORIZED {
             if let Some(provider) = &self.token_provider {
                 tracing::info!("Received 401 response; forcing token refresh and retrying");
                 provider.force_refresh().await;
-                let mut retry = self.client.request(http_method, url);
-                retry = self.add_auth_header_if_present(retry).await;
-                if has_request_body {
-                    retry = retry.json(&request_body_params);
-                }
-                response = retry
-                    .send()
+                response = self
+                    .client
+                    .send(http_method, url, self.collect_headers().await, body.clone())
                     .await
                     .map_err(|e| crate::json_error("Failed to make request", e))?;
             }
         }
 
         // Check if the request was successful
-        if !response.status().is_success() {
+        if !response.status.is_success() {
             return Err(serde_json::json!({
                 "error": "Request failed",
-                "status": response.status().to_string()
+                "status": response.status.to_string()
             }));
         }
 
         // Parse the response
-        let response_text = response
-            .text()
-            .await
-            .map_err(|e| crate::json_error("Failed to read response", e))?;
+        let response_text = response.body;
 
         // Try to parse as JSON, fallback to text if it fails
         match serde_json::from_str::<serde_json::Value>(&response_text) {
@@ -313,8 +427,8 @@ mod tests {
     use super::*;
     use crate::token_providers::StaticTokenProvider;
     use openai_api::ChatCompletionFunctionDefinition;
-    use reqwest::Client;
     use serde_json::json;
+    use std::collections::VecDeque;
     use std::sync::Arc;
 
     fn create_test_openapi_spec() -> oas3::OpenApiV3Spec {
@@ -572,8 +686,8 @@ mod tests {
         assert_eq!(body_params, json!({"name": "bob"}));
     }
 
-    #[test]
-    fn test_add_auth_header_custom_name() {
+    #[tokio::test]
+    async fn test_add_auth_header_custom_name() {
         let spec = create_test_openapi_spec();
         let tool_def = BionicToolDefinition {
             r#type: "function".to_string(),
@@ -594,54 +708,57 @@ mod tests {
             Some(Arc::new(provider)),
         );
 
-        let client = Client::new();
-        let req = client.get("https://api.example.com/data");
-        let req = futures::executor::block_on(tool.add_auth_header_if_present(req));
-        let built = req.build().unwrap();
-        assert_eq!(built.headers().get("x-api-key").unwrap(), "abc123");
+        let header = tool.build_auth_header().await.unwrap();
+        assert_eq!(header.0, "x-api-key");
+        assert_eq!(header.1, "abc123");
+    }
+
+    #[derive(Clone)]
+    struct MockHttpClient {
+        responses: Arc<tokio::sync::Mutex<VecDeque<HttpResponse>>>,
+        captured_headers: Arc<tokio::sync::Mutex<Vec<Option<String>>>>,
+    }
+
+    impl MockHttpClient {
+        fn new(responses: Vec<HttpResponse>) -> Self {
+            Self {
+                responses: Arc::new(tokio::sync::Mutex::new(VecDeque::from(responses))),
+                captured_headers: Arc::new(tokio::sync::Mutex::new(Vec::new())),
+            }
+        }
+
+        async fn captured_headers(&self) -> Vec<Option<String>> {
+            self.captured_headers.lock().await.clone()
+        }
+    }
+
+    #[async_trait]
+    impl HttpClient for MockHttpClient {
+        async fn send(
+            &self,
+            _method: Method,
+            _url: Url,
+            headers: Vec<(String, String)>,
+            _body: Option<Value>,
+        ) -> Result<HttpResponse, String> {
+            let auth_header = headers.iter().find_map(|(name, value)| {
+                if name.eq_ignore_ascii_case("authorization") {
+                    Some(value.clone())
+                } else {
+                    None
+                }
+            });
+            self.captured_headers.lock().await.push(auth_header);
+            let mut responses = self.responses.lock().await;
+            responses
+                .pop_front()
+                .ok_or_else(|| "No more mock responses".to_string())
+        }
     }
 
     #[tokio::test]
     async fn test_execute_refresh_and_retry_on_401() {
-        use hyper::service::{make_service_fn, service_fn};
-        use hyper::{Body, Request, Response, Server};
         use serde_json::json;
-        use std::convert::Infallible;
-        use std::net::SocketAddr;
-
-        let make_svc = make_service_fn(|_| async {
-            let mut first = true;
-            Ok::<_, Infallible>(service_fn(move |req: Request<Body>| {
-                let auth = req
-                    .headers()
-                    .get("Authorization")
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
-                let status = if first {
-                    first = false;
-                    assert_eq!(auth, "Bearer first");
-                    hyper::StatusCode::UNAUTHORIZED
-                } else {
-                    assert_eq!(auth, "Bearer second");
-                    hyper::StatusCode::OK
-                };
-                let body = if status == hyper::StatusCode::OK {
-                    Body::from("{\"ok\":true}")
-                } else {
-                    Body::empty()
-                };
-                async move {
-                    Ok::<_, Infallible>(Response::builder().status(status).body(body).unwrap())
-                }
-            }))
-        });
-
-        let addr: SocketAddr = "127.0.0.1:0".parse().unwrap();
-        let server = Server::bind(&addr).serve(make_svc);
-        let addr = server.local_addr();
-        let handle = tokio::spawn(server);
 
         let spec_json = json!({
             "openapi": "3.0.0",
@@ -692,18 +809,33 @@ mod tests {
             },
         };
 
-        let tool = OpenApiTool::new(
+        let client = Arc::new(MockHttpClient::new(vec![
+            HttpResponse {
+                status: StatusCode::UNAUTHORIZED,
+                body: String::new(),
+            },
+            HttpResponse {
+                status: StatusCode::OK,
+                body: "{\"ok\":true}".to_string(),
+            },
+        ]));
+
+        let tool = OpenApiTool::with_http_client(
             tool_def,
-            format!("http://{}", addr),
+            "http://mock.api".to_string(),
             spec,
             "getProtected".to_string(),
             "Authorization".to_string(),
             Some(provider),
+            client.clone(),
         );
 
         let result = tool.execute("{}").await.unwrap();
         assert_eq!(result, json!({"ok": true}));
 
-        handle.abort();
+        let headers = client.captured_headers().await;
+        assert_eq!(headers.len(), 2);
+        assert_eq!(headers[0].as_deref(), Some("Bearer first"));
+        assert_eq!(headers[1].as_deref(), Some("Bearer second"));
     }
 }

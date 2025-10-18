@@ -149,4 +149,3 @@ fn add_message(
 
     size_so_far
 }
-

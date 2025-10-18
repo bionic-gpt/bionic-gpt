@@ -62,4 +62,4 @@ uuid = { version = "1", features = ["serde", "v4"] }
 time = "0.3.36"
 hyper = "1"
 http-body-util = "0.1"
-
+async-trait = "0.1"

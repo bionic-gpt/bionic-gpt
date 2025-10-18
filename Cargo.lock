@@ -5454,6 +5454,7 @@ name = "web-server"
 version = "0.1.0"
 dependencies = [
  "assets",
+ "async-trait",
  "axum",
  "axum-extra",
  "axum_typed_multipart",

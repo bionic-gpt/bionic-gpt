@@ -1,8 +1,8 @@
 use super::*;
+use async_trait::async_trait;
 use http_body_util::BodyExt;
 use serde_json::json;
 use std::sync::MutexGuard;
-use tokio::task::JoinHandle;
 use tower::ServiceExt;
 
 struct ResolverGuard {
@@ -120,27 +120,6 @@ fn minimal_spec(slug: &str) -> Value {
         ],
         "paths": {}
     })
-}
-
-async fn spawn_ping_service(response: Value) -> (String, JoinHandle<()>) {
-    let app = Router::new().route(
-        "/ping",
-        axum::routing::get(move || {
-            let payload = response.clone();
-            async move { Json(payload) }
-        }),
-    );
-
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
-        .await
-        .expect("listener");
-    let addr = listener.local_addr().unwrap();
-    let handle = tokio::spawn(async move {
-        axum::serve(listener, app.into_make_service())
-            .await
-            .expect("server");
-    });
-    (format!("http://{}", addr), handle)
 }
 
 #[tokio::test]
@@ -430,7 +409,7 @@ async fn initialize_supports_march_2025_protocol() {
 }
 
 #[tokio::test]
-async fn notifications_initialized_returns_no_content() {
+async fn notifications_initialized_returns_accepted() {
     let pool = create_test_pool();
     let slug = "test".to_string();
     let connection_id = Uuid::new_v4();
@@ -480,7 +459,7 @@ async fn notifications_initialized_returns_no_content() {
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::NO_CONTENT);
+    assert_eq!(response.status(), StatusCode::ACCEPTED);
     let body = response
         .into_body()
         .collect()
@@ -676,8 +655,28 @@ async fn tools_call_executes_tool() {
     let pool = create_test_pool();
     let slug = "test".to_string();
     let connection_id = Uuid::new_v4();
-    let (base_url, handle) = spawn_ping_service(json!({ "ok": true })).await;
-    let spec = sample_spec(&base_url, &slug);
+    let spec = sample_spec("http://example.com", &slug);
+
+    struct StubHttpClient;
+
+    #[async_trait]
+    impl integrations::tools::open_api_tool::HttpClient for StubHttpClient {
+        async fn send(
+            &self,
+            _method: reqwest::Method,
+            _url: reqwest::Url,
+            _headers: Vec<(String, String)>,
+            _body: Option<serde_json::Value>,
+        ) -> Result<integrations::tools::open_api_tool::HttpResponse, String> {
+            Ok(integrations::tools::open_api_tool::HttpResponse {
+                status: StatusCode::OK,
+                body: "{\"ok\":true}".to_string(),
+            })
+        }
+    }
+
+    let _http_guard =
+        integrations::tools::open_api_tool::set_http_client_override(Arc::new(StubHttpClient));
 
     let api_key_value = "test-tools-call-key";
 
@@ -720,8 +719,6 @@ async fn tools_call_executes_tool() {
         .await
         .unwrap();
 
-    handle.abort();
-
     assert_eq!(response.status(), StatusCode::OK);
     let body = response
         .into_body()
@@ -730,18 +727,40 @@ async fn tools_call_executes_tool() {
         .expect("body")
         .to_bytes();
     let json: Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(json["result"]["output"]["ok"], true);
+    assert_eq!(json["result"]["content"][0]["type"], "text");
+    assert_eq!(json["result"]["content"][0]["text"], "{\"ok\":true}");
 }
 
 #[tokio::test]
-async fn notifications_without_id_are_ignored() {
+async fn session_initialize_without_id_returns_success() {
     let pool = create_test_pool();
     let slug = "test".to_string();
     let connection_id = Uuid::new_v4();
-    let app = test_router(pool.clone());
+    let spec = minimal_spec(&slug);
 
-    let api_key_value = "test-notification-key";
-    let _api_guard = ApiKeyGuard::new(api_key_value, 77);
+    let context = IntegrationContext {
+        definition: spec,
+        integration_id: 29,
+        user_id: 77,
+        team_id: 88,
+        user_openid_sub: Some("user-29".to_string()),
+        connection: ConnectionAuth::ApiKey {
+            connection_id: 404,
+            api_key: "abc".to_string(),
+        },
+    };
+
+    let api_key_value = "test-session-no-id-key";
+    let _api_guard = ApiKeyGuard::new(api_key_value, context.team_id);
+
+    let slug_for_guard = slug.clone();
+    let _guard = ResolverGuard::new(move |requested_slug, requested_id| {
+        assert_eq!(requested_slug, slug_for_guard);
+        assert_eq!(requested_id, connection_id);
+        context.clone()
+    });
+
+    let app = test_router(pool.clone());
 
     let payload = json!({
         "jsonrpc": "2.0",
@@ -762,7 +781,14 @@ async fn notifications_without_id_are_ignored() {
         .await
         .unwrap();
 
-    assert_eq!(response.status(), StatusCode::NO_CONTENT);
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = response
+        .into_body()
+        .collect()
+        .await
+        .expect("body")
+        .to_bytes();
+    let _: Value = serde_json::from_slice(&body).unwrap();
 }
 
 #[tokio::test]
