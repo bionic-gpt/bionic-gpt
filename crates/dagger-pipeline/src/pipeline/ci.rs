@@ -133,8 +133,7 @@ fn base_builder_container(client: &Query, repo: &Directory) -> Container {
     let cache_registry = client.cache_volume("cargo-registry");
     let cache_npm = client.cache_volume("npm-cache");
 
-    container_from(client, BASE_IMAGE)
-        .with_user("vscode")
+    let prepared = container_from(client, BASE_IMAGE)
         .with_workdir("/build")
         .with_directory(".", repo.clone())
         .with_mounted_cache("/build/target", cache_cargo)
@@ -142,7 +141,19 @@ fn base_builder_container(client: &Query, repo: &Directory) -> Container {
         .with_mounted_cache(
             format!("/build/{}/node_modules", PIPELINE_FOLDER),
             cache_npm,
-        )
+        );
+
+    prepared
+        .with_exec(vec![
+            "sh",
+            "-lc",
+            &format!(
+                "mkdir -p /build/target /usr/local/cargo/registry /build/{pipeline}/node_modules && \
+                 chown -R vscode:vscode /build/target /usr/local/cargo/registry /build/{pipeline}/node_modules",
+                pipeline = PIPELINE_FOLDER
+            ),
+        ])
+        .with_user("vscode")
 }
 
 fn postgres_service(client: &Query) -> Service {
