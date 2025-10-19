@@ -49,10 +49,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dagger CLI
-      run: |
-        mkdir -p "$HOME/.local/bin"
-        curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_INSTALL_DIR="$HOME/.local/bin" DAGGER_VERSION=0.9.11 sh
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      uses: dagger/dagger-action@v5
+      with:
+        install-only: true
+        version: 0.11.0
     - name: Check Dagger version
       run: dagger version
     - name: Run Dagger pipeline (pull request)
@@ -116,10 +116,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dagger CLI
-      run: |
-        mkdir -p "$HOME/.local/bin"
-        curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_INSTALL_DIR="$HOME/.local/bin" DAGGER_VERSION=0.9.11 sh
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      uses: dagger/dagger-action@v5
+      with:
+        install-only: true
+        version: 0.11.0
     - name: Check Dagger version
       run: dagger version
 
@@ -152,10 +152,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dagger CLI
-      run: |
-        mkdir -p "$HOME/.local/bin"
-        curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_INSTALL_DIR="$HOME/.local/bin" DAGGER_VERSION=0.9.11 sh
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      uses: dagger/dagger-action@v5
+      with:
+        install-only: true
+        version: 0.11.0
     - name: Check Dagger version
       run: dagger version
 
@@ -189,10 +189,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Dagger CLI
-      run: |
-        mkdir -p "$HOME/.local/bin"
-        curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_INSTALL_DIR="$HOME/.local/bin" DAGGER_VERSION=0.9.11 sh
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      uses: dagger/dagger-action@v5
+      with:
+        install-only: true
+        version: 0.11.0
     - name: Check Dagger version
       run: dagger version
 

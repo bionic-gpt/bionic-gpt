@@ -7,7 +7,7 @@ use super::{
     AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_NAME, APP_EXE_NAME, APP_IMAGE_NAME, BASE_IMAGE, DATABASE_URL,
     DB_FOLDER, DB_PASSWORD, MIGRATIONS_IMAGE_NAME, OPERATOR_EXE_NAME, OPERATOR_IMAGE_NAME,
     PIPELINE_FOLDER, POSTGRES_IMAGE, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_NAME, SUMMARY_PATH,
-    TARGET_TRIPLE,
+    TARGET_TRIPLE, container_from,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -133,9 +133,7 @@ fn base_builder_container(client: &Query, repo: &Directory) -> Container {
     let cache_registry = client.cache_volume("cargo-registry");
     let cache_npm = client.cache_volume("npm-cache");
 
-    client
-        .container()
-        .from(BASE_IMAGE)
+    container_from(client, BASE_IMAGE)
         .with_user("vscode")
         .with_workdir("/build")
         .with_directory(".", repo.clone())
@@ -148,9 +146,7 @@ fn base_builder_container(client: &Query, repo: &Directory) -> Container {
 }
 
 fn postgres_service(client: &Query) -> Service {
-    client
-        .container()
-        .from(POSTGRES_IMAGE)
+    container_from(client, POSTGRES_IMAGE)
         .with_env_variable("POSTGRES_PASSWORD", DB_PASSWORD)
         .with_exposed_port(5432)
         .as_service()

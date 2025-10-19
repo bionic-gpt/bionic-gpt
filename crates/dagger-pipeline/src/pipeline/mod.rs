@@ -1,8 +1,10 @@
 mod ci;
 mod cli;
 
+use std::env;
+
 use crate::args::{Args, Command};
-use dagger_sdk::{HostDirectoryOpts, Query, connect};
+use dagger_sdk::{HostDirectoryOpts, Query, Secret, connect};
 use eyre::{Result, eyre};
 
 pub(crate) const BASE_IMAGE: &str = "purtontech/rust-on-nails-devcontainer:1.3.18";
@@ -50,4 +52,23 @@ async fn dispatch(client: Query, command: Command) -> Result<()> {
     }
 
     Ok(())
+}
+
+pub(crate) fn container_from(client: &Query, image: &str) -> dagger_sdk::Container {
+    let container = client.container();
+    let container = if let Some((username, secret)) = dockerhub_credentials(client) {
+        container.with_registry_auth(image, username, secret)
+    } else {
+        container
+    };
+    container.from(image)
+}
+
+fn dockerhub_credentials(client: &Query) -> Option<(String, Secret)> {
+    let username = env::var("DOCKERHUB_USERNAME").ok()?;
+    let token = env::var("DOCKERHUB_TOKEN")
+        .or_else(|_| env::var("DOCKERHUB_PASSWORD"))
+        .ok()?;
+    let secret = client.set_secret("dockerhub_token", token);
+    Some((username, secret))
 }
