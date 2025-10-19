@@ -50,16 +50,14 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build (pull request)
       if: github.ref != 'refs/heads/main'
-      uses: devcontainers/ci@v0.3
-      with:
-        workspaceFolder: .
-        runCmd: cargo run -p dagger-pipeline --release -- pull-request
+      run: cargo run -p dagger-pipeline --release -- pull-request
+      env:
+        DAGGER_LOG_FORMAT: plain
     - name: Build (main with publish)
       if: github.ref == 'refs/heads/main'
-      uses: devcontainers/ci@v0.3
-      with:
-        workspaceFolder: .
-        runCmd: cargo run -p dagger-pipeline --release -- all
+      run: cargo run -p dagger-pipeline --release -- all
+      env:
+        DAGGER_LOG_FORMAT: plain
         
     - name: Publish quality summary
       if: always()
@@ -107,10 +105,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build CLI (Linux)
-      uses: devcontainers/ci@v0.3
-      with:
-        workspaceFolder: .
-        runCmd: cargo run -p dagger-pipeline --release -- build-cli linux
+      run: cargo run -p dagger-pipeline --release -- build-cli linux
+      env:
+        DAGGER_LOG_FORMAT: plain
 
     - name: Get latest release info
       id: get_latest_release
@@ -141,10 +138,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build CLI (macOS)
-      uses: devcontainers/ci@v0.3
-      with:
-        workspaceFolder: .
-        runCmd: cargo run -p dagger-pipeline --release -- build-cli macos
+      run: cargo run -p dagger-pipeline --release -- build-cli macos
+      env:
+        DAGGER_LOG_FORMAT: plain
 
     - name: Get latest release info
       id: get_latest_release
@@ -176,10 +172,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build CLI (Windows)
-      uses: devcontainers/ci@v0.3
-      with:
-        workspaceFolder: .
-        runCmd: cargo run -p dagger-pipeline --release -- build-cli windows
+      run: cargo run -p dagger-pipeline --release -- build-cli windows
+      env:
+        DAGGER_LOG_FORMAT: plain
 
     - name: Get latest release info
       id: get_latest_release
