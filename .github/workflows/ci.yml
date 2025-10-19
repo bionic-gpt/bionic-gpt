@@ -48,27 +48,18 @@ jobs:
       FORCE_COLOR: 1
     steps:
     - uses: actions/checkout@v4
-    - name: Install Dagger CLI
-      uses: dagger/dagger-action@v5
-      with:
-        install-only: true
-        version: 0.11.0
-    - name: Check Dagger version
-      run: dagger version
-    - name: Run Dagger pipeline (pull request)
+    - name: Build (pull request)
       if: github.ref != 'refs/heads/main'
-      env:
-        GHCR_USERNAME: ${{ github.actor }}
-        GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: cargo run -p dagger-pipeline --release -- pull-request
-    - name: Run Dagger pipeline (main)
+      uses: devcontainers/ci@v0.3
+      with:
+        workspaceFolder: .
+        runCmd: cargo run -p dagger-pipeline --release -- pull-request
+    - name: Build (main with publish)
       if: github.ref == 'refs/heads/main'
-      env:
-        GHCR_USERNAME: ${{ github.actor }}
-        GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: cargo run -p dagger-pipeline --release -- all
+      uses: devcontainers/ci@v0.3
+      with:
+        workspaceFolder: .
+        runCmd: cargo run -p dagger-pipeline --release -- all
         
     - name: Publish quality summary
       if: always()
@@ -115,13 +106,11 @@ jobs:
       FORCE_COLOR: 1
     steps:
     - uses: actions/checkout@v4
-    - name: Install Dagger CLI
-      uses: dagger/dagger-action@v5
+    - name: Build CLI (Linux)
+      uses: devcontainers/ci@v0.3
       with:
-        install-only: true
-        version: 0.11.0
-    - name: Check Dagger version
-      run: dagger version
+        workspaceFolder: .
+        runCmd: cargo run -p dagger-pipeline --release -- build-cli linux
 
     - name: Get latest release info
       id: get_latest_release
@@ -151,13 +140,11 @@ jobs:
       FORCE_COLOR: 1
     steps:
     - uses: actions/checkout@v4
-    - name: Install Dagger CLI
-      uses: dagger/dagger-action@v5
+    - name: Build CLI (macOS)
+      uses: devcontainers/ci@v0.3
       with:
-        install-only: true
-        version: 0.11.0
-    - name: Check Dagger version
-      run: dagger version
+        workspaceFolder: .
+        runCmd: cargo run -p dagger-pipeline --release -- build-cli macos
 
     - name: Get latest release info
       id: get_latest_release
@@ -188,13 +175,11 @@ jobs:
       FORCE_COLOR: 1
     steps:
     - uses: actions/checkout@v4
-    - name: Install Dagger CLI
-      uses: dagger/dagger-action@v5
+    - name: Build CLI (Windows)
+      uses: devcontainers/ci@v0.3
       with:
-        install-only: true
-        version: 0.11.0
-    - name: Check Dagger version
-      run: dagger version
+        workspaceFolder: .
+        runCmd: cargo run -p dagger-pipeline --release -- build-cli windows
 
     - name: Get latest release info
       id: get_latest_release
