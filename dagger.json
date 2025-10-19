@@ -1,10 +1,7 @@
 {
   "name": "bionic-pipeline",
-  "sdk": {
-    "name": "rust",
-    "version": "0.9",
-    "source": "./crates/dagger-pipeline"
-  },
+  "sdk": "rust",
+  "source": "./crates/dagger-pipeline",
   "actions": {
     "pull-request": {
       "command": "cargo run -p dagger-pipeline --release -- pull-request"
