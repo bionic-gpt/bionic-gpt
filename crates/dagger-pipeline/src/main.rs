@@ -1,21 +1,45 @@
 //mod args;
 //mod pipeline;
 
-use dagger_sdk::{File, HostDirectoryOpts, Query, Service};
-use eyre::Result;
+use dagger_sdk::{Container, File, HostDirectoryOpts, Query, Service};
+use eyre::{Context, Result};
 
 pub(crate) const BASE_IMAGE: &str = "purtontech/rust-on-nails-devcontainer:1.3.18";
 pub(crate) const POSTGRES_IMAGE: &str = "ankane/pgvector";
 pub(crate) const DB_PASSWORD: &str = "testpassword";
 pub(crate) const DATABASE_URL: &str =
     "postgresql://postgres:testpassword@postgres:5432/postgres?sslmode=disable";
+pub(crate) const SUMMARY_PATH: &str = "/build/SUMMARY.md";
+pub(crate) const APP_EXE_NAME: &str = "web-server";
+pub(crate) const OPERATOR_EXE_NAME: &str = "k8s-operator";
+pub(crate) const RAG_ENGINE_EXE_NAME: &str = "rag-engine";
+pub(crate) const AIRBYTE_EXE_NAME: &str = "airbyte-connector";
+pub(crate) const TARGET_TRIPLE: &str = "x86_64-unknown-linux-musl";
+
+pub(crate) const APP_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt:latest";
+pub(crate) const MIGRATIONS_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations:latest";
+pub(crate) const RAG_ENGINE_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-rag-engine:latest";
+pub(crate) const OPERATOR_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator:latest";
+pub(crate) const AIRBYTE_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-airbyte-connector:latest";
+
+pub(crate) const DB_FOLDER: &str = "crates/db";
+pub(crate) const PIPELINE_FOLDER: &str = "crates/web-assets";
+
+struct BuildOutputs {
+    container: Container,
+    summary: File,
+    app_binary: File,
+    operator_binary: File,
+    rag_engine_binary: File,
+    airbyte_binary: File,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
     dagger_sdk::connect(|client| async move {
-        let backend = build_backend(&client).await?;
-
-        println!("exe {:?}", backend.name().await.unwrap());
+        let outputs = build_workspace(&client).await?;
+        publish_summary(&outputs.summary).await?;
+        publish_images(&client, &outputs).await?;
 
         Ok(())
     })
@@ -24,7 +48,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn build_backend(client: &Query) -> Result<File> {
+async fn build_workspace(client: &Query) -> Result<BuildOutputs> {
     let host_source_dir = client.host().directory_opts(
         ".",
         HostDirectoryOpts {
@@ -70,9 +94,52 @@ async fn build_backend(client: &Query) -> Result<File> {
         "release",
     ]);
 
-    let after_rust = after_node_release.with_exec(vec!["cargo", "build", "--release"]);
+    let after_rust = after_node_release.with_exec(vec![
+        "cargo",
+        "build",
+        "--release",
+        "--target",
+        TARGET_TRIPLE,
+    ]);
 
-    Ok(after_rust.file("target/release/web-server"))
+    let summary_container = after_rust.with_new_file(SUMMARY_PATH, summary_markdown());
+
+    let summary = summary_container.file(SUMMARY_PATH);
+    let app_binary = summary_container.file(release_binary_path(APP_EXE_NAME));
+    let operator_binary = summary_container.file(release_binary_path(OPERATOR_EXE_NAME));
+    let rag_engine_binary = summary_container.file(release_binary_path(RAG_ENGINE_EXE_NAME));
+    let airbyte_binary = summary_container.file(release_binary_path(AIRBYTE_EXE_NAME));
+
+    Ok(BuildOutputs {
+        container: summary_container,
+        summary,
+        app_binary,
+        operator_binary,
+        rag_engine_binary,
+        airbyte_binary,
+    })
+}
+
+fn release_binary_path(exe: &str) -> String {
+    format!("target/{TARGET_TRIPLE}/release/{exe}")
+}
+
+fn summary_markdown() -> String {
+    format!(
+        "## Quality Checks
+
+- ✅ Started temporary Postgres (ankane/pgvector) for database-backed checks
+- ✅ Applied migrations with `dbmate --wait --migrations-dir {db}/migrations up`
+- ✅ `cargo fmt --all -- --check`
+- ✅ `cargo clippy --workspace --all-targets -- -D warnings`
+- ✅ `cargo test --workspace --exclude integration-testing --exclude rag-engine`
+- ✅ `cargo build --release --target {target}`
+
+Tests ran via `cargo test --workspace --exclude integration-testing --exclude rag-engine`.
+",
+        db = DB_FOLDER,
+        target = TARGET_TRIPLE
+    )
 }
 
 fn postgres_service(client: &Query) -> Service {
@@ -82,4 +149,99 @@ fn postgres_service(client: &Query) -> Service {
         .with_env_variable("POSTGRES_PASSWORD", DB_PASSWORD)
         .with_exposed_port(5432)
         .as_service()
+}
+
+async fn publish_summary(summary: &File) -> Result<()> {
+    summary
+        .export("SUMMARY.md")
+        .await
+        .wrap_err("unable to export SUMMARY.md to host")?;
+    Ok(())
+}
+
+async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
+    let dist_dir = outputs
+        .container
+        .directory(format!("{}/dist", PIPELINE_FOLDER));
+    dist_dir
+        .id()
+        .await
+        .wrap_err("failed to load web assets dist directory")?;
+    let images_dir = outputs
+        .container
+        .directory(format!("{}/images", PIPELINE_FOLDER));
+    images_dir
+        .id()
+        .await
+        .wrap_err("failed to load images directory")?;
+
+    client
+        .container()
+        .from("scratch")
+        .with_user("1001")
+        .with_file("/axum-server", outputs.app_binary.clone())
+        .with_directory(format!("/build/{}", PIPELINE_FOLDER), dist_dir)
+        .with_directory(format!("/build/{}/images", PIPELINE_FOLDER), images_dir)
+        .with_entrypoint(vec!["./axum-server"])
+        .publish(APP_IMAGE_NAME)
+        .await
+        .wrap_err("failed to publish app image")?;
+
+    client
+        .container()
+        .from("scratch")
+        .with_user("1001")
+        .with_file("/rag-engine", outputs.rag_engine_binary.clone())
+        .with_entrypoint(vec!["./rag-engine"])
+        .publish(RAG_ENGINE_IMAGE_NAME)
+        .await
+        .wrap_err("failed to publish rag engine image")?;
+
+    client
+        .container()
+        .from("scratch")
+        .with_user("1001")
+        .with_file("/airbyte-connector", outputs.airbyte_binary.clone())
+        .with_entrypoint(vec!["./airbyte-connector"])
+        .publish(AIRBYTE_IMAGE_NAME)
+        .await
+        .wrap_err("failed to publish airbyte image")?;
+
+    client
+        .container()
+        .from("scratch")
+        .with_file("/k8s-operator", outputs.operator_binary.clone())
+        .with_entrypoint(vec!["./k8s-operator", "operator"])
+        .publish(OPERATOR_IMAGE_NAME)
+        .await
+        .wrap_err("failed to publish operator image")?;
+
+    let db_dir = outputs.container.directory(DB_FOLDER);
+    db_dir
+        .id()
+        .await
+        .wrap_err("failed to prepare db directory")?;
+
+    client
+        .container()
+        .from("alpine")
+        .with_exec(vec!["apk", "add", "--no-cache", "curl", "postgresql-client", "tzdata"])
+        .with_exec(vec![
+            "sh",
+            "-lc",
+            "curl -OL https://github.com/amacneil/dbmate/releases/download/v2.2.0/dbmate-linux-amd64",
+        ])
+        .with_exec(vec![
+            "sh",
+            "-lc",
+            "mv ./dbmate-linux-amd64 /usr/bin/dbmate && chmod +x /usr/bin/dbmate",
+        ])
+        .with_directory("/db", db_dir)
+        .with_workdir("/db")
+        .with_entrypoint(vec!["dbmate", "up"])
+        .publish(MIGRATIONS_IMAGE_NAME)
+        .await
+        .wrap_err("failed to publish migration image")?;
+
+    Ok(())
 }
