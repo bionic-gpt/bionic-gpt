@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: 
+    branches:
       - main
     paths-ignore:
       - 'crates/dioxus-poc/**'
@@ -31,167 +31,30 @@ on:
       - Justfile
 
 jobs:
-
-  security_audit:
+  dagger-build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      FORCE_COLOR: 1
     steps:
       - uses: actions/checkout@v4
-      - uses: rustsec/audit-check@v1.4.1
+      - name: Run Dagger build
+        run: cargo run -p dagger-pipeline --release -- pull-request
+        env:
+          DAGGER_LOG_FORMAT: plain
+      - name: Publish quality summary
+        if: always()
+        run: |
+          if [ -f SUMMARY.md ]; then
+            cat SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          mkdir -p out
+          cp SUMMARY.md out/summary.md || true
+      - name: Sticky PR Comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-  build:
-    needs: security_audit
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      FORCE_COLOR: 1
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build (pull request)
-      if: github.ref != 'refs/heads/main'
-      run: cargo run -p dagger-pipeline --release -- pull-request
-      env:
-        DAGGER_LOG_FORMAT: plain
-    - name: Build (main with publish)
-      if: github.ref == 'refs/heads/main'
-      run: cargo run -p dagger-pipeline --release -- all
-      env:
-        DAGGER_LOG_FORMAT: plain
-        
-    - name: Publish quality summary
-      if: always()
-      run: |
-        if [ -f SUMMARY.md ]; then
-          cat SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
-        else
-          echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
-        fi
-        mkdir -p out
-        cp SUMMARY.md out/summary.md || true
-        
-    - name: Sticky PR Comment
-      if: ${{ github.event.pull_request.number }}
-      uses: marocchino/sticky-pull-request-comment@v2
-      with:
-        header: "Dagger CI Summary"
-        path: out/summary.md
-        
-    - name: Semantic Release
-      run: | 
-        npm i -D @semantic-release/exec
-        npm i -D @semantic-release-plus/docker
-        npm i -D @semantic-release/git
-        npx semantic-release@20
-
-  # We have ro wait for the commit that semantic release makes
-  # Or the next tasks all get the wrong release version.
-  wait-for-release:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      FORCE_COLOR: 1
-    steps:
-    - name: Wait...
-      run: sleep 60s  
-  
-  build-cli-linux:
-    needs: wait-for-release
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      FORCE_COLOR: 1
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build CLI (Linux)
-      run: cargo run -p dagger-pipeline --release -- build-cli linux
-      env:
-        DAGGER_LOG_FORMAT: plain
-
-    - name: Get latest release info
-      id: get_latest_release
-      run: |
-        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
-        echo "::set-output name=latest_release::$latest_release"
-
-    - name: Set versions
-      run: |
-        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
-        cd ../..
-        cat crates/k8s-operator/Cargo.toml
-
-    - name: Run build
-      run: cargo run -p dagger-pipeline --release -- build-cli linux
-
-    - name: Upload executable to release
-      if: github.ref == 'refs/heads/main'
-      run: |
-        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-linux --clobber
-
-  build-osx-cli:
-    needs: wait-for-release
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      FORCE_COLOR: 1
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build CLI (macOS)
-      run: cargo run -p dagger-pipeline --release -- build-cli macos
-      env:
-        DAGGER_LOG_FORMAT: plain
-
-    - name: Get latest release info
-      id: get_latest_release
-      run: |
-        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
-        echo "::set-output name=latest_release::$latest_release"
-
-    - name: Set versions
-      run: |
-        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
-        cd ../..
-        cat crates/k8s-operator/Cargo.toml
-
-    - name: Run build
-      run: cargo run -p dagger-pipeline --release -- build-cli macos
-
-
-    - name: Upload executable to release
-      if: github.ref == 'refs/heads/main'
-      run: |
-        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-darwin --clobber
-
-  build-windows-cli:
-    needs: wait-for-release
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      FORCE_COLOR: 1
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build CLI (Windows)
-      run: cargo run -p dagger-pipeline --release -- build-cli windows
-      env:
-        DAGGER_LOG_FORMAT: plain
-
-    - name: Get latest release info
-      id: get_latest_release
-      run: |
-        latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
-        echo "::set-output name=latest_release::$latest_release"
-        
-    - name: Set versions
-      run: |
-        cd .github/workflows/ && ./update-version.sh ${{ steps.get_latest_release.outputs.latest_release }}
-        cd ../..
-        cat crates/k8s-operator/Cargo.toml
-
-    - name: Run build
-      run: cargo run -p dagger-pipeline --release -- build-cli windows
-
-    - name: Upload executable to release
-      if: github.ref == 'refs/heads/main'
-      run: |
-        gh release upload ${{ steps.get_latest_release.outputs.latest_release }} ./bionic-cli-windows.exe --clobber
+          header: "Dagger CI Summary"
+          path: out/summary.md

@@ -1,0 +1,93 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or tag to release from'
+        required: false
+        default: main
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      DAGGER_LOG_FORMAT: plain
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
+      version: ${{ steps.release_tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref || 'main' }}
+
+      - name: Run release pipeline
+        run: cargo run -p dagger-pipeline --release -- all
+
+      - name: Publish quality summary
+        if: always()
+        run: |
+          if [ -f SUMMARY.md ]; then
+            cat SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install release tooling
+        run: |
+          npm i -D @semantic-release/exec
+          npm i -D @semantic-release-plus/docker
+          npm i -D @semantic-release/git
+
+      - name: Run semantic-release
+        run: npx semantic-release@20
+
+      - name: Determine release tag
+        id: release_tag
+        run: |
+          tag=$(git describe --tags --abbrev=0)
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          version="${tag#v}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  build-cli:
+    needs: release
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      DAGGER_LOG_FORMAT: plain
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      matrix:
+        include:
+          - platform: linux
+            artifact: bionic-cli-linux
+          - platform: macos
+            artifact: bionic-cli-darwin
+          - platform: windows
+            artifact: bionic-cli-windows.exe
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release.outputs.tag }}
+
+      - name: Build CLI
+        run: cargo run -p dagger-pipeline --release -- build-cli ${{ matrix.platform }}
+
+      - name: Upload release artifact
+        run: gh release upload ${{ needs.release.outputs.tag }} ./${{ matrix.artifact }} --clobber
