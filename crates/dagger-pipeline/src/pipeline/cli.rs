@@ -2,7 +2,7 @@ use crate::args::CliTarget;
 use dagger_sdk::{Directory, Query};
 use eyre::{Result, WrapErr};
 
-use super::{BASE_IMAGE, container_from};
+use super::BASE_IMAGE;
 
 pub(super) async fn build_cli(client: &Query, repo: &Directory, target: CliTarget) -> Result<()> {
     match target {
@@ -13,7 +13,9 @@ pub(super) async fn build_cli(client: &Query, repo: &Directory, target: CliTarge
 }
 
 async fn build_cli_linux(client: &Query, repo: &Directory) -> Result<()> {
-    let container = container_from(client, BASE_IMAGE)
+    let container = client
+        .container()
+        .from(BASE_IMAGE)
         .with_user("vscode")
         .with_workdir("/build")
         .with_directory(".", repo.clone())
@@ -33,7 +35,9 @@ async fn build_cli_linux(client: &Query, repo: &Directory) -> Result<()> {
 }
 
 async fn build_cli_macos(client: &Query, repo: &Directory) -> Result<()> {
-    let container = container_from(client, "joseluisq/rust-linux-darwin-builder:1.85")
+    let container = client
+        .container()
+        .from("joseluisq/rust-linux-darwin-builder:1.85")
         .with_workdir("/build")
         .with_directory(".", repo.clone())
         .with_exec(vec![
@@ -52,7 +56,9 @@ async fn build_cli_macos(client: &Query, repo: &Directory) -> Result<()> {
 }
 
 async fn build_cli_windows(client: &Query, repo: &Directory) -> Result<()> {
-    let container = container_from(client, BASE_IMAGE)
+    let container = client
+        .container()
+        .from(BASE_IMAGE)
         .with_workdir("/build")
         .with_directory(".", repo.clone())
         .with_exec(vec![
