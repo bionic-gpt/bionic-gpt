@@ -3,6 +3,7 @@
 
 use dagger_sdk::{Container, File, HostDirectoryOpts, Query, Service};
 use eyre::{Context, Result};
+use std::fs;
 
 pub(crate) const BASE_IMAGE: &str = "purtontech/rust-on-nails-devcontainer:1.3.18";
 pub(crate) const POSTGRES_IMAGE: &str = "ankane/pgvector";
@@ -15,12 +16,6 @@ pub(crate) const OPERATOR_EXE_NAME: &str = "k8s-operator";
 pub(crate) const RAG_ENGINE_EXE_NAME: &str = "rag-engine";
 pub(crate) const AIRBYTE_EXE_NAME: &str = "airbyte-connector";
 pub(crate) const TARGET_TRIPLE: &str = "x86_64-unknown-linux-musl";
-
-pub(crate) const APP_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt:latest";
-pub(crate) const MIGRATIONS_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations:latest";
-pub(crate) const RAG_ENGINE_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-rag-engine:latest";
-pub(crate) const OPERATOR_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator:latest";
-pub(crate) const AIRBYTE_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-airbyte-connector:latest";
 
 pub(crate) const DB_FOLDER: &str = "crates/db";
 pub(crate) const PIPELINE_FOLDER: &str = "crates/web-assets";
@@ -160,6 +155,11 @@ async fn publish_summary(summary: &File) -> Result<()> {
 }
 
 async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
+    const IMAGE_EXPORT_DIR: &str = "tmp/dagger-images";
+
+    fs::create_dir_all(IMAGE_EXPORT_DIR)
+        .wrap_err("failed to create dagger image export directory")?;
+
     let dist_dir = outputs
         .container
         .directory(format!("{}/dist", PIPELINE_FOLDER));
@@ -183,9 +183,10 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .with_directory(format!("/build/{}", PIPELINE_FOLDER), dist_dir)
         .with_directory(format!("/build/{}/images", PIPELINE_FOLDER), images_dir)
         .with_entrypoint(vec!["./axum-server"])
-        .publish(APP_IMAGE_NAME)
+        .as_tarball()
+        .export(format!("{IMAGE_EXPORT_DIR}/bionicgpt-app.tar"))
         .await
-        .wrap_err("failed to publish app image")?;
+        .wrap_err("failed to export app image tarball")?;
 
     client
         .container()
@@ -193,9 +194,10 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .with_user("1001")
         .with_file("/rag-engine", outputs.rag_engine_binary.clone())
         .with_entrypoint(vec!["./rag-engine"])
-        .publish(RAG_ENGINE_IMAGE_NAME)
+        .as_tarball()
+        .export(format!("{IMAGE_EXPORT_DIR}/bionicgpt-rag-engine.tar"))
         .await
-        .wrap_err("failed to publish rag engine image")?;
+        .wrap_err("failed to export rag engine image tarball")?;
 
     client
         .container()
@@ -203,18 +205,22 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .with_user("1001")
         .with_file("/airbyte-connector", outputs.airbyte_binary.clone())
         .with_entrypoint(vec!["./airbyte-connector"])
-        .publish(AIRBYTE_IMAGE_NAME)
+        .as_tarball()
+        .export(format!(
+            "{IMAGE_EXPORT_DIR}/bionicgpt-airbyte-connector.tar"
+        ))
         .await
-        .wrap_err("failed to publish airbyte image")?;
+        .wrap_err("failed to export airbyte image tarball")?;
 
     client
         .container()
         .from("scratch")
         .with_file("/k8s-operator", outputs.operator_binary.clone())
         .with_entrypoint(vec!["./k8s-operator", "operator"])
-        .publish(OPERATOR_IMAGE_NAME)
+        .as_tarball()
+        .export(format!("{IMAGE_EXPORT_DIR}/bionicgpt-operator.tar"))
         .await
-        .wrap_err("failed to publish operator image")?;
+        .wrap_err("failed to export operator image tarball")?;
 
     let db_dir = outputs.container.directory(DB_FOLDER);
     db_dir
@@ -239,9 +245,10 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .with_directory("/db", db_dir)
         .with_workdir("/db")
         .with_entrypoint(vec!["dbmate", "up"])
-        .publish(MIGRATIONS_IMAGE_NAME)
+        .as_tarball()
+        .export(format!("{IMAGE_EXPORT_DIR}/bionicgpt-db-migrations.tar"))
         .await
-        .wrap_err("failed to publish migration image")?;
+        .wrap_err("failed to export migration image tarball")?;
 
     Ok(())
 }
