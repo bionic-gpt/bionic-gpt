@@ -74,7 +74,7 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         "bash".to_string(),
         "-lc".to_string(),
         format!(
-            "cd {pipeline} && npm ci && npm run release",
+            "cd {pipeline} && NPM_CONFIG_UNSAFE_PERM=true npm ci && NPM_CONFIG_UNSAFE_PERM=true npm run release",
             pipeline = PIPELINE_FOLDER
         ),
     ]);
@@ -131,29 +131,18 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
 fn base_builder_container(client: &Query, repo: &Directory) -> Container {
     let cache_cargo = client.cache_volume("cargo-target");
     let cache_registry = client.cache_volume("cargo-registry");
-    let cache_npm = client.cache_volume("npm-cache");
 
     let prepared = container_from(client, BASE_IMAGE)
         .with_workdir("/build")
         .with_directory(".", repo.clone())
         .with_mounted_cache("/build/target", cache_cargo)
-        .with_mounted_cache("/usr/local/cargo/registry", cache_registry)
-        .with_mounted_cache(
-            format!("/build/{}/node_modules", PIPELINE_FOLDER),
-            cache_npm,
-        );
+        .with_mounted_cache("/usr/local/cargo/registry", cache_registry);
+
+    let ensure_directories = "mkdir -p /build/target /usr/local/cargo/registry";
 
     prepared
-        .with_exec(vec![
-            "sh",
-            "-lc",
-            &format!(
-                "mkdir -p /build/target /usr/local/cargo/registry /build/{pipeline}/node_modules && \
-                 chown -R vscode:vscode /build/target /usr/local/cargo/registry /build/{pipeline}/node_modules",
-                pipeline = PIPELINE_FOLDER
-            ),
-        ])
         .with_user("vscode")
+        .with_exec(vec!["bash", "-lc", ensure_directories])
 }
 
 fn postgres_service(client: &Query) -> Service {

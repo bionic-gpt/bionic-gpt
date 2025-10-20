@@ -9,6 +9,9 @@ dev-setup:
     cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000
     cargo run --bin k8s-operator -- operator
 
+ci:
+    cargo run --bin dagger-pipeline -- pull-request
+
 codex: 
     sudo npm install -g @openai/codex
 
