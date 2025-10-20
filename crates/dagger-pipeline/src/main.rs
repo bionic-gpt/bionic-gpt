@@ -13,7 +13,7 @@ pub(crate) const DATABASE_URL: &str =
 #[tokio::main]
 async fn main() -> Result<()> {
     dagger_sdk::connect(|client| async move {
-        let backend = build_backend(&client).await;
+        let backend = build_backend(&client).await?;
 
         println!("exe {:?}", backend.name().await.unwrap());
 
@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn build_backend(client: &Query) -> File {
+async fn build_backend(client: &Query) -> Result<File> {
     let host_source_dir = client.host().directory_opts(
         ".",
         HostDirectoryOpts {
@@ -59,22 +59,20 @@ async fn build_backend(client: &Query) -> File {
         "up",
     ]);
 
-    let after_node = after_migrations
-        .with_exec(vec!["npm", "--prefix", "/crates/web-assets", "install"])
-        .with_exec(vec![
-            "npm",
-            "--prefix",
-            "/crates/web-assets",
-            "run",
-            "release",
-        ]);
+    let after_node_install =
+        after_migrations.with_exec(vec!["npm", "--prefix", "crates/web-assets", "install"]);
 
-    let after_rust =
-        after_node
-            .with_workdir("/workspace")
-            .with_exec(vec!["cargo", "build", "--release"]);
+    let after_node_release = after_node_install.with_exec(vec![
+        "npm",
+        "--prefix",
+        "crates/web-assets",
+        "run",
+        "release",
+    ]);
 
-    after_rust.file("target/release/web-server")
+    let after_rust = after_node_release.with_exec(vec!["cargo", "build", "--release"]);
+
+    Ok(after_rust.file("target/release/web-server"))
 }
 
 fn postgres_service(client: &Query) -> Service {
