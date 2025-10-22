@@ -17,7 +17,7 @@ Simon comes up with a list of best practices as he sees it but not necessarily i
 
 I'll also take some real world examples to make it real.
 
-![Dev Ops](dev-ops.webp "Dev Ops")
+![Dev Ops](ci-cd.jpg "Dev Ops")
 
 ## Plan
 
