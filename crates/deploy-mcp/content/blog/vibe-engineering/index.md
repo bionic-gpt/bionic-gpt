@@ -33,6 +33,10 @@ Example prompt
 
 In reality I don't dso thid very often. Mostly I take a prompt and get the agent to generate code.
 
+### Best Practices
+
+- [AGENTS.md](https://agents.md/)
+
 ## Code
 
 ![Dev Ops](codex.png "Codex")
@@ -47,19 +51,28 @@ In reality I don't dso thid very often. Mostly I take a prompt and get the agent
 - Devcontainer
 - Code review
 
-## Build
+## The Pull Request
+
+- [Example from Codex](https://github.com/openai/codex/pull/5504)
+
+
+![Pull Request](pull-request.png "Pull Request")
+
+## Build (the CI in CI/CD)
 
 - The pull request is the quality gate keeper
 - At this stage our Ci CD pipeline kiks off
 - Its the same for humans as AI
+
+### Best Practices
+
+- Be able to run the pipeline locally.
 
 ## Test
 
 It would be nice.
 
 https://github.com/openai/codex/blob/main/.github/workflows/rust-release.yml
-
-## The Pull Request
 
 ## Best Parcytice Take Aways
 
