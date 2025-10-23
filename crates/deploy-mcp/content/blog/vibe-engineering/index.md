@@ -13,13 +13,31 @@ Tjhe article resonated with me as thats how I've been working for the last few m
 
 ## It's the Software Development Life Cycle
 
-Simon comes up with a list of best practices as he sees it but not necessarily in an organised way. What I'll do is take the  SDLC or DevOps lifecycle and show how Coding Agents fit in.
+Setting up a software engineering best practices is difficlut and I rarely see it done well.
+
+I've seen projects actively recruiting developers and they are elaving mone yon the table ith poor best practices.
 
 I'll also take some real world examples to make it real.
 
 ![Dev Ops](ci-cd.jpg "Dev Ops")
 
-## Plan
+## The Pull Request
+
+When you think about it. All we want to do is create more pull requests.
+
+- [Example from Codex](https://github.com/openai/codex/pull/5504)
+
+
+![Pull Request](pull-request.png "Pull Request")
+
+## Preparing Enterprise Projects for AI
+
+### Best Practices
+
+- [AGENTS.md](https://agents.md/)
+- Devconatiner 
+
+## Using AI for planning
 
 Example prompt
 
@@ -33,11 +51,8 @@ Example prompt
 
 In reality I don't dso thid very often. Mostly I take a prompt and get the agent to generate code.
 
-### Best Practices
 
-- [AGENTS.md](https://agents.md/)
-
-## Code
+## The code loop
 
 ![Dev Ops](codex.png "Codex")
 
@@ -50,13 +65,6 @@ In reality I don't dso thid very often. Mostly I take a prompt and get the agent
 
 - Devcontainer
 - Code review
-
-## The Pull Request
-
-- [Example from Codex](https://github.com/openai/codex/pull/5504)
-
-
-![Pull Request](pull-request.png "Pull Request")
 
 ## Build (the CI in CI/CD)
 
