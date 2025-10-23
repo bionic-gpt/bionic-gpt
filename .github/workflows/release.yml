@@ -29,8 +29,36 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref || 'main' }}
 
-      - name: Run validation pipeline
-        run: cargo run -p dagger-pipeline --release -- pull-request
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install release tooling
+        run: |
+          npm i -D @semantic-release/commit-analyzer
+          npm i -D @semantic-release/release-notes-generator
+          npm i -D @semantic-release/exec
+          npm i -D @semantic-release/git
+
+      - name: Determine next version
+        id: next_version
+        run: |
+          VERSION=$(npx semantic-release@20 --dry-run --no-ci --plugins @semantic-release/commit-analyzer --plugins @semantic-release/release-notes-generator 2>&1 \
+            | grep -Eo 'The next release version is [0-9]+\.[0-9]+\.[0-9]+' \
+            | awk '{print $6}' \
+            | tail -n 1)
+          if [ -z "$VERSION" ]; then
+            echo "Unable to determine next version" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Determined next version: $VERSION"
+
+      - name: Run release pipeline
+        env:
+          RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
+        run: cargo run -p dagger-pipeline --release -- all
 
       - name: Publish quality summary
         if: always()
@@ -40,16 +68,6 @@ jobs:
           else
             echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
           fi
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install release tooling
-        run: |
-          npm i -D @semantic-release/exec
-          npm i -D @semantic-release/git
 
       - name: Run semantic-release
         run: npx semantic-release@20
@@ -61,11 +79,6 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           version="${tag#v}"
           echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Publish container images
-        env:
-          RELEASE_VERSION: ${{ steps.release_tag.outputs.version }}
-        run: cargo run -p dagger-pipeline --release -- all
 
   build-cli:
     needs: release
