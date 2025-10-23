@@ -4,9 +4,9 @@ use dagger_sdk::{Container, Directory, File, Query, Service};
 use eyre::{Result, WrapErr, eyre};
 
 use super::{
-    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_NAME, APP_EXE_NAME, APP_IMAGE_NAME, BASE_IMAGE, DATABASE_URL,
-    DB_FOLDER, DB_PASSWORD, MIGRATIONS_IMAGE_NAME, OPERATOR_EXE_NAME, OPERATOR_IMAGE_NAME,
-    PIPELINE_FOLDER, POSTGRES_IMAGE, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_NAME, SUMMARY_PATH,
+    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE, DATABASE_URL,
+    DB_FOLDER, DB_PASSWORD, MIGRATIONS_IMAGE_REPO, OPERATOR_EXE_NAME, OPERATOR_IMAGE_REPO,
+    PIPELINE_FOLDER, POSTGRES_IMAGE, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH,
     TARGET_TRIPLE,
 };
 
@@ -14,6 +14,29 @@ use super::{
 pub(crate) enum PublishMode {
     PullRequest,
     All,
+}
+
+fn collect_image_tags() -> Vec<String> {
+    let mut tags = vec!["latest".to_string()];
+
+    if let Ok(version) = env::var("RELEASE_VERSION") {
+        let version = version.trim();
+        if !version.is_empty() && !tags.iter().any(|tag| tag == version) {
+            tags.push(version.to_string());
+        }
+    }
+
+    if let Ok(additional) = env::var("ADDITIONAL_IMAGE_TAGS") {
+        for tag in additional.split(',') {
+            let tag = tag.trim();
+            if tag.is_empty() || tags.iter().any(|existing| existing == tag) {
+                continue;
+            }
+            tags.push(tag.to_string());
+        }
+    }
+
+    tags
 }
 
 pub(super) async fn run(client: &Query, repo: &Directory, mode: PublishMode) -> Result<()> {
@@ -142,6 +165,8 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     println!("Start to build containers");
     let registry = "ghcr.io";
     let require_publish = env::var("CI").is_ok();
+    let tags = collect_image_tags();
+    println!("Container tags to publish: {}", tags.join(", "));
 
     let username = env::var("GHCR_USERNAME").or_else(|_| env::var("GITHUB_ACTOR"));
     let token = env::var("GHCR_TOKEN").or_else(|_| env::var("GITHUB_TOKEN"));
@@ -212,10 +237,11 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     maybe_publish(
         client,
         &app_container,
-        APP_IMAGE_NAME,
+        APP_IMAGE_REPO,
         credentials.as_ref(),
         registry,
         "app image",
+        &tags,
     )
     .await?;
 
@@ -229,10 +255,11 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     maybe_publish(
         client,
         &rag_container,
-        RAG_ENGINE_IMAGE_NAME,
+        RAG_ENGINE_IMAGE_REPO,
         credentials.as_ref(),
         registry,
         "rag engine image",
+        &tags,
     )
     .await?;
 
@@ -246,10 +273,11 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     maybe_publish(
         client,
         &airbyte_container,
-        AIRBYTE_IMAGE_NAME,
+        AIRBYTE_IMAGE_REPO,
         credentials.as_ref(),
         registry,
         "airbyte image",
+        &tags,
     )
     .await?;
 
@@ -262,10 +290,11 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     maybe_publish(
         client,
         &operator_container,
-        OPERATOR_IMAGE_NAME,
+        OPERATOR_IMAGE_REPO,
         credentials.as_ref(),
         registry,
         "operator image",
+        &tags,
     )
     .await?;
 
@@ -299,10 +328,11 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     maybe_publish(
         client,
         &migrations_container,
-        MIGRATIONS_IMAGE_NAME,
+        MIGRATIONS_IMAGE_REPO,
         credentials.as_ref(),
         registry,
         "migration image",
+        &tags,
     )
     .await?;
 
@@ -322,20 +352,28 @@ async fn ensure_built(container: &Container, label: &str) -> Result<()> {
 async fn maybe_publish(
     client: &Query,
     container: &Container,
-    image_name: &str,
+    image_repo: &str,
     credentials: Option<&PublishCredentials>,
     registry: &str,
     label: &str,
+    tags: &[String],
 ) -> Result<()> {
     if let Some(creds) = credentials {
-        println!("Publishing {label} to {registry}");
+        println!(
+            "Publishing {label} to {registry} with tags: {}",
+            tags.join(", ")
+        );
         let secret = client.set_secret("ghcr_token", creds.token.clone());
-        container
-            .clone()
-            .with_registry_auth(registry, &creds.username, secret)
-            .publish(image_name)
-            .await
-            .wrap_err_with(|| format!("failed to publish {label}"))?;
+        for tag in tags {
+            let reference = format!("{image_repo}:{tag}");
+            container
+                .clone()
+                .with_registry_auth(registry, &creds.username, secret.clone())
+                .publish(&reference)
+                .await
+                .wrap_err_with(|| format!("failed to publish {label} ({reference})"))?;
+            println!("Published {label} as {reference}");
+        }
         println!("Published {label}");
     } else {
         println!("Skipping publish of {label}");

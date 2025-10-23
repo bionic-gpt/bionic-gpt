@@ -18,11 +18,11 @@ pub(crate) const RAG_ENGINE_EXE_NAME: &str = "rag-engine";
 pub(crate) const AIRBYTE_EXE_NAME: &str = "airbyte-connector";
 pub(crate) const TARGET_TRIPLE: &str = "x86_64-unknown-linux-musl";
 
-pub(crate) const APP_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt:latest";
-pub(crate) const MIGRATIONS_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations:latest";
-pub(crate) const RAG_ENGINE_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-rag-engine:latest";
-pub(crate) const OPERATOR_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator:latest";
-pub(crate) const AIRBYTE_IMAGE_NAME: &str = "ghcr.io/bionic-gpt/bionicgpt-airbyte-connector:latest";
+pub(crate) const APP_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt";
+pub(crate) const MIGRATIONS_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations";
+pub(crate) const RAG_ENGINE_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-rag-engine";
+pub(crate) const OPERATOR_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-k8s-operator";
+pub(crate) const AIRBYTE_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-airbyte-connector";
 
 pub(crate) const SUMMARY_PATH: &str = "/build/SUMMARY.md";
 

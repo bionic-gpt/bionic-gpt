@@ -29,8 +29,8 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref || 'main' }}
 
-      - name: Run release pipeline
-        run: cargo run -p dagger-pipeline --release -- all
+      - name: Run validation pipeline
+        run: cargo run -p dagger-pipeline --release -- pull-request
 
       - name: Publish quality summary
         if: always()
@@ -49,7 +49,6 @@ jobs:
       - name: Install release tooling
         run: |
           npm i -D @semantic-release/exec
-          npm i -D @semantic-release-plus/docker
           npm i -D @semantic-release/git
 
       - name: Run semantic-release
@@ -62,6 +61,11 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           version="${tag#v}"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Publish container images
+        env:
+          RELEASE_VERSION: ${{ steps.release_tag.outputs.version }}
+        run: cargo run -p dagger-pipeline --release -- all
 
   build-cli:
     needs: release
