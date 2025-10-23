@@ -1,89 +1,72 @@
 ## Vibe Engineering Definition
 
-The term "vibe engineering" comes form an article by [Simon Willison](https://simonwillison.net/2025/Oct/7/vibe-engineering/). He doesn't exactly give a defination but I put the article in Chat-GPT and this is the defintion I got out.
+The term “vibe engineering” comes from an article by [Simon Willison](https://simonwillison.net/2025/Oct/7/vibe-engineering/). He never nails down a formal definition, so I fed the piece into ChatGPT to capture the spirit of what he described.
 
 > Vibe engineering is the practice where experienced software engineers leverage large-language-model tools and agentic coding loops to build production-quality software with full accountability, rather than simply handing off tasks to AI and hoping it works.
 
+[![Screenshot of Simon Willison's article](vibe-engineering-blog-article.png)](https://simonwillison.net/2025/Oct/7/vibe-engineering/)
 
-[![Alt text for image](vibe-engineering-blog-article.png)](https://simonwillison.net/2025/Oct/7/vibe-engineering/)
+To me, vibe engineering is the antidote to “vibe coding,” where you let an AI sling changes into production without taking responsibility. The goal is to keep craftsmanship intact while embracing the velocity good tooling can provide.
 
-So rather than Vibe Coding where we don't look at the code, we're going to put best practices in place.
-
-Tjhe article resonated with me as thats how I've been working for the last few months.
+The article resonated because it matches how I’ve been working over the last few months. I still own the outcome, I simply have a tireless assistant sitting in my terminal.
 
 ## It's the Software Development Life Cycle
 
-Setting up a software engineering best practices is difficlut and I rarely see it done well.
+Putting consistent software-engineering practices in place is hard, and in most teams I work with it is the first thing to slip. Recruiting may be humming along, but without a clear SDLC they leave a lot of value on the table: code reviews pile up, infrastructure drifts, regressions sneak into production.
 
-I've seen projects actively recruiting developers and they are elaving mone yon the table ith poor best practices.
-
-I'll also take some real world examples to make it real.
+Good vibe engineering starts with the unglamorous fundamentals: reliable tests, automated deployments, observability, and runbooks that tell future you what just happened. When those are dialed in, your AI helper has a stable system to plug into—and so does every new human joining the project.
 
 ![Dev Ops](ci-cd.jpg "Dev Ops")
 
 ## The Pull Request
 
-When you think about it. All we want to do is create more pull requests.
+When you zoom out, our main job is to produce solid pull requests. Every PR is a chance to document why a change exists, link the context, and make it easy to review.
 
 - [Example from Codex](https://github.com/openai/codex/pull/5504)
 
+Pull requests are where all the quality controls live: tests, linters, security scanners, and human judgment. An agent can tee up the work, but you decide whether the diff is safe to merge.
 
 ![Pull Request](pull-request.png "Pull Request")
 
-## Preparing Enterprise Projects for AI
+## Preparing Projects for AI
 
-### Best Practices
+An agent walks into your repository blind; it has the code, but no shared history. The better we frame the project, the faster it gets productive. Onboard it like you would a senior hire: share the architecture, the naming conventions, the “don’t touch this” modules.
 
-- [AGENTS.md](https://agents.md/)
-- Devconatiner 
+I’ve found [AGENTS.md](https://agents.md/) to be a helpful format for that orientation. Outline the domain, the data flows, and the processes the agent should follow. Humans benefit from the same clarity, so the effort pays off twice.
 
-## Using AI for planning
+Spin up a solid [Devcontainer](https://containers.dev/) while you’re at it. It keeps the environment deterministic, surfaces all the tooling to the agent, and saves everyone from “works on my machine” sessions.
 
-Example prompt
+## The New Software Development Lifecycle
 
-> I want to add payments to this application. Come up with a techincal specification and suggestions for how we can best do this.
+Once the groundwork is done, the lifecycle bends but doesn’t break. We still discover work, design solutions, write code, review, and ship. The difference is how quickly we can move through each phase with an agent at our elbow.
 
-![Dev Ops](codex.png "Codex")
+### Using AI for Planning (Optional)
 
-- The agent has access to your code
-- Given your requirment it can create a technical design plan
-- You can feed back into this plan.
+I sometimes ask the model to sketch a plan before I touch the code. A simple prompt like this gives me a concrete starting point:
 
-In reality I don't dso thid very often. Mostly I take a prompt and get the agent to generate code.
+> I want to add payments to this application. Come up with a technical specification and suggestions for how we can best do this.
 
+![Codex planning](codex.png "Codex")
 
-## The code loop
+- The agent sees the existing code and can match patterns that already work.
+- Given a clear requirement it can outline architecture, risks, and open questions.
+- I iterate on that plan, keep what makes sense, and discard the rest.
 
-![Dev Ops](codex.png "Codex")
+Most days I skip the planning step and go straight to the editor, but having the option helps when the change touches multiple systems.
 
-- We're always using version control and can revert the code at anytime.
-- The agent has access to all the developer tools
-- We can see what code has chnaged so far and request chnages.
-- When we are happy the agent can create a pull request.
+### The Code Loop
 
-### Some best practices
+![Codex coding](codex.png "Codex")
 
-- Devcontainer
-- Code review
+- Everything sits in version control, so we can revert or branch off safely.
+- The agent uses the same tools we do—formatters, test runners, editors—no hidden magic.
+- We review every diff, request adjustments, and make sure the change matches the intent.
+- When we’re happy, the agent can prepare the PR, but we are the ones who press merge.
 
-## Build (the CI in CI/CD)
+## Back to the PR
 
-- The pull request is the quality gate keeper
-- At this stage our Ci CD pipeline kiks off
-- Its the same for humans as AI
+- The pull request remains the quality gatekeeper.
+- Continuous integration kicks off with the exact same rigor for humans and AI.
+- Accountability stays with us; the tooling just helps us make better calls faster.
 
-### Best Practices
-
-- Be able to run the pipeline locally.
-
-## Test
-
-It would be nice.
-
-https://github.com/openai/codex/blob/main/.github/workflows/rust-release.yml
-
-## Best Parcytice Take Aways
-
-- Devcontainer
-- Agents.md
-- CI/CD
+Vibe engineering isn’t about ceding control to automation. It is about embracing the new tools while keeping the professional guardrails that make software reliable. That combination is how we ship faster **and** sleep at night.
