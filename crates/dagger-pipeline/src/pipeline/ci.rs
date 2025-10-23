@@ -199,7 +199,6 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
 
     let app_container = client
         .container()
-        .from("scratch")
         .with_user("1001")
         .with_file("/axum-server", outputs.app_binary.clone())
         .with_directory(format!("/build/{}", PIPELINE_FOLDER), dist_dir.clone())
@@ -222,7 +221,6 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
 
     let rag_container = client
         .container()
-        .from("scratch")
         .with_user("1001")
         .with_file("/rag-engine", outputs.rag_engine_binary.clone())
         .with_entrypoint(vec!["./rag-engine"]);
@@ -240,7 +238,6 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
 
     let airbyte_container = client
         .container()
-        .from("scratch")
         .with_user("1001")
         .with_file("/airbyte-connector", outputs.airbyte_binary.clone())
         .with_entrypoint(vec!["./airbyte-connector"]);
@@ -258,7 +255,6 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
 
     let operator_container = client
         .container()
-        .from("scratch")
         .with_file("/k8s-operator", outputs.operator_binary.clone())
         .with_entrypoint(vec!["./k8s-operator", "operator"]);
 

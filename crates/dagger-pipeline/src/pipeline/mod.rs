@@ -3,7 +3,7 @@ mod cli;
 
 use crate::args::{Args, Command};
 use dagger_sdk::{HostDirectoryOpts, Query, connect};
-use eyre::{Result, eyre};
+use eyre::{Result, WrapErr};
 
 pub(crate) const BASE_IMAGE: &str = "purtontech/rust-on-nails-devcontainer:1.3.18";
 pub(crate) const POSTGRES_IMAGE: &str = "ankane/pgvector";
@@ -31,7 +31,7 @@ pub async fn run(args: Args) -> Result<()> {
 
     connect(|client| async move { dispatch(client, command).await })
         .await
-        .map_err(|err| eyre!("failed to run dagger pipeline: {err}"))
+        .wrap_err("failed to run dagger pipeline")
 }
 
 async fn dispatch(client: Query, command: Command) -> Result<()> {
