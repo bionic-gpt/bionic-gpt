@@ -31,7 +31,7 @@ on:
       - Justfile
 
 jobs:
-  summary-check:
+  dagger-pipeline:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
