@@ -322,7 +322,7 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         ])
         .with_directory("/db", db_dir)
         .with_workdir("/db")
-        .with_entrypoint(vec!["dbmate", "up"]);
+        .with_entrypoint(vec!["dbmate", "--migrations-dir", "./migrations", "up"]);
 
     ensure_built(&migrations_container, "migration image").await?;
     maybe_publish(
