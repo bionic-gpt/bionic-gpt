@@ -66,6 +66,7 @@ async fn build_cli_windows(client: &Query, repo: &Directory) -> Result<()> {
         .with_exec(vec!["sudo", "apt", "install", "-y", "g++-mingw-w64-x86-64"])
         .with_exec(vec!["rustup", "target", "add", "x86_64-pc-windows-gnu"])
         .with_workdir("/build/crates/k8s-operator")
+        .with_user("root")
         .with_exec(vec![
             "cargo",
             "build",
