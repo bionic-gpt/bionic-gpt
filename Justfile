@@ -12,9 +12,6 @@ dev-setup:
 ci:
     cargo run --bin dagger-pipeline -- pull-request
 
-ci-all:
-    cargo run --bin dagger-pipeline -- pull-request
-
 codex: 
     sudo npm install -g @openai/codex
 
