@@ -4,6 +4,7 @@ mod error;
 mod extractors;
 mod handlers;
 mod models;
+mod sql_utils;
 mod state;
 
 use axum::{extract::State, routing::get, Router};

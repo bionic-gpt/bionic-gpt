@@ -46,6 +46,10 @@ impl ApiError {
         )
     }
 
+    pub fn not_found(message: impl Into<String>) -> Self {
+        Self::new(StatusCode::NOT_FOUND, "not_found", message, None)
+    }
+
     pub fn database_error(message: impl Into<String>, details: Option<Value>) -> Self {
         Self::new(
             StatusCode::INTERNAL_SERVER_ERROR,

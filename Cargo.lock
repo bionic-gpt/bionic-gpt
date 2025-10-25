@@ -3830,6 +3830,7 @@ dependencies = [
  "async-trait",
  "axum 0.7.9",
  "axum-extra 0.9.6",
+ "base64 0.21.7",
  "futures",
  "http 1.1.0",
  "hyper 1.6.0",
