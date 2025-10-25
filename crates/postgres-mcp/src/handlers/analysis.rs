@@ -441,7 +441,8 @@ async fn deadlock_health(
 ) -> ApiResult<HealthCheckResult> {
     let total_deadlocks: i64 = client
         .query_one(
-            "SELECT COALESCE(SUM(deadlocks), 0) FROM pg_stat_database",
+            "SELECT COALESCE(SUM(deadlocks)::bigint, 0)
+             FROM pg_stat_database",
             &[],
         )
         .await?
