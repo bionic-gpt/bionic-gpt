@@ -6,8 +6,8 @@ use eyre::{Result, WrapErr, eyre};
 use super::{
     AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE, DATABASE_URL,
     DB_FOLDER, DB_PASSWORD, MIGRATIONS_IMAGE_REPO, OPERATOR_EXE_NAME, OPERATOR_IMAGE_REPO,
-    PIPELINE_FOLDER, POSTGRES_IMAGE, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH,
-    TARGET_TRIPLE,
+    PIPELINE_FOLDER, POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO,
+    RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH, TARGET_TRIPLE,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -57,6 +57,7 @@ struct BuildOutputs {
     operator_binary: File,
     rag_engine_binary: File,
     airbyte_binary: File,
+    postgres_mcp_binary: File,
 }
 
 struct PublishCredentials {
@@ -133,6 +134,7 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
     let operator_binary = summary_container.file(release_binary_path(OPERATOR_EXE_NAME));
     let rag_engine_binary = summary_container.file(release_binary_path(RAG_ENGINE_EXE_NAME));
     let airbyte_binary = summary_container.file(release_binary_path(AIRBYTE_EXE_NAME));
+    let postgres_mcp_binary = summary_container.file(release_binary_path(POSTGRES_MCP_EXE_NAME));
 
     Ok(BuildOutputs {
         container: summary_container,
@@ -141,6 +143,7 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         operator_binary,
         rag_engine_binary,
         airbyte_binary,
+        postgres_mcp_binary,
     })
 }
 
@@ -287,6 +290,24 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .with_entrypoint(vec!["./k8s-operator", "operator"]);
 
     ensure_built(&operator_container, "operator image").await?;
+
+    let postgres_mcp_container = client
+        .container()
+        .with_user("1001")
+        .with_file("/postgres-mcp", outputs.postgres_mcp_binary.clone())
+        .with_entrypoint(vec!["./postgres-mcp"]);
+
+    ensure_built(&postgres_mcp_container, "postgres mcp image").await?;
+    maybe_publish(
+        client,
+        &postgres_mcp_container,
+        POSTGRES_MCP_IMAGE_REPO,
+        credentials.as_ref(),
+        registry,
+        "postgres mcp image",
+        &tags,
+    )
+    .await?;
     maybe_publish(
         client,
         &operator_container,
