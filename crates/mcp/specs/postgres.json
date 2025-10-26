@@ -11,22 +11,17 @@
   },
   "servers": [
     {
-      "url": "https://postgres.deploy-mcp.com/v1",
+      "url": "http://localhost:8080/v1",
       "description": "Base URL for the Deploy Postgres MCP server"
-    }
-  ],
-  "security": [
-    {
-      "ApiKeyAuth": []
     }
   ],
   "components": {
     "securitySchemes": {
       "ApiKeyAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "PostgreSQL connection string",
-        "description": "Provide an `Authorization: Bearer` header whose token is a complete PostgreSQL connection string. The server uses the connection string to open a database session for each request."
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Use the format `Authorization: Bearer <API_KEY>`"
       }
     },
     "schemas": {
