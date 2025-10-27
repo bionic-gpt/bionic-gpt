@@ -3,7 +3,7 @@ name: Container Scanner
 on:
   workflow_dispatch: # Triggers the workflow manually
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["Release"]
     branches: [main]
     types: 
       - completed
