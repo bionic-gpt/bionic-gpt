@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8080/v1",
+      "url": "http://postgres-mcp:8080/v1",
       "description": "Base URL for the Deploy Postgres MCP server"
     }
   ],
