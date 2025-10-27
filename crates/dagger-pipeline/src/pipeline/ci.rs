@@ -225,15 +225,15 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .wrap_err("failed to load images directory")?;
     println!("Resolved images directory");
 
+    // The generated StaticFile metadata in the web-assets crate bakes in absolute paths
+    // such as `/workspace/crates/web-assets/dist/...`. Ensure the runtime image mirrors
+    // those locations so asset lookups succeed.
     let app_container = client
         .container()
         .with_user("1001")
         .with_file("/axum-server", outputs.app_binary.clone())
-        .with_directory(format!("/build/{}", PIPELINE_FOLDER), dist_dir.clone())
-        .with_directory(
-            format!("/build/{}/images", PIPELINE_FOLDER),
-            images_dir.clone(),
-        )
+        .with_directory("/workspace/crates/web-assets/dist", dist_dir.clone())
+        .with_directory("/workspace/crates/web-assets/images", images_dir.clone())
         .with_entrypoint(vec!["./axum-server"]);
 
     ensure_built(&app_container, "app image").await?;
