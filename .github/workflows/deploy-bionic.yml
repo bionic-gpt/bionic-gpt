@@ -21,6 +21,7 @@ jobs:
 
       - name: Write kubeconfig
         run: |
+          mkdir -p $HOME .kube
           echo "${KUBECONFIG_B64}" | base64 -d > $HOME/.kube/config
           echo "KUBECONFIG=$HOME/kubeconfig" >> $GITHUB_ENV
         env:
