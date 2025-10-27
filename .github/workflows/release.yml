@@ -78,10 +78,9 @@ jobs:
           fi
 
       - name: Commit version bump
-        working-directory: .github/workflows
         env:
           RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
-        run: ./update-git.sh "${RELEASE_VERSION}"
+        run: ./.github/workflows/update-git.sh "${RELEASE_VERSION}"
 
       - name: Run semantic-release
         run: npx semantic-release@20
