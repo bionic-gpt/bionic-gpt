@@ -56,11 +56,12 @@ jobs:
           echo "Determined next version: $VERSION"
 
       - name: Update versioned assets
+        working-directory: .github/workflows
         env:
           RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
         run: |
-          ./.github/workflows/update-config.sh "${RELEASE_VERSION}"
-          ./.github/workflows/update-version.sh "${RELEASE_VERSION}"
+          ./update-config.sh "${RELEASE_VERSION}"
+          ./update-version.sh "${RELEASE_VERSION}"
 
       - name: Run release pipeline
         env:
@@ -77,9 +78,10 @@ jobs:
           fi
 
       - name: Commit version bump
+        working-directory: .github/workflows
         env:
           RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
-        run: ./.github/workflows/update-git.sh "${RELEASE_VERSION}"
+        run: ./update-git.sh "${RELEASE_VERSION}"
 
       - name: Run semantic-release
         run: npx semantic-release@20
