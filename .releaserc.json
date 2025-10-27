@@ -9,18 +9,6 @@
         "assets": [
           {"path": "tmp/earthly/chrome-video.mp4", "label": "chrome-video.mp4"}
         ]
-      }],
-      ["@semantic-release/exec", {
-        "publishCmd": "./update-config.sh ${nextRelease.version}",
-        "execCwd": "./.github/workflows"
-      }],
-      ["@semantic-release/exec", {
-        "publishCmd": "./update-version.sh ${nextRelease.version}",
-        "execCwd": "./.github/workflows"
-      }],
-      ["@semantic-release/exec", {
-        "publishCmd": "./update-git.sh ${nextRelease.version}",
-        "execCwd": "./.github/workflows"
       }]
     ]
   }

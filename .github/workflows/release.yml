@@ -55,6 +55,13 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Determined next version: $VERSION"
 
+      - name: Update versioned assets
+        env:
+          RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
+        run: |
+          ./.github/workflows/update-config.sh "${RELEASE_VERSION}"
+          ./.github/workflows/update-version.sh "${RELEASE_VERSION}"
+
       - name: Run release pipeline
         env:
           RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
@@ -68,6 +75,11 @@ jobs:
           else
             echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Commit version bump
+        env:
+          RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
+        run: ./.github/workflows/update-git.sh "${RELEASE_VERSION}"
 
       - name: Run semantic-release
         run: npx semantic-release@20
