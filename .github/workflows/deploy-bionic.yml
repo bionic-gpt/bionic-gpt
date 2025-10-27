@@ -1,0 +1,47 @@
+name: Deploy Bionic
+
+on:
+  workflow_dispatch: # Triggers the workflow manually
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # required for OIDC
+    env:
+      PROJECT_ID: credits-project-425714
+      GKE_CLUSTER: bionic
+      GKE_LOCATION: us-west1-b   # or your region/zone
+      WIF_PROVIDER: projects/1234567890/locations/global/workloadIdentityPools/gh-pool/providers/gh-provider
+      GSA_EMAIL: gh-deployer@credits-project-425714.iam.gserviceaccount.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write kubeconfig
+        run: |
+          echo "${KUBECONFIG_B64}" | base64 -d > $HOME/kubeconfig
+          echo "KUBECONFIG=$HOME/kubeconfig" >> $GITHUB_ENV
+        env:
+          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
+
+      # What release are we?
+      - name: Get latest release info
+        id: get_latest_release
+        run: |
+          latest_release=$(curl  "https://api.github.com/repos/bionic-gpt/bionic-gpt/tags" | jq -r '.[0].name')
+          echo "::set-output name=latest_release::$latest_release"
+          
+      - name: Install Bionic CLI
+        run: |
+          export BIONIC_VERSION=${{ steps.get_latest_release.outputs.latest_release }}
+          curl -OL https://github.com/bionic-gpt/bionic-gpt/releases/download/${BIONIC_VERSION}/bionic-cli-linux
+          chmod +x ./bionic-cli-linux
+          sudo mv ./bionic-cli-linux /usr/local/bin/bionic
+          bionic -V
+
+      - name: Install Bionic Application into Kubernetes
+        run: |
+          bionic install --saas --hostname-url https://app.bionic-gpt.com
+
