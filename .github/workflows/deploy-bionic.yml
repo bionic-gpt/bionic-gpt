@@ -19,6 +19,12 @@ jobs:
           echo "${KUBECONFIG_B64}" | base64 -d > $HOME/.kube/config
         env:
           KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
+          
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - run: |
+          sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
+          echo "USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
 
       # What release are we?
       - name: Get latest release info
