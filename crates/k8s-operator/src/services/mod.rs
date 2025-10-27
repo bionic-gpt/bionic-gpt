@@ -17,12 +17,14 @@ pub mod nginx;
 pub mod oauth2_proxy;
 pub mod observability;
 pub mod pgadmin;
+pub mod postgres_mcp;
 pub mod rag_engine;
 pub mod tgi;
 
 const BIONICGPT_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt";
 const BIONICGPT_RAG_ENGINE_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-rag-engine";
 const BIONICGPT_DB_MIGRATIONS_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-db-migrations";
+const BIONICGPT_POSTGRES_MCP_IMAGE: &str = "ghcr.io/bionic-gpt/bionicgpt-postgres-mcp";
 
 const ENVOYPROXY_IMAGE: &str = "envoyproxy/envoy:v1.28.0";
 const KEYCLOAK_IMAGE: &str = "quay.io/keycloak/keycloak:23.0";

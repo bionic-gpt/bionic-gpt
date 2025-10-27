@@ -17,6 +17,7 @@ use crate::services::nginx::deploy_nginx;
 use crate::services::oauth2_proxy;
 use crate::services::observability;
 use crate::services::pgadmin;
+use crate::services::postgres_mcp;
 use crate::services::rag_engine;
 use crate::services::tgi;
 use k8s_openapi::api::core::v1::Pod;
@@ -165,9 +166,17 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
                     &namespace,
                 )
                 .await?;
+                http_mock::deploy(
+                    client.clone(),
+                    postgres_mcp::NAME,
+                    postgres_mcp::PORT,
+                    &namespace,
+                )
+                .await?;
             } else {
                 chunking_engine::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
                 embeddings_engine::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
+                postgres_mcp::deploy(client.clone(), bionic.spec.clone(), &namespace).await?;
             }
             Ok(Action::requeue(Duration::from_secs(10)))
         }
@@ -196,6 +205,7 @@ pub async fn reconcile(bionic: Arc<Bionic>, context: Arc<ContextData>) -> Result
             database::delete(client.clone(), &namespace).await?;
             chunking_engine::delete(client.clone(), &namespace).await?;
             embeddings_engine::delete(client.clone(), &namespace).await?;
+            postgres_mcp::delete(client.clone(), &namespace).await?;
             if pgadmin {
                 pgadmin::delete(client.clone(), &namespace).await?;
             }
