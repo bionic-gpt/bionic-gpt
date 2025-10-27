@@ -77,10 +77,17 @@ jobs:
             echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Configure git author
+        run: |
+          git config user.email "github-actions@users.noreply.github.com"
+          git config user.name "github-actions"
+
       - name: Commit version bump
         env:
           RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
         run: ./.github/workflows/update-git.sh "${RELEASE_VERSION}"
+        env:
+          RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
 
       - name: Run semantic-release
         run: npx semantic-release@20
