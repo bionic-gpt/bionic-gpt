@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use crate::i18n;
 use daisy_rsx::*;
 use db::queries::models;
 use db::Visibility;
@@ -25,13 +26,13 @@ pub fn Upsert(
                 class: "flex flex-col justify-between",
                 h3 {
                     class: "font-bold text-lg mb-4",
-                    "Dataset"
+                    "{i18n::dataset()}"
                 }
                 TabContainer {
                     TabPanel {
                         checked: true,
                         name: "prompt-tabs",
-                        tab_name: "Dataset",
+                        tab_name: i18n::dataset(),
                         div {
                             class: "flex flex-col justify-between height-full",
                             div {
@@ -46,10 +47,13 @@ pub fn Upsert(
                                 Fieldset {
                                     legend: "Name",
                                     legend_class: "mt-4",
-                                    help_text: "Give your new dataset a name",
+                                    help_text: format!(
+                                        "Give your new {} a name",
+                                        i18n::dataset().to_lowercase()
+                                    ),
                                     Input {
                                         input_type: InputType::Text,
-                                        placeholder: "Dataset Name",
+                                        placeholder: format!("{} Name", i18n::dataset()),
                                         required: true,
                                         value: name,
                                         name: "name"
@@ -57,9 +61,15 @@ pub fn Upsert(
                                 }
 
                                 Fieldset {
-                                    legend: "Who should be able to see this dataset?",
+                                    legend: format!(
+                                        "Who should be able to see this {}?",
+                                        i18n::dataset().to_lowercase()
+                                    ),
                                     legend_class: "mt-4",
-                                    help_text: "Set to private if you don't want to share this dataset",
+                                    help_text: format!(
+                                        "Set to private if you don't want to share this {}",
+                                        i18n::dataset().to_lowercase()
+                                    ),
                                     Select {
                                         name: "visibility",
                                         value: "Private",

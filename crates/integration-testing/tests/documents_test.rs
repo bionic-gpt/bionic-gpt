@@ -92,20 +92,20 @@ async fn documents(driver: &WebDriver, config: &common::Config) -> WebDriverResu
 
 async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Datasets & Documents"))
+        .find(By::LinkText("MCP RAG Servers"))
         .await?
         .click()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Add Dataset']"))
+        .find(By::XPath("//button[text()='Add MCP RAG Server']"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Add Dataset']"))
+        .find(By::XPath("//button[text()='Add MCP RAG Server']"))
         .await?
         .click()
         .await?;

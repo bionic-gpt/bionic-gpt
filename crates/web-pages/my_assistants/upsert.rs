@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::i18n;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{Category, Prompt, Visibility};
@@ -39,10 +40,10 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
     let example2 = prompt.example2.clone().unwrap_or_default();
     let example3 = prompt.example3.clone().unwrap_or_default();
     let example4 = prompt.example4.clone().unwrap_or_default();
-    let name = if prompt.id.is_some() {
-        "Edit Assistant"
+    let action_label = if prompt.id.is_some() {
+        format!("Edit {}", i18n::assistant())
     } else {
-        "Create Assistant"
+        format!("Create {}", i18n::assistant())
     };
 
     let page = rsx! {
@@ -51,26 +52,26 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Assistant",
+            title: i18n::assistant().to_string(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "Assistants".into(),
+                            text: i18n::assistants().to_string(),
                             href: Some(crate::routes::prompts::Index{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: "My Assistants".into(),
+                            text: format!("My {}", i18n::assistants()),
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: name.into(),
+                            text: action_label.clone(),
                             href: None
                         }
                     ]
                 }
                 h3 {
-                    if prompt.id.is_some() { "Edit Assistant" } else { "Create Assistant" }
+                    {action_label.clone()}
                 }
             ),
 
@@ -104,7 +105,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                     Card {
                         class: "mb-6",
                         CardHeader {
-                            title: "Assistant Details"
+                            title: format!("{} Details", i18n::assistant())
                         }
                         CardBody {
                             div {
@@ -115,7 +116,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                     div {
                                         class: "flex flex-col",
                                         Fieldset {
-                                            legend: "Assistant Name",
+                                            legend: format!("{} Name", i18n::assistant()),
                                             help_text: "Make the name memorable and imply its usage.",
                                             Input {
                                                 input_type: InputType::Text,
@@ -130,7 +131,10 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                         class: "flex flex-col",
                                         Fieldset {
                                             legend: "Category",
-                                            help_text: "Categories help users find assistants.",
+                                            help_text: format!(
+                                                "Categories help users find {}.",
+                                                i18n::assistants().to_lowercase()
+                                            ),
                                             Select {
                                                 name: "category_id",
                                                 value: "{prompt.category_id}",
@@ -150,7 +154,10 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                         class: "flex flex-col",
                                         Fieldset {
                                             legend: "Visibility",
-                                            help_text: "Set to private if you don't want to share this assistant.",
+                                            help_text: format!(
+                                                "Set to private if you don't want to share this {}.",
+                                                i18n::assistant().to_lowercase()
+                                            ),
                                             Select {
                                                 name: "visibility",
                                                 value: "{prompt.visibility}",
@@ -203,7 +210,10 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                         name: "description",
                                         rows: "3",
                                         label: "Description",
-                                        help_text: "Describe what this assistant does and how it can help users.",
+                                        help_text: format!(
+                                            "Describe what this {} does and how it can help users.",
+                                            i18n::assistant().to_lowercase()
+                                        ),
                                         required: true,
                                         "{prompt.description}",
                                     }
@@ -224,7 +234,10 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                 class: "font-mono leading-tight overflow-y-auto w-full",
                                 name: "system_prompt",
                                 rows: "16",
-                                help_text: "Define the assistant's behavior, personality, and capabilities.",
+                                help_text: format!(
+                                    "Define the {}'s behavior, personality, and capabilities.",
+                                    i18n::assistant().to_lowercase()
+                                ),
                                 "{prompt.system_prompt}",
                             }
                         }
@@ -234,17 +247,20 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                     Card {
                         class: "mb-6",
                         CardHeader {
-                            title: "Assistant Icon"
+                            title: format!("{} Icon", i18n::assistant())
                         }
                         CardBody {
                             div {
                                 label {
                                     class: "block text-sm font-medium text-gray-700 mb-2",
-                                    "Upload Assistant Icon"
+                                    {format!("Upload {} Icon", i18n::assistant())}
                                 }
                                 p {
                                     class: "text-sm text-gray-500 mb-3",
-                                    "Choose an image that represents your assistant. Recommended size: 48x48 pixels."
+                                    {format!(
+                                        "Choose an image that represents your {}. Recommended size: 48x48 pixels.",
+                                        i18n::assistant().to_lowercase()
+                                    )}
                                 }
                                 FileInput {
                                     name: "image_icon",
@@ -433,7 +449,13 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                 Button {
                                     button_type: ButtonType::Submit,
                                     button_scheme: ButtonScheme::Primary,
-                                    if prompt.id.is_some() { "Update Assistant" } else { "Create Assistant" }
+                                    {
+                                        if prompt.id.is_some() {
+                                            format!("Update {}", i18n::assistant())
+                                        } else {
+                                            format!("Create {}", i18n::assistant())
+                                        }
+                                    }
                                 }
                             }
                         }

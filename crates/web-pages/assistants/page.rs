@@ -2,6 +2,7 @@
 use crate::app_layout::{Layout, SideBar};
 use crate::assistants::assistant_card::AssistantCard;
 use crate::components::confirm_modal::ConfirmModal;
+use crate::i18n;
 use crate::routes;
 use crate::SectionIntroduction;
 use assets::files::*;
@@ -24,11 +25,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Assistants",
+            title: i18n::assistants().to_string(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: "Assistants".into(),
+                        text: i18n::assistants().into(),
                         href: None
                     }]
                 }
@@ -36,14 +37,14 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                     a {
                         href: crate::routes::prompts::MyAssistants{team_id}.to_string(),
                         class: "btn btn-ghost btn-sm font-bold! mr-4",
-                        "My Assistants"
+                        {format!("My {}", i18n::assistants())}
                     }
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         href: routes::prompts::New{team_id}.to_string(),
                         button_scheme: ButtonScheme::Primary,
-                        "New Assistant"
+                        {format!("New {}", i18n::assistant())}
                     }
                 }
             ),
@@ -52,11 +53,14 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                 class: "mx-auto max-w-3xl overflow-x-clip px-4",
 
                 SectionIntroduction {
-                    header: "Assistants".to_string(),
+                    header: i18n::assistants().to_string(),
                     subtitle: "Discover and create custom chat bots that combine instructions,
                     extra knowledge, and any combination of skills.".to_string(),
                     is_empty: prompts.is_empty(),
-                    empty_text: "You haven't created any assistants yet.".to_string(),
+                    empty_text: format!(
+                        "You haven't created any {} yet.",
+                        i18n::assistants().to_lowercase()
+                    ),
                 }
 
                 if ! prompts.is_empty() {
@@ -68,8 +72,8 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                                 checked: true,
                                 category: Category {
                                     id: -1,
-                                    name: "All".to_string(),
-                                    description: "All assistants".to_string()
+                                    name: format!("All {}", i18n::assistants()),
+                                    description: format!("All {}", i18n::assistants().to_lowercase())
                                 },
                                 prompts: prompts.clone(),
                                 rbac: rbac.clone(),
@@ -91,8 +95,11 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                                 action: crate::routes::prompts::Delete{team_id, id: prompt.id}.to_string(),
                                 trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id),
                                 submit_label: "Delete".to_string(),
-                                heading: "Delete this Assistant?".to_string(),
-                                warning: "Are you sure you want to delete this Assistant?".to_string(),
+                                heading: format!("Delete this {}?", i18n::assistant()),
+                                warning: format!(
+                                    "Are you sure you want to delete this {}?",
+                                    i18n::assistant()
+                                ),
                                 hidden_fields: vec![
                                     ("team_id".into(), team_id.to_string()),
                                     ("id".into(), prompt.id.to_string()),

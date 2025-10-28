@@ -25,26 +25,26 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Manage Datasets",
+            title: format!("Manage {}", crate::i18n::datasets()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "Assistants".into(),
+                            text: crate::i18n::assistants().to_string(),
                             href: Some(crate::routes::prompts::Index{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: "My Assistants".into(),
+                            text: format!("My {}", crate::i18n::assistants()),
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: "Manage Datasets".into(),
+                            text: format!("Manage {}", crate::i18n::datasets()),
                             href: None
                         }
                     ]
                 }
                 h3 {
-                    "Manage Datasets for {form.prompt_name}"
+                    {format!("Manage {} for {}", crate::i18n::datasets(), form.prompt_name)}
                 }
             ),
 
@@ -75,12 +75,16 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                     Card {
                         class: "mb-6",
                         CardHeader {
-                            title: "Available Datasets"
+                            title: format!("Available {}", crate::i18n::datasets())
                         }
                         CardBody {
                             Alert {
                                 class: "mb-4",
-                                "Select which datasets you wish to attach to this assistant"
+                                {format!(
+                                    "Select which {} you wish to attach to this {}",
+                                    crate::i18n::datasets(),
+                                    crate::i18n::assistant().to_lowercase()
+                                )}
                             }
 
                             if !form.datasets.is_empty() {
@@ -90,7 +94,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                                         class: "table table-sm w-full",
                                         thead {
                                             tr {
-                                                th { "Dataset" }
+                                                th { "{crate::i18n::dataset()}" }
                                                 th { "Model" }
                                                 th { "Add?" }
                                             }
@@ -122,7 +126,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                             } else {
                                 div {
                                     class: "text-gray-500 italic text-center py-4",
-                                    "No datasets available"
+                                    {format!("No {} available", crate::i18n::datasets())}
                                 }
                             }
                         }
@@ -142,7 +146,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                                 Button {
                                     button_type: ButtonType::Submit,
                                     button_scheme: ButtonScheme::Primary,
-                                    "Save Dataset Connections"
+                                    {format!("Save {} Connections", crate::i18n::datasets())}
                                 }
                             }
                         }

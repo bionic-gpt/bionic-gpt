@@ -18,11 +18,11 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "Assistants".into(),
+                            text: crate::i18n::assistants().to_string(),
                             href: Some(crate::routes::prompts::Index{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: "My Assistants".into(),
+                            text: format!("My {}", crate::i18n::assistants()),
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
@@ -53,7 +53,10 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                     CardBody {
                         Alert {
                             class: "mb-4",
-                            "Manage which integrations this assistant can use"
+                            {format!(
+                                "Manage which integrations this {} can use",
+                                crate::i18n::assistant().to_lowercase()
+                            )}
                         }
 
                         if !form.integrations.is_empty() {

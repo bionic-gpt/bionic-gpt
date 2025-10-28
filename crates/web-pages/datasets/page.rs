@@ -2,6 +2,7 @@
 use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
 use crate::components::confirm_modal::ConfirmModal;
+use crate::i18n;
 use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
@@ -22,12 +23,12 @@ pub fn page(
             selected_item: SideBar::Datasets,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Datasets",
+            title: i18n::datasets().to_string(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: "Dataset".into(),
+                            text: i18n::dataset().into(),
                             href: None
                         }
                     ]
@@ -36,7 +37,7 @@ pub fn page(
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "new-dataset-form",
                     button_scheme: ButtonScheme::Primary,
-                    "Add Dataset"
+                    {format!("Add {}", i18n::dataset())}
                 }
             ),
 
@@ -44,17 +45,24 @@ pub fn page(
                 class: "p-4 max-w-3xl w-full mx-auto",
 
                 SectionIntroduction {
-                    header: "Datasets".to_string(),
-                    subtitle: "Organize your documents into datasets for better management and retrieval.".to_string(),
+                    header: i18n::datasets().to_string(),
+                    subtitle: format!(
+                        "Organize your documents into {} for better management and retrieval.",
+                        i18n::datasets()
+                    ),
                     is_empty: datasets.is_empty(),
-                    empty_text: "No datasets created yet. Datasets allow you to organize your documents like folders.".to_string(),
+                    empty_text: format!(
+                        "No {} created yet. {} allow you to organize your documents like folders.",
+                        i18n::datasets(),
+                        i18n::datasets()
+                    ),
                 }
 
                 if !datasets.is_empty() {
                     Card {
                         class: "mt-5 has-data-table",
                         CardHeader {
-                            title: "Datasets"
+                            title: i18n::datasets().to_string()
                         }
                         CardBody {
                             table {
@@ -143,8 +151,11 @@ pub fn page(
                                 action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
                                 trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id),
                                 submit_label: "Delete".to_string(),
-                                heading: "Delete this Dataset?".to_string(),
-                                warning: "Are you sure you want to delete this Dataset?".to_string(),
+                                heading: format!("Delete this {}?", i18n::dataset()),
+                                warning: format!(
+                                    "Are you sure you want to delete this {}?",
+                                    i18n::dataset()
+                                ),
                                 hidden_fields: vec![
                                     ("team_id".into(), team_id.to_string()),
                                     ("id".into(), dataset.id.to_string()),
