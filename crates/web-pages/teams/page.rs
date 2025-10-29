@@ -99,7 +99,6 @@ pub fn page(
                 // The for to create new teams
                 form {
                     method: "post",
-                    "data-turbo-frame": "_top",
                     action: crate::routes::teams::New{team_id}.to_string(),
                     Modal {
                         trigger_id: "create-new-team",

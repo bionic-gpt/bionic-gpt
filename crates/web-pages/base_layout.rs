@@ -33,10 +33,6 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                 content: "IE=edge"
             }
             meta {
-                name: "turbo-prefetch",
-                content: "true"
-            }
-            meta {
                 name: "viewport",
                 content: "width=device-width, initial-scale=1"
             }
@@ -93,7 +89,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                         {props.sidebar_footer}
                     }
                 }
-                turbo-frame {
+                div {
                     id: "main-content",
                     class: "flex-1 flex flex-col bg-base-200 m-2 border border-base-300 shadow  overflow-x-hidden",
                     header {

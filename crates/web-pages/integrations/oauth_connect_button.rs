@@ -15,7 +15,6 @@ pub fn OauthConnectButton(props: OauthConnectButtonProps) -> Element {
     rsx! {
         a {
             class: "{props.class}",
-            "data-turbo": "false",
             href: routes::integrations::Connect { team_id: props.team_id, integration_id: props.integration_id }.to_string(),
             "{props.label}"
         }

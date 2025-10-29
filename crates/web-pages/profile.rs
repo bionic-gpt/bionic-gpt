@@ -43,7 +43,6 @@ fn Page(
                 CardBody {
                     form {
                         method: "post",
-                        "data-turbo-frame": "_top",
                         action: "{form_action}",
                         div {
                             class: "flex flex-col",

@@ -21,17 +21,11 @@ import { selectMenu } from './typescript/components/select-menu'
 import { readAloud } from './typescript/console/read-aloud'
 import { rememberForm } from './typescript/remember-form'
 import { textareaSubmit } from './typescript/textarea-submit'
-import { updateSidebar } from './typescript/layout/update-sidebar'
-import { refreshFrame } from './typescript/layout/refresh-frame'
 import { disableSubmitButton } from './typescript/disable-submit-button'
 import { themeSwitcher, setTheme } from './typescript/layout/theme-switcher'
 import { speechToText } from './typescript/console/speach-to-text';
 import { fileUpload } from './typescript/console/file-upload';
 import { examplePrompts } from './typescript/console/example-prompts';
-
-// Hotwired Turbo
-import '@hotwired/turbo'
-import { FrameElement } from '@hotwired/turbo'
 
 // Set everything up
 function loadEverything() {
@@ -52,8 +46,6 @@ function loadEverything() {
     initializeSidebar()
     rememberForm()
     textareaSubmit()
-    updateSidebar()
-    refreshFrame()
     disableSubmitButton()
     fileUpload()
 
@@ -62,52 +54,8 @@ function loadEverything() {
     themeSwitcher()
 }
 
-// Called when you click a link in the sidebar and it updates the main content
-document.addEventListener('turbo:frame-load', (event: Event) => {
-    console.log('turbo:frame-load')
-
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadEverything);
+} else {
     loadEverything();
-
-    const frame = event.target as HTMLIFrameElement | null;
-    if (frame?.id === "main-content") {
-        const url = new URL(frame.src);
-        history.pushState({}, '', url.toString());
-    }
-
-    // if we are mobile and the sidebar is open, close it.
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        // On mobile screens
-        if (window.innerWidth < 1024) { // Tailwind's lg breakpoint is 1024px
-            sidebar.classList.add('-translate-x-full');
-        }
-    }
-});
-
-// Reload the turbo frame when the browser history changes
-window.addEventListener('popstate', () => {
-    const frame = document.getElementById('main-content')
-    if (frame instanceof FrameElement && frame) {
-        frame.src = location.href
-    }
-})
-
-// ERROR HANDLING
-document.addEventListener('turbo:before-fetch-response', (event: Event) => {
-    console.log('turbo:before-fetch-response')
-    const customEvent = event as CustomEvent<{ fetchResponse?: { succeeded: boolean; response: Response } }>;
-
-    if (customEvent.detail?.fetchResponse) {
-        const { fetchResponse } = customEvent.detail;
-
-        if (!fetchResponse.succeeded || !fetchResponse.response.ok) {
-            // Extract the response text and display it as an error message
-            fetchResponse.response.text().then(responseText => {
-                alert(responseText || "Failed to load the content. Please try again later.");
-            }).catch(() => {
-                alert("Fetch response failed");
-            });
-        }
-    }
-    event.stopPropagation();
-});
+}

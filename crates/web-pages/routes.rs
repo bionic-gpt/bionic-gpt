@@ -633,12 +633,6 @@ pub mod team {
     }
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/app/team/{team_id}/teams_popup")]
-    pub struct Popup {
-        pub team_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/create_invite")]
     pub struct CreateInvite {
         pub team_id: i32,

@@ -7,7 +7,6 @@ pub fn TeamNameForm(submit_action: String) -> Element {
     rsx! {
         form {
             method: "post",
-            "data-turbo-frame": "_top",
             action: "{submit_action}",
             Modal {
                 trigger_id: "set-name-drawer",

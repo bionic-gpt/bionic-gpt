@@ -10,7 +10,6 @@ pub fn LogoutForm() -> Element {
     rsx! {
         form {
             method: "post",
-            "data-turbo": "false",
             action: signout_url,
             input {
                 "type": "hidden",

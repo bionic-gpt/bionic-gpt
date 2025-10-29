@@ -51,6 +51,13 @@ pub async fn get_permissions(
         .all()
         .await?;
 
+    let has_multiple_teams = queries::teams::get_teams()
+        .bind(transaction, &user_id)
+        .all()
+        .await?
+        .len()
+        > 1;
+
     let user_count: i64 = queries::users::count_users()
         .bind(transaction)
         .one()
@@ -66,6 +73,8 @@ pub async fn get_permissions(
         last_name,
         is_sys_admin: system_admin,
         unlicensed,
+        has_multiple_teams,
+        current_team_name: team.name,
     };
 
     Ok(rbac)
@@ -162,6 +171,8 @@ pub struct Rbac {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub unlicensed: bool,
+    pub has_multiple_teams: bool,
+    pub current_team_name: Option<String>,
 }
 
 impl Rbac {

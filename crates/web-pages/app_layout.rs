@@ -1,5 +1,4 @@
 #![allow(non_snake_case)]
-use std::borrow::Cow;
 
 use super::snackbar::Snackbar;
 use crate::components::logout_form::LogoutForm;
@@ -7,6 +6,7 @@ use crate::i18n;
 use crate::menu::{NavGroup, NavItem};
 use crate::profile_popup::ProfilePopup;
 use assets::files::*;
+use daisy_rsx::*;
 use db::authz::Rbac;
 use db::Licence;
 use dioxus::prelude::*;
@@ -59,14 +59,28 @@ pub fn Layout(props: LayoutProps) -> Element {
     let show_automations_menu = std::env::var("AUTOMATIONS_FEATURE").is_ok();
 
     let licence = Licence::global();
-    let app_logo_src: Cow<'static, str> = if licence.app_logo_svg.is_empty() {
-        Cow::Borrowed(bionic_logo_svg.name)
+    let app_logo_src: String = if licence.app_logo_svg.is_empty() {
+        bionic_logo_svg.name.to_string()
     } else {
-        Cow::Owned(format!(
-            "data:image/svg+xml;base64,{}",
-            licence.app_logo_svg
-        ))
+        format!("data:image/svg+xml;base64,{}", licence.app_logo_svg)
     };
+
+    let app_name = if licence.app_name.is_empty() {
+        "Bionic".to_string()
+    } else {
+        licence.app_name.clone()
+    };
+
+    let switch_teams_href = super::routes::teams::Switch {
+        team_id: props.team_id,
+    }
+    .to_string();
+
+    let current_team_label = props
+        .rbac
+        .current_team_name
+        .clone()
+        .unwrap_or_else(|| "Switch teams".to_string());
 
     rsx! {
         super::base_layout::BaseLayout {
@@ -74,7 +88,7 @@ pub fn Layout(props: LayoutProps) -> Element {
             stylesheets: stylesheets,
             js_href: index_js.name,
             section_class: props.section_class,
-            fav_icon_src: app_logo_src,
+            fav_icon_src: app_logo_src.clone(),
             collapse_svg_src: collapse_svg.name,
             header: rsx!(
                 {props.header}
@@ -250,10 +264,41 @@ pub fn Layout(props: LayoutProps) -> Element {
                 }
             ),
             sidebar_header: rsx!(
-                turbo-frame {
-                    id: "teams-popup",
-                    class: "min-w-full",
-                    src: super::routes::team::Popup{ team_id: props.team_id}.to_string()
+                if props.rbac.has_multiple_teams {
+                    DropDown {
+                        direction: Direction::Bottom,
+                        button_text: "{current_team_label}",
+                        suffix_image_src: button_select_svg.name,
+                        class: "w-full",
+                        DropDownLink {
+                            href: "{switch_teams_href}",
+                            target: "_top",
+                            "Switch teams"
+                        }
+                    }
+                } else {
+                    div {
+                        class: "flex items-center gap-3 w-full",
+                        div {
+                            class: "flex h-10 w-10 items-center justify-center rounded-lg bg-base-200",
+                            img {
+                                class: "h-6 w-6",
+                                src: "{app_logo_src}"
+                            }
+                        }
+                        div {
+                            class: "flex flex-col",
+                            span {
+                                class: "text-sm font-semibold text-base-content",
+                                "{app_name}"
+                            }
+                            a {
+                                class: "text-xs text-primary underline underline-offset-2",
+                                href: "{switch_teams_href}",
+                                "Switch teams"
+                            }
+                        }
+                    }
                 }
             ),
             sidebar_footer: rsx!(

@@ -25,7 +25,6 @@ pub fn NavItem(props: MenuProps) -> Element {
             a {
                 class: "{class}",
                 href: "{props.href}",
-                "data-turbo-frame": "main-content",
                 img {
                     width: "16",
                     height: "16",
