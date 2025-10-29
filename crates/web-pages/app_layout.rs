@@ -278,25 +278,14 @@ pub fn Layout(props: LayoutProps) -> Element {
                     }
                 } else {
                     div {
-                        class: "flex items-center gap-3 w-full",
-                        div {
-                            class: "flex h-10 w-10 items-center justify-center rounded-lg bg-base-200",
-                            img {
-                                class: "h-6 w-6",
-                                src: "{app_logo_src}"
-                            }
+                        class: "flex gap-2 height-full w-full items-center",
+                        img {
+                            height: "16",
+                            width: "16",
+                            src: "{app_logo_src}"
                         }
-                        div {
-                            class: "flex flex-col",
-                            span {
-                                class: "text-sm font-semibold text-base-content",
-                                "{app_name}"
-                            }
-                            a {
-                                class: "text-xs text-primary underline underline-offset-2",
-                                href: "{switch_teams_href}",
-                                "Switch teams"
-                            }
+                        h4 {
+                            "{app_name}"
                         }
                     }
                 }
