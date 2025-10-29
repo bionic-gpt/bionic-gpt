@@ -32,7 +32,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
                             href: Some(routes::integrations::Index { team_id }.to_string()),
                         },
                         BreadcrumbItem {
-                            text: "Select Integration".into(),
+                            text: format!("Select {}", i18n::integration()),
                             href: None,
                         }
                     ]
@@ -45,67 +45,67 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
                 }
             ),
 
-            Card {
-                CardHeader {
-                    title: format!("Select a {}", i18n::integration())
+            div {
+                class: "flex flex-col gap-4",
+                h2 {
+                    class: "text-xl font-semibold",
+                    "Select a {i18n::integration()}"
                 }
-                CardBody {
-                    if specs.is_empty() {
-                        div {
-                            class: "alert alert-warning",
-                            "No pre-built integrations are available right now."
-                        }
-                    } else {
-                        div {
-                            class: "grid grid-cols-1 gap-4 md:grid-cols-2",
-                            for spec in specs {
-                                Card {
-                                    class: "bg-base-100 shadow border border-base-300 h-full flex flex-col",
-                                    CardHeader {
-                                        title: spec.title.clone()
-                                    }
-                                    CardBody {
-                                        class: "flex-1 flex flex-col gap-4",
-                                        if let Some(logo_url) = spec.logo_data_url.clone() {
-                                            div {
-                                                class: "flex justify-center",
-                                                img {
-                                                    class: "h-16 w-auto object-contain",
-                                                    src: "{logo_url}",
-                                                    alt: format!("{} logo", spec.title),
-                                                }
-                                            }
-                                        }
-                                        if let Some(description) = spec.description.clone() {
-                                            p {
-                                                class: "text-sm text-base-content/80",
-                                                "{description}"
-                                            }
-                                        }
-                                        p {
-                                            class: "text-xs text-base-content/60",
-                                            "Source: {spec.file_name}.json"
-                                        }
+                if specs.is_empty() {
+                    div {
+                        class: "alert alert-warning",
+                        "No pre-built {i18n::integrations()} are available right now."
+                    }
+                } else {
+                    div {
+                        class: "grid grid-cols-1 gap-4 md:grid-cols-2",
+                        for spec in specs {
+                            Card {
+                                class: "bg-base-100 shadow border border-base-300 h-full flex flex-col",
+                                CardHeader {
+                                    title: spec.title.clone()
+                                }
+                                CardBody {
+                                    class: "flex-1 flex flex-col gap-4",
+                                    if let Some(logo_url) = spec.logo_data_url.clone() {
                                         div {
-                                            class: "mt-auto",
-                                            form {
-                                                method: "post",
-                                                action: routes::integrations::New { team_id }.to_string(),
-                                                input {
-                                                    r#type: "hidden",
-                                                    name: "visibility",
-                                                    value: private_visibility.clone(),
-                                                }
-                                                textarea {
-                                                    class: "hidden",
-                                                    name: "openapi_spec",
-                                                    "{spec.spec_json}"
-                                                }
-                                                Button {
-                                                    button_type: ButtonType::Submit,
-                                                    button_scheme: ButtonScheme::Primary,
-                                                    "Create Integration"
-                                                }
+                                            class: "flex justify-center",
+                                            img {
+                                                class: "h-16 w-auto object-contain",
+                                                src: "{logo_url}",
+                                                alt: format!("{} logo", spec.title),
+                                            }
+                                        }
+                                    }
+                                    if let Some(description) = spec.description.clone() {
+                                        p {
+                                            class: "text-sm text-base-content/80",
+                                            "{description}"
+                                        }
+                                    }
+                                    p {
+                                        class: "text-xs text-base-content/60",
+                                        "Source: {spec.file_name}.json"
+                                    }
+                                    div {
+                                        class: "mt-auto",
+                                        form {
+                                            method: "post",
+                                            action: routes::integrations::New { team_id }.to_string(),
+                                            input {
+                                                r#type: "hidden",
+                                                name: "visibility",
+                                                value: private_visibility.clone(),
+                                            }
+                                            textarea {
+                                                class: "hidden",
+                                                name: "openapi_spec",
+                                                "{spec.spec_json}"
+                                            }
+                                            Button {
+                                                button_type: ButtonType::Submit,
+                                                button_scheme: ButtonScheme::Primary,
+                                                "Run {i18n::integration()}"
                                             }
                                         }
                                     }

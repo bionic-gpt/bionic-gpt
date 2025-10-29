@@ -73,6 +73,8 @@ pub async fn loader(
                     api_key_count,
                     oauth2_count,
                     oauth_client_configured,
+                    integration_type: integration.integration_type,
+                    created_at: integration.created_at,
                 });
             }
         } else {

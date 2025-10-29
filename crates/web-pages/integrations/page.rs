@@ -42,7 +42,11 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> 
                     header: crate::i18n::integrations().to_string(),
                     subtitle: "Connect external tools to retrieve data, take actions, and more.".to_string(),
                     is_empty: integrations.is_empty(),
-                    empty_text: "No integrations have been configured yet. Add your first integration to get started.".to_string(),
+                    empty_text: format!(
+                        "No {integrations} have been configured yet. Add your first {integration} to get started.",
+                        integrations = i18n::integrations(),
+                        integration = i18n::integration()
+                    ),
                 }
                 if !integrations.is_empty() {
                     for integration in integrations {

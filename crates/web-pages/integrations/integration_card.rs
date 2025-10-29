@@ -1,8 +1,10 @@
 #![allow(non_snake_case)]
 use crate::components::card_item::{CardItem, CountLabel};
 use daisy_rsx::*;
+use db::IntegrationType;
 use dioxus::prelude::*;
 use integrations::{BionicOpenAPI, OAuth2Config};
+use time::OffsetDateTime;
 
 #[derive(Clone, PartialEq)]
 pub struct IntegrationSummary {
@@ -11,6 +13,8 @@ pub struct IntegrationSummary {
     pub api_key_count: usize,
     pub oauth2_count: usize,
     pub oauth_client_configured: bool,
+    pub integration_type: IntegrationType,
+    pub created_at: OffsetDateTime,
 }
 
 #[component]
@@ -28,6 +32,11 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
     let description = integration.openapi.get_description().unwrap_or_default();
 
     let logo_url = integration.openapi.get_logo_url();
+    let timeline_label = if integration.integration_type == IntegrationType::MCP_Server {
+        "Running since"
+    } else {
+        "Created at"
+    };
     rsx! {
         CardItem {
             class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
@@ -36,6 +45,7 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
             avatar_name: if logo_url.is_none() { Some(integration.openapi.get_title()) } else { None },
             title: integration.openapi.get_title().to_string(),
             description: if description.is_empty() { None } else { Some(rsx!(span { "{description}" })) },
+            footer: Some(rsx!(span { "{timeline_label}: {integration.created_at}" })),
             count_labels: if has_oauth2 || has_api_key {
                 vec![CountLabel { count, label: if has_oauth2 { "Connection".into() } else { "Key".into() } }]
             } else {
