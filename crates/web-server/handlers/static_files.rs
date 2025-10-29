@@ -43,6 +43,10 @@ pub async fn static_path(StaticFilePath { path }: StaticFilePath) -> impl IntoRe
                 header::CONTENT_TYPE,
                 HeaderValue::from_str(data.mime.as_ref()).unwrap(),
             )
+            .header(
+                header::CACHE_CONTROL,
+                HeaderValue::from_static("public, max-age=31536000, immutable"),
+            )
             .body(Body::from_stream(stream))
             .unwrap();
     }
