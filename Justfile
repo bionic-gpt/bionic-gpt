@@ -51,7 +51,7 @@ wa:
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
         -w crates/web-assets/images -w crates/web-assets/typescript \
-        -w crates/web-assets/scss -w crates/web-assets/index.ts \
+        -w crates/web-assets/index.ts \
         -w crates/web-assets/input.css \
         --no-gitignore -x "run --bin web-server"
 
@@ -62,7 +62,7 @@ wad:
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
         -w crates/web-assets/images -w crates/web-assets/typescript \
-        -w crates/web-assets/scss -w crates/web-assets/index.ts \
+        -w crates/web-assets/index.ts \
         -w crates/web-assets/input.css \
         --no-gitignore -x "run --bin web-server"
 

@@ -1,5 +1,4 @@
-import './scss/index.scss'
-
+import 'highlight.js/styles/a11y-dark.css'
 // Highlight JS
 import hljs from 'highlight.js';
 

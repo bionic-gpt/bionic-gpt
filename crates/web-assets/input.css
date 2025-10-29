@@ -17,9 +17,15 @@
 @source inline("dropdown dropdown-top dropdown-left");
 @source inline("fieldset fieldset-legend label");
 
+@view-transition {
+    navigation: auto;
+}
+
 :root {
     /** Brand Identity **/
     --color-primary: #3559c7;
+    --color-timeline-badge-bg: #e1e4e8;
+    --color-timeline-target-badge-border: #2188ff;
 }
 
 /** 
@@ -188,4 +194,92 @@
 /** Drop down menu **/
 .dropdown ul {
     border: 1px solid var(--default-border-color);
+}
+
+/** Timeline (used by daisy_rsx timeline component) **/
+.timeline-item {
+    position: relative;
+    display: flex;
+    padding: 16px 0;
+    margin-left: 16px;
+    font-size: 0.9rem;
+}
+
+.timeline-item::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    width: 2px;
+    content: '';
+    background-color: #ccc;
+}
+
+.timeline-item:target .timeline-badge {
+    border-color: #ccc;
+}
+
+.timeline-badge {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+    margin-left: -15px;
+    color: var(--color-timeline-target-badge-border);
+    align-items: center;
+    background-color: var(--color-timeline-badge-bg);
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timeline-badge--success {
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-success-emphasis);
+}
+
+.timeline-body {
+    min-width: 0;
+    max-width: 100%;
+    margin-top: 4px;
+    color: var(--color-fg-muted);
+    flex: auto;
+}
+
+.timeline-avatar {
+    position: absolute;
+    left: -72px;
+    z-index: 1;
+}
+
+.timeline-break {
+    position: relative;
+    z-index: 1;
+    height: 24px;
+    margin: 0;
+    margin-bottom: -16px;
+    margin-left: -56px;
+    background-color: var(--color-canvas-default);
+    border: 0;
+}
+
+.timeline-condensed {
+    padding-top: 4px;
+    padding-bottom: 0;
+}
+
+.timeline-condensed:last-child {
+    padding-bottom: 16px;
+}
+
+.timeline-condensed .timeline-badge {
+    height: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    color: var(--color-fg-muted);
+    background-color: var(--color-canvas-default);
+    border: 0;
 }
