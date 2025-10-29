@@ -6,23 +6,35 @@ use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::queries::{datasets::Dataset, documents::Document};
+use db::queries::{datasets::Dataset, documents::Document, models::Model};
 use dioxus::prelude::*;
 use std::convert::TryFrom;
 
-pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>) -> String {
+pub fn page(
+    rbac: Rbac,
+    team_id: i32,
+    dataset: Dataset,
+    documents: Vec<Document>,
+    models: Vec<Model>,
+    can_set_visibility_to_company: bool,
+) -> String {
+    let can_edit_dataset = rbac.can_edit_dataset(&dataset);
+    let edit_trigger_id = format!("edit-dataset-trigger-{}-{}", dataset.id, team_id);
+    let delete_trigger_id = format!("delete-dataset-trigger-{}-{}", dataset.id, team_id);
+    let dataset_name = dataset.name.clone();
+
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
             team_id: team_id,
             rbac: rbac,
-            title: "{dataset.name} / Documents",
+            title: format!("{dataset_name} / Documents"),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: dataset.name,
+                            text: dataset_name.clone(),
                             href: None
                         },
                         BreadcrumbItem {
@@ -31,11 +43,27 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                         }
                     ]
                 }
-                Button {
-                    prefix_image_src: "{button_plus_svg.name}",
-                    popover_target: "upload-form",
-                    button_scheme: ButtonScheme::Primary,
-                    "Add Document"
+                div {
+                    class: "flex items-center gap-2",
+
+                    if can_edit_dataset {
+                        Button {
+                            popover_target: edit_trigger_id.clone(),
+                            button_scheme: ButtonScheme::Secondary,
+                            "Edit Dataset"
+                        }
+                    }
+                    Button {
+                        popover_target: delete_trigger_id.clone(),
+                        button_scheme: ButtonScheme::Warning,
+                        "Delete Dataset"
+                    }
+                    Button {
+                        prefix_image_src: "{button_plus_svg.name}",
+                        popover_target: "upload-form",
+                        button_scheme: ButtonScheme::Primary,
+                        "Add Document"
+                    }
                 }
             ),
             div {
@@ -70,6 +98,36 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                                 ("dataset_id".into(), doc.dataset_id.to_string()),
                             ],
                         }
+                    }
+                }
+
+                ConfirmModal {
+                    action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
+                    trigger_id: delete_trigger_id.clone(),
+                    submit_label: "Delete".to_string(),
+                    heading: format!("Delete this {}?", crate::i18n::dataset()),
+                    warning: format!(
+                        "Are you sure you want to delete this {}?",
+                        crate::i18n::dataset()
+                    ),
+                    hidden_fields: vec![
+                        ("team_id".into(), team_id.to_string()),
+                        ("id".into(), dataset.id.to_string()),
+                    ],
+                }
+
+                if can_edit_dataset {
+                    crate::datasets::upsert::Upsert {
+                        id: dataset.id,
+                        trigger_id: edit_trigger_id.clone(),
+                        name: dataset_name.clone(),
+                        models: models.clone(),
+                        team_id: team_id,
+                        combine_under_n_chars: dataset.combine_under_n_chars,
+                        new_after_n_chars: dataset.new_after_n_chars,
+                        _multipage_sections: true,
+                        visibility: dataset.visibility,
+                        can_set_visibility_to_company
                     }
                 }
 

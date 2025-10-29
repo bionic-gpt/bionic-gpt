@@ -2,7 +2,6 @@
 use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
 use crate::components::card_item::{CardItem, CountLabel};
-use crate::components::confirm_modal::ConfirmModal;
 use crate::i18n;
 use crate::SectionIntroduction;
 use assets::files::*;
@@ -66,37 +65,6 @@ pub fn page(
                         DatasetCard {
                             dataset: dataset.clone(),
                             team_id,
-                            can_edit: rbac.can_edit_dataset(dataset),
-                        }
-                    }
-
-                    for dataset in datasets {
-                        ConfirmModal {
-                            action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
-                            trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id),
-                            submit_label: "Delete".to_string(),
-                            heading: format!("Delete this {}?", i18n::dataset()),
-                            warning: format!(
-                                "Are you sure you want to delete this {}?",
-                                i18n::dataset()
-                            ),
-                            hidden_fields: vec![
-                                ("team_id".into(), team_id.to_string()),
-                                ("id".into(), dataset.id.to_string()),
-                            ],
-                        }
-
-                        super::upsert::Upsert {
-                            id: dataset.id,
-                            trigger_id: format!("edit-trigger-{}-{}", dataset.id, team_id),
-                            name: dataset.name,
-                            models: models.clone(),
-                            team_id: team_id,
-                            combine_under_n_chars: dataset.combine_under_n_chars,
-                            new_after_n_chars: dataset.new_after_n_chars,
-                            _multipage_sections: true,
-                            visibility: dataset.visibility,
-                            can_set_visibility_to_company
                         }
                     }
                 }
@@ -120,7 +88,7 @@ pub fn page(
 }
 
 #[component]
-fn DatasetCard(dataset: Dataset, team_id: i32, can_edit: bool) -> Element {
+fn DatasetCard(dataset: Dataset, team_id: i32) -> Element {
     let documents_link = crate::routes::documents::Index {
         team_id,
         dataset_id: dataset.id,
@@ -161,33 +129,5 @@ fn DatasetCard(dataset: Dataset, team_id: i32, can_edit: bool) -> Element {
             count: document_count,
             label: "Document".to_string()
         }],
-        action: Some(rsx!(
-            DropDown {
-                direction: Direction::Left,
-                button_text: "...",
-                DropDownLink {
-                    href: documents_link,
-                    target: "_top",
-                    "View"
-                }
-
-                if can_edit {
-                    DropDownLink {
-                        popover_target: format!("edit-trigger-{}-{}",
-                            dataset.id, team_id),
-                        href: "#",
-                        target: "_top",
-                        "Edit"
-                    }
-                }
-                DropDownLink {
-                    popover_target: format!("delete-trigger-{}-{}",
-                        dataset.id, team_id),
-                    href: "#",
-                    target: "_top",
-                    "Delete"
-                }
-            }
-        )),
     })
 }

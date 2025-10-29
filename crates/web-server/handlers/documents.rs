@@ -7,8 +7,8 @@ use axum::{
 };
 use axum_extra::routing::RouterExt;
 use db::authz;
-use db::queries::{self, datasets, documents};
-use db::Pool;
+use db::queries::{self, datasets, documents, models};
+use db::{ModelType, Pool};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::documents::{Delete, Index, Processing, Upload};
@@ -49,7 +49,21 @@ pub async fn loader(
         .one()
         .await?;
 
-    let html = web_pages::documents::page::page(rbac, team_id, dataset, documents);
+    let available_models = models::models()
+        .bind(&transaction, &ModelType::Embeddings)
+        .all()
+        .await?;
+
+    let can_set_visibility_to_company = rbac.is_sys_admin;
+
+    let html = web_pages::documents::page::page(
+        rbac,
+        team_id,
+        dataset,
+        documents,
+        available_models,
+        can_set_visibility_to_company,
+    );
 
     Ok(Html(html))
 }
