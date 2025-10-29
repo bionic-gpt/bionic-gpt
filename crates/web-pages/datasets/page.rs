@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
+use crate::components::card_item::{CardItem, CountLabel};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::i18n;
 use crate::SectionIntroduction;
@@ -8,7 +9,9 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{datasets::Dataset, models::Model};
+use db::types::public::ChunkingStrategy;
 use dioxus::prelude::*;
+use std::convert::TryFrom;
 
 pub fn page(
     rbac: Rbac,
@@ -59,121 +62,41 @@ pub fn page(
                 }
 
                 if !datasets.is_empty() {
-                    Card {
-                        class: "mt-5 has-data-table",
-                        CardHeader {
-                            title: i18n::datasets().to_string()
+                    for dataset in &datasets {
+                        DatasetCard {
+                            dataset: dataset.clone(),
+                            team_id,
+                            can_edit: rbac.can_edit_dataset(dataset),
                         }
-                        CardBody {
-                            table {
-                                class: "table table-sm",
-                                thead {
-                                    th { "Name" }
-                                    th { "Visibility" }
-                                    th {
-                                        class: "max-sm:hidden",
-                                        "Document Count"
-                                    }
-                                    th {
-                                        class: "max-sm:hidden",
-                                        "Chunking Strategy"
-                                    }
-                                    th {
-                                        class: "text-right",
-                                        "Action"
-                                    }
-                                }
-                                tbody {
+                    }
 
-                                    for dataset in &datasets {
-                                        tr {
-                                            td {
-                                                a {
-                                                    href: crate::routes::documents::Index{team_id, dataset_id: dataset.id}.to_string(),
-                                                    "{dataset.name}"
-                                                }
-                                            }
-                                            td {
-                                                crate::assistants::visibility::VisLabel {
-                                                    visibility: dataset.visibility
-                                                }
-                                            }
-                                            td {
-                                                class: "max-sm:hidden",
-                                                "{dataset.count}"
-                                            }
-                                            td {
-                                                class: "max-sm:hidden",
-                                                Badge {
-                                                    badge_color: BadgeColor::Accent,
-                                                    badge_style: BadgeStyle::Outline,
-                                                    badge_size: BadgeSize::Sm,
-                                                    "By Title"
-                                                }
-                                                }
-                                            td {
-                                                class: "text-right",
-                                                DropDown {
-                                                    direction: Direction::Left,
-                                                    button_text: "...",
-                                                    DropDownLink {
-                                                        href: crate::routes::documents::Index{team_id, dataset_id: dataset.id}.to_string(),
-                                                        target: "_top",
-                                                        "View"
-                                                    }
-
-                                                    if rbac.can_edit_dataset(dataset) {
-                                                        DropDownLink {
-                                                            popover_target: format!("edit-trigger-{}-{}",
-                                                                dataset.id, team_id),
-                                                            href: "#",
-                                                            target: "_top",
-                                                            "Edit"
-                                                        }
-                                                    }
-                                                    DropDownLink {
-                                                        popover_target: format!("delete-trigger-{}-{}",
-                                                            dataset.id, team_id),
-                                                        href: "#",
-                                                        target: "_top",
-                                                        "Delete"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                    for dataset in datasets {
+                        ConfirmModal {
+                            action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
+                            trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id),
+                            submit_label: "Delete".to_string(),
+                            heading: format!("Delete this {}?", i18n::dataset()),
+                            warning: format!(
+                                "Are you sure you want to delete this {}?",
+                                i18n::dataset()
+                            ),
+                            hidden_fields: vec![
+                                ("team_id".into(), team_id.to_string()),
+                                ("id".into(), dataset.id.to_string()),
+                            ],
                         }
 
-                        for dataset in datasets {
-                            ConfirmModal {
-                                action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
-                                trigger_id: format!("delete-trigger-{}-{}", dataset.id, team_id),
-                                submit_label: "Delete".to_string(),
-                                heading: format!("Delete this {}?", i18n::dataset()),
-                                warning: format!(
-                                    "Are you sure you want to delete this {}?",
-                                    i18n::dataset()
-                                ),
-                                hidden_fields: vec![
-                                    ("team_id".into(), team_id.to_string()),
-                                    ("id".into(), dataset.id.to_string()),
-                                ],
-                            }
-
-                            super::upsert::Upsert {
-                                id: dataset.id,
-                                trigger_id: format!("edit-trigger-{}-{}", dataset.id, team_id),
-                                name: dataset.name,
-                                models: models.clone(),
-                                team_id: team_id,
-                                combine_under_n_chars: dataset.combine_under_n_chars,
-                                new_after_n_chars: dataset.new_after_n_chars,
-                                _multipage_sections: true,
-                                visibility: dataset.visibility,
-                                can_set_visibility_to_company
-                            }
+                        super::upsert::Upsert {
+                            id: dataset.id,
+                            trigger_id: format!("edit-trigger-{}-{}", dataset.id, team_id),
+                            name: dataset.name,
+                            models: models.clone(),
+                            team_id: team_id,
+                            combine_under_n_chars: dataset.combine_under_n_chars,
+                            new_after_n_chars: dataset.new_after_n_chars,
+                            _multipage_sections: true,
+                            visibility: dataset.visibility,
+                            can_set_visibility_to_company
                         }
                     }
                 }
@@ -194,4 +117,77 @@ pub fn page(
     };
 
     crate::render(page)
+}
+
+#[component]
+fn DatasetCard(dataset: Dataset, team_id: i32, can_edit: bool) -> Element {
+    let documents_link = crate::routes::documents::Index {
+        team_id,
+        dataset_id: dataset.id,
+    }
+    .to_string();
+    let document_count = usize::try_from(dataset.count).unwrap_or(0);
+    let chunking_label = match dataset.chunking_strategy {
+        ChunkingStrategy::ByTitle => "By Title",
+    };
+    let avatar_initial = dataset.name.chars().next().unwrap_or('D').to_string();
+
+    rsx!(CardItem {
+        class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
+        clickable_link: documents_link.clone(),
+        avatar_name: Some(avatar_initial),
+        title: dataset.name.clone(),
+        description: Some(rsx!(
+            div {
+                class: "flex flex-wrap items-center gap-2 text-sm text-base-content/70",
+                crate::assistants::visibility::VisLabel {
+                    visibility: dataset.visibility
+                }
+                Badge {
+                    badge_color: BadgeColor::Accent,
+                    badge_style: BadgeStyle::Outline,
+                    badge_size: BadgeSize::Sm,
+                    "{chunking_label}"
+                }
+            }
+        )),
+        footer: Some(rsx!(
+            div {
+                class: "text-xs text-base-content/60 truncate",
+                "Embedding model: {dataset.embeddings_model_name}"
+            }
+        )),
+        count_labels: vec![CountLabel {
+            count: document_count,
+            label: "Document".to_string()
+        }],
+        action: Some(rsx!(
+            DropDown {
+                direction: Direction::Left,
+                button_text: "...",
+                DropDownLink {
+                    href: documents_link,
+                    target: "_top",
+                    "View"
+                }
+
+                if can_edit {
+                    DropDownLink {
+                        popover_target: format!("edit-trigger-{}-{}",
+                            dataset.id, team_id),
+                        href: "#",
+                        target: "_top",
+                        "Edit"
+                    }
+                }
+                DropDownLink {
+                    popover_target: format!("delete-trigger-{}-{}",
+                        dataset.id, team_id),
+                    href: "#",
+                    target: "_top",
+                    "Delete"
+                }
+            }
+        )),
+    })
 }

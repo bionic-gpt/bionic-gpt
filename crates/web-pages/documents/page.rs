@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::components::card_item::{CardItem, CountLabel};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use assets::files::*;
@@ -7,6 +8,7 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{datasets::Dataset, documents::Document};
 use dioxus::prelude::*;
+use std::convert::TryFrom;
 
 pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>) -> String {
     let page = rsx! {
@@ -47,38 +49,11 @@ pub fn page(rbac: Rbac, team_id: i32, dataset: Dataset, documents: Vec<Document>
                 }
 
                 if !documents.is_empty() {
-                    Card {
-                        class: "mt-5 has-data-table",
-                        CardHeader {
-                            title: "Documents"
-                        }
-                        CardBody {
-                            table {
-                                id: "documents",
-                                class: "table table-sm",
-                                thead {
-                                    th { "Name" }
-                                    th {
-                                        class: "max-sm:hidden",
-                                        "No. Chunks"
-                                    }
-                                    th { "Content Size (Bytes)" }
-                                    th { "Status" }
-                                    th {
-                                        class: "text-right",
-                                        "Action"
-                                    }
-                                }
-                                tbody {
-                                    for doc in &documents {
-                                            Row {
-                                                document: doc.clone(),
-                                                team_id: team_id,
-                                                first_time: true
-                                            }
-                                    }
-                                }
-                            }
+                    for doc in &documents {
+                        Row {
+                            document: doc.clone(),
+                            team_id: team_id,
+                            first_time: true
                         }
                     }
 
@@ -137,78 +112,51 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
         None
     };
 
-    rsx!(
-        tr {
-            td { "{document.file_name}" }
-            td {
-                class: "max-sm:hidden",
-                "{document.batches}"
-             }
-            td { "{document.content_size}" }
-            td {
-                if document.waiting > 0 || document.batches == 0 {
-                    turbo-frame {
-                        id,
-                        src,
+    let chunk_count = usize::try_from(document.batches).unwrap_or(0);
+    let avatar_initial = document.file_name.chars().next().unwrap_or('D').to_string();
+    let content_size = document.content_size;
+
+    rsx!(CardItem {
+        class: Some("w-full".into()),
+        avatar_name: Some(avatar_initial),
+        title: document.file_name.clone(),
+        description: Some(rsx!(
+            div {
+                class: "flex flex-wrap items-center gap-2 text-sm text-base-content/70",
+                span { "Status:" }
+                turbo-frame {
+                    id,
+                    src,
+
+                    if document.waiting > 0 || document.batches == 0 {
                         Badge {
                             class: class,
                             badge_style: BadgeStyle::Outline,
                             badge_size: BadgeSize::Sm,
                             "Processing ({document.waiting} remaining)"
                         }
-                    }
-                } else if document.failure_reason.is_some() {
-                    turbo-frame {
-                        id,
-                        src,
-
+                    } else if document.failure_reason.is_some() {
                         ToolTip {
                             text: "{text}",
                             Badge {
+                                class: class,
                                 badge_color: BadgeColor::Error,
                                 badge_style: BadgeStyle::Outline,
                                 badge_size: BadgeSize::Sm,
                                 "Failed"
                             }
                         }
-                    }
-                } else if document.batches == 0 {
-                    turbo-frame {
-                        id,
-                        src,
-
-                        Badge { badge_style: BadgeStyle::Outline, badge_size: BadgeSize::Sm, "Queued" }
-                    }
-                } else if document.fail_count > 0 {
-                    turbo-frame {
-                        id,
-                        src,
-
+                    } else if document.fail_count > 0 {
                         Badge {
+                            class: class,
                             badge_color: BadgeColor::Error,
                             badge_style: BadgeStyle::Outline,
                             badge_size: BadgeSize::Sm,
                             "Processed ({document.fail_count} failed)"
                         }
-                    }
-                } else if document.failure_reason.is_some() {
-                    turbo-frame {
-                        id,
-                        src,
-
+                    } else {
                         Badge {
-                            badge_color: BadgeColor::Error,
-                            badge_style: BadgeStyle::Outline,
-                            badge_size: BadgeSize::Sm,
-                            "Failed"
-                        }
-                    }
-                } else {
-                    turbo-frame {
-                        id,
-                        src,
-
-                        Badge {
+                            class: class,
                             badge_color: BadgeColor::Success,
                             badge_style: BadgeStyle::Outline,
                             badge_size: BadgeSize::Sm,
@@ -217,20 +165,29 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
                     }
                 }
             }
-            td {
-                class: "text-right",
-                DropDown {
-                    direction: Direction::Left,
-                    button_text: "...",
-                    DropDownLink {
-                        popover_target: format!("delete-doc-trigger-{}-{}",
-                            document.id, team_id),
-                        href: "#",
-                        target: "_top",
-                        "Delete Document"
-                    }
+        )),
+        footer: Some(rsx!(
+            div {
+                class: "text-xs text-base-content/60",
+                "Size: {content_size} bytes"
+            }
+        )),
+        count_labels: vec![CountLabel {
+            count: chunk_count,
+            label: "Chunk".to_string()
+        }],
+        action: Some(rsx!(
+            DropDown {
+                direction: Direction::Left,
+                button_text: "...",
+                DropDownLink {
+                    popover_target: format!("delete-doc-trigger-{}-{}",
+                        document.id, team_id),
+                    href: "#",
+                    target: "_top",
+                    "Delete Document"
                 }
             }
-        }
-    )
+        )),
+    })
 }
