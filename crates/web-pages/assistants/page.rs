@@ -138,15 +138,7 @@ fn AssistantTab(
             checked,
 
             div {
-                class: "mt-12  w-full",
-                h3 {
-                    class: "text-xl font-semibold md:text-2xl",
-                    "{category.name}"
-                }
-                h4 {
-                    class: "mb-8 text-sm md:text-base",
-                    "{category.description}"
-                }
+                class: "w-full",
                 div {
                     class: "space-y-2",
                     for prompt in &prompts {
