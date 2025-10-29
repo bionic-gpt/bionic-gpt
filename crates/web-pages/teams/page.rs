@@ -7,6 +7,7 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{InviteSummary, TeamOwner};
 use dioxus::prelude::*;
+use std::collections::HashMap;
 
 pub fn page(
     rbac: Rbac,
@@ -14,6 +15,7 @@ pub fn page(
     teams: Vec<TeamOwner>,
     invites: Vec<InviteSummary>,
     current_user_email: String,
+    team_member_counts: HashMap<i32, usize>,
 ) -> String {
     let page = rsx! {
         Layout {
@@ -21,12 +23,12 @@ pub fn page(
             selected_item: SideBar::Switch,
             team_id: team_id,
             rbac: rbac,
-            title: "Your Teams",
+            title: "Teams",
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: "Your Teams".into(),
-                        href: None
+                        text: "Teams".into(),
+                        href: Some(crate::routes::teams::Switch{team_id}.to_string())
                     }]
                 }
                 Button {
@@ -55,6 +57,10 @@ pub fn page(
                             current_team_id: team_id,
                             teams_len: teams.len(),
                             current_user_email: current_user_email.clone(),
+                            member_count: team_member_counts
+                                .get(&team.id)
+                                .copied()
+                                .unwrap_or(0),
                         }
                     }
                 }

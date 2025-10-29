@@ -3,6 +3,7 @@ use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries;
 use db::Pool;
+use std::collections::HashMap;
 use web_pages::{routes::teams::Switch, teams};
 
 pub async fn switch(
@@ -31,7 +32,24 @@ pub async fn switch(
         .all()
         .await?;
 
-    let html = teams::page::page(rbac, team.id, teams, invites, current_user_email);
+    let mut member_counts = HashMap::new();
+    for team_entry in &teams {
+        let member_count = queries::teams::get_users()
+            .bind(&transaction, &team_entry.id)
+            .all()
+            .await?
+            .len();
+        member_counts.insert(team_entry.id, member_count);
+    }
+
+    let html = teams::page::page(
+        rbac,
+        team.id,
+        teams,
+        invites,
+        current_user_email,
+        member_counts,
+    );
 
     Ok(Html(html))
 }

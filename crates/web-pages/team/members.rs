@@ -16,19 +16,29 @@ pub fn page(
     user: User,
     team_name: String,
 ) -> String {
+    let breadcrumb_team_name = team
+        .name
+        .clone()
+        .unwrap_or_else(|| "Team Members".to_string());
     let page = rsx! {
         Layout {
             section_class: "p-4",
-            selected_item: SideBar::Team,
+            selected_item: SideBar::Switch,
             team_id: team.id,
             rbac: rbac.clone(),
             title: "Team Members",
             header: rsx!(
                 Breadcrumb {
-                    items: vec![BreadcrumbItem {
-                        text: "Team Members".into(),
-                        href: None
-                    }]
+                    items: vec![
+                        BreadcrumbItem {
+                            text: "Teams".into(),
+                            href: Some(crate::routes::teams::Switch{team_id: team.id}.to_string())
+                        },
+                        BreadcrumbItem {
+                            text: breadcrumb_team_name.clone(),
+                            href: None
+                        }
+                    ]
                 }
                 Button {
                     prefix_image_src: "{button_plus_svg.name}",
