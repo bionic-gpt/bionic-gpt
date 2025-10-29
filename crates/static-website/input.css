@@ -7,12 +7,6 @@
   navigation: auto;
 }
 
+/* kill the default fade */
 ::view-transition-old(root),
-::view-transition-new(root) {
-  animation: fade 0.3s ease both;
-}
-
-@keyframes fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+::view-transition-new(root) { animation: none; }
