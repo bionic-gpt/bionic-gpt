@@ -22,6 +22,7 @@ pub mod menu;
 pub mod models;
 pub mod my_assistants;
 pub mod oauth_clients;
+pub mod openapi_specs;
 pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;

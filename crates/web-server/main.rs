@@ -93,6 +93,7 @@ async fn main() {
         .merge(handlers::mcp_api_keys::routes())
         .merge(handlers::oauth2::routes())
         .merge(handlers::oauth_clients::routes())
+        .merge(handlers::openapi_specs::routes())
         .merge(llm_proxy::routes())
         .merge(handlers::mcp::routes())
         .merge(handlers::models::routes())

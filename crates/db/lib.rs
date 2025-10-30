@@ -26,6 +26,7 @@ pub use queries::invitations::{Invitation, InviteSummary};
 pub use queries::models::{Model, ModelWithPrompt};
 pub use queries::oauth_clients::OauthClient;
 pub use queries::object_storage::ObjectStorage;
+pub use queries::openapi_specs::OpenapiSpec;
 pub use queries::prompt_flags::insert_prompt_flag;
 pub use queries::prompt_integrations::{PromptIntegration, PromptIntegrationWithConnection};
 pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};

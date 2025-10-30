@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PrebuiltSpec {
-    pub file_name: String,
+    pub slug: String,
     pub title: String,
     pub description: Option<String>,
     pub spec_json: String,
@@ -85,7 +85,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
                                     }
                                     p {
                                         class: "text-xs text-base-content/60",
-                                        "Source: {spec.file_name}.json"
+                                        "Slug: {spec.slug}"
                                     }
                                     div {
                                         class: "mt-auto",

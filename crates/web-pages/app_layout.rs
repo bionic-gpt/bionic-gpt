@@ -28,6 +28,7 @@ pub enum SideBar {
     Models,
     Categories,
     OauthClients,
+    OpenapiSpecs,
     Prompts,
     Profile,
     RateLimits,
@@ -235,6 +236,13 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     href: super::routes::oauth_clients::Index { team_id: props.team_id },
                                     icon: nav_api_keys_svg.name,
                                     title: "OAuth Clients"
+                                }
+                                NavItem {
+                                    id: SideBar::OpenapiSpecs.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::openapi_specs::Index { team_id: props.team_id },
+                                    icon: nav_audit_svg.name,
+                                    title: "OpenAPI Specs"
                                 }
                                 NavItem {
                                     id: SideBar::Categories.to_string(),

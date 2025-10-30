@@ -711,6 +711,43 @@ pub mod oauth_clients {
     }
 }
 
+pub mod openapi_specs {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/openapi-specs")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/openapi-specs/new")]
+    pub struct New {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/openapi-specs/edit/{id}")]
+    pub struct Edit {
+        pub team_id: i32,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/openapi-specs/upsert")]
+    pub struct Upsert {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/openapi-specs/delete/{id}")]
+    pub struct Delete {
+        pub team_id: i32,
+        pub id: i32,
+    }
+}
+
 pub mod licence {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
