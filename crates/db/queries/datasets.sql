@@ -1,7 +1,10 @@
+--: DatasetWithModel()
+
 --! datasets : Dataset()
 SELECT
     id,
     team_id, 
+    external_id,
     name,
     chunking_strategy,
     visibility,
@@ -29,10 +32,31 @@ OR
     (visibility = 'Company')
 ORDER BY updated_at;
 
+--! dataset_by_external_id : DatasetWithModel
+SELECT
+    id,
+    team_id,
+    external_id,
+    name,
+    visibility,
+    embeddings_model_id,
+    chunking_strategy,
+    combine_under_n_chars,
+    new_after_n_chars,
+    multipage_sections,
+    created_by,
+    created_at,
+    updated_at
+FROM
+    datasets
+WHERE
+    external_id = :external_id;
+
 --! dataset_by_pipeline_key : Dataset()
 SELECT
     id,
     team_id, 
+    external_id,
     name,
     chunking_strategy,
     visibility,
@@ -54,6 +78,7 @@ WHERE
 SELECT
     id,
     team_id, 
+    external_id,
     name,
     chunking_strategy,
     visibility,
@@ -90,6 +115,7 @@ ORDER BY updated_at;
 SELECT
     id,
     team_id, 
+    external_id,
     name,
     chunking_strategy,
     visibility,

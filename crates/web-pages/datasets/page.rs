@@ -3,12 +3,14 @@ use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
 use crate::components::card_item::{CardItem, CountLabel};
 use crate::i18n;
+use crate::integrations::mcp_url_modal::McpUrlModal;
 use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{datasets::Dataset, models::Model};
 use db::types::public::ChunkingStrategy;
+use db::Licence;
 use dioxus::prelude::*;
 use std::convert::TryFrom;
 
@@ -19,6 +21,9 @@ pub fn page(
     models: Vec<Model>,
     can_set_visibility_to_company: bool,
 ) -> String {
+    let licence = Licence::global();
+    let show_mcp_modal = licence.features.mcp;
+
     let page = rsx! {
         Layout {
             section_class: "p-4",
@@ -65,6 +70,7 @@ pub fn page(
                         DatasetCard {
                             dataset: dataset.clone(),
                             team_id,
+                            show_mcp_modal,
                         }
                     }
                 }
@@ -88,7 +94,7 @@ pub fn page(
 }
 
 #[component]
-fn DatasetCard(dataset: Dataset, team_id: i32) -> Element {
+fn DatasetCard(dataset: Dataset, team_id: i32, show_mcp_modal: bool) -> Element {
     let documents_link = crate::routes::documents::Index {
         team_id,
         dataset_id: dataset.id,
@@ -99,6 +105,18 @@ fn DatasetCard(dataset: Dataset, team_id: i32) -> Element {
         ChunkingStrategy::ByTitle => "By Title",
     };
     let avatar_initial = dataset.name.chars().next().unwrap_or('D').to_string();
+    let external_id = dataset.external_id.to_string();
+    let action = if show_mcp_modal {
+        Some(rsx!(McpUrlModal {
+            id_prefix: "dataset-mcp-".to_string(),
+            connection_id: dataset.id,
+            external_id,
+            mcp_slug: Some("datasets".to_string()),
+            connection_label: "dataset".to_string(),
+        }))
+    } else {
+        None
+    };
 
     rsx!(CardItem {
         class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
@@ -129,5 +147,6 @@ fn DatasetCard(dataset: Dataset, team_id: i32) -> Element {
             count: document_count,
             label: "Document".to_string()
         }],
+        action,
     })
 }

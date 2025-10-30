@@ -1,3 +1,5 @@
+mod datasets_mcp;
+
 use crate::CustomError;
 use axum::{
     extract::Extension,
@@ -27,12 +29,12 @@ static MOCK_RESOLVER: OnceLock<Mutex<Option<MockResolver>>> = OnceLock::new();
 #[cfg(test)]
 static RESOLVER_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
-const JSONRPC_VERSION: &str = "2.0";
-const DEFAULT_PROTOCOL_VERSION: &str = "2024-05-30";
-const SUPPORTED_PROTOCOL_VERSIONS: &[&str] =
+pub(super) const JSONRPC_VERSION: &str = "2.0";
+pub(super) const DEFAULT_PROTOCOL_VERSION: &str = "2024-05-30";
+pub(super) const SUPPORTED_PROTOCOL_VERSIONS: &[&str] =
     &[DEFAULT_PROTOCOL_VERSION, "2025-03-26", "2025-06-18"];
-const SERVER_NAME: &str = env!("CARGO_PKG_NAME");
-const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
+pub(super) const SERVER_NAME: &str = env!("CARGO_PKG_NAME");
+pub(super) const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
 const SKIP_API_KEY_ENV_VAR: &str = "BIONIC_MCP_SKIP_API_KEY_CHECK";
 
 #[derive(TypedPath, Deserialize)]
@@ -48,11 +50,15 @@ pub fn routes() -> Router {
         .allow_methods(Any)
         .allow_headers(Any);
 
-    Router::new().typed_post(handle_json_rpc).layer(cors)
+    let router = Router::new()
+        .typed_post(handle_json_rpc)
+        .merge(datasets_mcp::routes());
+
+    router.layer(cors)
 }
 
 #[derive(Deserialize, Debug)]
-struct JsonRpcRequest {
+pub(super) struct JsonRpcRequest {
     #[serde(default = "default_jsonrpc", rename = "jsonrpc")]
     jsonrpc: String,
     #[serde(default)]
@@ -63,7 +69,7 @@ struct JsonRpcRequest {
 }
 
 #[derive(Serialize, Debug)]
-struct JsonRpcResponse {
+pub(super) struct JsonRpcResponse {
     jsonrpc: &'static str,
     id: Value,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -73,7 +79,7 @@ struct JsonRpcResponse {
 }
 
 impl JsonRpcResponse {
-    fn success(id: Value, result: Value) -> Self {
+    pub(super) fn success(id: Value, result: Value) -> Self {
         Self {
             jsonrpc: JSONRPC_VERSION,
             id,
@@ -82,7 +88,7 @@ impl JsonRpcResponse {
         }
     }
 
-    fn failure(id: Value, code: i32, message: String, data: Option<Value>) -> Self {
+    pub(super) fn failure(id: Value, code: i32, message: String, data: Option<Value>) -> Self {
         Self {
             jsonrpc: JSONRPC_VERSION,
             id,
@@ -97,7 +103,7 @@ impl JsonRpcResponse {
 }
 
 #[derive(Serialize, Debug)]
-struct JsonRpcError {
+pub(super) struct JsonRpcError {
     code: i32,
     message: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -105,7 +111,7 @@ struct JsonRpcError {
 }
 
 #[derive(Serialize)]
-struct McpTool {
+pub(super) struct McpTool {
     name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
@@ -116,14 +122,14 @@ struct McpTool {
 }
 
 #[derive(Deserialize)]
-struct ToolCallParams {
+pub(super) struct ToolCallParams {
     name: String,
     #[serde(default = "default_arguments")]
     arguments: Value,
 }
 
 #[derive(Default, Deserialize)]
-struct InitializeParams {
+pub(super) struct InitializeParams {
     #[serde(rename = "protocolVersion")]
     protocol_version: Option<String>,
     #[serde(default, rename = "capabilities")]
@@ -195,19 +201,19 @@ impl From<db::TokioPostgresError> for ResolveError {
     }
 }
 
-fn default_jsonrpc() -> String {
+pub(super) fn default_jsonrpc() -> String {
     JSONRPC_VERSION.to_string()
 }
 
-fn default_params() -> Value {
+pub(super) fn default_params() -> Value {
     Value::Null
 }
 
-fn default_arguments() -> Value {
+pub(super) fn default_arguments() -> Value {
     Value::Object(Map::new())
 }
 
-fn should_validate_api_key() -> bool {
+pub(super) fn should_validate_api_key() -> bool {
     if let Ok(value) = std::env::var(SKIP_API_KEY_ENV_VAR) {
         let normalized = value.trim().to_ascii_lowercase();
         !matches!(normalized.as_str(), "1" | "true" | "yes" | "on")
@@ -249,7 +255,7 @@ fn remove_mock_api_key(api_key: &str) {
     }
 }
 
-async fn validate_api_key(pool: &Pool, api_key_value: &str) -> Result<i32, CustomError> {
+pub(super) async fn validate_api_key(pool: &Pool, api_key_value: &str) -> Result<i32, CustomError> {
     #[cfg(test)]
     if let Some(team_id) = maybe_mock_api_key_team(api_key_value) {
         return Ok(team_id);
@@ -279,7 +285,7 @@ async fn validate_api_key(pool: &Pool, api_key_value: &str) -> Result<i32, Custo
     Ok(team_id)
 }
 
-fn negotiate_protocol_version(requested: Option<&str>) -> Result<&'static str, String> {
+pub(super) fn negotiate_protocol_version(requested: Option<&str>) -> Result<&'static str, String> {
     match requested {
         Some(version) => SUPPORTED_PROTOCOL_VERSIONS
             .iter()
@@ -807,12 +813,12 @@ fn resolve_integration_context<'a>(
     })
 }
 
-fn json_response(response: JsonRpcResponse) -> Response {
+pub(super) fn json_response(response: JsonRpcResponse) -> Response {
     tracing::info!("{:?}", response);
     (StatusCode::OK, Json(response)).into_response()
 }
 
-fn arguments_to_string(value: Value) -> Result<String, serde_json::Error> {
+pub(super) fn arguments_to_string(value: Value) -> Result<String, serde_json::Error> {
     match value {
         Value::String(s) => Ok(s),
         other => serde_json::to_string(&other),
