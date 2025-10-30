@@ -24,7 +24,7 @@ pub fn OauthClientCard(props: OauthClientCardProps) -> Element {
             avatar_name: Some(props.oauth_client.provider.clone()),
             title: props.oauth_client.provider.clone(),
             description: Some(rsx!(span { "Client ID: {props.oauth_client.client_id}" })),
-            footer: Some(rsx!(span { "Created: {props.oauth_client.created_at}" })),
+            footer: Some(rsx!(span { "Created: " RelativeTime { format: RelativeTimeFormat::Relative, datetime: props.oauth_client.created_at.clone() } })),
             count_labels: vec![],
             action: if props.rbac.is_sys_admin {
                 Some(rsx!(Button {

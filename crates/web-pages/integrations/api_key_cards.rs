@@ -38,7 +38,7 @@ pub fn ApiKeyCards(
                                     div {
                                         span {
                                             class: "text-sm text-gray-600",
-                                            "Created: {connection.created_at}"
+                                            "Created: " RelativeTime { format: RelativeTimeFormat::Relative, datetime: connection.created_at.clone() }
                                         }
                                     }
                                 }

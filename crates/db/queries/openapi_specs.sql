@@ -9,8 +9,9 @@ SELECT
     spec,
     logo_url,
     is_active,
-    created_at,
-    updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at,
+    trim(both '"' from to_json(updated_at)::text) as updated_at
 FROM
     openapi_specs
 ORDER BY
@@ -25,8 +26,9 @@ SELECT
     spec,
     logo_url,
     is_active,
-    created_at,
-    updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at,
+    trim(both '"' from to_json(updated_at)::text) as updated_at
 FROM
     openapi_specs
 WHERE
@@ -43,8 +45,9 @@ SELECT
     spec,
     logo_url,
     is_active,
-    created_at,
-    updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at,
+    trim(both '"' from to_json(updated_at)::text) as updated_at
 FROM
     openapi_specs
 WHERE

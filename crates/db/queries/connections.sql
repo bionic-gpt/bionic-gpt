@@ -65,12 +65,30 @@ INSERT INTO api_key_connections (
 ) RETURNING id;
 
 --! get_api_key_connections_for_integration : ApiKeyConnection
-SELECT id, integration_id, user_id, team_id, visibility, external_id, created_at
+SELECT
+    id,
+    integration_id,
+    user_id,
+    team_id,
+    visibility,
+    external_id,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at
 FROM api_key_connections
 WHERE integration_id = :integration_id AND team_id = :team_id;
 
 --! get_oauth2_connections_for_integration : Oauth2Connection
-SELECT id, integration_id, user_id, team_id, visibility, external_id, expires_at, scopes, created_at
+SELECT
+    id,
+    integration_id,
+    user_id,
+    team_id,
+    visibility,
+    external_id,
+    expires_at,
+    scopes,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at
 FROM oauth2_connections
 WHERE integration_id = :integration_id AND team_id = :team_id;
 
@@ -83,12 +101,30 @@ DELETE FROM oauth2_connections
 WHERE id = :connection_id AND team_id = :team_id;
 
 --! get_team_api_key_connections : ApiKeyConnection
-SELECT id, integration_id, user_id, team_id, visibility, external_id, created_at
+SELECT
+    id,
+    integration_id,
+    user_id,
+    team_id,
+    visibility,
+    external_id,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at
 FROM api_key_connections
 WHERE team_id = :team_id AND integration_id = :integration_id;
 
 --! get_team_oauth2_connections : Oauth2Connection
-SELECT id, integration_id, user_id, team_id, visibility, external_id, expires_at, scopes, created_at
+SELECT
+    id,
+    integration_id,
+    user_id,
+    team_id,
+    visibility,
+    external_id,
+    expires_at,
+    scopes,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at
 FROM oauth2_connections
 WHERE team_id = :team_id AND integration_id = :integration_id;
 

@@ -70,7 +70,7 @@ pub async fn loader(
                     oauth2_count,
                     oauth_client_configured,
                     integration_type: integration.integration_type,
-                    created_at: integration.created_at,
+                    created_at: integration.created_at.clone(),
                 });
             }
         } else {

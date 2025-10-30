@@ -8,7 +8,6 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use db::OpenapiSpec;
 use dioxus::prelude::*;
-use time::format_description::well_known::Rfc3339;
 
 pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
     let page = rsx! {
@@ -78,10 +77,9 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                                             }
                                             td {
                                                 class: "text-sm text-base-content/70",
-                                                {
-                                                    spec.updated_at
-                                                        .format(&Rfc3339)
-                                                        .unwrap_or_else(|_| spec.updated_at.to_string())
+                                                RelativeTime {
+                                                    format: RelativeTimeFormat::Relative,
+                                                    datetime: spec.updated_at.clone()
                                                 }
                                             }
                                             td {

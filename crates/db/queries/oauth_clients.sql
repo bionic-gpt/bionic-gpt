@@ -7,7 +7,8 @@ SELECT
     decrypt_text(client_secret) as client_secret,
     provider,
     provider_url,
-    created_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at
 FROM
     oauth_clients
 ORDER BY provider, created_at DESC;
@@ -19,7 +20,8 @@ SELECT
     decrypt_text(client_secret) as client_secret,
     provider,
     provider_url,
-    created_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at
 FROM
     oauth_clients
 WHERE
@@ -32,7 +34,8 @@ SELECT
     decrypt_text(client_secret) as client_secret,
     provider,
     provider_url,
-    created_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at
 FROM
     oauth_clients
 WHERE

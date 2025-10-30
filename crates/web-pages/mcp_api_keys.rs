@@ -223,7 +223,7 @@ fn ApiKeyCard(team_id: i32, item: ApiKeyDisplay) -> Element {
             avatar_name: None,
             title: item.name.clone(),
             description: Some(rsx!(span { class: "font-mono text-sm", "Key suffix: {item.hash_suffix}" })),
-            footer: Some(rsx!(span { "Created {item.created_at}" })),
+            footer: Some(rsx!(span { "Created " RelativeTime { format: RelativeTimeFormat::Relative, datetime: item.created_at.clone() } })),
             count_labels: vec![],
             action: Some(rsx!(
                 Button {

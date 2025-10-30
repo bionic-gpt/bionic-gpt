@@ -7,8 +7,9 @@ SELECT
     integration_type,
     visibility,
     definition,
-    created_at,
-    updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(i.created_at)::text) as created_at,
+    trim(both '"' from to_json(i.updated_at)::text) as updated_at
 FROM
     integrations i
 WHERE
@@ -34,8 +35,9 @@ SELECT
     integration_type,
     visibility,
     definition,
-    created_at,
-    updated_at
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(i.created_at)::text) as created_at,
+    trim(both '"' from to_json(i.updated_at)::text) as updated_at
 FROM
     integrations i
 WHERE
