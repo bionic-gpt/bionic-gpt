@@ -1,8 +1,4 @@
-//! Static MCP OpenAPI specifications.
-//!
-//! This crate exposes the bundled MCP server OpenAPI definitions so they can be
-//! reused across applications without needing to read from the filesystem at
-//! runtime.
+//! Static MCP OpenAPI specifications bundled for the marketing site.
 
 /// A bundled MCP specification.
 #[derive(Debug, Clone, Copy)]
@@ -20,7 +16,7 @@ macro_rules! mcp_spec {
     };
 }
 
-/// All bundled MCP specifications.
+/// All bundled MCP specifications available to the marketing site.
 static SPECS: &[McpSpec] = &[
     mcp_spec!("airtable"),
     mcp_spec!("apollo-io"),
@@ -48,6 +44,7 @@ pub fn all_specs() -> &'static [McpSpec] {
 }
 
 /// Finds a specification by its slug.
+#[allow(dead_code)]
 pub fn find_spec(slug: &str) -> Option<&'static McpSpec> {
     SPECS
         .iter()

@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use serde_json::Value;
 use tracing::warn;
 
-use mcp::all_specs;
+use crate::mcp_specs::all_specs;
 
 use crate::components::extra_footer::ExtraFooter;
 use crate::components::footer::Footer;

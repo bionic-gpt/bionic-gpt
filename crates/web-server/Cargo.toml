@@ -21,7 +21,6 @@ assets = { path = "../web-assets" }
 web-pages = { path = "../web-pages" }
 embeddings-api = { path = "../embeddings-api" }
 openai-api = { path = "../openai-api" }
-mcp = { path = "../mcp" }
 
 axum = { version = "0.8", features = ["multipart"] }
 axum-extra = { version = "0.10.0", features = ["form", "typed-routing", "cookie"] }

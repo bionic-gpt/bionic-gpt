@@ -418,8 +418,7 @@ pub async fn handle_json_rpc(
         }
     }
 
-    let context_definition = context.definition.clone();
-    let integration_openapi = match BionicOpenAPI::new(&context_definition) {
+    let integration_openapi = match BionicOpenAPI::new(&context.definition) {
         Ok(api) => api,
         Err(err) => {
             tracing::error!("Failed to parse integration definition: {}", err);
@@ -453,36 +452,7 @@ pub async fn handle_json_rpc(
         return Ok(json_response(response));
     }
 
-    let canonical_spec = match mcp::find_spec(&slug) {
-        Some(spec) => match serde_json::from_str::<Value>(spec.json) {
-            Ok(value) => value,
-            Err(err) => {
-                tracing::error!("Failed to parse canonical MCP spec: {}", err);
-                let response = JsonRpcResponse::failure(
-                    request_id.clone(),
-                    -32603,
-                    "Failed to parse canonical MCP specification".to_string(),
-                    Some(json!({ "details": err.to_string() })),
-                );
-                return Ok(json_response(response));
-            }
-        },
-        None => context_definition,
-    };
-
-    let openapi = match BionicOpenAPI::new(&canonical_spec) {
-        Ok(api) => api,
-        Err(err) => {
-            tracing::error!("Failed to parse MCP specification: {}", err);
-            let response = JsonRpcResponse::failure(
-                request_id.clone(),
-                -32603,
-                "Failed to parse MCP specification".to_string(),
-                Some(json!({ "details": err.to_string() })),
-            );
-            return Ok(json_response(response));
-        }
-    };
+    let openapi = integration_openapi;
 
     let tool_definitions = openapi.create_tool_definitions();
 

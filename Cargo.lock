@@ -1231,7 +1231,6 @@ dependencies = [
  "axum-extra 0.10.0",
  "dioxus",
  "dioxus-ssr",
- "mcp",
  "pulldown-cmark",
  "serde",
  "serde_json",
@@ -3181,10 +3180,6 @@ dependencies = [
  "cfg-if",
  "rayon",
 ]
-
-[[package]]
-name = "mcp"
-version = "0.1.0"
 
 [[package]]
 name = "md-5"
@@ -6234,7 +6229,6 @@ dependencies = [
  "integrations",
  "lettre",
  "llm-proxy",
- "mcp",
  "mime",
  "oas3",
  "oauth2",

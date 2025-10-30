@@ -2,6 +2,7 @@ pub mod blog_summary;
 pub mod docs_summary;
 pub mod generator;
 pub mod layouts;
+pub mod mcp_specs;
 pub mod pages;
 pub mod pages_summary;
 
