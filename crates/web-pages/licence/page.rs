@@ -31,15 +31,25 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
         "Disabled"
     };
     let version = get_version();
-    let rag_mode = if std::env::var("AGENTIC_RAG").is_ok() {
-        "Agentic RAG"
-    } else {
-        "Contextual RAG"
-    };
-    let automations = if std::env::var("AUTOMATIONS_FEATURE").is_ok() {
+    let automations = if licence.features.automations {
         "Enabled"
     } else {
         "Disabled"
+    };
+    let mcp = if licence.features.mcp {
+        "Enabled"
+    } else {
+        "Disabled"
+    };
+    let licence_logo = if licence.app_logo_svg.is_empty() {
+        bionic_logo_svg.name.to_string()
+    } else {
+        format!("data:image/svg+xml;base64,{}", licence.app_logo_svg)
+    };
+    let app_name = if licence.app_name.is_empty() {
+        "Bionic".to_string()
+    } else {
+        licence.app_name.clone()
     };
     let default_redirect_url = crate::routes::console::Index { team_id }.to_string();
     let redirect_url = licence
@@ -65,9 +75,9 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
                     class: None,
                     popover_target: None,
                     clickable_link: None,
-                    image_src: Some(bionic_logo_svg.name.to_string()),
+                    image_src: Some(licence_logo),
                     avatar_name: None,
-                    title: "Licence".to_string(),
+                    title: app_name.clone(),
                     description: Some(rsx!( span { "Users: {licence.user_count}, Domain: {licence.hostname_url}, Expires: {licence.end_date.date()}" } )),
                     footer: None,
                     count_labels: vec![],
@@ -101,10 +111,10 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
                     class: None,
                     popover_target: None,
                     clickable_link: None,
-                    image_src: Some(nav_service_requests_svg.name.to_string()),
+                    image_src: Some(nav_automations_svg.name.to_string()),
                     avatar_name: None,
-                    title: "RAG Mode".to_string(),
-                    description: Some(rsx!( span { "{rag_mode}" } )),
+                    title: "Automations".to_string(),
+                    description: Some(rsx!( span { "{automations}" } )),
                     footer: None,
                     count_labels: vec![],
                     action: None,
@@ -113,10 +123,10 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
                     class: None,
                     popover_target: None,
                     clickable_link: None,
-                    image_src: Some(nav_automations_svg.name.to_string()),
+                    image_src: Some(nav_service_requests_svg.name.to_string()),
                     avatar_name: None,
-                    title: "Automations".to_string(),
-                    description: Some(rsx!( span { "{automations}" } )),
+                    title: "MCP".to_string(),
+                    description: Some(rsx!( span { "{mcp}" } )),
                     footer: None,
                     count_labels: vec![],
                     action: None,

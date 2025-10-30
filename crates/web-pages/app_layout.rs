@@ -56,9 +56,8 @@ pub struct LayoutProps {
 pub fn Layout(props: LayoutProps) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
-    let show_automations_menu = std::env::var("AUTOMATIONS_FEATURE").is_ok();
-
     let licence = Licence::global();
+    let show_automations_menu = licence.features.automations;
     let app_logo_src: String = if licence.app_logo_svg.is_empty() {
         bionic_logo_svg.name.to_string()
     } else {

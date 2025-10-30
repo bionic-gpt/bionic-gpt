@@ -5,7 +5,7 @@ use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
 use assets::files::menu_delete_svg;
 use daisy_rsx::*;
-use db::ApiKeyConnection;
+use db::{ApiKeyConnection, Licence};
 use dioxus::prelude::*;
 
 pub fn ApiKeyCards(
@@ -14,6 +14,8 @@ pub fn ApiKeyCards(
     mcp_slug: Option<String>,
     connections: Vec<ApiKeyConnection>,
 ) -> Element {
+    let licence = Licence::global();
+
     rsx! {
         div {
             class: "space-y-3",
@@ -42,12 +44,14 @@ pub fn ApiKeyCards(
                                 }
                                 div {
                                     class: "flex flex-col justify-center items-end gap-2",
-                                    McpUrlModal {
-                                        id_prefix: "mcp-url-api-".to_string(),
-                                        connection_id: connection.id,
-                                        external_id: connection.external_id,
-                                        mcp_slug: mcp_slug.clone(),
-                                        connection_label: "API key connection".to_string(),
+                                    if licence.features.mcp {
+                                        McpUrlModal {
+                                            id_prefix: "mcp-url-api-".to_string(),
+                                            connection_id: connection.id,
+                                            external_id: connection.external_id,
+                                            mcp_slug: mcp_slug.clone(),
+                                            connection_label: "API key connection".to_string(),
+                                        }
                                     }
                                     Button {
                                         prefix_image_src: "{menu_delete_svg.name}",

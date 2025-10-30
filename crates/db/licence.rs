@@ -11,6 +11,14 @@ MCowBQYDK2VwAyEAJguqlxohUamZpCPUGY8k5oBYlHSnCY66eTyothyPJM0=\n\
 
 static LICENCE: OnceLock<Licence> = OnceLock::new();
 
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+pub struct LicenceFeatures {
+    #[serde(default)]
+    pub automations: bool,
+    #[serde(default)]
+    pub mcp: bool,
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Licence {
     pub user_count: usize,
@@ -24,6 +32,8 @@ pub struct Licence {
     pub default_lang: String,
     #[serde(default)]
     pub redirect_url: Option<String>,
+    #[serde(default)]
+    pub features: LicenceFeatures,
 }
 
 #[derive(Serialize)]
@@ -57,6 +67,7 @@ impl Default for Licence {
             app_logo_svg: String::new(),
             default_lang: String::new(),
             redirect_url: None,
+            features: LicenceFeatures::default(),
         }
     }
 }
@@ -147,6 +158,7 @@ mod tests {
             app_logo_svg: "logo".to_string(),
             default_lang: "en-US".to_string(),
             redirect_url: None,
+            features: LicenceFeatures::default(),
         };
 
         let formatted_date = licence.end_date.format(&Rfc3339).expect("valid date");
