@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use anyhow::{anyhow, Result};
 use base64::encode;
 use ed25519_dalek::{pkcs8::DecodePrivateKey, Signer, SigningKey};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(clap::Parser)]
@@ -17,6 +17,14 @@ pub struct SignerOpts {
     pub private_key: PathBuf,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+struct LicenceFeatures {
+    #[serde(default)]
+    automations: bool,
+    #[serde(default)]
+    mcp: bool,
+}
+
 #[derive(Serialize)]
 struct SignableLicence {
     user_count: usize,
@@ -24,6 +32,7 @@ struct SignableLicence {
     end_date: String,
     app_name: String,
     app_logo_svg: String,
+    features: LicenceFeatures,
 }
 
 pub fn sign(opts: &SignerOpts) -> Result<()> {
@@ -64,12 +73,20 @@ pub fn sign(opts: &SignerOpts) -> Result<()> {
             .ok_or_else(|| anyhow!("LICENCE JSON missing app_logo_svg"))?
             .to_string();
 
+        let features_value = obj
+            .get("features")
+            .cloned()
+            .unwrap_or_else(|| Value::Object(Default::default()));
+        let features =
+            serde_json::from_value::<LicenceFeatures>(features_value).unwrap_or_default();
+
         let canonical = SignableLicence {
             user_count,
             hostname_url,
             end_date,
             app_name,
             app_logo_svg,
+            features,
         };
 
         let data = serde_json::to_vec(&canonical)?;

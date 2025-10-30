@@ -43,6 +43,7 @@ struct SignableLicence<'a> {
     end_date: &'a str,
     app_name: &'a str,
     app_logo_svg: &'a str,
+    features: &'a LicenceFeatures,
 }
 
 fn deserialize_rfc3339<'de, D>(deserializer: D) -> Result<OffsetDateTime, D::Error>
@@ -128,6 +129,7 @@ impl Licence {
             end_date: &formatted_date,
             app_name: &self.app_name,
             app_logo_svg: &self.app_logo_svg,
+            features: &self.features,
         };
 
         tracing::debug!(
@@ -168,12 +170,13 @@ mod tests {
             end_date: &formatted_date,
             app_name: &licence.app_name,
             app_logo_svg: &licence.app_logo_svg,
+            features: &licence.features,
         };
 
         let payload = serde_json::to_string(&signable).unwrap();
         assert_eq!(
             payload,
-            "{\"user_count\":42,\"hostname_url\":\"https://example.com\",\"end_date\":\"2028-12-31T00:00:00Z\",\"app_name\":\"Deploy\",\"app_logo_svg\":\"logo\"}"
+            "{\"user_count\":42,\"hostname_url\":\"https://example.com\",\"end_date\":\"2028-12-31T00:00:00Z\",\"app_name\":\"Deploy\",\"app_logo_svg\":\"logo\",\"features\":{\"automations\":false,\"mcp\":false}}"
         );
     }
 }
