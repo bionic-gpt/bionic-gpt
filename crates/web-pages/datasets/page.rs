@@ -18,19 +18,23 @@ pub fn page(
     datasets: Vec<Dataset>,
     models: Vec<Model>,
     can_set_visibility_to_company: bool,
+    locale: &str,
 ) -> String {
+    let datasets_label = i18n::datasets(locale);
+    let dataset_label = i18n::dataset(locale);
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: i18n::datasets().to_string(),
+            title: datasets_label.clone(),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: i18n::dataset().into(),
+                            text: dataset_label.clone(),
                             href: None
                         }
                     ]
@@ -39,7 +43,7 @@ pub fn page(
                     prefix_image_src: "{button_plus_svg.name}",
                     popover_target: "new-dataset-form",
                     button_scheme: ButtonScheme::Primary,
-                    {format!("Add {}", i18n::dataset())}
+                    {format!("Add {}", dataset_label.clone())}
                 }
             ),
 
@@ -47,16 +51,16 @@ pub fn page(
                 class: "p-4 max-w-3xl w-full mx-auto",
 
                 SectionIntroduction {
-                    header: i18n::datasets().to_string(),
+                    header: datasets_label.clone(),
                     subtitle: format!(
                         "Organize your documents into {} for better management and retrieval.",
-                        i18n::datasets()
+                        datasets_label.clone()
                     ),
                     is_empty: datasets.is_empty(),
                     empty_text: format!(
                         "No {} created yet. {} allow you to organize your documents like folders.",
-                        i18n::datasets(),
-                        i18n::datasets()
+                        datasets_label.clone(),
+                        datasets_label.clone()
                     ),
                 }
 
@@ -78,7 +82,8 @@ pub fn page(
                     new_after_n_chars: 1000,
                     _multipage_sections: true,
                     visibility: db::Visibility::Private,
-                    can_set_visibility_to_company
+                    can_set_visibility_to_company,
+                    locale: locale.to_string()
                 }
             }
         }

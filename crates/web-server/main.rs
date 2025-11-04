@@ -4,6 +4,7 @@ pub mod errors;
 pub mod handlers;
 pub mod jwt;
 pub mod layout;
+pub mod locale;
 
 use axum_extra::routing::RouterExt;
 pub use errors::CustomError;
@@ -76,6 +77,7 @@ async fn main() {
     let pool = db::create_pool(&config.app_database_url);
     let i18n = db::I18n::new(pool.clone());
     i18n.warm_cache(&["en", "en-US"]).await;
+    db::i18n::set_global(i18n.clone());
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
 
     // build our application with a route
@@ -109,8 +111,7 @@ async fn main() {
         .merge(handlers::team::routes())
         .merge(handlers::teams::routes())
         .layer(Extension(config.clone()))
-        .layer(Extension(pool.clone()))
-        .layer(Extension(i18n));
+        .layer(Extension(pool.clone()));
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("listening on http://{}", &addr);

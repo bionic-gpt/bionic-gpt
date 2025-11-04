@@ -15,24 +15,27 @@ pub struct PrebuiltSpec {
     pub logo_data_url: Option<String>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str) -> String {
     let private_visibility = crate::visibility_to_string(db::Visibility::Private);
+    let integrations_label = i18n::integrations(locale);
+    let integration_label = i18n::integration(locale);
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: crate::i18n::integrations().to_string(),
+            title: integrations_label.clone(),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: crate::i18n::integrations().into(),
+                            text: integrations_label.clone(),
                             href: Some(routes::integrations::Index { team_id }.to_string()),
                         },
                         BreadcrumbItem {
-                            text: format!("Select {}", i18n::integration()),
+                            text: format!("Select {}", integration_label.clone()),
                             href: None,
                         }
                     ]
@@ -49,12 +52,12 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
                 class: "flex flex-col gap-4",
                 h2 {
                     class: "text-xl font-semibold",
-                    "Select a {i18n::integration()}"
+                    "Select a {integration_label}"
                 }
                 if specs.is_empty() {
                     div {
                         class: "alert alert-warning",
-                        "No pre-built {i18n::integrations()} are available right now."
+                        "No pre-built {integrations_label} are available right now."
                     }
                 } else {
                     div {
@@ -105,7 +108,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>) -> String {
                                             Button {
                                                 button_type: ButtonType::Submit,
                                                 button_scheme: ButtonScheme::Primary,
-                                                "Run {i18n::integration()}"
+                                                "Run {integration_label}"
                                             }
                                         }
                                     }

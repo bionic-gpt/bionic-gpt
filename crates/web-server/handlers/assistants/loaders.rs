@@ -1,4 +1,4 @@
-use crate::{config::Config, CustomError, Jwt};
+use crate::{config::Config, locale::Locale, CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
@@ -12,6 +12,7 @@ use web_pages::{
 
 pub async fn index_loader(
     Index { team_id }: Index,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -30,13 +31,20 @@ pub async fn index_loader(
         .all()
         .await?;
 
-    let html = assistants::page::page(team_id, rbac, prompts, categories);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html = assistants::page::page(team_id, rbac, prompts, categories, locale.as_str());
 
     Ok(Html(html))
 }
 
 pub async fn new_assistant_loader(
     New { team_id }: New,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Extension(config): Extension<Config>,
@@ -91,13 +99,26 @@ pub async fn new_assistant_loader(
 
     let show_company_visibility = rbac.can_make_assistant_public() && !config.saas;
 
-    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form, show_company_visibility);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html = web_pages::my_assistants::upsert::page(
+        team_id,
+        rbac,
+        form,
+        show_company_visibility,
+        locale.as_str(),
+    );
 
     Ok(Html(html))
 }
 
 pub async fn edit_assistant_loader(
     Edit { team_id, prompt_id }: Edit,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Extension(config): Extension<Config>,
@@ -179,7 +200,19 @@ pub async fn edit_assistant_loader(
 
     let show_company_visibility = rbac.can_make_assistant_public() && !config.saas;
 
-    let html = web_pages::my_assistants::upsert::page(team_id, rbac, form, show_company_visibility);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html = web_pages::my_assistants::upsert::page(
+        team_id,
+        rbac,
+        form,
+        show_company_visibility,
+        locale.as_str(),
+    );
 
     Ok(Html(html))
 }

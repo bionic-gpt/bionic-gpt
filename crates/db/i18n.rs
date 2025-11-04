@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use tokio::sync::RwLock;
 
@@ -11,6 +11,8 @@ pub struct I18n {
     pool: Pool,
     cache: Arc<RwLock<HashMap<String, HashMap<String, String>>>>,
 }
+
+static GLOBAL_I18N: OnceLock<I18n> = OnceLock::new();
 
 impl I18n {
     pub fn new(pool: Pool) -> Self {
@@ -24,7 +26,8 @@ impl I18n {
         let cache = self.cache.read().await;
         cache
             .get(locale)
-            .and_then(|locale_map| locale_map.get(key).cloned())
+            .and_then(|locale_map| locale_map.get(key))
+            .cloned()
     }
 
     async fn populate_locale(&self, locale: &str) -> Result<(), ()> {
@@ -63,14 +66,43 @@ impl I18n {
 
     pub async fn warm_cache(&self, locales: &[&str]) {
         for locale in locales {
-            if self.cache.read().await.contains_key(*locale) {
-                continue;
-            }
+            self.ensure_locale(locale).await;
+        }
+    }
 
-            if let Err(()) = self.populate_locale(locale).await {
-                tracing::warn!(target: "db::i18n", ?locale, "failed to warm locale cache");
+    pub async fn ensure_locale(&self, locale: &str) {
+        if self.cache.read().await.contains_key(locale) {
+            return;
+        }
+
+        if let Err(()) = self.populate_locale(locale).await {
+            tracing::warn!(target: "db::i18n", ?locale, "failed to load translations for locale");
+        }
+    }
+
+    fn cached_value_blocking(&self, locale: &str, key: &str) -> Option<String> {
+        self.cache.try_read().ok().and_then(|cache| {
+            cache
+                .get(locale)
+                .and_then(|locale_map| locale_map.get(key))
+                .cloned()
+        })
+    }
+
+    pub fn text(&self, locale: &str, key: I18nKey) -> String {
+        let key_str = key.as_str();
+
+        if let Some(value) = self.cached_value_blocking(locale, key_str) {
+            return value;
+        }
+
+        if locale != "en" {
+            if let Some(value) = self.cached_value_blocking("en", key_str) {
+                return value;
             }
         }
+
+        key_str.to_string()
     }
 
     pub async fn t(&self, locale: &str, key: I18nKey) -> String {
@@ -100,6 +132,18 @@ impl I18n {
 
         key_str.to_string()
     }
+}
+
+pub fn set_global(instance: I18n) {
+    if GLOBAL_I18N.set(instance).is_err() {
+        tracing::warn!(target: "db::i18n", "global I18n already initialised");
+    }
+}
+
+pub fn global() -> &'static I18n {
+    GLOBAL_I18N
+        .get()
+        .expect("I18n service has not been initialised")
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

@@ -35,15 +35,23 @@ pub struct PromptForm {
     pub models: Vec<Prompt>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibility: bool) -> String {
+pub fn page(
+    team_id: i32,
+    rbac: Rbac,
+    prompt: PromptForm,
+    show_company_visibility: bool,
+    locale: &str,
+) -> String {
     let example1 = prompt.example1.clone().unwrap_or_default();
     let example2 = prompt.example2.clone().unwrap_or_default();
     let example3 = prompt.example3.clone().unwrap_or_default();
     let example4 = prompt.example4.clone().unwrap_or_default();
+    let assistant_label = i18n::assistant(locale);
+    let assistants_label = i18n::assistants(locale);
     let action_label = if prompt.id.is_some() {
-        format!("Edit {}", i18n::assistant())
+        format!("Edit {}", assistant_label.clone())
     } else {
-        format!("Create {}", i18n::assistant())
+        format!("Create {}", assistant_label.clone())
     };
 
     let page = rsx! {
@@ -52,16 +60,17 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: i18n::assistant().to_string(),
+            title: assistant_label.clone(),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: i18n::assistants().to_string(),
+                            text: assistants_label.clone(),
                             href: Some(crate::routes::prompts::Index{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: format!("My {}", i18n::assistants()),
+                            text: format!("My {}", assistants_label.clone()),
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
@@ -105,7 +114,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                     Card {
                         class: "mb-6",
                         CardHeader {
-                            title: format!("{} Details", i18n::assistant())
+                            title: format!("{} Details", assistant_label.clone())
                         }
                         CardBody {
                             div {
@@ -115,8 +124,8 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                     class: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                     div {
                                         class: "flex flex-col",
-                                        Fieldset {
-                                            legend: format!("{} Name", i18n::assistant()),
+                                       Fieldset {
+                                            legend: format!("{} Name", assistant_label.clone()),
                                             help_text: "Make the name memorable and imply its usage.",
                                             Input {
                                                 input_type: InputType::Text,
@@ -131,9 +140,9 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                         class: "flex flex-col",
                                         Fieldset {
                                             legend: "Category",
-                                            help_text: format!(
+                                           help_text: format!(
                                                 "Categories help users find {}.",
-                                                i18n::assistants().to_lowercase()
+                                                assistants_label.to_lowercase()
                                             ),
                                             Select {
                                                 name: "category_id",
@@ -154,9 +163,9 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                         class: "flex flex-col",
                                         Fieldset {
                                             legend: "Visibility",
-                                            help_text: format!(
+                                           help_text: format!(
                                                 "Set to private if you don't want to share this {}.",
-                                                i18n::assistant().to_lowercase()
+                                                assistant_label.to_lowercase()
                                             ),
                                             Select {
                                                 name: "visibility",
@@ -205,18 +214,18 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
 
                                 div {
                                     class: "flex flex-col",
-                                    TextArea {
-                                        class: "resize-none w-full",
-                                        name: "description",
-                                        rows: "3",
-                                        label: "Description",
-                                        help_text: format!(
-                                            "Describe what this {} does and how it can help users.",
-                                            i18n::assistant().to_lowercase()
-                                        ),
-                                        required: true,
-                                        "{prompt.description}",
-                                    }
+                                TextArea {
+                                    class: "resize-none w-full",
+                                    name: "description",
+                                    rows: "3",
+                                    label: "Description",
+                                    help_text: format!(
+                                        "Describe what this {} does and how it can help users.",
+                                        assistant_label.to_lowercase()
+                                    ),
+                                    required: true,
+                                    "{prompt.description}",
+                                }
                                 }
                             }
                         }
@@ -236,7 +245,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                 rows: "16",
                                 help_text: format!(
                                     "Define the {}'s behavior, personality, and capabilities.",
-                                    i18n::assistant().to_lowercase()
+                                    assistant_label.to_lowercase()
                                 ),
                                 "{prompt.system_prompt}",
                             }
@@ -247,19 +256,19 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                     Card {
                         class: "mb-6",
                         CardHeader {
-                            title: format!("{} Icon", i18n::assistant())
+                            title: format!("{} Icon", assistant_label.clone())
                         }
                         CardBody {
                             div {
                                 label {
                                     class: "block text-sm font-medium text-gray-700 mb-2",
-                                    {format!("Upload {} Icon", i18n::assistant())}
+                                    {format!("Upload {} Icon", assistant_label.clone())}
                                 }
                                 p {
                                     class: "text-sm text-gray-500 mb-3",
                                     {format!(
                                         "Choose an image that represents your {}. Recommended size: 48x48 pixels.",
-                                        i18n::assistant().to_lowercase()
+                                        assistant_label.to_lowercase()
                                     )}
                                 }
                                 FileInput {
@@ -451,9 +460,9 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm, show_company_visibilit
                                     button_scheme: ButtonScheme::Primary,
                                     {
                                         if prompt.id.is_some() {
-                                            format!("Update {}", i18n::assistant())
+                                            format!("Update {}", assistant_label.clone())
                                         } else {
-                                            format!("Create {}", i18n::assistant())
+                                            format!("Create {}", assistant_label.clone())
                                         }
                                     }
                                 }

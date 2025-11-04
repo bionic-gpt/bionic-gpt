@@ -1,4 +1,4 @@
-use crate::{CustomError, Jwt};
+use crate::{locale::Locale, CustomError, Jwt};
 use axum::{extract::Extension, response::Html};
 use db::authz;
 use db::queries::{datasets, models};
@@ -8,6 +8,7 @@ use web_pages::routes::datasets::Index;
 // Index function
 pub async fn loader(
     Index { team_id }: Index,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -25,12 +26,19 @@ pub async fn loader(
 
     let can_set_visibility_to_company = rbac.is_sys_admin;
 
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
     let html = web_pages::datasets::page::page(
         rbac,
         team_id,
         datasets,
         models,
         can_set_visibility_to_company,
+        locale.as_str(),
     );
 
     Ok(Html(html))

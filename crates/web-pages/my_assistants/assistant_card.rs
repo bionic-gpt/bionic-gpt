@@ -7,12 +7,15 @@ use db::queries::prompts::MyPrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt) -> Element {
+pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt, locale: String) -> Element {
     let description: String = prompt
         .description
         .chars()
         .filter(|&c| c != '\n' && c != '\t' && c != '\r')
         .collect();
+    let integration_label = i18n::integration(&locale);
+    let dataset_label = i18n::dataset(&locale);
+    let datasets_label = i18n::datasets(&locale);
 
     rsx! {
         CardItem {
@@ -22,8 +25,8 @@ pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt) -> Element {
             description: if description.is_empty() { None } else { Some(rsx!( span { "{description}" } )) },
             footer: Some(rsx!( span { "Last updated " RelativeTime { format: RelativeTimeFormat::Relative, datetime: "{prompt.updated_at}" } } )),
             count_labels: vec![
-                CountLabel { count: prompt.integration_count as usize, label: "Integration".into() },
-                CountLabel { count: prompt.dataset_count as usize, label: i18n::dataset().into() },
+                CountLabel { count: prompt.integration_count as usize, label: integration_label.clone() },
+                CountLabel { count: prompt.dataset_count as usize, label: dataset_label.clone() },
             ],
             action: Some(rsx!(
                 DropDown {
@@ -31,7 +34,7 @@ pub fn MyAssistantCard(team_id: i32, prompt: MyPrompt) -> Element {
                     button_text: "...",
                     DropDownLink { href: crate::routes::prompts::Edit{team_id, prompt_id: prompt.id}.to_string(), "Edit" }
                     DropDownLink { href: crate::routes::prompts::ManageIntegrations{team_id, prompt_id: prompt.id}.to_string(), "Manage Integrations" }
-                    DropDownLink { href: crate::routes::prompts::ManageDatasets{team_id, prompt_id: prompt.id}.to_string(), {format!("Manage {}", i18n::datasets())} }
+                    DropDownLink { href: crate::routes::prompts::ManageDatasets{team_id, prompt_id: prompt.id}.to_string(), {format!("Manage {}", datasets_label)} }
                     DropDownLink { popover_target: format!("delete-trigger-{}-{}", prompt.id, team_id), href: "#", target: "_top", "Delete" }
                 }
             ))

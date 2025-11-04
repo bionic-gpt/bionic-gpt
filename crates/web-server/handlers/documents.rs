@@ -13,7 +13,7 @@ use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::documents::{Delete, Index, Processing, Upload};
 
-use crate::{CustomError, Jwt};
+use crate::{locale::Locale, CustomError, Jwt};
 
 // Router setup
 pub fn routes() -> Router {
@@ -31,6 +31,7 @@ pub async fn loader(
         team_id,
         dataset_id,
     }: Index,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -56,6 +57,12 @@ pub async fn loader(
 
     let can_set_visibility_to_company = rbac.is_sys_admin;
 
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
     let html = web_pages::documents::page::page(
         rbac,
         team_id,
@@ -63,6 +70,7 @@ pub async fn loader(
         documents,
         available_models,
         can_set_visibility_to_company,
+        locale.as_str(),
     );
 
     Ok(Html(html))

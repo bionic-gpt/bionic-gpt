@@ -1,4 +1,4 @@
-use crate::{CustomError, Jwt};
+use crate::{locale::Locale, CustomError, Jwt};
 use axum::response::Html;
 use axum::{extract::Extension, response::IntoResponse};
 use axum_extra::extract::Form;
@@ -59,6 +59,7 @@ pub async fn update_datasets_action(
 
 pub async fn manage_datasets(
     ManageDatasets { team_id, prompt_id }: ManageDatasets,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -96,7 +97,13 @@ pub async fn manage_datasets(
         error: None,
     };
 
-    let html = my_assistants::datasets::page(team_id, rbac, form);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html = my_assistants::datasets::page(team_id, rbac, form, locale.as_str());
 
     Ok(Html(html))
 }

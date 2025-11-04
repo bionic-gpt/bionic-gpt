@@ -15,9 +15,17 @@ use db::{queries::prompts::Prompt, Category};
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Category>) -> String {
+pub fn page(
+    team_id: i32,
+    rbac: Rbac,
+    prompts: Vec<Prompt>,
+    categories: Vec<Category>,
+    locale: &str,
+) -> String {
     // Get categories with more than one prompt
     let categories_with_prompts = get_categories_with_prompts(prompts.clone(), categories.clone());
+    let assistants_label = i18n::assistants(locale);
+    let assistant_label = i18n::assistant(locale);
 
     let page = rsx! {
         Layout {
@@ -25,11 +33,12 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: i18n::assistants().to_string(),
+            title: assistants_label.clone(),
+            locale: locale.to_string(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: i18n::assistants().into(),
+                        text: assistants_label.clone(),
                         href: None
                     }]
                 }
@@ -37,14 +46,14 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                     a {
                         href: crate::routes::prompts::MyAssistants{team_id}.to_string(),
                         class: "btn btn-ghost btn-sm font-bold! mr-4",
-                        {format!("My {}", i18n::assistants())}
+                        {format!("My {}", assistants_label.clone())}
                     }
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         href: routes::prompts::New{team_id}.to_string(),
                         button_scheme: ButtonScheme::Primary,
-                        {format!("New {}", i18n::assistant())}
+                        {format!("New {}", assistant_label.clone())}
                     }
                 }
             ),
@@ -53,13 +62,13 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                 class: "mx-auto max-w-3xl overflow-x-clip px-4",
 
                 SectionIntroduction {
-                    header: i18n::assistants().to_string(),
+                    header: assistants_label.clone(),
                     subtitle: "Discover and create custom chat bots that combine instructions,
                     extra knowledge, and any combination of skills.".to_string(),
                     is_empty: prompts.is_empty(),
                     empty_text: format!(
                         "You haven't created any {} yet.",
-                        i18n::assistants().to_lowercase()
+                        assistants_label.to_lowercase()
                     ),
                 }
 
@@ -72,8 +81,8 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                                 checked: true,
                                 category: Category {
                                     id: -1,
-                                    name: format!("All {}", i18n::assistants()),
-                                    description: format!("All {}", i18n::assistants().to_lowercase())
+                                    name: format!("All {}", assistants_label.clone()),
+                                    description: format!("All {}", assistants_label.to_lowercase())
                                 },
                                 prompts: prompts.clone(),
                                 rbac: rbac.clone(),
@@ -95,10 +104,10 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, categories: Vec<Cate
                                 action: crate::routes::prompts::Delete{team_id, id: prompt.id}.to_string(),
                                 trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id),
                                 submit_label: "Delete".to_string(),
-                                heading: format!("Delete this {}?", i18n::assistant()),
+                                heading: format!("Delete this {}?", assistant_label.clone()),
                                 warning: format!(
                                     "Are you sure you want to delete this {}?",
-                                    i18n::assistant()
+                                    assistant_label.clone()
                                 ),
                                 hidden_fields: vec![
                                     ("team_id".into(), team_id.to_string()),

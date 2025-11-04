@@ -17,7 +17,10 @@ pub fn Upsert(
     _multipage_sections: bool,
     visibility: Visibility,
     can_set_visibility_to_company: bool,
+    locale: String,
 ) -> Element {
+    let dataset_label = i18n::dataset(&locale);
+    let dataset_lower = dataset_label.to_lowercase();
     rsx!(
         Modal {
             submit_action: crate::routes::datasets::Upsert{team_id}.to_string(),
@@ -26,13 +29,13 @@ pub fn Upsert(
                 class: "flex flex-col justify-between",
                 h3 {
                     class: "font-bold text-lg mb-4",
-                    "{i18n::dataset()}"
+                    "{dataset_label}"
                 }
                 TabContainer {
                     TabPanel {
                         checked: true,
                         name: "prompt-tabs",
-                        tab_name: i18n::dataset(),
+                        tab_name: dataset_label.clone(),
                         div {
                             class: "flex flex-col justify-between height-full",
                             div {
@@ -49,11 +52,11 @@ pub fn Upsert(
                                     legend_class: "mt-4",
                                     help_text: format!(
                                         "Give your new {} a name",
-                                        i18n::dataset().to_lowercase()
+                                        dataset_lower
                                     ),
                                     Input {
                                         input_type: InputType::Text,
-                                        placeholder: format!("{} Name", i18n::dataset()),
+                                        placeholder: format!("{} Name", dataset_label),
                                         required: true,
                                         value: name,
                                         name: "name"
@@ -63,12 +66,12 @@ pub fn Upsert(
                                 Fieldset {
                                     legend: format!(
                                         "Who should be able to see this {}?",
-                                        i18n::dataset().to_lowercase()
+                                        dataset_lower
                                     ),
                                     legend_class: "mt-4",
                                     help_text: format!(
                                         "Set to private if you don't want to share this {}",
-                                        i18n::dataset().to_lowercase()
+                                        dataset_lower
                                     ),
                                     Select {
                                         name: "visibility",
