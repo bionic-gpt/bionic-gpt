@@ -74,6 +74,8 @@ async fn main() {
 
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);
+    let i18n = db::I18n::new(pool.clone());
+    i18n.warm_cache(&["en", "en-US"]).await;
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
 
     // build our application with a route
@@ -107,7 +109,8 @@ async fn main() {
         .merge(handlers::team::routes())
         .merge(handlers::teams::routes())
         .layer(Extension(config.clone()))
-        .layer(Extension(pool.clone()));
+        .layer(Extension(pool.clone()))
+        .layer(Extension(i18n));
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("listening on http://{}", &addr);
