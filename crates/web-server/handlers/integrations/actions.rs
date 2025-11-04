@@ -1,4 +1,4 @@
-use crate::{CustomError, Jwt};
+use crate::{locale::Locale, CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::{Html, IntoResponse};
 use axum::Form;
@@ -34,6 +34,7 @@ pub async fn delete_action(
 
 pub async fn edit_action(
     Edit { team_id, id }: Edit,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(mut integration_form): Form<IntegrationForm>,
@@ -55,8 +56,17 @@ pub async fn edit_action(
         Err(error) => {
             // If there's an error, return to the form with the error message
             integration_form.error = Some(error);
-            let html =
-                web_pages::integrations::upsert::page(team_id, permissions, integration_form);
+            let i18n = db::i18n::global();
+            i18n.ensure_locale("en").await;
+            if locale.as_str() != "en" {
+                i18n.ensure_locale(locale.as_str()).await;
+            }
+            let html = web_pages::integrations::upsert::page(
+                team_id,
+                permissions,
+                integration_form,
+                locale.as_str(),
+            );
             return Ok(Html(html).into_response());
         }
     };
@@ -94,6 +104,7 @@ pub async fn edit_action(
 
 pub async fn new_action(
     New { team_id }: New,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(mut integration_form): Form<IntegrationForm>,
@@ -115,8 +126,17 @@ pub async fn new_action(
         Err(error) => {
             // If there's an error, return to the form with the error message
             integration_form.error = Some(error);
-            let html =
-                web_pages::integrations::upsert::page(team_id, permissions, integration_form);
+            let i18n = db::i18n::global();
+            i18n.ensure_locale("en").await;
+            if locale.as_str() != "en" {
+                i18n.ensure_locale(locale.as_str()).await;
+            }
+            let html = web_pages::integrations::upsert::page(
+                team_id,
+                permissions,
+                integration_form,
+                locale.as_str(),
+            );
             return Ok(Html(html).into_response());
         }
     };

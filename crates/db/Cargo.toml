@@ -27,3 +27,4 @@ futures = "0.3"
 base64 = "0.13"
 ed25519-dalek = { version = "2.1.1", features = ["pkcs8", "pem"] }
 uuid = { version = "1", features = ["serde"] }
+tokio = { version = "1", features = ["sync"] }

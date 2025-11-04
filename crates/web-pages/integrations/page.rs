@@ -9,19 +9,27 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> String {
-    let button_name = format!("Select {}", i18n::integration());
+pub fn page(
+    team_id: i32,
+    rbac: Rbac,
+    integrations: Vec<IntegrationSummary>,
+    locale: &str,
+) -> String {
+    let integration_label = i18n::integration(locale);
+    let integrations_label = i18n::integrations(locale);
+    let button_name = format!("Select {}", integration_label.clone());
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: crate::i18n::integrations().to_string(),
+            title: integrations_label.clone(),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: crate::i18n::integrations().into(),
+                        text: integrations_label.clone(),
                         href: Some(crate::routes::integrations::Index { team_id }.to_string())
                     }]
                 }
@@ -39,13 +47,13 @@ pub fn page(team_id: i32, rbac: Rbac, integrations: Vec<IntegrationSummary>) -> 
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
                 SectionIntroduction {
-                    header: crate::i18n::integrations().to_string(),
+                    header: integrations_label.clone(),
                     subtitle: "Connect external tools to retrieve data, take actions, and more.".to_string(),
                     is_empty: integrations.is_empty(),
                     empty_text: format!(
                         "No {integrations} have been configured yet. Add your first {integration} to get started.",
-                        integrations = i18n::integrations(),
-                        integration = i18n::integration()
+                        integrations = integrations_label,
+                        integration = integration_label
                     ),
                 }
                 if !integrations.is_empty() {

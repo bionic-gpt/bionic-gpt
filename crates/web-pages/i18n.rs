@@ -1,57 +1,34 @@
-use db::Licence;
+use db::i18n::global;
+use db::I18nKey;
 
-pub fn ai_assistants() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "MCP Servers",
-        _ => "AI Assistants",
-    }
+pub fn ai_assistants(locale: &str) -> String {
+    global().text(locale, I18nKey::AiAssistants)
 }
 
-pub fn integrations() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "MCP Servers",
-        _ => "Integrations",
-    }
+pub fn integrations(locale: &str) -> String {
+    global().text(locale, I18nKey::Integrations)
 }
 
-pub fn integration() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "MCP Server",
-        _ => "Integration",
-    }
+pub fn integration(locale: &str) -> String {
+    global().text(locale, I18nKey::Integration)
 }
 
-pub fn prompts() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "MCP Playground",
-        _ => "Explore Assistants",
-    }
+pub fn prompts(locale: &str) -> String {
+    global().text(locale, I18nKey::Prompts)
 }
 
-pub fn datasets() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "MCP RAG Servers",
-        _ => "Datasets & Documents",
-    }
+pub fn datasets(locale: &str) -> String {
+    global().text(locale, I18nKey::Datasets)
 }
 
-pub fn assistants() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "Playgrounds",
-        _ => "Assistants",
-    }
+pub fn assistants(locale: &str) -> String {
+    global().text(locale, I18nKey::Assistants)
 }
 
-pub fn assistant() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "Playground",
-        _ => "Assistant",
-    }
+pub fn assistant(locale: &str) -> String {
+    global().text(locale, I18nKey::Assistant)
 }
 
-pub fn dataset() -> &'static str {
-    match Licence::global().default_lang.as_str() {
-        "en-US" => "MCP RAG Server",
-        _ => "Dataset",
-    }
+pub fn dataset(locale: &str) -> String {
+    global().text(locale, I18nKey::Dataset)
 }

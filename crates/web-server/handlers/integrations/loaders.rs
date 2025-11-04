@@ -1,4 +1,4 @@
-use crate::{CustomError, Jwt};
+use crate::{locale::Locale, CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use axum::response::IntoResponse;
@@ -12,6 +12,7 @@ use web_pages::routes::integrations::{Edit, Index, New, Select};
 
 pub async fn loader(
     Index { team_id }: Index,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -78,13 +79,20 @@ pub async fn loader(
         }
     }
 
-    let html = web_pages::integrations::page::page(team_id, rbac, integrations);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html = web_pages::integrations::page::page(team_id, rbac, integrations, locale.as_str());
 
     Ok(Html(html))
 }
 
 pub async fn view_loader(
     View { team_id, id }: View,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -175,6 +183,12 @@ pub async fn view_loader(
         )
     };
 
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
     let html = web_pages::integrations::view::view(
         team_id,
         rbac,
@@ -184,6 +198,7 @@ pub async fn view_loader(
         api_key_connections,
         oauth2_connections,
         oauth_client_configured,
+        locale.as_str(),
     );
 
     Ok(Html(html))
@@ -191,6 +206,7 @@ pub async fn view_loader(
 
 pub async fn new_loader(
     New { team_id }: New,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -204,13 +220,21 @@ pub async fn new_loader(
         ..Default::default()
     };
 
-    let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html =
+        web_pages::integrations::upsert::page(team_id, rbac, integration_form, locale.as_str());
 
     Ok(Html(html))
 }
 
 pub async fn select_loader(
     Select { team_id }: Select,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -238,13 +262,20 @@ pub async fn select_loader(
         })
         .collect();
 
-    let html = web_pages::integrations::select::page(team_id, rbac, specs);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html = web_pages::integrations::select::page(team_id, rbac, specs, locale.as_str());
 
     Ok(Html(html))
 }
 
 pub async fn edit_loader(
     Edit { team_id, id }: Edit,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -272,7 +303,14 @@ pub async fn edit_loader(
         }
     };
 
-    let html = web_pages::integrations::upsert::page(team_id, rbac, integration_form);
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
+    let html =
+        web_pages::integrations::upsert::page(team_id, rbac, integration_form, locale.as_str());
 
     Ok(Html(html))
 }

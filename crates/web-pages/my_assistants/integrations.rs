@@ -6,23 +6,28 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
+pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm, locale: &str) -> String {
+    let assistants_label = crate::i18n::assistants(locale);
+    let assistant_label = crate::i18n::assistant(locale);
+    let integration_label = crate::i18n::integration(locale);
+    let integrations_label = crate::i18n::integrations(locale);
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: "Manage Integrations",
+            title: format!("Manage {}", integrations_label.clone()),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: crate::i18n::assistants().to_string(),
+                            text: assistants_label.clone(),
                             href: Some(crate::routes::prompts::Index{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: format!("My {}", crate::i18n::assistants()),
+                            text: format!("My {}", assistants_label.clone()),
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
@@ -48,14 +53,14 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                 Card {
                     class: "mb-6",
                     CardHeader {
-                        title: "Available Integrations"
+                        title: format!("Available {}", integrations_label.clone())
                     }
                     CardBody {
                         Alert {
                             class: "mb-4",
                             {format!(
                                 "Manage which integrations this {} can use",
-                                crate::i18n::assistant().to_lowercase()
+                                assistant_label.to_lowercase()
                             )}
                         }
 
@@ -66,7 +71,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                     class: "table table-sm w-full",
                                     thead {
                                         tr {
-                                            th { "Integration" }
+                                            th { "{integration_label}" }
                                             th { "Type" }
                                             th { "Status" }
                                             th { "Action" }
@@ -117,7 +122,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                         } else {
                             div {
                                 class: "text-gray-500 italic text-center py-4",
-                                "No integrations available"
+                                {format!("No {} available", integrations_label)}
                             }
                         }
                     }

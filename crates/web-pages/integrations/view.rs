@@ -3,6 +3,7 @@ use super::actions_section::ActionsSection;
 use super::connections_section::ConnectionsSection;
 use super::integration_header::IntegrationHeader;
 use crate::app_layout::{Layout, SideBar};
+use crate::i18n;
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKeyConnection, Integration, Oauth2Connection};
 use dioxus::prelude::*;
@@ -19,19 +20,22 @@ pub fn view(
     api_key_connections: Vec<ApiKeyConnection>,
     oauth2_connections: Vec<Oauth2Connection>,
     oauth_client_configured: bool,
+    locale: &str,
 ) -> String {
+    let integrations_label = i18n::integrations(locale);
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: crate::i18n::integrations().to_string(),
+            title: integrations_label.clone(),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                             BreadcrumbItem {
-                            text: crate::i18n::integrations().into(),
+                            text: integrations_label,
                             href: Some(crate::routes::integrations::Index { team_id }.to_string())
                         },
                         BreadcrumbItem {

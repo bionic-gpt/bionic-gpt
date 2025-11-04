@@ -18,33 +18,38 @@ pub struct DatasetForm {
     pub datasets: Vec<Dataset>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
+pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm, locale: &str) -> String {
+    let assistants_label = crate::i18n::assistants(locale);
+    let assistant_label = crate::i18n::assistant(locale);
+    let datasets_label = crate::i18n::datasets(locale);
+    let dataset_label = crate::i18n::dataset(locale);
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
             team_id: team_id,
             rbac: rbac.clone(),
-            title: format!("Manage {}", crate::i18n::datasets()),
+            title: format!("Manage {}", datasets_label.clone()),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
                         BreadcrumbItem {
-                            text: crate::i18n::assistants().to_string(),
+                            text: assistants_label.clone(),
                             href: Some(crate::routes::prompts::Index{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: format!("My {}", crate::i18n::assistants()),
+                            text: format!("My {}", assistants_label.clone()),
                             href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
                         },
                         BreadcrumbItem {
-                            text: format!("Manage {}", crate::i18n::datasets()),
+                            text: format!("Manage {}", datasets_label.clone()),
                             href: None
                         }
                     ]
                 }
                 h3 {
-                    {format!("Manage {} for {}", crate::i18n::datasets(), form.prompt_name)}
+                    {format!("Manage {} for {}", datasets_label.clone(), form.prompt_name)}
                 }
             ),
 
@@ -75,15 +80,15 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                     Card {
                         class: "mb-6",
                         CardHeader {
-                            title: format!("Available {}", crate::i18n::datasets())
+                            title: format!("Available {}", datasets_label.clone())
                         }
                         CardBody {
                             Alert {
                                 class: "mb-4",
                                 {format!(
                                     "Select which {} you wish to attach to this {}",
-                                    crate::i18n::datasets(),
-                                    crate::i18n::assistant().to_lowercase()
+                                    datasets_label.clone(),
+                                    assistant_label.to_lowercase()
                                 )}
                             }
 
@@ -94,7 +99,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                                         class: "table table-sm w-full",
                                         thead {
                                             tr {
-                                                th { "{crate::i18n::dataset()}" }
+                                                th { "{dataset_label}" }
                                                 th { "Model" }
                                                 th { "Add?" }
                                             }
@@ -126,7 +131,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                             } else {
                                 div {
                                     class: "text-gray-500 italic text-center py-4",
-                                    {format!("No {} available", crate::i18n::datasets())}
+                                    {format!("No {} available", datasets_label)}
                                 }
                             }
                         }
@@ -146,7 +151,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm) -> String {
                                 Button {
                                     button_type: ButtonType::Submit,
                                     button_scheme: ButtonScheme::Primary,
-                                    {format!("Save {} Connections", crate::i18n::datasets())}
+                                    {format!("Save {} Connections", datasets_label)}
                                 }
                             }
                         }

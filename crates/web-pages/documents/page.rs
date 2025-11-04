@@ -19,6 +19,7 @@ pub fn page(
     documents: Vec<Document>,
     models: Vec<Model>,
     can_set_visibility_to_company: bool,
+    locale: &str,
 ) -> String {
     let can_edit_dataset = rbac.can_edit_dataset(&dataset);
     let edit_trigger_id = format!("edit-dataset-trigger-{}-{}", dataset.id, team_id);
@@ -35,6 +36,7 @@ pub fn page(
             team_id: team_id,
             rbac: rbac,
             title: format!("{dataset_name} / Documents"),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![
@@ -120,10 +122,10 @@ pub fn page(
                     action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
                     trigger_id: delete_trigger_id.clone(),
                     submit_label: "Delete".to_string(),
-                    heading: format!("Delete this {}?", crate::i18n::dataset()),
+                    heading: format!("Delete this {}?", crate::i18n::dataset(locale)),
                     warning: format!(
                         "Are you sure you want to delete this {}?",
-                        crate::i18n::dataset()
+                        crate::i18n::dataset(locale)
                     ),
                     hidden_fields: vec![
                         ("team_id".into(), team_id.to_string()),
@@ -142,7 +144,8 @@ pub fn page(
                         new_after_n_chars: dataset.new_after_n_chars,
                         _multipage_sections: true,
                         visibility: dataset.visibility,
-                        can_set_visibility_to_company
+                        can_set_visibility_to_company,
+                        locale: locale.to_string()
                     }
                 }
 

@@ -51,10 +51,23 @@ pub struct LayoutProps {
     team_id: i32,
     rbac: Rbac,
     section_class: String,
+    #[props(default)]
+    locale: Option<String>,
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
+
+    let locale = props
+        .locale
+        .clone()
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "en".to_string());
+
+    let ai_assistants_label = i18n::ai_assistants(&locale);
+    let prompts_label = i18n::prompts(&locale);
+    let integrations_label = i18n::integrations(&locale);
+    let datasets_label = i18n::datasets(&locale);
 
     let licence = Licence::global();
     let show_automations_menu = licence.features.automations;
@@ -116,7 +129,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                 }
                 if props.rbac.can_view_datasets() || props.rbac.can_view_integrations() {
                     NavGroup {
-                        heading: i18n::ai_assistants().to_string(),
+                        heading: ai_assistants_label.clone(),
                         content:  rsx!(
                             if props.rbac.can_view_prompts() {
                                 NavItem {
@@ -124,7 +137,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     selected_item_id: props.selected_item.to_string(),
                                     href: super::routes::prompts::Index{team_id: props.team_id},
                                     icon: assistant_svg.name,
-                                    title: i18n::prompts().to_string()
+                                    title: prompts_label.clone()
                                 }
                             }
                             if props.rbac.can_view_integrations() {
@@ -133,7 +146,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     selected_item_id: props.selected_item.to_string(),
                                     href: super::routes::integrations::Index { team_id: props.team_id },
                                     icon: nav_audit_svg.name,
-                                    title: i18n::integrations().to_string()
+                                    title: integrations_label.clone()
                                 }
                                 if props.rbac.can_manage_mcp_keys() {
                                     NavItem {
@@ -151,7 +164,7 @@ pub fn Layout(props: LayoutProps) -> Element {
                                     selected_item_id: props.selected_item.to_string(),
                                     href: super::routes::datasets::Index{team_id: props.team_id},
                                     icon: nav_ccsds_data_svg.name,
-                                    title: i18n::datasets().to_string()
+                                    title: datasets_label.clone()
                                 }
                             }
                         )
