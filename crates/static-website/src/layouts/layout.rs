@@ -79,11 +79,9 @@ pub fn Layout(props: LayoutProps) -> Element {
             }
             {props.children}
             script {
-                "defer": "true",
-                src: "https://cdn.jsdelivr.net/npm/quicklink@3.0.1/dist/quicklink.umd.js"
-            }
-            script {
-                dangerous_inner_html: "window.addEventListener('load', () => {{quicklink.listen();}});"
+                src: "https://instant.page/5.2.0",
+                type: "module",
+                integrity: "sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"
             }
         }
     )
