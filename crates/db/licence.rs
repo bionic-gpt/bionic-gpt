@@ -29,8 +29,6 @@ pub struct Licence {
     pub app_name: String,
     pub app_logo_svg: String,
     #[serde(default)]
-    pub default_lang: String,
-    #[serde(default)]
     pub redirect_url: Option<String>,
     #[serde(default)]
     pub features: LicenceFeatures,
@@ -66,7 +64,6 @@ impl Default for Licence {
             signature: String::new(),
             app_name: String::new(),
             app_logo_svg: String::new(),
-            default_lang: String::new(),
             redirect_url: None,
             features: LicenceFeatures::default(),
         }
@@ -158,7 +155,6 @@ mod tests {
             signature: String::new(),
             app_name: "Deploy".to_string(),
             app_logo_svg: "logo".to_string(),
-            default_lang: "en-US".to_string(),
             redirect_url: None,
             features: LicenceFeatures::default(),
         };

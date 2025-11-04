@@ -21,15 +21,7 @@ INSERT INTO translations (locale, key, value) VALUES
     ('en', 'i18n.datasets', 'Datasets & Documents'),
     ('en', 'i18n.assistants', 'Assistants'),
     ('en', 'i18n.assistant', 'Assistant'),
-    ('en', 'i18n.dataset', 'Dataset'),
-    ('en-US', 'i18n.ai_assistants', 'MCP Servers'),
-    ('en-US', 'i18n.integrations', 'MCP Servers'),
-    ('en-US', 'i18n.integration', 'MCP Server'),
-    ('en-US', 'i18n.prompts', 'MCP Playground'),
-    ('en-US', 'i18n.datasets', 'MCP RAG Servers'),
-    ('en-US', 'i18n.assistants', 'Playgrounds'),
-    ('en-US', 'i18n.assistant', 'Playground'),
-    ('en-US', 'i18n.dataset', 'MCP RAG Server');
+    ('en', 'i18n.dataset', 'Dataset');
 
 -- migrate:down
 

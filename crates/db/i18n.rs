@@ -64,9 +64,36 @@ impl I18n {
         Ok(())
     }
 
-    pub async fn warm_cache(&self, locales: &[&str]) {
-        for locale in locales {
-            self.ensure_locale(locale).await;
+    pub async fn warm_cache(&self) {
+        let client = match self.pool.get().await {
+            Ok(client) => client,
+            Err(err) => {
+                tracing::warn!(target: "db::i18n", ?err, "failed to get database client to warm translations cache");
+                return;
+            }
+        };
+
+        let rows = match queries::i18n::all_translations().bind(&client).all().await {
+            Ok(rows) => rows,
+            Err(err) => {
+                tracing::warn!(target: "db::i18n", ?err, "failed to load translations while warming cache");
+                return;
+            }
+        };
+
+        drop(client);
+
+        let mut grouped: HashMap<String, HashMap<String, String>> = HashMap::new();
+        for row in rows {
+            grouped
+                .entry(row.locale)
+                .or_default()
+                .insert(row.key, row.value);
+        }
+
+        let mut cache = self.cache.write().await;
+        for (locale, translations) in grouped {
+            cache.insert(locale, translations);
         }
     }
 

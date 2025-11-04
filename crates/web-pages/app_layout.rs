@@ -62,14 +62,6 @@ pub fn Layout(props: LayoutProps) -> Element {
         .locale
         .clone()
         .filter(|s| !s.is_empty())
-        .or_else(|| {
-            let lang = Licence::global().default_lang.clone();
-            if lang.is_empty() {
-                None
-            } else {
-                Some(lang)
-            }
-        })
         .unwrap_or_else(|| "en".to_string());
 
     let ai_assistants_label = i18n::ai_assistants(&locale);

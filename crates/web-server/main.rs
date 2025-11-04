@@ -76,7 +76,7 @@ async fn main() {
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);
     let i18n = db::I18n::new(pool.clone());
-    i18n.warm_cache(&["en", "en-US"]).await;
+    i18n.warm_cache().await;
     db::i18n::set_global(i18n.clone());
     let addr = SocketAddr::from(([0, 0, 0, 0], config.port));
 

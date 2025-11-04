@@ -14,12 +14,7 @@ impl Locale {
     }
 
     fn default_locale() -> String {
-        let licence = db::Licence::global();
-        if licence.default_lang.is_empty() {
-            "en".to_string()
-        } else {
-            licence.default_lang.clone()
-        }
+        "en".to_string()
     }
 }
 
