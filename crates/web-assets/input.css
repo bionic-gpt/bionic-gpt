@@ -17,10 +17,6 @@
 @source inline("dropdown dropdown-top dropdown-left");
 @source inline("fieldset fieldset-legend label");
 
-@view-transition {
-    navigation: auto;
-}
-
 :root {
     /** Brand Identity **/
     --color-primary: #3559c7;
