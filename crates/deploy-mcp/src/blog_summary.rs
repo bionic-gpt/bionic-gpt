@@ -7,6 +7,17 @@ pub fn summary() -> Summary {
             name: "Launches".to_string(),
             pages: vec![
                 Page {
+                    date: "2025-11-05",
+                    title: "Agentic RAG Explanation for Engineers",
+                    description:
+                        "Looking at how the MCP protocol works with LLMs from first principals.",
+                    folder: "blog/agentic-rag-explained/",
+                    markdown: include_str!("../content/blog/agentic-rag-explained/index.md"),
+                    image: Some("/blog/agentic-rag-explained/agentic-rag.png"),
+                    author: Some("Alex Rivera"),
+                    author_image: Some("/blog-authors/alex-rivera.png"),
+                },
+                Page {
                     date: "2025-10-21",
                     title: "Vibe Engineering: How does it fit into the SDLC?",
                     description:
