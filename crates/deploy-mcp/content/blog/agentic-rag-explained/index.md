@@ -1,9 +1,9 @@
 ## Summary
 
-1. The Problem
-1. Old RAG
+1. Legacy RAG
 1. Tool Calls
 1. Agentic RAG
+1. Real World Examples
 
 ## Legacy RAG
 
@@ -73,6 +73,8 @@ curl https://api.openai.com/v1/chat/completions \
 
 ## Tool Calls
 
+Tool calling hands the model a menu of actions so it can decide when to reach outside the prompt. Instead of cramming all context up front, we expose a `search_context` function and let the model ask for it if the question needs fresh evidence.
+
 ```sh
 curl https://api.openai.com/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -131,14 +133,75 @@ curl https://api.openai.com/v1/chat/completions \
 }
 ```
 
+That hand-off turns raw RAG plumbing into a reusable capability. The model can inspect the user's request, trigger a search if needed, and keep going if not—no human babysitting required.
+
 ## Agentic RAG
 
-```sql
-SELECT * FROM chunks WHERE 
+Agentic RAG strings together those tool calls into a feedback loop: observe the question, fetch targeted evidence, reason, and then repeat if gaps remain.
+
+#### 1) Model chooses to search (tool call)
+
+```sh
+curl https://api.openai.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -d '{
+    "model": "gpt-5",
+    "messages": [{"role": "user", "content": "How do I replace the rotor blades on the Falcon X2 drone?"}],
+    "tools": [{"type": "function","function": {"name": "search_context", "parameters": {"type": "object"}}}],
+    "tool_choice": "auto"
+  }'
 ```
+
+```json
+{
+  "message": {
+    "role": "assistant",
+    "tool_call": {
+      "type": "function",
+      "function": {"name": "search_context", "arguments": "{\"query\":\"rotor blades Falcon X2\",\"limit\":3}"}
+    }
+  }
+}
+```
+
+#### 2) Tool returns scoped chunks
+
+```json
+{
+  "tool_call_id": "call_02AB",
+  "role": "tool",
+  "name": "search_context",
+  "content": "{\"chunks\":[{\"id\":123,\"text\":\"Step 1 remove battery\"},{\"id\":982,\"text\":\"Torque specs\"}]}"
+}
+```
+
+#### 3) Model reasons with fresh evidence
+
+```json
+{
+  "role": "assistant",
+  "content": "Here is the replacement procedure… (citing chunks 123, 982)"
+}
+```
+
+The agent can immediately follow up with another search, a planner, or a write-back tool—each call informed by the chunks that were actually useful. The context stays tight, decisions stay explainable.
+
+
+| Legacy RAG | Agentic RAG |
+| --- | --- |
+| ✗ Fixed `k` per query | ✓ Model selects `limit` per turn |
+| ✗ Retrieval always runs | ✓ Tool call only when useful |
+| ✗ Context copied inline | ✓ Chunks tracked and reused |
+| ✗ Manual prompt dialing | ✓ Policy lives in the tool |
+| ✗ Hard to mix other actions | ✓ Retrieval chains with planners/tools |
 
 ## Real World Examples
 
-Drone customer support email.
-Compliance
+Drone customer support email. The agent inspects the complaint, pulls only the maintenance snippets that match that drone's serial configuration, and replies with torque specs plus a short troubleshooting script without drowning the user in irrelevant docs. Retrieval here pulls maintenance bulletins, repair manuals, and post-flight inspection checklists tied to the Falcon X2.
 
+> My Falcon X2 is vibrating after a rotor swap; what torque should I use and in what order?
+
+Compliance. A risk officer asks about a new regulation and the agent fetches recent policy memos, highlights prior decisions tagged to the same product line, and drafts a review checklist that cites source IDs for auditing. The agent mixes regulatory updates, past compliance rulings, and product-specific risk assessments so legal can trace the answer.
+
+> Does Regulation 42/2024 apply to bundled FX products we sold in Q3 and what precedent did we set last year?

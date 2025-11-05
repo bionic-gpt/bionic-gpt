@@ -1,6 +1,6 @@
 use std::sync::LazyLock;
 
-use pulldown_cmark::{CodeBlockKind, Event, Parser, Tag, TagEnd};
+use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag, TagEnd};
 use syntect::{
     highlighting::{Theme, ThemeSet},
     html::highlighted_html_for_string,
@@ -17,7 +17,13 @@ pub fn markdown_to_html(markdown: &str) -> String {
     let mut sr = SYNTAX_SET.find_syntax_plain_text();
     let mut code = String::new();
     let mut code_block = false;
-    let parser = Parser::new(markdown).filter_map(|event| match event {
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_TABLES);
+    options.insert(Options::ENABLE_FOOTNOTES);
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_TASKLISTS);
+
+    let parser = Parser::new_ext(markdown, options).filter_map(|event| match event {
         Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(lang))) => {
             let lang = lang.trim();
             sr = SYNTAX_SET
