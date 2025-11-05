@@ -159,7 +159,7 @@ schemaspy:
         -t pgsql11 \
         -dp tmp/jdbc-driver.jar \
         -db bionic-gpt \
-        -host localhost \
+        -host host.docker.internal \
         -port 30001 \
         -u db-owner \
         -p testpassword \
