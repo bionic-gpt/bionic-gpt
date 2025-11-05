@@ -8,10 +8,30 @@
 ## Legacy RAG
 
 
-#### 1) Embed the user's question
+> My Falcon X2 is vibrating after a rotor swap; how do I replace the rotor blades?
+
+#### 1) Ask the model without context
+
+*Spoiler: it hallucinates or shrugs, because nothing tells it what applies to this drone.*
 
 ```sh
-# 1) Get an embedding for the user prompt (only store its ID/handle)
+curl https://api.openai.com/v1/chat/completions \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4.1-mini",
+    "messages": [
+      {"role":"user","content":"My Falcon X2 is vibrating after a rotor swap; how do I replace the rotor blades?"}
+    ]
+  }'
+```
+
+#### 2) Embed the user's question
+
+**Why?** Embeddings align the question with the maintenance corpus without dumping the entire manual into the prompt.
+
+```sh
+# 2) Get an embedding for the user prompt (only store its ID/handle)
 # - Never print the full vector in logs or UI
 # - Use any small embedding model you like
 curl https://api.openai.com/v1/embeddings \
@@ -26,10 +46,12 @@ curl https://api.openai.com/v1/embeddings \
 
 ```
 
-#### 2) Retrieve top-k relevant chunks with pgvector
+#### 3) Retrieve top-k relevant chunks with pgvector
+
+*Same question, but now the database gives you candidates that actually reference rotor swaps.*
 
 ```sql
--- 2) Vector search (pgvector)
+-- 3) Vector search (pgvector)
 -- - $1 is the embedding parameter (binary/JSON array bound by your client)
 -- - <-> is the distance operator; choose ops class per metric (cosine/L2/IP)
 -- - LIMIT k keeps the context small
@@ -42,10 +64,12 @@ LIMIT 5;
 
 ```
 
-#### 3) Ask the model again, now with retrieved context
+#### 4) Ask the model again, now with retrieved context
+
+**Result.** We just glue retrieved snippets under the user’s message and hope the model cites only those lines.
 
 ```sh
-# 3) Compose a grounded prompt (system or user content) with the retrieved chunks
+# 4) Compose a grounded prompt (system or user content) with the retrieved chunks
 # - Keep a short, explicit instruction to "cite from context only"
 # - Keep history light to avoid runaway token growth
 curl https://api.openai.com/v1/chat/completions \
@@ -141,6 +165,8 @@ Agentic RAG strings together those tool calls into a feedback loop: observe the 
 
 #### 1) Model chooses to search (tool call)
 
+**Decision.** The agent inspects the request, chooses the `search_context` tool, and sets the scope (`limit`) it needs for this turn.
+
 ```sh
 curl https://api.openai.com/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -167,6 +193,8 @@ curl https://api.openai.com/v1/chat/completions \
 
 #### 2) Tool returns scoped chunks
 
+*Payload stays tight—only the vetted chunks and their IDs come back for grounding.*
+
 ```json
 {
   "tool_call_id": "call_02AB",
@@ -177,6 +205,8 @@ curl https://api.openai.com/v1/chat/completions \
 ```
 
 #### 3) Model reasons with fresh evidence
+
+**Synthesis.** The agent crafts the answer with explicit citations and decides whether another tool call is warranted.
 
 ```json
 {
