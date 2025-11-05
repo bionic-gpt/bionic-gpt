@@ -29,11 +29,13 @@ pub fn ConsoleStream(
                         class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
                         // Show each pending tool chat
                         for tool_chat in tool_chats {
-                            FunctionCallTimeline {
-                                name: get_function_name_from_tool_calls(&tool_chat.tool_call_id, &chat_history.clone()),
+                            ToolCallTimeline {
                                 chat_id: tool_chat.id as i64,
                                 team_id,
-                                pending: true
+                                pending: true,
+                                tool_call_id: tool_chat.tool_call_id.clone(),
+                                chat_history: chat_history.clone(),
+                                response: tool_chat.content.clone(),
                             }
                         }
                         // This component has an id of 'streaming-chat' which
@@ -87,16 +89,14 @@ pub fn ConsoleStream(
                             }
                         },
                         ChatRole::Tool => {
-                            let function_name = get_function_name_from_tool_calls(
-                                &chat_with_chunks.chat.tool_call_id,
-                                &chat_history.clone()
-                            );
                             rsx! {
-                                FunctionCallTimeline {
-                                    name: function_name,
+                                ToolCallTimeline {
                                     chat_id: chat_with_chunks.chat.id as i64,
                                     team_id,
-                                    pending: false
+                                    pending: false,
+                                    tool_call_id: chat_with_chunks.chat.tool_call_id.clone(),
+                                    chat_history: chat_history.clone(),
+                                    response: chat_with_chunks.chat.content.clone(),
                                 }
                             }
                         },
@@ -112,11 +112,11 @@ pub fn ConsoleStream(
     }
 }
 
-// Helper function to extract function name from tool calls
-fn get_function_name_from_tool_calls(
+// Helper to extract tool call details from chat history
+fn resolve_tool_call(
     tool_call_id: &Option<String>,
     chat_history: &Vec<ChatWithChunks>,
-) -> String {
+) -> (String, Option<ToolCall>) {
     if let Some(id) = tool_call_id {
         // Search through chat history for Assistant chats with tool_calls
         for chat_with_chunks in chat_history {
@@ -127,7 +127,12 @@ fn get_function_name_from_tool_calls(
                         // Find the tool call with matching ID
                         for tool_call in tool_calls {
                             if tool_call.id == *id {
-                                return tool_call.function.name;
+                                let display_name = if tool_call.function.name.is_empty() {
+                                    format!("Tool Call {}", id)
+                                } else {
+                                    tool_call.function.name.clone()
+                                };
+                                return (display_name, Some(tool_call));
                             }
                         }
                     }
@@ -137,25 +142,148 @@ fn get_function_name_from_tool_calls(
     }
 
     // Fallback if function name cannot be resolved
-    format!("Tool Call {}", tool_call_id.as_deref().unwrap_or("Unknown"))
+    (
+        format!("Tool Call {}", tool_call_id.as_deref().unwrap_or("Unknown")),
+        None,
+    )
 }
 
-// Function Call Timeline Component
+fn format_json_string(raw: &str) -> String {
+    if let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) {
+        serde_json::to_string_pretty(&value).unwrap_or_else(|_| raw.to_string())
+    } else {
+        raw.to_string()
+    }
+}
+
+// Tool Call Timeline Component
 #[component]
-fn FunctionCallTimeline(name: String, chat_id: i64, team_id: i32, pending: bool) -> Element {
+fn ToolCallTimeline(
+    chat_id: i64,
+    team_id: i32,
+    pending: bool,
+    tool_call_id: Option<String>,
+    chat_history: Vec<ChatWithChunks>,
+    response: Option<String>,
+) -> Element {
+    let (display_name, tool_call) = resolve_tool_call(&tool_call_id, &chat_history);
+    let modal_tool_name = display_name.clone();
+    let trigger_suffix = tool_call_id
+        .clone()
+        .filter(|id| !id.is_empty())
+        .unwrap_or_else(|| chat_id.to_string());
+    let trigger_id = format!("tool-call-details-{}", trigger_suffix);
+    let request_body = tool_call
+        .as_ref()
+        .map(|call| format_json_string(&call.function.arguments));
+    let response_body = response
+        .as_ref()
+        .map(|body| format_json_string(body))
+        .filter(|body| !body.trim().is_empty());
+
     rsx! {
         TimeLine {
             TimeLineBadge {
                 image_src: if pending { spinner_svg.name } else { tools_svg.name }
             }
             TimeLineBody {
-                Badge {
-                    badge_style: BadgeStyle::Outline,
-                    badge_size: BadgeSize::Sm,
-                    "Function Call:"
-                    strong {
-                        class: "ml-2",
-                        "{name}"
+                div {
+                    class: "flex items-center gap-2",
+                    Badge {
+                        badge_style: BadgeStyle::Outline,
+                        badge_size: BadgeSize::Sm,
+                        "Tool Call:"
+                        strong {
+                            class: "ml-2",
+                            "{display_name}"
+                        }
+                    }
+                    Button {
+                        class: "btn-xs",
+                        button_style: ButtonStyle::Outline,
+                        button_shape: ButtonShape::Circle,
+                        popover_target: trigger_id.clone(),
+                        button_scheme: ButtonScheme::Neutral,
+                        img {
+                            class: "svg-icon",
+                            src: button_plus_svg.name
+                        }
+                        span {
+                            class: "sr-only",
+                            "View tool call details"
+                        }
+                    }
+                }
+            }
+        }
+        Modal {
+            trigger_id: trigger_id.clone(),
+            ModalBody {
+                h3 {
+                    class: "font-bold text-lg mb-4",
+                    "Tool Call Details"
+                }
+                dl {
+                    class: "space-y-4",
+                    if let Some(call) = tool_call.as_ref() {
+                        div {
+                            class: "space-y-2",
+                            dt { class: "font-semibold text-sm uppercase text-base-content/70", "Tool" }
+                            dd { class: "text-sm break-words", "{modal_tool_name}" }
+                        }
+                        div {
+                            class: "space-y-2",
+                            dt { class: "font-semibold text-sm uppercase text-base-content/70", "Call ID" }
+                            dd { class: "text-sm break-all", "{call.id}" }
+                        }
+                    } else if let Some(id) = tool_call_id.clone() {
+                        div {
+                            class: "space-y-2",
+                            dt { class: "font-semibold text-sm uppercase text-base-content/70", "Call ID" }
+                            dd { class: "text-sm break-all", "{id}" }
+                        }
+                    }
+                    div {
+                        class: "space-y-2",
+                        dt { class: "font-semibold text-sm uppercase text-base-content/70", "Request" }
+                        if let Some(body) = request_body.as_ref() {
+                            pre {
+                                class: "json bg-base-200 p-4 rounded overflow-auto max-h-96 text-sm",
+                                "{body}"
+                            }
+                        } else {
+                            dd {
+                                class: "text-sm text-base-content/70",
+                                "No request payload available."
+                            }
+                        }
+                    }
+                    div {
+                        class: "space-y-2",
+                        dt { class: "font-semibold text-sm uppercase text-base-content/70", "Response" }
+                        if let Some(body) = response_body.as_ref() {
+                            pre {
+                                class: "json bg-base-200 p-4 rounded overflow-auto max-h-96 text-sm",
+                                "{body}"
+                            }
+                        } else if pending {
+                            dd {
+                                class: "text-sm text-base-content/70",
+                                "Awaiting tool response..."
+                            }
+                        } else {
+                            dd {
+                                class: "text-sm text-base-content/70",
+                                "No response recorded."
+                            }
+                        }
+                    }
+                }
+                ModalAction {
+                    Button {
+                        class: "cancel-modal",
+                        button_scheme: ButtonScheme::Warning,
+                        "Close"
                     }
                 }
             }
