@@ -6,17 +6,17 @@ use dioxus::prelude::*;
 // Remember: owned props must implement PartialEq!
 #[derive(Props, Clone, PartialEq)]
 pub struct AppLayoutProps {
-    title: String,
-    fav_icon_src: String,
-    collapse_svg_src: String,
-    stylesheets: Vec<String>,
-    section_class: String,
-    js_href: String,
-    header: Element,
-    children: Element,
-    sidebar: Element,
-    sidebar_footer: Element,
-    sidebar_header: Element,
+    pub title: String,
+    pub fav_icon_src: String,
+    pub collapse_svg_src: String,
+    pub stylesheets: Vec<String>,
+    pub section_class: String,
+    pub js_href: String,
+    pub header: Element,
+    pub children: Element,
+    pub sidebar: Element,
+    pub sidebar_footer: Element,
+    pub sidebar_header: Element,
 }
 
 pub fn BaseLayout(props: AppLayoutProps) -> Element {
