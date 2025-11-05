@@ -32,3 +32,11 @@ pub fn assistant(locale: &str) -> String {
 pub fn dataset(locale: &str) -> String {
     global().text(locale, I18nKey::Dataset)
 }
+
+pub fn histories(locale: &str) -> String {
+    global().text(locale, I18nKey::Histories)
+}
+
+pub fn history(locale: &str) -> String {
+    global().text(locale, I18nKey::History)
+}

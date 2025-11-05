@@ -196,6 +196,10 @@ impl Rbac {
         self.permissions.contains(&Permission::ViewChats)
     }
 
+    pub fn can_view_chat_history(&self) -> bool {
+        self.permissions.contains(&Permission::ViewChatHistory)
+    }
+
     pub fn can_make_invitations(&self) -> bool {
         self.permissions.contains(&Permission::InvitePeopleToTeam)
     }

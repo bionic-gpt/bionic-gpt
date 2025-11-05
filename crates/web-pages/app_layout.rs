@@ -67,6 +67,7 @@ pub fn Layout(props: LayoutProps) -> Element {
     let ai_assistants_label = i18n::ai_assistants(&locale);
     let prompts_label = i18n::prompts(&locale);
     let integrations_label = i18n::integrations(&locale);
+    let history_label = i18n::histories(&locale);
     let datasets_label = i18n::datasets(&locale);
 
     let licence = Licence::global();
@@ -94,6 +95,9 @@ pub fn Layout(props: LayoutProps) -> Element {
         .clone()
         .unwrap_or_else(|| "Switch teams".to_string());
 
+    let can_view_chats = props.rbac.can_view_chats();
+    let can_view_chat_history = props.rbac.can_view_chat_history();
+
     rsx! {
         super::base_layout::BaseLayout {
             title: props.title,
@@ -106,23 +110,27 @@ pub fn Layout(props: LayoutProps) -> Element {
                 {props.header}
             ),
             sidebar: rsx!(
-                if props.rbac.can_view_chats() {
+                if can_view_chats || can_view_chat_history {
                     NavGroup {
                         heading: "Generative AI",
                         content:  rsx!(
-                            NavItem {
-                                id: SideBar::Console.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::console::Index { team_id: props.team_id },
-                                icon: nav_service_requests_svg.name,
-                                title: "Chat"
+                            if can_view_chats {
+                                NavItem {
+                                    id: SideBar::Console.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::console::Index { team_id: props.team_id },
+                                    icon: nav_service_requests_svg.name,
+                                    title: "Chat"
+                                }
                             }
-                            NavItem {
-                                id: SideBar::History.to_string(),
-                                selected_item_id: props.selected_item.to_string(),
-                                href: super::routes::history::Index { team_id: props.team_id },
-                                icon: nav_history_svg.name,
-                                title: "Chat History"
+                            if can_view_chat_history {
+                                NavItem {
+                                    id: SideBar::History.to_string(),
+                                    selected_item_id: props.selected_item.to_string(),
+                                    href: super::routes::history::Index { team_id: props.team_id },
+                                    icon: nav_history_svg.name,
+                                    title: history_label
+                                }
                             }
                         )
                     }

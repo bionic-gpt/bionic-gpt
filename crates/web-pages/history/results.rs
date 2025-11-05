@@ -1,24 +1,26 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
-use crate::SectionIntroduction;
+use crate::{i18n, SectionIntroduction};
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::History;
 use dioxus::prelude::*;
 
-pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>) -> String {
+pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>, locale: &str) -> String {
     let buckets = super::bucket_history(history);
+    let history_label = i18n::histories(locale);
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::History,
             team_id: team_id,
             rbac: rbac,
-            title: "Chat History",
+            title: history_label.clone(),
+            locale: Some(locale.to_string()),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
-                        text: "Chat History".into(),
+                        text: history_label.clone(),
                         href: None
                     }]
                 }

@@ -30,7 +30,7 @@ SELECT enum_range(NULL::permission);
 
 {InvitePeopleToTeam,ViewCurrentTeam,ViewPrompts,ManagePipelines,
 ViewDatasets,ManageDatasets,CreateApiKeys,ViewAuditTrail,SetupMod
-els,ViewChats,ManageDocumentPipelines}
+els,ViewChatHistory,ViewChats,ManageDocumentPipelines}
 ```
 
 ### View all the roles
@@ -59,6 +59,7 @@ deploymcp=# select * from roles_permissions;
  Collaborator        | ManageDatasets
  Collaborator        | ViewDatasets
  Collaborator        | CreateApiKeys
+ Collaborator        | ViewChatHistory
  Collaborator        | ViewChats
  Collaborator        | ManageDocumentPipelines
 (10 rows)

@@ -5,7 +5,7 @@ pub fn routes() -> Router {
     Router::new().typed_get(loader).typed_post(search_action)
 }
 
-use crate::{CustomError, Jwt};
+use crate::{locale::Locale, CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
 use db::authz;
@@ -14,6 +14,7 @@ use web_pages::{history, routes::history::Index};
 
 pub async fn loader(
     Index { team_id }: Index,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -22,12 +23,18 @@ pub async fn loader(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
     let history = db::queries::history::history()
         .bind(&transaction)
         .all()
         .await?;
 
-    let html = history::page::page(rbac, team_id, history);
+    let html = history::page::page(rbac, team_id, history, locale.as_str());
 
     Ok(Html(html))
 }
@@ -45,6 +52,7 @@ pub struct SearchForm {
 
 pub async fn search_action(
     Search { team_id }: Search,
+    locale: Locale,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(search): Form<SearchForm>,
@@ -54,6 +62,12 @@ pub async fn search_action(
 
     let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
+    let i18n = db::i18n::global();
+    i18n.ensure_locale("en").await;
+    if locale.as_str() != "en" {
+        i18n.ensure_locale(locale.as_str()).await;
+    }
+
     // Use SQL-based search instead of embeddings
     let history = db::queries::history::search_history()
         .bind(&transaction, &rbac.user_id, &search.search, &10)
@@ -62,7 +76,7 @@ pub async fn search_action(
 
     tracing::info!("Retrieved {} search results", history.len());
 
-    let html = history::results::page(rbac, team_id, history);
+    let html = history::results::page(rbac, team_id, history, locale.as_str());
 
     Ok(Html(html))
 }

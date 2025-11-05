@@ -184,6 +184,8 @@ pub enum I18nKey {
     Assistants,
     Assistant,
     Dataset,
+    Histories,
+    History,
 }
 
 impl I18nKey {
@@ -197,6 +199,8 @@ impl I18nKey {
             Self::Assistants => "i18n.assistants",
             Self::Assistant => "i18n.assistant",
             Self::Dataset => "i18n.dataset",
+            Self::Histories => "i18n.histories",
+            Self::History => "i18n.history",
         }
     }
 }
