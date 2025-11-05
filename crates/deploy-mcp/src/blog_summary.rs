@@ -8,7 +8,7 @@ pub fn summary() -> Summary {
             pages: vec![
                 Page {
                     date: "2025-11-05",
-                    title: "Agentic RAG Explanation for Engineers",
+                    title: "Agentic RAG for Engineers: What Changed and Why It Matters",
                     description:
                         "Looking at how the MCP protocol works with LLMs from first principals.",
                     folder: "blog/agentic-rag-explained/",
