@@ -53,6 +53,84 @@ struct DatasetContext {
     team_id: i32,
     name: String,
     embeddings_model_id: i32,
+    tool_prefix: String,
+}
+
+#[derive(Clone)]
+struct DatasetToolNames {
+    get_documents: String,
+    get_document: String,
+    search_context: String,
+}
+
+enum DatasetToolKind {
+    GetDocuments,
+    GetDocument,
+    SearchContext,
+}
+
+impl DatasetToolNames {
+    fn new(context: &DatasetContext) -> Self {
+        Self {
+            get_documents: dataset_tool_name(&context.tool_prefix, "get_documents"),
+            get_document: dataset_tool_name(&context.tool_prefix, "get_document"),
+            search_context: dataset_tool_name(&context.tool_prefix, "search_context"),
+        }
+    }
+
+    fn classify(&self, name: &str) -> Option<DatasetToolKind> {
+        if name == self.get_documents {
+            Some(DatasetToolKind::GetDocuments)
+        } else if name == self.get_document {
+            Some(DatasetToolKind::GetDocument)
+        } else if name == self.search_context {
+            Some(DatasetToolKind::SearchContext)
+        } else {
+            None
+        }
+    }
+}
+
+fn dataset_tool_name(prefix: &str, base: &str) -> String {
+    format!("{}_{}", prefix, base)
+}
+
+fn dataset_tool_prefix(name: &str, external_id: Uuid) -> String {
+    let mut cleaned = String::with_capacity(name.len());
+    let mut previous_was_separator = false;
+
+    for ch in name.trim().chars() {
+        let lower = ch.to_ascii_lowercase();
+        if lower.is_ascii_alphanumeric() {
+            cleaned.push(lower);
+            previous_was_separator = false;
+        } else if !previous_was_separator {
+            cleaned.push('_');
+            previous_was_separator = true;
+        }
+    }
+
+    let cleaned = cleaned.trim_matches('_');
+    let mut base = if cleaned.is_empty() {
+        "dataset".to_string()
+    } else {
+        cleaned.to_string()
+    };
+
+    if base.len() > 32 {
+        base.truncate(32);
+        if base.ends_with('_') {
+            base = base.trim_end_matches('_').to_string();
+        }
+        if base.is_empty() {
+            base = "dataset".to_string();
+        }
+    }
+
+    let suffix = external_id.simple().to_string();
+    let suffix = &suffix[..8];
+
+    format!("{}_{}", base, suffix)
 }
 
 pub async fn handle_dataset_json_rpc(
@@ -231,15 +309,17 @@ pub async fn handle_dataset_json_rpc(
 
             let ToolCallParams { name, arguments } = params;
 
-            let result = match name.as_str() {
-                "get_documents" => {
+            let tool_names = DatasetToolNames::new(&dataset_context);
+
+            let result = match tool_names.classify(name.as_str()) {
+                Some(DatasetToolKind::GetDocuments) => {
                     let args: GetDocumentsParams = match parse_optional_arguments(arguments) {
                         Ok(args) => args,
                         Err(err) => {
                             let response = JsonRpcResponse::failure(
                                 request_id.clone(),
                                 -32602,
-                                "Invalid arguments for get_documents".to_string(),
+                                format!("Invalid arguments for {}", &tool_names.get_documents),
                                 Some(json!({ "details": err })),
                             );
                             return Ok(json_response(response));
@@ -247,14 +327,14 @@ pub async fn handle_dataset_json_rpc(
                     };
                     get_documents(&pool, &dataset_context, args).await
                 }
-                "get_document" => {
+                Some(DatasetToolKind::GetDocument) => {
                     let args: GetDocumentParams = match parse_required_arguments(arguments) {
                         Ok(args) => args,
                         Err(err) => {
                             let response = JsonRpcResponse::failure(
                                 request_id.clone(),
                                 -32602,
-                                "Invalid arguments for get_document".to_string(),
+                                format!("Invalid arguments for {}", &tool_names.get_document),
                                 Some(json!({ "details": err })),
                             );
                             return Ok(json_response(response));
@@ -262,14 +342,14 @@ pub async fn handle_dataset_json_rpc(
                     };
                     get_document(&pool, &dataset_context, args).await
                 }
-                "search_context" => {
+                Some(DatasetToolKind::SearchContext) => {
                     let args: SearchContextParams = match parse_required_arguments(arguments) {
                         Ok(args) => args,
                         Err(err) => {
                             let response = JsonRpcResponse::failure(
                                 request_id.clone(),
                                 -32602,
-                                "Invalid arguments for search_context".to_string(),
+                                format!("Invalid arguments for {}", &tool_names.search_context),
                                 Some(json!({ "details": err })),
                             );
                             return Ok(json_response(response));
@@ -277,7 +357,7 @@ pub async fn handle_dataset_json_rpc(
                     };
                     search_context(&pool, &dataset_context, args).await
                 }
-                other => Err(DatasetToolError::UnknownTool(other.to_string())),
+                None => Err(DatasetToolError::UnknownTool(name)),
             };
 
             match result {
@@ -335,15 +415,17 @@ fn dataset_metadata(context: &DatasetContext) -> Value {
         "datasetExternalId": context.external_id,
         "datasetName": context.name,
         "datasetSlug": "datasets",
+        "datasetToolPrefix": context.tool_prefix,
     })
 }
 
 fn dataset_tools(context: &DatasetContext) -> Vec<McpTool> {
     let metadata = Some(dataset_metadata(context));
+    let names = DatasetToolNames::new(context);
 
     vec![
         McpTool {
-            name: "get_documents".to_string(),
+            name: names.get_documents.clone(),
             description: Some(format!(
                 "List documents for the dataset \"{}\".",
                 context.name
@@ -367,7 +449,7 @@ fn dataset_tools(context: &DatasetContext) -> Vec<McpTool> {
             metadata: metadata.clone(),
         },
         McpTool {
-            name: "get_document".to_string(),
+            name: names.get_document.clone(),
             description: Some(format!(
                 "Fetch details and chunks for a specific document in the dataset \"{}\".",
                 context.name
@@ -395,7 +477,7 @@ fn dataset_tools(context: &DatasetContext) -> Vec<McpTool> {
             metadata: metadata.clone(),
         },
         McpTool {
-            name: "search_context".to_string(),
+            name: names.search_context.clone(),
             description: Some(format!(
                 "Semantic search across the dataset \"{}\" returning relevant chunks.",
                 context.name
@@ -436,13 +518,17 @@ async fn resolve_dataset_context(
     transaction.commit().await?;
 
     match row {
-        Some(row) => Ok(DatasetContext {
-            dataset_id: row.id,
-            team_id: row.team_id,
-            external_id: row.external_id,
-            name: row.name,
-            embeddings_model_id: row.embeddings_model_id,
-        }),
+        Some(row) => {
+            let tool_prefix = dataset_tool_prefix(&row.name, row.external_id);
+            Ok(DatasetContext {
+                dataset_id: row.id,
+                team_id: row.team_id,
+                external_id: row.external_id,
+                name: row.name,
+                embeddings_model_id: row.embeddings_model_id,
+                tool_prefix,
+            })
+        }
         None => Err(DatasetResolveError::NotFound(dataset_id)),
     }
 }
@@ -531,24 +617,15 @@ async fn get_documents(
 
     apply_customer_key(&transaction).await?;
 
-    let rows = transaction
-        .query(
-            "
-            SELECT
-                d.id,
-                d.file_name,
-                d.content_size,
-                d.created_at,
-                d.updated_at,
-                d.failure_reason,
-                (SELECT COUNT(*) FROM chunks c WHERE c.document_id = d.id) AS chunk_count
-            FROM documents d
-            WHERE d.dataset_id = $1
-            ORDER BY d.updated_at DESC
-            LIMIT $2 OFFSET $3
-            ",
-            &[&context.dataset_id, &limit, &offset],
+    let rows = db::queries::documents::dataset_documents()
+        .bind(
+            &transaction,
+            &context.dataset_id,
+            &context.team_id,
+            &limit,
+            &offset,
         )
+        .all()
         .await
         .map_err(|err| DatasetToolError::Internal(err.to_string()))?;
 
@@ -560,16 +637,16 @@ async fn get_documents(
     let documents: Vec<Value> = rows
         .into_iter()
         .map(|row| {
-            let created_at = row.get::<_, time::OffsetDateTime>(3);
-            let updated_at = row.get::<_, time::OffsetDateTime>(4);
+            let created_at = row.created_at;
+            let updated_at = row.updated_at;
             json!({
-                "id": row.get::<_, i32>(0),
-                "file_name": row.get::<_, String>(1),
-                "content_size": row.get::<_, i32>(2),
+                "id": row.id,
+                "file_name": row.file_name,
+                "content_size": row.content_size,
                 "created_at": format_timestamp(created_at),
                 "updated_at": format_timestamp(updated_at),
-                "failure_reason": row.get::<_, Option<String>>(5),
-                "chunk_count": row.get::<_, i64>(6),
+                "failure_reason": row.failure_reason,
+                "chunk_count": row.chunk_count,
             })
         })
         .collect();
@@ -594,21 +671,14 @@ async fn get_document(
 
     apply_customer_key(&transaction).await?;
 
-    let document_row = transaction
-        .query_opt(
-            "
-            SELECT
-                d.id,
-                d.file_name,
-                d.content_size,
-                d.created_at,
-                d.updated_at,
-                d.failure_reason
-            FROM documents d
-            WHERE d.id = $1 AND d.dataset_id = $2
-            ",
-            &[&params.document_id, &context.dataset_id],
+    let document_row = db::queries::documents::dataset_document()
+        .bind(
+            &transaction,
+            &params.document_id,
+            &context.dataset_id,
+            &context.team_id,
         )
+        .opt()
         .await
         .map_err(|err| DatasetToolError::Internal(err.to_string()))?;
 
@@ -619,16 +689,16 @@ async fn get_document(
         )));
     };
 
-    let created_at = document_row.get::<_, time::OffsetDateTime>(3);
-    let updated_at = document_row.get::<_, time::OffsetDateTime>(4);
+    let created_at = document_row.created_at;
+    let updated_at = document_row.updated_at;
 
     let mut document = json!({
-        "id": document_row.get::<_, i32>(0),
-        "file_name": document_row.get::<_, String>(1),
-        "content_size": document_row.get::<_, i32>(2),
+        "id": document_row.id,
+        "file_name": document_row.file_name,
+        "content_size": document_row.content_size,
         "created_at": format_timestamp(created_at),
         "updated_at": format_timestamp(updated_at),
-        "failure_reason": document_row.get::<_, Option<String>>(5),
+        "failure_reason": document_row.failure_reason,
     });
 
     if include_chunks {
@@ -640,17 +710,15 @@ async fn get_document(
         }
         let chunk_limit = cmp::min(chunk_limit, 500);
 
-        let chunk_rows = transaction
-            .query(
-                "
-                SELECT c.id, c.page_number, c.text
-                FROM chunks c
-                WHERE c.document_id = $1
-                ORDER BY c.page_number ASC, c.id ASC
-                LIMIT $2
-                ",
-                &[&params.document_id, &chunk_limit],
+        let chunk_rows = db::queries::chunks::document_chunks()
+            .bind(
+                &transaction,
+                &params.document_id,
+                &context.dataset_id,
+                &context.team_id,
+                &chunk_limit,
             )
+            .all()
             .await
             .map_err(|err| DatasetToolError::Internal(err.to_string()))?;
 
@@ -658,9 +726,9 @@ async fn get_document(
             .into_iter()
             .map(|row| {
                 json!({
-                    "id": row.get::<_, i32>(0),
-                    "page_number": row.get::<_, i32>(1),
-                    "text": row.get::<_, String>(2),
+                    "id": row.id,
+                    "page_number": row.page_number,
+                    "text": row.text,
                 })
             })
             .collect();

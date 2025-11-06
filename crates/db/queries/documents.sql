@@ -66,6 +66,65 @@ AND
         )
     );
 
+--: DatasetDocumentSummary(failure_reason?)
+
+--! dataset_documents : DatasetDocumentSummary
+SELECT
+    d.id,
+    d.dataset_id,
+    d.file_name,
+    d.content_size,
+    d.created_at,
+    d.updated_at,
+    d.failure_reason,
+    (
+        SELECT COUNT(id)
+        FROM chunks c
+        WHERE c.document_id = d.id
+    ) AS chunk_count
+FROM
+    documents d
+WHERE
+    d.dataset_id = :dataset_id
+    AND EXISTS (
+        SELECT 1
+        FROM datasets ds
+        WHERE ds.id = d.dataset_id
+        AND ds.team_id = :team_id
+    )
+ORDER BY
+    d.updated_at DESC
+LIMIT :limit
+OFFSET :offset;
+
+--: DatasetDocumentDetail(failure_reason?)
+
+--! dataset_document : DatasetDocumentDetail
+SELECT
+    d.id,
+    d.dataset_id,
+    d.file_name,
+    d.content_size,
+    d.created_at,
+    d.updated_at,
+    d.failure_reason,
+    (
+        SELECT COUNT(id)
+        FROM chunks c
+        WHERE c.document_id = d.id
+    ) AS chunk_count
+FROM
+    documents d
+WHERE
+    d.id = :document_id
+    AND d.dataset_id = :dataset_id
+    AND EXISTS (
+        SELECT 1
+        FROM datasets ds
+        WHERE ds.id = d.dataset_id
+        AND ds.team_id = :team_id
+    );
+
 --! insert
 INSERT INTO documents (
     dataset_id,

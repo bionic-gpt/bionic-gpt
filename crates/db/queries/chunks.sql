@@ -42,5 +42,26 @@ ORDER BY
     id
 LIMIT :limit;
 
+--: DocumentChunk()
+
+--! document_chunks : DocumentChunk
+SELECT
+    c.id,
+    c.document_id,
+    c.page_number,
+    decrypt_text(c.text) AS text
+FROM
+    chunks c
+    INNER JOIN documents d ON d.id = c.document_id
+    INNER JOIN datasets ds ON ds.id = d.dataset_id
+WHERE
+    c.document_id = :document_id
+    AND d.dataset_id = :dataset_id
+    AND ds.team_id = :team_id
+ORDER BY
+    c.page_number ASC,
+    c.id ASC
+LIMIT :limit;
+
 --! delete
 DELETE FROM chunks WHERE id = :embedding_id;
