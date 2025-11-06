@@ -19,8 +19,9 @@ curl https://api.openai.com/v1/chat/completions \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4.1-mini",
+    "model": "o3-mini",
     "messages": [
+      {"role":"system","content":"If the answer is not explicitly known, say I do not have enough information. Do not guess."},
       {"role":"user","content":"My Falcon X2 is vibrating after a rotor swap; how do I replace the rotor blades?"}
     ]
   }'
@@ -29,6 +30,9 @@ curl https://api.openai.com/v1/chat/completions \
 #### 2) Embed the user's question
 
 **Why?** Embeddings align the question with the maintenance corpus without dumping the entire manual into the prompt.
+
+
+![Rag Pipeline](rag-pipeline.png "Rag Pipeline")
 
 ```sh
 # 2) Get an embedding for the user prompt (only store its ID/handle)
