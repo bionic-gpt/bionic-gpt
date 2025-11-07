@@ -25,6 +25,7 @@ import { themeSwitcher, setTheme } from './typescript/layout/theme-switcher'
 import { speechToText } from './typescript/console/speach-to-text';
 import { fileUpload } from './typescript/console/file-upload';
 import { examplePrompts } from './typescript/console/example-prompts';
+import { initInstantPage } from './typescript/instant-page';
 
 // Set everything up
 function loadEverything() {
@@ -47,6 +48,7 @@ function loadEverything() {
     textareaSubmit()
     disableSubmitButton()
     fileUpload()
+    initInstantPage()
 
     // Apply dark or light mode
     setTheme()
