@@ -7,6 +7,17 @@ pub fn summary() -> Summary {
             name: "Launches".to_string(),
             pages: vec![
                 Page {
+                    date: "2025-11-08",
+                    title: "Transform your Legacy Enterprise Systems with Agentic AI",
+                    description:
+                        "Looking at how the MCP protocol works with LLMs from first principals.",
+                    folder: "blog/enterprise-mcp/",
+                    markdown: include_str!("../content/blog/enterprise-mcp/index.md"),
+                    image: Some("/blog/enterprise-mcp/enterprise-mcp.png"),
+                    author: Some("Alex Rivera"),
+                    author_image: Some("/blog-authors/alex-rivera.png"),
+                },
+                Page {
                     date: "2025-11-05",
                     title: "Agentic RAG for Engineers: What Changed and Why It Matters",
                     description:
