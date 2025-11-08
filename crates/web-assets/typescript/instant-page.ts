@@ -2,10 +2,6 @@
 
 /** ES module version with strict TS types + type guard narrowing */
 
-export type SpeculationRulesType = 'none' | 'prefetch' | 'prerender';
-
-let _chromiumMajorVersionInUserAgent: number | null = null;
-let _speculationRulesType: SpeculationRulesType = 'none';
 let _allowQueryString = false;
 let _allowExternalLinks = false;
 let _useWhitelist = false;
@@ -17,38 +13,8 @@ const _preloadedList = new Set<string>();
 export function initInstantPage(): void {
   const supportChecksRelList = document.createElement('link').relList;
 
-  const supportsPrefetch = supportChecksRelList.supports('prefetch');
+  const supportsPrefetch = !!supportChecksRelList?.supports?.('prefetch');
   if (!supportsPrefetch) return;
-
-  const chromium100Check = 'throwIfAborted' in (AbortSignal.prototype as any); // Chromium 100+, Safari 15.4+, Firefox 97+
-  const firefox115AndSafari17_0Check = supportChecksRelList.supports('modulepreload'); // Firefox 115+, Safari 17.0+, Chromium 66+
-  const safari15_4AndFirefox116Check =
-    (Intl as any).PluralRules && 'selectRange' in (Intl.PluralRules as any).prototype; // Safari 15.4+, Firefox 116+, Chromium 106+
-  const firefox115AndSafari15_4Check = firefox115AndSafari17_0Check || safari15_4AndFirefox116Check;
-  const isBrowserSupported = chromium100Check && firefox115AndSafari15_4Check;
-  if (!isBrowserSupported) return;
-
-  const handleVaryAcceptHeader =
-    'instantVaryAccept' in document.body.dataset || 'Shopify' in (window as any);
-
-  const chromiumUserAgentIndex = navigator.userAgent.indexOf('Chrome/');
-  if (chromiumUserAgentIndex > -1) {
-    _chromiumMajorVersionInUserAgent = parseInt(
-      navigator.userAgent.substring(chromiumUserAgentIndex + 'Chrome/'.length),
-      10
-    );
-  }
-
-  if (handleVaryAcceptHeader && _chromiumMajorVersionInUserAgent && _chromiumMajorVersionInUserAgent < 110) {
-    return;
-  }
-
-  const scriptSupports = (HTMLScriptElement as any).supports;
-  if (scriptSupports && scriptSupports('speculationrules')) {
-    const cfg = document.body.dataset.instantSpecrules;
-    if (cfg === 'prerender') _speculationRulesType = 'prerender';
-    else if (cfg !== 'no') _speculationRulesType = 'prefetch';
-  }
 
   const useMousedownShortcut = 'instantMousedownShortcut' in document.body.dataset;
   _allowQueryString = 'instantAllowQueryString' in document.body.dataset;
@@ -192,7 +158,7 @@ function isPreloadable(a: HTMLAnchorElement | null | undefined): a is HTMLAnchor
 
   if (a.origin !== location.origin) {
     const allowed = _allowExternalLinks || 'instant' in a.dataset;
-    if (!allowed || !_chromiumMajorVersionInUserAgent) return false;
+    if (!allowed) return false;
   }
 
   if (!['http:', 'https:'].includes(a.protocol)) return false;
@@ -210,19 +176,12 @@ function isPreloadable(a: HTMLAnchorElement | null | undefined): a is HTMLAnchor
 function preload(url: string, priority: 'auto' | 'high' = 'auto'): void {
   if (_preloadedList.has(url)) return;
 
-  if (_speculationRulesType !== 'none') {
-    const s = document.createElement('script');
-    s.type = 'speculationrules';
-    s.textContent = JSON.stringify({ [_speculationRulesType]: [{ source: 'list', urls: [url] }] });
-    document.head.appendChild(s);
-  } else {
-    const l = document.createElement('link');
-    l.rel = 'prefetch';
-    l.href = url;
-    (l as any).fetchPriority = priority; // not in all lib.dom.d.ts yet
-    l.as = 'document';                   // enables “restrictive prefetch” behavior in Chromium
-    document.head.appendChild(l);
-  }
+  const l = document.createElement('link');
+  l.rel = 'prefetch';
+  l.href = url;
+  (l as any).fetchPriority = priority; // not in all lib.dom.d.ts yet
+  l.as = 'document';                   // enables “restrictive prefetch” behavior in Chromium
+  document.head.appendChild(l);
 
   _preloadedList.add(url);
 }
