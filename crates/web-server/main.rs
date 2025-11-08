@@ -5,12 +5,13 @@ pub mod handlers;
 pub mod jwt;
 pub mod layout;
 pub mod locale;
+pub mod telemetry;
 
 use axum_extra::routing::RouterExt;
 pub use errors::CustomError;
 pub use jwt::Jwt;
 
-use axum::{Extension, Router};
+use axum::{middleware, Extension, Router};
 use std::net::SocketAddr;
 
 #[tokio::main]
@@ -110,6 +111,7 @@ async fn main() {
         .merge(handlers::licence::routes())
         .merge(handlers::team::routes())
         .merge(handlers::teams::routes())
+        .layer(middleware::from_fn(telemetry::annotate_render_time))
         .layer(Extension(config.clone()))
         .layer(Extension(pool.clone()));
 

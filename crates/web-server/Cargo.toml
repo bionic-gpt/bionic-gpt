@@ -32,6 +32,7 @@ http = "1"
 validator = { version = "0.20.0", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 rand = { version = "0.9.1" }
+http-body-util = "0.1"
 
 tracing = { version = "0.1" }
 tracing-subscriber = { version="0.3.19", features = ["env-filter"] }
@@ -58,6 +59,4 @@ uuid = { version = "1", features = ["serde", "v4"] }
 
 [dev-dependencies]
 time = "0.3.36"
-hyper = "1"
-http-body-util = "0.1"
 async-trait = "0.1"

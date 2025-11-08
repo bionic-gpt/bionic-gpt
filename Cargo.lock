@@ -6226,7 +6226,6 @@ dependencies = [
  "embeddings-api",
  "http 1.1.0",
  "http-body-util",
- "hyper 1.6.0",
  "integrations",
  "lettre",
  "llm-proxy",
