@@ -1,22 +1,33 @@
-## Wouldn't it be nice if...
+## Let's fix a big problem
 
-Legacy workflows often force people through fragile terminal screens or bespoke web forms. Making those systems agentic means adding a thin layer that:
+> **Future Bond Rollover** - Rollover involves closing a soon-to-expire futures contract and opening a new contract with a later expiration date. Traders roll over futures to maintain their market position and avoid settlement obligations. Physical settlement requires the delivery of the underlying asset, which can be costly.
 
-- Translates natural-language requests into authenticated API calls.
-- Validates inputs before payloads reach the core system.
-- Logs every decision for operations, audit, and rollback.
+**Future Bond Rollover** sounds routine: as a futures contract nears expiration, a trader closes it out and opens a new one with a later date. But in practice, this is often a **high-stakes, high-pressure process**.
 
-Platforms such as Deploy MCP can host that layer, but the real unlock is the methodology: capture the business intent, expose the system via specs, and let the agent call it safely.
+During rollover, the trader is juggling:
 
-> Book wednesday off next week
+* Rapid price changes and volatility
+* Shrinking liquidity and widening spreads
+* Unpredictable cost differences between the old and new contract
+* Margin adjustments and fee considerations
+* The constant risk of a simple operational error
 
-![Legacy System](legacy-system.png "Legacy System")
+And all of this is happening *in real time*, often in a fast-moving market.
 
 > Do a bond roll over
 
 ![Legacy System](trading-system.png "Legacy System")
 
-## What Agentic AI Looks Like
+* Legacy systems weren’t built for fast rollover workflows.
+* Slow, fragmented interfaces force traders to jump between screens.
+* Manual data entry increases the chance of errors under pressure.
+* Delayed or unreliable data makes decisions less confident.
+* Outdated tools **add stress** and **magnify risk** instead of reducing it.
+
+
+## What's an Agentic Worklow?
+
+![Development](agentic-development.png "Development")
 
 Agentic patterns replace hand-built scripts with prompt-to-plan execution.
 
