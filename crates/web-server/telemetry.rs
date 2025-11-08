@@ -9,6 +9,8 @@ use http_body_util::BodyExt;
 use std::{convert::Infallible, time::Instant};
 
 const RENDER_TIME_HEADER: &str = "X-Render-Time";
+const HTML_CACHE_CONTROL: HeaderValue =
+    HeaderValue::from_static("private, max-age=10, must-revalidate");
 
 pub async fn annotate_render_time(req: Request, next: Next) -> Result<Response, Infallible> {
     let start = Instant::now();
@@ -24,7 +26,13 @@ pub async fn annotate_render_time(req: Request, next: Next) -> Result<Response, 
     }
 
     let comment = format!("\n<!-- render_time: {elapsed_ms}ms -->");
-    let (parts, body) = response.into_parts();
+    let (mut parts, body) = response.into_parts();
+
+    if parts.headers.get(header::CACHE_CONTROL).is_none() {
+        parts
+            .headers
+            .insert(header::CACHE_CONTROL, HTML_CACHE_CONTROL.clone());
+    }
 
     match body.collect().await {
         Ok(collected) => {

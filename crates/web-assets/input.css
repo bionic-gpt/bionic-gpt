@@ -17,11 +17,27 @@
 @source inline("dropdown dropdown-top dropdown-left");
 @source inline("fieldset fieldset-legend label");
 
+@view-transition {
+    navigation: auto;
+}
+
 :root {
     /** Brand Identity **/
     --color-primary: #3559c7;
     --color-timeline-badge-bg: #e1e4e8;
     --color-timeline-target-badge-border: #2188ff;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 200ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    @view-transition {
+        navigation: none;
+    }
 }
 
 /** 
