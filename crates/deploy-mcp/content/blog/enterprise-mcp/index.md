@@ -25,12 +25,12 @@ These become the source of truth the assistant relies on.
 
 ### 1. Mapping out existing systems
 
-Here we'll demonstrate a pussible Proof of Concept using Open API specifications.
+Here we'll demonstrate a possible Proof of Concept using Open API specifications.
 
 
 ![Legacy System](legacy-open-api.png "Legacy System")
 
-This give us the following benefits..
+This gives us the following benefits:
 
 - Shared artifact for architecture, security, and compliance review
 - Auto-generated docs, SDKs, and contract tests
@@ -44,7 +44,7 @@ OpenAPI specs provide the contract agents rely on.
 ### 2. Turning Specifications into MCP Servers
 
 
-Once the interface is defined, It can be fed into Deploy and published as an MCP tool inside your controlled environment.
+Once the interface is defined, it can be fed into Deploy and published as an MCP tool inside your controlled environment.
 
 - Attach metadata: owners, environment boundaries, data classification
 - Apply standard controls: RBAC, logging, throttling, approvals
