@@ -10,7 +10,7 @@ pub fn summary() -> Summary {
                     date: "2025-11-08",
                     title: "Transform your Legacy Enterprise Systems with Agentic AI",
                     description:
-                        "Looking at how the MCP protocol works with LLMs from first principals.",
+                        "How the MCP protocol opens up use cases for corporate internal systems.",
                     folder: "blog/enterprise-mcp/",
                     markdown: include_str!("../content/blog/enterprise-mcp/index.md"),
                     image: Some("/blog/enterprise-mcp/enterprise-mcp.png"),
