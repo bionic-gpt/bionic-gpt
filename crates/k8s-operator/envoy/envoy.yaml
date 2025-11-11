@@ -38,9 +38,10 @@ static_resources:
           - name: envoy.filters.http.lua
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              # CSP is long because firefox doesn't support prefetch-src
               inline_code: |
                 function envoy_on_response(response_handle)
-                    csp = "media-src blob:; default-src 'none'; script-src 'self'; img-src 'self' data:; style-src 'self'; connect-src 'self'; prefetch-src 'self'";
+                    csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src blob:; font-src 'none'; object-src 'none'; frame-src 'none'; frame-ancestors 'none'; worker-src 'none'; base-uri 'self'; form-action 'self'; navigate-to 'self'; prefetch-src 'self'";
                     response_handle:headers():add("Content-Security-Policy", csp);
                     response_handle:headers():add("X-Frame-Options", "deny");
                     response_handle:headers():add("X-XSS-Protection", "1; mode=block");
