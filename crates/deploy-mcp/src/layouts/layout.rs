@@ -4,7 +4,7 @@ use crate::components::navigation::Section;
 use crate::routes::{blog, docs, marketing};
 use dioxus::prelude::*;
 
-const BASE_URL: &str = "https://deploy.run";
+const BASE_URL: &str = "https://deploy-mcp.com";
 
 #[derive(Props, Clone, PartialEq)]
 pub struct LayoutProps {
@@ -157,6 +157,11 @@ pub fn Layout(mut props: LayoutProps) -> Element {
                 }
             }
             main { class: "", {props.children} }
+            script {
+                src: "https://instant.page/5.2.0",
+                type: "module",
+                integrity: "sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z"
+            }
         }
     )
 }
