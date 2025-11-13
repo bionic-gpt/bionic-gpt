@@ -2,7 +2,7 @@
 
 ![Alt text](datasets.png "Datasets & Documents Screen")
 
-One of the key features of Bionic is its code-free RAG pipelines. To integrate your documents with large language models, you can upload document sets for future use. The text within these documents is divided into "chunks," encoded, and stored in a vector database for later retrieval via semantic search See AI Assistants for additional information.
+One of the key features of Bionic is its code-free Agentic RAG pipelines. To integrate your documents with large language models, you can upload document sets for future use. The text within these documents is divided into "chunks," encoded, and stored in a vector database for later retrieval via semantic search See AI Assistants for additional information.
 
 
 

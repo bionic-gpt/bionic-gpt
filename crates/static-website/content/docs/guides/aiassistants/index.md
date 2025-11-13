@@ -2,7 +2,7 @@
 
 ![Alt text](aiassistants-home.png "AI Assistants Home screen")
 
-An AI Assistant enables you to create a customised version of a large language model tailored to your specific needs. You can define a "system prompt" that guides how the model should respond to user inputs. Additionally, you can associate uploaded documents (RAG) with the AI Assistant to enhance its responses with relevant data.
+An AI Assistant enables you to create a customised version of a large language model tailored to your specific needs. You can define a "system prompt" that guides how the model should respond to user inputs. Additionally, you can associate uploaded documents (Agentic RAG) with the AI Assistant to enhance its responses with relevant data.
 
 For instance, if you want to create a company-specific Human Resources chatbot, you would set the system prompt to reflect its HR focus and link it to a dataset of your company’s HR documents. Any user query directed at this AI Assistant would then draw on this additional data to provide accurate and context-specific responses.
 
@@ -61,7 +61,7 @@ This will aid the user in the use of this assistant. These are displayed when a 
 
 3. **Max Tokens** - determines how much of the context window is reserved for the model's response. For smaller context windows, it's recommended to set this to half the size of the model's context window.
 
-4. **Trim Ration** - the way bionicGPT counts tokens may not match the way the inference engine does. Here you can say how much of the available context to use. i.e. 80% will use 80% of the context_size - max_tokens.
+4. **Trim Ration** - the way Bionic counts tokens may not match the way the inference engine does. Here you can say how much of the available context to use. i.e. 80% will use 80% of the context_size - max_tokens.
 
 5. **Maximum number of Chunks** - when a dataset(s) is associated, the user prompt is used to retrieve semantically similar information from the dataset(s). This information, along with the user prompt, is then sent to the model to generate a response. This parameter lets you define the number of "similar" chunks of information to be returned, with a default of 10. The chunks are provided in order of similarity.
 

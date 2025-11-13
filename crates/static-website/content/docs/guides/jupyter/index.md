@@ -1,8 +1,8 @@
 # Deploying Jupyter Notebook
 
-Your data scientists can connect to bionicGPT directly from their existing Jupyter Notebook environments using our API, providing full access to any models and datasets they are authorised to use.
+Your data scientists can connect to Bionic directly from their existing Jupyter Notebook environments using our API, providing full access to any models and datasets they are authorised to use.
 
-For a more integrated experience that includes access to the entire system, including the underlying database, you can deploy Jupyter Notebook within the same Kubernetes cluster as bionicGPT.
+For a more integrated experience that includes access to the entire system, including the underlying database, you can deploy Jupyter Notebook within the same Kubernetes cluster as Bionic.
 
 
 create a file called `jupyter-notebook.yaml` with the following contents

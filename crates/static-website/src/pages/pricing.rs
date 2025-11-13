@@ -41,7 +41,7 @@ pub fn pricing() -> String {
                             h4 { class: "font-extrabold", "Included Platform" }
                             ul {
                                 li { "Assistants, automations, pipelines, and the full AI console." }
-                                li { "Complete RAG toolkit with chunking, embeddings, and search." }
+                                li { "Complete Agentic RAG toolkit with chunking, embeddings, and search." }
                                 li { "APIs compatible with OpenAI for existing tooling." }
                             }
                             h4 { class: "font-extrabold", "Operate It Yourself" }

@@ -71,10 +71,10 @@ A type of machine learning where an agent learns to make decisions by taking act
 
 *Example: AlphaGo, which uses reinforcement learning to improve its gameplay and eventually became capable of defeating human champions in Go.*
 
-### Retrieval-Augmented Generation (RAG)
-A technique that combines retrieval of relevant information from a dataset with generative capabilities to produce responses. RAG models retrieve documents or data chunks to ground the generative process, enhancing the accuracy and relevance of the output.
+### Retrieval-Augmented Generation (Agentic RAG)
+A technique that combines retrieval of relevant information from a dataset with generative capabilities to produce responses. Agentic RAG models retrieve documents or data chunks to ground the generative process, enhancing the accuracy and relevance of the output.
 
-*Example: A RAG model might retrieve relevant medical research papers and then generate a summary or answer based on the retrieved data.*
+*Example: An Agentic RAG model might retrieve relevant medical research papers and then generate a summary or answer based on the retrieved data.*
 
 ### Sentiment Analysis
 The process of analysing text to determine the sentiment expressed, such as positive, negative, or neutral. It’s commonly used in social media monitoring, customer feedback analysis, and other applications.

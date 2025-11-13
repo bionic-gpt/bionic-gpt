@@ -32,7 +32,7 @@ spec:
               key: key'
 ```
 
-## Add the Key to the RAG Engine Deployment
+## Add the Key to the Agentic RAG Engine Deployment
 
 ```sh
 kubectl -n bionic-gpt patch deployment bionic-rag-engine \

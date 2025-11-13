@@ -42,8 +42,8 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "AI Assistants (RAG)",
-                        description: "AI Assistants (RAG",
+                        title: "AI Assistants (Agentic RAG)",
+                        description: "AI Assistants (Agentic RAG)",
                         folder: "docs/guides/aiassistants/",
                         markdown: include_str!("../content/docs/guides/aiassistants/index.md"),
                         image: None,
@@ -315,8 +315,8 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Visualising RAG",
-                        description: "Visualising RAG",
+                        title: "Visualising Agentic RAG",
+                        description: "Visualising Agentic RAG",
                         folder: "docs/guides/visual-rag/",
                         markdown: include_str!("../content/docs/guides/visual-rag/index.md"),
                         image: None,

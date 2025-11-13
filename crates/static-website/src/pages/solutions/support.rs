@@ -32,7 +32,7 @@ pub fn page() -> String {
                 SmallImageFeature {
                     title: "Agentic AI",
                     sub_title: "It's not easy to build AI assistants on your data",
-                    text: "We manage all the complexity of RAG pipelines and you build no code assistants.",
+                    text: "We manage all the complexity of Agentic RAG pipelines and you build no code assistants.",
                     image: "/river/assistants.png",
                     flip: false
                 }
@@ -40,7 +40,7 @@ pub fn page() -> String {
                 SmallImageFeature {
                     title: "Integrations",
                     sub_title: "Connect assistants to anything",
-                    text: "We are not just a RAG pipeline we also support integrating with your support systems.",
+                    text: "We are not just an Agentic RAG pipeline—we also support integrating with your support systems.",
                     image: "/river/integrations.png",
                     flip: true
                 }

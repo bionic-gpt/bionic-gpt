@@ -107,7 +107,7 @@ pub fn Testamonial1() -> Element {
 pub fn Testamonial2() -> Element {
     rsx! {
         Testamonials {
-            text1: "The no-code RAG pipeline, combined with the team-based privacy model, has revolutionized
+            text1: "The no-code Agentic RAG pipeline, combined with the team-based privacy model, has revolutionized
                 how we handle sensitive data and collaboration, making deployment secure and seamless.",
             job1: "CEO GTEdge.ai",
             img1: "/partners/tom-bendien.png",

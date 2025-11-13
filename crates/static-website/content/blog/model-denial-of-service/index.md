@@ -54,9 +54,9 @@ This makes sense and is the same problem for any API that gets deployed into pro
 
 LLMs have an additional problem that is not often seen with other API endpoints. A single call to an LLM can be large, especially in the case of Retrieval Augmented Generation where the **prompt may contain whole documents**.
 
-![alt text](rag-arch.png "RAG Architecturey")
+![alt text](rag-arch.png "Agentic RAG Architecturey")
 
-**RAG** puts extra strain on the Inference Engine.
+**Agentic RAG** puts extra strain on the Inference Engine.
 
 It also works both ways. Ask an LLM to write a __10,000 word essay__ and although the initial prompt is small the LLM will need to generate thousands of tokens.
 

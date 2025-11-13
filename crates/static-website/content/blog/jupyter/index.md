@@ -43,8 +43,8 @@ Since Bionic allows you to register multiple LLMs we can use multiple different 
 within the notebook merely by updating the OPENAI_API_KEY value.
 
 One of the other advantages of using Bionic is that the API key relates to a prompt that
-relates to a dataset, meaning you can use RAG directly from within your notebook.
-Here is an example of RAG after I had uploaded The Bank of England’s Annual Report and
+relates to a dataset, meaning you can use Agentic RAG directly from within your notebook.
+Here is an example of Agentic RAG after I had uploaded The Bank of England’s Annual Report and
 Accounts published earlier in 2023.
 
 ![alt text](screenshot4.png "Screen Shot 4")
@@ -57,7 +57,7 @@ We do this in 4 ways:
 * A user interface to run code and text generation via open source large language models
 * An API to give data scientists and engineers the ability to innovate new solutions on
 premise
-* No code RAG pipelines so teams can quickly test new RAG use cases without the need for
+* No code Agentic RAG pipelines so teams can quickly test new Agentic RAG use cases without the need for
 skilled AI engineers
 * An audit trail to ensure LLM resources are securely shared between teams and see who is
 using what and where

@@ -215,9 +215,9 @@ This will return 384 floating point numbers. The 384 is the dimensions of our em
 
 The documentation for [text-embedding-ada-002](https://openai.com/blog/new-and-improved-embedding-model) states it should have 1536 dimension not sure why it doesn't.
 
-## What is RAG? - A final definition
+## What is Agentic RAG? - A final definition
 
-So RAG is a process you follow
+So Agentic RAG is a process you follow
 
 1. **Retrieve** relevant information from your documents based on the question.
 1. **Augment** the prompt template so it has more context about the question

@@ -9,7 +9,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2025-07-23",
                     title: "Beyond MCP: The Future of Enterprise AI Integrations with OpenAPI",
-                    description: "Explore how bionicGPT have introduced Integrations and slid stepped the limitations of MCP",
+                    description: "Explore how Bionic have introduced Integrations and slid stepped the limitations of MCP",
                     folder: "blog/integrations/",
                     markdown: include_str!("../content/blog/integrations/index.md"),
                     image: Some("/blog/integrations/integrations.png"),
@@ -98,8 +98,8 @@ pub fn summary() -> Summary {
                 },
                 Page {
                     date: "2024-07-12",
-                    title: "The Perfect RAG Use Case?",
-                    description: "Explore the ideal use case for Retrieval Augmented Generation (RAG) and why code-based applications might be perfect.",
+                    title: "The Perfect Agentic RAG Use Case?",
+                    description: "Explore the ideal use case for Retrieval Augmented Generation (Agentic RAG) and why code-based applications might be perfect.",
                     folder: "blog/code-rag-usecase/",
                     markdown: include_str!("../content/blog/code-rag-usecase/index.md"),
                     image: Some("/blog/code-rag-usecase/codeimage.png"),
@@ -179,7 +179,7 @@ pub fn summary() -> Summary {
                 Page {
                     date: "2023-09-21",
                     title: "What is Retrieval Augmented Generation?",
-                    description: "Technical deep-dive into Retrieval Augmented Generation (RAG) architecture, implementation details, and best practices.",
+                    description: "Technical deep-dive into Retrieval Augmented Generation (Agentic RAG) architecture, implementation details, and best practices.",
                     folder: "blog/retrieval-augmented-generation/",
                     markdown: include_str!("../content/blog/retrieval-augmented-generation/index.md"),
                     image: Some("/blog/retrieval-augmented-generation/rag-llama.webp"),

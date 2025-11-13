@@ -1,11 +1,11 @@
 ## Summary
 
-1. Legacy RAG
+1. Legacy Retrieval-Augmented Generation
 1. Tool Calls
 1. Agentic RAG
 1. Real World Examples
 
-## Legacy RAG
+## Legacy Retrieval-Augmented Generation
 
 
 > My Falcon X2 is vibrating after a rotor swap; how do I replace the rotor blades?
@@ -32,7 +32,7 @@ curl https://api.openai.com/v1/chat/completions \
 **Why?** Embeddings align the question with the maintenance corpus without dumping the entire manual into the prompt.
 
 
-![Rag Pipeline](rag-pipeline.png "Rag Pipeline")
+![Agentic RAG Pipeline](rag-pipeline.png "Agentic RAG Pipeline")
 
 ```sh
 # 2) Get an embedding for the user prompt (only store its ID/handle)
@@ -161,7 +161,7 @@ curl https://api.openai.com/v1/chat/completions \
 }
 ```
 
-That hand-off turns raw RAG plumbing into a reusable capability. The model can inspect the user's request, trigger a search if needed, and keep going if not—no human babysitting required.
+That hand-off turns raw Agentic RAG plumbing into a reusable capability. The model can inspect the user's request, trigger a search if needed, and keep going if not—no human babysitting required.
 
 ## Agentic RAG
 
@@ -222,7 +222,7 @@ curl https://api.openai.com/v1/chat/completions \
 The agent can immediately follow up with another search, a planner, or a write-back tool—each call informed by the chunks that were actually useful. The context stays tight, decisions stay explainable.
 
 
-| Legacy RAG | Agentic RAG |
+| Legacy Retrieval-Augmented Generation | Agentic RAG |
 | --- | --- |
 | ✗ Fixed `k` per query | ✓ Model selects `limit` per turn |
 | ✗ Retrieval always runs | ✓ Tool call only when useful |

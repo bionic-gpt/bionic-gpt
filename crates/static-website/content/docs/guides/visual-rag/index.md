@@ -1,11 +1,11 @@
-# Visualising RAG Data
+# Visualising Agentic RAG Data
 
 You will need to setup Jupyter Notebook to run the code below. See [Jupyter Notebook setup](/docs/guides/jupyter)
 
-The example code below assumes you already have your documents loaded into the bionicGPT database.
+The example code below assumes you already have your documents loaded into the Bionic database.
 We will create a scatter graph showing the document chunks of data together with the 4 most 'relevant' chunks based on the query you specified.
 At the end we should have a diagram like this.
-This can be a useful technique for data scientists to debug RAG settings.
+This can be a useful technique for data scientists to debug Agentic RAG settings.
 
 ![Alt text](vis-rag-scatter-example.png "Scatter example")
 

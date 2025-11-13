@@ -75,7 +75,7 @@ pub fn home_page() -> String {
                     subtitle: "AI Your Teams Will Actually Use — and Trust",
                     benefit1: "Accelerate Generative AI Adoption",
                     benefit1_desc: "Boost productivity with a solution that's simple to implement and use securely.",
-                    benefit2: "Custom AI Assistants (RAG)",
+                    benefit2: "Custom AI Assistants (Agentic RAG)",
                     benefit2_desc: "Utilize your data to create AI assistants that deliver smarter, tailored responses.",
                     benefit3: "Data Compliance and Auditability",
                     benefit3_desc: "Enjoy the advantages of generative AI with robust data governance and compliance.",

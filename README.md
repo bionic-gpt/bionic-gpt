@@ -1,9 +1,9 @@
-<h1 align="center">BionicGPT</h1>
+<h1 align="center">Bionic</h1>
 <div align="center">
  <strong>
-   BionicGPT is an on-premise replacement for ChatGPT, offering the advantages of Generative AI while maintaining strict data confidentiality
+   Bionic is an on-premise replacement for ChatGPT, offering the advantages of Generative AI while maintaining strict data confidentiality
  </strong>
- BionicGPT can run on your laptop or scale into the data center. 
+ Bionic can run on your laptop or scale into the data center. 
 </div>
 
 <br />
@@ -36,7 +36,7 @@
 
 <br />
 
-![Alt text](crates/static-website/assets/landing-page/bionic-console.png "BionicGPT Screenshot")
+![Alt text](crates/static-website/assets/landing-page/bionic-console.png "Bionic Screenshot")
 
 <!-- Features -->
 
@@ -55,7 +55,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 
 - 🤖 AI Assistants: Users can create assistants that work with their own data to enhance the AI.
 - 🗨️ Share Assistants with Team Members: Generate and share assistants seamlessly between users, enhancing collaboration and communication.
-- 📋 RAG Pipelines: Assistants are full scale enterprise ready RAG pipelines that can be launched in minutes.
+- 📋 Agentic RAG Pipelines: Assistants are full scale enterprise ready Agentic RAG pipelines that can be launched in minutes.
 - 📑 Any Documents: 80% of enterprise data exists in difficult-to-use formats like HTML, PDF, CSV, PNG, PPTX, and more. We support all of them.
 - 💾 No Code: Configure embeddings engine and chunking algorithms all through our UI.
 - 🗨️ System Prompts: Configure system prompts to get the LLM to reply in the way you want.
@@ -127,7 +127,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 - 📤 100s of Sources: With our Airbyte integration you can batch upload data from sources such as Sharepoint, NFS, FTP, Kafka and more.
 - 📥 Batching: Run upload once a day or every hour. Set the way you want.
 - 📈 Real time: Capture data in real time to ensure your models are always using the latest data.
-- 🚆 Manual Upload: Users have the ability to manually upload data so RAG pipelines can be setup in minutes.
+- 🚆 Manual Upload: Users have the ability to manually upload data so Agentic RAG pipelines can be setup in minutes.
 - 🍟 Datasets: Data is stored in datasets and our security ensures data can't leak between users or teams.
 - 📚 OCR: We can process documents using OCR to unlock even more data.
 
@@ -139,7 +139,7 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 <!-- Try it out -->
 ## Try it out
 
-follow [our guide](https://bionic-gpt.com/docs/) to running Bionic-GPT in production.
+ follow [our guide](https://bionic-gpt.com/docs/) to running Bionic in production.
 
 ### Configuration
 
@@ -178,7 +178,7 @@ flowchart TD
 
     subgraph "Namespace: mcp-servers"
       MCP["
-• RAG Engine
+• Agentic RAG Engine
 • Time Service
 "]
     end
@@ -237,6 +237,6 @@ This covers:
 
 # Scales to 1000's of users.
 
-BionicGPT is optimized to run on Kubernetes and provide Generative AI services for potentially 1000's of users.
+Bionic is optimized to run on Kubernetes and provide Generative AI services for potentially 1000's of users.
 
 ![Alt text](crates/static-website/assets/landing-page/bionic-startup-k9s.png "Bionic in Kubernetes")

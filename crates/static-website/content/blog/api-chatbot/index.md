@@ -2,7 +2,7 @@ Are you tired of clunky chatbot interfaces that limit your creativity? Do you wa
 
 **The Ultimate Flexibility**
 
-Bionic offers a vast range of options, but what if you want to create a minimalist interface that still leverages the models and RAG functionality already implemented? That's where Bionic's API comes in! With just two libraries - Streamlit and OpenAI - you can unlock the full potential of AI-powered chatbots.
+Bionic offers a vast range of options, but what if you want to create a minimalist interface that still leverages the models and Agentic RAG functionality already implemented? That's where Bionic's API comes in! With just two libraries - Streamlit and OpenAI - you can unlock the full potential of AI-powered chatbots.
 
 **Get Started in Minutes**
 
