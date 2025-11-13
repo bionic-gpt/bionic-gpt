@@ -22,7 +22,7 @@ pub fn ProfilePopup(
             Alert {
                 alert_color: AlertColor::Error,
                 class: "mb-2 border",
-                "User allowance exceeded please contact https://bionic-gpt.com"
+                "You are running Bionic - https://bionic-gpt.com"
             }
         }
         DropDown {

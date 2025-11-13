@@ -28,112 +28,101 @@ pub fn pricing() -> String {
             div {
                 class: "mx-auto mt-12 mb-12 lg:flex lg:flex-row justify-center gap-4 lg:max-w-5xl w-full p-5",
                 div {
-                    class: "card card-border lg:w-1/3",
+                    class: "card card-border lg:w-1/2",
                     div {
                         class: "card-body flex flex-col justify-between list-tick",
                         div {
                             class: "flex flex-col gap-3",
-                            h3 { class: "card-title", "Cloud" }
-                            span { class: "badge badge-primary badge-outline", "Free" }
-                            p { "Ideal for evaluating Bionic and testing RAG use cases." }
-                            h4 { class: "font-extrabold", "Generative AI" }
-                            ul {
-                                li { "Code and Text Generation" }
-                                li { "Role based access control" }
-                                li { "Chat History" }
+                            h3 { class: "card-title", "Community Edition" }
+                            span { class: "badge badge-primary badge-outline", "Self Hosted" }
+                            p {
+                                "Deploy every piece of the Bionic platform in your own infrastructure.\n            Ideal for teams that want total control over data and workloads."
                             }
-                            h4 { class: "font-extrabold", "Retrieval Augmented Generation" }
+                            h4 { class: "font-extrabold", "Included Platform" }
                             ul {
-                                li { "All major document formats processed." }
-                                li { "Automated chunking and vector generation." }
+                                li { "Assistants, automations, pipelines, and the full AI console." }
+                                li { "Complete RAG toolkit with chunking, embeddings, and search." }
+                                li { "APIs compatible with OpenAI for existing tooling." }
                             }
-                            h4 { class: "font-extrabold", "Open AI Compatible API" }
+                            h4 { class: "font-extrabold", "Operate It Yourself" }
                             ul {
-                                li { "Track and monitor API usage." }
-                                li { "Share models between projects." }
-                                li { "Key creation and revocation." }
-                            }
-                            h4 { class: "font-extrabold", "Document Pipelines" }
-                            ul {
-                                li { "Batch or stream document processing." }
-                                li { "100s of sources." }
+                                li { "Bring your own models, storage, and observability." }
+                                li { "Unlimited namespaces—add projects whenever you need." }
+                                li { "After the second user we show a gentle reminder to upgrade." }
                             }
                         }
-                        div { class: "mt-5 flex flex-col gap-2",
+                        div {
+                            class: "mt-5 flex flex-col gap-2",
                             hr {}
                             h3 { class: "font-extrabold", "Free" }
+                            span { class: "text-sm opacity-70", "Open source, permissive licence." }
                             a {
-                                href: "https://app.bionic-gpt.com",
+                                href: "https://github.com/bionic-gpt/bionic-gpt",
                                 class: "btn btn-secondary btn-outline",
-                                "\n            Get Started\n          "
+                                "\n            Deploy It Yourself\n          "
                             }
                         }
                     }
                 }
-                div { class: "card card-border lg:w-1/3",
-                    div { class: "card-body flex flex-col justify-between list-tick",
-                        div { class: "flex flex-col gap-3",
-                            h3 { class: "card-title", "Encrypted Cloud" }
-                            span { class: "badge badge-primary badge-outline", "Secure Compute" }
-                            p { "Runs in our secure enclave with end to end encryption" }
-                            h4 { class: "font-extrabold", "Everything from Cloud Edition and..." }
-                            ul {
-                                li { "Secure enclave running CPU resources." }
-                                li { "Secure enclave running GPU resources." }
-                                li { "Fully siloed and security hardenend." }
+                div {
+                    class: "card card-border lg:w-1/2",
+                    div {
+                        class: "card-body flex flex-col justify-between list-tick",
+                        div {
+                            class: "flex flex-col gap-3",
+                            h3 { class: "card-title", "Production" }
+                            span { class: "badge badge-primary badge-outline", "$699 / namespace / year" }
+                            p {
+                                "Launch a branded AI assistant for your company with predictable pricing.\n            Perfect for teams that need scale, governance, and support."
                             }
-                            h4 { class: "font-extrabold", "Maximum Data Protection" }
+                            h4 { class: "font-extrabold", "Scale Confidently" }
                             ul {
-                                li { "Built for running Generative AI on highly confidential data." }
-                                li {
-                                    "Hardware based secure compute thanks to our partnership with Nvidia and Google."
-                                }
-                                li { "Bring/Hold your own keys." }
-                                li { "Provable supply chain with server attestation." }
+                                li { "Up to 1,000 users per namespace with SSO-ready auth." }
+                                li { "High availability hosting and proactive monitoring." }
+                                li { "Usage dashboards, rate limits, and API governance." }
+                            }
+                            h4 { class: "font-extrabold", "Make It Yours" }
+                            ul {
+                                li { "Whitelabel the UI with your logo and brand colors." }
+                                li { "Custom domains plus private data connectors." }
+                                li { "Access to roadmap previews and priority support." }
                             }
                         }
-                        div { class: "mt-5 flex flex-col gap-2",
+                        div {
+                            class: "mt-5 flex flex-col gap-2",
                             hr {}
-                            h3 { class: "font-extrabold", "Custom Pricing" }
+                            h3 { class: "font-extrabold", "$699 / namespace / year" }
+                            span { class: "text-sm opacity-70", "Includes onboarding and success check-ins." }
                             a {
                                 href: crate::routes::marketing::Contact {}.to_string(),
                                 class: "btn btn-secondary btn-outline",
-                                "\n            Book a Call\n          "
+                                "\n            Talk To Sales\n          "
                             }
                         }
                     }
                 }
-                div { class: "card card-border lg:w-1/3",
-                    div { class: "card-body flex flex-col justify-between list-tick",
-                        div { class: "flex flex-col gap-3",
-                            h3 { class: "card-title", "On Premise / Private Cloud" }
-                            span { class: "badge badge-primary badge-outline", "Enterprise Edition" }
-                            p { "On Premise or Private Cloud" }
-                            h4 { class: "font-extrabold",
-                                "Everything from Cloud Edition and Encrypted Cloud..."
-                            }
-                            ul {
-                                li { "Maximum privacy and security." }
-                                li { "Support for running on bare metal." }
-                                li { "Single Sign On." }
-                            }
-                            h4 { class: "font-extrabold", "Support" }
-                            ul {
-                                li { "Hardware recommendations." }
-                                li { "Possibility of custom builds." }
-                                li { "Dedicated customer success and engineering resources." }
-                                li { "Custom Integrations." }
-                                li { "Custom SLAs and support." }
-                            }
+            }
+            div {
+                class: "mx-auto mb-16 lg:max-w-5xl w-full p-5",
+                div {
+                    class: "card card-border w-full",
+                    div {
+                        class: "card-body flex flex-col gap-4",
+                        h3 { class: "card-title", "Consultancy & Expert Services" }
+                        p {
+                            "Need more than a subscription? Our engineering team ships product changes, installs Bionic in complex environments, and guides your GenAI roadmap."
                         }
-                        div { class: "mt-5 flex flex-col gap-2",
-                            hr {}
-                            h3 { class: "font-extrabold", "Custom Pricing" }
-                            a {
-                                href: "/contact",
-                                class: "btn btn-secondary btn-outline",
-                                "\n            Book a Call\n          "
-                            }
+                        ul {
+                            class: "list-disc ml-6 space-y-2",
+                            li { "Feature development or deep integrations with your existing systems." }
+                            li { "Hands-on installation help across Kubernetes, bare metal, or air-gapped networks." }
+                            li { "Advisory sessions on responsible AI, guardrails, and deployment playbooks." }
+                        }
+                        p { "Tell us what you are building and we will tailor an engagement around your goals." }
+                        a {
+                            href: crate::routes::marketing::Contact {}.to_string(),
+                            class: "btn btn-secondary btn-outline",
+                            "Book A Call"
                         }
                     }
                 }
