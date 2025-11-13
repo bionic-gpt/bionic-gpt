@@ -20,7 +20,7 @@ pub fn pricing() -> String {
                             class: "text-3xl font-bold tracking-tight sm:text-4xl", "Pricing" }
                         p {
                             class: "mt-6 text-lg leading-8",
-                            "Bionic works best when it's integrated with your systems.\n          We offer packages to integrate Bionic with your Operations, Compliance and Security. \n        "
+                            "Bionic is the all-in-one platform for agentic AI—assistants, automations, APIs, and observability in a single stack.\n          Pick the deployment option that fits your governance model and let us help you wire it into Operations, Compliance, and Security."
                         }
                     }
                 }
@@ -73,7 +73,7 @@ pub fn pricing() -> String {
                             h3 { class: "card-title", "Production" }
                             span { class: "badge badge-primary badge-outline", "$699 / namespace / year" }
                             p {
-                                "Launch a branded AI assistant for your company with predictable pricing.\n            Perfect for teams that need scale, governance, and support."
+                                "Roll out a branded agentic AI platform for your company with predictable pricing.\n            Perfect for teams that need scale, governance, and support."
                             }
                             h4 { class: "font-extrabold", "Scale Confidently" }
                             ul {
@@ -128,9 +128,7 @@ pub fn pricing() -> String {
                 }
             }
             ExtraFooter {
-                title: "The secure open source Chat-GPT replacement
-                that runs in a trusted execution environment for
-                maximum data security and compliance",
+                title: "The all-in-one agentic AI platform for regulated teams—secure, open, and extensible end to end.",
                 image: "/landing-page/bionic-console.png",
                 cta: "Find out more",
                 cta_url: crate::routes::marketing::Index {}.to_string()
