@@ -1,5 +1,8 @@
 use dioxus::prelude::*;
 
+pub const EXTRA_FOOTER_TITLE: &str =
+    "The all-in-one agentic AI platform for regulated teams—secure, open, and extensible end to end.";
+
 #[component]
 pub fn ExtraFooter(title: String, image: String, cta: String, cta_url: String) -> Element {
     rsx! {

@@ -1,6 +1,10 @@
 use super::layout::Layout;
 use crate::{
-    components::{extra_footer::ExtraFooter, footer::Footer, navigation::Section},
+    components::{
+        extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
+        footer::Footer,
+        navigation::Section,
+    },
     generator::{Page, Summary},
 };
 use dioxus::prelude::*;
@@ -62,7 +66,7 @@ pub fn BlogPost(post: Page) -> Element {
                 div { dangerous_inner_html: "{content}" }
             }
             ExtraFooter {
-                title: "See Deploy in action in under five minutes",
+                title: EXTRA_FOOTER_TITLE.to_string(),
                 image: "/docs/mcp-servers.png",
                 cta: "Get Started",
                 cta_url: crate::routes::marketing::Index {}.to_string(),
@@ -116,7 +120,7 @@ pub fn BlogList(summary: Summary) -> Element {
                 }
             }
             ExtraFooter {
-                title: "See Deploy in action in under five minutes",
+                title: EXTRA_FOOTER_TITLE.to_string(),
                 image: "/docs/mcp-servers.png",
                 cta: "Get Started",
                 cta_url: crate::routes::marketing::Index {}.to_string(),

@@ -1,6 +1,9 @@
 use dioxus::prelude::*;
 
-use crate::components::{extra_footer::ExtraFooter, footer::Footer};
+use crate::components::{
+    extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
+    footer::Footer,
+};
 use crate::layouts::layout::Layout;
 
 pub fn pricing_page() -> String {
@@ -53,7 +56,7 @@ pub fn pricing_page() -> String {
             }
         }
         ExtraFooter {
-            title: "See Deploy in action in under five minutes".to_string(),
+            title: EXTRA_FOOTER_TITLE.to_string(),
             image: "/docs/mcp-servers.png".to_string(),
             cta: "Get Started".to_string(),
             cta_url: crate::routes::marketing::Index {}.to_string(),

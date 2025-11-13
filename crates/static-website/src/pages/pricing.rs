@@ -1,4 +1,4 @@
-use crate::components::extra_footer::ExtraFooter;
+use crate::components::extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE};
 use crate::components::footer::Footer;
 use crate::components::navigation::Section;
 use crate::layouts::layout::Layout;
@@ -128,7 +128,7 @@ pub fn pricing() -> String {
                 }
             }
             ExtraFooter {
-                title: "The all-in-one agentic AI platform for regulated teams—secure, open, and extensible end to end.",
+                title: EXTRA_FOOTER_TITLE.to_string(),
                 image: "/landing-page/bionic-console.png",
                 cta: "Find out more",
                 cta_url: crate::routes::marketing::Index {}.to_string()

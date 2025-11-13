@@ -4,7 +4,7 @@ use tracing::warn;
 
 use crate::mcp_specs::all_specs;
 
-use crate::components::extra_footer::ExtraFooter;
+use crate::components::extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE};
 use crate::components::footer::Footer;
 use crate::components::navigation::Section;
 use crate::layouts::layout::Layout;
@@ -318,7 +318,7 @@ pub fn index_page(integrations: &[IntegrationSpec]) -> String {
             }
         }
         ExtraFooter {
-            title: "See Deploy in action in under five minutes".to_string(),
+            title: EXTRA_FOOTER_TITLE.to_string(),
             image: "/docs/mcp-servers.png".to_string(),
             cta: "Get Started".to_string(),
             cta_url: crate::routes::marketing::Index {}.to_string(),
@@ -386,7 +386,7 @@ pub fn detail_page(integration: &IntegrationSpec) -> String {
             }
         }
         ExtraFooter {
-            title: "See Deploy in action in under five minutes".to_string(),
+            title: EXTRA_FOOTER_TITLE.to_string(),
             image: "/docs/mcp-servers.png".to_string(),
             cta: "Get Started".to_string(),
             cta_url: crate::routes::marketing::Index {}.to_string(),

@@ -1,7 +1,10 @@
 use dioxus::prelude::*;
 
 use crate::components::{
-    customer_logos::Customers, extra_footer::ExtraFooter, footer::Footer, security::Security,
+    customer_logos::Customers,
+    extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
+    footer::Footer,
+    security::Security,
     testamonials::Testamonials,
 };
 use crate::layouts::layout::Layout;
@@ -55,7 +58,7 @@ pub fn contact_page() -> String {
             section { class: "", Security { class: Some("".to_string()) } }
         }
         ExtraFooter {
-            title: "Explore the secure on-premise playbooks".to_string(),
+            title: EXTRA_FOOTER_TITLE.to_string(),
             image: "/docs/mcp-connection-url.png".to_string(),
             cta: "Open deployment docs".to_string(),
             cta_url: "/docs/on-premise/".to_string(),

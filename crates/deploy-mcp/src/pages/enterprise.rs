@@ -4,7 +4,10 @@ use crate::components::customer_logos::Customers;
 use crate::components::features::{Feature, Features};
 use crate::components::hero::Hero;
 use crate::components::security::Security;
-use crate::components::{extra_footer::ExtraFooter, footer::Footer};
+use crate::components::{
+    extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
+    footer::Footer,
+};
 use crate::layouts::layout::Layout;
 
 pub fn enterprise_page() -> String {
@@ -137,7 +140,7 @@ pub fn enterprise_page() -> String {
             }
         }
         ExtraFooter {
-            title: "Walk through the secure on-premise docs".to_string(),
+            title: EXTRA_FOOTER_TITLE.to_string(),
             image: "/docs/mcp-connection-url.png".to_string(),
             cta: "Open installation docs".to_string(),
             cta_url: "/docs/on-premise/".to_string(),

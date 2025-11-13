@@ -4,7 +4,10 @@ use crate::components::customer_logos::Customers;
 use crate::components::features::{Feature, Features};
 use crate::components::hero::Hero;
 use crate::components::testamonials::Testamonials;
-use crate::components::{extra_footer::ExtraFooter, footer::Footer};
+use crate::components::{
+    extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
+    footer::Footer,
+};
 use crate::layouts::layout::Layout;
 use crate::routes;
 
@@ -95,7 +98,7 @@ pub fn home_page() -> String {
             section { class: "mx-auto lg:max-w-5xl p-6", {testimonials} }
         }
         ExtraFooter {
-            title: "Run your first MCP server with the quickstart".to_string(),
+            title: EXTRA_FOOTER_TITLE.to_string(),
             image: "/docs/mcp-connection-url.png".to_string(),
             cta: "Open the docs".to_string(),
             cta_url: routes::docs::Index {}.to_string(),

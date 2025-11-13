@@ -1,4 +1,4 @@
-use crate::components::extra_footer::ExtraFooter;
+use crate::components::extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE};
 use crate::components::features::BionicFeatures;
 use crate::components::footer::Footer;
 use crate::components::image_feature::ImageFeature;
@@ -27,9 +27,7 @@ pub fn page() -> String {
             }
 
             ExtraFooter {
-                title: "The secure open source Chat-GPT replacement
-                that runs in a trusted execution environment for
-                maximum data security and compliance",
+                title: EXTRA_FOOTER_TITLE.to_string(),
                 image: "/landing-page/bionic-console.png",
                 cta: "Find out more",
                 cta_url: crate::routes::marketing::Index {}.to_string()

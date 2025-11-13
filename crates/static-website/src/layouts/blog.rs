@@ -1,6 +1,10 @@
 use super::layout::Layout;
 use crate::{
-    components::{extra_footer::ExtraFooter, footer::Footer, navigation::Section},
+    components::{
+        extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
+        footer::Footer,
+        navigation::Section,
+    },
     generator::{Page, Summary},
 };
 use dioxus::prelude::*;
@@ -82,7 +86,7 @@ pub fn BlogPost(post: Page) -> Element {
                 }
             }
             ExtraFooter {
-                title: "You're seconds away from trying us out",
+                title: EXTRA_FOOTER_TITLE.to_string(),
                 image: "/landing-page/bionic-console.png",
                 cta: "Find out More",
                 cta_url: "/"
