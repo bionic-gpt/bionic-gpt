@@ -22,6 +22,18 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
+                        title: "Choosing a Model",
+                        description: "Pick the Granite baseline used throughout the lab.",
+                        folder: "docs/running-locally/choosing-a-model/",
+                        markdown: include_str!(
+                            "../content/docs/01-gen-ai-lab/choosing-a-model/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
                         title: "Running an Inference Engine (Ollama)",
                         description: "Connecting to Ollam",
                         folder: "docs/running-locally/ollama/",
@@ -37,6 +49,18 @@ pub fn summary() -> Summary {
                         folder: "docs/running-locally/docker-compose/",
                         markdown: include_str!(
                             "../content/docs/01-gen-ai-lab/docker-compose/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Open AI API",
+                        description: "Wire up the ubiquitous OpenAI endpoint.",
+                        folder: "docs/running-locally/openai-api/",
+                        markdown: include_str!(
+                            "../content/docs/01-gen-ai-lab/openai-api/index.md"
                         ),
                         image: None,
                         author_image: None,
