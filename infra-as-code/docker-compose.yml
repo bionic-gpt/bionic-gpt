@@ -69,3 +69,5 @@ services:
         condition: service_completed_successfully
     ports:
       - "3000:7703"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

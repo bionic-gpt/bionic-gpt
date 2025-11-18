@@ -8,7 +8,7 @@ Once you have it running you can use the following to connect it to Bionic.
 
 ## Configuring Ollama to listen on `0.0.0.0`.
 
-We need to get Ollama to listen on `0.0.0.0` otherwise services from within `k3s` can't connect to it.
+We need to get Ollama to listen on `0.0.0.0` otherwise services from within `k3s` or docker compose can't connect to it.
  Run the following
 
 ```bash
@@ -17,15 +17,32 @@ sudo systemctl daemon-reload
 sudo systemctl restart ollama.service
 ```
 
-## Test Ollama
-
-Get you host with `hostname` then curl using that host.
+## Run a model
 
 ```sh
-curl http://pop-os:11434/api/generate -d '{
-  "model": "phi",
-  "prompt":"Why is the sky blue?"
-}'
+ollama run granite4:tiny-h
+```
+
+## Test Ollama
+
+Run the following to see `ollama` generate some output.
+
+```sh
+curl http://localhost:11434/v1/chat/completions \
+    -H "Content-Type: application/json" \
+    -d '{
+        "model": "granite4:tiny-h",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": "Hello!"
+            }
+        ]
+    }'
 ```
 
 ## Update the model
