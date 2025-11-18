@@ -1,3 +1,4 @@
+pub mod architect_course_summary;
 pub mod blog_summary;
 pub mod components;
 pub mod docs_summary;
@@ -96,6 +97,15 @@ pub mod routes {
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/docs/")]
+        pub struct Index {}
+    }
+
+    pub mod architect_course {
+        use axum_extra::routing::TypedPath;
+        use serde::Deserialize;
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/architect-course/")]
         pub struct Index {}
     }
 }

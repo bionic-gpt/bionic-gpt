@@ -7,12 +7,17 @@ use crate::{
 };
 
 #[component]
-pub fn Document(summary: Summary, category: Category, doc: Page) -> Element {
+pub fn Document(
+    summary: Summary,
+    category: Category,
+    doc: Page,
+    current_section: Section,
+) -> Element {
     rsx! {
         Layout {
             title: "{doc.title}",
             description: "{doc.description}",
-            section: Section::Docs,
+            section: current_section,
             mobile_menu: rsx! (MobileMenu {
                 summary: summary.clone()
             }),

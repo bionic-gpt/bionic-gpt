@@ -4,6 +4,7 @@ use std::path::Path;
 
 use dioxus::prelude::*;
 
+use crate::components::navigation::Section;
 use crate::layouts::blog::{BlogList, BlogPost};
 use crate::layouts::docs::Document;
 use crate::layouts::pages::MarkdownPage;
@@ -105,7 +106,7 @@ pub fn generate(summary: Summary) {
     }
 }
 
-pub fn generate_docs(summary: Summary) {
+pub fn generate_docs(summary: Summary, section: Section) {
     let src = format!("content/{}", summary.source_folder);
     let src = Path::new(&src);
     let dst = format!("dist/{}", summary.source_folder);
@@ -119,6 +120,7 @@ pub fn generate_docs(summary: Summary) {
                     summary: summary.clone(),
                     category: category.clone(),
                     doc: *page,
+                    current_section: section.clone(),
                 }
             };
 

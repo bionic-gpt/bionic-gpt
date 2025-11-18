@@ -5,11 +5,11 @@ pub fn summary() -> Summary {
         source_folder: "docs",
         categories: vec![
             Category {
-                name: "Enterprise Gen AI Course".to_string(),
+                name: "Introducing Bionic".to_string(),
                 pages: vec![Page {
                     date: "",
-                    title: "Zero to Enterprise Gen AI Hero",
-                    description: "Zero to Enterprise Gen AI Hero",
+                    title: "Introduction",
+                    description: "Introducing Bionic",
                     folder: "docs/",
                     markdown: include_str!("../content/docs/index.md"),
                     image: None,
@@ -18,37 +18,60 @@ pub fn summary() -> Summary {
                 }],
             },
             Category {
-                name: "01 - Setting up a Lab".to_string(),
+                name: "Learn Bionic".to_string(),
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Choosing a Model",
-                        description: "Pick the Granite baseline used throughout the lab.",
-                        folder: "docs/running-locally/choosing-a-model/",
-                        markdown: include_str!(
-                            "../content/docs/01-gen-ai-lab/choosing-a-model/index.md"
-                        ),
+                        title: "The Console",
+                        description: "The Console",
+                        folder: "docs/guides/console/",
+                        markdown: include_str!("../content/docs/guides/console/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
                     },
                     Page {
                         date: "",
-                        title: "Running an Inference Engine (Ollama)",
-                        description: "Connecting to Ollam",
-                        folder: "docs/running-locally/ollama/",
-                        markdown: include_str!("../content/docs/01-gen-ai-lab/ollama/index.md"),
+                        title: "Datasets",
+                        description: "Datasets",
+                        folder: "docs/guides/datasets/",
+                        markdown: include_str!("../content/docs/guides/datasets/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
                     },
                     Page {
                         date: "",
-                        title: "Attaching the UI",
+                        title: "AI Assistants (Agentic RAG)",
+                        description: "AI Assistants (Agentic RAG)",
+                        folder: "docs/guides/aiassistants/",
+                        markdown: include_str!("../content/docs/guides/aiassistants/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Teams",
+                        description: "Teams",
+                        folder: "docs/guides/teams/",
+                        markdown: include_str!("../content/docs/guides/teams/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
+            },
+            Category {
+                name: "Local Bionic".to_string(),
+                pages: vec![
+                    Page {
+                        date: "",
+                        title: "Try it on a Laptop",
                         description: "Try it on a Laptop",
                         folder: "docs/running-locally/docker-compose/",
                         markdown: include_str!(
-                            "../content/docs/01-gen-ai-lab/docker-compose/index.md"
+                            "../content/docs/running-locally/docker-compose/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -56,12 +79,10 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Open AI API",
-                        description: "Wire up the ubiquitous OpenAI endpoint.",
-                        folder: "docs/running-locally/openai-api/",
-                        markdown: include_str!(
-                            "../content/docs/01-gen-ai-lab/openai-api/index.md"
-                        ),
+                        title: "Connecting to Ollama",
+                        description: "Connecting to Ollam",
+                        folder: "docs/running-locally/ollama/",
+                        markdown: include_str!("../content/docs/running-locally/ollama/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -69,132 +90,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "02 - Agentic Ai Experiments".to_string(),
-                pages: vec![
-                    Page {
-                        date: "",
-                        title: "Understanding Tool Calls",
-                        description: "When and how to wire structured tool executions.",
-                        folder: "docs/02-agentic-ai/010-understanding-tool-calls/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/010-understanding-tool-calls/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Tool Calls in the UI",
-                        description: "Follow tool invocation state transitions inside the console.",
-                        folder: "docs/02-agentic-ai/020-tool-calls-in-the-ui/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/020-tool-calls-in-the-ui/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Assistants (Prompt Engineering)",
-                        description: "Layer prompts and guardrails for reliable assistants.",
-                        folder: "docs/02-agentic-ai/030-assistants-prompt-engineering/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/030-assistants-prompt-engineering/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Credit CXard Categorisation Assistant",
-                        description: "Example workflow for classifying credit card support cases.",
-                        folder: "docs/02-agentic-ai/040-credit-cxard-categorisation-assistant/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/040-credit-cxard-categorisation-assistant/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Understanding RAG",
-                        description: "Core concepts behind retrieval augmented generation.",
-                        folder: "docs/02-agentic-ai/050-understanding-rag/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/050-understanding-rag/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Loading RAG Datasets",
-                        description: "Ingestion patterns and guardrails for datasets.",
-                        folder: "docs/02-agentic-ai/060-loading-rag-datasets/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/060-loading-rag-datasets/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Testing a RAG Pipeline in the UI (Use Case)",
-                        description: "Guided validation scenario for pipelines in the console.",
-                        folder: "docs/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Understanding Integrations",
-                        description: "Conceptual overview of connecting external services.",
-                        folder: "docs/02-agentic-ai/080-understanding-integrations/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/080-understanding-integrations/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Understanding Open API Specifications",
-                        description: "Write and maintain high quality OpenAPI contracts.",
-                        folder: "docs/02-agentic-ai/090-understanding-open-api-specifications/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/090-understanding-open-api-specifications/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Connecting to Gmail",
-                        description: "Steps for granting secure Gmail access to assistants.",
-                        folder: "docs/02-agentic-ai/100-connecting-to-gmail/",
-                        markdown: include_str!(
-                            "../content/docs/02-agentic-ai/100-connecting-to-gmail/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                ],
-            },
-            Category {
-                name: "03 - Ai Ops Lab".to_string(),
+                name: "Deploying To Your Infrastructure".to_string(),
                 pages: vec![
                     Page {
                         date: "",
