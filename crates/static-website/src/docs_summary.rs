@@ -5,11 +5,11 @@ pub fn summary() -> Summary {
         source_folder: "docs",
         categories: vec![
             Category {
-                name: "Introducing Bionic".to_string(),
+                name: "Enterprise Gen AI Course".to_string(),
                 pages: vec![Page {
                     date: "",
-                    title: "Introduction",
-                    description: "Introducing Bionic",
+                    title: "Zero to Enterprise Gen AI Hero",
+                    description: "Zero to Enterprise Gen AI Hero",
                     folder: "docs/",
                     markdown: include_str!("../content/docs/index.md"),
                     image: None,
@@ -18,7 +18,34 @@ pub fn summary() -> Summary {
                 }],
             },
             Category {
-                name: "Learn Bionic".to_string(),
+                name: "01 - Setting up a Lab".to_string(),
+                pages: vec![
+                    Page {
+                        date: "",
+                        title: "Running an Inference Engine (Ollama)",
+                        description: "Connecting to Ollam",
+                        folder: "docs/running-locally/ollama/",
+                        markdown: include_str!("../content/docs/01-gen-ai-lab/ollama/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Attaching the UI",
+                        description: "Try it on a Laptop",
+                        folder: "docs/running-locally/docker-compose/",
+                        markdown: include_str!(
+                            "../content/docs/01-gen-ai-lab/docker-compose/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
+            },
+            Category {
+                name: "02 - Agentic Ai Experiments".to_string(),
                 pages: vec![
                     Page {
                         date: "",
@@ -63,34 +90,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Local Bionic".to_string(),
-                pages: vec![
-                    Page {
-                        date: "",
-                        title: "Try it on a Laptop",
-                        description: "Try it on a Laptop",
-                        folder: "docs/running-locally/docker-compose/",
-                        markdown: include_str!(
-                            "../content/docs/running-locally/docker-compose/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Connecting to Ollama",
-                        description: "Connecting to Ollam",
-                        folder: "docs/running-locally/ollama/",
-                        markdown: include_str!("../content/docs/running-locally/ollama/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                ],
-            },
-            Category {
-                name: "Deploying To Your Infrastructure".to_string(),
+                name: "03 - Ai Ops Lab".to_string(),
                 pages: vec![
                     Page {
                         date: "",
