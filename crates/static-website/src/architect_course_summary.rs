@@ -44,7 +44,7 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Attaching the UI",
+                        title: "Running the Bionic Agentic AI Platform",
                         description: "Try it on a Laptop",
                         folder: "architect-course/01-gen-ai-lab/docker-compose/",
                         markdown: include_str!(
@@ -57,7 +57,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Agentic Ai Experiments".to_string(),
+                name: "Basics of Tool Calls".to_string(),
                 pages: vec![
                     Page {
                         date: "",
@@ -107,6 +107,11 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                ],
+            },
+            Category {
+                name: "Agentic RAG".to_string(),
+                pages: vec![
                     Page {
                         date: "",
                         title: "Understanding RAG",
@@ -143,6 +148,11 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                ],
+            },
+            Category {
+                name: "Agentic Integrations".to_string(),
+                pages: vec![
                     Page {
                         date: "",
                         title: "Understanding Integrations",
