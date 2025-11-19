@@ -83,30 +83,6 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
-                    Page {
-                        date: "",
-                        title: "Assistants (Prompt Engineering)",
-                        description: "Layer prompts and guardrails for reliable assistants.",
-                        folder: "architect-course/02-agentic-ai/030-assistants-prompt-engineering/",
-                        markdown: include_str!(
-                            "../content/architect-course/02-agentic-ai/030-assistants-prompt-engineering/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Credit CXard Categorisation Assistant",
-                        description: "Example workflow for classifying credit card support cases.",
-                        folder: "architect-course/02-agentic-ai/040-credit-cxard-categorisation-assistant/",
-                        markdown: include_str!(
-                            "../content/architect-course/02-agentic-ai/040-credit-cxard-categorisation-assistant/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
                 ],
             },
             Category {
@@ -114,8 +90,8 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Understanding RAG",
-                        description: "Core concepts behind retrieval augmented generation.",
+                        title: "Agentic RAG Introduction",
+                        description: "Core concepts behind our Agentic RAG pattern.",
                         folder: "architect-course/02-agentic-ai/050-understanding-rag/",
                         markdown: include_str!(
                             "../content/architect-course/02-agentic-ai/050-understanding-rag/index.md"
@@ -126,8 +102,8 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Loading RAG Datasets",
-                        description: "Ingestion patterns and guardrails for datasets.",
+                        title: "Loading Agentic RAG Datasets",
+                        description: "Ingestion patterns and guardrails for Agentic RAG datasets.",
                         folder: "architect-course/02-agentic-ai/060-loading-rag-datasets/",
                         markdown: include_str!(
                             "../content/architect-course/02-agentic-ai/060-loading-rag-datasets/index.md"
@@ -138,8 +114,8 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Testing a RAG Pipeline in the UI (Use Case)",
-                        description: "Guided validation scenario for pipelines in the console.",
+                        title: "Testing an Agentic RAG Pipeline in the UI (Use Case)",
+                        description: "Guided validation scenario for Agentic RAG pipelines in the console.",
                         folder: "architect-course/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/",
                         markdown: include_str!(
                             "../content/architect-course/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/index.md"
