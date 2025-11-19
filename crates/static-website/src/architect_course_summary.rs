@@ -5,7 +5,7 @@ pub fn summary() -> Summary {
         source_folder: "architect-course",
         categories: vec![
             Category {
-                name: "Architect Course".to_string(),
+                name: "Gen AI Architect Course".to_string(),
                 pages: vec![Page {
                     date: "",
                     title: "Course Overview",
