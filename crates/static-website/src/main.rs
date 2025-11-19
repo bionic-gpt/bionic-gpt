@@ -4,7 +4,10 @@ use axum::Router;
 use tower_http::services::ServeDir;
 use tower_livereload::LiveReloadLayer;
 
-use static_website::{blog_summary, docs_summary, generator, pages_summary};
+use static_website::{
+    architect_course_summary, blog_summary, components::navigation::Section, docs_summary,
+    generator, pages_summary,
+};
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +19,11 @@ async fn main() {
     generator::generate_marketing().await;
     generator::generate_product().await;
     generator::generate_solutions().await;
-    generator::generate_docs(docs_summary::summary());
+    generator::generate_docs(docs_summary::summary(), Section::Docs);
+    generator::generate_docs(
+        architect_course_summary::summary(),
+        Section::ArchitectCourse,
+    );
     generator::generate(blog_summary::summary());
     generator::generate_pages(pages_summary::summary()).await;
     generator::generate_blog_list(blog_summary::summary()).await;

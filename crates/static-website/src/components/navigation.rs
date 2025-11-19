@@ -1,4 +1,4 @@
-use crate::routes::{blog, docs, marketing, product, solutions, SIGN_IN_UP};
+use crate::routes::{architect_course, blog, docs, marketing, product, solutions, SIGN_IN_UP};
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Clone, Eq, Debug)]
@@ -11,6 +11,7 @@ pub enum Section {
     Pricing,
     Blog,
     Docs,
+    ArchitectCourse,
     Contact,
 }
 
@@ -155,6 +156,12 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                                                 "Documentation"
                                             }
                                         }
+                                        li {
+                                            a {
+                                                href: architect_course::Index {}.to_string(),
+                                                "Gen AI Architect Course"
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -237,6 +244,12 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                             link: docs::Index {}.to_string(),
                             name: "Documentation".to_string(),
                             section: Section::Docs,
+                            current_section: section.clone(),
+                        }
+                        NavItem {
+                            link: architect_course::Index {}.to_string(),
+                            name: "Architect Course".to_string(),
+                            section: Section::ArchitectCourse,
                             current_section: section.clone(),
                         }
                         NavItem {
