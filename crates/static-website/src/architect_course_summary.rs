@@ -167,8 +167,8 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Understanding Open API Specifications",
-                        description: "Write and maintain high quality OpenAPI contracts.",
+                        title: "Custom Integrations",
+                        description: "Use OpenAPI specs to wire in-house APIs into assistants.",
                         folder: "architect-course/02-agentic-ai/090-understanding-open-api-specifications/",
                         markdown: include_str!(
                             "../content/architect-course/02-agentic-ai/090-understanding-open-api-specifications/index.md"
