@@ -159,7 +159,7 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                                         li {
                                             a {
                                                 href: architect_course::Index {}.to_string(),
-                                                "Architect Course"
+                                                "Gen AI Architect Course"
                                             }
                                         }
                                     }
