@@ -196,8 +196,20 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Quick Install (Linux)",
-                        description: "Quick Install (Linux)",
+                        title: "Why Kubernetes",
+                        description: "Why the platform relies on Kubernetes instead of standalone Docker setups.",
+                        folder: "architect-course/03-ai-ops/why-kubernetes/",
+                        markdown: include_str!(
+                            "../content/architect-course/03-ai-ops/why-kubernetes/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Running Kubernetes Lab",
+                        description: "Install a local K3s cluster that mirrors production topologies.",
                         folder: "architect-course/03-ai-ops/install-linux/",
                         markdown: include_str!("../content/architect-course/03-ai-ops/install-linux/index.md"),
                         image: None,
