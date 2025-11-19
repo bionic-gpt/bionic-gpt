@@ -11,6 +11,11 @@
 		"--add-host=host.docker.internal:host-gateway"
 	],
 
+	// Gives access to the ssh keys on the host for git operations.
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+	],
+
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
