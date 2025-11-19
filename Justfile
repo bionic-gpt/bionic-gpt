@@ -99,6 +99,7 @@ integration-testing:
     export APPLICATION_URL=http://nginx-development && \
     cargo test --workspace --exclude rag-engine
 
+
 # Similar to dev setup, but so that selenium works
 testing-setup:
     cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://nginx-development
