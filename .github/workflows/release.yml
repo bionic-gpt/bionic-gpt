@@ -1,81 +1,71 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch or tag to release from'
-        required: false
-        default: main
+  workflow_dispatch: {}
 
 permissions:
   contents: write
   packages: write
 
 jobs:
-  release:
+  promote:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
       DAGGER_LOG_FORMAT: plain
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    outputs:
-      tag: ${{ steps.release_tag.outputs.tag }}
-      version: ${{ steps.release_tag.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.inputs.ref || 'main' }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install release tooling
+      - name: Find latest RC tag
+        id: rc
+        shell: bash
         run: |
-          npm i -D @semantic-release/commit-analyzer
-          npm i -D @semantic-release/release-notes-generator
-          npm i -D @semantic-release/exec
-          npm i -D @semantic-release/git
-
-      - name: Determine next version
-        id: next_version
-        run: |
-          VERSION=$(npx semantic-release@20 --dry-run --no-ci --plugins @semantic-release/commit-analyzer --plugins @semantic-release/release-notes-generator 2>&1 \
-            | grep -Eo 'The next release version is [0-9]+\.[0-9]+\.[0-9]+' \
-            | awk '{print $6}' \
-            | tail -n 1)
-          if [ -z "$VERSION" ]; then
-            echo "Unable to determine next version" >&2
+          set -euo pipefail
+          latest_rc=$(git tag -l "v*-rc" --sort=-v:refname | head -n1)
+          if [ -z "${latest_rc}" ]; then
+            echo "No RC tags found"
             exit 1
           fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Determined next version: $VERSION"
+          echo "latest_rc=${latest_rc}" >> "$GITHUB_OUTPUT"
+          base="${latest_rc%%-rc}"
+          echo "base=${base#v}" >> "$GITHUB_OUTPUT"
+          echo "Promoting ${latest_rc} -> ${base}"
+
+      - name: Get RC release assets
+        id: rc_assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag="${{ steps.rc.outputs.latest_rc }}"
+          echo "Fetching assets from ${tag}"
+          gh release download "$tag" --dir rc-assets
+          echo "files=$(ls rc-assets | xargs)" >> "$GITHUB_OUTPUT"
+
+      - name: Create stable tag (same commit as RC)
+        run: |
+          set -euo pipefail
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          rc_tag="${{ steps.rc.outputs.latest_rc }}"
+          stable="v${{ steps.rc.outputs.base }}"
+          commit=$(git rev-list -n 1 "${rc_tag}")
+          git tag -a "${stable}" -m "Promote ${rc_tag} to ${stable}" "${commit}"
+          git push origin "${stable}"
 
       - name: Update versioned assets
         working-directory: .github/workflows
         env:
-          RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
+          RELEASE_VERSION: ${{ steps.rc.outputs.base }}
         run: |
+          set -euo pipefail
           ./update-config.sh "${RELEASE_VERSION}"
           ./update-version.sh "${RELEASE_VERSION}"
-
-      - name: Run release pipeline
-        env:
-          RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
-        run: cargo run -p dagger-pipeline --release -- all
-
-      - name: Publish quality summary
-        if: always()
-        run: |
-          if [ -f SUMMARY.md ]; then
-            cat SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
-          fi
 
       - name: Configure git author
         run: |
@@ -83,44 +73,14 @@ jobs:
           git config user.name "github-actions"
 
       - name: Commit version bump
-        run: ./.github/workflows/update-git.sh "${{ steps.next_version.outputs.version }}"
+        run: ./.github/workflows/update-git.sh "${{ steps.rc.outputs.base }}"
 
-      - name: Run semantic-release
-        run: npx semantic-release@20
-
-      - name: Determine release tag
-        id: release_tag
-        run: |
-          tag=$(git describe --tags --abbrev=0)
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          version="${tag#v}"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-  build-cli:
-    needs: release
-    runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 1
-      DAGGER_LOG_FORMAT: plain
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    strategy:
-      matrix:
-        include:
-          - platform: linux
-            artifact: bionic-cli-linux
-          - platform: macos
-            artifact: bionic-cli-darwin
-          - platform: windows
-            artifact: bionic-cli-windows.exe
-    steps:
-      - uses: actions/checkout@v4
+      - name: Create GitHub Release (stable)
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          fetch-depth: 0
-          ref: ${{ needs.release.outputs.tag }}
-
-      - name: Build CLI
-        run: cargo run -p dagger-pipeline --release -- build-cli ${{ matrix.platform }}
-
-      - name: Upload release artifact
-        run: gh release upload ${{ needs.release.outputs.tag }} ./${{ matrix.artifact }} --clobber
+          tag_name: v${{ steps.rc.outputs.base }}
+          prerelease: false
+          files: rc-assets/*
+          generate_release_notes: true

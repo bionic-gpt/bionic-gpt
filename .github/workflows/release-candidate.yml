@@ -1,0 +1,127 @@
+name: Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or tag to release from'
+        required: false
+        default: main
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      DAGGER_LOG_FORMAT: plain
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
+      version: ${{ steps.release_tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref || 'main' }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install release tooling
+        run: |
+          npm i -D @semantic-release/commit-analyzer
+          npm i -D @semantic-release/release-notes-generator
+          npm i -D @semantic-release/exec
+          npm i -D @semantic-release/git
+
+      - name: Determine next version
+        id: next_version
+        run: |
+          VERSION=$(npx semantic-release@20 --dry-run --no-ci --plugins @semantic-release/commit-analyzer --plugins @semantic-release/release-notes-generator 2>&1 \
+            | grep -Eo 'The next release version is [0-9]+\.[0-9]+\.[0-9]+' \
+            | awk '{print $6}' \
+            | tail -n 1)
+          if [ -z "$VERSION" ]; then
+            echo "Unable to determine next version" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Determined next version: $VERSION"
+
+      - name: Run release pipeline
+        env:
+          RELEASE_VERSION: ${{ steps.next_version.outputs.version }}
+        run: cargo run -p dagger-pipeline --release -- all
+
+      - name: Publish quality summary
+        if: always()
+        run: |
+          if [ -f SUMMARY.md ]; then
+            cat SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Quality summary not available (SUMMARY.md missing)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Configure git author
+        run: |
+          git config user.email "github-actions@users.noreply.github.com"
+          git config user.name "github-actions"
+
+      - name: Prepare release tag
+        id: release_tag
+        run: |
+          tag="v${{ steps.next_version.outputs.version }}-rc"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${{ steps.next_version.outputs.version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Create RC tag
+        run: |
+          rc_tag="${{ steps.release_tag.outputs.tag }}"
+          git tag -a "$rc_tag" -m "Release candidate $rc_tag"
+          git push origin "$rc_tag"
+
+      - name: Create GitHub Release (RC)
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          prerelease: true
+          generate_release_notes: true
+
+  build-cli:
+    needs: release
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      DAGGER_LOG_FORMAT: plain
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      matrix:
+        include:
+          - platform: linux
+            artifact: bionic-cli-linux
+          - platform: macos
+            artifact: bionic-cli-darwin
+          - platform: windows
+            artifact: bionic-cli-windows.exe
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release.outputs.tag }}
+
+      - name: Build CLI
+        run: cargo run -p dagger-pipeline --release -- build-cli ${{ matrix.platform }}
+
+      - name: Upload release artifact
+        run: gh release upload ${{ needs.release.outputs.tag }} ./${{ matrix.artifact }} --clobber
