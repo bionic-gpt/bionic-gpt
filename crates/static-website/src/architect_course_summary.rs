@@ -155,7 +155,7 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Understanding Integrations",
+                        title: "Connecting LLMs to External Systems",
                         description: "Conceptual overview of connecting external services.",
                         folder: "architect-course/02-agentic-ai/080-understanding-integrations/",
                         markdown: include_str!(
