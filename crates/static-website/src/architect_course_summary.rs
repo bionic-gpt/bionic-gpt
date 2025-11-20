@@ -98,7 +98,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Agentic Integrations (WIP)".to_string(),
+                name: "Agentic Integrations".to_string(),
                 pages: vec![
                     Page {
                         date: "",
@@ -150,11 +150,11 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Connecting to Gmail",
+                        title: "Create an Integration",
                         description: "Steps for granting secure Gmail access to assistants.",
-                        folder: "architect-course/03-agentic-integrations/060-connecting-to-gmail/",
+                        folder: "architect-course/03-agentic-integrations/055-create-an-integration/",
                         markdown: include_str!(
-                            "../content/architect-course/03-agentic-integrations/060-connecting-to-gmail/index.md"
+                            "../content/architect-course/03-agentic-integrations/055-create-an-integration/index.md"
                         ),
                         image: None,
                         author_image: None,
