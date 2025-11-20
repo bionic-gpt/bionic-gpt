@@ -27,12 +27,31 @@ pub fn Document(
                 div {
                     class: "flex flex-row relative",
                     LeftNav {
-                        summary,
+                        summary: summary.clone(),
                         active_folder: doc.folder,
+                        scroll_key: summary.source_folder,
                     }
                     Content {
                         doc
                     }
+                }
+                // Preserve sidebar scroll between navigations so the left nav
+                // stays at the same position after clicking a link.
+                script {
+                    dangerous_inner_html: format!(r#"
+                        (function() {{
+                            const nav = document.querySelector('[data-scroll-key="{key}"]');
+                            if (!nav) return;
+                            const storageKey = "left-nav-scroll-{key}";
+                            const saved = sessionStorage.getItem(storageKey);
+                            if (saved) {{
+                                nav.scrollTop = parseInt(saved, 10) || 0;
+                            }}
+                            nav.addEventListener("scroll", function() {{
+                                sessionStorage.setItem(storageKey, nav.scrollTop.toString());
+                            }}, {{ passive: true }});
+                        }})();
+                    "#, key = summary.source_folder)
                 }
             }
         }
@@ -58,10 +77,11 @@ fn MobileMenu(summary: Summary) -> Element {
 }
 
 #[component]
-fn LeftNav(summary: Summary, active_folder: &'static str) -> Element {
+fn LeftNav(summary: Summary, active_folder: &'static str, scroll_key: &'static str) -> Element {
     rsx! {
         div {
             class: "fixed z-40 lg:z-auto w-0 -left-full lg:w-[420px] !lg:left-0 lg:sticky h-[calc(100vh-108px)] top-2 bottom-0 flex flex-col ml-0 border-r lg:overflow-y-auto",
+            "data-scroll-key": scroll_key,
             nav {
                 class: "pt-12 p-5",
                 for category in &summary.categories {
