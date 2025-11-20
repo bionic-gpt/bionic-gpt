@@ -1,6 +1,14 @@
 # Connecting LLMs to External Systems
 
-Agentic workflows become powerful when LLMs call tools that reach beyond the prompt. Integrations provide those tools: structured APIs that let assistants fetch customer records, update tickets, trigger workflows, or send notifications—all while staying within enterprise guardrails.
+From the sidebar choose `Integrations` and then `Select Integration`.
+
+You'll see an Integration called `Postgres`.
+
+![alt text](select-integration.png)
+
+Click on `Run Integration` to see the Postgres integration up and running.
+
+![alt text](integration-running.png)
 
 ## How Tool Calls Enable Integrations
 

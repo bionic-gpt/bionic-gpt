@@ -60,7 +60,7 @@ fn MobileMenu(summary: Summary) -> Element {
 fn LeftNav(summary: Summary) -> Element {
     rsx! {
         div {
-            class: "fixed z-40 lg:z-auto w-0 -left-full lg:w-[420px] !lg:left-0 lg:sticky h-[calc(100vh-68px)] top-2 bottom-0 flex flex-col ml-0 border-r lg:overflow-y-auto",
+            class: "fixed z-40 lg:z-auto w-0 -left-full lg:w-[420px] !lg:left-0 lg:sticky h-[calc(100vh-108px)] top-2 bottom-0 flex flex-col ml-0 border-r lg:overflow-y-auto",
             nav {
                 class: "pt-12 p-5",
                 for category in &summary.categories {
@@ -94,7 +94,7 @@ fn Content(doc: Page) -> Element {
     let content = crate::markdown::markdown_to_html(doc.markdown);
     rsx! {
         section {
-            class: "p-5 pt-12 w-full h-[calc(100vh-68px)] lg:overflow-y-auto",
+            class: "p-5 pt-12 w-full h-[calc(100vh-108px)] lg:overflow-y-auto",
             div {
                 class: "mb-12",
                 article {
