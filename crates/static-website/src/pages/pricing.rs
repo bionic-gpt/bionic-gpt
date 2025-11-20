@@ -57,7 +57,7 @@ pub fn pricing() -> String {
                             h3 { class: "font-extrabold", "Free" }
                             span { class: "text-sm opacity-70", "Open source, permissive licence." }
                             a {
-                                href: "https://github.com/bionic-gpt/bionic-gpt",
+                                href: crate::routes::architect_course::Index {}.to_string(),
                                 class: "btn btn-secondary btn-outline",
                                 "\n            Deploy It Yourself\n          "
                             }
