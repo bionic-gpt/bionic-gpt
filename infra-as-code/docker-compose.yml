@@ -32,6 +32,8 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres-mcp:
+    image: ghcr.io/bionic-gpt/bionicgpt-postgres-mcp:1.11.59
 
   # Sets up our database tables
   migrations:

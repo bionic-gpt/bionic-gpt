@@ -1,16 +1,31 @@
 # Using Our Integrations
 
-Learn how to activate out-of-the-box integrations inside the console and verify they are wired to your assistant.
+From the side menu click on `Assistants` and then `New Asisstant`. Fill in the following details.
 
-## Steps
+```
+Name: Bionic Database
+Category: Research
+Description: Gives the user access to the Bionic database
+```
 
-1. Open the Integrations page in the console.
-2. Enable the integration you want to test and provide the required credentials or API keys.
-3. Assign the integration to your assistant or workspace.
-4. Run a quick prompt that requires the integration and check the tool-call details to confirm it executed.
+![alt text](create-assistant.png)
 
-## Tips
+Scroll down and click `Create Assistant`
 
-- Start in a sandbox workspace before rolling out to production projects.
-- Rotate any provided tokens after testing and store them in your secrets manager.
-- If calls fail, check the integration logs and review required scopes for the selected action.
+## Attaching the Integration to the Assistant
+
+Click on the menu and select `Manage Integrations` for your Assistant.
+
+
+![alt text](menu-integrations.png)
+
+Click the `Add` button for the `Postgres Server`
+
+![alt text](add-server.png)
+
+Click `Connect` on the popup.
+
+Now go back to the `Assistants` side menu. When you click on the Assistant you will be given the option to `Start a Chat`.
+
+
+![alt text](start-chat.png)

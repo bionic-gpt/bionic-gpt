@@ -1,5 +1,7 @@
 # Connecting LLMs to External Systems
 
+We can use the same tool calling mechanism to connect our model to external systems.
+
 From the sidebar choose `Integrations` and then `Select Integration`.
 
 You'll see an Integration called `Postgres`.
@@ -10,23 +12,29 @@ Click on `Run Integration` to see the Postgres integration up and running.
 
 ![alt text](integration-running.png)
 
-## How Tool Calls Enable Integrations
+## A look at the Postgres Integration
 
-1. **Schema-first contracts**: Each integration exposes a tool definition (OpenAPI-backed) describing the name, JSON schema, and purpose of the action (e.g., `search_salesforce_contacts`, `submit_jira_ticket`). The LLM receives these definitions alongside the user prompt.
-2. **Model reasoning**: When the LLM detects that external data is required, it selects the right tool and crafts the arguments (IDs, filters, payloads). Because tools are statically described, the model cannot invent endpoints or parameters.
-3. **Execution & safeguards**: The runtime validates the call, enforces authentication scopes, and executes the API request. Responses return to the LLM as structured JSON so the model can cite real values rather than hallucinate.
+If you look into the `docker-compose.yml` file you see we added the folowing entry.
 
-## Why This Matters
+```yml
+  ...
+  postgres-mcp:
+    image: ghcr.io/bionic-gpt/bionicgpt-postgres-mcp:1.11.59
+  ...
+```
 
-- **_Grounded answers_**: Pull live data—account balances, shipment statuses, policy clauses—so the LLM doesn’t guess.
-- **_Closed-loop actions_**: Let assistants open support tickets, schedule meetings, or kick off automations after explaining the plan to the user.
-- **_Auditability_**: Every tool call is logged with inputs/outputs, making it easy to review what the assistant did on behalf of the user.
-- **_Scoped access_**: Tools respect tenant boundaries and least-privilege permissions; assistants only see what the integration scope allows.
+The `external system` is running in our lab.
 
-## Example Integrations
+## Configuring our Integration
 
-- **CRM insights**: A “Customer Health Analyst” assistant uses `list_datasets` for the knowledge base, then calls `search_salesforce_accounts` to enrich the response with up-to-date renewal data.
-- **IT automations**: A “Service Desk Copilot” explains troubleshooting steps while calling `create_jira_ticket` and `post_slack_update` to keep humans in the loop.
-- **Email triage**: A “Smart Inbox” agent analyzes Gmail threads, calls `classify_email_intent`, and triggers a `send_outreach_sequence` tool when follow-up is required.
+Click `Configure` and add the following as an API key. We're aware it's not an API key as such but this is how the Postgres integration works.
 
-By designing integrations as deterministic tool calls, we keep LLM decisions explainable, auditable, and aligned with the systems your organization already trusts.
+```
+postgresql://postgres:testpassword@postgres:5432/bionic-gpt?sslmode=disable
+```
+
+![alt text](add-api-key.png)
+
+## Next...
+
+Now we have configured our integration, lets use it.
