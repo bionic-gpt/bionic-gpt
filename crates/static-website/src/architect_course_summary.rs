@@ -114,11 +114,23 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Using Our Integrations",
-                        description: "Turn on built-in integrations and verify tool calls in the console.",
-                        folder: "architect-course/03-agentic-integrations/040-using-our-integration/",
+                        title: "Connecting an Assistant to Our Integrations",
+                        description: "Enable built-in integrations and wire them to an assistant from the console.",
+                        folder: "architect-course/03-agentic-integrations/040-connecting-the-integration/",
                         markdown: include_str!(
-                            "../content/architect-course/03-agentic-integrations/040-using-our-integration/index.md"
+                            "../content/architect-course/03-agentic-integrations/040-connecting-the-integration/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Using Our Integration",
+                        description: "Hands-on walkthrough with the generic integration connector.",
+                        folder: "architect-course/03-agentic-integrations/045-using-our-integration/",
+                        markdown: include_str!(
+                            "../content/architect-course/03-agentic-integrations/045-using-our-integration/index.md"
                         ),
                         image: None,
                         author_image: None,
