@@ -1,6 +1,6 @@
 # Creating your Own Integration
 
-Run the following prompt in the console. 
+Use the console to generate a starter OpenAPI spec for a target API. Paste this prompt:
 
 ```
 Using the example below, create an Open API specification in JSON format for this API.
@@ -23,18 +23,16 @@ Example Response
 ]
 ```
 
-You'll get something like the below.
+You should get a JSON spec back that resembles this structure.
 
 ![alt text](generate-spec.png)
 
-We can now add this specification to Bionics 
-
-Then go to `Integrations > Select Integration > Add Custom` and cut and paste your Open API specification into the textarea.
+Now add the spec to Bionic. Go to `Integrations > Select Integration > Add Custom` and paste your OpenAPI JSON into the textarea.
 
 ![alt text](add-spec.png)
 
-When you click `Submit` you should see a new Integration.
+Click `Submit` to create the integration.
 
 ![alt text](show-integration.png)
 
-And by connecting your integration similar to what we did with postgres you will be able to talk to that system.
+Finally, connect the integration to an assistant (as shown in the Postgres example) and start chatting with that system.
