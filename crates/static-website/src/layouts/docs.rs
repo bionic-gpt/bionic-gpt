@@ -27,7 +27,8 @@ pub fn Document(
                 div {
                     class: "flex flex-row relative",
                     LeftNav {
-                        summary
+                        summary,
+                        active_folder: doc.folder,
                     }
                     Content {
                         doc
@@ -57,7 +58,7 @@ fn MobileMenu(summary: Summary) -> Element {
 }
 
 #[component]
-fn LeftNav(summary: Summary) -> Element {
+fn LeftNav(summary: Summary, active_folder: &'static str) -> Element {
     rsx! {
         div {
             class: "fixed z-40 lg:z-auto w-0 -left-full lg:w-[420px] !lg:left-0 lg:sticky h-[calc(100vh-108px)] top-2 bottom-0 flex flex-col ml-0 border-r lg:overflow-y-auto",
@@ -74,7 +75,14 @@ fn LeftNav(summary: Summary) -> Element {
                             li {
                                 class: "mb-2",
                                 a {
-                                    class: "rounded-md hover:text-sky-500 dark:hover:text-sky-400",
+                                    class: format!(
+                                        "rounded-md hover:text-sky-500 dark:hover:text-sky-400 {}",
+                                        if page.folder == active_folder {
+                                            "text-primary font-semibold border-b-2 border-primary pb-[2px]"
+                                        } else {
+                                            ""
+                                        }
+                                    ),
                                     href: "/{page.folder}",
                                     "hx-boost": "true",
                                     "{page.title}"
