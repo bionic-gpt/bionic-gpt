@@ -155,3 +155,13 @@ schemaspy:
         -o tmp
     cp -r tmp/diagrams/orphans/orphans.png crates/db/diagrams
     cp -r tmp/diagrams/summary/relationships.real.large.png crates/db/diagrams
+
+# Install dependencies and optimize architect course screenshots
+opt-images:
+    sudo apt-get update -qq && sudo apt-get install -y -qq pngquant imagemagick
+    # Resize down to max 1200px width (never upscale), strip metadata, then compress with pngquant
+    cd crates/static-website/content/architect-course && \
+        find . -type f -name '*.png' \
+            -print -exec mogrify -resize '1200x>' -strip {} + && \
+        find . -type f -name '*.png' \
+            -print -exec sh -c 'for f; do pngquant --force --quality 70-85 --ext .png "$f"; done' _ {} +
