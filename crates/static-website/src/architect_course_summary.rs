@@ -163,7 +163,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Agentic RAG (WIP)".to_string(),
+                name: "Agentic RAG (Coming Soon)".to_string(),
                 pages: vec![
                     Page {
                         date: "",

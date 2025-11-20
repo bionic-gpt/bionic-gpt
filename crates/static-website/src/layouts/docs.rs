@@ -86,7 +86,14 @@ fn LeftNav(summary: Summary, active_folder: &'static str, scroll_key: &'static s
                 class: "pt-12 p-5",
                 for category in &summary.categories {
                     p {
-                        class: "font-semibold mb-2",
+                        class: format!(
+                            "font-semibold mb-2 {}",
+                            if category.name.contains("Coming Soon") {
+                                "opacity-60"
+                            } else {
+                                ""
+                            }
+                        ),
                         "{category.name}"
                     }
                     ul {
@@ -96,15 +103,21 @@ fn LeftNav(summary: Summary, active_folder: &'static str, scroll_key: &'static s
                                 class: "mb-2",
                                 a {
                                     class: format!(
-                                        "rounded-md hover:text-sky-500 dark:hover:text-sky-400 {}",
-                                        if page.folder == active_folder {
+                                        "rounded-md hover:text-sky-500 dark:hover:text-sky-400 {} {}",
+                                        if page.folder == active_folder && !category.name.contains("Coming Soon") {
                                             "text-primary font-semibold border-b-2 border-primary pb-[2px]"
+                                        } else {
+                                            ""
+                                        },
+                                        if category.name.contains("Coming Soon") {
+                                            "opacity-50 pointer-events-none cursor-not-allowed"
                                         } else {
                                             ""
                                         }
                                     ),
                                     href: "/{page.folder}",
-                                    "hx-boost": "true",
+                                    "hx-boost": if category.name.contains("Coming Soon") { "false" } else { "true" },
+                                    tabindex: if category.name.contains("Coming Soon") { "-1" } else { "0" },
                                     "{page.title}"
                                 }
                             }
