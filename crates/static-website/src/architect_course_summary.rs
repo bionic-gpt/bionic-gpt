@@ -24,9 +24,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Choosing a Model",
                         description: "Pick the Granite baseline used throughout the lab.",
-                        folder: "architect-course/01-gen-ai-lab/choosing-a-model/",
+                        folder: "architect-course/01-gen-ai-lab/01-choosing-a-model/",
                         markdown: include_str!(
-                            "../content/architect-course/01-gen-ai-lab/choosing-a-model/index.md"
+                            "../content/architect-course/01-gen-ai-lab/01-choosing-a-model/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -36,8 +36,8 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Running an Inference Engine (Ollama)",
                         description: "Connecting to Ollam",
-                        folder: "architect-course/01-gen-ai-lab/ollama/",
-                        markdown: include_str!("../content/architect-course/01-gen-ai-lab/ollama/index.md"),
+                        folder: "architect-course/01-gen-ai-lab/02-ollama/",
+                        markdown: include_str!("../content/architect-course/01-gen-ai-lab/02-ollama/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -46,9 +46,21 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Running the Bionic Agentic AI Platform",
                         description: "Try it on a Laptop",
-                        folder: "architect-course/01-gen-ai-lab/docker-compose/",
+                        folder: "architect-course/01-gen-ai-lab/03-docker-compose/",
                         markdown: include_str!(
-                            "../content/architect-course/01-gen-ai-lab/docker-compose/index.md"
+                            "../content/architect-course/01-gen-ai-lab/03-docker-compose/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Testing Your Model",
+                        description: "Run sanity checks to validate prompts and responses.",
+                        folder: "architect-course/01-gen-ai-lab/04-testing-model/",
+                        markdown: include_str!(
+                            "../content/architect-course/01-gen-ai-lab/04-testing-model/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -78,47 +90,6 @@ pub fn summary() -> Summary {
                         folder: "architect-course/02-agentic-ai/020-tool-calls-in-the-ui/",
                         markdown: include_str!(
                             "../content/architect-course/02-agentic-ai/020-tool-calls-in-the-ui/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                ],
-            },
-            Category {
-                name: "Agentic RAG".to_string(),
-                pages: vec![
-                    Page {
-                        date: "",
-                        title: "Agentic RAG Introduction",
-                        description: "Core concepts behind our Agentic RAG pattern.",
-                        folder: "architect-course/02-agentic-ai/050-understanding-rag/",
-                        markdown: include_str!(
-                            "../content/architect-course/02-agentic-ai/050-understanding-rag/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Loading Agentic RAG Datasets",
-                        description: "Ingestion patterns and guardrails for Agentic RAG datasets.",
-                        folder: "architect-course/02-agentic-ai/060-loading-rag-datasets/",
-                        markdown: include_str!(
-                            "../content/architect-course/02-agentic-ai/060-loading-rag-datasets/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Testing an Agentic RAG Pipeline in the UI (Use Case)",
-                        description: "Guided validation scenario for Agentic RAG pipelines in the console.",
-                        folder: "architect-course/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/",
-                        markdown: include_str!(
-                            "../content/architect-course/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -160,6 +131,47 @@ pub fn summary() -> Summary {
                         folder: "architect-course/02-agentic-ai/100-connecting-to-gmail/",
                         markdown: include_str!(
                             "../content/architect-course/02-agentic-ai/100-connecting-to-gmail/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
+            },
+            Category {
+                name: "Agentic RAG (WIP)".to_string(),
+                pages: vec![
+                    Page {
+                        date: "",
+                        title: "Agentic RAG Introduction",
+                        description: "Core concepts behind our Agentic RAG pattern.",
+                        folder: "architect-course/02-agentic-ai/050-understanding-rag/",
+                        markdown: include_str!(
+                            "../content/architect-course/02-agentic-ai/050-understanding-rag/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Loading Agentic RAG Datasets",
+                        description: "Ingestion patterns and guardrails for Agentic RAG datasets.",
+                        folder: "architect-course/02-agentic-ai/060-loading-rag-datasets/",
+                        markdown: include_str!(
+                            "../content/architect-course/02-agentic-ai/060-loading-rag-datasets/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Testing an Agentic RAG Pipeline in the UI (Use Case)",
+                        description: "Guided validation scenario for Agentic RAG pipelines in the console.",
+                        folder: "architect-course/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/",
+                        markdown: include_str!(
+                            "../content/architect-course/02-agentic-ai/070-testing-a-rag-pipeline-in-the-ui/index.md"
                         ),
                         image: None,
                         author_image: None,

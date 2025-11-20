@@ -1,4 +1,4 @@
-# Ollama
+# Running an Inference Engine
 
 Ollama is an inference engine for serving models.
 
@@ -44,7 +44,3 @@ curl http://localhost:11434/v1/chat/completions \
         ]
     }'
 ```
-
-## Update the model
-
-From the models screen you'll need to change the URL from `http://llm-api` to `http://hostname`. Where host name is the name you get when your run `hostname`.
