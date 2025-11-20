@@ -29,7 +29,7 @@ pub fn enterprise_page() -> String {
         },
     ];
 
-    let doc_sections = vec![
+    let doc_sections = [
         (
             "Operator install",
             "Deploy the controller with Helm or Kustomize, complete with CRDs and permissions.",

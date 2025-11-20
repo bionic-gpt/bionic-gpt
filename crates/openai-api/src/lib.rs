@@ -307,19 +307,14 @@ fn is_none_or_empty_vec<T>(opt: &Option<Vec<T>>) -> bool {
     opt.as_ref().map(|v| v.is_empty()).unwrap_or(true)
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, Eq, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum ChatCompletionMessageRole {
     System,
+    #[default]
     User,
     Assistant,
     Function,
     Tool,
     Developer,
-}
-
-impl Default for ChatCompletionMessageRole {
-    fn default() -> Self {
-        Self::User
-    }
 }

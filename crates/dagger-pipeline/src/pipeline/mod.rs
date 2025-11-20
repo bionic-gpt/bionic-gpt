@@ -5,7 +5,7 @@ use crate::args::{Args, Command};
 use dagger_sdk::{HostDirectoryOpts, Query, connect};
 use eyre::{Result, WrapErr};
 
-pub(crate) const BASE_IMAGE: &str = "purtontech/rust-on-nails-devcontainer:1.3.18";
+pub(crate) const BASE_IMAGE: &str = "purtontech/rust-on-nails-devcontainer:1.3.31";
 pub(crate) const POSTGRES_IMAGE: &str = "ankane/pgvector";
 pub(crate) const DB_PASSWORD: &str = "testpassword";
 pub(crate) const DATABASE_URL: &str =
