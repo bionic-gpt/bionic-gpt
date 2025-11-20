@@ -98,7 +98,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Agentic Integrations".to_string(),
+                name: "Agentic Integrations (WIP)".to_string(),
                 pages: vec![
                     Page {
                         date: "",
