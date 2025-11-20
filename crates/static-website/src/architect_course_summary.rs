@@ -114,11 +114,23 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
+                        title: "Using Our Integrations",
+                        description: "Turn on built-in integrations and verify tool calls in the console.",
+                        folder: "architect-course/03-agentic-integrations/040-using-our-integration/",
+                        markdown: include_str!(
+                            "../content/architect-course/03-agentic-integrations/040-using-our-integration/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
                         title: "Custom Integrations",
                         description: "Use OpenAPI specs to wire in-house APIs into assistants.",
-                        folder: "architect-course/03-agentic-integrations/040-understanding-open-api-specifications/",
+                        folder: "architect-course/03-agentic-integrations/050-understanding-open-api-specifications/",
                         markdown: include_str!(
-                            "../content/architect-course/03-agentic-integrations/040-understanding-open-api-specifications/index.md"
+                            "../content/architect-course/03-agentic-integrations/050-understanding-open-api-specifications/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -128,9 +140,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Connecting to Gmail",
                         description: "Steps for granting secure Gmail access to assistants.",
-                        folder: "architect-course/03-agentic-integrations/050-connecting-to-gmail/",
+                        folder: "architect-course/03-agentic-integrations/060-connecting-to-gmail/",
                         markdown: include_str!(
-                            "../content/architect-course/03-agentic-integrations/050-connecting-to-gmail/index.md"
+                            "../content/architect-course/03-agentic-integrations/060-connecting-to-gmail/index.md"
                         ),
                         image: None,
                         author_image: None,
