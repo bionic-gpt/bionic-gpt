@@ -14,7 +14,7 @@ Click on `Run Integration` to see the Postgres integration up and running.
 
 ## A look at the Postgres Integration
 
-If you look into the `docker-compose.yml` file you see we added the folowing entry.
+If you look into the `docker-compose.yml` file you see we added the following entry.
 
 ```yml
   ...

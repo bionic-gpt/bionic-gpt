@@ -82,7 +82,7 @@ This definition is delivered to the LLM alongside the user’s request, so the m
 ### Authentication Notes
 
 - **Bearer tokens** are the default: store them as secrets bound to the integration so agents never see raw credentials.
-- **Additional schemes** (mTLS, API keys, OAuth) can also be modeled in the OpenAPI `securitySchemes` block; the runtime handles the handshake and injects headers automatically.
+- **Additional schemes** (mTLS, API keys, OAuth) can also be modelled in the OpenAPI `securitySchemes` block; the runtime handles the handshake and injects headers automatically.
 - **Per-tenant isolation** ensures each assistant only calls endpoints paired with its namespace and credentials.
 
 With this pattern, any internal REST service can be surfaced as a deterministic tool. That keeps enterprise data in your environment while giving assistants controlled access to the systems that matter.

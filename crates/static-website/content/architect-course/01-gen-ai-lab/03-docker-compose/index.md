@@ -1,4 +1,4 @@
-# Runing the Bionic Platform
+# Running the Bionic Platform
 
 We have a very lightweight version of Bionic for running locally for for limited Proofs of concept. If you require features such as user management, document pipelines etc from the enterprise version then install the enterprise version instead.
 

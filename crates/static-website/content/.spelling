@@ -142,6 +142,13 @@ OpenAPI
 auditable
 spec
 composable
+lifecycle
+lifecycles
+autoscalers
+autoscaling
+templatize
+scratchpad
+rollout
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -396,3 +403,27 @@ md
 CONTRIBUTING.md
  - blog/integrations/index.md
 2010
+ - architect-course/01-gen-ai-lab/01-choosing-a-model/index.md
+4.0
+devcontainer
+ - architect-course/03-agentic-integrations/040-connecting-the-integration/index.md
+popup
+ - architect-course/03-agentic-integrations/050-understanding-open-api-specifications/index.md
+mTLS
+OAuth
+ - architect-course/03-agentic-integrations/055-create-an-integration/index.md
+textarea
+ - architect-course/04-agentic-rag/060-understanding-rag/index.md
+ad-hoc
+ - architect-course/04-agentic-rag/070-loading-rag-datasets/index.md
+JSONL
+ - architect-course/05-ai-ops/why-kubernetes/index.md
+A.M.
+GitOps-friendly
+Argo
+k3d
+ - architect-course/index.md
+operationalizing
+01
+02
+03

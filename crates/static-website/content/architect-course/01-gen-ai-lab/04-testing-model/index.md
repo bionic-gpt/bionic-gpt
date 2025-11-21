@@ -1,6 +1,6 @@
 # Testing the Model
 
-Goto `Models > New Model` and enter the following details
+Go to `Models > New Model` and enter the following details
 
 ```
 Display Name: Granite 4 Tiny

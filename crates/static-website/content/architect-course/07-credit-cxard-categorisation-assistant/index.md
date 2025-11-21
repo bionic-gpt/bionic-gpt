@@ -1,4 +1,4 @@
-# Credit CXard Categorisation Assistant
+# Credit Card Categorisation Assistant
 
 This use case demonstrates how an agent classifies incoming credit card support emails with precise tool interactions. You will learn how to define categories, how to capture confidence scores, and when to escalate to manual review.
 

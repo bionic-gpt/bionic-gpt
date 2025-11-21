@@ -1,6 +1,6 @@
 # Running Kubernetes Lab
 
-To run Bionic we'll install [K3s](https://k3s.io/), a lightweight yet production-ready Kubernetes distribution that mirrors the control plane we use in larger clusters. This lets the lab reproduce real deployment behavior locally without dragging in the overhead of a full-blown managed service.
+To run Bionic we'll install [K3s](https://k3s.io/), a lightweight yet production-ready Kubernetes distribution that mirrors the control plane we use in larger clusters. This lets the lab reproduce real deployment behaviour locally without dragging in the overhead of a full-blown managed service.
 
 ### 1. Install K3s
 

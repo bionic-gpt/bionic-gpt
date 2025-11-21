@@ -85,7 +85,7 @@ wdts:
     cd /workspace/crates && tailwind-extra -i ./deploy-mcp/input.css -o ./deploy-mcp/dist/tailwind.css --watch
 
 spell:
-    docker run --rm -ti -v /workspace/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
+    docker run --rm -ti -v $HOST_PROJECT_PATH/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
 
 md:
     mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
