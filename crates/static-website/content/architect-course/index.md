@@ -1,9 +1,13 @@
 # Gen AI Architect Course Overview
 
-This course walks technical leads through three capabilities: spinning up a local Gen AI lab, experimenting with agentic workflows, and operationalizing the stack for production. Each numbered module builds on the previous one—start with section 01 to install the reference model, move to section 02 for agent patterns, and finish with section 03 to prepare your infrastructure for enterprise rollout.
+After this course you'll understand:
 
-## What You'll Learn
+- **Standing up the lab** – Choosing Granite 4 Tiny, serving it through Ollama, launching Bionic with Docker Compose, and validating the model hookup.
+- **Tool-call fundamentals** – How assistants request deterministic tools, how the UI mediates the workflow, and how to debug payloads end-to-end.
+- **Enterprise integrations** – Connecting MCP services such as Postgres, importing OpenAPI specs, and attaching those capabilities to assistants safely.
+- **Agentic RAG pipelines** – Surfacing datasets, files, and ad-hoc documents as tools so every response cites grounded knowledge.
+- **Operations on Kubernetes** – Installing K3s, contrasting Compose vs. cluster deployments, and promoting the stack via the Bionic CLI.
+- **Prompt engineering discipline** – Layering system/developer/user prompts while iterating through the `/api/chat` endpoint.
 
-- **_Foundation_**: Choosing Granite baselines, installing inference engines, and launching the Bionic platform locally.
-- **_Agentic patterns_**: Building assistants with tool calls, Agentic RAG pipelines, and enterprise integrations.
-- **_Operations_**: Why Kubernetes matters, how to run the lab on K3s, and what it takes to mirror production deployments.
+
+![Alt text](./architecture-diagram.png "Architecture")

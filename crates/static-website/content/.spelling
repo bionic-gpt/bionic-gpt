@@ -149,6 +149,7 @@ autoscaling
 templatize
 scratchpad
 rollout
+specs
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
