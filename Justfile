@@ -165,3 +165,6 @@ opt-images:
             -print -exec mogrify -resize '1200x>' -strip {} + && \
         find . -type f -name '*.png' \
             -print -exec sh -c 'for f; do pngquant --force --quality 70-85 --ext .png "$f"; done' _ {} +
+
+db-gen:
+    clorinde live -q /workspace/crates/db/queries -d /workspace/crates/db-generated
