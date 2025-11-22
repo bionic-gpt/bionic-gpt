@@ -1,4 +1,4 @@
-use crate::routes::{architect_course, blog, docs, marketing, product, solutions, SIGN_IN_UP};
+use crate::routes::{architect_course, blog, docs, marketing, product, SIGN_IN_UP};
 use dioxus::prelude::*;
 
 #[component]
@@ -126,28 +126,6 @@ pub fn Navigation(mobile_menu: Option<Element>, section: Section) -> Element {
                                                 a {
                                                     href: product::Developers {}.to_string(),
                                                     "Developers"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                li {
-                                    details {
-                                        summary {
-                                            "Solutions"
-                                        }
-                                        ul {
-                                            class: "w-60 p-2",
-                                            li {
-                                                a {
-                                                    href: solutions::Education {}.to_string(),
-                                                    "Bionic in Education"
-                                                }
-                                            },
-                                            li {
-                                                a {
-                                                    href: solutions::Support {}.to_string(),
-                                                    "Bionic for Technical Support"
                                                 }
                                             }
                                         }
