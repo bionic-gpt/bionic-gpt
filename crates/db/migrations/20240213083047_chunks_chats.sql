@@ -10,9 +10,9 @@ COMMENT ON TABLE chunks_chats IS 'For each chat, track the chunks used as part o
 
 
 -- Grant access
-GRANT SELECT, INSERT ON chunks_chats TO bionic_application;
+GRANT SELECT, INSERT ON chunks_chats TO application_user;
 
-GRANT SELECT ON chunks_chats TO bionic_readonly;
+GRANT SELECT ON chunks_chats TO application_readonly;
 
 -- migrate:down
 DROP TABLE chunks_chats;

@@ -45,7 +45,7 @@ Get the database login details using
 `kubectl get secret -n bionic-gpt database-urls -o jsonpath='{.data.readonly-url}' | base64 --decode`
 
 ```python
-engine = sqlalchemy.create_engine('postgresql://bionic_readonly:6323714616921@bionic-db-cluster-rw:5432/bionic-gpt')
+engine = sqlalchemy.create_engine('postgresql://application_readonly:6323714616921@bionic-db-cluster-rw:5432/bionic-gpt')
 conn = engine.connect()
 ```
 ![Alt text](vis-rag-1.png "Setup")

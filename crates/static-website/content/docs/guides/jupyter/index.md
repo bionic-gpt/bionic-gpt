@@ -106,7 +106,7 @@ Get the database login details using
 !pip install -q sqlalchemy psycopg2-binary pandas
 
 import sqlalchemy
-engine = sqlalchemy.create_engine('postgresql://bionic_readonly:6323714616921@bionic-db-cluster-rw:5432/bionic-gpt')
+engine = sqlalchemy.create_engine('postgresql://application_readonly:6323714616921@bionic-db-cluster-rw:5432/bionic-gpt')
 
 conn = engine.connect()
 

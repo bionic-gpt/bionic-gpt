@@ -20,8 +20,8 @@ CREATE TABLE document_pipelines (
         REFERENCES datasets(id) ON DELETE CASCADE
 );
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON document_pipelines TO bionic_application;
-GRANT USAGE, SELECT ON document_pipelines_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON document_pipelines TO application_user;
+GRANT USAGE, SELECT ON document_pipelines_id_seq TO application_user;
 
 -- migrate:down
 DROP TABLE document_pipelines;

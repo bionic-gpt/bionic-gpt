@@ -176,11 +176,11 @@ INSERT INTO openapi_specs (slug, title, description, spec, logo_url) VALUES (
 
 
 -- Permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON openapi_specs TO bionic_application;
-GRANT USAGE, SELECT ON openapi_specs_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON openapi_specs TO application_user;
+GRANT USAGE, SELECT ON openapi_specs_id_seq TO application_user;
 
-GRANT SELECT ON openapi_specs TO bionic_readonly;
-GRANT SELECT ON openapi_specs_id_seq TO bionic_readonly;
+GRANT SELECT ON openapi_specs TO application_readonly;
+GRANT SELECT ON openapi_specs_id_seq TO application_readonly;
 
 -- migrate:down
 DROP TABLE openapi_specs;

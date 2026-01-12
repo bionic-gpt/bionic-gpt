@@ -15,10 +15,10 @@ CREATE TABLE prompt_integration (
 );
 
 -- Give access to the application user
-GRANT SELECT, INSERT, UPDATE, DELETE ON prompt_integration TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON prompt_integration TO application_user;
 
 -- Give access to the readonly user
-GRANT SELECT ON prompt_integration TO bionic_readonly;
+GRANT SELECT ON prompt_integration TO application_readonly;
 
 -- migrate:down
 DROP TABLE prompt_integration;

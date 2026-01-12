@@ -50,7 +50,7 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.11.59
     platform: linux/amd64
     environment:
-      APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
+      APP_DATABASE_URL: postgresql://application_user:testpassword@postgres:5432/bionic-gpt?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,7 +63,7 @@ services:
     platform: linux/amd64
     environment:
       DANGER_JWT_OVERRIDE: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc
-      APP_DATABASE_URL: postgresql://bionic_application:testpassword@postgres:5432/bionic-gpt?sslmode=disable
+      APP_DATABASE_URL: postgresql://application_user:testpassword@postgres:5432/bionic-gpt?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy

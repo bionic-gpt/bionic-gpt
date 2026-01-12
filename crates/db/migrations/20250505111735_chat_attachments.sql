@@ -9,8 +9,8 @@ CREATE TABLE chats_attachments (
 COMMENT ON TABLE chats_attachments IS 'Every chat can have a number of attachments';
 
 -- Grant access
-GRANT SELECT, INSERT ON chats_attachments TO bionic_application;
-GRANT SELECT ON chats_attachments TO bionic_readonly;
+GRANT SELECT, INSERT ON chats_attachments TO application_user;
+GRANT SELECT ON chats_attachments TO application_readonly;
 
 -- migrate:down
 DROP TABLE chats_attachments;

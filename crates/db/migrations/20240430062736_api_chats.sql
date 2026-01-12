@@ -25,11 +25,11 @@ COMMENT ON TABLE api_chats IS 'Capture API Text Generation';
 SELECT updated_at('api_chats');
 
 -- Grant access
-GRANT SELECT, INSERT, UPDATE ON api_chats TO bionic_application;
-GRANT USAGE, SELECT ON api_chats_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE ON api_chats TO application_user;
+GRANT USAGE, SELECT ON api_chats_id_seq TO application_user;
 
-GRANT SELECT ON api_chats TO bionic_readonly;
-GRANT SELECT ON api_chats_id_seq TO bionic_readonly;
+GRANT SELECT ON api_chats TO application_readonly;
+GRANT SELECT ON api_chats_id_seq TO application_readonly;
 
 -- migrate:down
 DROP TABLE api_chats;

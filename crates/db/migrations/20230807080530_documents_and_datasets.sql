@@ -57,12 +57,12 @@ CREATE TABLE chunks (
 );
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON documents, chunks, datasets TO bionic_application;
-GRANT USAGE, SELECT ON documents_id_seq, chunks_id_seq, datasets_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON documents, chunks, datasets TO application_user;
+GRANT USAGE, SELECT ON documents_id_seq, chunks_id_seq, datasets_id_seq TO application_user;
 
 -- Give access to the readonly user
-GRANT SELECT, INSERT, UPDATE, DELETE ON documents, chunks, datasets TO bionic_readonly;
-GRANT USAGE, SELECT ON documents_id_seq, chunks_id_seq, datasets_id_seq TO bionic_readonly;
+GRANT SELECT, INSERT, UPDATE, DELETE ON documents, chunks, datasets TO application_readonly;
+GRANT USAGE, SELECT ON documents_id_seq, chunks_id_seq, datasets_id_seq TO application_readonly;
 
 -- migrate:down
 DROP TABLE chunks;

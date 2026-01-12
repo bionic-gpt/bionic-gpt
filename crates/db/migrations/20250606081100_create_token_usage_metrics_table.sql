@@ -38,10 +38,10 @@ CREATE INDEX idx_token_usage_metrics_created_at ON token_usage_metrics(created_a
 CREATE INDEX idx_token_usage_metrics_type ON token_usage_metrics(type);
 
 -- Grant permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON token_usage_metrics TO bionic_application;
-GRANT USAGE, SELECT ON token_usage_metrics_id_seq TO bionic_application;
-GRANT SELECT ON token_usage_metrics TO bionic_readonly;
-GRANT SELECT ON token_usage_metrics_id_seq TO bionic_readonly;
+GRANT SELECT, INSERT, UPDATE, DELETE ON token_usage_metrics TO application_user;
+GRANT USAGE, SELECT ON token_usage_metrics_id_seq TO application_user;
+GRANT SELECT ON token_usage_metrics TO application_readonly;
+GRANT SELECT ON token_usage_metrics_id_seq TO application_readonly;
 
 -- migrate:down
 DROP TABLE token_usage_metrics;

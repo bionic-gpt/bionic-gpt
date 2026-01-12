@@ -14,11 +14,11 @@ CREATE TABLE users (
 
 -- Give access to the application user, the application user has no access to 
 -- The sessions table and therefore cannot fake a login.
-GRANT SELECT, UPDATE, INSERT ON users TO bionic_application;
-GRANT USAGE, SELECT ON users_id_seq TO bionic_application;
+GRANT SELECT, UPDATE, INSERT ON users TO application_user;
+GRANT USAGE, SELECT ON users_id_seq TO application_user;
 
 -- Give access to the readonly user
-GRANT SELECT ON users, users_id_seq TO bionic_readonly;
+GRANT SELECT ON users, users_id_seq TO application_readonly;
 
 -- Manage the updated_at column
 SELECT updated_at('users');

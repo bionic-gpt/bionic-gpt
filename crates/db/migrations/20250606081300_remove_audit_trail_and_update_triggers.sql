@@ -69,10 +69,10 @@ CREATE TABLE audit_trail_text_generation (
 COMMENT ON TABLE audit_trail_text_generation IS 'For text generation we capture extra information';
 
 -- Grant permissions
-GRANT SELECT, INSERT ON audit_trail_text_generation TO bionic_application;
-GRANT USAGE, SELECT ON audit_trail_text_generation_id_seq TO bionic_application;
-GRANT SELECT ON audit_trail_text_generation TO bionic_readonly;
-GRANT SELECT ON audit_trail_text_generation_id_seq TO bionic_readonly;
+GRANT SELECT, INSERT ON audit_trail_text_generation TO application_user;
+GRANT USAGE, SELECT ON audit_trail_text_generation_id_seq TO application_user;
+GRANT SELECT ON audit_trail_text_generation TO application_readonly;
+GRANT SELECT ON audit_trail_text_generation_id_seq TO application_readonly;
 
 -- Restore the original audit_chats function
 DROP TRIGGER IF EXISTS update_chats ON chats RESTRICT;

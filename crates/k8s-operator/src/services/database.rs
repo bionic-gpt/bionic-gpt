@@ -89,11 +89,11 @@ pub async fn deploy(
                     },
                     post_init_sql: Some(vec![
                         format!(
-                            "CREATE ROLE bionic_application LOGIN ENCRYPTED PASSWORD '{}'",
+                            "CREATE ROLE application_user LOGIN ENCRYPTED PASSWORD '{}'",
                             app_database_password
                         ),
                         format!(
-                            "CREATE ROLE bionic_readonly LOGIN ENCRYPTED PASSWORD '{}'",
+                            "CREATE ROLE application_readonly LOGIN ENCRYPTED PASSWORD '{}'",
                             readonly_database_password
                         ),
                     ]),
@@ -121,14 +121,14 @@ pub async fn deploy(
     secret_data.insert(
         "application-url".to_string(),
         format!(
-            "postgres://bionic_application:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=disable",
+            "postgres://application_user:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=disable",
             app_database_password
         ),
     );
     secret_data.insert(
         "readonly-url".to_string(),
         format!(
-            "postgres://bionic_readonly:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=disable",
+            "postgres://application_readonly:{}@bionic-db-cluster-rw:5432/bionic-gpt?sslmode=disable",
             readonly_database_password
         ),
     );

@@ -13,8 +13,8 @@ CREATE TABLE model_capabilities (
   PRIMARY KEY (model_id, capability)
 );
 
-GRANT SELECT, INSERT, DELETE, UPDATE ON model_capabilities TO bionic_application;
-GRANT SELECT ON model_capabilities TO bionic_readonly;
+GRANT SELECT, INSERT, DELETE, UPDATE ON model_capabilities TO application_user;
+GRANT SELECT ON model_capabilities TO application_readonly;
 
 -- migrate:down
 

@@ -149,8 +149,8 @@ SELECT
 FROM recent_data;
 
 -- Grant permissions
-GRANT SELECT ON inference_metrics TO bionic_application;
-GRANT SELECT ON inference_metrics TO bionic_readonly;
+GRANT SELECT ON inference_metrics TO application_user;
+GRANT SELECT ON inference_metrics TO application_readonly;
 
 -- migrate:down
 
@@ -276,5 +276,5 @@ SELECT
 FROM recent_data;
 
 -- Grant permissions
-GRANT SELECT ON inference_metrics TO bionic_application;
-GRANT SELECT ON inference_metrics TO bionic_readonly;
+GRANT SELECT ON inference_metrics TO application_user;
+GRANT SELECT ON inference_metrics TO application_readonly;

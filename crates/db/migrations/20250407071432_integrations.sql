@@ -15,12 +15,12 @@ CREATE TABLE integrations (
 );
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON integrations TO bionic_application;
-GRANT USAGE, SELECT ON integrations_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON integrations TO application_user;
+GRANT USAGE, SELECT ON integrations_id_seq TO application_user;
 
 -- Give access to the readonly user
-GRANT SELECT ON integrations TO bionic_readonly;
-GRANT SELECT ON integrations_id_seq TO bionic_readonly;
+GRANT SELECT ON integrations TO application_readonly;
+GRANT SELECT ON integrations_id_seq TO application_readonly;
 
 -- migrate:down
 DROP TABLE integrations;

@@ -72,18 +72,18 @@ FROM recent_data;
 
 
 -- Give access to the application user.
-GRANT SELECT ON inference_metrics TO bionic_application;
+GRANT SELECT ON inference_metrics TO application_user;
 
 -- Give access to the readonly user
-GRANT SELECT ON inference_metrics TO bionic_readonly;
+GRANT SELECT ON inference_metrics TO application_readonly;
 
 -- Give access to the application user.
-GRANT SELECT, INSERT, UPDATE, DELETE ON rate_limits TO bionic_application;
-GRANT USAGE, SELECT ON rate_limits_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON rate_limits TO application_user;
+GRANT USAGE, SELECT ON rate_limits_id_seq TO application_user;
 
 -- Give access to the readonly user
-GRANT SELECT ON rate_limits TO bionic_readonly;
-GRANT SELECT ON rate_limits_id_seq TO bionic_readonly;
+GRANT SELECT ON rate_limits TO application_readonly;
+GRANT SELECT ON rate_limits_id_seq TO application_readonly;
 
 -- migrate:down
 

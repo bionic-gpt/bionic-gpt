@@ -27,7 +27,10 @@ pub async fn deploy(
     } else {
         "".to_string()
     };
-    let passfile = format!("bionic-db-cluster-rw:5432:*:bionic_readonly:{}", password);
+    let passfile = format!(
+        "bionic-db-cluster-rw:5432:*:application_readonly:{}",
+        password
+    );
     let keycloak_passfile = format!(
         "keycloak-db-cluster-rw:5432:*:keycloak-db-owner:{}",
         keycloak_password

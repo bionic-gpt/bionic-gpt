@@ -1,7 +1,7 @@
 -- migrate:up
 
-GRANT DELETE ON team_users TO bionic_application;
-GRANT DELETE ON teams TO bionic_application;
+GRANT DELETE ON team_users TO application_user;
+GRANT DELETE ON teams TO application_user;
 
 ALTER TABLE invitations DROP CONSTRAINT fk_team;
 ALTER TABLE invitations ADD CONSTRAINT fk_team

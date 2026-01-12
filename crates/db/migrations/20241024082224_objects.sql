@@ -16,10 +16,10 @@ CREATE TABLE objects (
 ALTER TABLE prompts DROP COLUMN image_icon;
 ALTER TABLE prompts ADD COLUMN image_icon_object_id INT;
 
-GRANT SELECT, INSERT ON objects TO bionic_application;
-GRANT USAGE, SELECT ON objects_id_seq TO bionic_application;
-GRANT SELECT ON objects TO bionic_readonly;
-GRANT SELECT ON objects_id_seq TO bionic_readonly;
+GRANT SELECT, INSERT ON objects TO application_user;
+GRANT USAGE, SELECT ON objects_id_seq TO application_user;
+GRANT SELECT ON objects TO application_readonly;
+GRANT SELECT ON objects_id_seq TO application_readonly;
 
 -- migrate:down
 DROP TABLE objects;

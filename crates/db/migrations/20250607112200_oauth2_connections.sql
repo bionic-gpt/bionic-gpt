@@ -13,8 +13,8 @@ CREATE TABLE oauth2_connections (
 );
 
 -- Permissions
-GRANT SELECT, INSERT, UPDATE, DELETE ON oauth2_connections TO bionic_application;
-GRANT USAGE, SELECT ON oauth2_connections_id_seq TO bionic_application;
+GRANT SELECT, INSERT, UPDATE, DELETE ON oauth2_connections TO application_user;
+GRANT USAGE, SELECT ON oauth2_connections_id_seq TO application_user;
 
 -- migrate:down
 DROP TABLE oauth2_connections;

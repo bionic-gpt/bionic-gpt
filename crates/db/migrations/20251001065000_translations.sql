@@ -10,8 +10,8 @@ CREATE TABLE translations (
     CONSTRAINT translations_locale_key_unique UNIQUE (locale, key)
 );
 
-GRANT SELECT ON translations TO bionic_application;
-GRANT SELECT ON translations TO bionic_readonly;
+GRANT SELECT ON translations TO application_user;
+GRANT SELECT ON translations TO application_readonly;
 
 INSERT INTO translations (locale, key, value) VALUES
     ('en', 'i18n.ai_assistants', 'AI Assistants'),

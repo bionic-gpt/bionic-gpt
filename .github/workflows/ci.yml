@@ -15,6 +15,7 @@ on:
       - 'crates/static-website/**'
       - 'crates/deploy-mcp/**'
       - Justfile
+      - stack.yaml
   pull_request:
     branches:
       - main
@@ -29,6 +30,7 @@ on:
       - 'crates/static-website/**'
       - 'crates/deploy-mcp/**'
       - Justfile
+      - stack.yaml
 
 jobs:
   dagger-pipeline:

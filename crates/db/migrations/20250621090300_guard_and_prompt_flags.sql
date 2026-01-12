@@ -21,8 +21,8 @@ CREATE TABLE prompt_flags (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON prompt_flags TO bionic_application;
-GRANT SELECT ON prompt_flags TO bionic_readonly;
+GRANT SELECT, INSERT, UPDATE, DELETE ON prompt_flags TO application_user;
+GRANT SELECT ON prompt_flags TO application_readonly;
 
 -- migrate:down
 DROP TABLE prompt_flags;

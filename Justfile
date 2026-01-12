@@ -4,10 +4,11 @@ list:
 dev-init:
     k3d cluster delete k3d-bionic
     k3d cluster create k3d-bionic --agents 1 -p "30000-30001:30000-30001@agent:0"
+    just get-config
 
 dev-setup:
-    cargo run --bin k8s-operator -- install --no-operator --testing --development --hostname-url http://localhost:30000
-    cargo run --bin k8s-operator -- operator
+    stack init
+    stack deploy --manifest stack.yaml --profile dev
 
 ci:
     cargo run --bin dagger-pipeline -- pull-request

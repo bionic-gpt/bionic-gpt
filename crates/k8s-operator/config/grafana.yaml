@@ -32,7 +32,7 @@ data:
         type: postgres
         access: proxy
         url: bionic-db-cluster-rw:5432
-        user: bionic_readonly
+        user: application_readonly
         database: bionic-gpt
         secureJsonData:
           password: $BIONIC_PASSWORD
