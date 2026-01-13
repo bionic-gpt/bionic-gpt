@@ -9,7 +9,6 @@ cd "$REPO_ROOT"
 # Only stage the files this workflow updates so transient artifacts don't sneak into the commit.
 git add infra-as-code/docker-compose.yml \
         infra-as-code/stack.yaml \
-        crates/static-website/content/docs/on-premise/install-linux/index.md \
         crates/static-website/content/docs/running-locally/docker-compose/index.md
 
 git commit -m "chore(deployment): Update release metadata for $1 [ci skip]"
