@@ -15,6 +15,7 @@ use crate::{error::ApiResult, state::AppState};
 
 const DEFAULT_BIND_ADDR: &str = "0.0.0.0:8080";
 
+// An MCP server for postrgres
 #[tokio::main]
 async fn main() -> ApiResult<()> {
     init_tracing();
