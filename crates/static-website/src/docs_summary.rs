@@ -130,8 +130,8 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Install AWS",
-                        description: "Install AWS",
+                        title: "AWS",
+                        description: "AWS",
                         folder: "docs/private-cloud/aws/",
                         markdown: include_str!("../content/docs/private-cloud/aws/index.md"),
                         image: None,
@@ -140,8 +140,8 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
-                        title: "Install Google Cloud",
-                        description: "Install Google Cloud",
+                        title: "Google Cloud",
+                        description: "Google Cloud",
                         folder: "docs/private-cloud/gcloud/",
                         markdown: include_str!("../content/docs/private-cloud/gcloud/index.md"),
                         image: None,
