@@ -12,6 +12,7 @@ use dioxus::prelude::*;
 pub fn page(
     team_id: i32,
     rbac: Rbac,
+    setup_required: bool,
     models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool, bool)>,
 ) -> String {
     let page = rsx! {
@@ -20,6 +21,7 @@ pub fn page(
             selected_item: SideBar::Models,
             team_id: team_id,
             rbac: rbac,
+            setup_required: setup_required,
             title: "Models",
             header: rsx!(
                 Breadcrumb {

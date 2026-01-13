@@ -16,6 +16,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
     let show_automations_menu = params.show_automations_menu;
     let can_view_chats = params.can_view_chats;
     let can_view_chat_history = params.can_view_chat_history;
+    let setup_required = params.setup_required;
 
     rsx!(
         if can_view_chats || can_view_chat_history {
@@ -28,7 +29,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::console::Index { team_id },
                             icon: nav_service_requests_svg.name,
-                            title: "Chat"
+                            title: "Chat",
+                            disabled: setup_required
                         }
                     }
                     if can_view_chat_history {
@@ -37,7 +39,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::history::Index { team_id },
                             icon: nav_history_svg.name,
-                            title: history_label.clone()
+                            title: history_label.clone(),
+                            disabled: setup_required
                         }
                     }
                 )
@@ -53,7 +56,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::prompts::Index { team_id },
                             icon: assistant_svg.name,
-                            title: prompts_label.clone()
+                            title: prompts_label.clone(),
+                            disabled: setup_required
                         }
                     }
                     if rbac.can_view_integrations() {
@@ -62,7 +66,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::integrations::Index { team_id },
                             icon: nav_audit_svg.name,
-                            title: integrations_label.clone()
+                            title: integrations_label.clone(),
+                            disabled: setup_required
                         }
                         if rbac.can_manage_mcp_keys() {
                             NavItem {
@@ -70,7 +75,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                                 selected_item_id: selected_item.clone(),
                                 href: crate::routes::mcp_api_keys::Index { team_id },
                                 icon: nav_api_keys_svg.name,
-                                title: "API Keys"
+                                title: "API Keys",
+                                disabled: setup_required
                             }
                         }
                     }
@@ -80,7 +86,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::datasets::Index { team_id },
                             icon: nav_ccsds_data_svg.name,
-                            title: datasets_label.clone()
+                            title: datasets_label.clone(),
+                            disabled: setup_required
                         }
                     }
                 )
@@ -95,7 +102,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         selected_item_id: selected_item.clone(),
                         href: crate::routes::api_keys::Index { team_id },
                         icon: nav_api_keys_svg.name,
-                        title: "API Keys"
+                        title: "API Keys",
+                        disabled: setup_required
                     }
                     if show_automations_menu {
                         NavItem {
@@ -103,7 +111,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::automations::Index { team_id },
                             icon: nav_automations_svg.name,
-                            title: "Automations"
+                            title: "Automations",
+                            disabled: setup_required
                         }
                     }
                     if rbac.can_manage_document_pipelines() {
@@ -112,7 +121,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::document_pipelines::Index { team_id },
                             icon: nav_ccsds_data_svg.name,
-                            title: "Document Pipelines"
+                            title: "Document Pipelines",
+                            disabled: setup_required
                         }
                     }
                 )
@@ -127,7 +137,8 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         selected_item_id: selected_item.clone(),
                         href: crate::routes::teams::Switch { team_id },
                         icon: nav_teams_svg.name,
-                        title: "Teams"
+                        title: "Teams",
+                        disabled: setup_required
                     }
                 )
             }
@@ -141,21 +152,24 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         selected_item_id: selected_item.clone(),
                         href: crate::routes::models::Index { team_id },
                         icon: nav_phonebook_svg.name,
-                        title: "Model Setup"
+                        title: "Model Setup",
+                        disabled: false
                     }
                     NavItem {
                         id: SideBar::AuditTrail.to_string(),
                         selected_item_id: selected_item.clone(),
                         href: crate::routes::audit_trail::Index { team_id },
                         icon: nav_audit_svg.name,
-                        title: "Audit Trail"
+                        title: "Audit Trail",
+                        disabled: setup_required
                     }
                     NavItem {
                         id: SideBar::RateLimits.to_string(),
                         selected_item_id: selected_item.clone(),
                         href: crate::routes::rate_limits::Index { team_id },
                         icon: limits_svg.name,
-                        title: "Rate Limits"
+                        title: "Rate Limits",
+                        disabled: setup_required
                     }
                     if rbac.is_sys_admin {
                         NavItem {
@@ -163,28 +177,32 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::oauth_clients::Index { team_id },
                             icon: nav_api_keys_svg.name,
-                            title: "OAuth Clients"
+                            title: "OAuth Clients",
+                            disabled: setup_required
                         }
                         NavItem {
                             id: SideBar::OpenapiSpecs.to_string(),
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::openapi_specs::Index { team_id },
                             icon: nav_audit_svg.name,
-                            title: "OpenAPI Specs"
+                            title: "OpenAPI Specs",
+                            disabled: setup_required
                         }
                         NavItem {
                             id: SideBar::Categories.to_string(),
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::categories::Index { team_id },
                             icon: nav_audit_svg.name,
-                            title: "Categories"
+                            title: "Categories",
+                            disabled: setup_required
                         }
                         NavItem {
                             id: SideBar::Licence.to_string(),
                             selected_item_id: selected_item,
                             href: crate::routes::licence::Index { team_id },
                             icon: nav_audit_svg.name,
-                            title: "System Info"
+                            title: "System Info",
+                            disabled: setup_required
                         }
                     }
                 )

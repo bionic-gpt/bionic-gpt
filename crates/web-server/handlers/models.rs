@@ -44,6 +44,7 @@ pub async fn loader(
         return Err(CustomError::Authorization);
     }
 
+    let setup_required = required_models_missing(&transaction).await?;
     let models = models::all_models().bind(&transaction).all().await?;
 
     // For each model, fetch its capabilities
@@ -76,7 +77,8 @@ pub async fn loader(
         ));
     }
 
-    let html = web_pages::models::page::page(team_id, rbac, models_with_capabilities);
+    let html =
+        web_pages::models::page::page(team_id, rbac, setup_required, models_with_capabilities);
 
     Ok(Html(html))
 }
@@ -95,6 +97,7 @@ pub async fn new_loader(
         return Err(CustomError::Authorization);
     }
 
+    let setup_required = required_models_missing(&transaction).await?;
     let form = model_page::ModelForm {
         id: None,
         prompt_id: None,
@@ -124,7 +127,7 @@ pub async fn new_loader(
         error: None,
     };
 
-    let html = model_page::page(team_id, rbac, form);
+    let html = model_page::page(team_id, rbac, setup_required, form);
 
     Ok(Html(html))
 }
@@ -143,6 +146,7 @@ pub async fn edit_loader(
         return Err(CustomError::Authorization);
     }
 
+    let setup_required = required_models_missing(&transaction).await?;
     let model = models::model_with_prompt()
         .bind(&transaction, &id)
         .one()
@@ -210,9 +214,22 @@ pub async fn edit_loader(
         error: None,
     };
 
-    let html = model_page::page(team_id, rbac, form);
+    let html = model_page::page(team_id, rbac, setup_required, form);
 
     Ok(Html(html))
+}
+
+async fn required_models_missing(transaction: &db::Transaction<'_>) -> Result<bool, CustomError> {
+    let llm_models = models::models()
+        .bind(transaction, &ModelType::LLM)
+        .all()
+        .await?;
+    let embeddings_models = models::models()
+        .bind(transaction, &ModelType::Embeddings)
+        .all()
+        .await?;
+
+    Ok(llm_models.is_empty() || embeddings_models.is_empty())
 }
 
 pub async fn delete_action(

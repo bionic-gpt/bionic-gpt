@@ -58,6 +58,8 @@ pub struct LayoutProps {
     section_class: String,
     #[props(default)]
     locale: Option<String>,
+    #[props(default)]
+    setup_required: bool,
 }
 
 #[derive(Clone)]
@@ -77,6 +79,7 @@ pub(super) struct SidebarParams {
     pub show_automations_menu: bool,
     pub can_view_chats: bool,
     pub can_view_chat_history: bool,
+    pub setup_required: bool,
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
@@ -138,6 +141,7 @@ pub fn Layout(props: LayoutProps) -> Element {
         show_automations_menu,
         can_view_chats,
         can_view_chat_history,
+        setup_required: props.setup_required,
     };
 
     let sidebar_content = if use_mcp_sidebar {

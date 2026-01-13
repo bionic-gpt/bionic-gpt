@@ -4,7 +4,7 @@ use axum::{
     Extension,
 };
 use axum_extra::routing::TypedPath;
-use db::{authz, queries, Licence, Pool};
+use db::{authz, queries, Licence, ModelType, Pool};
 use http::StatusCode;
 use serde::Deserialize;
 
@@ -54,15 +54,29 @@ pub async fn setup_user(
         .one()
         .await?;
 
+    let _rbac = authz::get_permissions(&transaction, &authentication, team.id).await?;
+
+    let llm_models = queries::models::models()
+        .bind(&transaction, &ModelType::LLM)
+        .all()
+        .await?;
+    let embeddings_models = queries::models::models()
+        .bind(&transaction, &ModelType::Embeddings)
+        .all()
+        .await?;
+    let setup_required = llm_models.is_empty() || embeddings_models.is_empty();
+
     let default_console_url = web_pages::routes::console::Index { team_id: team.id }.to_string();
-    let redirect_url = Licence::global()
+    let mut redirect_url = Licence::global()
         .redirect_url
         .as_ref()
         .map(|template| template.replace("{team_id}", &team.id.to_string()))
         .filter(|url| !url.is_empty())
         .unwrap_or(default_console_url);
 
-    let _rbac = authz::get_permissions(&transaction, &authentication, team.id).await?;
+    if setup_required {
+        redirect_url = web_pages::routes::models::Index { team_id: team.id }.to_string();
+    }
 
     transaction.commit().await?;
 

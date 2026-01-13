@@ -9,22 +9,36 @@ pub struct MenuProps {
     selected_item_id: Option<String>,
     id: Option<String>,
     class: Option<String>,
+    #[props(default)]
+    disabled: bool,
 }
 
 #[component]
 pub fn NavItem(props: MenuProps) -> Element {
-    let mut class = "";
+    let mut class = String::new();
     if let (Some(id), Some(selected_item_id)) = (&props.id, &props.selected_item_id) {
         if id == selected_item_id {
-            class = "menu-active";
+            class.push_str("menu-active");
         }
     }
+    if props.disabled {
+        if !class.is_empty() {
+            class.push(' ');
+        }
+        class.push_str("opacity-50 pointer-events-none");
+    }
+    let href = if props.disabled {
+        String::new()
+    } else {
+        props.href.clone()
+    };
     rsx!(
         li {
             role: "listitem",
             a {
                 class: "{class}",
-                href: "{props.href}",
+                href: "{href}",
+                "aria-disabled": "{props.disabled}",
                 img {
                     width: "16",
                     height: "16",
@@ -42,21 +56,35 @@ pub struct NavSubItemProps {
     title: String,
     selected_item_id: Option<String>,
     id: Option<String>,
+    #[props(default)]
+    disabled: bool,
 }
 
 #[component]
 pub fn NavSubItem(props: NavSubItemProps) -> Element {
-    let mut class = "";
+    let mut class = String::new();
     if let (Some(id), Some(selected_item_id)) = (&props.id, &props.selected_item_id) {
         if id == selected_item_id {
-            class = "active";
+            class.push_str("active");
         }
     }
+    if props.disabled {
+        if !class.is_empty() {
+            class.push(' ');
+        }
+        class.push_str("opacity-50 pointer-events-none");
+    }
+    let href = if props.disabled {
+        String::new()
+    } else {
+        props.href.clone()
+    };
     rsx!(
         li {
-            class: class,
+            class: "{class}",
             a {
-                href: "{props.href}",
+                href: "{href}",
+                "aria-disabled": "{props.disabled}",
                 "{props.title}"
             }
         }

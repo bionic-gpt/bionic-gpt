@@ -34,13 +34,14 @@ pub struct ModelForm {
     pub error: Option<String>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, form: ModelForm) -> String {
+pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, form: ModelForm) -> String {
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Models,
             team_id: team_id,
             rbac: rbac.clone(),
+            setup_required: setup_required,
             title: "Models",
             header: rsx!(
                 Breadcrumb {
