@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -13,16 +13,4 @@ pub enum Command {
     PullRequest,
     /// Build for main branch and publish all artifacts.
     All,
-    /// Build the CLI for the given operating system.
-    BuildCli {
-        #[arg(value_enum)]
-        target: CliTarget,
-    },
-}
-
-#[derive(ValueEnum, Clone, Copy)]
-pub enum CliTarget {
-    Linux,
-    Macos,
-    Windows,
 }

@@ -13,7 +13,7 @@ fn get_version() -> String {
         return ver;
     }
 
-    let cargo_toml = include_str!("../../k8s-operator/Cargo.toml");
+    let cargo_toml = include_str!("../../web-server/Cargo.toml");
     let value: Value = cargo_toml.parse().expect("valid Cargo.toml");
     value
         .get("package")

@@ -96,32 +96,3 @@ jobs:
           target_commitish: ${{ github.sha }}
           prerelease: true
           generate_release_notes: true
-
-  build-cli:
-    needs: release
-    runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 1
-      DAGGER_LOG_FORMAT: plain
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    strategy:
-      matrix:
-        include:
-          - platform: linux
-            artifact: bionic-cli-linux
-          - platform: macos
-            artifact: bionic-cli-darwin
-          - platform: windows
-            artifact: bionic-cli-windows.exe
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ needs.release.outputs.tag }}
-
-      - name: Build CLI
-        run: cargo run -p dagger-pipeline --release -- build-cli ${{ matrix.platform }}
-
-      - name: Upload release artifact
-        run: gh release upload ${{ needs.release.outputs.tag }} ./${{ matrix.artifact }} --clobber

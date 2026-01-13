@@ -9,9 +9,7 @@ on:
       - 'infra-as-code/**'
       - '*.md'
       - '.github/workflows/integration*.yml'
-      - '.github/workflows/container-scan.yml'
       - '.github/workflows/embeddings-docker.yml'
-      - 'crates/k8s-operator/config/*'
       - 'crates/static-website/**'
       - 'crates/deploy-mcp/**'
       - Justfile
@@ -24,9 +22,7 @@ on:
       - 'infra-as-code/**'
       - '*.md'
       - '.github/workflows/integration*.yml'
-      - '.github/workflows/container-scan.yml'
       - '.github/workflows/embeddings-docker.yml'
-      - 'crates/k8s-operator/config/*'
       - 'crates/static-website/**'
       - 'crates/deploy-mcp/**'
       - Justfile

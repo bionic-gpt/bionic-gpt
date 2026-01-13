@@ -36,17 +36,6 @@ jobs:
           echo "base=${base#v}" >> "$GITHUB_OUTPUT"
           echo "Promoting ${latest_rc} -> ${base}"
 
-      - name: Get RC release assets
-        id: rc_assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          tag="${{ steps.rc.outputs.latest_rc }}"
-          echo "Fetching assets from ${tag}"
-          gh release download "$tag" --dir rc-assets
-          echo "files=$(ls rc-assets | xargs)" >> "$GITHUB_OUTPUT"
-
       - name: Create stable tag (same commit as RC)
         run: |
           set -euo pipefail
@@ -82,5 +71,4 @@ jobs:
         with:
           tag_name: v${{ steps.rc.outputs.base }}
           prerelease: false
-          files: rc-assets/*
           generate_release_notes: true

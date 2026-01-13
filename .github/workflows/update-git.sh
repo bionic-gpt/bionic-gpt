@@ -7,10 +7,9 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
 # Only stage the files this workflow updates so transient artifacts don't sneak into the commit.
-git add crates/k8s-operator/config/bionic.yaml \
-        infra-as-code/docker-compose.yml \
-        crates/k8s-operator/Cargo.toml \
-        Cargo.lock
+git add infra-as-code/docker-compose.yml \
+        crates/static-website/content/docs/on-premise/install-linux/index.md \
+        crates/static-website/content/docs/running-locally/docker-compose/index.md
 
 git commit -m "chore(deployment): Update release metadata for $1 [ci skip]"
 git push

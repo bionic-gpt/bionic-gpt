@@ -81,7 +81,6 @@ Try our [Docker Compose](https://bionic-gpt.com/docs/running-locally/docker-comp
 - 📣 SIEM integration: Integrate with your SIEM system for threat detection and investigation.
 - ⌛ Resistant to timing attacks (api keys): Coming soon.
 - 📭 SSO: We didn't build our own authentication but use industry leading and secure open source IAM systems.
-- 👮 Secrets Management: Our Kubernetes operator creates secrets using secure algorithms at deployment time.
 
 ### Observability and Reporting
 

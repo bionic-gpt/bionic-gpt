@@ -5,9 +5,9 @@ use eyre::{Result, WrapErr, eyre};
 
 use super::{
     AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE, DATABASE_URL,
-    DB_FOLDER, DB_PASSWORD, MIGRATIONS_IMAGE_REPO, OPERATOR_EXE_NAME, OPERATOR_IMAGE_REPO,
-    PIPELINE_FOLDER, POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO,
-    RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH, TARGET_TRIPLE,
+    DB_FOLDER, DB_PASSWORD, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER, POSTGRES_IMAGE,
+    POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO,
+    SUMMARY_PATH, TARGET_TRIPLE,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -54,7 +54,6 @@ struct BuildOutputs {
     container: Container,
     summary: File,
     app_binary: File,
-    operator_binary: File,
     rag_engine_binary: File,
     airbyte_binary: File,
     postgres_mcp_binary: File,
@@ -131,7 +130,6 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
 
     let summary = summary_container.file(SUMMARY_PATH);
     let app_binary = summary_container.file(release_binary_path(APP_EXE_NAME));
-    let operator_binary = summary_container.file(release_binary_path(OPERATOR_EXE_NAME));
     let rag_engine_binary = summary_container.file(release_binary_path(RAG_ENGINE_EXE_NAME));
     let airbyte_binary = summary_container.file(release_binary_path(AIRBYTE_EXE_NAME));
     let postgres_mcp_binary = summary_container.file(release_binary_path(POSTGRES_MCP_EXE_NAME));
@@ -140,7 +138,6 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         container: summary_container,
         summary,
         app_binary,
-        operator_binary,
         rag_engine_binary,
         airbyte_binary,
         postgres_mcp_binary,
@@ -284,13 +281,6 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     )
     .await?;
 
-    let operator_container = client
-        .container()
-        .with_file("/k8s-operator", outputs.operator_binary.clone())
-        .with_entrypoint(vec!["./k8s-operator", "operator"]);
-
-    ensure_built(&operator_container, "operator image").await?;
-
     let postgres_mcp_container = client
         .container()
         .with_user("1001")
@@ -305,16 +295,6 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         credentials.as_ref(),
         registry,
         "postgres mcp image",
-        &tags,
-    )
-    .await?;
-    maybe_publish(
-        client,
-        &operator_container,
-        OPERATOR_IMAGE_REPO,
-        credentials.as_ref(),
-        registry,
-        "operator image",
         &tags,
     )
     .await?;
