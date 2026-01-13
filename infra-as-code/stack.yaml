@@ -9,6 +9,8 @@ spec:
   profiles:
     dev:
       components:
+        auth:
+          hostname-url: http://localhost:30000
         ingress:
           port: 30000
         db:
