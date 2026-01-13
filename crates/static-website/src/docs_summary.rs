@@ -106,8 +106,20 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Quick Install (Linux)",
-                        description: "Quick Install (Linux)",
+                        title: "Installation Prerequisite",
+                        description: "Install Bionic with Stack CLI",
+                        folder: "docs/private-cloud/installation-prerequisite/",
+                        markdown: include_str!(
+                            "../content/docs/private-cloud/installation-prerequisite/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Install on a VM (K3s)",
+                        description: "Install on a VM (K3s)",
                         folder: "docs/private-cloud/install-linux/",
                         markdown: include_str!(
                             "../content/docs/private-cloud/install-linux/index.md"

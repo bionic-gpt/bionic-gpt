@@ -91,4 +91,4 @@ You can then
 kubectl get nodes
 ```
 
-Follow the "Install Bionic" guide to continue the installation.
+Continue with [Installation Prerequisite](/docs/private-cloud/installation-prerequisite) to deploy Bionic.
