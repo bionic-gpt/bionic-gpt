@@ -150,6 +150,9 @@ templatize
 scratchpad
 rollout
 specs
+OIDC
+kubeconfig
+CloudNativePG
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -428,3 +431,22 @@ operationalizing
 01
 02
 03
+ - docs/configuration/backups/index.md
+jq
+ - docs/configuration/cloudflare/index.md
+Cloudfared
+ - docs/configuration/email/index.md
+MailHog
+ - docs/configuration/rbac/index.md
+Enum
+ - docs/private-cloud/aws/index.md
+ACCOUNT_ID
+Kubeconfig
+ - docs/private-cloud/gcloud/index.md
+IAM
+container.roles.update
+ - docs/private-cloud/installation-prerequisite/index.md
+CRDs
+ - docs/running-locally/kubernetes/index.md
+macOS
+StackApp

@@ -72,4 +72,4 @@ We use [Stack](https://stack-cli.com/) which is a Kubernetes Operator for instal
 
 ## 3. Done
 
-Hopefull if everything went well you should be able to access bionic on `http://localhost:30000`.
+Hopefully if everything went well you should be able to access bionic on `http://localhost:30000`.
