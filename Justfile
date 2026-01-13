@@ -8,7 +8,7 @@ dev-init:
 
 dev-setup:
     stack init
-    stack deploy --manifest stack.yaml --profile dev
+    stack deploy --manifest infra-as-code/stack.yaml --profile dev
 
 ci:
     cargo run --bin dagger-pipeline -- pull-request
