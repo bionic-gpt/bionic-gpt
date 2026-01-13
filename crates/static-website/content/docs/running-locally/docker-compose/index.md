@@ -1,6 +1,6 @@
-# Running Locally
+# Try Bionic with Docker Compose
 
-We have a very lightweight version of Bionic for running locally for for limited Proofs of concept. If you require features such as user management, document pipelines etc from the enterprise version then install the enterprise version instead.
+This version of Bionic has all the functionality of Bionic but is not recommended for production use cases. Only this this method of install for Proofs of Concept.
 
 ## Prerequisites
 

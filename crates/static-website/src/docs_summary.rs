@@ -67,11 +67,23 @@ pub fn summary() -> Summary {
                 pages: vec![
                     Page {
                         date: "",
-                        title: "Try it on a Laptop",
-                        description: "Try it on a Laptop",
+                        title: "Docker Compose",
+                        description: "Docker Compose",
                         folder: "docs/running-locally/docker-compose/",
                         markdown: include_str!(
                             "../content/docs/running-locally/docker-compose/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Kubernetes",
+                        description: "Kubernetes",
+                        folder: "docs/running-locally/kubernetes/",
+                        markdown: include_str!(
+                            "../content/docs/running-locally/kubernetes/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -90,7 +102,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Deploying To Your Infrastructure".to_string(),
+                name: "Private Cloud".to_string(),
                 pages: vec![
                     Page {
                         date: "",
@@ -108,18 +120,6 @@ pub fn summary() -> Summary {
                         description: "Quick Install RKE2",
                         folder: "docs/on-premise/install-rke2/",
                         markdown: include_str!("../content/docs/on-premise/install-rke2/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Install with the Bionic Operator",
-                        description: "Using the Operator",
-                        folder: "docs/on-premise/install-operator/",
-                        markdown: include_str!(
-                            "../content/docs/on-premise/install-operator/index.md"
-                        ),
                         image: None,
                         author_image: None,
                         author: None,
@@ -144,12 +144,40 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                ],
+            },
+            Category {
+                name: "Authentication".to_string(),
+                pages: vec![Page {
+                    date: "",
+                    title: "Single Sign On",
+                    description: "Single Sign O",
+                    folder: "docs/authentication/sso/",
+                    markdown: include_str!("../content/docs/authentication/sso/index.md"),
+                    image: None,
+                    author_image: None,
+                    author: None,
+                }],
+            },
+            Category {
+                name: "Configuring Bionic".to_string(),
+                pages: vec![
                     Page {
                         date: "",
-                        title: "Connecting Data Sources",
-                        description: "Connecting Data Sources",
-                        folder: "docs/on-premise/airbyte/",
-                        markdown: include_str!("../content/docs/on-premise/airbyte/index.md"),
+                        title: "Cloudflare as Ingress",
+                        description: "Cloudflare as Ingress",
+                        folder: "docs/configuration/cloudflare/",
+                        markdown: include_str!("../content/docs/configuration/cloudflare/index.md"),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
+                        title: "Connecting Airbyte",
+                        description: "Connecting Airbyte",
+                        folder: "docs/configuration/airbyte/",
+                        markdown: include_str!("../content/docs/configuration/airbyte/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -158,8 +186,8 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Configure Email",
                         description: "Configure Email",
-                        folder: "docs/on-premise/email/",
-                        markdown: include_str!("../content/docs/on-premise/email/index.md"),
+                        folder: "docs/configuration/email/",
+                        markdown: include_str!("../content/docs/configuration/email/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -168,18 +196,8 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Upgrading Bionic",
                         description: "Upgrading Bionic",
-                        folder: "docs/on-premise/upgrades/",
-                        markdown: include_str!("../content/docs/on-premise/upgrades/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Single Sign On",
-                        description: "Single Sign O",
-                        folder: "docs/on-premise/sso/",
-                        markdown: include_str!("../content/docs/on-premise/sso/index.md"),
+                        folder: "docs/configuration/upgrades/",
+                        markdown: include_str!("../content/docs/configuration/upgrades/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -188,8 +206,8 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Role Based Access Control",
                         description: "Role Based Access Control",
-                        folder: "docs/on-premise/rbac/",
-                        markdown: include_str!("../content/docs/on-premise/rbac/index.md"),
+                        folder: "docs/configuration/rbac/",
+                        markdown: include_str!("../content/docs/configuration/rbac/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -198,28 +216,8 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Database Backups",
                         description: "Database Backups",
-                        folder: "docs/on-premise/backups/",
-                        markdown: include_str!("../content/docs/on-premise/backups/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Connecting pgAdmin",
-                        description: "Connecting pgAdmin",
-                        folder: "docs/on-premise/pgadmin/",
-                        markdown: include_str!("../content/docs/on-premise/pgadmin/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    Page {
-                        date: "",
-                        title: "Cloudflare as Ingress",
-                        description: "Cloudflare as Ingress",
-                        folder: "docs/on-premise/cloudflare/",
-                        markdown: include_str!("../content/docs/on-premise/cloudflare/index.md"),
+                        folder: "docs/configuration/backups/",
+                        markdown: include_str!("../content/docs/configuration/backups/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
@@ -228,17 +226,12 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Licencing Bionic",
                         description: "Licencing Bioni",
-                        folder: "docs/on-premise/licencing/",
-                        markdown: include_str!("../content/docs/on-premise/licencing/index.md"),
+                        folder: "docs/configuration/licencing/",
+                        markdown: include_str!("../content/docs/configuration/licencing/index.md"),
                         image: None,
                         author_image: None,
                         author: None,
                     },
-                ],
-            },
-            Category {
-                name: "Advanced".to_string(),
-                pages: vec![
                     Page {
                         date: "",
                         title: "Runtime Encryption",
@@ -276,7 +269,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Admin".to_string(),
+                name: "Administration".to_string(),
                 pages: vec![
                     Page {
                         date: "",
@@ -300,7 +293,7 @@ pub fn summary() -> Summary {
                     },
                 ],
             },
-            Category {
+            /***Category {
                 name: "How-To".to_string(),
                 pages: vec![
                     Page {
@@ -357,7 +350,7 @@ pub fn summary() -> Summary {
                     author_image: None,
                     author: None,
                 }],
-            },
+            },**/
         ],
     }
 }
