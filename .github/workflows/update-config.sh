@@ -1,5 +1,5 @@
 #!/bin/bash 
-containers=("ghcr.io/bionic-gpt/bionicgpt" "ghcr.io/bionic-gpt/bionicgpt-rabbitmq" "ghcr.io/bionic-gpt/bionicgpt-rag-engine" "ghcr.io/bionic-gpt/bionicgpt-db-migrations")
+containers=("ghcr.io/bionic-gpt/bionicgpt" "ghcr.io/bionic-gpt/bionicgpt-postgres-mcp" "ghcr.io/bionic-gpt/bionicgpt-rabbitmq" "ghcr.io/bionic-gpt/bionicgpt-rag-engine" "ghcr.io/bionic-gpt/bionicgpt-db-migrations")
 
 # Update all the version numbers in the docker-compose example
 for i in "${containers[@]}"

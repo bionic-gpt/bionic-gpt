@@ -34,6 +34,7 @@ impl From<Jwt> for authz::Authentication {
     }
 }
 
+// Extract the JWT from the rquest
 impl<S> FromRequestParts<S> for Jwt
 where
     S: Send + Sync,
