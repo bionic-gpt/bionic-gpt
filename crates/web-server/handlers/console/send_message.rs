@@ -25,6 +25,7 @@ pub async fn send_message(
     SendMessage { team_id }: SendMessage,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Extension(storage_config): Extension<object_storage::StorageConfig>,
     mut multipart: Multipart,
 ) -> Result<impl IntoResponse, CustomError> {
     // Initialize variables to store form data
@@ -129,7 +130,7 @@ pub async fn send_message(
         // Handle attachments if any
         handle_attachments(
             &transaction,
-            pool.clone(),
+            &storage_config,
             &chat_id,
             team_id,
             rbac.user_id,
@@ -183,7 +184,7 @@ pub async fn send_message(
 /// * `Result<(), CustomError>` - Returns `Ok` if successful, or a `CustomError` otherwise.
 async fn handle_attachments(
     transaction: &db::Transaction<'_>,
-    pool: Pool,
+    storage_config: &object_storage::StorageConfig,
     chat_id: &i32,
     team_id: i32,
     user_id: i32,
@@ -191,7 +192,7 @@ async fn handle_attachments(
 ) -> Result<(), CustomError> {
     for (file_name, _content_type, file_data, _size) in files_info {
         // Upload the file to object storage
-        match object_storage::upload(pool.clone(), user_id, team_id, file_name, file_data).await {
+        match object_storage::upload(storage_config, user_id, team_id, file_name, file_data).await {
             Ok(object_id) => {
                 // Link the object to the chat
                 attachments::insert()

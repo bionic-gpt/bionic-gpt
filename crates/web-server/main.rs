@@ -76,6 +76,7 @@ async fn main() {
 
     let config = config::Config::new();
     let pool = db::create_pool(&config.app_database_url);
+    let storage_config = object_storage::StorageConfig::database(pool.clone());
     let i18n = db::I18n::new(pool.clone());
     i18n.warm_cache().await;
     db::i18n::set_global(i18n.clone());
@@ -113,7 +114,8 @@ async fn main() {
         .merge(handlers::teams::routes())
         .layer(middleware::from_fn(telemetry::annotate_render_time))
         .layer(Extension(config.clone()))
-        .layer(Extension(pool.clone()));
+        .layer(Extension(pool.clone()))
+        .layer(Extension(storage_config.clone()));
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     tracing::info!("listening on http://{}", &addr);

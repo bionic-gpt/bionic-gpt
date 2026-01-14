@@ -1,6 +1,31 @@
 use db::{queries::object_storage, ObjectStorage, Pool, TokioPostgresError};
 use image::imageops::FilterType;
 
+#[derive(Clone)]
+pub struct StorageConfig {
+    pub backend: StorageBackend,
+}
+
+#[derive(Clone)]
+pub enum StorageBackend {
+    Database {
+        pool: Pool,
+    },
+    Supabase {
+        base_url: String,
+        service_key: String,
+        bucket: String,
+    },
+}
+
+impl StorageConfig {
+    pub fn database(pool: Pool) -> Self {
+        Self {
+            backend: StorageBackend::Database { pool },
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum StorageError {
     DatabaseError(String),
@@ -29,6 +54,23 @@ impl From<db::PoolError> for StorageError {
 }
 
 pub async fn upload(
+    config: &StorageConfig,
+    user_id: i32,
+    team_id: i32,
+    file_name: &str,
+    bytes: &[u8],
+) -> Result<i32, StorageError> {
+    match &config.backend {
+        StorageBackend::Database { pool } => {
+            upload_db(pool.clone(), user_id, team_id, file_name, bytes).await
+        }
+        StorageBackend::Supabase { .. } => Err(StorageError::InvalidInput(
+            "Supabase storage backend not implemented".into(),
+        )),
+    }
+}
+
+async fn upload_db(
     pool: Pool,
     user_id: i32,
     team_id: i32,
@@ -72,7 +114,7 @@ pub async fn upload(
 }
 
 pub async fn image_upload(
-    pool: Pool,
+    config: &StorageConfig,
     user_id: i32,
     team_id: i32,
     file_name: &str,
@@ -80,7 +122,7 @@ pub async fn image_upload(
     image_size: Option<(u32, u32)>,
 ) -> Result<i32, StorageError> {
     let resized_bytes = resize_image(bytes, image_size)?;
-    let id = upload(pool, user_id, team_id, file_name, &resized_bytes).await?;
+    let id = upload(config, user_id, team_id, file_name, &resized_bytes).await?;
     Ok(id)
 }
 
@@ -109,7 +151,16 @@ pub fn resize_image(bytes: &[u8], size: Option<(u32, u32)>) -> Result<Vec<u8>, S
     }
 }
 
-pub async fn get(pool: Pool, id: i32) -> Result<ObjectStorage, StorageError> {
+pub async fn get(config: &StorageConfig, id: i32) -> Result<ObjectStorage, StorageError> {
+    match &config.backend {
+        StorageBackend::Database { pool } => get_db(pool.clone(), id).await,
+        StorageBackend::Supabase { .. } => Err(StorageError::InvalidInput(
+            "Supabase storage backend not implemented".into(),
+        )),
+    }
+}
+
+async fn get_db(pool: Pool, id: i32) -> Result<ObjectStorage, StorageError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 

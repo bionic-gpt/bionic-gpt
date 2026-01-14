@@ -12,13 +12,14 @@ pub async fn image(
     Image { team_id, id }: Image,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Extension(storage_config): Extension<object_storage::StorageConfig>,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
     let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
-    let object = object_storage::get(pool, id).await?;
+    let object = object_storage::get(&storage_config, id).await?;
 
     if let Some(bytes) = object.object_data {
         let bytes = Bytes::from(bytes);

@@ -36,6 +36,7 @@ pub async fn upsert(
     Upsert { team_id }: Upsert,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Extension(storage_config): Extension<object_storage::StorageConfig>,
     Extension(config): Extension<Config>,
     TypedMultipart(new_prompt_template): TypedMultipart<NewPromptTemplate>,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -57,7 +58,7 @@ pub async fn upsert(
                 None
             } else {
                 let id = object_storage::image_upload(
-                    pool.clone(),
+                    &storage_config,
                     rbac.user_id,
                     team_id,
                     file_name,
