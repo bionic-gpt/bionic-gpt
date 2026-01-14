@@ -6,6 +6,8 @@ metadata:
 spec:
   components:
     db: {}
+    storage:
+      install_minio: true
   profiles:
     dev:
       components:
@@ -30,3 +32,13 @@ spec:
       init:
         image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.0
         migrations_database_url: DATABASE_URL
+
+    rag-engine:
+      image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.0
+      port: 7703
+      database_url: APP_DATABASE_URL
+
+    chunking-engine:
+      image: downloads.unstructured.io/unstructured-io/unstructured-api:e464c16
+      port: 8000
+      database_url: APP_DATABASE_URL
