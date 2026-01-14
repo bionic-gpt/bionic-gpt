@@ -45,7 +45,7 @@ impl std::error::Error for StorageError {}
 
 impl From<TokioPostgresError> for StorageError {
     fn from(err: TokioPostgresError) -> Self {
-        StorageError::DatabaseError(err.to_string())
+        StorageError::DatabaseError(format!("{err:?}"))
     }
 }
 
@@ -85,10 +85,13 @@ async fn upload_db(
         ));
     }
 
-    let object_name = file_name.to_string();
+    let object_name = file_name.chars().take(100).collect::<String>();
     let mime_type = mime_guess::from_path(file_name)
         .first_or_octet_stream()
-        .to_string();
+        .to_string()
+        .chars()
+        .take(50)
+        .collect::<String>();
     let file_size = bytes.len() as i64;
     let file_hash = format!("{:x}", md5::compute(bytes));
 

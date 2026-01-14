@@ -158,7 +158,19 @@ pub async fn upload_action(
         let data = file.bytes().await.unwrap().to_vec();
 
         let object_id =
-            object_storage::upload(&storage_config, rbac.user_id, team_id, &name, &data).await?;
+            object_storage::upload(&storage_config, rbac.user_id, team_id, &name, &data)
+                .await
+                .map_err(|error| {
+                    tracing::error!(
+                        error = %error,
+                        team_id,
+                        dataset_id,
+                        file_name = %name,
+                        file_size = data.len(),
+                        "Failed to upload document to object storage"
+                    );
+                    CustomError::Database(error.to_string())
+                })?;
 
         let _document_id = queries::documents::insert_with_object()
             .bind(
@@ -169,7 +181,19 @@ pub async fn upload_action(
                 &object_id,
             )
             .one()
-            .await?;
+            .await
+            .map_err(|error| {
+                tracing::error!(
+                    error = %error,
+                    team_id,
+                    dataset_id,
+                    file_name = %name,
+                    file_size = data.len(),
+                    object_id,
+                    "Failed to insert document metadata"
+                );
+                CustomError::Database(error.to_string())
+            })?;
     }
 
     transaction.commit().await?;
