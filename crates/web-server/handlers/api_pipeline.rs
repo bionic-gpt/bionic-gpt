@@ -18,6 +18,7 @@ pub fn routes(config: &Config) -> Router {
 
 pub async fn upload(
     Extension(pool): Extension<Pool>,
+    Extension(storage_config): Extension<object_storage::StorageConfig>,
     headers: HeaderMap,
     mut files: Multipart,
 ) -> Result<impl IntoResponse, CustomError> {
@@ -27,6 +28,11 @@ pub async fn upload(
         let mut client = pool.get().await?;
         let transaction = client.transaction().await?;
 
+        let pipeline = queries::document_pipelines::find_api_key()
+            .bind(&transaction, &api_key)
+            .one()
+            .await?;
+
         while let Some(file) = files.next_field().await.unwrap() {
             // name of the file with extention
             let name = file.file_name().unwrap().to_string();
@@ -35,18 +41,22 @@ pub async fn upload(
 
             tracing::info!("Sending document to unstructured");
 
-            let dataset = queries::datasets::dataset_by_pipeline_key()
-                .bind(&transaction, &api_key)
-                .one()
-                .await?;
+            let object_id = object_storage::upload(
+                &storage_config,
+                pipeline.user_id,
+                pipeline.team_id,
+                &name,
+                &data,
+            )
+            .await?;
 
-            let _document_id = queries::documents::insert()
+            let _document_id = queries::documents::insert_with_object()
                 .bind(
                     &transaction,
-                    &dataset.id,
+                    &pipeline.dataset_id,
                     &name,
-                    &data,
                     &(data.len() as i32),
+                    &object_id,
                 )
                 .one()
                 .await?;

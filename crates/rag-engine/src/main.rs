@@ -2,6 +2,7 @@ mod config;
 mod unstructured;
 
 use db::queries;
+use object_storage::StorageConfig;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -12,6 +13,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = config::Config::new();
     dbg!(&config);
     let pool = db::create_pool(&config.app_database_url);
+    let storage_config = StorageConfig::database(pool.clone());
     let client = pool.get().await?;
 
     loop {
@@ -32,8 +34,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .one()
                     .await?;
 
+                let bytes = match load_document_bytes(&storage_config, &document).await {
+                    Ok(bytes) => bytes,
+                    Err(error) => {
+                        let error = format!("Not able to load document bytes: {}", error);
+                        queries::documents::fail_document()
+                            .bind(&client, &error, &document.id)
+                            .await?;
+                        tracing::error!(error);
+                        continue;
+                    }
+                };
+
                 let structured_data = crate::unstructured::document_to_chunks(
-                    document.content,
+                    bytes,
                     &document.file_name,
                     dataset.combine_under_n_chars as u32,
                     dataset.new_after_n_chars as u32,
@@ -132,4 +146,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         tokio::time::sleep(tokio::time::Duration::from_millis(5000)).await;
     }
+}
+
+async fn load_document_bytes(
+    storage_config: &StorageConfig,
+    document: &db::queries::documents::UnprocessedDocument,
+) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    if let Some(content) = &document.content {
+        return Ok(content.clone());
+    }
+
+    if let Some(object_id) = document.object_id {
+        let object = object_storage::get(storage_config, object_id).await?;
+        if let Some(bytes) = object.object_data {
+            return Ok(bytes);
+        }
+    }
+
+    Err("document bytes missing".into())
 }

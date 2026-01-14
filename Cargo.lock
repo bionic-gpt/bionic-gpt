@@ -3020,7 +3020,6 @@ dependencies = [
  "image",
  "md5",
  "mime_guess",
- "rag-engine",
 ]
 
 [[package]]
@@ -3520,6 +3519,7 @@ version = "0.1.0"
 dependencies = [
  "db",
  "embeddings-api",
+ "object-storage",
  "pgvector 0.3.2",
  "reqwest 0.12.4",
  "serde",

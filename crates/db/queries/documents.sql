@@ -1,9 +1,12 @@
---! unprocessed_documents : Chunk()
+--: UnprocessedDocument(content?, object_id?)
+
+--! unprocessed_documents : UnprocessedDocument
 SELECT
     d.id,
     d.dataset_id,
     d.file_name,
-    d.content
+    d.content,
+    d.object_id
 FROM
     documents d
 WHERE
@@ -133,6 +136,16 @@ INSERT INTO documents (
     content_size
 ) 
 VALUES(:dataset_id, :file_name, :content, :content_size)
+RETURNING id;
+
+--! insert_with_object
+INSERT INTO documents (
+    dataset_id,
+    file_name,
+    content_size,
+    object_id
+)
+VALUES(:dataset_id, :file_name, :content_size, :object_id)
 RETURNING id;
 
 --! delete

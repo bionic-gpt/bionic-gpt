@@ -41,6 +41,8 @@ impl std::fmt::Display for StorageError {
     }
 }
 
+impl std::error::Error for StorageError {}
+
 impl From<TokioPostgresError> for StorageError {
     fn from(err: TokioPostgresError) -> Self {
         StorageError::DatabaseError(err.to_string())

@@ -146,23 +146,27 @@ pub async fn upload_action(
     }: Upload,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Extension(storage_config): Extension<object_storage::StorageConfig>,
     mut files: Multipart,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         let name = file.file_name().unwrap().to_string();
         let data = file.bytes().await.unwrap().to_vec();
 
-        let _document_id = queries::documents::insert()
+        let object_id =
+            object_storage::upload(&storage_config, rbac.user_id, team_id, &name, &data).await?;
+
+        let _document_id = queries::documents::insert_with_object()
             .bind(
                 &transaction,
                 &dataset_id,
                 &name,
-                &data,
                 &(data.len() as i32),
+                &object_id,
             )
             .one()
             .await?;

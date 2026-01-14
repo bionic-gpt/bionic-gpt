@@ -6,6 +6,7 @@ SELECT
     a.name,
     a.dataset_id,
     a.user_id,
+    a.team_id,
     (SELECT name FROM datasets p WHERE p.id = a.dataset_id) as dataset_name,
     a.api_key,
     a.created_at
@@ -29,6 +30,7 @@ SELECT
     a.name,
     a.dataset_id,
     a.user_id,
+    a.team_id,
     (SELECT name FROM datasets p WHERE p.id = a.dataset_id) as dataset_name,
     a.api_key,
     a.created_at
