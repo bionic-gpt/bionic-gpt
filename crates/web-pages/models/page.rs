@@ -41,6 +41,14 @@ pub fn page(
 
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",
+                if setup_required {
+                    Alert {
+                        alert_color: AlertColor::Warn,
+                        class: "mb-6 flex flex-col gap-2",
+                        div { class: "font-semibold", "Model setup required" }
+                        div { class: "text-sm opacity-90", "Add at least one LLM model and one Embeddings model to continue." }
+                    }
+                }
                 SectionIntroduction {
                     header: "Models".to_string(),
                     subtitle: "Configure and manage AI models for your assistants and applications.".to_string(),

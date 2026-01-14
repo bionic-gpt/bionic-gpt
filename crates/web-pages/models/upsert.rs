@@ -62,6 +62,14 @@ pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, form: ModelForm) -> 
             ),
             div {
                 class: "p-4 max-w-4xl w-full mx-auto",
+                if setup_required {
+                    Alert {
+                        alert_color: AlertColor::Warn,
+                        class: "mb-6 flex flex-col gap-2",
+                        div { class: "font-semibold", "Model setup required" }
+                        div { class: "text-sm opacity-90", "Add at least one LLM model and one Embeddings model to continue." }
+                    }
+                }
                 form {
                     action: crate::routes::models::Upsert { team_id }.to_string(),
                     method: "post",
