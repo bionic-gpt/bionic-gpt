@@ -8,6 +8,8 @@ This document explains the major capability categories used to evaluate self‑h
 
 ## 1. Interaction & Modalities
 
+![Alt text](the-console.png "Chat GPT Prompt")
+
 ### What this category covers
 
 How users interact with models and which input/output modalities are supported beyond plain text.
@@ -48,6 +50,8 @@ get_attachment(id:number, offset: number)
 
 ## 2. Assistants, Agents & Projects
 
+![Alt text](projects.png "Assistants, Agents & Projects")
+
 ### What this category covers
 
 How systems define persistent AI behavior and context.
@@ -60,14 +64,34 @@ How systems define persistent AI behavior and context.
 
 This is the dividing line between *chat UIs* and *AI systems*.
 
-### Typical tool definition
+Here is project-level tool pseudocode that represents what a full platform (not just a chat UI) typically exposes to an LLM when operating inside a Project / Workspace.
 
-```yaml
-name: list_attachments
-description: List files available to the assistant for reasoning
-inputs: {}
-outputs:
-  files: list
+### Project Context & Navigation
+
+```js
+get_project() -> Project
+list_project_chats(project_id: string) -> Chat[]
+get_chat(chat_id: string) -> Chat
+create_chat(project_id: string, title?: string) -> Chat
+rename_chat(chat_id: string, title: string)
+```
+
+### Conversation Memory & State
+
+```js
+store_memory(key: string, value: string)
+read_memory(key: string) -> string
+list_memory_keys() -> string[]
+delete_memory(key: string)
+```
+
+### File & Artifact Management
+
+```js
+list_attachments() -> File[]
+read_file(file_id: string) -> FileContent
+write_file(name: string, content: bytes) -> File
+delete_file(file_id: string)
 ```
 
 ### Comparison matrix
@@ -84,6 +108,8 @@ outputs:
 
 ## 3. Knowledge & Data Ingestion (RAG)
 
+![Alt text](rag-pipeline.png "Integrations")
+
 ### What this category covers
 
 How external knowledge is ingested, indexed, and retrieved during inference.
@@ -97,13 +123,16 @@ How external knowledge is ingested, indexed, and retrieved during inference.
 
 This requires background pipelines, vector stores, and runtime binding—none of which exist in simple chat UIs.
 
-### Typical pipeline definition
+### Rag Tools passed to the model
 
-```yaml
-source: s3://docs/
-mode: continuous
-chunk_size: 800
-embedding_model: text-embedding-3-large
+```js
+search_knowledge(query: string, k?: number) -> RetrievedChunk[]
+get_chunk(chunk_id: string) -> RetrievedChunk
+
+request_full_document(
+  source_id: string,
+  justification: string
+) -> DocumentHandle
 ```
 
 ### Comparison matrix
@@ -120,6 +149,8 @@ embedding_model: text-embedding-3-large
 
 ## 4. Integrations & Extensibility
 
+![Alt text](open-api.png "Integrations")
+
 ### What this category covers
 
 How the system interacts with external APIs and tools.
@@ -132,6 +163,8 @@ How the system interacts with external APIs and tools.
 * MCP enables cross‑system agent interoperability
 
 This is where platforms stop being UIs and become *integration hubs*.
+
+![Alt text](integrations.png "Integrations")
 
 ### Typical OpenAPI tool binding
 
@@ -155,6 +188,9 @@ auth:
 ---
 
 ## 5. Security, Identity & Governance
+
+
+![Alt text](sso.png "Single Sign On")
 
 ### What this category covers
 
