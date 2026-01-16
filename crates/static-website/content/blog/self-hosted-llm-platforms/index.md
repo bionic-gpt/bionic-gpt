@@ -25,13 +25,12 @@ Platforms that only support chat are thin UIs. Platforms that support multiple m
 ### Typical tool definition (example)
 
 ```yaml
-name: web_search
-description: Perform a live web search and return structured results
-inputs:
-  query: string
-  recency_days: number
-outputs:
-  results: list
+web_search(query: string, recency_days?: number)
+create_image(prompt: string, size?: string)
+analyze_image(image_ref: File)
+open_url(url: string)
+list_attachments()
+get_attachment(id:number, offset: number)
 ```
 
 ### Comparison matrix
