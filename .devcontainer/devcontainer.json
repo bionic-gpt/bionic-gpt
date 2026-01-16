@@ -1,4 +1,5 @@
 {
+  	"name": "Bionic",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": "."
