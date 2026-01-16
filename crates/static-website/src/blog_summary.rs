@@ -7,6 +7,16 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 Page {
+                    date: "2026-01-16",
+                    title: "Evaluating Self-Hosted LLM Platforms: From Front Ends to Enterprise GenAI",
+                    description: "A practical framework for comparing self-hosted LLM platforms across UI, orchestration, security, and enterprise readiness.",
+                    folder: "blog/self-hosted-llm-platforms/",
+                    markdown: include_str!("../content/blog/self-hosted-llm-platforms/index.md"),
+                    image: Some("/blog/self-hosted-llm-platforms/hero.svg"),
+                    author_image: Some("/blog-authors/dio.jpeg"),
+                    author: Some("Kulbinder Dio")
+                },
+                Page {
                     date: "2025-07-23",
                     title: "Beyond MCP: The Future of Enterprise AI Integrations with OpenAPI",
                     description: "Explore how Bionic have introduced Integrations and slid stepped the limitations of MCP",
