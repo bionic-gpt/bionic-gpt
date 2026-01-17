@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::card_item::CardItem;
 use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
@@ -84,7 +84,7 @@ pub fn page(
     displays.sort_by(|a, b| a.name.cmp(&b.name));
 
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::McpApiKeys,
             team_id: team_id,

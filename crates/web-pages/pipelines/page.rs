@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use daisy_rsx::*;
@@ -14,7 +14,7 @@ pub fn page(
     datasets: Vec<Dataset>,
 ) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::DocumentPipelines,
             team_id: team_id,

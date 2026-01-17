@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{Category, Prompt, Visibility};
@@ -46,7 +46,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
     };
 
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
             team_id: team_id,

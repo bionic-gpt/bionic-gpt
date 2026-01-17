@@ -4,7 +4,7 @@ use db::{authz::Rbac, AuditTrail, Member};
 use dioxus::prelude::*;
 
 use crate::{
-    app_layout::{Layout, SideBar},
+    app_layout::{AdminLayout, SideBar},
     render,
 };
 
@@ -17,7 +17,7 @@ pub fn page(
 ) -> String {
     let page = rsx! {
 
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::AuditTrail,
             team_id: team_id,

@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::card_item::CardItem;
 
 use assets::files::*;
@@ -60,7 +60,7 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
         .unwrap_or(default_redirect_url);
 
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Licence,
             team_id: team_id,

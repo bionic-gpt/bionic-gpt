@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use super::model_card::ModelCard;
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use assets::files::*;
@@ -16,7 +16,7 @@ pub fn page(
     models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool, bool)>,
 ) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Models,
             team_id: team_id,

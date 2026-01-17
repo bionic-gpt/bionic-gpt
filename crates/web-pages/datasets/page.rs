@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::Layout;
+use crate::app_layout::AdminLayout;
 use crate::app_layout::SideBar;
 use crate::components::card_item::{CardItem, CountLabel};
 use crate::i18n;
@@ -23,7 +23,7 @@ pub fn page(
     let datasets_label = i18n::datasets(locale);
     let dataset_label = i18n::dataset(locale);
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
             team_id: team_id,

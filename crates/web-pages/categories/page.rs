@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
 use assets::files::*;
@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 
 pub fn page(team_id: i32, rbac: Rbac, categories: Vec<Category>) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Categories,
             team_id: team_id,

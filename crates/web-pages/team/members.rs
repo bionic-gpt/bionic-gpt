@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use super::member_card::{InvitePendingCard, MemberCard};
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::confirm_modal::ConfirmModal;
 use assets::files::*;
 use daisy_rsx::*;
@@ -21,7 +21,7 @@ pub fn page(
         .clone()
         .unwrap_or_else(|| "Team Members".to_string());
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Switch,
             team_id: team.id,

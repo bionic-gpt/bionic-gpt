@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
 use crate::SectionIntroduction;
@@ -11,7 +11,7 @@ use dioxus::prelude::*;
 
 pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::OpenapiSpecs,
             team_id,

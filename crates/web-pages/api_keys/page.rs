@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::components::confirm_modal::ConfirmModal;
 use crate::{
-    app_layout::{Layout, SideBar},
+    app_layout::{AdminLayout, SideBar},
     charts::{ApiRequestChartCard, TokenUsageChartCard},
     render,
 };
@@ -30,7 +30,7 @@ pub fn page(
     generated_key: Option<GeneratedKey>,
 ) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::ApiKeys,
             team_id: team_id,

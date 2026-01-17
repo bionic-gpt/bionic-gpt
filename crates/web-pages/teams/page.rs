@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use super::{invite_card::InviteCard, team_card::TeamCard};
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::confirm_modal::ConfirmModal;
 use assets::files::button_plus_svg;
 use daisy_rsx::*;
@@ -18,7 +18,7 @@ pub fn page(
     team_member_counts: HashMap<i32, usize>,
 ) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Switch,
             team_id: team_id,

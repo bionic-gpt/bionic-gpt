@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
@@ -22,7 +22,7 @@ pub struct OauthClientForm {
 
 pub fn page(team_id: i32, rbac: Rbac, oauth_client: OauthClientForm) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::OauthClients,
             team_id: team_id,

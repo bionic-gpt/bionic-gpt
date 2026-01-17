@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::charts::{ApiRequestChartCard, TokenUsageChartCard};
 use crate::components::confirm_modal::ConfirmModal;
 use assets::files::*;
@@ -16,7 +16,7 @@ pub fn page(
     api_request_data: Vec<db::queries::token_usage_metrics::DailyApiRequests>,
 ) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::RateLimits,
             team_id: team_id,

@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::card_item::{CardItem, CountLabel};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::integrations::mcp_url_modal::McpUrlModal;
@@ -30,7 +30,7 @@ pub fn page(
     let show_mcp_modal = licence.features.mcp;
 
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
             team_id: team_id,

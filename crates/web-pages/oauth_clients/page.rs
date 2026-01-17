@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{Layout, SideBar};
+use crate::app_layout::{AdminLayout, SideBar};
 use crate::routes;
 use crate::SectionIntroduction;
 use assets::files::*;
@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 
 pub fn page(team_id: i32, rbac: Rbac, oauth_clients: Vec<db::OauthClient>) -> String {
     let page = rsx! {
-        Layout {
+        AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::OauthClients,
             team_id: team_id,

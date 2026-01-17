@@ -2,7 +2,9 @@
 
 mod base;
 mod sidebar;
+mod sidebar_admin;
 mod sidebar_mcp;
+mod sidebar_mcp_admin;
 
 pub use base::{AppLayoutProps as BaseProps, BaseLayout};
 
@@ -83,6 +85,20 @@ pub(super) struct SidebarParams {
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
+    layout(props, LayoutMode::Main)
+}
+
+pub fn AdminLayout(props: LayoutProps) -> Element {
+    layout(props, LayoutMode::Admin)
+}
+
+#[derive(Clone, Copy)]
+enum LayoutMode {
+    Main,
+    Admin,
+}
+
+fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     let stylesheets = vec![index_css.name.to_string(), output_css.name.to_string()];
 
     let locale = props
@@ -144,10 +160,49 @@ pub fn Layout(props: LayoutProps) -> Element {
         setup_required: props.setup_required,
     };
 
-    let sidebar_content = if use_mcp_sidebar {
-        sidebar_mcp::render(&sidebar_params, &sidebar_labels)
-    } else {
-        sidebar::render(&sidebar_params, &sidebar_labels)
+    let sidebar_content = match (use_mcp_sidebar, mode) {
+        (true, LayoutMode::Main) => sidebar_mcp::render(&sidebar_params, &sidebar_labels),
+        (true, LayoutMode::Admin) => sidebar_mcp_admin::render(&sidebar_params, &sidebar_labels),
+        (false, LayoutMode::Main) => sidebar::render(&sidebar_params, &sidebar_labels),
+        (false, LayoutMode::Admin) => sidebar_admin::render(&sidebar_params, &sidebar_labels),
+    };
+
+    let admin_href = admin_home_href(&props.rbac, props.team_id, use_mcp_sidebar);
+    let main_href = main_home_href(&props.rbac, props.team_id, use_mcp_sidebar);
+
+    let sidebar_footer = match mode {
+        LayoutMode::Main => rsx!(
+            if let Some(href) = admin_href.clone() {
+                a {
+                    class: "btn btn-ghost btn-sm w-full justify-start mb-2",
+                    href: "{href}",
+                    "Admin"
+                }
+            }
+            ProfilePopup {
+                email: props.rbac.email.clone(),
+                first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
+                last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
+                team_id: props.team_id,
+                unlicensed: props.rbac.unlicensed,
+            }
+        ),
+        LayoutMode::Admin => rsx!(
+            if let Some(href) = main_href.clone() {
+                a {
+                    class: "btn btn-ghost btn-sm w-full justify-start mb-2",
+                    href: "{href}",
+                    "Back to app"
+                }
+            }
+            ProfilePopup {
+                email: props.rbac.email.clone(),
+                first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
+                last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
+                team_id: props.team_id,
+                unlicensed: props.rbac.unlicensed,
+            }
+        ),
     };
 
     rsx! {
@@ -189,18 +244,76 @@ pub fn Layout(props: LayoutProps) -> Element {
                     }
                 }
             ),
-            sidebar_footer: rsx!(
-                ProfilePopup {
-                    email: props.rbac.email.clone(),
-                    first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
-                    last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
-                    team_id: props.team_id,
-                    unlicensed: props.rbac.unlicensed,
-                }
-            ),
+            sidebar_footer: sidebar_footer,
             {props.children}
             Snackbar {}
             LogoutForm {}
         }
     }
+}
+
+fn admin_home_href(rbac: &Rbac, team_id: i32, use_mcp_sidebar: bool) -> Option<String> {
+    if use_mcp_sidebar {
+        if rbac.can_view_datasets() {
+            return Some(crate::routes::datasets::Index { team_id }.to_string());
+        }
+        if rbac.can_manage_mcp_keys() {
+            return Some(crate::routes::mcp_api_keys::Index { team_id }.to_string());
+        }
+    } else {
+        if rbac.can_manage_mcp_keys() {
+            return Some(crate::routes::mcp_api_keys::Index { team_id }.to_string());
+        }
+        if rbac.can_view_datasets() {
+            return Some(crate::routes::datasets::Index { team_id }.to_string());
+        }
+        if rbac.can_use_api_keys() {
+            return Some(crate::routes::api_keys::Index { team_id }.to_string());
+        }
+        if rbac.can_use_api_keys() && rbac.can_manage_document_pipelines() {
+            return Some(crate::routes::document_pipelines::Index { team_id }.to_string());
+        }
+    }
+
+    if rbac.can_view_teams() {
+        return Some(crate::routes::teams::Switch { team_id }.to_string());
+    }
+    if rbac.can_view_audit_trail() || rbac.can_setup_models() {
+        return Some(crate::routes::models::Index { team_id }.to_string());
+    }
+    if rbac.is_sys_admin {
+        return Some(crate::routes::oauth_clients::Index { team_id }.to_string());
+    }
+
+    None
+}
+
+fn main_home_href(rbac: &Rbac, team_id: i32, use_mcp_sidebar: bool) -> Option<String> {
+    if use_mcp_sidebar {
+        if rbac.can_view_integrations() {
+            return Some(crate::routes::integrations::Index { team_id }.to_string());
+        }
+        if rbac.can_view_prompts() {
+            return Some(crate::routes::prompts::Index { team_id }.to_string());
+        }
+        if rbac.can_view_chat_history() {
+            return Some(crate::routes::history::Index { team_id }.to_string());
+        }
+        return None;
+    }
+
+    if rbac.can_view_chats() {
+        return Some(crate::routes::console::Index { team_id }.to_string());
+    }
+    if rbac.can_view_chat_history() {
+        return Some(crate::routes::history::Index { team_id }.to_string());
+    }
+    if rbac.can_view_prompts() {
+        return Some(crate::routes::prompts::Index { team_id }.to_string());
+    }
+    if rbac.can_view_integrations() {
+        return Some(crate::routes::integrations::Index { team_id }.to_string());
+    }
+
+    None
 }
