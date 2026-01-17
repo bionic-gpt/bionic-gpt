@@ -174,9 +174,14 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         LayoutMode::Main => rsx!(
             if let Some(href) = admin_href.clone() {
                 a {
-                    class: "btn btn-ghost btn-sm w-full justify-start mb-2",
+                    class: "btn btn-ghost btn-sm w-full justify-start mb-2 flex items-center gap-2",
                     href: "{href}",
-                    "Admin"
+                    img {
+                        width: "16",
+                        height: "16",
+                        src: settings_svg.name
+                    }
+                    "Admin Panel"
                 }
             }
             ProfilePopup {
@@ -190,8 +195,13 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         LayoutMode::Admin => rsx!(
             if let Some(href) = main_href.clone() {
                 a {
-                    class: "btn btn-ghost btn-sm w-full justify-start mb-2",
+                    class: "btn btn-ghost btn-sm w-full justify-start mb-2 flex items-center gap-2",
                     href: "{href}",
+                    img {
+                        width: "16",
+                        height: "16",
+                        src: left_arrow_svg.name
+                    }
                     "Back to app"
                 }
             }

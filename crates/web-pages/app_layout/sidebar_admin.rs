@@ -24,7 +24,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::mcp_api_keys::Index { team_id },
                             icon: nav_api_keys_svg.name,
-                            title: "API Keys",
+                            title: "MCP API Keys",
                             disabled: setup_required
                         }
                     }
