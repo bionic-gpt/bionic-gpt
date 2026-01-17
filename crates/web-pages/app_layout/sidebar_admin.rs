@@ -18,16 +18,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
             NavGroup {
                 heading: ai_assistants_label,
                 content: rsx!(
-                    if rbac.can_manage_mcp_keys() {
-                        NavItem {
-                            id: SideBar::McpApiKeys.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::mcp_api_keys::Index { team_id },
-                            icon: nav_api_keys_svg.name,
-                            title: "MCP API Keys",
-                            disabled: setup_required
-                        }
-                    }
                     if rbac.can_view_datasets() {
                         NavItem {
                             id: SideBar::Datasets.to_string(),
