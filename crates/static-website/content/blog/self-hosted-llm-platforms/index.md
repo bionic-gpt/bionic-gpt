@@ -54,7 +54,7 @@ get_attachment(id:number, offset: number)
 
 ### What this category covers
 
-How systems define persistent AI behavior and context.
+How systems define persistent AI behaviour and context.
 
 ### What happens underneath
 
@@ -219,7 +219,7 @@ Controls required in multi‑user, regulated, or enterprise environments.
 
 ### What this category covers
 
-Visibility into usage, cost, and system behavior.
+Visibility into usage, cost, and system behaviour.
 
 ### What happens underneath
 
@@ -270,6 +270,6 @@ This is the clearest separator between *tools* and *platforms*.
 **Open WebUI answers the question:** *“How do I chat with an LLM?”*
 
 **Platforms like Bionic GPT and Onyx answer:**
-*“How do I safely, observably, and extensibly deploy AI across an organization?”*
+*“How do I safely, observably, and extensibility deploy AI across an organization?”*
 
 That distinction only becomes visible once you look below the UI layer—exactly what this evaluation framework is designed to do.

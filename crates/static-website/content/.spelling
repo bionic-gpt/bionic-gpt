@@ -153,6 +153,7 @@ specs
 OIDC
 kubeconfig
 CloudNativePG
+artifact
  - blog/ai-agents/index.md
 socioeconomic
  - blog/ai-lakehouse/index.md
@@ -450,3 +451,9 @@ CRDs
  - docs/running-locally/kubernetes/index.md
 macOS
 StackApp
+ - blog/self-hosted-llm-platforms/index.md
+WebUI
+LibreChat
+UIs
+OpenTelemetry
+Grafana
