@@ -37,6 +37,7 @@ pub enum SideBar {
     OauthClients,
     OpenapiSpecs,
     Prompts,
+    Projects,
     Profile,
     RateLimits,
     Switch,
@@ -323,6 +324,9 @@ fn main_home_href(rbac: &Rbac, team_id: i32, use_mcp_sidebar: bool) -> Option<St
     }
     if rbac.can_view_integrations() {
         return Some(crate::routes::integrations::Index { team_id }.to_string());
+    }
+    if rbac.can_manage_projects() {
+        return Some(crate::routes::projects::Index { team_id }.to_string());
     }
 
     None

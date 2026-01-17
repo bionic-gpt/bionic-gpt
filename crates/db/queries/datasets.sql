@@ -18,18 +18,22 @@ SELECT
 FROM 
     datasets d
 WHERE
-    (visibility = 'Private' AND created_by = current_app_user()) 
-OR 
+    is_project = false
+AND
     (
-        visibility = 'Team' 
-        AND
-        team_id IN (
-            SELECT 
-                team_id 
-            FROM team_users WHERE user_id = current_app_user())
+        (visibility = 'Private' AND created_by = current_app_user()) 
+        OR 
+        (
+            visibility = 'Team' 
+            AND
+            team_id IN (
+                SELECT 
+                    team_id 
+                FROM team_users WHERE user_id = current_app_user())
+        )
+        OR 
+        (visibility = 'Company')
     )
-OR 
-    (visibility = 'Company')
 ORDER BY updated_at;
 
 --! dataset_by_external_id : DatasetWithModel
@@ -154,6 +158,33 @@ VALUES(
     :new_after_n_chars,
     :multipage_sections,
     :visibility,
+    current_app_user())
+RETURNING id;
+
+--! insert_project
+INSERT INTO 
+    datasets (
+        team_id, 
+        name,
+        embeddings_model_id,
+        chunking_strategy,
+        combine_under_n_chars,
+        new_after_n_chars,
+        multipage_sections,
+        visibility,
+        is_project,
+        created_by
+    )
+VALUES(
+    :team_id, 
+    :name,
+    :embeddings_model_id,
+    :chunking_strategy,
+    :combine_under_n_chars,
+    :new_after_n_chars,
+    :multipage_sections,
+    :visibility,
+    true,
     current_app_user())
 RETURNING id;
 

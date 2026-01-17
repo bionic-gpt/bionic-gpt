@@ -43,7 +43,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                 )
             }
         }
-        if rbac.can_view_prompts() || rbac.can_view_integrations() {
+        if rbac.can_view_prompts() || rbac.can_view_integrations() || rbac.can_manage_projects() {
             NavGroup {
                 heading: ai_assistants_label.clone(),
                 content:  rsx!(
@@ -64,6 +64,16 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             href: crate::routes::integrations::Index { team_id },
                             icon: nav_audit_svg.name,
                             title: integrations_label.clone(),
+                            disabled: setup_required
+                        }
+                    }
+                    if rbac.can_manage_projects() {
+                        NavItem {
+                            id: SideBar::Projects.to_string(),
+                            selected_item_id: selected_item.clone(),
+                            href: crate::routes::projects::Index { team_id },
+                            icon: nav_automations_svg.name,
+                            title: "Projects",
                             disabled: setup_required
                         }
                     }

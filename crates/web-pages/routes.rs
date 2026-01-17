@@ -453,6 +453,44 @@ pub mod integrations {
     }
 }
 
+pub mod projects {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/projects")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/projects/view/{project_id}")]
+    pub struct View {
+        pub team_id: i32,
+        pub project_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/projects/upsert")]
+    pub struct Upsert {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/projects/delete/{id}")]
+    pub struct Delete {
+        pub team_id: i32,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/projects/{project_id}/start_chat")]
+    pub struct StartChat {
+        pub team_id: i32,
+        pub project_id: i32,
+    }
+}
+
 pub mod mcp_api_keys {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

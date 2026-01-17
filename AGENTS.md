@@ -14,6 +14,10 @@ All of the pages are generated server side with a little bit of Typescript on th
 - Postgres          # Database
 - Earthly           # Build system for production. (https://earthly.dev/)
 
+## Database Migrations
+
+- When adding a new enum value (e.g., `ALTER TYPE ... ADD VALUE`), do not use the new value in the same migration transaction. Split into a follow-up migration before inserting rows that reference the new enum value.
+
 ## Folder: db
 
 - All of the `dbmate` migrations are stored in the `migrations` folder.

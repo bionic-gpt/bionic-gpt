@@ -69,3 +69,40 @@ AND
     )
 ORDER BY c.created_at DESC
 LIMIT 100;
+
+--! project_history : History
+WITH summary AS (
+    SELECT * FROM chats
+    WHERE id IN (SELECT MIN(id) FROM chats GROUP BY conversation_id)
+)
+SELECT
+    c.id,
+    summary.prompt_id,
+    CASE
+        WHEN LENGTH(decrypt_text(summary.content)) > 150 THEN
+            LEFT(decrypt_text(summary.content), 150) || '...'
+        ELSE
+            decrypt_text(summary.content)
+    END AS summary,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(c.created_at)::text) as created_at_iso,
+    c.created_at,
+    p.prompt_type
+FROM
+    conversations c
+JOIN
+    summary
+ON
+    c.id = summary.conversation_id
+JOIN
+    prompts p ON summary.prompt_id = p.id
+WHERE
+    c.project_id = :project_id
+AND
+    c.team_id IN (
+        SELECT team_id
+        FROM team_users
+        WHERE user_id = current_app_user()
+    )
+ORDER BY c.created_at DESC
+LIMIT 100;

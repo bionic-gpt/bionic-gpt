@@ -33,6 +33,13 @@ VALUES
     (current_app_user(), :team_id)
 RETURNING id;
 
+--! create_project_conversation
+INSERT INTO conversations 
+    (user_id, team_id, project_id)
+VALUES
+    (current_app_user(), :team_id, :project_id)
+RETURNING id;
+
 --! get_conversation_from_chat : Conversation
 SELECT
     id,
@@ -84,4 +91,3 @@ JOIN prompts p ON ch.prompt_id = p.id
 JOIN models m ON p.model_id = m.id
 WHERE c.id = :conversation_id
   AND c.user_id = current_app_user();
-

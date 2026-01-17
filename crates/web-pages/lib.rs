@@ -25,6 +25,7 @@ pub mod openapi_specs;
 pub mod pipelines;
 pub mod profile;
 pub mod profile_popup;
+pub mod projects;
 pub mod rate_limits;
 pub mod shared;
 pub use components::section_introduction::SectionIntroduction;

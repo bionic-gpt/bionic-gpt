@@ -256,4 +256,8 @@ impl Rbac {
     pub fn can_manage_mcp_keys(&self) -> bool {
         self.permissions.contains(&Permission::ManageMcpKeys)
     }
+
+    pub fn can_manage_projects(&self) -> bool {
+        self.permissions.contains(&Permission::ManageProjects)
+    }
 }
