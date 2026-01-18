@@ -21,7 +21,7 @@ All of the pages are generated server side with a little bit of Typescript on th
 ## Folder: db
 
 - All of the `dbmate` migrations are stored in the `migrations` folder.
-- To create a new migration run `dbmate new migration-name` where migration name somehow represents the work you are doing.
+- To create a new migration run `dbmate new migration-name` where migration name somehow represents the work you are doing. Always use `dbmate new` so timestamps are correct.
 - All of the `.sql` files are in a folder called `queries`.
 - The `sql` files are named after the main tables use. i.e. `users.sql` for the `users` table.
 - All the database CRUD operation are in these files.
