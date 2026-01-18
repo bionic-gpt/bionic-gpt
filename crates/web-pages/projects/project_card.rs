@@ -46,7 +46,7 @@ pub fn ProjectCard(props: ProjectCardProps) -> Element {
                 direction: Direction::Left,
                 button_text: "...",
                 DropDownLink {
-                    href: project_link,
+                    href: project_link.clone(),
                     target: "_top",
                     "Open"
                 }

@@ -274,11 +274,11 @@ fn admin_home_href(rbac: &Rbac, team_id: i32, use_mcp_sidebar: bool) -> Option<S
             return Some(crate::routes::mcp_api_keys::Index { team_id }.to_string());
         }
     } else {
-        if rbac.can_manage_mcp_keys() {
-            return Some(crate::routes::mcp_api_keys::Index { team_id }.to_string());
-        }
         if rbac.can_view_datasets() {
             return Some(crate::routes::datasets::Index { team_id }.to_string());
+        }
+        if rbac.can_manage_mcp_keys() {
+            return Some(crate::routes::mcp_api_keys::Index { team_id }.to_string());
         }
         if rbac.can_use_api_keys() {
             return Some(crate::routes::api_keys::Index { team_id }.to_string());
