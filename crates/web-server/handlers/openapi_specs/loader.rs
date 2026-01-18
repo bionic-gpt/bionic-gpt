@@ -1,8 +1,16 @@
 use crate::{CustomError, Jwt};
 use axum::{extract::Extension, response::Html};
-use db::{authz, queries, Pool};
+use db::{authz, queries, OpenapiSpecCategory, Pool};
 use web_pages::openapi_specs::upsert::OpenapiSpecForm;
 use web_pages::routes::openapi_specs::{Edit, Index, New};
+
+fn category_to_string(category: OpenapiSpecCategory) -> String {
+    match category {
+        OpenapiSpecCategory::WebSearch => "WebSearch".to_string(),
+        OpenapiSpecCategory::CodeSandbox => "CodeSandbox".to_string(),
+        OpenapiSpecCategory::Application => "Application".to_string(),
+    }
+}
 
 pub async fn index_loader(
     Index { team_id }: Index,
@@ -71,6 +79,7 @@ pub async fn edit_loader(
         title: spec.title,
         description: spec.description.unwrap_or_default(),
         logo_url: spec.logo_url.unwrap_or_default(),
+        category: category_to_string(spec.category),
         spec: spec_json,
         is_active: spec.is_active,
         error: None,

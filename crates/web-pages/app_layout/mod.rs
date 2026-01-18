@@ -42,6 +42,7 @@ pub enum SideBar {
     RateLimits,
     Switch,
     Security,
+    WebSearch,
 }
 
 impl std::fmt::Display for SideBar {

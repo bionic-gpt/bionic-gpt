@@ -53,6 +53,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                                     tr {
                                         th { "Title" }
                                         th { "Slug" }
+                                        th { "Category" }
                                         th { "Status" }
                                         th { "Updated" }
                                         th { class: "text-right", "Actions" }
@@ -64,6 +65,9 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                                             td { "{spec.title}" }
                                             td {
                                                 code { "{spec.slug}" }
+                                            }
+                                            td {
+                                                "{crate::openapi_specs::category_label(spec.category)}"
                                             }
                                             td {
                                                 span {

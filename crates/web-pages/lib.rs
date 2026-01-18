@@ -32,6 +32,7 @@ pub use components::section_introduction::SectionIntroduction;
 pub mod snackbar;
 pub mod team;
 pub mod teams;
+pub mod web_search;
 
 pub fn render(page: Element) -> String {
     let html = dioxus_ssr::render_element(page);

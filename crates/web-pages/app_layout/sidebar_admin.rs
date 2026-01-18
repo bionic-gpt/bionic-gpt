@@ -127,6 +127,14 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             disabled: setup_required
                         }
                         NavItem {
+                            id: SideBar::WebSearch.to_string(),
+                            selected_item_id: selected_item.clone(),
+                            href: crate::routes::web_search::Index { team_id },
+                            icon: nav_audit_svg.name,
+                            title: "Web Search",
+                            disabled: setup_required
+                        }
+                        NavItem {
                             id: SideBar::Categories.to_string(),
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::categories::Index { team_id },

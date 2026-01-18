@@ -3,10 +3,18 @@ use axum::{
     extract::{Extension, Form},
     response::{Html, IntoResponse},
 };
-use db::{authz, queries, Json, Pool};
+use db::{authz, queries, Json, OpenapiSpecCategory, Pool};
 use validator::Validate;
 use web_pages::openapi_specs::upsert::OpenapiSpecForm;
 use web_pages::routes::openapi_specs::{Delete, Upsert};
+
+fn parse_category(category: &str) -> OpenapiSpecCategory {
+    match category {
+        "WebSearch" => OpenapiSpecCategory::WebSearch,
+        "CodeSandbox" => OpenapiSpecCategory::CodeSandbox,
+        _ => OpenapiSpecCategory::Application,
+    }
+}
 
 pub async fn action_upsert(
     Upsert { team_id }: Upsert,
@@ -27,6 +35,7 @@ pub async fn action_upsert(
     form.title = form.title.trim().to_string();
     form.description = form.description.trim().to_string();
     form.logo_url = form.logo_url.trim().to_string();
+    form.category = form.category.trim().to_string();
     form.spec = form.spec.trim().to_string();
 
     if let Err(validation) = form.validate() {
@@ -56,6 +65,7 @@ pub async fn action_upsert(
         Some(form.logo_url.as_str())
     };
 
+    let category = parse_category(&form.category);
     let spec_json = Json(parsed_spec);
 
     let result: Result<(), db::TokioPostgresError> = if let Some(id) = form.id {
@@ -67,6 +77,7 @@ pub async fn action_upsert(
                 &description_param,
                 &spec_json,
                 &logo_url_param,
+                &category,
                 &form.is_active,
                 &id,
             )
@@ -81,6 +92,7 @@ pub async fn action_upsert(
                 &description_param,
                 &spec_json,
                 &logo_url_param,
+                &category,
                 &form.is_active,
             )
             .one()

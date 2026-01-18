@@ -8,6 +8,7 @@ SELECT
     description,
     spec,
     logo_url,
+    category,
     is_active,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
@@ -25,6 +26,7 @@ SELECT
     description,
     spec,
     logo_url,
+    category,
     is_active,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
@@ -33,6 +35,8 @@ FROM
     openapi_specs
 WHERE
     is_active = TRUE
+AND
+    category != 'WebSearch'
 ORDER BY
     title;
 
@@ -44,6 +48,7 @@ SELECT
     description,
     spec,
     logo_url,
+    category,
     is_active,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
@@ -60,6 +65,7 @@ INSERT INTO openapi_specs (
     description,
     spec,
     logo_url,
+    category,
     is_active
 )
 VALUES (
@@ -68,6 +74,7 @@ VALUES (
     :description,
     :spec,
     :logo_url,
+    :category,
     :is_active
 )
 RETURNING id;
@@ -80,10 +87,31 @@ SET
     description = :description,
     spec = :spec,
     logo_url = :logo_url,
+    category = :category,
     is_active = :is_active,
     updated_at = NOW()
 WHERE
     id = :id;
+
+--! web_search : OpenapiSpec
+SELECT
+    id,
+    slug,
+    title,
+    description,
+    spec,
+    logo_url,
+    category,
+    is_active,
+    -- Convert times to ISO 8601 string.
+    trim(both '"' from to_json(created_at)::text) as created_at,
+    trim(both '"' from to_json(updated_at)::text) as updated_at
+FROM
+    openapi_specs
+WHERE
+    category = 'WebSearch'
+ORDER BY
+    title;
 
 --! delete
 DELETE FROM openapi_specs

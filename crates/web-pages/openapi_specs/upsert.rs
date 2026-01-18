@@ -16,6 +16,7 @@ pub struct OpenapiSpecForm {
     pub title: String,
     pub description: String,
     pub logo_url: String,
+    pub category: String,
     #[validate(length(min = 1, message = "OpenAPI specification is required"))]
     pub spec: String,
     #[serde(default)]
@@ -32,6 +33,7 @@ impl Default for OpenapiSpecForm {
             title: String::new(),
             description: String::new(),
             logo_url: String::new(),
+            category: "Application".to_string(),
             spec: String::new(),
             is_active: true,
             error: None,
@@ -136,6 +138,29 @@ pub fn page(team_id: i32, rbac: Rbac, form: OpenapiSpecForm) -> String {
                                 name: "logo_url",
                                 placeholder: "data:image/svg+xml;base64,...",
                                 value: "{form.logo_url}"
+                            }
+                        }
+                        Fieldset {
+                            legend: "Category",
+                            help_text: "Controls where this spec appears in the admin UI.",
+                            Select {
+                                name: "category",
+                                value: "{form.category}",
+                                SelectOption {
+                                    value: "Application",
+                                    selected_value: "{form.category}",
+                                    "Application"
+                                },
+                                SelectOption {
+                                    value: "WebSearch",
+                                    selected_value: "{form.category}",
+                                    "Web Search"
+                                },
+                                SelectOption {
+                                    value: "CodeSandbox",
+                                    selected_value: "{form.category}",
+                                    "CodeSandbox"
+                                }
                             }
                         }
 

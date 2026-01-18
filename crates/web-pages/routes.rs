@@ -786,6 +786,24 @@ pub mod openapi_specs {
     }
 }
 
+pub mod web_search {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/web_search")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/web_search/select/{id}")]
+    pub struct Select {
+        pub team_id: i32,
+        pub id: i32,
+    }
+}
+
 pub mod licence {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
