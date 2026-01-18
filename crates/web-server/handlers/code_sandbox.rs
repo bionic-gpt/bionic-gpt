@@ -6,7 +6,7 @@ use axum::{
 };
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, OpenapiSpecCategory, Pool};
-use web_pages::routes::web_search::{Index, Select};
+use web_pages::routes::code_sandbox::{Index, Select};
 
 pub fn routes() -> Router {
     Router::new().typed_get(loader).typed_post(select_action)
@@ -27,18 +27,18 @@ pub async fn loader(
     }
 
     let specs = queries::openapi_specs::by_category()
-        .bind(&transaction, &OpenapiSpecCategory::WebSearch)
+        .bind(&transaction, &OpenapiSpecCategory::CodeSandbox)
         .all()
         .await?;
 
     let selected = queries::openapi_spec_selections::selection()
-        .bind(&transaction, &OpenapiSpecCategory::WebSearch)
+        .bind(&transaction, &OpenapiSpecCategory::CodeSandbox)
         .opt()
         .await?;
 
     let selected_spec_id = selected.map(|row| row.openapi_spec_id);
 
-    let html = web_pages::web_search::page::page(team_id, rbac, specs, selected_spec_id);
+    let html = web_pages::code_sandbox::page::page(team_id, rbac, specs, selected_spec_id);
 
     Ok(Html(html))
 }
@@ -62,19 +62,19 @@ pub async fn select_action(
         .one()
         .await?;
 
-    if spec.category != OpenapiSpecCategory::WebSearch || !spec.is_active {
+    if spec.category != OpenapiSpecCategory::CodeSandbox || !spec.is_active {
         return Err(CustomError::Authorization);
     }
 
     queries::openapi_spec_selections::set_selection()
-        .bind(&transaction, &OpenapiSpecCategory::WebSearch, &spec.id)
+        .bind(&transaction, &OpenapiSpecCategory::CodeSandbox, &spec.id)
         .await?;
 
     transaction.commit().await?;
 
     Ok(crate::layout::redirect_and_snackbar(
-        &web_pages::routes::web_search::Index { team_id }.to_string(),
-        "Web search spec updated",
+        &web_pages::routes::code_sandbox::Index { team_id }.to_string(),
+        "CodeSandbox spec updated",
     )
     .into_response())
 }

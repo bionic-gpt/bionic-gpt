@@ -36,7 +36,7 @@ FROM
 WHERE
     is_active = TRUE
 AND
-    category != 'WebSearch'
+    category = 'Application'
 ORDER BY
     title;
 
@@ -93,7 +93,7 @@ SET
 WHERE
     id = :id;
 
---! web_search : OpenapiSpec
+--! by_category : OpenapiSpec
 SELECT
     id,
     slug,
@@ -109,7 +109,7 @@ SELECT
 FROM
     openapi_specs
 WHERE
-    category = 'WebSearch'
+    category = :category
 ORDER BY
     title;
 

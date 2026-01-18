@@ -43,6 +43,7 @@ pub enum SideBar {
     Switch,
     Security,
     WebSearch,
+    CodeSandbox,
 }
 
 impl std::fmt::Display for SideBar {

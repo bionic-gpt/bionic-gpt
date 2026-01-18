@@ -804,6 +804,24 @@ pub mod web_search {
     }
 }
 
+pub mod code_sandbox {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/code_sandbox")]
+    pub struct Index {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/code_sandbox/select/{id}")]
+    pub struct Select {
+        pub team_id: i32,
+        pub id: i32,
+    }
+}
+
 pub mod licence {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

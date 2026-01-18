@@ -113,6 +113,7 @@ async fn main() {
         .merge(handlers::licence::routes())
         .merge(handlers::team::routes())
         .merge(handlers::web_search::routes())
+        .merge(handlers::code_sandbox::routes())
         .merge(handlers::teams::routes())
         .layer(middleware::from_fn(telemetry::annotate_render_time))
         .layer(Extension(config.clone()))
