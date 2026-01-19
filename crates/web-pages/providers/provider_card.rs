@@ -25,8 +25,9 @@ pub fn ProviderCard(team_id: i32, provider: Provider) -> Element {
             span { class: "truncate", "{default_label}" }
         })),
         footer: None,
+        image_html: Some(provider.svg_logo.clone()),
         image_src: None,
-        avatar_name: Some(provider.name.clone()),
+        avatar_name: None,
         count_labels: vec![CountLabel {
             count: provider.default_model_context_size as usize,
             label: "Context".into()

@@ -1,6 +1,7 @@
 use crate::layout::empty_string_is_none;
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
+use axum::extract::Query;
 use axum::response::Html;
 use axum::response::IntoResponse;
 use axum::Form;
@@ -20,6 +21,11 @@ use validator::Validate;
 use web_pages::models::upsert as model_page;
 use web_pages::routes::models::{Delete, Edit, Index, New, Upsert};
 use web_pages::{string_to_visibility, visibility_to_string};
+
+#[derive(Deserialize, Default)]
+pub struct ProviderQuery {
+    pub provider_id: Option<i32>,
+}
 
 pub fn routes() -> Router {
     Router::new()
@@ -46,6 +52,10 @@ pub async fn loader(
 
     let setup_required = required_models_missing(&transaction).await?;
     let models = models::all_models().bind(&transaction).all().await?;
+    let providers = queries::providers::providers()
+        .bind(&transaction)
+        .all()
+        .await?;
 
     // For each model, fetch its capabilities
     let mut models_with_capabilities = Vec::new();
@@ -77,8 +87,13 @@ pub async fn loader(
         ));
     }
 
-    let html =
-        web_pages::models::page::page(team_id, rbac, setup_required, models_with_capabilities);
+    let html = web_pages::models::page::page(
+        team_id,
+        rbac,
+        setup_required,
+        models_with_capabilities,
+        providers,
+    );
 
     Ok(Html(html))
 }
@@ -87,6 +102,7 @@ pub async fn new_loader(
     New { team_id }: New,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
+    Query(query): Query<ProviderQuery>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
@@ -98,7 +114,7 @@ pub async fn new_loader(
     }
 
     let setup_required = required_models_missing(&transaction).await?;
-    let form = model_page::ModelForm {
+    let mut form = model_page::ModelForm {
         id: None,
         prompt_id: None,
         name: "".to_string(),
@@ -126,6 +142,26 @@ pub async fn new_loader(
         has_capability_guard: false,
         error: None,
     };
+
+    if let Some(provider_id) = query.provider_id {
+        if let Ok(provider) = queries::providers::provider()
+            .bind(&transaction, &provider_id)
+            .one()
+            .await
+        {
+            let default_display = provider
+                .default_model_display_name
+                .clone()
+                .or_else(|| provider.default_model_name.clone())
+                .unwrap_or_default();
+
+            form.name = provider.default_model_name.unwrap_or_default();
+            form.display_name = default_display;
+            form.base_url = provider.base_url;
+            form.context_size_bytes = provider.default_model_context_size;
+            form.description = provider.default_model_description;
+        }
+    }
 
     let html = model_page::page(team_id, rbac, setup_required, form);
 

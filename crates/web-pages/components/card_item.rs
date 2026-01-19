@@ -13,6 +13,8 @@ pub struct CardItemProps {
     pub class: Option<String>,
     pub popover_target: Option<String>,
     pub clickable_link: Option<String>,
+    #[props(default)]
+    pub image_html: Option<String>,
     pub image_src: Option<String>,
     pub avatar_name: Option<String>,
 
@@ -40,7 +42,12 @@ pub fn CardItem(props: CardItemProps) -> Element {
             clickable_link: props.clickable_link.clone(),
             div {
                 class: "flex flex-col justify-center",
-                if let Some(src) = props.image_src.clone() {
+                if let Some(html) = props.image_html.clone() {
+                    div {
+                        class: "border border-neutral-content rounded p-2 w-12 h-12 flex items-center justify-center",
+                        dangerous_inner_html: "{html}"
+                    }
+                } else if let Some(src) = props.image_src.clone() {
                     img {
                         class: "border border-neutral-content rounded p-2",
                         src: "{src}",
