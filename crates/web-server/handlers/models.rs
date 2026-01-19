@@ -370,6 +370,7 @@ pub async fn upsert_action(
             let system_prompt: Option<&String> = None;
 
             if let Some(prompt_id) = model_form.prompt_id {
+                let temperature: Option<f32> = None;
                 queries::prompts::update()
                     .bind(
                         &transaction,
@@ -382,7 +383,7 @@ pub async fn upsert_action(
                         &10,
                         &model_form.context_size,
                         &80,
-                        &0.7,
+                        &temperature,
                         &model_form.description,
                         &model_form.disclaimer,
                         &Some(&model_form.example1),
@@ -461,6 +462,7 @@ pub async fn upsert_action(
             };
 
             if model_type == ModelType::LLM {
+                let temperature: Option<f32> = None;
                 queries::prompts::insert()
                     .bind(
                         &transaction,
@@ -475,7 +477,7 @@ pub async fn upsert_action(
                         &10,
                         &context_size,
                         &80,
-                        &0.7,
+                        &temperature,
                         &model_form.description,
                         &model_form.disclaimer,
                         &Some(&model_form.example1),

@@ -43,6 +43,12 @@ pub async fn conversation(
         .all()
         .await?;
 
+    if prompts.is_empty() {
+        return Err(CustomError::FaultySetup(
+            "No model prompts configured".to_string(),
+        ));
+    }
+
     let prompt_id = if let Some(default_prompt) = user_config.default_prompt {
         default_prompt
     } else {
@@ -52,7 +58,17 @@ pub async fn conversation(
     let prompt = queries::prompts::prompt()
         .bind(&transaction, &prompt_id, &team_id)
         .one()
-        .await?;
+        .await;
+
+    let prompt = if let Ok(prompt) = prompt {
+        prompt
+    } else {
+        let id = prompts.first().unwrap().id;
+        queries::prompts::prompt()
+            .bind(&transaction, &id, &team_id)
+            .one()
+            .await?
+    };
 
     let capabilities = queries::capabilities::get_model_capabilities()
         .bind(&transaction, &prompt.model_id)

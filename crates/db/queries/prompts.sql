@@ -351,7 +351,7 @@ VALUES(
 );
     
 
---! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon_object_id?)
+--! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon_object_id?, temperature?)
 INSERT INTO prompts (
     team_id, 
     model_id, 
@@ -398,7 +398,7 @@ VALUES(
 )
 RETURNING id;
 
---! update(system_prompt?, example1?, example2?, example3?, example4?)
+--! update(system_prompt?, example1?, example2?, example3?, example4?, temperature?)
 UPDATE 
     prompts 
 SET 
