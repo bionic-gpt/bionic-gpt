@@ -477,7 +477,7 @@ async fn create_request(
     let completion = BionicChatCompletionRequest {
         model: model.name,
         stream: Some(true),
-        max_tokens: Some(prompt.max_tokens),
+        max_tokens: prompt.max_completion_tokens,
         temperature: prompt.temperature,
         messages,
         tools,

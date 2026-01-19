@@ -16,7 +16,7 @@ pub struct NewPromptTemplate {
     pub category_id: i32,
     pub max_history_items: i32,
     pub max_chunks: i32,
-    pub max_tokens: i32,
+    pub max_completion_tokens: String,
     pub trim_ratio: i32,
     pub temperature: f32,
     pub visibility: String,
@@ -30,6 +30,14 @@ pub struct NewPromptTemplate {
 
     // The image upload
     pub image_icon: Option<FieldData<axum::body::Bytes>>,
+}
+
+fn parse_optional_i32(value: &str) -> Option<i32> {
+    if value.is_empty() {
+        None
+    } else {
+        value.parse::<i32>().ok()
+    }
 }
 
 pub async fn upsert(
@@ -151,7 +159,7 @@ async fn update_prompt(
             &system_prompt,
             &new_prompt_template.max_history_items,
             &new_prompt_template.max_chunks,
-            &new_prompt_template.max_tokens,
+            &parse_optional_i32(&new_prompt_template.max_completion_tokens),
             &new_prompt_template.trim_ratio,
             &Some(new_prompt_template.temperature),
             &new_prompt_template.description,
@@ -187,7 +195,7 @@ async fn insert_prompt(
             &system_prompt,
             &new_prompt_template.max_history_items,
             &new_prompt_template.max_chunks,
-            &new_prompt_template.max_tokens,
+            &parse_optional_i32(&new_prompt_template.max_completion_tokens),
             &new_prompt_template.trim_ratio,
             &Some(new_prompt_template.temperature),
             &new_prompt_template.description,

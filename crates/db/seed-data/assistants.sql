@@ -317,7 +317,7 @@ INSERT INTO prompts (
     name,
     max_history_items,
     max_chunks,
-    max_tokens,
+    max_completion_tokens,
     trim_ratio,
     temperature,
     system_prompt,
@@ -341,7 +341,7 @@ SELECT
     name,                                           -- name from array
     10,                                             -- max_history_items
     5,                                              -- max_chunks
-    1000,                                           -- max_tokens
+    1000,                                           -- max_completion_tokens
     0.5,                                            -- trim_ratio
     0.7,                                            -- temperature
     system_prompt,                                  -- system_prompt from array

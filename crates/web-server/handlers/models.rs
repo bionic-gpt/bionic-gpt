@@ -371,6 +371,7 @@ pub async fn upsert_action(
 
             if let Some(prompt_id) = model_form.prompt_id {
                 let temperature: Option<f32> = None;
+                let max_completion_tokens: Option<i32> = None;
                 queries::prompts::update()
                     .bind(
                         &transaction,
@@ -381,7 +382,7 @@ pub async fn upsert_action(
                         &system_prompt,
                         &99,
                         &10,
-                        &model_form.context_size,
+                        &max_completion_tokens,
                         &80,
                         &temperature,
                         &model_form.description,
@@ -454,12 +455,7 @@ pub async fn upsert_action(
 
             let system_prompt: Option<String> = None;
             let image_icon: Option<i32> = None;
-
-            let context_size = if model_form.context_size != 0 {
-                model_form.context_size / 2
-            } else {
-                0
-            };
+            let max_completion_tokens: Option<i32> = None;
 
             if model_type == ModelType::LLM {
                 let temperature: Option<f32> = None;
@@ -475,7 +471,7 @@ pub async fn upsert_action(
                         &system_prompt,
                         &99,
                         &10,
-                        &context_size,
+                        &max_completion_tokens,
                         &80,
                         &temperature,
                         &model_form.description,

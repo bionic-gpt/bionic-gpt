@@ -23,7 +23,7 @@ pub struct PromptForm {
     pub example4: Option<String>,
     pub max_history_items: i32,
     pub max_chunks: i32,
-    pub max_tokens: i32,
+    pub max_completion_tokens: Option<i32>,
     pub trim_ratio: i32,
     pub temperature: f32,
     #[serde(skip)]
@@ -39,6 +39,10 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
     let example2 = prompt.example2.clone().unwrap_or_default();
     let example3 = prompt.example3.clone().unwrap_or_default();
     let example4 = prompt.example4.clone().unwrap_or_default();
+    let max_completion_tokens = prompt
+        .max_completion_tokens
+        .map(|value| value.to_string())
+        .unwrap_or_default();
     let name = if prompt.id.is_some() {
         "Edit Automation"
     } else {
@@ -367,13 +371,12 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                     div {
                                         class: "flex flex-col",
                                         Fieldset {
-                                            legend: "Max Tokens",
+                                            legend: "Max Completion Tokens",
                                             help_text: "Context space reserved for the LLM's reply.",
                                             Input {
                                                 input_type: InputType::Number,
-                                                name: "max_tokens",
-                                                value: "{prompt.max_tokens}",
-                                                required: true
+                                                name: "max_completion_tokens",
+                                                value: "{max_completion_tokens}"
                                             }
                                         }
                                     }

@@ -32,3 +32,15 @@ where
         Ok(Some(s))
     }
 }
+
+pub fn empty_string_is_none_i32<'de, D>(deserializer: D) -> Result<Option<i32>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    if s.is_empty() {
+        Ok(None)
+    } else {
+        s.parse::<i32>().map(Some).map_err(serde::de::Error::custom)
+    }
+}

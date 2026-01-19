@@ -1,6 +1,6 @@
---: Prompt(image_icon_object_id?, temperature?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
+--: Prompt(image_icon_object_id?, temperature?, max_completion_tokens?, system_prompt?, api_key?, example1?, example2?, example3?, example4?)
 --: MyPrompt(image_icon_object_id?, api_key?)
---: SinglePrompt(temperature?, system_prompt?, embeddings_base_url?, embeddings_model?, embeddings_api_key?, embeddings_context_size?, api_key?, example1?, example2?, example3?, example4?)
+--: SinglePrompt(temperature?, max_completion_tokens?, system_prompt?, embeddings_base_url?, embeddings_model?, embeddings_api_key?, embeddings_context_size?, api_key?, example1?, example2?, example3?, example4?)
 
 --! update_image
 UPDATE 
@@ -99,7 +99,7 @@ SELECT
     p.system_prompt,
     p.max_history_items,
     p.max_chunks,
-    p.max_tokens,
+    p.max_completion_tokens,
     p.trim_ratio,
     p.temperature,
     -- Convert times to ISO 8601 string.
@@ -197,7 +197,7 @@ SELECT
     p.system_prompt,
     p.max_history_items,
     p.max_chunks,
-    p.max_tokens,
+    p.max_completion_tokens,
     p.trim_ratio,
     p.temperature,
     p.prompt_type,
@@ -278,7 +278,7 @@ SELECT
     p.system_prompt,
     p.max_history_items,
     p.max_chunks,
-    p.max_tokens,
+    p.max_completion_tokens,
     p.trim_ratio,
     p.temperature,
     -- Convert times to ISO 8601 string.
@@ -351,7 +351,7 @@ VALUES(
 );
     
 
---! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon_object_id?, temperature?)
+--! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon_object_id?, temperature?, max_completion_tokens?)
 INSERT INTO prompts (
     team_id, 
     model_id, 
@@ -362,7 +362,7 @@ INSERT INTO prompts (
     system_prompt,
     max_history_items,
     max_chunks,
-    max_tokens,
+    max_completion_tokens,
     trim_ratio,
     temperature,
     description,
@@ -384,7 +384,7 @@ VALUES(
     :system_prompt,
     :max_history_items,
     :max_chunks,
-    :max_tokens,
+    :max_completion_tokens,
     :trim_ratio,
     :temperature,
     :description,
@@ -398,7 +398,7 @@ VALUES(
 )
 RETURNING id;
 
---! update(system_prompt?, example1?, example2?, example3?, example4?, temperature?)
+--! update(system_prompt?, example1?, example2?, example3?, example4?, temperature?, max_completion_tokens?)
 UPDATE 
     prompts 
 SET 
@@ -409,7 +409,7 @@ SET
     system_prompt = :system_prompt,
     max_history_items = :max_history_items,
     max_chunks = :max_chunks,
-    max_tokens = :max_tokens,
+    max_completion_tokens = :max_completion_tokens,
     trim_ratio = :trim_ratio,
     temperature = :temperature,
     description = :description,

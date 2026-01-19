@@ -17,9 +17,10 @@ pub async fn execute_prompt(
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
 
+    let max_completion_tokens = prompt.max_completion_tokens.unwrap_or(0) as usize;
     let messages = generate_prompt(
         prompt.model_context_size as usize,
-        prompt.max_tokens as usize,
+        max_completion_tokens,
         trim_ratio,
         prompt.system_prompt,
         chat_history,
@@ -75,7 +76,7 @@ pub async fn get_prompt_integration_tools(
 
 pub async fn generate_prompt(
     model_context_size: usize,
-    max_tokens: usize,
+    max_completion_tokens: usize,
     trim_ratio: f32,
     system_prompt: Option<String>,
     history: Vec<ChatCompletionMessage>,
@@ -83,8 +84,8 @@ pub async fn generate_prompt(
     let mut messages: Vec<ChatCompletionMessage> = Default::default();
 
     // This is the space we have to fill
-    let size_allowed = if max_tokens < model_context_size {
-        ((model_context_size - max_tokens) as f32 * trim_ratio) as usize
+    let size_allowed = if max_completion_tokens < model_context_size {
+        ((model_context_size - max_completion_tokens) as f32 * trim_ratio) as usize
     } else {
         model_context_size
     };
