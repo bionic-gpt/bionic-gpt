@@ -43,7 +43,10 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                 )
             }
         }
-        if rbac.can_view_prompts() || rbac.can_view_integrations() || rbac.can_manage_projects() {
+        if rbac.can_view_prompts()
+            || rbac.can_view_integrations()
+            || (rbac.can_manage_projects() && params.enable_projects)
+        {
             NavGroup {
                 heading: ai_assistants_label.clone(),
                 content:  rsx!(
@@ -67,7 +70,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             disabled: setup_required
                         }
                     }
-                    if rbac.can_manage_projects() {
+                    if rbac.can_manage_projects() && params.enable_projects {
                         NavItem {
                             id: SideBar::Projects.to_string(),
                             selected_item_id: selected_item.clone(),

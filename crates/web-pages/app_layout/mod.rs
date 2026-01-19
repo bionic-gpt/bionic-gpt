@@ -86,6 +86,7 @@ pub(super) struct SidebarParams {
     pub can_view_chats: bool,
     pub can_view_chat_history: bool,
     pub setup_required: bool,
+    pub enable_projects: bool,
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
@@ -154,6 +155,8 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         datasets: datasets_label.clone(),
     };
 
+    let enable_projects = std::env::var("ENABLE_PROJECTS").is_ok();
+
     let sidebar_params = SidebarParams {
         team_id: props.team_id,
         selected_item: props.selected_item.clone(),
@@ -162,6 +165,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         can_view_chats,
         can_view_chat_history,
         setup_required: props.setup_required,
+        enable_projects,
     };
 
     let sidebar_content = match (use_mcp_sidebar, mode) {
