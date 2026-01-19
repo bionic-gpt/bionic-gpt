@@ -103,6 +103,7 @@ async fn main() {
         .merge(llm_proxy::routes())
         .merge(handlers::mcp::routes())
         .merge(handlers::models::routes())
+        .merge(handlers::providers::routes())
         .merge(handlers::categories::routes())
         .merge(handlers::pipelines::routes())
         .merge(handlers::profile::routes())

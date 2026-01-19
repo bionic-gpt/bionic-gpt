@@ -23,6 +23,7 @@ pub mod openapi_specs;
 pub mod pipelines;
 pub mod profile;
 pub mod projects;
+pub mod providers;
 pub mod rate_limits;
 pub mod static_files;
 pub mod team;

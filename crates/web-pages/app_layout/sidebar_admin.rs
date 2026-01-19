@@ -111,6 +111,14 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                     }
                     if rbac.is_sys_admin {
                         NavItem {
+                            id: SideBar::Providers.to_string(),
+                            selected_item_id: selected_item.clone(),
+                            href: crate::routes::providers::Index { team_id },
+                            icon: nav_phonebook_svg.name,
+                            title: "Providers",
+                            disabled: setup_required
+                        }
+                        NavItem {
                             id: SideBar::OauthClients.to_string(),
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::oauth_clients::Index { team_id },

@@ -38,6 +38,7 @@ pub enum SideBar {
     OpenapiSpecs,
     Prompts,
     Projects,
+    Providers,
     Profile,
     RateLimits,
     Switch,
