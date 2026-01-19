@@ -26,6 +26,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                 }
                 if rbac.is_sys_admin {
                     Button {
+                        button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         button_scheme: ButtonScheme::Primary,
                         href: routes::openapi_specs::New { team_id }.to_string(),
