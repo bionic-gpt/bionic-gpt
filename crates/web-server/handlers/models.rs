@@ -160,6 +160,7 @@ pub async fn new_loader(
             form.base_url = provider.base_url;
             form.context_size_bytes = provider.default_model_context_size;
             form.description = provider.default_model_description;
+            form.has_capability_tool_use = true;
         }
     }
 
