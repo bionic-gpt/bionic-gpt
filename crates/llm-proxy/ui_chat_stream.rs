@@ -14,7 +14,9 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
 use db::{ChatRole, ChatStatus};
-use integrations::{execute_tool_calls, get_chat_tools_user_selected, get_tools, ToolScope};
+use integrations::{
+    execute_tool_calls, get_chat_tools_user_selected_with_system_openapi, get_tools, ToolScope,
+};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -395,7 +397,11 @@ async fn create_request(
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
         // Get the base tools selected by the user
-        let mut all_tools = get_chat_tools_user_selected(user_config.enabled_tools.as_ref());
+        let mut all_tools = get_chat_tools_user_selected_with_system_openapi(
+            pool,
+            user_config.enabled_tools.as_ref(),
+        )
+        .await;
 
         // Check if the chat has attachments
         if attachment_count > 0 {

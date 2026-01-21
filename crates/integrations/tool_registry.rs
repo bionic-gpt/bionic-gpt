@@ -125,6 +125,20 @@ pub fn get_chat_tools_user_selected(
     }
 }
 
+pub async fn get_chat_tools_user_selected_with_system_openapi(
+    pool: &Pool,
+    enabled_tools: Option<&Vec<String>>,
+) -> Vec<BionicToolDefinition> {
+    let all_tool_definitions = get_tools_with_system_openapi(pool, ToolScope::UserSelectable).await;
+    match enabled_tools {
+        Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
+            .into_iter()
+            .filter(|tool_def| tool_names.contains(&tool_def.function.name))
+            .collect(),
+        _ => vec![],
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

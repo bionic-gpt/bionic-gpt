@@ -31,7 +31,7 @@ pub use token_providers::{OAuth2TokenProvider, StaticTokenProvider, TokenProvide
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};
 pub use tool_registry::{
-    get_chat_tools_user_selected, get_integrations, get_tools, get_tools_with_system_openapi,
-    IntegrationTool, ToolScope,
+    get_chat_tools_user_selected, get_chat_tools_user_selected_with_system_openapi,
+    get_integrations, get_tools, get_tools_with_system_openapi, IntegrationTool, ToolScope,
 };
 pub use tools::open_api_tool::OpenApiTool;
