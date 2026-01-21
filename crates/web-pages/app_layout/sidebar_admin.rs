@@ -81,9 +81,9 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                 )
             }
         }
-        if rbac.can_view_audit_trail() || rbac.can_setup_models() {
+        if rbac.can_setup_models() || rbac.is_sys_admin {
             NavGroup {
-                heading: "System Admin",
+                heading: "Model Gateway",
                 content:  rsx!(
                     NavItem {
                         id: SideBar::Models.to_string(),
@@ -92,14 +92,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         icon: nav_phonebook_svg.name,
                         title: "Model Setup",
                         disabled: false
-                    }
-                    NavItem {
-                        id: SideBar::AuditTrail.to_string(),
-                        selected_item_id: selected_item.clone(),
-                        href: crate::routes::audit_trail::Index { team_id },
-                        icon: nav_audit_svg.name,
-                        title: "Audit Trail",
-                        disabled: setup_required
                     }
                     NavItem {
                         id: SideBar::RateLimits.to_string(),
@@ -118,6 +110,23 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             title: "Providers",
                             disabled: setup_required
                         }
+                    }
+                )
+            }
+        }
+        if rbac.can_view_audit_trail() || rbac.can_setup_models() {
+            NavGroup {
+                heading: "System Admin",
+                content:  rsx!(
+                    NavItem {
+                        id: SideBar::AuditTrail.to_string(),
+                        selected_item_id: selected_item.clone(),
+                        href: crate::routes::audit_trail::Index { team_id },
+                        icon: nav_audit_svg.name,
+                        title: "Audit Trail",
+                        disabled: setup_required
+                    }
+                    if rbac.is_sys_admin {
                         NavItem {
                             id: SideBar::OauthClients.to_string(),
                             selected_item_id: selected_item.clone(),
