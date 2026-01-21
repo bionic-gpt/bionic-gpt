@@ -6,6 +6,7 @@ use crate::SectionIntroduction;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
+use integrations::bionic_openapi::BionicOpenAPI;
 
 pub fn page(
     team_id: i32,
@@ -20,6 +21,10 @@ pub fn page(
             let is_selected = selected_spec_id == Some(spec.id);
             let avatar_initial = spec.title.chars().next().unwrap_or('C').to_string();
             let api_key_trigger = format!("code-sandbox-api-key-{}", spec.id);
+            let logo_url = BionicOpenAPI::new(&spec.spec)
+                .ok()
+                .and_then(|openapi| openapi.get_logo_url())
+                .or(spec.logo_url.clone());
             rsx!(
                 div {
                     CardItem {
@@ -60,8 +65,12 @@ pub fn page(
                             }
                         )),
                         footer: None,
-                        image_src: None,
-                        avatar_name: Some(avatar_initial),
+                        image_src: logo_url.clone(),
+                        avatar_name: if logo_url.is_some() {
+                            None
+                        } else {
+                            Some(avatar_initial)
+                        },
                         count_labels: vec![],
                         action: Some(rsx!(
                             div {
