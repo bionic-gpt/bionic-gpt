@@ -1,5 +1,7 @@
 // Import the tool trait and time date tool
+use crate::system_openapi::get_system_openapi_tool_definitions;
 use crate::tools;
+use db::Pool;
 use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
 
@@ -82,6 +84,27 @@ pub fn get_tools(scope: ToolScope) -> Vec<BionicToolDefinition> {
         .into_iter()
         .flat_map(|integration| integration.definitions)
         .collect()
+}
+
+pub async fn get_tools_with_system_openapi(
+    pool: &Pool,
+    scope: ToolScope,
+) -> Vec<BionicToolDefinition> {
+    let mut definitions = get_tools(scope.clone());
+    if scope == ToolScope::UserSelectable {
+        if let Ok(mut system_defs) = get_system_openapi_tool_definitions(pool).await {
+            if !system_defs.is_empty() {
+                let system_names: Vec<String> = system_defs
+                    .iter()
+                    .map(|def| def.function.name.clone())
+                    .collect();
+                definitions.retain(|def| !system_names.contains(&def.function.name));
+                definitions.append(&mut system_defs);
+            }
+        }
+    }
+
+    definitions
 }
 
 /// Returns a list of available OpenAI tool definitions

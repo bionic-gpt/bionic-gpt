@@ -76,7 +76,8 @@ pub async fn conversation(
         .await?;
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
-    let available_tools = integrations::get_tools(ToolScope::UserSelectable);
+    let available_tools =
+        integrations::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
 
     let html = console::conversation::page(
         team_id,

@@ -1,4 +1,5 @@
 use crate::bionic_openapi::create_tools_from_integrations;
+use crate::system_openapi::get_system_openapi_tools;
 use crate::tool::ToolInterface;
 use crate::tools;
 use db::{queries::prompt_integrations, Pool};
@@ -117,6 +118,29 @@ pub async fn get_tools(
         conversation_id,
         prompt_id,
     )));
+
+    // Get system OpenAPI tools (Web Search / Code Sandbox)
+    match get_system_openapi_tools(pool).await {
+        Ok(system_tools) => {
+            if !system_tools.is_empty() {
+                let mut tool_names = HashSet::new();
+                for tool in &tools {
+                    tool_names.insert(tool.name());
+                }
+                for system_tool in system_tools {
+                    let name = system_tool.name();
+                    if tool_names.contains(&name) {
+                        tools.retain(|t| t.name() != name);
+                    }
+                    tools.push(system_tool);
+                    tool_names.insert(name);
+                }
+            }
+        }
+        Err(err) => {
+            warn!("Failed to load system OpenAPI tools: {}", err);
+        }
+    }
 
     // Get external integration tools
     debug!("Getting external integration tools");

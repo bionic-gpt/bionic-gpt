@@ -55,7 +55,8 @@ pub async fn index(
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
     // Get available tools from the integrations crate
-    let available_tools = integrations::get_tools(ToolScope::UserSelectable);
+    let available_tools =
+        integrations::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
 
     let html = console::page::new_conversation(
         team_id,

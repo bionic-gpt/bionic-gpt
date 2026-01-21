@@ -62,7 +62,7 @@ pub async fn conversation(
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
     let available_tools: Vec<BionicToolDefinition> =
-        integrations::get_tools(ToolScope::UserSelectable);
+        integrations::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
 
     let html = web_pages::assistants::conversation::page(
         team_id,

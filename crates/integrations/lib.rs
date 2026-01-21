@@ -3,6 +3,7 @@
 //! This crate provides integration with external services and tools.
 
 pub mod bionic_openapi;
+pub mod system_openapi;
 pub mod token_providers;
 pub mod tool;
 pub mod tool_executor;
@@ -25,10 +26,12 @@ pub use bionic_openapi::{
     create_tools_from_integration, create_tools_from_integrations, BionicOpenAPI, IntegrationTools,
     OAuth2Config,
 };
+pub use system_openapi::{get_system_openapi_tool_definitions, get_system_openapi_tools};
 pub use token_providers::{OAuth2TokenProvider, StaticTokenProvider, TokenProvider};
 pub use tool::ToolInterface;
 pub use tool_executor::{execute_tool_call_with_tools, execute_tool_calls};
 pub use tool_registry::{
-    get_chat_tools_user_selected, get_integrations, get_tools, IntegrationTool, ToolScope,
+    get_chat_tools_user_selected, get_integrations, get_tools, get_tools_with_system_openapi,
+    IntegrationTool, ToolScope,
 };
 pub use tools::open_api_tool::OpenApiTool;
