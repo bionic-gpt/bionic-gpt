@@ -32,7 +32,7 @@ pub fn CardItem(props: CardItemProps) -> Element {
     rsx! {
         Card {
             class: {
-                let base = "p-3 mt-5 flex flex-row justify-between";
+                let base = "p-3 mt-5 flex flex-row justify-between items-stretch";
                 match props.class.clone() {
                     Some(extra) => format!("{base} {extra}"),
                     None => base.to_string(),
@@ -62,10 +62,27 @@ pub fn CardItem(props: CardItemProps) -> Element {
                 }
             }
             div {
-                class: "mx-3 flex flex-col flex-1 min-w-0 space-between",
+                class: {
+                    let base = "mx-3 flex flex-col flex-1 min-w-0 self-stretch";
+                    if props.footer.is_none() {
+                        format!("{base} justify-between")
+                    } else {
+                        base.to_string()
+                    }
+                },
                 h2 { class: "font-semibold text-base truncate", "{props.title}" }
                 if let Some(desc) = props.description.clone() {
-                    div { class: "text-sm text-base-content/70 truncate", {desc} }
+                    div {
+                        class: {
+                            let base = "text-sm text-base-content/70 truncate";
+                            if props.footer.is_none() {
+                                format!("{base} mt-auto")
+                            } else {
+                                base.to_string()
+                            }
+                        },
+                        {desc}
+                    }
                 }
                 if let Some(foot) = props.footer.clone() {
                     div { class: "text-xs text-base-content/70 truncate", {foot} }
