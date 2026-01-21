@@ -839,6 +839,13 @@ pub mod web_search {
         pub team_id: i32,
         pub id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/web_search/spec/{id}/api_key")]
+    pub struct ConfigureApiKey {
+        pub team_id: i32,
+        pub id: i32,
+    }
 }
 
 pub mod code_sandbox {
@@ -854,6 +861,13 @@ pub mod code_sandbox {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/code_sandbox/select/{id}")]
     pub struct Select {
+        pub team_id: i32,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/code_sandbox/spec/{id}/api_key")]
+    pub struct ConfigureApiKey {
         pub team_id: i32,
         pub id: i32,
     }
