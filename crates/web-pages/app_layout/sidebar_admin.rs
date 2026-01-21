@@ -147,7 +147,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::code_sandbox::Index { team_id },
                             icon: nav_audit_svg.name,
-                            title: "CodeSandbox",
+                            title: "Code Sandbox",
                             disabled: setup_required
                         }
                         NavItem {

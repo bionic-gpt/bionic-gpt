@@ -159,7 +159,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: OpenapiSpecForm) -> String {
                                 SelectOption {
                                     value: "CodeSandbox",
                                     selected_value: "{form.category}",
-                                    "CodeSandbox"
+                                    "Code Sandbox"
                                 }
                             }
                         }

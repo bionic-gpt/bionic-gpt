@@ -6,7 +6,7 @@ use db::OpenapiSpecCategory;
 pub fn category_label(category: OpenapiSpecCategory) -> &'static str {
     match category {
         OpenapiSpecCategory::WebSearch => "Web Search",
-        OpenapiSpecCategory::CodeSandbox => "CodeSandbox",
+        OpenapiSpecCategory::CodeSandbox => "Code Sandbox",
         OpenapiSpecCategory::Application => "Application",
     }
 }

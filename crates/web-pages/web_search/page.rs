@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{AdminLayout, SideBar};
+use crate::components::card_item::CardItem;
 use crate::SectionIntroduction;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -12,33 +13,40 @@ pub fn page(
     specs: Vec<OpenapiSpec>,
     selected_spec_id: Option<i32>,
 ) -> String {
-    let rows: Vec<Element> = specs
+    let cards: Vec<Element> = specs
         .iter()
         .map(|spec| {
             let is_selected = selected_spec_id == Some(spec.id);
+            let avatar_initial = spec.title.chars().next().unwrap_or('W').to_string();
             rsx!(
-                tr {
-                    td { "{spec.title}" }
-                    td { code { "{spec.slug}" } }
-                    td {
-                        span {
-                            class: if spec.is_active {
-                                "badge badge-success badge-outline"
-                            } else {
-                                "badge badge-ghost"
-                            },
-                            {if spec.is_active { "Active" } else { "Inactive" }}
+                CardItem {
+                    class: Some("mt-0".into()),
+                    title: spec.title.clone(),
+                    description: Some(rsx!(
+                        div {
+                            class: "flex flex-wrap items-center gap-2 text-xs",
+                            code { "{spec.slug}" }
+                            Badge {
+                                badge_style: BadgeStyle::Outline,
+                                badge_size: BadgeSize::Sm,
+                                badge_color: if spec.is_active { BadgeColor::Success } else { BadgeColor::Neutral },
+                                {if spec.is_active { "Active" } else { "Inactive" }}
+                            }
+                            if is_selected {
+                                Badge {
+                                    badge_style: BadgeStyle::Outline,
+                                    badge_size: BadgeSize::Sm,
+                                    badge_color: BadgeColor::Info,
+                                    "Selected"
+                                }
+                            }
                         }
-                    }
-                    td {
-                        if is_selected {
-                            span { class: "badge badge-info badge-outline", "Selected" }
-                        } else {
-                            span { class: "text-base-content/60", "-" }
-                        }
-                    }
-                    td {
-                        class: "text-right",
+                    )),
+                    footer: None,
+                    image_src: None,
+                    avatar_name: Some(avatar_initial),
+                    count_labels: vec![],
+                    action: Some(rsx!(
                         form {
                             method: "post",
                             action: crate::routes::web_search::Select { team_id, id: spec.id }.to_string(),
@@ -50,7 +58,9 @@ pub fn page(
                                 "Select"
                             }
                         }
-                    }
+                    )),
+                    popover_target: None,
+                    clickable_link: None,
                 }
             )
         })
@@ -72,7 +82,7 @@ pub fn page(
                 }
             ),
             div {
-                class: "p-4 max-w-5xl w-full mx-auto flex flex-col gap-6",
+                class: "p-4 max-w-3xl w-full mx-auto",
                 SectionIntroduction {
                     header: "Web Search".to_string(),
                     subtitle: "Pick the OpenAPI spec used for web search tooling.".to_string(),
@@ -81,27 +91,10 @@ pub fn page(
                 }
 
                 if !specs.is_empty() {
-                    Card {
-                        class: "has-data-table",
-                        CardHeader { title: "Web Search Specs" }
-                        CardBody {
-                            table {
-                                class: "table table-sm",
-                                thead {
-                                    tr {
-                                        th { "Title" }
-                                        th { "Slug" }
-                                        th { "Status" }
-                                        th { "Selected" }
-                                        th { class: "text-right", "Action" }
-                                    }
-                                }
-                                tbody {
-                                    for row in rows {
-                                        {row}
-                                    }
-                                }
-                            }
+                    div {
+                        class: "space-y-2",
+                        for card in cards {
+                            {card}
                         }
                     }
                 }
