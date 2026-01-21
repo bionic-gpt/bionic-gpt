@@ -34,12 +34,6 @@ pub fn page(
                             div {
                                 class: "flex flex-wrap items-center gap-2 text-xs",
                                 code { "{spec.slug}" }
-                                Badge {
-                                    badge_style: BadgeStyle::Outline,
-                                    badge_size: BadgeSize::Sm,
-                                    badge_color: if spec.is_active { BadgeColor::Success } else { BadgeColor::Neutral },
-                                    {if spec.is_active { "Active" } else { "Inactive" }}
-                                }
                                 if is_selected {
                                     Badge {
                                         badge_style: BadgeStyle::Outline,
@@ -74,19 +68,30 @@ pub fn page(
                         count_labels: vec![],
                         action: Some(rsx!(
                             div {
-                                class: "flex flex-col gap-2",
-                                form {
-                                    method: "post",
-                                    action: crate::routes::web_search::Select { team_id, id: spec.id }.to_string(),
-                                    Button {
-                                        button_type: ButtonType::Submit,
-                                        button_scheme: ButtonScheme::Primary,
-                                        button_size: ButtonSize::Small,
-                                        disabled: !spec.is_active || is_selected,
-                                        "Select"
+                                class: "flex flex-row gap-2 items-center",
+                                if summary.has_api_key && summary.has_key_configured {
+                                    form {
+                                        method: "post",
+                                        action: crate::routes::web_search::Select { team_id, id: spec.id }.to_string(),
+                                        Button {
+                                            button_type: ButtonType::Submit,
+                                            button_scheme: ButtonScheme::Primary,
+                                            button_size: ButtonSize::Small,
+                                            disabled: !spec.is_active || is_selected,
+                                            "Select"
+                                        }
                                     }
-                                }
-                                if summary.has_api_key {
+                                    form {
+                                        method: "post",
+                                        action: crate::routes::web_search::DeleteApiKey { team_id, id: spec.id }.to_string(),
+                                        Button {
+                                            button_type: ButtonType::Submit,
+                                            button_scheme: ButtonScheme::Secondary,
+                                            button_size: ButtonSize::Small,
+                                            "Delete Key"
+                                        }
+                                    }
+                                } else if summary.has_api_key {
                                     Button {
                                         button_scheme: ButtonScheme::Secondary,
                                         button_size: ButtonSize::Small,

@@ -9,7 +9,7 @@ use db::{authz, queries, OpenapiSpecCategory, Pool};
 use integrations::bionic_openapi::BionicOpenAPI;
 use serde::Deserialize;
 use validator::Validate;
-use web_pages::routes::web_search::{ConfigureApiKey, Index, Select};
+use web_pages::routes::web_search::{ConfigureApiKey, DeleteApiKey, Index, Select};
 use web_pages::shared::openapi_spec_api_keys::OpenapiSpecKeySummary;
 
 pub fn routes() -> Router {
@@ -17,6 +17,7 @@ pub fn routes() -> Router {
         .typed_get(loader)
         .typed_post(select_action)
         .typed_post(configure_api_key_action)
+        .typed_post(delete_api_key_action)
 }
 
 pub async fn loader(
@@ -155,6 +156,42 @@ pub async fn configure_api_key_action(
     Ok(crate::layout::redirect_and_snackbar(
         &web_pages::routes::web_search::Index { team_id }.to_string(),
         "Web search API key updated",
+    )
+    .into_response())
+}
+
+pub async fn delete_api_key_action(
+    DeleteApiKey { team_id, id }: DeleteApiKey,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.is_sys_admin {
+        return Err(CustomError::Authorization);
+    }
+
+    let spec = queries::openapi_specs::by_id()
+        .bind(&transaction, &id)
+        .one()
+        .await?;
+
+    if spec.category != OpenapiSpecCategory::WebSearch {
+        return Err(CustomError::Authorization);
+    }
+
+    queries::openapi_spec_api_keys::delete()
+        .bind(&transaction, &spec.id)
+        .await?;
+
+    transaction.commit().await?;
+
+    Ok(crate::layout::redirect_and_snackbar(
+        &web_pages::routes::web_search::Index { team_id }.to_string(),
+        "Web search API key deleted",
     )
     .into_response())
 }
