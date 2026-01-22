@@ -68,6 +68,19 @@ wad:
         -w crates/web-assets/input.css \
         --no-gitignore -x "run --bin web-server"
 
+wda:
+    CHUNKING_ENGINE=http://localhost:8000 \
+    AUTOMATIONS_FEATURE=1 \
+    ENABLE_PROJECTS=1 \
+    LICENCE='{"end_date":"2028-12-31T00:00:00Z","hostname_url":"localhost:7703","redirect_url":"/app/team/{team_id}/integrations","user_count":100000,"app_name":"Decision Advantage","app_logo_svg":"PHN2ZyB2ZXJzaW9uPSIxLjIiIGJhc2VQcm9maWxlPSJ0aW55LXBzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTUxIDEyNTciIHdpZHRoPSIxNTUxIiBoZWlnaHQ9IjEyNTciPgoJPHRpdGxlPkFpcmJ1c19Mb2dvXzIwMTctc3ZnPC90aXRsZT4KCTxzdHlsZT4KCQl0c3BhbiB7IHdoaXRlLXNwYWNlOnByZSB9CgkJLnNocDAgeyBmaWxsOiAjMDAyMDViIH0gCgk8L3N0eWxlPgoJPGcgaWQ9ImcxNiI+CgkJPGcgaWQ9ImcxNCI+CgkJCTxwYXRoIGlkPSJwb2x5Z29uNiIgY2xhc3M9InNocDAiIGQ9Ik04MzQuNjcgNzgyLjQyTDU3Ny40OSA3ODIuNDJMNzY3LjggMzk2LjE0TDc3MS42NSAzOTYuMTRMMTE5OS40OCAxMjU2LjY4TDE1NTAuOTIgMTI1Ni42OEw5MTEuMDYgMC4yOEw2MzkuODYgMC4yOEwwIDEyNTYuNjhMMzQzLjc5IDEyNTYuNjhMNDQ3LjQ0IDEwNDYuMzNMOTYyLjYzIDEwNDYuMzNMODM0LjY3IDc4Mi40MloiIC8+CgkJPC9nPgoJPC9nPgo8L3N2Zz4=","features":{"automations":false,"mcp":false},"signature":"ZKTgpRv2cYhCKS6ID6Y7xELU0XHIKBy8YG6cXXEAKRfZ80/IcwhizJvGqZUNoGEEYr0KwulDKbP0A0OJIVkMAw=="}' \
+    mold -run cargo watch --workdir /workspace/ \
+        -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
+        -w crates/web-server -w crates/db -w crates/web-assets/dist \
+        -w crates/web-assets/images -w crates/web-assets/typescript \
+        -w crates/web-assets/index.ts \
+        -w crates/web-assets/input.css \
+        --no-gitignore -x "run --bin web-server"
+
 wp:
     npm install --prefix /workspace/crates/web-assets && npm run start --prefix /workspace/crates/web-assets
 
