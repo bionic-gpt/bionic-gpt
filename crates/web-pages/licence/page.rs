@@ -6,31 +6,14 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, customer_keys, Licence};
 use dioxus::prelude::*;
-use toml::Value;
 
-fn get_version() -> String {
-    if let Ok(ver) = std::env::var("VERSION") {
-        return ver;
-    }
-
-    let cargo_toml = include_str!("../../web-server/Cargo.toml");
-    let value: Value = cargo_toml.parse().expect("valid Cargo.toml");
-    value
-        .get("package")
-        .and_then(|pkg| pkg.get("version"))
-        .and_then(|v| v.as_str())
-        .unwrap_or("unknown")
-        .to_string()
-}
-
-pub fn page(team_id: i32, rbac: Rbac, callback_url: String) -> String {
+pub fn page(team_id: i32, rbac: Rbac, callback_url: String, version: String) -> String {
     let licence = Licence::global();
     let encryption = if customer_keys::get_customer_key().is_some() {
         "Enabled"
     } else {
         "Disabled"
     };
-    let version = get_version();
     let automations = if licence.features.automations {
         "Enabled"
     } else {

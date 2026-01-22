@@ -6,6 +6,12 @@ use axum_extra::routing::RouterExt;
 use db::{authz, Pool};
 use web_pages::{licence, routes::licence::Index};
 
+// RELEASE_VERSION is set in the release-candidate Github Action
+static VERSION: &str = match option_env!("RELEASE_VERSION") {
+    Some(v) => v,
+    None => env!("CARGO_PKG_VERSION"),
+};
+
 pub fn routes() -> Router {
     Router::new().typed_get(loader)
 }
@@ -25,7 +31,7 @@ pub async fn loader(
     }
 
     let callback_url = config.oauth2_redirect_uri();
-    let html = licence::page::page(team_id, rbac, callback_url);
+    let html = licence::page::page(team_id, rbac, callback_url, VERSION.into());
 
     Ok(Html(html))
 }
