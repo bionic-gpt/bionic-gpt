@@ -2685,6 +2685,7 @@ checksum = "23fb14cb19457329c82206317a5663005a4d404783dc74f4252769b0d5f42856"
 name = "llm-proxy"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "axum 0.8.1",
  "axum-extra 0.10.0",
  "base64 0.13.1",

@@ -12,6 +12,8 @@ pub mod synthesize;
 #[cfg(test)]
 mod tests;
 pub mod ui_chat_stream;
+#[cfg(test)]
+mod ui_chat_stream_tests;
 pub mod user_config;
 use axum::Router;
 use axum_extra::routing::RouterExt;

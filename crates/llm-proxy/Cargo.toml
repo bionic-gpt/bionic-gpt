@@ -23,6 +23,7 @@ serde_json = { version = "1" }
 serde = { version = "1", features = ["derive"] }
 tracing = { version = "0.1" }
 tower-http = { version = "0.5", features = ["fs", "cors"] }
+async-trait = "0.1"
 
 base64 = { version = "0.13.1" }
 

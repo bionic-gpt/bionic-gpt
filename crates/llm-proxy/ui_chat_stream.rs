@@ -10,6 +10,7 @@ use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
 use crate::user_config::UserConfig;
+use async_trait::async_trait;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
@@ -29,6 +30,92 @@ use tokio_stream::StreamExt;
 
 use super::{limits, UICompletions};
 
+#[async_trait]
+pub(crate) trait ResultSink: Send + Sync {
+    async fn save(
+        &self,
+        snapshot: &str,
+        tool_calls: Option<Vec<ToolCall>>,
+        chat_id: i32,
+        sub: &str,
+        status: ChatStatus,
+    );
+}
+
+struct DbResultSink {
+    pool: Pool,
+}
+
+#[async_trait]
+impl ResultSink for DbResultSink {
+    async fn save(
+        &self,
+        snapshot: &str,
+        tool_calls: Option<Vec<ToolCall>>,
+        chat_id: i32,
+        sub: &str,
+        status: ChatStatus,
+    ) {
+        save_results_db(&self.pool, snapshot, tool_calls, chat_id, sub, status).await;
+    }
+}
+
+fn extract_tool_calls(
+    completion_chunk: &super::sse_chat_enricher::CompletionChunk,
+) -> Option<Vec<ToolCall>> {
+    completion_chunk
+        .merged
+        .as_ref()
+        .and_then(|merged| merged.choices.first())
+        .and_then(|choice| choice.delta.tool_calls.clone())
+}
+
+pub(crate) fn build_event_stream<S>(
+    receiver_stream: S,
+    result_sink: Arc<dyn ResultSink>,
+    chat_id: i32,
+    sub: Arc<String>,
+) -> impl tokio_stream::Stream<Item = Result<Event, axum::Error>>
+where
+    S: tokio_stream::Stream<Item = Result<GenerationEvent, axum::Error>> + Send + 'static,
+{
+    receiver_stream.then(move |item| {
+        let result_sink = Arc::clone(&result_sink);
+        let sub = Arc::clone(&sub);
+        async move {
+            match item {
+                Ok(event) => match event {
+                    GenerationEvent::Text(completion_chunk) => {
+                        Ok(Event::default().data(completion_chunk.delta))
+                    }
+                    GenerationEvent::End(completion_chunk) => {
+                        let tool_calls = extract_tool_calls(&completion_chunk);
+
+                        tracing::debug!("End of stream saving data");
+                        result_sink
+                            .save(
+                                &completion_chunk.snapshot,
+                                tool_calls,
+                                chat_id,
+                                &sub,
+                                ChatStatus::Success,
+                            )
+                            .await;
+
+                        Ok(Event::default().data(completion_chunk.delta))
+                    }
+                },
+                Err(e) => {
+                    result_sink
+                        .save(&e.to_string(), None, chat_id, &sub, ChatStatus::Error)
+                        .await;
+                    Err(axum::Error::new(e))
+                }
+            }
+        }
+    })
+}
+
 // Called from the front end to generate a streaming chat with the model
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
@@ -36,6 +123,8 @@ pub async fn chat_generate(
     user_config: UserConfig,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
+    let result_sink: Arc<dyn ResultSink> = Arc::new(DbResultSink { pool: pool.clone() });
+
     match create_request(&pool, &current_user, chat_id, &user_config).await {
         Ok((request, model_id, user_id)) => {
             let is_limit_breached =
@@ -63,82 +152,36 @@ pub async fn chat_generate(
             });
 
             let sub_arc = Arc::new(current_user.sub.clone());
-            let pool_arc = Arc::new(pool.clone());
             let receiver_stream = ReceiverStream::new(receiver);
 
-            let event_stream = receiver_stream.then(move |item| {
-                let pool = Arc::clone(&pool_arc);
-                let sub = Arc::clone(&sub_arc);
-                async move {
-                    match item {
-                        Ok(event) => match event {
-                            GenerationEvent::Text(completion_chunk) => {
-                                Ok(Event::default().data(completion_chunk.delta))
-                            }
-                            GenerationEvent::End(completion_chunk) => {
-                                let mut tool_calls: Option<Vec<ToolCall>> = None;
-                                if let Some(merged) = completion_chunk.merged {
-                                    if let Some(tcs) = &merged.choices[0].delta.tool_calls {
-                                        tracing::info!("Detected tool calls: {:?}", tcs);
-                                        tool_calls = Some(tcs.clone());
-                                    }
-                                }
-
-                                tracing::debug!("End of stream saving data");
-                                save_results(
-                                    &pool,
-                                    &completion_chunk.snapshot,
-                                    tool_calls,
-                                    chat_id,
-                                    &sub,
-                                    ChatStatus::Success,
-                                )
-                                .await;
-
-                                Ok(Event::default().data(completion_chunk.delta))
-                            }
-                        },
-                        Err(e) => {
-                            save_results(
-                                &pool,
-                                &e.to_string(),
-                                None,
-                                chat_id,
-                                &sub,
-                                ChatStatus::Error,
-                            )
-                            .await;
-                            Err(axum::Error::new(e))
-                        }
-                    }
-                }
-            });
+            let event_stream =
+                build_event_stream(receiver_stream, Arc::clone(&result_sink), chat_id, sub_arc);
 
             Ok(Sse::new(event_stream))
         }
         Err(err) => {
-            save_results(
-                &pool,
-                &err.to_string(),
-                None,
-                chat_id,
-                &current_user.sub,
-                ChatStatus::Error,
-            )
-            .await;
+            result_sink
+                .save(
+                    &err.to_string(),
+                    None,
+                    chat_id,
+                    &current_user.sub,
+                    ChatStatus::Error,
+                )
+                .await;
             Err(CustomError::FaultySetup(err.to_string()))
         }
     }
 }
 
 // When the chat has completed, store the results in the database.
-async fn save_results(
+async fn save_results_db(
     pool: &Pool,
     snapshot: &str,
     tool_calls: Option<Vec<ToolCall>>,
     chat_id: i32,
     sub: &str,
-    status: ChatStatus, // New parameter
+    status: ChatStatus,
 ) {
     let mut db_client = match pool.get().await {
         Ok(client) => client,
