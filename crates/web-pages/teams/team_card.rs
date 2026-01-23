@@ -51,15 +51,11 @@ pub fn TeamCard(props: TeamCardProps) -> Element {
                     }
                 }
                 if props.team.team_owner == props.current_user_email && props.teams_len > 1 {
-                    DropDown {
-                        direction: Direction::Left,
-                        button_text: "...",
-                        DropDownLink {
-                            popover_target: format!("delete-trigger-{}", props.team.id),
-                            href: "#",
-                            target: "_top",
-                            "Delete Team"
-                        }
+                    Button {
+                        button_scheme: ButtonScheme::Neutral,
+                        button_size: ButtonSize::Small,
+                        popover_target: format!("delete-trigger-{}", props.team.id),
+                        "..."
                     }
                 }
             }

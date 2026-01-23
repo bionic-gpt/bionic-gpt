@@ -42,24 +42,26 @@ pub fn ProjectCard(props: ProjectCardProps) -> Element {
             },
         ],
         action: Some(rsx!(
-            DropDown {
-                direction: Direction::Left,
-                button_text: "...",
-                DropDownLink {
-                    href: project_link.clone(),
+            div {
+                class: "flex flex-col items-end gap-2",
+                Button {
+                    button_type: ButtonType::Link,
+                    button_scheme: ButtonScheme::Neutral,
+                    button_size: ButtonSize::Small,
                     target: "_top",
+                    href: project_link.clone(),
                     "Open"
                 }
-                DropDownLink {
+                Button {
+                    button_scheme: ButtonScheme::Neutral,
+                    button_size: ButtonSize::Small,
                     popover_target: format!("edit-project-{}-{}", project.id, props.team_id),
-                    href: "#",
-                    target: "_top",
                     "Edit"
                 }
-                DropDownLink {
+                Button {
+                    button_scheme: ButtonScheme::Neutral,
+                    button_size: ButtonSize::Small,
                     popover_target: format!("delete-project-{}-{}", project.id, props.team_id),
-                    href: "#",
-                    target: "_top",
                     "Delete"
                 }
             }

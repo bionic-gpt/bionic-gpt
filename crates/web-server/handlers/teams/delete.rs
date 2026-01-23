@@ -29,7 +29,7 @@ pub async fn delete(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &web_pages::routes::console::Index { team_id: team.id }.to_string(),
+        &web_pages::routes::teams::Switch { team_id: team.id }.to_string(),
         "Team Deleted",
     )
 }
