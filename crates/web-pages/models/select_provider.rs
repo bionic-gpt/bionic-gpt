@@ -89,6 +89,22 @@ pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
                         }
                     }
                 }
+
+                CardItem {
+                    class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
+                    clickable_link: Some(crate::routes::models::New { team_id }.to_string()),
+                    image_src: None,
+                    image_html: None,
+                    avatar_name: Some("C".to_string()),
+                    title: "Custom Provider / Model".to_string(),
+                    description: Some(rsx!(span {
+                        "Create a model with full control over all fields."
+                    })),
+                    footer: None,
+                    count_labels: vec![],
+                    action: None,
+                    popover_target: None,
+                }
             }
 
             for provider in &providers {
