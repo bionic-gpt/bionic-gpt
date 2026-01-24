@@ -2,7 +2,6 @@
 use crate::app_layout::{AdminLayout, SideBar};
 use crate::components::card_item::{CardItem, CountLabel};
 use crate::SectionIntroduction;
-use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::Provider;
@@ -11,7 +10,7 @@ use dioxus::prelude::*;
 
 const DEFAULT_DISCLAIMER: &str = "AI can make mistakes. Check important information.";
 
-pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
+pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, providers: Vec<Provider>) -> String {
     let default_visibility = if rbac.is_sys_admin {
         Visibility::Company
     } else {
@@ -24,6 +23,7 @@ pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
             selected_item: SideBar::Models,
             team_id: team_id,
             rbac: rbac.clone(),
+            setup_required: setup_required,
             title: "Models",
             header: rsx!(
                 Breadcrumb {
@@ -38,17 +38,10 @@ pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
                         }
                     ]
                 }
-                Button {
-                    button_type: ButtonType::Link,
-                    prefix_image_src: "{button_plus_svg.name}",
-                    href: crate::routes::providers::New { team_id }.to_string(),
-                    button_scheme: ButtonScheme::Primary,
-                    "Add Provider"
-                }
             ),
 
             div {
-                class: "p-4 max-w-4xl w-full mx-auto",
+                class: "p-4 max-w-3xl w-full mx-auto",
                 SectionIntroduction {
                     header: "Choose a provider".to_string(),
                     subtitle: "Select a provider to create a model using its default settings.".to_string(),
@@ -160,6 +153,7 @@ fn provider_modal(
                 input { "type": "hidden", name: "example3", value: "" }
                 input { "type": "hidden", name: "example4", value: "" }
                 input { "type": "hidden", name: "capability_tool_use", value: "on" }
+                input { "type": "hidden", name: "provider_id", value: "{provider.id}" }
 
                 Fieldset {
                     legend: "API Key",

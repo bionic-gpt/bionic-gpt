@@ -1,4 +1,4 @@
-use crate::layout::empty_string_is_none;
+use crate::layout::{empty_string_is_none, empty_string_is_none_i32};
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::extract::Query;
@@ -41,7 +41,7 @@ pub async fn loader(
     Index { team_id }: Index,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
-) -> Result<Html<String>, CustomError> {
+) -> Result<axum::response::Response, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
@@ -51,8 +51,16 @@ pub async fn loader(
         return Err(CustomError::Authorization);
     }
 
-    let setup_required = required_models_missing(&transaction).await?;
     let models = models::all_models().bind(&transaction).all().await?;
+
+    if models.is_empty() {
+        return Ok(crate::layout::redirect(
+            &web_pages::routes::models::SelectProvider { team_id }.to_string(),
+        )?
+        .into_response());
+    }
+
+    let setup_required = required_models_missing(&transaction).await?;
 
     // For each model, fetch its capabilities
     let mut models_with_capabilities = Vec::new();
@@ -87,7 +95,7 @@ pub async fn loader(
     let html =
         web_pages::models::page::page(team_id, rbac, setup_required, models_with_capabilities);
 
-    Ok(Html(html))
+    Ok(Html(html).into_response())
 }
 
 pub async fn select_provider_loader(
@@ -109,7 +117,8 @@ pub async fn select_provider_loader(
         .all()
         .await?;
 
-    let html = web_pages::models::select_provider::page(team_id, rbac, providers);
+    let setup_required = required_models_missing(&transaction).await?;
+    let html = web_pages::models::select_provider::page(team_id, rbac, setup_required, providers);
 
     Ok(Html(html))
 }
@@ -312,6 +321,8 @@ pub async fn delete_action(
 pub struct ModelForm {
     pub id: Option<i32>,
     pub prompt_id: Option<i32>,
+    #[serde(deserialize_with = "empty_string_is_none_i32")]
+    pub provider_id: Option<i32>,
     #[validate(length(min = 1, message = "The name is mandatory"))]
     pub name: String,
     #[validate(length(min = 1, message = "The display name is mandatory"))]
@@ -525,6 +536,45 @@ pub async fn upsert_action(
                     capabilities::set_model_capability()
                         .bind(&transaction, &model_id, &ModelCapability::Guarded)
                         .await?;
+                }
+            }
+
+            if model_type == ModelType::LLM {
+                if let Some(provider_id) = model_form.provider_id {
+                    let embeddings_models = models::models()
+                        .bind(&transaction, &ModelType::Embeddings)
+                        .all()
+                        .await?;
+
+                    if embeddings_models.is_empty() {
+                        if let Ok(provider) = queries::providers::provider()
+                            .bind(&transaction, &provider_id)
+                            .one()
+                            .await
+                        {
+                            if let Some(embeddings_name) =
+                                provider.default_embeddings_model_name.clone()
+                            {
+                                let context_size = provider
+                                    .default_embeddings_model_context_size
+                                    .unwrap_or(provider.default_model_context_size);
+
+                                queries::models::insert()
+                                    .bind(
+                                        &transaction,
+                                        &embeddings_name,
+                                        &ModelType::Embeddings,
+                                        &provider.base_url,
+                                        &model_form.api_key,
+                                        &model_form.tpm_limit,
+                                        &model_form.rpm_limit,
+                                        &context_size,
+                                    )
+                                    .one()
+                                    .await?;
+                            }
+                        }
+                    }
                 }
             }
 

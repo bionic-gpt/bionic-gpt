@@ -1,4 +1,4 @@
---: Provider(default_model_name?, default_model_display_name?)
+--: Provider(default_model_name?, default_model_display_name?, default_embeddings_model_name?, default_embeddings_model_display_name?, default_embeddings_model_context_size?, default_embeddings_model_description?)
 
 --! providers : Provider
 SELECT
@@ -11,6 +11,10 @@ SELECT
     default_model_description,
     base_url,
     api_key_optional,
+    default_embeddings_model_name,
+    default_embeddings_model_display_name,
+    default_embeddings_model_context_size,
+    default_embeddings_model_description,
     created_at,
     updated_at
 FROM
@@ -29,6 +33,10 @@ SELECT
     default_model_description,
     base_url,
     api_key_optional,
+    default_embeddings_model_name,
+    default_embeddings_model_display_name,
+    default_embeddings_model_context_size,
+    default_embeddings_model_description,
     created_at,
     updated_at
 FROM
@@ -36,7 +44,7 @@ FROM
 WHERE
     id = :id;
 
---! insert(default_model_name?, default_model_display_name?)
+--! insert(default_model_name?, default_model_display_name?, default_embeddings_model_name?, default_embeddings_model_display_name?, default_embeddings_model_context_size?, default_embeddings_model_description?)
 INSERT INTO providers (
     name,
     svg_logo,
@@ -45,7 +53,11 @@ INSERT INTO providers (
     default_model_context_size,
     default_model_description,
     base_url,
-    api_key_optional
+    api_key_optional,
+    default_embeddings_model_name,
+    default_embeddings_model_display_name,
+    default_embeddings_model_context_size,
+    default_embeddings_model_description
 )
 VALUES (
     :name,
@@ -55,11 +67,15 @@ VALUES (
     :default_model_context_size,
     :default_model_description,
     :base_url,
-    :api_key_optional
+    :api_key_optional,
+    :default_embeddings_model_name,
+    :default_embeddings_model_display_name,
+    :default_embeddings_model_context_size,
+    :default_embeddings_model_description
 )
 RETURNING id;
 
---! update(default_model_name?, default_model_display_name?)
+--! update(default_model_name?, default_model_display_name?, default_embeddings_model_name?, default_embeddings_model_display_name?, default_embeddings_model_context_size?, default_embeddings_model_description?)
 UPDATE
     providers
 SET
@@ -70,7 +86,11 @@ SET
     default_model_context_size = :default_model_context_size,
     default_model_description = :default_model_description,
     base_url = :base_url,
-    api_key_optional = :api_key_optional
+    api_key_optional = :api_key_optional,
+    default_embeddings_model_name = :default_embeddings_model_name,
+    default_embeddings_model_display_name = :default_embeddings_model_display_name,
+    default_embeddings_model_context_size = :default_embeddings_model_context_size,
+    default_embeddings_model_description = :default_embeddings_model_description
 WHERE
     id = :id;
 

@@ -1,4 +1,4 @@
-use crate::layout::empty_string_is_none;
+use crate::layout::{empty_string_is_none, empty_string_is_none_i32};
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
 use axum::response::Html;
@@ -71,6 +71,10 @@ pub async fn new_loader(
         default_model_description: "".to_string(),
         base_url: "".to_string(),
         api_key_optional: false,
+        default_embeddings_model_name: "".to_string(),
+        default_embeddings_model_display_name: "".to_string(),
+        default_embeddings_model_context_size: 0,
+        default_embeddings_model_description: "".to_string(),
         error: None,
     };
 
@@ -108,6 +112,16 @@ pub async fn edit_loader(
         default_model_description: provider.default_model_description,
         base_url: provider.base_url,
         api_key_optional: provider.api_key_optional,
+        default_embeddings_model_name: provider.default_embeddings_model_name.unwrap_or_default(),
+        default_embeddings_model_display_name: provider
+            .default_embeddings_model_display_name
+            .unwrap_or_default(),
+        default_embeddings_model_context_size: provider
+            .default_embeddings_model_context_size
+            .unwrap_or_default(),
+        default_embeddings_model_description: provider
+            .default_embeddings_model_description
+            .unwrap_or_default(),
         error: None,
     };
 
@@ -134,6 +148,14 @@ pub struct ProviderForm {
     pub base_url: String,
     #[serde(default)]
     pub api_key_optional: bool,
+    #[serde(deserialize_with = "empty_string_is_none")]
+    pub default_embeddings_model_name: Option<String>,
+    #[serde(deserialize_with = "empty_string_is_none")]
+    pub default_embeddings_model_display_name: Option<String>,
+    #[serde(deserialize_with = "empty_string_is_none_i32")]
+    pub default_embeddings_model_context_size: Option<i32>,
+    #[serde(deserialize_with = "empty_string_is_none")]
+    pub default_embeddings_model_description: Option<String>,
 }
 
 pub async fn upsert_action(
@@ -163,6 +185,10 @@ pub async fn upsert_action(
                     &form.default_model_description,
                     &form.base_url,
                     &form.api_key_optional,
+                    &form.default_embeddings_model_name,
+                    &form.default_embeddings_model_display_name,
+                    &form.default_embeddings_model_context_size,
+                    &form.default_embeddings_model_description,
                     &id,
                 )
                 .await?;
@@ -187,6 +213,10 @@ pub async fn upsert_action(
                     &form.default_model_description,
                     &form.base_url,
                     &form.api_key_optional,
+                    &form.default_embeddings_model_name,
+                    &form.default_embeddings_model_display_name,
+                    &form.default_embeddings_model_context_size,
+                    &form.default_embeddings_model_description,
                 )
                 .one()
                 .await?;

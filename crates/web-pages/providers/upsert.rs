@@ -17,6 +17,10 @@ pub struct ProviderForm {
     pub default_model_description: String,
     pub base_url: String,
     pub api_key_optional: bool,
+    pub default_embeddings_model_name: String,
+    pub default_embeddings_model_display_name: String,
+    pub default_embeddings_model_context_size: i32,
+    pub default_embeddings_model_description: String,
     #[serde(skip)]
     pub error: Option<String>,
 }
@@ -182,6 +186,66 @@ pub fn page(team_id: i32, rbac: Rbac, form: ProviderForm) -> String {
                                         checked: form.api_key_optional
                                     }
                                     span { class: "label-text", "API key is optional for this provider" }
+                                }
+                            }
+                        }
+                    }
+
+                    Card {
+                        class: "mb-6",
+                        CardHeader { title: "Default Embeddings Model" }
+                        CardBody {
+                            class: "flex flex-col gap-6",
+                            div {
+                                class: "grid grid-cols-1 md:grid-cols-2 gap-6",
+                                div {
+                                    class: "flex flex-col",
+                                    Fieldset {
+                                        legend: "Default Embeddings Model Name",
+                                        legend_class: "mt-4",
+                                        help_text: "Optional identifier for embeddings models.",
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "default_embeddings_model_name",
+                                            value: form.default_embeddings_model_name.clone()
+                                        }
+                                    }
+                                }
+                                div {
+                                    class: "flex flex-col",
+                                    Fieldset {
+                                        legend: "Default Embeddings Display Name",
+                                        legend_class: "mt-4",
+                                        help_text: "Optional friendly name for the embeddings model.",
+                                        Input {
+                                            input_type: InputType::Text,
+                                            name: "default_embeddings_model_display_name",
+                                            value: form.default_embeddings_model_display_name.clone()
+                                        }
+                                    }
+                                }
+                            }
+                            Fieldset {
+                                legend: "Default Embeddings Context Size",
+                                legend_class: "mt-4",
+                                help_text: "Optional context window size for embeddings.",
+                                Input {
+                                    input_type: InputType::Number,
+                                    name: "default_embeddings_model_context_size",
+                                    value: "{form.default_embeddings_model_context_size}",
+                                    required: false
+                                }
+                            }
+                            Fieldset {
+                                legend: "Default Embeddings Description",
+                                legend_class: "mt-4",
+                                help_text: "Optional description for the embeddings model.",
+                                TextArea {
+                                    class: "mt-3 w-full",
+                                    name: "default_embeddings_model_description",
+                                    rows: "6",
+                                    required: false,
+                                    "{form.default_embeddings_model_description}"
                                 }
                             }
                         }
