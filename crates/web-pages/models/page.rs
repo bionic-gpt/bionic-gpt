@@ -1,14 +1,12 @@
 #![allow(non_snake_case)]
 use super::model_card::ModelCard;
 use crate::app_layout::{AdminLayout, SideBar};
-use crate::components::card_item::{CardItem, CountLabel};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::SectionIntroduction;
-use assets::files::*;
+use assets::files::button_plus_svg;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::models::ModelWithPrompt;
-use db::Provider;
 use dioxus::prelude::*;
 
 pub fn page(
@@ -16,7 +14,6 @@ pub fn page(
     rbac: Rbac,
     setup_required: bool,
     models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool, bool)>,
-    providers: Vec<Provider>,
 ) -> String {
     let page = rsx! {
         AdminLayout {
@@ -33,21 +30,12 @@ pub fn page(
                         href: None
                     }]
                 }
-                if providers.is_empty() {
-                    Button {
-                        button_type: ButtonType::Link,
-                        prefix_image_src: "{button_plus_svg.name}",
-                        href: crate::routes::models::New { team_id }.to_string(),
-                        button_scheme: ButtonScheme::Primary,
-                        "Add Model"
-                    }
-                } else {
-                    Button {
-                        prefix_image_src: "{button_plus_svg.name}",
-                        popover_target: "new-model-provider",
-                        button_scheme: ButtonScheme::Primary,
-                        "Add Model"
-                    }
+                Button {
+                    button_type: ButtonType::Link,
+                    prefix_image_src: "{button_plus_svg.name}",
+                    href: crate::routes::models::SelectProvider { team_id }.to_string(),
+                    button_scheme: ButtonScheme::Primary,
+                    "Add Model"
                 }
             ),
 
@@ -98,48 +86,6 @@ pub fn page(
                 }
             }
 
-            if !providers.is_empty() {
-                Modal {
-                    trigger_id: "new-model-provider",
-                    ModalBody {
-                        h3 { class: "font-bold text-lg mb-4", "Choose a Provider" }
-                        div {
-                            class: "space-y-2 max-h-96 overflow-y-auto",
-                            for provider in &providers {
-                                CardItem {
-                                    class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
-                                    clickable_link: Some(format!("{}?provider_id={}", crate::routes::models::New { team_id }, provider.id)),
-                                    image_html: Some(provider.svg_logo.clone()),
-                                    avatar_name: None,
-                                    title: provider.name.clone(),
-                                    description: Some(rsx!(div {
-                                        class: "flex flex-col gap-1 text-xs",
-                                        span { class: "truncate", "{provider.base_url}" }
-                                        if let Some(default_name) = provider.default_model_display_name.clone().or(provider.default_model_name.clone()) {
-                                            span { class: "truncate", "Default model: {default_name}" }
-                                        } else {
-                                            span { class: "truncate", "Default model: Not set" }
-                                        }
-                                    })),
-                                    footer: None,
-                                    image_src: None,
-                                    count_labels: vec![
-                                        CountLabel {
-                                            count: provider.default_model_context_size as usize,
-                                            label: "Context".into()
-                                        }
-                                    ],
-                                    action: None,
-                                    popover_target: None,
-                                }
-                            }
-                        }
-                        ModalAction {
-                            Button { class: "cancel-modal", button_scheme: ButtonScheme::Warning, "Cancel" }
-                        }
-                    }
-                }
-            }
         }
     };
 

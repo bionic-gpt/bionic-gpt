@@ -10,6 +10,7 @@ SELECT
     default_model_context_size,
     default_model_description,
     base_url,
+    api_key_optional,
     created_at,
     updated_at
 FROM
@@ -27,6 +28,7 @@ SELECT
     default_model_context_size,
     default_model_description,
     base_url,
+    api_key_optional,
     created_at,
     updated_at
 FROM
@@ -42,7 +44,8 @@ INSERT INTO providers (
     default_model_display_name,
     default_model_context_size,
     default_model_description,
-    base_url
+    base_url,
+    api_key_optional
 )
 VALUES (
     :name,
@@ -51,7 +54,8 @@ VALUES (
     :default_model_display_name,
     :default_model_context_size,
     :default_model_description,
-    :base_url
+    :base_url,
+    :api_key_optional
 )
 RETURNING id;
 
@@ -65,7 +69,8 @@ SET
     default_model_display_name = :default_model_display_name,
     default_model_context_size = :default_model_context_size,
     default_model_description = :default_model_description,
-    base_url = :base_url
+    base_url = :base_url,
+    api_key_optional = :api_key_optional
 WHERE
     id = :id;
 

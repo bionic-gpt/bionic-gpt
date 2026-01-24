@@ -16,6 +16,7 @@ pub struct ProviderForm {
     pub default_model_context_size: i32,
     pub default_model_description: String,
     pub base_url: String,
+    pub api_key_optional: bool,
     #[serde(skip)]
     pub error: Option<String>,
 }
@@ -168,6 +169,19 @@ pub fn page(team_id: i32, rbac: Rbac, form: ProviderForm) -> String {
                                     rows: "6",
                                     required: true,
                                     "{form.default_model_description}"
+                                }
+                            }
+                            div {
+                                class: "form-control mt-4",
+                                label {
+                                    class: "label cursor-pointer justify-start gap-3",
+                                    input {
+                                        "type": "checkbox",
+                                        name: "api_key_optional",
+                                        class: "checkbox",
+                                        checked: form.api_key_optional
+                                    }
+                                    span { class: "label-text", "API key is optional for this provider" }
                                 }
                             }
                         }

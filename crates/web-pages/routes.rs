@@ -349,6 +349,12 @@ pub mod models {
     }
 
     #[derive(TypedPath, Deserialize)]
+    #[typed_path("/app/team/{team_id}/models/select-provider")]
+    pub struct SelectProvider {
+        pub team_id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models/new")]
     pub struct New {
         pub team_id: i32,

@@ -19,7 +19,7 @@ use db::queries::capabilities;
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::models::upsert as model_page;
-use web_pages::routes::models::{Delete, Edit, Index, New, Upsert};
+use web_pages::routes::models::{Delete, Edit, Index, New, SelectProvider, Upsert};
 use web_pages::{string_to_visibility, visibility_to_string};
 
 #[derive(Deserialize, Default)]
@@ -30,6 +30,7 @@ pub struct ProviderQuery {
 pub fn routes() -> Router {
     Router::new()
         .typed_get(loader)
+        .typed_get(select_provider_loader)
         .typed_get(new_loader)
         .typed_get(edit_loader)
         .typed_post(upsert_action)
@@ -52,10 +53,6 @@ pub async fn loader(
 
     let setup_required = required_models_missing(&transaction).await?;
     let models = models::all_models().bind(&transaction).all().await?;
-    let providers = queries::providers::providers()
-        .bind(&transaction)
-        .all()
-        .await?;
 
     // For each model, fetch its capabilities
     let mut models_with_capabilities = Vec::new();
@@ -87,13 +84,32 @@ pub async fn loader(
         ));
     }
 
-    let html = web_pages::models::page::page(
-        team_id,
-        rbac,
-        setup_required,
-        models_with_capabilities,
-        providers,
-    );
+    let html =
+        web_pages::models::page::page(team_id, rbac, setup_required, models_with_capabilities);
+
+    Ok(Html(html))
+}
+
+pub async fn select_provider_loader(
+    SelectProvider { team_id }: SelectProvider,
+    current_user: Jwt,
+    Extension(pool): Extension<Pool>,
+) -> Result<Html<String>, CustomError> {
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+
+    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+
+    if !rbac.can_setup_models() {
+        return Err(CustomError::Authorization);
+    }
+
+    let providers = queries::providers::providers()
+        .bind(&transaction)
+        .all()
+        .await?;
+
+    let html = web_pages::models::select_provider::page(team_id, rbac, providers);
 
     Ok(Html(html))
 }

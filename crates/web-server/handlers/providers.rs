@@ -70,6 +70,7 @@ pub async fn new_loader(
         default_model_context_size: 0,
         default_model_description: "".to_string(),
         base_url: "".to_string(),
+        api_key_optional: false,
         error: None,
     };
 
@@ -106,6 +107,7 @@ pub async fn edit_loader(
         default_model_context_size: provider.default_model_context_size,
         default_model_description: provider.default_model_description,
         base_url: provider.base_url,
+        api_key_optional: provider.api_key_optional,
         error: None,
     };
 
@@ -130,6 +132,8 @@ pub struct ProviderForm {
     pub default_model_description: String,
     #[validate(length(min = 1, message = "The base URL is mandatory"))]
     pub base_url: String,
+    #[serde(default)]
+    pub api_key_optional: bool,
 }
 
 pub async fn upsert_action(
@@ -158,6 +162,7 @@ pub async fn upsert_action(
                     &form.default_model_context_size,
                     &form.default_model_description,
                     &form.base_url,
+                    &form.api_key_optional,
                     &id,
                 )
                 .await?;
@@ -181,6 +186,7 @@ pub async fn upsert_action(
                     &form.default_model_context_size,
                     &form.default_model_description,
                     &form.base_url,
+                    &form.api_key_optional,
                 )
                 .one()
                 .await?;

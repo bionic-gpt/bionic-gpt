@@ -102,6 +102,10 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 - Use `just test` or `cargo test --workspace --exclude integration-testing --exclude rag-engine`
 - This will exclude the integration-testing which requires an environment with selenium.
 
+## Build Check
+
+- Always run `cargo build` after making changes.
+
 ## Running the integration tests
 
 Selenium is configured as part of our `devcontainer` and is accessible via `http://localhost:7706/`
