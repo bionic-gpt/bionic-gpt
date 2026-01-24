@@ -56,7 +56,7 @@ pub fn CardItem(props: CardItemProps) -> Element {
                     }
                 } else if let Some(name) = props.avatar_name.clone() {
                     Avatar {
-                        avatar_size: AvatarSize::Medium,
+                        avatar_size: AvatarSize::Small,
                         name: "{name}"
                     }
                 }
