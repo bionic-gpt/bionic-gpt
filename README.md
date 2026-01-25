@@ -171,7 +171,7 @@ flowchart LR
         DocEngine["Rust Document<br/>Engine"]
 
         %% Database
-        Postgres["Postgres<br/>Relational DB"]
+        Postgres["Postgres<br/>Relational DB & PgVector"]
     end
 
     %% Request flow
