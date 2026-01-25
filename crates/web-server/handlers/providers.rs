@@ -9,7 +9,7 @@ use axum_extra::routing::RouterExt;
 use db::authz;
 use db::queries;
 use db::Pool;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use validator::Validate;
 use web_pages::providers::upsert as provider_page;
 use web_pages::routes::providers::{Delete, Edit, Index, New, Upsert};
@@ -146,7 +146,7 @@ pub struct ProviderForm {
     pub default_model_description: String,
     #[validate(length(min = 1, message = "The base URL is mandatory"))]
     pub base_url: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "checkbox_bool")]
     pub api_key_optional: bool,
     #[serde(deserialize_with = "empty_string_is_none")]
     pub default_embeddings_model_name: Option<String>,
@@ -156,6 +156,17 @@ pub struct ProviderForm {
     pub default_embeddings_model_context_size: Option<i32>,
     #[serde(deserialize_with = "empty_string_is_none")]
     pub default_embeddings_model_description: Option<String>,
+}
+
+fn checkbox_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = Option::<String>::deserialize(deserializer)?;
+    Ok(matches!(
+        value.as_deref(),
+        Some("on") | Some("true") | Some("1")
+    ))
 }
 
 pub async fn upsert_action(
