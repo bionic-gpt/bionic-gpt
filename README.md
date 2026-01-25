@@ -184,6 +184,7 @@ flowchart LR
     %% Control & inference
     RustServer --> RAG
     RustServer --> LLM
+    RustServer --> Postgres
 
     %% RAG orchestration
     RAG --> Postgres
