@@ -321,6 +321,7 @@ pub async fn delete_action(
 pub struct ModelForm {
     pub id: Option<i32>,
     pub prompt_id: Option<i32>,
+    #[serde(default)]
     #[serde(deserialize_with = "empty_string_is_none_i32")]
     pub provider_id: Option<i32>,
     #[validate(length(min = 1, message = "The name is mandatory"))]
