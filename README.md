@@ -148,68 +148,49 @@ Set the `APP_BASE_URL` environment variable to the public URL of your Bionic ser
 
 
 ```mermaid
-flowchart TD
-  subgraph Users
-    Web[Web Users]
-    Devs[Developers]
-    Ops[Operations]
-  end
+flowchart LR
+    %% External actors
+    User((User))
+    IdP["External<br/>Identity Provider"]
+    LLM["LLM Provider<br/>Ollama / OpenAI / Anthropic"]
+    S3["S3-Compatible<br/>Object Storage"]
 
-  subgraph "Kubernetes Cluster"
-    
-    subgraph "Namespace: bionic-gpt"
-      Nginx[Nginx]
-      OAuth[oauth2-proxy]
-      Server["Bionic Server<br><hr>• Limits Management<br>• Model Management<br>• MCP Server Management"]
-      Chunking[Chunking Engine]
-      ObjectStore[Object Storage]
-      DB[(PostgreSQL with Column Encryption and Vector DB)]
-      Grafana[Grafana]
+    %% Kubernetes boundary
+    subgraph K8s["Kubernetes<br/>EKS · AKS · GKE · k3s"]
+        direction LR
+
+        %% Ingress & Auth
+        Nginx["Nginx Router"]
+        OAuth2["OAuth2 Proxy"]
+
+        %% Core API
+        RustServer["High Performance<br/>Rust Web Server"]
+
+        %% Engines
+        RAG["High Performance<br/>RAG Engine"]
+        DocEngine["Rust Document<br/>Engine"]
+
+        %% Database
+        Postgres["Postgres<br/>Relational DB"]
     end
 
-    subgraph "Namespace: model-garden"
-      MG["
-• LLaMA 3
-• Embeddings Model
-• External Model API
-"]
-    end
+    %% Request flow
+    User --> Nginx --> OAuth2 --> RustServer
 
-    subgraph "Namespace: mcp-servers"
-      MCP["
-• Agentic RAG Engine
-• Time Service
-"]
-    end
+    %% Authentication flow
+    OAuth2 --> IdP
+    IdP --> OAuth2
 
-  end
+    %% Control & inference
+    RustServer --> RAG
+    RustServer --> LLM
 
-  Web --> Nginx
-  Devs --> Nginx
-  Ops --> Grafana
+    %% RAG orchestration
+    RAG --> Postgres
+    RAG --> DocEngine
 
-  Nginx --> OAuth
-  OAuth --> IdP[External Identity Provider]
-  OAuth --> Server
-
-  Server --> DB
-  Grafana --> DB
-
-  Server --> MG
-  Server --> MCP
-  Server --> Chunking
-  Server --> ObjectStore
-
-  Server --> Secrets[HSM via K8s Secrets]
-
-  %% Notes
-  Note1[/"MinIO or S3-compatible storage"/]
-  Note2[/"Chunking engine handles document preprocessing"/]
-  Note3[/"Vibe Coding"/]
-
-  ObjectStore -.-> Note1
-  Chunking -.-> Note2
-  Devs -.-> Note3
+    %% Object storage access
+    RustServer --> S3
 ```
 
 ## Enterprise
