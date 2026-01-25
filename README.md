@@ -220,4 +220,4 @@ This covers:
 
 Bionic is optimized to run on Kubernetes and provide Generative AI services for potentially 1000's of users.
 
-![Alt text](crates/static-website/assets/landing-page/bionic-startup-k9s.png "Bionic in Kubernetes")
+![Alt text](crates/static-website/assets/readme/k9s.png "Bionic in Kubernetes")
