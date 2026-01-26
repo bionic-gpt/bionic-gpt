@@ -52,7 +52,6 @@
 		"RUST_LOG": "debug",
 		// For tracing_subscriber
 		"LOG_LEVEL": "DEBUG",
-		"ENABLE_BARRICADE": "1",
 		"DATABASE_URL": "postgresql://db-owner:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable",
 		"APP_DATABASE_URL": "postgresql://application_user:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable",
 		"SIGNOUT_URL": "/auth/sign_out",

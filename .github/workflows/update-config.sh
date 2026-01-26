@@ -8,4 +8,5 @@ do
     echo "Name $CONFIG_NAME"
     sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../infra-as-code/docker-compose.yml
     sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../infra-as-code/stack.yaml
+    sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:$1/}" ../../infra-as-code/stack-selenium.yaml
 done
