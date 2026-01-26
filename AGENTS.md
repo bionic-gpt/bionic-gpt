@@ -108,7 +108,8 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 
 ## Running the integration tests
 
-1. Run `just get-config` and  `just selenium` to install selenium into `k3d`.
+1. Assuming you already have k3d setup. `just dev-selenium` to get an install using http://nginx as the hostname URL.
+1. Run `just selenium` to install selenium into `k3d`.
 1. Replace the bionic pod with your local version `just md`.
 1. Run the integration tests `cargo test -p integration-testing`.
-1. You can monitor the integration tests via `NoVNC` at `http://localhost:7000` password `secret`.
+1. You can monitor the integration tests via `NoVNC` at `http://localhost:7900` password `secret`.

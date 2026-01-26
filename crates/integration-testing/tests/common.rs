@@ -26,7 +26,7 @@ impl Config {
         let application_url = if env::var("APPLICATION_URL").is_ok() {
             env::var("APPLICATION_URL").unwrap()
         } else {
-            "http://localhost".into()
+            "http://nginx:80".into()
         };
 
         let mailhog_url = if env::var("MAILHOG_URL").is_ok() {

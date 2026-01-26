@@ -1,0 +1,30 @@
+apiVersion: stack-cli.dev/v1
+kind: StackApp
+metadata:
+  name: bionic-gpt
+  namespace: bionic-selenium
+spec:
+  components:
+    db: {}
+    auth:
+      hostname-url: http://nginx
+    ingress: {}
+  services:
+    web:
+      image: ghcr.io/bionic-gpt/bionicgpt:1.12.2
+      port: 7703
+      # Pass an env var called APP_DATABASE_URL which is the application_user role.
+      database_url: APP_DATABASE_URL
+      init:
+        image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.2
+        migrations_database_url: DATABASE_URL
+
+    rag-engine:
+      image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.2
+      port: 7703
+      database_url: APP_DATABASE_URL
+
+    chunking-engine:
+      image: downloads.unstructured.io/unstructured-io/unstructured-api:e464c16
+      port: 8000
+      database_url: APP_DATABASE_URL

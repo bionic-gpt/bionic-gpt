@@ -122,7 +122,7 @@ selenium:
         'kind: Pod' \
         'metadata:' \
         '  name: selenium-chrome' \
-        '  namespace: bionic-gpt' \
+        '  namespace: bionic-selenium' \
         '  labels:' \
         '    app: selenium-chrome' \
         'spec:' \
@@ -141,8 +141,14 @@ selenium:
         '      medium: Memory' \
         '      sizeLimit: 2Gi' \
     | kubectl replace --force -f -
-    kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-gpt --timeout=60s
-    kubectl port-forward pod/selenium-chrome 4444:4444 7900:7900 -n bionic-gpt
+    kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-selenium --timeout=60s
+    kubectl port-forward pod/selenium-chrome 4444:4444 7900:7900 -n bionic-selenium
+
+dev-selenium:
+    stack deploy --manifest infra-as-code/stack-selenium.yaml
+
+md-selenium:
+    mirrord exec target/debug/web-server --steal -n bionic-selenium --target deployment/bionic-gpt
 
 schemaspy-install:
     sudo apt update
