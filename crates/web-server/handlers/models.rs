@@ -45,7 +45,8 @@ pub async fn loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
         return Err(CustomError::Authorization);
@@ -106,7 +107,8 @@ pub async fn select_provider_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
         return Err(CustomError::Authorization);
@@ -132,7 +134,8 @@ pub async fn new_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
         return Err(CustomError::Authorization);
@@ -202,7 +205,8 @@ pub async fn edit_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
         return Err(CustomError::Authorization);
@@ -216,7 +220,7 @@ pub async fn edit_loader(
 
     let visibility = if let Some(prompt_id) = model.prompt_id {
         let prompt = queries::prompts::prompt()
-            .bind(&transaction, &prompt_id, &team_id)
+            .bind(&transaction, &prompt_id, &team_id_num)
             .one()
             .await?;
         visibility_to_string(prompt.visibility)
@@ -302,7 +306,8 @@ pub async fn delete_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
         return Err(CustomError::Authorization);
@@ -359,7 +364,8 @@ pub async fn upsert_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_setup_models() {
         return Err(CustomError::Authorization);
@@ -490,7 +496,7 @@ pub async fn upsert_action(
                 queries::prompts::insert()
                     .bind(
                         &transaction,
-                        &team_id,
+                        &team_id_num,
                         &model_id,
                         &0, // Set category to uncategorized
                         &model_form.display_name,

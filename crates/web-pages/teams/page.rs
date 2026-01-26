@@ -11,7 +11,7 @@ use std::collections::HashMap;
 
 pub fn page(
     rbac: Rbac,
-    team_id: i32,
+    team_id: String,
     teams: Vec<TeamOwner>,
     invites: Vec<InviteSummary>,
     current_user_email: String,
@@ -21,14 +21,14 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Switch,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "Teams",
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
                         text: "Teams".into(),
-                        href: Some(crate::routes::teams::Switch{team_id}.to_string())
+                        href: Some(crate::routes::teams::Switch{team_id: team_id.clone()}.to_string())
                     }]
                 }
                 Button {
@@ -54,7 +54,7 @@ pub fn page(
                     for team in &teams {
                         TeamCard {
                             team: team.clone(),
-                            current_team_id: team_id,
+                            current_team_slug: team_id.clone(),
                             teams_len: teams.len(),
                             current_user_email: current_user_email.clone(),
                             member_count: team_member_counts
@@ -84,14 +84,14 @@ pub fn page(
                     for invite in invites {
                         super::accept_invitation::AcceptInvite {
                             invite,
-                            team_id
+                            team_id: team_id.clone()
                         }
                 }
                 }
 
                 for team in teams {
                     ConfirmModal {
-                        action: crate::routes::teams::Delete {team_id: team.id}.to_string(),
+                        action: crate::routes::teams::Delete {team_id: team.team_slug.clone()}.to_string(),
                         trigger_id: format!("delete-trigger-{}", team.id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete this Team?".to_string(),
@@ -105,7 +105,7 @@ pub fn page(
                 // The for to create new teams
                 form {
                     method: "post",
-                    action: crate::routes::teams::New{team_id}.to_string(),
+                    action: crate::routes::teams::New{team_id: team_id.clone()}.to_string(),
                     Modal {
                         trigger_id: "create-new-team",
                         ModalBody {

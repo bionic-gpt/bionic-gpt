@@ -10,7 +10,7 @@ use db::authz::Rbac;
 use dioxus::prelude::*;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     integrations: Vec<IntegrationSummary>,
     locale: &str,
@@ -22,7 +22,7 @@ pub fn page(
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: integrations_label.clone(),
             locale: Some(locale.to_string()),
@@ -30,14 +30,14 @@ pub fn page(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
                         text: integrations_label.clone(),
-                        href: Some(crate::routes::integrations::Index { team_id }.to_string())
+                        href: Some(crate::routes::integrations::Index { team_id: team_id.clone() }.to_string())
                     }]
                 }
                 if rbac.can_manage_integrations() {
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::integrations::Select { team_id }.to_string(),
+                        href: routes::integrations::Select { team_id: team_id.clone() }.to_string(),
                         button_scheme: ButtonScheme::Primary,
                         "{button_name}"
                     }
@@ -60,7 +60,7 @@ pub fn page(
                     for integration in integrations {
                         super::integration_card::IntegrationCard {
                             integration,
-                            team_id: team_id
+                            team_id: team_id.clone()
                         }
                     }
                 }

@@ -6,7 +6,7 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn ModelCard(
-    team_id: i32,
+    team_id: String,
     model: ModelWithPrompt,
     has_function_calling: bool,
     has_vision: bool,
@@ -50,7 +50,7 @@ pub fn ModelCard(
             DropDown {
                 direction: Direction::Bottom,
                 button_text: "...",
-                DropDownLink { href: crate::routes::models::Edit{team_id, id: model.id}.to_string(), "Edit" }
+                DropDownLink { href: crate::routes::models::Edit{team_id: team_id.clone(), id: model.id}.to_string(), "Edit" }
                 DropDownLink { popover_target: format!("delete-trigger-{}-{}", model.id, team_id), href: "#", target: "_top", "Delete" }
             }
         )),

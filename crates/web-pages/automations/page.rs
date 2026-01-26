@@ -10,12 +10,12 @@ use db::authz::Rbac;
 use db::queries::prompts::MyPrompt;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
+pub fn page(team_id: String, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Automations",
             header: rsx!(
@@ -31,7 +31,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::automations::New{team_id}.to_string(),
+                        href: routes::automations::New{team_id: team_id.clone()}.to_string(),
                         button_scheme: ButtonScheme::Primary,
                         "New Automation"
                     }
@@ -53,7 +53,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
                     class: "space-y-2",
                         for prompt in &prompts {
                         AutomationCard {
-                            team_id,
+                            team_id: team_id.clone(),
                             prompt: prompt.clone()
                         }
                     }
@@ -63,7 +63,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>) -> String {
 
             for item in &prompts {
                 ConfirmModal {
-                    action: crate::routes::automations::Delete{team_id, id: item.id}.to_string(),
+                    action: crate::routes::automations::Delete{team_id: team_id.clone(), id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                     submit_label: "Delete".to_string(),
                     heading: "Delete this Automation?".to_string(),

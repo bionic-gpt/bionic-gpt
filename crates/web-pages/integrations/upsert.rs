@@ -17,7 +17,7 @@ pub struct IntegrationForm {
     pub error: Option<String>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm, locale: &str) -> String {
+pub fn page(team_id: String, rbac: Rbac, integration: IntegrationForm, locale: &str) -> String {
     let integrations_label = i18n::integrations(locale);
     let placeholder = "{\n  &quot;openapi&quot;: &quot;3.0.3&quot;,\n  &quot;info&quot;: {\n    &quot;title&quot;: &quot;Blockchain Ticker API&quot;,\n    &quot;version&quot;: &quot;1.0.0&quot;,\n    &quot;description&quot;: &quot;Returns current Bitcoin price in various currencies.&quot;,\n    &quot;x-logo&quot;: {\n      &quot;url&quot;: &quot;data:image/svg+xml;base64,ICAgPHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjUwIj4KICAgICA8dGV4dCB4PSIyMCIgeT0iMzAiIGZvbnQtc2l6ZT0iMjAiPkI8L3RleHQ+CiAgIDwvc3ZnPg==&quot;\n    }\n  },\n  &quot;servers&quot;: [\n    {\n      &quot;url&quot;: &quot;https://blockchain.info&quot;,\n      &quot;description&quot;: &quot;Main Blockchain API server&quot;\n    }\n  ],\n  &quot;paths&quot;: {\n    &quot;/ticker&quot;: {\n      &quot;get&quot;: {\n        &quot;summary&quot;: &quot;Get Bitcoin prices by currency&quot;,\n        &quot;operationId&quot;: &quot;getTicker&quot;,\n        &quot;responses&quot;: {\n          &quot;200&quot;: {\n            &quot;description&quot;: &quot;A map of currency codes to price information&quot;,\n            &quot;content&quot;: {\n              &quot;application/json&quot;: {\n                &quot;schema&quot;: {\n                  &quot;type&quot;: &quot;object&quot;,\n                  &quot;additionalProperties&quot;: {\n                    &quot;$ref&quot;: &quot;#/components/schemas/CurrencyInfo&quot;\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  },\n  &quot;components&quot;: {\n    &quot;schemas&quot;: {\n      &quot;CurrencyInfo&quot;: {\n        &quot;type&quot;: &quot;object&quot;,\n        &quot;properties&quot;: {\n          &quot;15m&quot;: {\n            &quot;type&quot;: &quot;number&quot;,\n            &quot;format&quot;: &quot;float&quot;\n          },\n          &quot;last&quot;: {\n            &quot;type&quot;: &quot;number&quot;,\n            &quot;format&quot;: &quot;float&quot;\n          },\n          &quot;buy&quot;: {\n            &quot;type&quot;: &quot;number&quot;,\n            &quot;format&quot;: &quot;float&quot;\n          },\n          &quot;sell&quot;: {\n            &quot;type&quot;: &quot;number&quot;,\n            &quot;format&quot;: &quot;float&quot;\n          },\n          &quot;symbol&quot;: {\n            &quot;type&quot;: &quot;string&quot;\n          }\n        },\n        &quot;required&quot;: [\n          &quot;15m&quot;,\n          &quot;last&quot;,\n          &quot;buy&quot;,\n          &quot;sell&quot;,\n          &quot;symbol&quot;\n        ]\n      }\n    }\n  }\n}";
 
@@ -25,7 +25,7 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm, locale: &str
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: integrations_label.clone(),
             locale: Some(locale.to_string()),
@@ -114,7 +114,7 @@ pub fn page(team_id: i32, rbac: Rbac, integration: IntegrationForm, locale: &str
                             class: "mt-5 flex justify-between",
                             Button {
                                 button_type: ButtonType::Link,
-                                href: crate::routes::integrations::Index { team_id }.to_string(),
+                                href: crate::routes::integrations::Index { team_id: team_id.clone() }.to_string(),
                                 button_scheme: ButtonScheme::Error,
                                 "Cancel"
                             }

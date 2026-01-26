@@ -38,7 +38,8 @@ pub async fn update_datasets_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     // Delete existing dataset connections
     queries::prompts::delete_prompt_datasets()
@@ -66,7 +67,8 @@ pub async fn manage_datasets(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let datasets = queries::datasets::datasets()
         .bind(&transaction)
@@ -74,7 +76,7 @@ pub async fn manage_datasets(
         .await?;
 
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id, &team_id)
+        .bind(&transaction, &prompt_id, &team_id_num)
         .one()
         .await?;
 

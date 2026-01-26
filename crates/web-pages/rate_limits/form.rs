@@ -4,10 +4,10 @@ use db::Model;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Form(team_id: i32, models: Vec<Model>) -> Element {
+pub fn Form(team_id: String, models: Vec<Model>) -> Element {
     rsx!(
         form {
-            action: crate::routes::rate_limits::Upsert{ team_id }.to_string(),
+            action: crate::routes::rate_limits::Upsert{ team_id: team_id.clone() }.to_string(),
             method: "post",
             Modal {
                 trigger_id: "create-limit",

@@ -16,7 +16,8 @@ pub async fn manage_triggers(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let triggers = queries::automation_triggers::cron_triggers_by_prompt()
         .bind(&transaction, &prompt_id)
@@ -24,7 +25,7 @@ pub async fn manage_triggers(
         .await?;
 
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id, &team_id)
+        .bind(&transaction, &prompt_id, &team_id_num)
         .one()
         .await?;
 
@@ -52,7 +53,8 @@ pub async fn add_cron_trigger(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let cron = format!(
         "{} {} {} {} {}",
@@ -85,7 +87,8 @@ pub async fn remove_cron_trigger(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     queries::automation_triggers::delete_cron_trigger()
         .bind(&transaction, &trigger_id, &prompt_id)

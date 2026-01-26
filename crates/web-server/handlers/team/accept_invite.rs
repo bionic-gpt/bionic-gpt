@@ -17,11 +17,11 @@ pub async fn invite(
     Extension(pool): Extension<Pool>,
     current_user: Jwt,
 ) -> Result<impl IntoResponse, CustomError> {
-    let team_id =
+    let team_slug =
         accept_invitation(&pool, current_user, &invite_selector, &invite_validator).await?;
 
     Ok(Redirect::to(
-        &web_pages::routes::teams::Switch { team_id }.to_string(),
+        &web_pages::routes::teams::Switch { team_id: team_slug }.to_string(),
     ))
 }
 
@@ -30,7 +30,7 @@ pub async fn accept_invitation(
     current_user: Jwt,
     invitation_selector: &str,
     invitation_verifier: &str,
-) -> Result<i32, CustomError> {
+) -> Result<String, CustomError> {
     let invitation_verifier = base64::decode_config(invitation_verifier, base64::URL_SAFE_NO_PAD)
         .map_err(|e| CustomError::FaultySetup(e.to_string()))?;
     let invitation_verifier_hash = Sha256::digest(&invitation_verifier);
@@ -87,7 +87,12 @@ pub async fn accept_invitation(
         }
     }
 
+    let team = queries::teams::team()
+        .bind(&transaction, &invitation.team_id)
+        .one()
+        .await?;
+
     transaction.commit().await?;
 
-    Ok(invitation.team_id)
+    Ok(team.slug)
 }

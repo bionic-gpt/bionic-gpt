@@ -5,6 +5,23 @@ use axum::{
 };
 use std::fmt;
 
+fn log_db_error(context: &str, err: &db::TokioPostgresError) {
+    if let Some(db_err) = err.as_db_error() {
+        tracing::error!(
+            db_code = db_err.code().code(),
+            db_message = db_err.message(),
+            db_detail = db_err.detail(),
+            db_hint = db_err.hint(),
+            db_table = db_err.table(),
+            db_column = db_err.column(),
+            db_constraint = db_err.constraint(),
+            "{context}"
+        );
+    } else {
+        tracing::error!(error = ?err, "{context}");
+    }
+}
+
 #[derive(Debug)]
 pub enum CustomError {
     FaultySetup(String),
@@ -77,12 +94,14 @@ impl From<MultipartError> for CustomError {
 
 impl From<db::TokioPostgresError> for CustomError {
     fn from(err: db::TokioPostgresError) -> CustomError {
+        log_db_error("database error", &err);
         CustomError::Database(err.to_string())
     }
 }
 
 impl From<db::PoolError> for CustomError {
     fn from(err: db::PoolError) -> CustomError {
+        tracing::error!(error = ?err, "database pool error");
         CustomError::Database(err.to_string())
     }
 }

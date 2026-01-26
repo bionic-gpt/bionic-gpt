@@ -12,7 +12,7 @@ use web_pages::routes::teams::AcceptInvite;
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct AcceptInviteForm {
     pub new_team_id: i32,
-    pub team_id: i32,
+    pub team_id: String,
     pub invite_id: i32,
 }
 

@@ -1,6 +1,8 @@
---! team : Team(name?)
+--: Team(name?, slug)
+--: TeamOwner(team_name?, team_slug)
+--! team : Team
 SELECT 
-    id, name
+    id, name, slug
 FROM 
     teams
 WHERE
@@ -24,15 +26,37 @@ SET
 WHERE
     id = :org_id;
 
---! get_primary_team : Team(name?)
+--! get_primary_team : Team
 SELECT 
-    id, name
+    id, name, slug
 FROM 
     teams
 WHERE
     created_by_user_id = :created_by_user_id
 ORDER BY id ASC
 LIMIT 1;
+
+--! team_by_slug : Team
+SELECT 
+    id, name, slug
+FROM 
+    teams
+WHERE
+    slug = :slug
+    AND EXISTS (
+        SELECT 1
+        FROM team_users tu
+        WHERE tu.team_id = teams.id AND tu.user_id = current_app_user()
+    );
+
+--: TeamId()
+--! team_id_by_slug : TeamId
+SELECT
+    id
+FROM
+    teams
+WHERE
+    slug = :slug;
 
 --! add_user_to_team
 INSERT INTO 
@@ -59,10 +83,11 @@ LEFT JOIN users u ON u.id = ou.user_id
 WHERE
     ou.team_id = :team_id;
 
---! get_teams : TeamOwner(team_name?)
+--! get_teams : TeamOwner
 SELECT 
     o.id,
     o.name as team_name, 
+    o.slug as team_slug,
     u.email as team_owner
 FROM 
     team_users ou

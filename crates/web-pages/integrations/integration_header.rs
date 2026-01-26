@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 
 #[component]
 pub fn IntegrationHeader(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     integration: Integration,
     logo_url: Option<String>,
@@ -55,7 +55,7 @@ pub fn IntegrationHeader(
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_edit_svg.name}",
-                        href: routes::integrations::Edit{team_id, id: integration.id}.to_string(),
+                        href: routes::integrations::Edit{team_id: team_id.clone(), id: integration.id}.to_string(),
                         button_style: ButtonStyle::Outline,
                         "Edit"
                     }
@@ -65,7 +65,7 @@ pub fn IntegrationHeader(
                         button_scheme: ButtonScheme::Warning
                     }
                     ConfirmModal {
-                        action: crate::routes::integrations::Delete{team_id, id: integration.id}.to_string(),
+                        action: crate::routes::integrations::Delete{team_id: team_id.clone(), id: integration.id}.to_string(),
                         trigger_id: popover_target,
                         submit_label: "Delete".to_string(),
                         heading: "Delete this Integration?".to_string(),

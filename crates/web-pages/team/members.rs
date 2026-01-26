@@ -24,7 +24,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Switch,
-            team_id: team.id,
+            team_id: team.slug.clone(),
             rbac: rbac.clone(),
             title: "Team Members",
             header: rsx!(
@@ -32,7 +32,7 @@ pub fn page(
                     items: vec![
                         BreadcrumbItem {
                             text: "Teams".into(),
-                            href: Some(crate::routes::teams::Switch{team_id: team.id}.to_string())
+                            href: Some(crate::routes::teams::Switch{team_id: team.slug.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: breadcrumb_team_name.clone(),
@@ -73,7 +73,7 @@ pub fn page(
                                 p {
                                     "Please set your "
                                     a {
-                                        href: crate::routes::profile::Profile{team_id: team.id}.to_string(),
+                                        href: crate::routes::profile::Profile{team_id: team.slug.clone()}.to_string(),
                                         "name"
                                     }
                                 }
@@ -109,7 +109,7 @@ pub fn page(
 
                 for member in members {
                     ConfirmModal {
-                        action: crate::routes::team::Delete{team_id: member.team_id}.to_string(),
+                        action: crate::routes::team::Delete{team_id: team.slug.clone()}.to_string(),
                         trigger_id: format!("remove-member-trigger-{}-{}", member.id, member.team_id),
                         submit_label: "Remove User".to_string(),
                         heading: "Remove this user?".to_string(),
@@ -123,7 +123,7 @@ pub fn page(
 
                 for invite in invites {
                     ConfirmModal {
-                        action: crate::routes::team::DeleteInvite{team_id: invite.team_id}.to_string(),
+                        action: crate::routes::team::DeleteInvite{team_id: team.slug.clone()}.to_string(),
                         trigger_id: format!("remove-invite-trigger-{}-{}", invite.id, invite.team_id),
                         submit_label: "Remove Invite".to_string(),
                         heading: "Remove this invite?".to_string(),
@@ -137,12 +137,12 @@ pub fn page(
 
                 // The form to create an invitation
                 super::invitation_form::InvitationForm {
-                    submit_action: crate::routes::team::CreateInvite{team_id:team.id}.to_string()
+                    submit_action: crate::routes::team::CreateInvite{team_id:team.slug.clone()}.to_string()
                 }
 
                 // Form to set he org name
                 super::team_name_form::TeamNameForm {
-                    submit_action: crate::routes::team::SetName{team_id:team.id}.to_string()
+                    submit_action: crate::routes::team::SetName{team_id:team.slug.clone()}.to_string()
                 }
             }
         }

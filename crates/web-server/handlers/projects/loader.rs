@@ -13,7 +13,9 @@ pub async fn index(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let team_slug = team_id;
+    let (rbac, _team_id) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -27,7 +29,7 @@ pub async fn index(
     let can_set_visibility_to_company = !config.saas && rbac.is_sys_admin;
 
     let html =
-        web_pages::projects::page::page(team_id, rbac, projects, can_set_visibility_to_company);
+        web_pages::projects::page::page(team_slug, rbac, projects, can_set_visibility_to_company);
 
     Ok(Html(html))
 }
@@ -44,7 +46,9 @@ pub async fn view(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let team_slug = team_id;
+    let (rbac, _team_id) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -68,7 +72,7 @@ pub async fn view(
     let can_set_visibility_to_company = !config.saas && rbac.is_sys_admin;
 
     let html = web_pages::projects::view::page(
-        team_id,
+        team_slug,
         rbac,
         project,
         histories,

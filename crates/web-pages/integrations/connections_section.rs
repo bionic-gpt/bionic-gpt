@@ -11,7 +11,7 @@ use integrations::OAuth2Config;
 
 #[component]
 pub fn ConnectionsSection(
-    team_id: i32,
+    team_id: String,
     integration_id: i32,
     rbac: Rbac,
     openapi: BionicOpenAPI,
@@ -69,7 +69,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {ApiKeyCards(team_id, integration_id, mcp_slug.clone(), api_key_connections)}
+                        {ApiKeyCards(team_id.clone(), integration_id, mcp_slug.clone(), api_key_connections)}
                     }
                 }
             }
@@ -85,7 +85,7 @@ pub fn ConnectionsSection(
                         }
                         if oauth_client_configured {
                             super::oauth_connect_button::OauthConnectButton {
-                                team_id,
+                                team_id: team_id.clone(),
                                 integration_id,
                                 class: "btn btn-primary btn-sm btn-outline".to_string(),
                                 label: "Add OAuth2 Connection".to_string(),
@@ -109,7 +109,7 @@ pub fn ConnectionsSection(
                             }
                         }
                     } else {
-                        {Oauth2Cards(team_id, integration_id, mcp_slug.clone(), oauth2_connections)}
+                        {Oauth2Cards(team_id.clone(), integration_id, mcp_slug.clone(), oauth2_connections)}
                     }
                 }
             }
@@ -118,7 +118,7 @@ pub fn ConnectionsSection(
         // Add API key configuration modal
         if has_api_key {
             ApiKeyForm {
-                team_id,
+                team_id: team_id.clone(),
                 integration_id,
                 integration_name: openapi.get_title().to_string()
             }

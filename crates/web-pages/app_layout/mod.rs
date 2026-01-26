@@ -59,7 +59,7 @@ pub struct LayoutProps {
     title: String,
     header: Element,
     children: Element,
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     section_class: String,
     #[props(default)]
@@ -79,7 +79,7 @@ pub(super) struct SidebarLabels {
 
 #[derive(Clone)]
 pub(super) struct SidebarParams {
-    pub team_id: i32,
+    pub team_id: String,
     pub selected_item: SideBar,
     pub rbac: Rbac,
     pub show_automations_menu: bool,
@@ -133,8 +133,9 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         licence.app_name.clone()
     };
 
+    let team_id = props.team_id.clone();
     let switch_teams_href = crate::routes::teams::Switch {
-        team_id: props.team_id,
+        team_id: team_id.clone(),
     }
     .to_string();
 
@@ -158,7 +159,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     let enable_projects = std::env::var("ENABLE_PROJECTS").is_ok();
 
     let sidebar_params = SidebarParams {
-        team_id: props.team_id,
+        team_id: team_id.clone(),
         selected_item: props.selected_item.clone(),
         rbac: props.rbac.clone(),
         show_automations_menu,
@@ -175,8 +176,8 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         (false, LayoutMode::Admin) => sidebar_admin::render(&sidebar_params, &sidebar_labels),
     };
 
-    let admin_href = admin_home_href(&props.rbac, props.team_id, use_mcp_sidebar);
-    let main_href = main_home_href(&props.rbac, props.team_id, use_mcp_sidebar);
+    let admin_href = admin_home_href(&props.rbac, team_id.clone(), use_mcp_sidebar);
+    let main_href = main_home_href(&props.rbac, team_id.clone(), use_mcp_sidebar);
 
     let sidebar_footer = match mode {
         LayoutMode::Main => rsx!(
@@ -196,7 +197,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
                 email: props.rbac.email.clone(),
                 first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
                 last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
-                team_id: props.team_id,
+                team_id: team_id.clone(),
                 unlicensed: props.rbac.unlicensed,
             }
         ),
@@ -217,7 +218,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
                 email: props.rbac.email.clone(),
                 first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
                 last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
-                team_id: props.team_id,
+                team_id: team_id.clone(),
                 unlicensed: props.rbac.unlicensed,
             }
         ),
@@ -270,70 +271,155 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     }
 }
 
-fn admin_home_href(rbac: &Rbac, team_id: i32, use_mcp_sidebar: bool) -> Option<String> {
+fn admin_home_href(rbac: &Rbac, team_id: String, use_mcp_sidebar: bool) -> Option<String> {
     if use_mcp_sidebar {
         if rbac.can_view_datasets() {
-            return Some(crate::routes::datasets::Index { team_id }.to_string());
+            return Some(
+                crate::routes::datasets::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
         if rbac.can_manage_mcp_keys() {
-            return Some(crate::routes::mcp_api_keys::Index { team_id }.to_string());
+            return Some(
+                crate::routes::mcp_api_keys::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
     } else {
         if rbac.can_view_datasets() {
-            return Some(crate::routes::datasets::Index { team_id }.to_string());
+            return Some(
+                crate::routes::datasets::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
         if rbac.can_manage_mcp_keys() {
-            return Some(crate::routes::mcp_api_keys::Index { team_id }.to_string());
+            return Some(
+                crate::routes::mcp_api_keys::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
         if rbac.can_use_api_keys() {
-            return Some(crate::routes::api_keys::Index { team_id }.to_string());
+            return Some(
+                crate::routes::api_keys::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
         if rbac.can_use_api_keys() && rbac.can_manage_document_pipelines() {
-            return Some(crate::routes::document_pipelines::Index { team_id }.to_string());
+            return Some(
+                crate::routes::document_pipelines::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
     }
 
     if rbac.can_view_teams() {
-        return Some(crate::routes::teams::Switch { team_id }.to_string());
+        return Some(
+            crate::routes::teams::Switch {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
     if rbac.can_view_audit_trail() || rbac.can_setup_models() {
-        return Some(crate::routes::models::Index { team_id }.to_string());
+        return Some(
+            crate::routes::models::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
     if rbac.is_sys_admin {
-        return Some(crate::routes::oauth_clients::Index { team_id }.to_string());
+        return Some(
+            crate::routes::oauth_clients::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
 
     None
 }
 
-fn main_home_href(rbac: &Rbac, team_id: i32, use_mcp_sidebar: bool) -> Option<String> {
+fn main_home_href(rbac: &Rbac, team_id: String, use_mcp_sidebar: bool) -> Option<String> {
     if use_mcp_sidebar {
         if rbac.can_view_integrations() {
-            return Some(crate::routes::integrations::Index { team_id }.to_string());
+            return Some(
+                crate::routes::integrations::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
         if rbac.can_view_prompts() {
-            return Some(crate::routes::prompts::Index { team_id }.to_string());
+            return Some(
+                crate::routes::prompts::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
         if rbac.can_view_chat_history() {
-            return Some(crate::routes::history::Index { team_id }.to_string());
+            return Some(
+                crate::routes::history::Index {
+                    team_id: team_id.clone(),
+                }
+                .to_string(),
+            );
         }
         return None;
     }
 
     if rbac.can_view_chats() {
-        return Some(crate::routes::console::Index { team_id }.to_string());
+        return Some(
+            crate::routes::console::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
     if rbac.can_view_chat_history() {
-        return Some(crate::routes::history::Index { team_id }.to_string());
+        return Some(
+            crate::routes::history::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
     if rbac.can_view_prompts() {
-        return Some(crate::routes::prompts::Index { team_id }.to_string());
+        return Some(
+            crate::routes::prompts::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
     if rbac.can_view_integrations() {
-        return Some(crate::routes::integrations::Index { team_id }.to_string());
+        return Some(
+            crate::routes::integrations::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
     if rbac.can_manage_projects() {
-        return Some(crate::routes::projects::Index { team_id }.to_string());
+        return Some(
+            crate::routes::projects::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
 
     None

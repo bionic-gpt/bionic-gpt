@@ -18,7 +18,8 @@ pub async fn delete_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_permissions, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     queries::integrations::delete()
         .bind(&transaction, &id)
@@ -42,7 +43,8 @@ pub async fn edit_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (permissions, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let integration_type = db::IntegrationType::OpenAPI;
 
@@ -112,7 +114,8 @@ pub async fn new_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (permissions, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let integration_type = db::IntegrationType::OpenAPI;
 
@@ -148,7 +151,7 @@ pub async fn new_action(
             queries::integrations::insert()
                 .bind(
                     &transaction,
-                    &team_id,
+                    &team_id_num,
                     &integration_name,
                     &definition, // definition
                     &integration_type,

@@ -43,10 +43,15 @@ pub async fn new_team(
         .bind(&transaction, &new_team.name, &team_id)
         .await?;
 
+    let team = queries::teams::team()
+        .bind(&transaction, &team_id)
+        .one()
+        .await?;
+
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &web_pages::routes::teams::Switch { team_id }.to_string(),
+        &web_pages::routes::teams::Switch { team_id: team.slug }.to_string(),
         "New Team Created",
     )
 }

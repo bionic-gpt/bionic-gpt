@@ -66,16 +66,20 @@ pub async fn setup_user(
         .await?;
     let setup_required = llm_models.is_empty() || embeddings_models.is_empty();
 
-    let default_console_url = web_pages::routes::console::Index { team_id: team.id }.to_string();
+    let team_slug = team.slug.clone();
+    let default_console_url = web_pages::routes::console::Index {
+        team_id: team_slug.clone(),
+    }
+    .to_string();
     let mut redirect_url = Licence::global()
         .redirect_url
         .as_ref()
-        .map(|template| template.replace("{team_id}", &team.id.to_string()))
+        .map(|template| template.replace("{team_id}", &team_slug))
         .filter(|url| !url.is_empty())
         .unwrap_or(default_console_url);
 
     if setup_required {
-        redirect_url = web_pages::routes::models::Index { team_id: team.id }.to_string();
+        redirect_url = web_pages::routes::models::Index { team_id: team_slug }.to_string();
     }
 
     transaction.commit().await?;

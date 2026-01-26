@@ -44,11 +44,12 @@ pub async fn connect_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     // Get the integration from the database
     let integration = queries::integrations::integration()
-        .bind(&transaction, &integration_id, &team_id)
+        .bind(&transaction, &integration_id, &team_id_num)
         .one()
         .await?;
 
@@ -158,20 +159,18 @@ pub async fn oauth2_callback(
         team_id_cookie.value(),
         integration_cookie.value()
     );
-    let team_id: i32 = team_id_cookie
-        .value()
-        .parse()
-        .map_err(|_| CustomError::FaultySetup("Invalid team id".into()))?;
+    let team_id = team_id_cookie.value().to_string();
     let integration_id: i32 = integration_cookie
         .value()
         .parse()
         .map_err(|_| CustomError::FaultySetup("Invalid integration id".into()))?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     // Load OAuth client credentials
     let integration = queries::integrations::integration()
-        .bind(&transaction, &integration_id, &team_id)
+        .bind(&transaction, &integration_id, &team_id_num)
         .one()
         .await?;
     let oauth2_config = get_oauth2_config_from_integration(&integration)?;
@@ -227,7 +226,7 @@ pub async fn oauth2_callback(
         .bind(
             &transaction,
             &integration_id,
-            &team_id,
+            &team_id_num,
             &Visibility::Private,
             &token.access_token().secret().to_string(),
             &refresh_token.as_deref(),

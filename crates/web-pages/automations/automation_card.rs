@@ -6,7 +6,7 @@ use db::queries::prompts::MyPrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AutomationCard(team_id: i32, prompt: MyPrompt) -> Element {
+pub fn AutomationCard(team_id: String, prompt: MyPrompt) -> Element {
     let description: String = prompt
         .description
         .chars()
@@ -15,7 +15,7 @@ pub fn AutomationCard(team_id: i32, prompt: MyPrompt) -> Element {
 
     rsx! {
         CardItem {
-            image_src: prompt.image_icon_object_id.map(|id| Image { team_id, id }.to_string()),
+            image_src: prompt.image_icon_object_id.map(|id| Image { team_id: team_id.clone(), id }.to_string()),
             avatar_name: Some(prompt.name.clone()),
             title: prompt.name.clone(),
             description: if description.is_empty() { None } else { Some(rsx!( span { "{description}" } )) },
@@ -28,9 +28,9 @@ pub fn AutomationCard(team_id: i32, prompt: MyPrompt) -> Element {
                 DropDown {
                     direction: Direction::Bottom,
                     button_text: "...",
-                    DropDownLink { href: crate::routes::automations::Edit{team_id, prompt_id: prompt.id}.to_string(), "Edit" }
-                    DropDownLink { href: crate::routes::automations::ManageIntegrations{team_id, prompt_id: prompt.id}.to_string(), "Manage Integrations" }
-                    DropDownLink { href: crate::routes::automations::ManageTriggers{team_id, prompt_id: prompt.id}.to_string(), "Manage Triggers" }
+                    DropDownLink { href: crate::routes::automations::Edit{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Edit" }
+                    DropDownLink { href: crate::routes::automations::ManageIntegrations{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Manage Integrations" }
+                    DropDownLink { href: crate::routes::automations::ManageTriggers{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Manage Triggers" }
                     DropDownLink { popover_target: format!("delete-trigger-{}-{}", prompt.id, team_id), href: "#", target: "_top", "Delete" }
                 }
             ))

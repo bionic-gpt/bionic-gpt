@@ -27,7 +27,8 @@ pub async fn action_new_api_key(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let mut generated_key: Option<GeneratedKey> = None;
 
@@ -43,14 +44,14 @@ pub async fn action_new_api_key(
                 &transaction,
                 &new_api_key.prompt_id,
                 &rbac.user_id,
-                &team_id,
+                &team_id_num,
                 &new_api_key.name,
                 &api_key_value,
             )
             .await?;
 
         if let Ok(prompt) = queries::prompts::prompt()
-            .bind(&transaction, &new_api_key.prompt_id, &team_id)
+            .bind(&transaction, &new_api_key.prompt_id, &team_id_num)
             .one()
             .await
         {
@@ -71,27 +72,27 @@ pub async fn action_new_api_key(
     }
 
     let api_keys = queries::api_keys::api_keys()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
     let assistants = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Assistant)
+        .bind(&transaction, &team_id_num, &db::PromptType::Assistant)
         .all()
         .await?;
 
     let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Model)
+        .bind(&transaction, &team_id_num, &db::PromptType::Model)
         .all()
         .await?;
 
     let token_usage_data = queries::token_usage_metrics::get_daily_token_usage_for_team()
-        .bind(&transaction, &team_id, &"7")
+        .bind(&transaction, &team_id_num, &"7")
         .all()
         .await?;
 
     let api_request_data = queries::token_usage_metrics::get_daily_api_request_count_for_team()
-        .bind(&transaction, &team_id, &"7")
+        .bind(&transaction, &team_id_num, &"7")
         .all()
         .await?;
 
@@ -119,7 +120,8 @@ pub async fn action_delete_api_key(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_permissions, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     queries::api_keys::delete().bind(&transaction, &id).await?;
 

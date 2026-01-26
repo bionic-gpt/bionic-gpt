@@ -3,7 +3,7 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AcceptInvite(invite: db::InviteSummary, team_id: i32) -> Element {
+pub fn AcceptInvite(invite: db::InviteSummary, team_id: String) -> Element {
     rsx! {
         // The form to create an invitation
         form {

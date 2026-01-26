@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 
 const DEFAULT_DISCLAIMER: &str = "AI can make mistakes. Check important information.";
 
-pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, providers: Vec<Provider>) -> String {
+pub fn page(team_id: String, rbac: Rbac, setup_required: bool, providers: Vec<Provider>) -> String {
     let default_visibility = if rbac.is_sys_admin {
         Visibility::Company
     } else {
@@ -21,7 +21,7 @@ pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, providers: Vec<Provi
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Models,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             setup_required: setup_required,
             title: "Models",
@@ -30,7 +30,7 @@ pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, providers: Vec<Provi
                     items: vec![
                         BreadcrumbItem {
                             text: "Models".into(),
-                            href: Some(crate::routes::models::Index { team_id }.to_string())
+                            href: Some(crate::routes::models::Index { team_id: team_id.clone() }.to_string())
                         },
                         BreadcrumbItem {
                             text: "Select Provider".into(),
@@ -85,7 +85,7 @@ pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, providers: Vec<Provi
 
                 CardItem {
                     class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
-                    clickable_link: Some(crate::routes::models::New { team_id }.to_string()),
+                    clickable_link: Some(crate::routes::models::New { team_id: team_id.clone() }.to_string()),
                     image_src: None,
                     image_html: None,
                     avatar_name: Some("C".to_string()),
@@ -101,7 +101,7 @@ pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, providers: Vec<Provi
             }
 
             for provider in &providers {
-                {provider_modal(team_id, &rbac, provider, default_visibility)}
+                {provider_modal(team_id.clone(), &rbac, provider, default_visibility)}
             }
         }
     };
@@ -110,7 +110,7 @@ pub fn page(team_id: i32, rbac: Rbac, setup_required: bool, providers: Vec<Provi
 }
 
 fn provider_modal(
-    team_id: i32,
+    team_id: String,
     rbac: &Rbac,
     provider: &Provider,
     default_visibility: Visibility,
@@ -133,7 +133,7 @@ fn provider_modal(
     rsx! {
         Modal {
             trigger_id: format!("new-model-provider-{}", provider.id),
-            submit_action: crate::routes::models::Upsert { team_id }.to_string(),
+            submit_action: crate::routes::models::Upsert { team_id: team_id.clone() }.to_string(),
             ModalBody {
                 class: "flex flex-col gap-4",
                 h3 { class: "font-bold text-lg", "Create Model: {provider.name}" }

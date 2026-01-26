@@ -31,7 +31,8 @@ pub async fn update_response(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_permissions, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let chat = chats::chat()
         .bind(&transaction, &message.chat_id)
@@ -39,7 +40,7 @@ pub async fn update_response(
         .await?;
 
     let prompt = prompts::prompt()
-        .bind(&transaction, &chat.prompt_id, &team_id)
+        .bind(&transaction, &chat.prompt_id, &team_id_num)
         .one()
         .await?;
 

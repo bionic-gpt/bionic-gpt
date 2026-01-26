@@ -6,7 +6,7 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm, locale: &str) -> String {
+pub fn page(team_id: String, rbac: Rbac, form: IntegrationForm, locale: &str) -> String {
     let assistants_label = crate::i18n::assistants(locale);
     let assistant_label = crate::i18n::assistant(locale);
     let integration_label = crate::i18n::integration(locale);
@@ -15,7 +15,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm, locale: &str) -> St
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: format!("Manage {}", integrations_label.clone()),
             locale: Some(locale.to_string()),
@@ -24,11 +24,11 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm, locale: &str) -> St
                     items: vec![
                         BreadcrumbItem {
                             text: assistants_label.clone(),
-                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
+                            href: Some(crate::routes::prompts::Index{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: format!("My {}", assistants_label.clone()),
-                            href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
+                            href: Some(crate::routes::prompts::MyAssistants{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: {form.prompt_name},
@@ -92,7 +92,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm, locale: &str) -> St
                                                         // Show Remove button
                                                         form {
                                                             action: crate::routes::prompts::RemoveIntegration {
-                                                                team_id,
+                                                                team_id: team_id.clone(),
                                                                 prompt_id: form.prompt_id,
                                                                 integration_id: integration_info.integration.id
                                                             }.to_string(),
@@ -107,7 +107,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm, locale: &str) -> St
                                                     } else {
                                                         // Show Add button (with modal if connection required)
                                                         ConnectionModal {
-                                                            team_id: team_id,
+                                                            team_id: team_id.clone(),
                                                             prompt_id: form.prompt_id,
                                                             integration_info: integration_info.clone(),
                                                             target: TargetRoute::Assistants,
@@ -135,7 +135,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm, locale: &str) -> St
                             class: "flex justify-between",
                             Button {
                                 button_type: ButtonType::Link,
-                                href: crate::routes::prompts::MyAssistants { team_id }.to_string(),
+                                href: crate::routes::prompts::MyAssistants { team_id: team_id.clone() }.to_string(),
                                 button_scheme: ButtonScheme::Error,
                                 "Cancel"
                             }

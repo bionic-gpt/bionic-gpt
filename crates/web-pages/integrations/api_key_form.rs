@@ -3,12 +3,12 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ApiKeyForm(team_id: i32, integration_id: i32, integration_name: String) -> Element {
+pub fn ApiKeyForm(team_id: String, integration_id: i32, integration_name: String) -> Element {
     let trigger_id = format!("configure-api-key-{}", integration_id);
 
     rsx!(
         form {
-            action: crate::routes::integrations::ConfigureApiKey { team_id, integration_id }.to_string(),
+            action: crate::routes::integrations::ConfigureApiKey { team_id: team_id.clone(), integration_id }.to_string(),
             method: "post",
             Modal {
                 trigger_id: trigger_id,

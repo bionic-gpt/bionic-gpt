@@ -38,7 +38,8 @@ pub async fn loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let documents = documents::documents()
         .bind(&transaction, &dataset_id)
@@ -79,7 +80,7 @@ pub async fn loader(
 // Delete function
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct DeleteDoc {
-    pub team_id: i32,
+    pub team_id: String,
     pub document_id: i32,
     pub dataset_id: i32,
 }
@@ -95,8 +96,9 @@ pub async fn delete_action(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions =
-        authz::get_permissions(&transaction, &current_user.into(), delete_doc.team_id).await?;
+    let (_permissions, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &delete_doc.team_id)
+            .await?;
 
     queries::documents::delete()
         .bind(&transaction, &delete_doc.document_id)
@@ -126,7 +128,8 @@ pub async fn row(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let document = documents::document()
         .bind(&transaction, &document_id)
@@ -151,14 +154,15 @@ pub async fn upload_action(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         let name = file.file_name().unwrap().to_string();
         let data = file.bytes().await.unwrap().to_vec();
 
         let object_id =
-            object_storage::upload(&storage_config, rbac.user_id, team_id, &name, &data)
+            object_storage::upload(&storage_config, rbac.user_id, team_id_num, &name, &data)
                 .await
                 .map_err(|error| {
                     tracing::error!(

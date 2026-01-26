@@ -8,11 +8,11 @@ pub fn Upsert(
     trigger_id: String,
     name: String,
     description: String,
-    team_id: i32,
+    team_id: String,
 ) -> Element {
     rsx!(
         Modal {
-            submit_action: crate::routes::categories::Upsert { team_id }.to_string(),
+            submit_action: crate::routes::categories::Upsert { team_id: team_id.clone() }.to_string(),
             trigger_id,
             ModalBody {
                 class: "flex flex-col gap-4",

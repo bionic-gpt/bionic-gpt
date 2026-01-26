@@ -12,13 +12,13 @@ pub fn Upsert(
     instructions: String,
     visibility: Visibility,
     can_set_visibility_to_company: bool,
-    team_id: i32,
+    team_id: String,
 ) -> Element {
     let selected_visibility = visibility_to_string(visibility);
 
     rsx!(
         Modal {
-            submit_action: crate::routes::projects::Upsert { team_id }.to_string(),
+            submit_action: crate::routes::projects::Upsert { team_id: team_id.clone() }.to_string(),
             trigger_id,
             ModalBody {
                 class: "flex flex-col justify-between",

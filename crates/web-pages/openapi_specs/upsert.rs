@@ -41,7 +41,7 @@ impl Default for OpenapiSpecForm {
     }
 }
 
-pub fn page(team_id: i32, rbac: Rbac, form: OpenapiSpecForm) -> String {
+pub fn page(team_id: String, rbac: Rbac, form: OpenapiSpecForm) -> String {
     let is_edit = form.id.is_some();
     let header_text = if is_edit {
         "Edit OpenAPI Spec"
@@ -53,7 +53,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: OpenapiSpecForm) -> String {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::OpenapiSpecs,
-            team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "OpenAPI Specs",
             header: rsx!(
@@ -61,7 +61,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: OpenapiSpecForm) -> String {
                     items: vec![
                         BreadcrumbItem {
                             text: "OpenAPI Specs".into(),
-                            href: Some(routes::openapi_specs::Index { team_id }.to_string()),
+                            href: Some(routes::openapi_specs::Index { team_id: team_id.clone() }.to_string()),
                         },
                         BreadcrumbItem {
                             text: header_text.into(),
@@ -76,7 +76,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: OpenapiSpecForm) -> String {
                 CardBody {
                     form {
                         method: "post",
-                        action: routes::openapi_specs::Upsert { team_id }.to_string(),
+                        action: routes::openapi_specs::Upsert { team_id: team_id.clone() }.to_string(),
                         class: "flex flex-col space-y-6",
 
                         if let Some(id) = form.id {
@@ -196,7 +196,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: OpenapiSpecForm) -> String {
                             class: "flex justify-between",
                             Button {
                                 button_type: ButtonType::Link,
-                                href: routes::openapi_specs::Index { team_id }.to_string(),
+                                href: routes::openapi_specs::Index { team_id: team_id.clone() }.to_string(),
                                 button_scheme: ButtonScheme::Error,
                                 "Cancel"
                             }

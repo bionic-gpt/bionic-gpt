@@ -4,7 +4,7 @@ use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: i32) -> Element {
+pub fn EmptyStream(prompt: SinglePrompt, conversation_id: Option<i64>, team_id: String) -> Element {
     let examples: Vec<Option<String>> = vec![
         prompt.example1,
         prompt.example2,

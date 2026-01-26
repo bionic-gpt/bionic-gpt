@@ -10,7 +10,7 @@ use db::queries::models::ModelWithPrompt;
 use dioxus::prelude::*;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     setup_required: bool,
     models_with_capabilities: Vec<(ModelWithPrompt, bool, bool, bool, bool)>,
@@ -19,7 +19,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Models,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             setup_required: setup_required,
             title: "Models",
@@ -33,7 +33,7 @@ pub fn page(
                 Button {
                     button_type: ButtonType::Link,
                     prefix_image_src: "{button_plus_svg.name}",
-                    href: crate::routes::models::SelectProvider { team_id }.to_string(),
+                    href: crate::routes::models::SelectProvider { team_id: team_id.clone() }.to_string(),
                     button_scheme: ButtonScheme::Primary,
                     "Add Model"
                 }
@@ -60,7 +60,7 @@ pub fn page(
                         class: "space-y-2",
                         for (model, fc, vis, tool, guard) in &models_with_capabilities {
                             ModelCard {
-                                team_id,
+                                team_id: team_id.clone(),
                                 model: model.clone(),
                                 has_function_calling: *fc,
                                 has_vision: *vis,
@@ -74,7 +74,7 @@ pub fn page(
 
             for (item, _, _, _, _) in &models_with_capabilities {
                 ConfirmModal {
-                    action: crate::routes::models::Delete{team_id, id: item.id}.to_string(),
+                    action: crate::routes::models::Delete{team_id: team_id.clone(), id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                     submit_label: "Delete".to_string(),
                     heading: "Delete this Model?".to_string(),

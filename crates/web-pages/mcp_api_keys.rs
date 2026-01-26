@@ -66,7 +66,7 @@ fn suffix_length(len: usize) -> usize {
 
 pub fn page(
     rbac: Rbac,
-    team_id: i32,
+    team_id: String,
     keys: Vec<ApiKey>,
     form: NewKeyForm,
     generated_key: Option<GeneratedKey>,
@@ -87,7 +87,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::McpApiKeys,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "API Keys",
             header: rsx!(
@@ -144,14 +144,14 @@ pub fn page(
                     div {
                         class: "space-y-2",
                         for key in displays.iter() {
-                            ApiKeyCard { team_id, item: key.clone() }
+                            ApiKeyCard { team_id: team_id.clone(), item: key.clone() }
                         }
                     }
                 }
 
                 form {
                     method: "post",
-                    action: routes::mcp_api_keys::Create { team_id }.to_string(),
+                    action: routes::mcp_api_keys::Create { team_id: team_id.clone() }.to_string(),
                     Modal {
                         trigger_id: "create-api-key",
                         ModalBody {
@@ -192,8 +192,8 @@ pub fn page(
 
                 for key in displays.iter() {
                     ConfirmModal {
-                        action: routes::mcp_api_keys::Delete { team_id, id: key.id }.to_string(),
-                        trigger_id: delete_trigger_id(team_id, key.id),
+                        action: routes::mcp_api_keys::Delete { team_id: team_id.clone(), id: key.id }.to_string(),
+                        trigger_id: delete_trigger_id(&team_id, key.id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete API Key?".to_string(),
                         warning: "This will revoke access for requests using this key.".to_string(),
@@ -211,8 +211,8 @@ pub fn page(
 }
 
 #[component]
-fn ApiKeyCard(team_id: i32, item: ApiKeyDisplay) -> Element {
-    let trigger_id = delete_trigger_id(team_id, item.id);
+fn ApiKeyCard(team_id: String, item: ApiKeyDisplay) -> Element {
+    let trigger_id = delete_trigger_id(&team_id, item.id);
 
     rsx! {
         CardItem {
@@ -238,6 +238,6 @@ fn ApiKeyCard(team_id: i32, item: ApiKeyDisplay) -> Element {
     }
 }
 
-fn delete_trigger_id(team_id: i32, key_id: i32) -> String {
+fn delete_trigger_id(team_id: &str, key_id: i32) -> String {
     format!("delete-api-key-{}-{}", team_id, key_id)
 }

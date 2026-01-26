@@ -20,12 +20,12 @@ pub struct OauthClientForm {
     pub error: Option<String>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, oauth_client: OauthClientForm) -> String {
+pub fn page(team_id: String, rbac: Rbac, oauth_client: OauthClientForm) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::OauthClients,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "OAuth Clients",
             header: rsx!(
@@ -33,7 +33,7 @@ pub fn page(team_id: i32, rbac: Rbac, oauth_client: OauthClientForm) -> String {
                     items: vec![
                         BreadcrumbItem {
                             text: "OAuth Clients".into(),
-                            href: Some(crate::routes::oauth_clients::Index { team_id }.to_string())
+                            href: Some(crate::routes::oauth_clients::Index { team_id: team_id.clone() }.to_string())
                         },
                         BreadcrumbItem {
                             text: "New OAuth Client".into(),
@@ -113,7 +113,7 @@ pub fn page(team_id: i32, rbac: Rbac, oauth_client: OauthClientForm) -> String {
                             class: "mt-6 flex justify-between",
                             Button {
                                 button_type: ButtonType::Link,
-                                href: crate::routes::oauth_clients::Index { team_id }.to_string(),
+                                href: crate::routes::oauth_clients::Index { team_id: team_id.clone() }.to_string(),
                                 button_scheme: ButtonScheme::Error,
                                 "Cancel"
                             }

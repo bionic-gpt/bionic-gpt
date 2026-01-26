@@ -7,7 +7,7 @@ use daisy_rsx::*;
 use db::{authz::Rbac, customer_keys, Licence};
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, callback_url: String, version: String) -> String {
+pub fn page(team_id: String, rbac: Rbac, callback_url: String, version: String) -> String {
     let licence = Licence::global();
     let encryption = if customer_keys::get_customer_key().is_some() {
         "Enabled"
@@ -34,11 +34,14 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String, version: String) -> 
     } else {
         licence.app_name.clone()
     };
-    let default_redirect_url = crate::routes::console::Index { team_id }.to_string();
+    let default_redirect_url = crate::routes::console::Index {
+        team_id: team_id.clone(),
+    }
+    .to_string();
     let redirect_url = licence
         .redirect_url
         .as_ref()
-        .map(|template| template.replace("{team_id}", &team_id.to_string()))
+        .map(|template| template.replace("{team_id: team_id.clone()}", &team_id.to_string()))
         .filter(|url| !url.is_empty())
         .unwrap_or(default_redirect_url);
 
@@ -46,7 +49,7 @@ pub fn page(team_id: i32, rbac: Rbac, callback_url: String, version: String) -> 
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Licence,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "System Info",
             header: rsx!(

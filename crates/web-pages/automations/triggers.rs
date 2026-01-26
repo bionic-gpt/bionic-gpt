@@ -6,7 +6,7 @@ use db::queries::automation_triggers::CronTrigger;
 use dioxus::prelude::*;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     prompt_id: i32,
     prompt_name: String,
     rbac: Rbac,
@@ -16,13 +16,13 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Automation Schedule",
             header: rsx!(
                 Breadcrumb {
                     items: vec![
-                        BreadcrumbItem { text: "Automations".into(), href: Some(crate::routes::automations::Index { team_id }.to_string()) },
+                        BreadcrumbItem { text: "Automations".into(), href: Some(crate::routes::automations::Index { team_id: team_id.clone() }.to_string()) },
                         BreadcrumbItem { text: prompt_name.clone(), href: None },
                     ]
                 }
@@ -41,7 +41,7 @@ pub fn page(
                         form {
                             class: "flex flex-col gap-4",
                             method: "post",
-                            action: crate::routes::automations::AddCronTrigger { team_id, prompt_id }.to_string(),
+                            action: crate::routes::automations::AddCronTrigger { team_id: team_id.clone(), prompt_id }.to_string(),
 
                             div { class: "grid grid-cols-5 gap-2",
                                 Fieldset {
@@ -109,7 +109,7 @@ pub fn page(
                                             td {
                                                 form {
                                                     method: "post",
-                                                    action: crate::routes::automations::RemoveCronTrigger { team_id, prompt_id, trigger_id: trigger.id }.to_string(),
+                                                    action: crate::routes::automations::RemoveCronTrigger { team_id: team_id.clone(), prompt_id, trigger_id: trigger.id }.to_string(),
                                                     Button { button_type: ButtonType::Submit, button_scheme: ButtonScheme::Error, button_size: ButtonSize::Small, "Delete" }
                                                 }
                                             }

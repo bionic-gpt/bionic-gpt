@@ -8,7 +8,7 @@ use daisy_rsx::*;
 use db::{authz::Rbac, History};
 use dioxus::prelude::*;
 
-pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>, locale: &str) -> String {
+pub fn page(rbac: Rbac, team_id: String, history: Vec<History>, locale: &str) -> String {
     let buckets = super::bucket_history(history);
     let history_label = i18n::histories(locale);
     let history_single = i18n::history(locale);
@@ -17,7 +17,7 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>, locale: &str) -> St
         Layout {
             section_class: "p-4",
             selected_item: SideBar::History,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: history_label.clone(),
             locale: Some(locale.to_string()),
@@ -36,7 +36,7 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>, locale: &str) -> St
                 }
             },
             super::form::Form {
-                team_id: team_id
+                team_id: team_id.clone()
             }
             div {
                 class: "p-4 max-w-3xl w-full mx-auto",

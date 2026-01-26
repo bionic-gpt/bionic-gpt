@@ -4,10 +4,10 @@ use db::Prompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AssistantForm(team_id: i32, prompts: Vec<Prompt>) -> Element {
+pub fn AssistantForm(team_id: String, prompts: Vec<Prompt>) -> Element {
     rsx!(
         form {
-            action: crate::routes::api_keys::New{ team_id }.to_string(),
+            action: crate::routes::api_keys::New{ team_id: team_id.clone() }.to_string(),
             method: "post",
             Modal {
                 trigger_id: "create-assistant-key",
@@ -62,10 +62,10 @@ pub fn AssistantForm(team_id: i32, prompts: Vec<Prompt>) -> Element {
 }
 
 #[component]
-pub fn ModelForm(team_id: i32, prompts: Vec<Prompt>) -> Element {
+pub fn ModelForm(team_id: String, prompts: Vec<Prompt>) -> Element {
     rsx!(
         form {
-            action: crate::routes::api_keys::New{ team_id }.to_string(),
+            action: crate::routes::api_keys::New{ team_id: team_id.clone() }.to_string(),
             method: "post",
             Modal {
                 trigger_id: "create-model-key",

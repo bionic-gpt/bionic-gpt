@@ -8,7 +8,7 @@ use db::{Dataset, DocumentPipeline};
 use dioxus::prelude::*;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     pipelines: Vec<DocumentPipeline>,
     datasets: Vec<Dataset>,
@@ -17,7 +17,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::DocumentPipelines,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "Document Pipelines",
             header: rsx!(
@@ -100,7 +100,7 @@ pub fn page(
 
                     for item in pipelines {
                         ConfirmModal {
-                            action: crate::routes::document_pipelines::Delete { team_id, id: item.id }.to_string(),
+                            action: crate::routes::document_pipelines::Delete { team_id: team_id.clone(), id: item.id }.to_string(),
                             trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                             submit_label: "Delete".to_string(),
                             heading: "Delete this Document Pipeline?".to_string(),
@@ -115,7 +115,7 @@ pub fn page(
 
                 super::key_drawer::KeyDrawer {
                     datasets: datasets.clone(),
-                    team_id: team_id,
+                    team_id: team_id.clone(),
                 }
             }
         }

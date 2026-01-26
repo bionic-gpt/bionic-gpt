@@ -21,7 +21,7 @@ pub struct GeneratedKey {
 #[allow(clippy::too_many_arguments)]
 pub fn page(
     rbac: Rbac,
-    team_id: i32,
+    team_id: String,
     api_keys: Vec<ApiKey>,
     assistants: Vec<Prompt>,
     models: Vec<Prompt>,
@@ -33,7 +33,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::ApiKeys,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "API Keys",
             header: rsx! {
@@ -100,13 +100,13 @@ pub fn page(
                 if !api_keys.is_empty() {
                     ApiKeysTable {
                         api_keys: api_keys.clone(),
-                        team_id: team_id
+                        team_id: team_id.clone()
                     }
                 }
 
                 for item in &api_keys {
                     ConfirmModal {
-                        action: crate::routes::api_keys::Delete {team_id, id: item.id}.to_string(),
+                        action: crate::routes::api_keys::Delete {team_id: team_id.clone(), id: item.id}.to_string(),
                         trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete this API Key?".to_string(),
@@ -119,11 +119,11 @@ pub fn page(
                 }
 
                 super::form::AssistantForm {
-                    team_id: team_id,
+                    team_id: team_id.clone(),
                     prompts: assistants.clone()
                 },
                 super::form::ModelForm {
-                    team_id: team_id,
+                    team_id: team_id.clone(),
                     prompts: models.clone()
                 }
             }
@@ -177,7 +177,7 @@ pub fn PromptType(prompt_type: Option<DBPromptType>) -> Element {
 }
 
 #[component]
-fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: i32) -> Element {
+fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: String) -> Element {
     rsx! {
         Card {
             class: "has-data-table",

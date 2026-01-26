@@ -13,10 +13,11 @@ pub async fn new_chat(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_permissions, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let conversation_id = conversations::create_conversation()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .one()
         .await?;
 

@@ -9,7 +9,7 @@ use db::{ApiKeyConnection, Licence};
 use dioxus::prelude::*;
 
 pub fn ApiKeyCards(
-    team_id: i32,
+    team_id: String,
     integration_id: i32,
     mcp_slug: Option<String>,
     connections: Vec<ApiKeyConnection>,
@@ -65,7 +65,7 @@ pub fn ApiKeyCards(
                         }
                         ConfirmModal {
                             action: routes::integrations::DeleteApiKeyConnection{
-                                team_id,
+                                team_id: team_id.clone(),
                                 integration_id,
                                 connection_id: connection.id
                             }.to_string(),
@@ -74,7 +74,7 @@ pub fn ApiKeyCards(
                             heading: "Delete API Key Connection?".to_string(),
                             warning: "Are you sure you want to delete this API key connection? This action cannot be undone.".to_string(),
                             hidden_fields: vec![
-                                ("team_id".into(), team_id.to_string()),
+                                ("team_id".into(), team_id.clone()),
                                 ("integration_id".into(), integration_id.to_string()),
                                 ("connection_id".into(), connection.id.to_string()),
                             ],

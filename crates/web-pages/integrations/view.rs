@@ -12,7 +12,7 @@ use openai_api::BionicToolDefinition;
 
 #[allow(clippy::too_many_arguments)]
 pub fn view(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     integration: Integration,
     tool_definitions: Vec<BionicToolDefinition>,
@@ -27,7 +27,7 @@ pub fn view(
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: integrations_label.clone(),
             locale: Some(locale.to_string()),
@@ -36,7 +36,7 @@ pub fn view(
                     items: vec![
                             BreadcrumbItem {
                             text: integrations_label,
-                            href: Some(crate::routes::integrations::Index { team_id }.to_string())
+                            href: Some(crate::routes::integrations::Index { team_id: team_id.clone() }.to_string())
                         },
                         BreadcrumbItem {
                             text: integration.name.clone(),
@@ -50,7 +50,7 @@ pub fn view(
                 class: "p-4 max-w-3xl w-full mx-auto",
 
                 IntegrationHeader {
-                    team_id,
+                    team_id: team_id.clone(),
                     rbac: rbac.clone(),
                     integration: integration.clone(),
                     logo_url: openapi.clone().get_logo_url(),
@@ -62,7 +62,7 @@ pub fn view(
                 }
 
                 ConnectionsSection {
-                    team_id,
+                    team_id: team_id.clone(),
                     integration_id: integration.id,
                     rbac,
                     openapi: openapi.clone(),

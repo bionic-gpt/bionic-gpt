@@ -36,13 +36,14 @@ pub async fn loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_manage_mcp_keys() {
         return Err(CustomError::Authorization);
     }
 
-    let keys = load_page_data(&transaction, team_id).await?;
+    let keys = load_page_data(&transaction, team_id_num).await?;
 
     let html = web_pages::mcp_api_keys::page(rbac, team_id, keys, NewKeyForm::default(), None);
 
@@ -57,14 +58,15 @@ pub async fn create_action(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_manage_mcp_keys() {
         return Err(CustomError::Authorization);
     }
 
     if form.validate().is_err() {
-        let keys = load_page_data(&transaction, team_id).await?;
+        let keys = load_page_data(&transaction, team_id_num).await?;
         let html = web_pages::mcp_api_keys::page(
             rbac,
             team_id,
@@ -86,11 +88,17 @@ pub async fn create_action(
         .collect();
 
     queries::api_keys::new_mcp_api_key()
-        .bind(&transaction, &rbac.user_id, &team_id, &form.name, &api_key)
+        .bind(
+            &transaction,
+            &rbac.user_id,
+            &team_id_num,
+            &form.name,
+            &api_key,
+        )
         .one()
         .await?;
 
-    let keys = load_page_data(&transaction, team_id).await?;
+    let keys = load_page_data(&transaction, team_id_num).await?;
 
     transaction.commit().await?;
 
@@ -122,7 +130,8 @@ pub async fn delete_action(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_manage_mcp_keys() {
         return Err(CustomError::Authorization);

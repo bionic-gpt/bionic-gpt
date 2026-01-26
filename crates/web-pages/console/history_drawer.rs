@@ -4,7 +4,7 @@ use db::History;
 use dioxus::prelude::*;
 
 #[component]
-pub fn HistoryDrawer(trigger_id: String, team_id: i32, history: Vec<History>) -> Element {
+pub fn HistoryDrawer(trigger_id: String, team_id: String, history: Vec<History>) -> Element {
     rsx! {
         Modal {
             trigger_id: &trigger_id,
@@ -20,7 +20,7 @@ pub fn HistoryDrawer(trigger_id: String, team_id: i32, history: Vec<History>) ->
                             class: "w-full overflow-hidden truncate",
                             a {
                                 class: "block p-2 hover:bg-base-200 rounded",
-                                href: crate::routes::console::Conversation{team_id, conversation_id: history.id}.to_string(),
+                                href: crate::routes::console::Conversation{team_id: team_id.clone(), conversation_id: history.id}.to_string(),
                                 {history.summary.clone()}
                             }
                         }

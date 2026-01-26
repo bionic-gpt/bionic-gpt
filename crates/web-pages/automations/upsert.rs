@@ -34,7 +34,7 @@ pub struct PromptForm {
     pub models: Vec<Prompt>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
+pub fn page(team_id: String, rbac: Rbac, prompt: PromptForm) -> String {
     let example1 = prompt.example1.clone().unwrap_or_default();
     let example2 = prompt.example2.clone().unwrap_or_default();
     let example3 = prompt.example3.clone().unwrap_or_default();
@@ -53,7 +53,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Automation",
             header: rsx!(
@@ -61,7 +61,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                     items: vec![
                         BreadcrumbItem {
                             text: "Automations".into(),
-                            href: Some(crate::routes::automations::Index { team_id }.to_string())
+                            href: Some(crate::routes::automations::Index { team_id: team_id.clone() }.to_string())
                         },
                         BreadcrumbItem {
                             text: name.into(),
@@ -78,7 +78,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                 class: "p-4 max-w-4xl w-full mx-auto",
 
                 form {
-                    action: crate::routes::automations::Upsert { team_id }.to_string(),
+                    action: crate::routes::automations::Upsert { team_id: team_id.clone() }.to_string(),
                     enctype: "multipart/form-data",
                     method: "post",
                     class: "space-y-6",
@@ -425,7 +425,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompt: PromptForm) -> String {
                                 class: "flex justify-between",
                                 Button {
                                     button_type: ButtonType::Link,
-                                    href: crate::routes::automations::Index { team_id }.to_string(),
+                                    href: crate::routes::automations::Index { team_id: team_id.clone() }.to_string(),
                                     button_scheme: ButtonScheme::Error,
                                     "Cancel"
                                 }

@@ -101,13 +101,14 @@ pub async fn send_message(
         let mut client = pool.get().await?;
         let transaction = client.transaction().await?;
 
-        let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+        let (rbac, team_id_num) =
+            authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
         let conversation_id = if let Some(conversation_id) = message.conversation_id {
             conversation_id
         } else {
             conversations::create_conversation()
-                .bind(&transaction, &team_id)
+                .bind(&transaction, &team_id_num)
                 .one()
                 .await?
         };
@@ -132,14 +133,14 @@ pub async fn send_message(
             &transaction,
             &storage_config,
             &chat_id,
-            team_id,
+            team_id_num,
             rbac.user_id,
             &files_info,
         )
         .await?;
 
         let prompt = prompts::prompt()
-            .bind(&transaction, &message.prompt_id, &team_id)
+            .bind(&transaction, &message.prompt_id, &team_id_num)
             .one()
             .await?;
 
