@@ -5,7 +5,8 @@ metadata:
   namespace: bionic-selenium
 spec:
   components:
-    db: {}
+    db:
+      danger_override_password: testpassword
     auth:
       hostname-url: http://nginx
     ingress: {}
