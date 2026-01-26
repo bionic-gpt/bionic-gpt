@@ -8,7 +8,6 @@ use tokio::time::{sleep, Duration};
 pub struct Config {
     pub webdriver_url: String,
     pub application_url: String,
-    pub api_base_url: String,
     // The database
     pub db_pool: Pool,
     pub headless: bool,
@@ -29,12 +28,6 @@ impl Config {
             "http://nginx:80".into()
         };
 
-        let api_base_url = if env::var("API_BASE_URL").is_ok() {
-            env::var("API_BASE_URL").unwrap()
-        } else {
-            "http://localhost:7901".into()
-        };
-
         let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
             env::var("MAILHOG_URL").unwrap()
         } else {
@@ -49,14 +42,12 @@ impl Config {
 
         dbg!(&webdriver_url);
         dbg!(&application_url);
-        dbg!(&api_base_url);
         dbg!(&mailhog_url);
         dbg!(&database_url);
 
         Config {
             webdriver_url,
             application_url,
-            api_base_url,
             db_pool,
             headless,
             mailhog_url,
@@ -92,11 +83,6 @@ impl Config {
 
         transaction
             .execute("SET LOCAL session_replication_role = replica", &[])
-            .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
-
-        transaction
-            .execute("DELETE FROM prompts", &[])
             .await
             .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
 
