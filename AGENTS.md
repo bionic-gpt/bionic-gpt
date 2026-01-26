@@ -108,6 +108,7 @@ Bionic runs in a `devcontainer` and uses [k3d](https://k3d.io/stable/) to run su
 
 ## Running the integration tests
 
-Selenium is configured as part of our `devcontainer` and is accessible via `http://localhost:7706/`
-
-1. Run `just integration-testing` and watch the tests run via the VNC connection in `http://localhost:7706/`
+1. Run `just get-config` and  `just selenium` to install selenium into `k3d`.
+1. Replace the bionic pod with your local version `just md`.
+1. Run the integration tests `cargo test -p integration-testing`.
+1. You can monitor the integration tests via `NoVNC` at `http://localhost:7000` password `secret`.
