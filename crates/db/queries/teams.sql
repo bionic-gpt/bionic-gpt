@@ -34,6 +34,15 @@ WHERE
 ORDER BY id ASC
 LIMIT 1;
 
+--: TeamId()
+--! team_id_by_slug : TeamId
+SELECT
+    id
+FROM
+    teams
+WHERE
+    slug = :slug;
+
 --! add_user_to_team
 INSERT INTO 
     team_users (user_id, team_id, roles)
