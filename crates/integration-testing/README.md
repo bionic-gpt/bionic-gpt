@@ -1,6 +1,6 @@
 ## Running the integration tests
 
-We need to install another Bionic in its own namespace so the the `hostname_url` work inside the cluster.
+We need to install another Bionic in its own namespace so that the `hostname_url` works inside the cluster.
 
 ### Install
 
