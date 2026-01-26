@@ -33,7 +33,7 @@ pub async fn create_invite(
     Extension(config): Extension<crate::config::Config>,
     Form(new_invite): Form<NewInvite>,
 ) -> Result<impl IntoResponse, CustomError> {
-    let invite_hash = create(&pool, authentication, &new_invite, team_id).await?;
+    let invite_hash = create(&pool, authentication, &new_invite, &team_id).await?;
 
     if let Some(smtp_config) = &config.smtp_config {
         let url = AcceptInvite {
@@ -66,15 +66,16 @@ pub async fn create_invite(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_permissions, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let team = queries::teams::team()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .one()
         .await?;
 
     crate::layout::redirect_and_snackbar(
-        &web_pages::routes::team::Index { team_id: team.id }.to_string(),
+        &web_pages::routes::team::Index { team_id: team.slug }.to_string(),
         "Invitation Created",
     )
 }
@@ -83,12 +84,13 @@ pub async fn create(
     pool: &Pool,
     current_user: Jwt,
     new_invite: &NewInvite,
-    team_id: i32,
+    team_slug: &str,
 ) -> Result<(String, String), CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let _permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_permissions, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), team_slug).await?;
 
     let invitation_selector = rand::rng().random::<[u8; 6]>();
     let invitation_selector_base64 =
@@ -112,7 +114,7 @@ pub async fn create(
     queries::invitations::insert_invitation()
         .bind(
             &transaction,
-            &team_id,
+            &team_id_num,
             &new_invite.email,
             &new_invite.first_name,
             &new_invite.last_name,

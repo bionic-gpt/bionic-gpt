@@ -21,7 +21,8 @@ pub async fn conversation(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let chats = queries::chats::chats()
         .bind(&transaction, &conversation_id)
@@ -39,7 +40,7 @@ pub async fn conversation(
         super::utils::process_chats(&transaction, chats).await?;
 
     let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Model)
+        .bind(&transaction, &team_id_num, &db::PromptType::Model)
         .all()
         .await?;
 
@@ -56,7 +57,7 @@ pub async fn conversation(
     };
 
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id, &team_id)
+        .bind(&transaction, &prompt_id, &team_id_num)
         .one()
         .await;
 
@@ -65,7 +66,7 @@ pub async fn conversation(
     } else {
         let id = prompts.first().unwrap().id;
         queries::prompts::prompt()
-            .bind(&transaction, &id, &team_id)
+            .bind(&transaction, &id, &team_id_num)
             .one()
             .await?
     };

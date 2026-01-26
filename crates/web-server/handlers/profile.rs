@@ -21,8 +21,8 @@ pub fn routes() -> Router {
         .route("/app/team/{team_id}/set_details", post(set_details_action))
 }
 
-fn index_route(team_id: i32) -> String {
-    format!("/app/team/{}/profile", team_id)
+fn index_route(team_slug: &str) -> String {
+    format!("/app/team/{}/profile", team_slug)
 }
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -34,30 +34,26 @@ pub struct SetDetails {
 }
 
 pub async fn loader(
-    Path(team_id): Path<i32>,
+    Path(team_slug): Path<String>,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    let team = queries::teams::team()
-        .bind(&transaction, &team_id)
-        .one()
-        .await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
 
     let user = queries::users::user()
         .bind(&transaction, &rbac.user_id)
         .one()
         .await?;
 
-    Ok(Html(web_pages::profile::profile(user, team.id, rbac)))
+    Ok(Html(web_pages::profile::profile(user, team_slug, rbac)))
 }
 
 pub async fn set_details_action(
-    Path(team_id): Path<i32>,
+    Path(team_slug): Path<String>,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(set_name): Form<SetDetails>,
@@ -65,7 +61,8 @@ pub async fn set_details_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
 
     queries::users::set_name()
         .bind(
@@ -78,5 +75,5 @@ pub async fn set_details_action(
 
     transaction.commit().await?;
 
-    crate::layout::redirect_and_snackbar(&index_route(team_id), "Details Updated")
+    crate::layout::redirect_and_snackbar(&index_route(&team_slug), "Details Updated")
 }

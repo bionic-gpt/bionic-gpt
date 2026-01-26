@@ -11,7 +11,7 @@ use crate::{
 pub fn page(
     team_users: Vec<Member>,
     audits: Vec<AuditTrail>,
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     reset_search: bool,
 ) -> String {
@@ -20,7 +20,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::AuditTrail,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "Audit Trail",
             header: rsx! {
@@ -42,7 +42,7 @@ pub fn page(
             super::filter::FilterDrawer {
                 team_users: team_users.clone(),
                 reset_search: reset_search,
-                submit_action: crate::routes::audit_trail::Index {team_id}
+                submit_action: crate::routes::audit_trail::Index {team_id: team_id.clone()}
             }
         }
     };

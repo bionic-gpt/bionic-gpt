@@ -8,7 +8,7 @@ pub fn ProfilePopup(
     email: String,
     first_name: String,
     last_name: String,
-    team_id: i32,
+    team_id: String,
     unlicensed: bool,
 ) -> Element {
     let user_name_or_email = if !first_name.is_empty() || !last_name.is_empty() {
@@ -53,7 +53,7 @@ pub fn ProfilePopup(
                 "Profile"
             }
             DropDownLink {
-                href: crate::routes::profile::Profile{team_id},
+                href: crate::routes::profile::Profile{team_id: team_id.clone()},
                 target: "_top",
                 "Profile"
             }

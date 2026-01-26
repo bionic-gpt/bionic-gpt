@@ -9,7 +9,7 @@ use db::{Licence, Oauth2Connection};
 use dioxus::prelude::*;
 
 pub fn Oauth2Cards(
-    team_id: i32,
+    team_id: String,
     integration_id: i32,
     mcp_slug: Option<String>,
     connections: Vec<Oauth2Connection>,
@@ -72,7 +72,7 @@ pub fn Oauth2Cards(
                         }
                         ConfirmModal {
                             action: routes::integrations::DeleteOauth2Connection{
-                                team_id,
+                                team_id: team_id.clone(),
                                 integration_id,
                                 connection_id: connection.id
                             }.to_string(),
@@ -81,7 +81,7 @@ pub fn Oauth2Cards(
                             heading: "Delete OAuth2 Connection?".to_string(),
                             warning: "Are you sure you want to delete this OAuth2 connection? This action cannot be undone.".to_string(),
                             hidden_fields: vec![
-                                ("team_id".into(), team_id.to_string()),
+                                ("team_id".into(), team_id.clone()),
                                 ("integration_id".into(), integration_id.to_string()),
                                 ("connection_id".into(), connection.id.to_string()),
                             ],

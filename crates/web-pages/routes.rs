@@ -8,46 +8,46 @@ pub mod automations {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automations")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automations/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automations/edit/{prompt_id}")]
     pub struct Edit {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automations/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automations/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automation/{prompt_id}/integrations")]
     pub struct ManageIntegrations {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automation/{prompt_id}/integrations/add/{integration_id}")]
     pub struct AddIntegration {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
         pub integration_id: i32,
     }
@@ -55,7 +55,7 @@ pub mod automations {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automation/{prompt_id}/integrations/remove/{integration_id}")]
     pub struct RemoveIntegration {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
         pub integration_id: i32,
     }
@@ -63,21 +63,21 @@ pub mod automations {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automation/{prompt_id}/triggers")]
     pub struct ManageTriggers {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automation/{prompt_id}/triggers/add")]
     pub struct AddCronTrigger {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/automation/{prompt_id}/triggers/remove/{trigger_id}")]
     pub struct RemoveCronTrigger {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
         pub trigger_id: i32,
     }
@@ -90,13 +90,13 @@ pub mod history {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/history")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/search")]
     pub struct Search {
-        pub team_id: i32,
+        pub team_id: String,
     }
 }
 
@@ -107,19 +107,19 @@ pub mod rate_limits {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/rate_limits")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/rate_limits/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/rate_limits/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -131,19 +131,19 @@ pub mod api_keys {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/api_keys")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/api_keys/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/api_keys/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -155,7 +155,7 @@ pub mod audit_trail {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/audit_trail")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 }
 
@@ -166,19 +166,19 @@ pub mod document_pipelines {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/pipelines")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/pipelines/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/pipelines/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -190,7 +190,7 @@ pub mod console {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/console")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
@@ -204,26 +204,26 @@ pub mod console {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/console/{conversation_id}")]
     pub struct Conversation {
-        pub team_id: i32,
+        pub team_id: String,
         pub conversation_id: i64,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/send_message")]
     pub struct SendMessage {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/update_response")]
     pub struct UpdateResponse {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/console/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i64,
     }
 }
@@ -235,7 +235,7 @@ pub mod prompts {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/console/{conversation_id}")]
     pub struct Conversation {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
         pub conversation_id: i64,
     }
@@ -243,59 +243,59 @@ pub mod prompts {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/new_chat/{prompt_id}")]
     pub struct NewChat {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/my_assistants")]
     pub struct MyAssistants {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/prompts/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/prompts/edit/{prompt_id}")]
     pub struct Edit {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/prompts")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/prompts/{id}/image")]
     pub struct Image {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/prompts/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/prompts/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/prompt/{prompt_id}/delete_conv/{conversation_id}")]
     pub struct DeleteConv {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
         pub conversation_id: i64,
     }
@@ -303,28 +303,28 @@ pub mod prompts {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/datasets")]
     pub struct ManageDatasets {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/datasets/update")]
     pub struct UpdateDatasets {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations")]
     pub struct ManageIntegrations {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations/add/{integration_id}")]
     pub struct AddIntegration {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
         pub integration_id: i32,
     }
@@ -332,7 +332,7 @@ pub mod prompts {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/assistant/{prompt_id}/integrations/remove/{integration_id}")]
     pub struct RemoveIntegration {
-        pub team_id: i32,
+        pub team_id: String,
         pub prompt_id: i32,
         pub integration_id: i32,
     }
@@ -345,38 +345,38 @@ pub mod models {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models/select-provider")]
     pub struct SelectProvider {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models/edit/{id}")]
     pub struct Edit {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/models/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -388,32 +388,32 @@ pub mod providers {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/providers")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/providers/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/providers/edit/{id}")]
     pub struct Edit {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/providers/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/providers/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -425,46 +425,46 @@ pub mod integrations {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integration/{id}")]
     pub struct View {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/select")]
     pub struct Select {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/edit/{id}")]
     pub struct Edit {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/{integration_id}/connect")]
     pub struct Connect {
-        pub team_id: i32,
+        pub team_id: String,
         pub integration_id: i32,
     }
 
@@ -475,14 +475,14 @@ pub mod integrations {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/{integration_id}/configure_api_key")]
     pub struct ConfigureApiKey {
-        pub team_id: i32,
+        pub team_id: String,
         pub integration_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/{integration_id}/connections/api-key/{connection_id}/delete")]
     pub struct DeleteApiKeyConnection {
-        pub team_id: i32,
+        pub team_id: String,
         pub integration_id: i32,
         pub connection_id: i32,
     }
@@ -490,7 +490,7 @@ pub mod integrations {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/integrations/{integration_id}/connections/oauth2/{connection_id}/delete")]
     pub struct DeleteOauth2Connection {
-        pub team_id: i32,
+        pub team_id: String,
         pub integration_id: i32,
         pub connection_id: i32,
     }
@@ -503,33 +503,33 @@ pub mod projects {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/projects")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/projects/view/{project_id}")]
     pub struct View {
-        pub team_id: i32,
+        pub team_id: String,
         pub project_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/projects/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/projects/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/projects/{project_id}/start_chat")]
     pub struct StartChat {
-        pub team_id: i32,
+        pub team_id: String,
         pub project_id: i32,
     }
 }
@@ -541,19 +541,19 @@ pub mod mcp_api_keys {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/mcp_api_keys")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/mcp_api_keys/new")]
     pub struct Create {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/mcp_api_keys/{id}/delete")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -565,26 +565,26 @@ pub mod workflows {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/workflows")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/workflow/{id}")]
     pub struct View {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/workflows/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/workflows/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -596,19 +596,19 @@ pub mod datasets {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/datasets")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/datasets/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/datasets/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -620,19 +620,19 @@ pub mod categories {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/categories")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/categories/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/categories/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -644,34 +644,34 @@ pub mod documents {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/dataset/{dataset_id}/documents")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
         pub dataset_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/bulk_import")]
     pub struct Bulk {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/dataset/{dataset_id}/doc_upload")]
     pub struct Upload {
-        pub team_id: i32,
+        pub team_id: String,
         pub dataset_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/processing/{document_id}")]
     pub struct Processing {
-        pub team_id: i32,
+        pub team_id: String,
         pub document_id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/delete_doc/{document_id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub document_id: i32,
     }
 }
@@ -683,19 +683,19 @@ pub mod teams {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/delete_team")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/switch")]
     pub struct Switch {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
@@ -710,13 +710,13 @@ pub mod team {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/create_invite")]
     pub struct CreateInvite {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
@@ -729,19 +729,19 @@ pub mod team {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/delete")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/delete_invite")]
     pub struct DeleteInvite {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/set_name")]
     pub struct SetName {
-        pub team_id: i32,
+        pub team_id: String,
     }
 }
 
@@ -752,19 +752,19 @@ pub mod profile {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/set_details")]
     pub struct SetDetails {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/profile")]
     pub struct Profile {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/profile_popup")]
     pub struct ProfilePopup {
-        pub team_id: i32,
+        pub team_id: String,
     }
 }
 
@@ -775,19 +775,19 @@ pub mod oauth_clients {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/oauth_clients")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/oauth_clients/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/oauth_clients/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -799,32 +799,32 @@ pub mod openapi_specs {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/openapi-specs")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/openapi-specs/new")]
     pub struct New {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/openapi-specs/edit/{id}")]
     pub struct Edit {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/openapi-specs/upsert")]
     pub struct Upsert {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/openapi-specs/delete/{id}")]
     pub struct Delete {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -836,27 +836,27 @@ pub mod web_search {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/web_search")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/web_search/select/{id}")]
     pub struct Select {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/web_search/spec/{id}/api_key")]
     pub struct ConfigureApiKey {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/web_search/spec/{id}/api_key/delete")]
     pub struct DeleteApiKey {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -868,27 +868,27 @@ pub mod code_sandbox {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/code_sandbox")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/code_sandbox/select/{id}")]
     pub struct Select {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/code_sandbox/spec/{id}/api_key")]
     pub struct ConfigureApiKey {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/code_sandbox/spec/{id}/api_key/delete")]
     pub struct DeleteApiKey {
-        pub team_id: i32,
+        pub team_id: String,
         pub id: i32,
     }
 }
@@ -900,6 +900,6 @@ pub mod licence {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/app/team/{team_id}/licence")]
     pub struct Index {
-        pub team_id: i32,
+        pub team_id: String,
     }
 }

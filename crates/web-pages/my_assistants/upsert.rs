@@ -36,7 +36,7 @@ pub struct PromptForm {
 }
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     prompt: PromptForm,
     show_company_visibility: bool,
@@ -62,7 +62,7 @@ pub fn page(
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: assistant_label.clone(),
             locale: Some(locale.to_string()),
@@ -71,11 +71,11 @@ pub fn page(
                     items: vec![
                         BreadcrumbItem {
                             text: assistants_label.clone(),
-                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
+                            href: Some(crate::routes::prompts::Index{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: format!("My {}", assistants_label.clone()),
-                            href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
+                            href: Some(crate::routes::prompts::MyAssistants{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: action_label.clone(),
@@ -92,7 +92,7 @@ pub fn page(
                 class: "p-4 max-w-4xl w-full mx-auto",
 
                 form {
-                    action: crate::routes::prompts::Upsert { team_id }.to_string(),
+                    action: crate::routes::prompts::Upsert { team_id: team_id.clone() }.to_string(),
                     enctype: "multipart/form-data",
                     method: "post",
                     class: "space-y-6",
@@ -454,7 +454,7 @@ pub fn page(
                                 class: "flex justify-between",
                                 Button {
                                     button_type: ButtonType::Link,
-                                    href: crate::routes::prompts::MyAssistants { team_id }.to_string(),
+                                    href: crate::routes::prompts::MyAssistants { team_id: team_id.clone() }.to_string(),
                                     button_scheme: ButtonScheme::Error,
                                     "Cancel"
                                 }

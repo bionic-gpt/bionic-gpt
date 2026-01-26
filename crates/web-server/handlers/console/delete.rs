@@ -13,7 +13,8 @@ pub async fn delete(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let permissions = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (permissions, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if permissions.can_delete_chat() {
         queries::conversations::delete()

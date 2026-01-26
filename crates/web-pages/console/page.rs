@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
 
 pub fn new_conversation(
-    team_id: i32,
+    team_id: String,
     prompts: Vec<Prompt>,
     prompt: SinglePrompt,
     rbac: Rbac,
@@ -19,7 +19,7 @@ pub fn new_conversation(
     // Rerverse it because that's how we display it.
     crate::render(rsx! {
         super::layout::ConsoleLayout {
-            team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             prompt: prompt.clone(),
             title: "AI Chat Console",
@@ -32,7 +32,7 @@ pub fn new_conversation(
             available_tools,
             header: rsx!(
                 Head {
-                    team_id: team_id,
+                    team_id: team_id.clone(),
                     rbac: rbac.clone(),
                     prompts,
                     prompt: prompt.clone()
@@ -43,7 +43,7 @@ pub fn new_conversation(
 }
 
 #[component]
-fn Head(team_id: i32, rbac: Rbac, prompts: Vec<Prompt>, prompt: SinglePrompt) -> Element {
+fn Head(team_id: String, rbac: Rbac, prompts: Vec<Prompt>, prompt: SinglePrompt) -> Element {
     rsx! {
         ModelPopup {
             id: prompt.id,

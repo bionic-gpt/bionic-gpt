@@ -16,7 +16,7 @@ use dioxus::prelude::*;
 use std::collections::HashMap;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     prompts: Vec<Prompt>,
     categories: Vec<Category>,
@@ -31,7 +31,7 @@ pub fn page(
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: assistants_label.clone(),
             locale: locale.to_string(),
@@ -44,14 +44,14 @@ pub fn page(
                 }
                 div {
                     a {
-                        href: crate::routes::prompts::MyAssistants{team_id}.to_string(),
+                        href: crate::routes::prompts::MyAssistants{team_id: team_id.clone()}.to_string(),
                         class: "btn btn-ghost btn-sm font-bold! mr-4",
                         {format!("My {}", assistants_label.clone())}
                     }
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::prompts::New{team_id}.to_string(),
+                        href: routes::prompts::New{team_id: team_id.clone()}.to_string(),
                         button_scheme: ButtonScheme::Primary,
                         {format!("New {}", assistant_label.clone())}
                     }
@@ -86,7 +86,7 @@ pub fn page(
                                 },
                                 prompts: prompts.clone(),
                                 rbac: rbac.clone(),
-                                team_id
+                                team_id: team_id.clone()
                             }
                         }
                         for (index, (category, cat_prompts)) in categories_with_prompts.clone().into_iter().enumerate()  {
@@ -95,13 +95,13 @@ pub fn page(
                                 category,
                                 prompts: cat_prompts,
                                 rbac: rbac.clone(),
-                                team_id
+                                team_id: team_id.clone()
                             }
                         }
 
                         for prompt in &prompts {
                             ConfirmModal {
-                                action: crate::routes::prompts::Delete{team_id, id: prompt.id}.to_string(),
+                                action: crate::routes::prompts::Delete{team_id: team_id.clone(), id: prompt.id}.to_string(),
                                 trigger_id: format!("delete-trigger-{}-{}", prompt.id, team_id),
                                 submit_label: "Delete".to_string(),
                                 heading: format!("Delete this {}?", assistant_label.clone()),
@@ -116,7 +116,7 @@ pub fn page(
                             }
 
                             super::view_prompt::ViewDrawer {
-                                team_id: team_id,
+                                team_id: team_id.clone(),
                                 prompt: prompt.clone(),
                                 trigger_id: format!("view-trigger-{}-{}", prompt.id, team_id)
                             }
@@ -137,7 +137,7 @@ fn AssistantTab(
     category: Category,
     prompts: Vec<Prompt>,
     checked: bool,
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
 ) -> Element {
     rsx! {
@@ -152,7 +152,7 @@ fn AssistantTab(
                     class: "space-y-2",
                     for prompt in &prompts {
                         AssistantCard {
-                            team_id,
+                            team_id: team_id.clone(),
                             prompt: prompt.clone(),
                             rbac: rbac.clone()
                         }

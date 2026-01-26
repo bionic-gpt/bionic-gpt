@@ -13,7 +13,7 @@ use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
     pending_chat_state: PendingChatState,
@@ -29,7 +29,7 @@ pub fn page(
     let page = rsx! {
         AssistantConsole {
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "{prompt.name}",
             chat_history: chat_history.clone(),
@@ -59,7 +59,7 @@ pub fn page(
                             }
                         }
                         ConfirmModal {
-                            action: crate::routes::prompts::DeleteConv{team_id, prompt_id: prompt.id, conversation_id}.to_string(),
+                            action: crate::routes::prompts::DeleteConv{team_id: team_id.clone(), prompt_id: prompt.id, conversation_id}.to_string(),
                             trigger_id: format!("delete-conv-{}", conversation_id),
                             submit_label: "Delete".to_string(),
                             heading: "Delete this Conversation?".to_string(),
@@ -72,7 +72,7 @@ pub fn page(
                         }
                         form {
                             method: "get",
-                            action: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                            action: crate::routes::prompts::NewChat{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(),
                             Button {
                                 class: "mr-2",
                                 button_scheme: ButtonScheme::Neutral,

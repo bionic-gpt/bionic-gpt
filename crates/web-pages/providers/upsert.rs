@@ -25,12 +25,12 @@ pub struct ProviderForm {
     pub error: Option<String>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, form: ProviderForm) -> String {
+pub fn page(team_id: String, rbac: Rbac, form: ProviderForm) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Providers,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Providers",
             header: rsx!(
@@ -38,7 +38,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ProviderForm) -> String {
                     items: vec![
                         BreadcrumbItem {
                             text: "Providers".into(),
-                            href: Some(crate::routes::providers::Index{team_id}.to_string())
+                            href: Some(crate::routes::providers::Index{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: if form.id.is_some() { "Edit Provider".into() } else { "New Provider".into() },
@@ -53,7 +53,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ProviderForm) -> String {
             div {
                 class: "p-4 max-w-4xl w-full mx-auto",
                 form {
-                    action: crate::routes::providers::Upsert { team_id }.to_string(),
+                    action: crate::routes::providers::Upsert { team_id: team_id.clone() }.to_string(),
                     method: "post",
                     class: "space-y-6",
                     if let Some(id) = form.id {
@@ -255,7 +255,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: ProviderForm) -> String {
                         class: "flex justify-between mt-4",
                         Button {
                             button_type: ButtonType::Link,
-                            href: crate::routes::providers::Index { team_id }.to_string(),
+                            href: crate::routes::providers::Index { team_id: team_id.clone() }.to_string(),
                             button_scheme: ButtonScheme::Error,
                             "Cancel"
                         }

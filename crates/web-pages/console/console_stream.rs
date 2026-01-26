@@ -12,7 +12,7 @@ use super::{ChatWithChunks, PendingChatState};
 // Main ConsoleStream Component
 #[component]
 pub fn ConsoleStream(
-    team_id: i32,
+    team_id: String,
     chat_history: Vec<ChatWithChunks>,
     pending_chat_state: PendingChatState,
     is_tts_disabled: bool,
@@ -31,7 +31,7 @@ pub fn ConsoleStream(
                         for tool_chat in tool_chats {
                             ToolCallTimeline {
                                 chat_id: tool_chat.id as i64,
-                                team_id,
+                                team_id: team_id.clone(),
                                 pending: true,
                                 tool_call_id: tool_chat.tool_call_id.clone(),
                                 chat_history: chat_history.clone(),
@@ -42,7 +42,7 @@ pub fn ConsoleStream(
                         // gets picked up by the javascript and call the chat stream
                         ProcessingTimeline {
                             chat_id: last_chat_id as i64,
-                            team_id
+                            team_id: team_id.clone()
                         }
                     }
                 },
@@ -57,7 +57,7 @@ pub fn ConsoleStream(
                         // gets picked up by the javascript and call the chat stream
                         ProcessingTimeline {
                             chat_id: pending_chat.chat.id as i64,
-                            team_id
+                            team_id: team_id.clone()
                         }
                     }
                 },
@@ -92,7 +92,7 @@ pub fn ConsoleStream(
                             rsx! {
                                 ToolCallTimeline {
                                     chat_id: chat_with_chunks.chat.id as i64,
-                                    team_id,
+                                    team_id: team_id.clone(),
                                     pending: false,
                                     tool_call_id: chat_with_chunks.chat.tool_call_id.clone(),
                                     chat_history: chat_history.clone(),
@@ -160,7 +160,7 @@ fn format_json_string(raw: &str) -> String {
 #[component]
 fn ToolCallTimeline(
     chat_id: i64,
-    team_id: i32,
+    team_id: String,
     pending: bool,
     tool_call_id: Option<String>,
     chat_history: Vec<ChatWithChunks>,
@@ -363,7 +363,7 @@ fn ResponseTimeline(response: String, is_tts_disabled: bool) -> Element {
 
 // Processing Timeline Component
 #[component]
-fn ProcessingTimeline(chat_id: i64, team_id: i32) -> Element {
+fn ProcessingTimeline(chat_id: i64, team_id: String) -> Element {
     rsx! {
         TimeLine {
             TimeLineBadge {
@@ -389,12 +389,12 @@ fn ProcessingTimeline(chat_id: i64, team_id: i32) -> Element {
 
 // Processing Timeline Component
 #[component]
-fn ProcessingForm(chat_id: i64, team_id: i32) -> Element {
+fn ProcessingForm(chat_id: i64, team_id: String) -> Element {
     rsx! {
         form {
             method: "post",
             id: "chat-form-{chat_id}",
-            action: routes::console::UpdateResponse{team_id}.to_string(),
+            action: routes::console::UpdateResponse{team_id: team_id.clone()}.to_string(),
             input {
                 name: "response",
                 id: "chat-result-{chat_id}",

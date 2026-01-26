@@ -19,10 +19,11 @@ pub async fn loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let integrations_db = queries::integrations::integrations()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
@@ -33,7 +34,7 @@ pub async fn loader(
             if let Ok(bionic_openapi) = BionicOpenAPI::new(definition) {
                 let api_key_count = if bionic_openapi.has_api_key_security() {
                     queries::connections::get_api_key_connections_for_integration()
-                        .bind(&transaction, &integration.id, &team_id)
+                        .bind(&transaction, &integration.id, &team_id_num)
                         .all()
                         .await?
                         .len()
@@ -44,7 +45,7 @@ pub async fn loader(
                 let (oauth2_count, oauth_client_configured) =
                     if bionic_openapi.has_oauth2_security() {
                         let count = queries::connections::get_oauth2_connections_for_integration()
-                            .bind(&transaction, &integration.id, &team_id)
+                            .bind(&transaction, &integration.id, &team_id_num)
                             .all()
                             .await?
                             .len();
@@ -99,10 +100,11 @@ pub async fn view_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let integration = db::queries::integrations::integration()
-        .bind(&transaction, &id, &team_id)
+        .bind(&transaction, &id, &team_id_num)
         .one()
         .await?;
 
@@ -120,7 +122,7 @@ pub async fn view_loader(
                 // Fetch connections based on security type
                 let api_key_connections = if openapi_helper.has_api_key_security() {
                     queries::connections::get_api_key_connections_for_integration()
-                        .bind(&transaction, &id, &team_id)
+                        .bind(&transaction, &id, &team_id_num)
                         .all()
                         .await
                         .unwrap_or_default()
@@ -132,7 +134,7 @@ pub async fn view_loader(
                     if openapi_helper.has_oauth2_security() {
                         let connections =
                             queries::connections::get_oauth2_connections_for_integration()
-                                .bind(&transaction, &id, &team_id)
+                                .bind(&transaction, &id, &team_id_num)
                                 .all()
                                 .await
                                 .unwrap_or_default();
@@ -213,7 +215,8 @@ pub async fn new_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let integration_form = IntegrationForm {
         visibility: web_pages::visibility_to_string(db::Visibility::Private),
@@ -241,7 +244,8 @@ pub async fn select_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let specs: Vec<PrebuiltSpec> = queries::openapi_specs::active()
         .bind(&transaction)
@@ -282,10 +286,11 @@ pub async fn edit_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let integration = queries::integrations::integration()
-        .bind(&transaction, &id, &team_id)
+        .bind(&transaction, &id, &team_id_num)
         .one()
         .await?;
 

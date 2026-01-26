@@ -4,11 +4,11 @@ use db::queries::datasets::Dataset;
 use dioxus::prelude::*;
 
 #[component]
-pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: i32) -> Element {
+pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: String) -> Element {
     rsx! {
         form {
             method: "post",
-            action: crate::routes::document_pipelines::New {team_id}.to_string(),
+            action: crate::routes::document_pipelines::New {team_id: team_id.clone()}.to_string(),
             Modal {
                 trigger_id: "create-api-key",
                 ModalBody {

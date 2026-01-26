@@ -14,7 +14,7 @@ use std::convert::TryFrom;
 
 pub fn page(
     rbac: Rbac,
-    team_id: i32,
+    team_id: String,
     dataset: Dataset,
     documents: Vec<Document>,
     models: Vec<Model>,
@@ -33,7 +33,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: format!("{dataset_name} / Documents"),
             locale: Some(locale.to_string()),
@@ -97,14 +97,14 @@ pub fn page(
                     for doc in &documents {
                         Row {
                             document: doc.clone(),
-                            team_id: team_id,
+                            team_id: team_id.clone(),
                             first_time: true
                         }
                     }
 
                     for doc in documents {
                         ConfirmModal {
-                            action: crate::routes::documents::Delete{team_id, document_id: doc.id}.to_string(),
+                            action: crate::routes::documents::Delete{team_id: team_id.clone(), document_id: doc.id}.to_string(),
                             trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, team_id),
                             submit_label: "Delete Document".to_string(),
                             heading: "Delete this document?".to_string(),
@@ -119,7 +119,7 @@ pub fn page(
                 }
 
                 ConfirmModal {
-                    action: crate::routes::datasets::Delete{team_id, id: dataset.id}.to_string(),
+                    action: crate::routes::datasets::Delete{team_id: team_id.clone(), id: dataset.id}.to_string(),
                     trigger_id: delete_trigger_id.clone(),
                     submit_label: "Delete".to_string(),
                     heading: format!("Delete this {}?", crate::i18n::dataset(locale)),
@@ -139,7 +139,7 @@ pub fn page(
                         trigger_id: edit_trigger_id.clone(),
                         name: dataset_name.clone(),
                         models: models.clone(),
-                        team_id: team_id,
+                        team_id: team_id.clone(),
                         combine_under_n_chars: dataset.combine_under_n_chars,
                         new_after_n_chars: dataset.new_after_n_chars,
                         _multipage_sections: true,
@@ -151,7 +151,7 @@ pub fn page(
 
                 // The form to create an invitation - always available
                 super::upload::Upload {
-                    upload_action: crate::routes::documents::Upload{team_id, dataset_id: dataset.id}.to_string()
+                    upload_action: crate::routes::documents::Upload{team_id: team_id.clone(), dataset_id: dataset.id}.to_string()
                 }
             }
         }
@@ -161,7 +161,7 @@ pub fn page(
 }
 
 #[component]
-pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
+pub fn Row(document: Document, team_id: String, first_time: bool) -> Element {
     let text = if let Some(failure_reason) = document.failure_reason.clone() {
         failure_reason.replace(['{', '"', ':', '}'], " ")
     } else {
@@ -179,7 +179,7 @@ pub fn Row(document: Document, team_id: i32, first_time: bool) -> Element {
     let src = if first_time {
         Some(
             crate::routes::documents::Processing {
-                team_id,
+                team_id: team_id.clone(),
                 document_id: document.id,
             }
             .to_string(),

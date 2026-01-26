@@ -9,19 +9,19 @@ use db::authz::Rbac;
 use db::OpenapiSpec;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
+pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::OpenapiSpecs,
-            team_id,
+            team_id: team_id.clone(),
             title: "OpenAPI Specs",
             rbac: rbac.clone(),
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {
                         text: "OpenAPI Specs".into(),
-                        href: Some(routes::openapi_specs::Index { team_id }.to_string()),
+                        href: Some(routes::openapi_specs::Index { team_id: team_id.clone() }.to_string()),
                     }]
                 }
                 if rbac.is_sys_admin {
@@ -29,7 +29,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
                         button_scheme: ButtonScheme::Primary,
-                        href: routes::openapi_specs::New { team_id }.to_string(),
+                        href: routes::openapi_specs::New { team_id: team_id.clone() }.to_string(),
                         "Add OpenAPI Spec"
                     }
                 }
@@ -93,7 +93,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                                                     direction: Direction::Left,
                                                     button_text: "...",
                                                     DropDownLink {
-                                                        href: routes::openapi_specs::Edit { team_id, id: spec.id }.to_string(),
+                                                        href: routes::openapi_specs::Edit { team_id: team_id.clone(), id: spec.id }.to_string(),
                                                         target: "_top",
                                                         "Edit"
                                                     }
@@ -113,7 +113,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
 
                         for spec in specs {
                             ConfirmModal {
-                                action: routes::openapi_specs::Delete { team_id, id: spec.id }.to_string(),
+                                action: routes::openapi_specs::Delete { team_id: team_id.clone(), id: spec.id }.to_string(),
                                 trigger_id: format!("delete-openapi-spec-{}-{}", team_id, spec.id),
                                 submit_label: "Delete".to_string(),
                                 heading: "Delete this OpenAPI Spec?".to_string(),

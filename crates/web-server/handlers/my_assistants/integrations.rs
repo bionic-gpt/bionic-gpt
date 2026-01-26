@@ -32,10 +32,11 @@ pub async fn manage_integrations(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let integrations = queries::integrations::integrations()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
@@ -49,7 +50,7 @@ pub async fn manage_integrations(
         if requires_api_key || requires_oauth2 {
             let api_connections = if requires_api_key {
                 queries::connections::get_team_api_key_connections()
-                    .bind(&transaction, &team_id, &integration.id)
+                    .bind(&transaction, &team_id_num, &integration.id)
                     .all()
                     .await?
             } else {
@@ -58,7 +59,7 @@ pub async fn manage_integrations(
 
             let oauth2_connections = if requires_oauth2 {
                 queries::connections::get_team_oauth2_connections()
-                    .bind(&transaction, &team_id, &integration.id)
+                    .bind(&transaction, &team_id_num, &integration.id)
                     .all()
                     .await?
             } else {
@@ -101,7 +102,7 @@ pub async fn manage_integrations(
     }
 
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id, &team_id)
+        .bind(&transaction, &prompt_id, &team_id_num)
         .one()
         .await?;
 
@@ -145,7 +146,8 @@ pub async fn add_integration_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     // Add the integration with connection info
     queries::prompt_integrations::insert_prompt_integration_with_connection()
@@ -179,7 +181,8 @@ pub async fn remove_integration_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let _rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (_rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     // Remove the specific integration
     queries::prompt_integrations::delete_specific_prompt_integration()

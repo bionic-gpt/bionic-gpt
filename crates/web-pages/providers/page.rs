@@ -9,12 +9,12 @@ use db::authz::Rbac;
 use db::Provider;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
+pub fn page(team_id: String, rbac: Rbac, providers: Vec<Provider>) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Providers,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Providers",
             header: rsx!(
@@ -27,7 +27,7 @@ pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
                 Button {
                     button_type: ButtonType::Link,
                     prefix_image_src: "{button_plus_svg.name}",
-                    href: crate::routes::providers::New { team_id }.to_string(),
+                    href: crate::routes::providers::New { team_id: team_id.clone() }.to_string(),
                     button_scheme: ButtonScheme::Primary,
                     "Add Provider"
                 }
@@ -46,7 +46,7 @@ pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
                         class: "space-y-2",
                         for provider in &providers {
                             ProviderCard {
-                                team_id,
+                                team_id: team_id.clone(),
                                 provider: provider.clone(),
                             }
                         }
@@ -56,7 +56,7 @@ pub fn page(team_id: i32, rbac: Rbac, providers: Vec<Provider>) -> String {
 
             for provider in &providers {
                 ConfirmModal {
-                    action: crate::routes::providers::Delete{team_id, id: provider.id}.to_string(),
+                    action: crate::routes::providers::Delete{team_id: team_id.clone(), id: provider.id}.to_string(),
                     trigger_id: format!("delete-provider-{}-{}", provider.id, team_id),
                     submit_label: "Delete".to_string(),
                     heading: "Delete this Provider?".to_string(),

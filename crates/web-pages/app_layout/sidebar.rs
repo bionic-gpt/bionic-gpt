@@ -9,7 +9,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
     let prompts_label = labels.prompts.clone();
     let integrations_label = labels.integrations.clone();
     let history_label = labels.history.clone();
-    let team_id = params.team_id;
+    let team_id = params.team_id.clone();
     let rbac = &params.rbac;
     let can_view_chats = params.can_view_chats;
     let can_view_chat_history = params.can_view_chat_history;
@@ -24,7 +24,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         NavItem {
                             id: SideBar::Console.to_string(),
                             selected_item_id: selected_item.clone(),
-                            href: crate::routes::console::Index { team_id },
+                            href: crate::routes::console::Index { team_id: team_id.clone() },
                             icon: nav_service_requests_svg.name,
                             title: "Chat",
                             disabled: setup_required
@@ -34,7 +34,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         NavItem {
                             id: SideBar::History.to_string(),
                             selected_item_id: selected_item.clone(),
-                            href: crate::routes::history::Index { team_id },
+                            href: crate::routes::history::Index { team_id: team_id.clone() },
                             icon: nav_history_svg.name,
                             title: history_label.clone(),
                             disabled: setup_required
@@ -54,7 +54,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         NavItem {
                             id: SideBar::Prompts.to_string(),
                             selected_item_id: selected_item.clone(),
-                            href: crate::routes::prompts::Index { team_id },
+                            href: crate::routes::prompts::Index { team_id: team_id.clone() },
                             icon: assistant_svg.name,
                             title: prompts_label.clone(),
                             disabled: setup_required
@@ -64,7 +64,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         NavItem {
                             id: SideBar::Integrations.to_string(),
                             selected_item_id: selected_item.clone(),
-                            href: crate::routes::integrations::Index { team_id },
+                            href: crate::routes::integrations::Index { team_id: team_id.clone() },
                             icon: nav_audit_svg.name,
                             title: integrations_label.clone(),
                             disabled: setup_required
@@ -74,7 +74,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         NavItem {
                             id: SideBar::Projects.to_string(),
                             selected_item_id: selected_item.clone(),
-                            href: crate::routes::projects::Index { team_id },
+                            href: crate::routes::projects::Index { team_id: team_id.clone() },
                             icon: nav_automations_svg.name,
                             title: "Projects",
                             disabled: setup_required

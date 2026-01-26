@@ -14,7 +14,7 @@ use db::History;
 use dioxus::prelude::*;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     project: Project,
     histories: Vec<History>,
@@ -29,7 +29,7 @@ pub fn page(
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Projects,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: project.name.clone(),
             header: rsx!(
@@ -37,7 +37,7 @@ pub fn page(
                     items: vec![
                         BreadcrumbItem {
                             text: "Projects".into(),
-                            href: Some(crate::routes::projects::Index { team_id }.to_string())
+                            href: Some(crate::routes::projects::Index { team_id: team_id.clone() }.to_string())
                         },
                         BreadcrumbItem {
                             text: project.name.clone(),
@@ -49,7 +49,7 @@ pub fn page(
                     class: "flex items-center gap-2",
                     form {
                         method: "post",
-                        action: crate::routes::projects::StartChat { team_id, project_id: project.id }.to_string(),
+                        action: crate::routes::projects::StartChat { team_id: team_id.clone(), project_id: project.id }.to_string(),
                         Button {
                             button_type: ButtonType::Submit,
                             button_scheme: ButtonScheme::Primary,
@@ -89,7 +89,7 @@ pub fn page(
                 }
                 if history_buckets.1 > 0 {
                     history::history_table::HistoryTable {
-                        team_id,
+                        team_id: team_id.clone(),
                         buckets: history_buckets.0
                     }
                 }
@@ -104,13 +104,13 @@ pub fn page(
                     for doc in &documents {
                         Row {
                             document: doc.clone(),
-                            team_id: team_id,
+                            team_id: team_id.clone(),
                             first_time: true
                         }
                     }
                     for doc in &documents {
                         ConfirmModal {
-                            action: crate::routes::documents::Delete{team_id, document_id: doc.id}.to_string(),
+                            action: crate::routes::documents::Delete{team_id: team_id.clone(), document_id: doc.id}.to_string(),
                             trigger_id: format!("delete-doc-trigger-{}-{}", doc.id, team_id),
                             submit_label: "Delete Document".to_string(),
                             heading: "Delete this document?".to_string(),
@@ -125,7 +125,7 @@ pub fn page(
                 }
 
                 Upload {
-                    upload_action: crate::routes::documents::Upload { team_id, dataset_id: project.dataset_id }.to_string()
+                    upload_action: crate::routes::documents::Upload { team_id: team_id.clone(), dataset_id: project.dataset_id }.to_string()
                 }
 
                 super::upsert::Upsert {
@@ -135,7 +135,7 @@ pub fn page(
                     instructions: project.instructions.clone(),
                     visibility: project.visibility,
                     can_set_visibility_to_company,
-                    team_id,
+                    team_id: team_id.clone(),
                 }
             }
         }

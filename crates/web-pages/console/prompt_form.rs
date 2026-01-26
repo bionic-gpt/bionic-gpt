@@ -11,7 +11,7 @@ use openai_api::BionicToolDefinition;
 
 #[component]
 pub fn Form(
-    team_id: i32,
+    team_id: String,
     prompt_id: i32,
     conversation_id: Option<i64>,
     lock_console: bool,
@@ -35,7 +35,7 @@ pub fn Form(
                 class: "flex flex-col gap-2 remember w-full p-2",
                 form {
                     method: "post",
-                    action: routes::console::SendMessage{team_id}.to_string(),
+                    action: routes::console::SendMessage{team_id: team_id.clone()}.to_string(),
                     enctype: "multipart/form-data",
 
                     if let Some(conversation_id) = conversation_id {

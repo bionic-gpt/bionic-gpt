@@ -11,7 +11,7 @@ pub fn Upsert(
     trigger_id: String,
     models: Vec<models::Model>,
     name: String,
-    team_id: i32,
+    team_id: String,
     combine_under_n_chars: i32,
     new_after_n_chars: i32,
     _multipage_sections: bool,
@@ -23,7 +23,7 @@ pub fn Upsert(
     let dataset_lower = dataset_label.to_lowercase();
     rsx!(
         Modal {
-            submit_action: crate::routes::datasets::Upsert{team_id}.to_string(),
+            submit_action: crate::routes::datasets::Upsert{team_id: team_id.clone()}.to_string(),
             trigger_id,
             ModalBody {
                 class: "flex flex-col justify-between",

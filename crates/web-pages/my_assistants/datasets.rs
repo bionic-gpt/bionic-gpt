@@ -18,7 +18,7 @@ pub struct DatasetForm {
     pub datasets: Vec<Dataset>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm, locale: &str) -> String {
+pub fn page(team_id: String, rbac: Rbac, form: DatasetForm, locale: &str) -> String {
     let assistants_label = crate::i18n::assistants(locale);
     let assistant_label = crate::i18n::assistant(locale);
     let datasets_label = crate::i18n::datasets(locale);
@@ -27,7 +27,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm, locale: &str) -> String
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: format!("Manage {}", datasets_label.clone()),
             locale: Some(locale.to_string()),
@@ -36,11 +36,11 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm, locale: &str) -> String
                     items: vec![
                         BreadcrumbItem {
                             text: assistants_label.clone(),
-                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
+                            href: Some(crate::routes::prompts::Index{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: format!("My {}", assistants_label.clone()),
-                            href: Some(crate::routes::prompts::MyAssistants{team_id}.to_string())
+                            href: Some(crate::routes::prompts::MyAssistants{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: format!("Manage {}", datasets_label.clone()),
@@ -57,7 +57,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm, locale: &str) -> String
                 class: "p-4 max-w-4xl w-full mx-auto",
 
                 form {
-                    action: crate::routes::prompts::UpdateDatasets { team_id, prompt_id: form.prompt_id }.to_string(),
+                    action: crate::routes::prompts::UpdateDatasets { team_id: team_id.clone(), prompt_id: form.prompt_id }.to_string(),
                     method: "post",
                     class: "space-y-6",
 
@@ -144,7 +144,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: DatasetForm, locale: &str) -> String
                                 class: "flex justify-between",
                                 Button {
                                     button_type: ButtonType::Link,
-                                    href: crate::routes::prompts::MyAssistants { team_id }.to_string(),
+                                    href: crate::routes::prompts::MyAssistants { team_id: team_id.clone() }.to_string(),
                                     button_scheme: ButtonScheme::Error,
                                     "Cancel"
                                 }

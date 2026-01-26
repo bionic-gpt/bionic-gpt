@@ -13,35 +13,36 @@ pub async fn loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_use_api_keys() {
         return Err(CustomError::Authorization);
     }
 
     let api_keys = queries::api_keys::api_keys()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
     let assistants = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Assistant)
+        .bind(&transaction, &team_id_num, &db::PromptType::Assistant)
         .all()
         .await?;
 
     let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Model)
+        .bind(&transaction, &team_id_num, &db::PromptType::Model)
         .all()
         .await?;
 
     // Fetch graph data for the last 7 days
     let token_usage_data = queries::token_usage_metrics::get_daily_token_usage_for_team()
-        .bind(&transaction, &team_id, &"7")
+        .bind(&transaction, &team_id_num, &"7")
         .all()
         .await?;
 
     let api_request_data = queries::token_usage_metrics::get_daily_api_request_count_for_team()
-        .bind(&transaction, &team_id, &"7")
+        .bind(&transaction, &team_id_num, &"7")
         .all()
         .await?;
 

@@ -4,7 +4,7 @@ use db::PromptType;
 use dioxus::prelude::*;
 
 #[component]
-pub fn HistoryTable(team_id: i32, buckets: Vec<super::HistoryBucket>) -> Element {
+pub fn HistoryTable(team_id: String, buckets: Vec<super::HistoryBucket>) -> Element {
     rsx!(
         for bucket in buckets {
             if ! bucket.histories.is_empty() {
@@ -35,13 +35,13 @@ pub fn HistoryTable(team_id: i32, buckets: Vec<super::HistoryBucket>) -> Element
                                         td {
                                             if history.prompt_type == PromptType::Model {
                                                 a {
-                                                    href: crate::routes::console::Conversation{team_id, conversation_id: history.id}.to_string(),
+                                                    href: crate::routes::console::Conversation{team_id: team_id.clone(), conversation_id: history.id}.to_string(),
                                                     "{history.summary}"
                                                 }
                                             } else {
                                                 if let Some(prompt_id) = history.prompt_id {
                                                     a {
-                                                        href: crate::routes::prompts::Conversation{team_id, prompt_id, conversation_id: history.id }.to_string(),
+                                                        href: crate::routes::prompts::Conversation{team_id: team_id.clone(), prompt_id, conversation_id: history.id }.to_string(),
                                                         "{history.summary}"
                                                     }
                                                 } else {

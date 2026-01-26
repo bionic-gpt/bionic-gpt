@@ -32,7 +32,9 @@ pub async fn action_upsert(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let team_slug = team_id;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -63,7 +65,7 @@ pub async fn action_upsert(
 
             Ok(crate::layout::redirect_and_snackbar(
                 &View {
-                    team_id,
+                    team_id: team_slug,
                     project_id: id,
                 }
                 .to_string(),
@@ -80,7 +82,7 @@ pub async fn action_upsert(
             let dataset_id = queries::datasets::insert_project()
                 .bind(
                     &transaction,
-                    &team_id,
+                    &team_id_num,
                     &form.name,
                     &embeddings_model.id,
                     &ChunkingStrategy::ByTitle,
@@ -95,7 +97,7 @@ pub async fn action_upsert(
             let project_id = queries::projects::insert()
                 .bind(
                     &transaction,
-                    &team_id,
+                    &team_id_num,
                     &dataset_id,
                     &form.name,
                     &form.instructions,
@@ -108,7 +110,7 @@ pub async fn action_upsert(
 
             Ok(crate::layout::redirect_and_snackbar(
                 &View {
-                    team_id,
+                    team_id: team_slug,
                     project_id,
                 }
                 .to_string(),
@@ -117,7 +119,7 @@ pub async fn action_upsert(
             .into_response())
         }
         (Err(_), _) => Ok(crate::layout::redirect_and_snackbar(
-            &web_pages::routes::projects::Index { team_id }.to_string(),
+            &web_pages::routes::projects::Index { team_id: team_slug }.to_string(),
             "Project Validation Error",
         )
         .into_response()),
@@ -131,7 +133,9 @@ pub async fn action_delete(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let team_slug = team_id;
+    let (rbac, _team_id) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -150,7 +154,7 @@ pub async fn action_delete(
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &web_pages::routes::projects::Index { team_id }.to_string(),
+        &web_pages::routes::projects::Index { team_id: team_slug }.to_string(),
         "Project Deleted",
     )
 }
@@ -165,7 +169,9 @@ pub async fn action_start_chat(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let team_slug = team_id;
+    let (rbac, team_id) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -185,7 +191,7 @@ pub async fn action_start_chat(
 
     crate::layout::redirect(
         &web_pages::routes::console::Conversation {
-            team_id,
+            team_id: team_slug,
             conversation_id,
         }
         .to_string(),

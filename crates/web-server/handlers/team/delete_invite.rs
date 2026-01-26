@@ -12,7 +12,7 @@ use web_pages::routes::team::{DeleteInvite, Index};
 
 #[derive(Deserialize, Validate, Default, Debug)]
 pub struct DeleteInviteForm {
-    pub team_id: i32,
+    pub team_id: String,
     pub invite_id: i32,
 }
 
@@ -25,16 +25,13 @@ pub async fn delete(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let permissions =
-        authz::get_permissions(&transaction, &current_user.into(), delete_invite.team_id).await?;
+    let (permissions, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &delete_invite.team_id)
+            .await?;
 
     if permissions.can_make_invitations() {
         queries::invitations::delete()
-            .bind(
-                &transaction,
-                &delete_invite.invite_id,
-                &delete_invite.team_id,
-            )
+            .bind(&transaction, &delete_invite.invite_id, &team_id_num)
             .await?;
     }
 

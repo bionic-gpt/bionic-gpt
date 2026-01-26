@@ -8,12 +8,12 @@ use db::authz::Rbac;
 use db::Category;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, categories: Vec<Category>) -> String {
+pub fn page(team_id: String, rbac: Rbac, categories: Vec<Category>) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Categories,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Categories",
             header: rsx!(
@@ -80,7 +80,7 @@ pub fn page(team_id: i32, rbac: Rbac, categories: Vec<Category>) -> String {
                         }
                         for category in categories {
                             ConfirmModal {
-                                action: crate::routes::categories::Delete { team_id, id: category.id }.to_string(),
+                                action: crate::routes::categories::Delete { team_id: team_id.clone(), id: category.id }.to_string(),
                                 trigger_id: format!("delete-trigger-{}-{}", category.id, team_id),
                                 submit_label: "Delete".to_string(),
                                 heading: "Delete this Category?".to_string(),
@@ -95,7 +95,7 @@ pub fn page(team_id: i32, rbac: Rbac, categories: Vec<Category>) -> String {
                                 trigger_id: format!("edit-trigger-{}-{}", category.id, team_id),
                                 name: category.name,
                                 description: category.description,
-                                team_id
+                                team_id: team_id.clone()
                             }
                         }
                     }
@@ -106,7 +106,7 @@ pub fn page(team_id: i32, rbac: Rbac, categories: Vec<Category>) -> String {
                         trigger_id: "new-category-form",
                         name: "".to_string(),
                         description: "".to_string(),
-                        team_id
+                        team_id: team_id.clone()
                     }
                 }
             }

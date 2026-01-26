@@ -17,7 +17,7 @@ pub struct IntegrationSummary {
 }
 
 #[component]
-pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element {
+pub fn IntegrationCard(integration: IntegrationSummary, team_id: String) -> Element {
     let licence = Licence::global();
     let has_oauth2 = integration.openapi.get_oauth2_config().is_some();
     let has_api_key = integration.openapi.has_api_key_security();
@@ -40,7 +40,7 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
     rsx! {
         CardItem {
             class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
-            clickable_link: crate::routes::integrations::View { team_id, id: integration.id }.to_string(),
+            clickable_link: crate::routes::integrations::View { team_id: team_id.clone(), id: integration.id }.to_string(),
             image_src: logo_url.clone(),
             avatar_name: if logo_url.is_none() { Some(integration.openapi.get_title()) } else { None },
             title: integration.openapi.get_title().to_string(),
@@ -55,7 +55,7 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
                 if has_oauth2 {
                     if integration.oauth_client_configured {
                         super::oauth_connect_button::OauthConnectButton {
-                            team_id,
+                            team_id: team_id.clone(),
                             integration_id: integration.id,
                             class: "btn btn-secondary btn-sm ".to_string(),
                             label: "Connect".to_string(),
@@ -79,7 +79,7 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: i32) -> Element
 
         if integration.openapi.has_api_key_security() {
             super::api_key_form::ApiKeyForm {
-                team_id,
+                team_id: team_id.clone(),
                 integration_id: integration.id,
                 integration_name: integration.openapi.get_title().to_string(),
             }

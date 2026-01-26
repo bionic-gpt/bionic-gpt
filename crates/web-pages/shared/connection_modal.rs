@@ -10,7 +10,7 @@ pub enum TargetRoute {
 
 #[component]
 pub fn ConnectionModal(
-    team_id: i32,
+    team_id: String,
     prompt_id: i32,
     integration_info: IntegrationWithAuthInfo,
     target: TargetRoute,

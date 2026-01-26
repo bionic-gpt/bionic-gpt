@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 
 #[derive(Props, Clone, PartialEq)]
 pub struct OauthConnectButtonProps {
-    team_id: i32,
+    team_id: String,
     integration_id: i32,
     label: String,
     class: String,

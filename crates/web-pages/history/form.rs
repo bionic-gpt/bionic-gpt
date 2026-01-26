@@ -3,10 +3,10 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Form(team_id: i32) -> Element {
+pub fn Form(team_id: String) -> Element {
     rsx!(
         form {
-            action: crate::routes::history::Search{ team_id }.to_string(),
+            action: crate::routes::history::Search{ team_id: team_id.clone() }.to_string(),
             method: "post",
             Modal {
                 trigger_id: "search-history",

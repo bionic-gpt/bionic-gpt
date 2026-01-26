@@ -51,7 +51,8 @@ pub async fn upsert(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let visibility = adjust_visibility(
         string_to_visibility(&new_prompt_template.visibility),
@@ -68,7 +69,7 @@ pub async fn upsert(
                 let id = object_storage::image_upload(
                     &storage_config,
                     rbac.user_id,
-                    team_id,
+                    team_id_num,
                     file_name,
                     &image_icon.contents,
                     Some((96, 96)),
@@ -106,7 +107,7 @@ pub async fn upsert(
                 image_object_id,
                 visibility,
                 system_prompt,
-                team_id,
+                team_id_num,
             )
             .await?;
         }

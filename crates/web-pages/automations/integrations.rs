@@ -6,12 +6,12 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
+pub fn page(team_id: String, rbac: Rbac, form: IntegrationForm) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Manage Integrations",
             header: rsx!(
@@ -19,7 +19,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                     items: vec![
                         BreadcrumbItem {
                             text: "Automations".into(),
-                            href: Some(crate::routes::automations::Index{team_id}.to_string())
+                            href: Some(crate::routes::automations::Index{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: {form.prompt_name},
@@ -77,7 +77,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                     if form.selected_integration_ids.contains(&integration_info.integration.id) {
                                                         form {
                                                             action: crate::routes::automations::RemoveIntegration {
-                                                                team_id,
+                                                                team_id: team_id.clone(),
                                                                 prompt_id: form.prompt_id,
                                                                 integration_id: integration_info.integration.id
                                                             }.to_string(),
@@ -91,7 +91,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                                                         }
                                                     } else {
                                                         ConnectionModal {
-                                                            team_id: team_id,
+                                                            team_id: team_id.clone(),
                                                             prompt_id: form.prompt_id,
                                                             integration_info: integration_info.clone(),
                                                             target: TargetRoute::Automations,
@@ -118,7 +118,7 @@ pub fn page(team_id: i32, rbac: Rbac, form: IntegrationForm) -> String {
                             class: "flex justify-between",
                             Button {
                                 button_type: ButtonType::Link,
-                                href: crate::routes::automations::Index { team_id }.to_string(),
+                                href: crate::routes::automations::Index { team_id: team_id.clone() }.to_string(),
                                 button_scheme: ButtonScheme::Error,
                                 "Cancel"
                             }

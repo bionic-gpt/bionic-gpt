@@ -14,7 +14,7 @@ use std::convert::TryFrom;
 
 pub fn page(
     rbac: Rbac,
-    team_id: i32,
+    team_id: String,
     datasets: Vec<Dataset>,
     models: Vec<Model>,
     can_set_visibility_to_company: bool,
@@ -26,7 +26,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: datasets_label.clone(),
             locale: Some(locale.to_string()),
@@ -68,7 +68,7 @@ pub fn page(
                     for dataset in &datasets {
                         DatasetCard {
                             dataset: dataset.clone(),
-                            team_id,
+                            team_id: team_id.clone(),
                         }
                     }
                 }
@@ -77,7 +77,7 @@ pub fn page(
                     trigger_id: "new-dataset-form",
                     name: "".to_string(),
                     models: models.clone(),
-                    team_id: team_id,
+                    team_id: team_id.clone(),
                     combine_under_n_chars: 500,
                     new_after_n_chars: 1000,
                     _multipage_sections: true,
@@ -93,7 +93,7 @@ pub fn page(
 }
 
 #[component]
-fn DatasetCard(dataset: Dataset, team_id: i32) -> Element {
+fn DatasetCard(dataset: Dataset, team_id: String) -> Element {
     let documents_link = crate::routes::documents::Index {
         team_id,
         dataset_id: dataset.id,

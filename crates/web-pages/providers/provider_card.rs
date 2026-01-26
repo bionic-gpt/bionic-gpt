@@ -5,7 +5,7 @@ use db::Provider;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ProviderCard(team_id: i32, provider: Provider) -> Element {
+pub fn ProviderCard(team_id: String, provider: Provider) -> Element {
     let default_display = provider
         .default_model_display_name
         .clone()
@@ -36,7 +36,7 @@ pub fn ProviderCard(team_id: i32, provider: Provider) -> Element {
             DropDown {
                 direction: Direction::Bottom,
                 button_text: "...",
-                DropDownLink { href: crate::routes::providers::Edit{team_id, id: provider.id}.to_string(), "Edit" }
+                DropDownLink { href: crate::routes::providers::Edit{team_id: team_id.clone(), id: provider.id}.to_string(), "Edit" }
                 DropDownLink { popover_target: format!("delete-provider-{}-{}", provider.id, team_id), href: "#", target: "_top", "Delete" }
             }
         )),

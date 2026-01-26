@@ -6,7 +6,7 @@ use db::queries::prompts::Prompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
+pub fn ViewDrawer(team_id: String, prompt: Prompt, trigger_id: String) -> Element {
     let examples: Vec<Option<String>> = vec![
         prompt.example1,
         prompt.example2,
@@ -24,7 +24,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                         img {
                             width: "48",
                             height: "48",
-                            src: Image { team_id, id: object_id }.to_string()
+                            src: Image { team_id: team_id.clone(), id: object_id }.to_string()
                         }
                     } else {
                         Avatar {
@@ -57,7 +57,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                                 if ! example.is_empty() {
                                     ExampleForm {
                                         prompt_id: prompt.id,
-                                        team_id,
+                                        team_id: team_id.clone(),
                                         example: example
                                     }
                                 }
@@ -69,7 +69,7 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
                     class: "flex flex-row",
                     a {
                         class: "basis-3/4 btn btn-primary btn-sm",
-                        href: crate::routes::prompts::NewChat{team_id, prompt_id: prompt.id}.to_string(),
+                        href: crate::routes::prompts::NewChat{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(),
                         "Start a Chat"
                     }
                     Button {
@@ -85,12 +85,12 @@ pub fn ViewDrawer(team_id: i32, prompt: Prompt, trigger_id: String) -> Element {
 }
 
 #[component]
-pub fn ExampleForm(prompt_id: i32, team_id: i32, example: String) -> Element {
+pub fn ExampleForm(prompt_id: i32, team_id: String, example: String) -> Element {
     rsx! {
         form {
             class: "w-full",
             method: "post",
-            action: crate::routes::console::SendMessage{team_id}.to_string(),
+            action: crate::routes::console::SendMessage{team_id: team_id.clone()}.to_string(),
             enctype: "multipart/form-data",
             input {
                 "type": "hidden",

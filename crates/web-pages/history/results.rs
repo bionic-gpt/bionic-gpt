@@ -6,14 +6,14 @@ use db::authz::Rbac;
 use db::History;
 use dioxus::prelude::*;
 
-pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>, locale: &str) -> String {
+pub fn page(rbac: Rbac, team_id: String, history: Vec<History>, locale: &str) -> String {
     let buckets = super::bucket_history(history);
     let history_label = i18n::histories(locale);
     let page = rsx! {
         Layout {
             section_class: "p-4",
             selected_item: SideBar::History,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: history_label.clone(),
             locale: Some(locale.to_string()),
@@ -39,7 +39,7 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>, locale: &str) -> St
 
             if buckets.1 > 0 {
                 super::history_table::HistoryTable {
-                    team_id,
+                    team_id: team_id.clone(),
                     buckets: buckets.0
                 }
             }
@@ -47,7 +47,7 @@ pub fn page(rbac: Rbac, team_id: i32, history: Vec<History>, locale: &str) -> St
             // Drawers have to be fairly high up in the hierarchy or they
             // get missed off in turbo::load
             super::form::Form {
-                team_id: team_id
+                team_id: team_id.clone()
             }
         }
     };

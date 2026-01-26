@@ -15,7 +15,7 @@ pub struct PrebuiltSpec {
     pub logo_data_url: Option<String>,
 }
 
-pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str) -> String {
+pub fn page(team_id: String, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str) -> String {
     let private_visibility = crate::visibility_to_string(db::Visibility::Private);
     let integrations_label = i18n::integrations(locale);
     let integration_label = i18n::integration(locale);
@@ -23,7 +23,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str) ->
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Integrations,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: integrations_label.clone(),
             locale: Some(locale.to_string()),
@@ -32,7 +32,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str) ->
                     items: vec![
                         BreadcrumbItem {
                             text: integrations_label.clone(),
-                            href: Some(routes::integrations::Index { team_id }.to_string()),
+                            href: Some(routes::integrations::Index { team_id: team_id.clone() }.to_string()),
                         },
                         BreadcrumbItem {
                             text: format!("Select {}", integration_label.clone()),
@@ -43,7 +43,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str) ->
                 Button {
                     button_type: ButtonType::Link,
                     button_scheme: ButtonScheme::Primary,
-                    href: routes::integrations::New { team_id }.to_string(),
+                    href: routes::integrations::New { team_id: team_id.clone() }.to_string(),
                     "Add Custom"
                 }
             ),
@@ -94,7 +94,7 @@ pub fn page(team_id: i32, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str) ->
                                         class: "mt-auto",
                                         form {
                                             method: "post",
-                                            action: routes::integrations::New { team_id }.to_string(),
+                                            action: routes::integrations::New { team_id: team_id.clone() }.to_string(),
                                             input {
                                                 r#type: "hidden",
                                                 name: "visibility",

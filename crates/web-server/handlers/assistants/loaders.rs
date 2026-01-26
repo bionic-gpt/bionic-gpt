@@ -19,10 +19,11 @@ pub async fn index_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &db::PromptType::Assistant)
+        .bind(&transaction, &team_id_num, &db::PromptType::Assistant)
         .all()
         .await?;
 
@@ -52,7 +53,8 @@ pub async fn new_assistant_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let _datasets = queries::datasets::datasets()
         .bind(&transaction)
@@ -60,12 +62,12 @@ pub async fn new_assistant_loader(
         .await?;
 
     let _integrations = queries::integrations::integrations()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
     let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &PromptType::Model)
+        .bind(&transaction, &team_id_num, &PromptType::Model)
         .all()
         .await?;
 
@@ -126,7 +128,8 @@ pub async fn edit_assistant_loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
+    let (rbac, team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let _datasets = queries::datasets::datasets()
         .bind(&transaction)
@@ -134,12 +137,12 @@ pub async fn edit_assistant_loader(
         .await?;
 
     let _integrations = queries::integrations::integrations()
-        .bind(&transaction, &team_id)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
     let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id, &PromptType::Model)
+        .bind(&transaction, &team_id_num, &PromptType::Model)
         .all()
         .await?;
 
@@ -149,7 +152,7 @@ pub async fn edit_assistant_loader(
         .await?;
 
     let prompt = queries::prompts::prompt()
-        .bind(&transaction, &prompt_id, &team_id)
+        .bind(&transaction, &prompt_id, &team_id_num)
         .one()
         .await?;
 

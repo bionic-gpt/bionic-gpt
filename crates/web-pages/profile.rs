@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 
 #[component]
 fn Page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     first_name: String,
     last_name: String,
@@ -20,7 +20,7 @@ fn Page(
             section_class: "p-4",
             selected_item: SideBar::None,
             title: "Your Profile",
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             header: rsx!(
                 Breadcrumb {
@@ -76,7 +76,7 @@ fn Page(
     }
 }
 
-pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {
+pub fn profile(user: User, team_id: String, rbac: Rbac) -> String {
     let (mut first_name, mut last_name) = ("".to_string(), "".to_string());
     if let (Some(first), Some(last)) = (user.first_name, user.last_name) {
         first_name = first;
@@ -89,7 +89,10 @@ pub fn profile(user: User, team_id: i32, rbac: Rbac) -> String {
         user.email
     };
 
-    let form_action = crate::routes::profile::SetDetails { team_id }.to_string();
+    let form_action = crate::routes::profile::SetDetails {
+        team_id: team_id.clone(),
+    }
+    .to_string();
 
     let page = rsx! {
         Page {

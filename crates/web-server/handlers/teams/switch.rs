@@ -15,12 +15,8 @@ pub async fn switch(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let current_user_email = current_user.email.clone();
-    let rbac = authz::get_permissions(&transaction, &current_user.into(), team_id).await?;
-
-    let team = queries::teams::team()
-        .bind(&transaction, &team_id)
-        .one()
-        .await?;
+    let (rbac, _team_id_num) =
+        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
 
     let teams = queries::teams::get_teams()
         .bind(&transaction, &rbac.user_id)
@@ -44,7 +40,7 @@ pub async fn switch(
 
     let html = teams::page::page(
         rbac,
-        team.id,
+        team_id,
         teams,
         invites,
         current_user_email,

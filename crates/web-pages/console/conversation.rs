@@ -13,7 +13,7 @@ use dioxus::prelude::*;
 use openai_api::BionicToolDefinition;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     chat_history: Vec<ChatWithChunks>,
     pending_chat_state: PendingChatState,
@@ -29,7 +29,7 @@ pub fn page(
     let chat_history: Vec<ChatWithChunks> = chat_history.into_iter().rev().collect();
     let page = rsx! {
         super::layout::ConsoleLayout {
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "AI Chat Console",
             prompt: prompt.clone(),
@@ -43,7 +43,7 @@ pub fn page(
             available_tools,
             header: rsx!(
                 Head {
-                    team_id: team_id,
+                    team_id: team_id.clone(),
                     rbac: rbac.clone(),
                     conversation_id: conversation_id,
                     prompts,
@@ -58,7 +58,7 @@ pub fn page(
 
 #[component]
 fn Head(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     conversation_id: i64,
     prompts: Vec<Prompt>,
@@ -84,7 +84,7 @@ fn Head(
                     }
                 }
                 ConfirmModal {
-                    action: crate::routes::console::Delete{team_id, id: conversation_id}.to_string(),
+                    action: crate::routes::console::Delete{team_id: team_id.clone(), id: conversation_id}.to_string(),
                     trigger_id: format!("delete-conv-{}", conversation_id),
                     submit_label: "Delete".to_string(),
                     heading: "Delete this Conversation?".to_string(),
@@ -96,7 +96,7 @@ fn Head(
                 }
             }
             a {
-                href: crate::routes::console::Index{team_id}.to_string(),
+                href: crate::routes::console::Index{team_id: team_id.clone()}.to_string(),
                 class: "btn btn-primary btn-sm mr-4",
                 "New Chat"
             }

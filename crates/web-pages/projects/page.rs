@@ -10,7 +10,7 @@ use db::Visibility;
 use dioxus::prelude::*;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     projects: Vec<ProjectSummary>,
     can_set_visibility_to_company: bool,
@@ -19,7 +19,7 @@ pub fn page(
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Projects,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "Projects",
             header: rsx!(
@@ -51,7 +51,7 @@ pub fn page(
                         for project in &projects {
                             super::project_card::ProjectCard {
                                 project: project.clone(),
-                                team_id,
+                                team_id: team_id.clone(),
                             }
                         }
                     }
@@ -59,7 +59,7 @@ pub fn page(
 
                 for project in &projects {
                     ConfirmModal {
-                        action: crate::routes::projects::Delete { team_id, id: project.id }.to_string(),
+                        action: crate::routes::projects::Delete { team_id: team_id.clone(), id: project.id }.to_string(),
                         trigger_id: format!("delete-project-{}-{}", project.id, team_id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete this project?".to_string(),
@@ -76,7 +76,7 @@ pub fn page(
                         instructions: project.instructions.clone(),
                         visibility: project.visibility,
                         can_set_visibility_to_company,
-                        team_id,
+                        team_id: team_id.clone(),
                     }
                 }
 
@@ -87,7 +87,7 @@ pub fn page(
                     instructions: "".to_string(),
                     visibility: Visibility::Private,
                     can_set_visibility_to_company,
-                    team_id,
+                    team_id: team_id.clone(),
                 }
             }
         }

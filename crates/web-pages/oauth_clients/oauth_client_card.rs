@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 #[derive(Props, Clone, PartialEq)]
 pub struct OauthClientCardProps {
     oauth_client: db::OauthClient,
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
 }
 

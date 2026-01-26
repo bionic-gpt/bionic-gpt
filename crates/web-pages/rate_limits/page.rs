@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 
 pub fn page(
     rbac: Rbac,
-    team_id: i32,
+    team_id: String,
     rate_limits: Vec<RateLimit>,
     models: Vec<Model>,
     token_usage_data: Vec<db::queries::token_usage_metrics::DailyTokenUsage>,
@@ -19,7 +19,7 @@ pub fn page(
         AdminLayout {
             section_class: "p-4",
             selected_item: SideBar::RateLimits,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac,
             title: "Rate Limits",
             header: rsx! {
@@ -54,11 +54,11 @@ pub fn page(
                 }
             }
 
-            super::RateTable { rate_limits: rate_limits.clone(), team_id }
+            super::RateTable { rate_limits: rate_limits.clone(), team_id: team_id.clone() }
 
             for item in rate_limits {
                 ConfirmModal {
-                    action: crate::routes::rate_limits::Delete {team_id, id: item.id}.to_string(),
+                    action: crate::routes::rate_limits::Delete {team_id: team_id.clone(), id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                     submit_label: "Delete".to_string(),
                     heading: "Delete this Rate Limit?".to_string(),
@@ -72,7 +72,7 @@ pub fn page(
 
             // Our pop out drawer to add limits
             super::form::Form {
-                team_id: team_id,
+                team_id: team_id.clone(),
                 models
             }
         }

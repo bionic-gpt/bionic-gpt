@@ -9,7 +9,7 @@ use dioxus::prelude::*;
 use integrations::bionic_openapi::BionicOpenAPI;
 
 pub fn page(
-    team_id: i32,
+    team_id: String,
     rbac: Rbac,
     specs: Vec<OpenapiSpecKeySummary>,
     selected_spec_id: Option<i32>,
@@ -72,7 +72,7 @@ pub fn page(
                                 if summary.has_api_key && summary.has_key_configured {
                                     form {
                                         method: "post",
-                                        action: crate::routes::web_search::Select { team_id, id: spec.id }.to_string(),
+                                        action: crate::routes::web_search::Select { team_id: team_id.clone(), id: spec.id }.to_string(),
                                         Button {
                                             button_type: ButtonType::Submit,
                                             button_scheme: ButtonScheme::Primary,
@@ -83,7 +83,7 @@ pub fn page(
                                     }
                                     form {
                                         method: "post",
-                                        action: crate::routes::web_search::DeleteApiKey { team_id, id: spec.id }.to_string(),
+                                        action: crate::routes::web_search::DeleteApiKey { team_id: team_id.clone(), id: spec.id }.to_string(),
                                         Button {
                                             button_type: ButtonType::Submit,
                                             button_scheme: ButtonScheme::Secondary,
@@ -107,7 +107,7 @@ pub fn page(
                     if summary.has_api_key {
                         OpenapiSpecApiKeyForm {
                             trigger_id: api_key_trigger,
-                            action: crate::routes::web_search::ConfigureApiKey { team_id, id: spec.id }.to_string(),
+                            action: crate::routes::web_search::ConfigureApiKey { team_id: team_id.clone(), id: spec.id }.to_string(),
                             spec_title: spec.title.clone(),
                         }
                     }

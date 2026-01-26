@@ -10,7 +10,7 @@ use db::authz::Rbac;
 use db::queries::prompts::MyPrompt;
 use dioxus::prelude::*;
 
-pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>, locale: &str) -> String {
+pub fn page(team_id: String, rbac: Rbac, prompts: Vec<MyPrompt>, locale: &str) -> String {
     let assistants_label = crate::i18n::assistants(locale);
     let assistant_label = crate::i18n::assistant(locale);
     let prompts_label = crate::i18n::prompts(locale);
@@ -18,7 +18,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>, locale: &str) -> S
         Layout {
             section_class: "p-4",
             selected_item: SideBar::Prompts,
-            team_id: team_id,
+            team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: format!("My {}", assistants_label.clone()),
             locale: Some(locale.to_string()),
@@ -27,7 +27,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>, locale: &str) -> S
                     items: vec![
                         BreadcrumbItem {
                             text: assistants_label.clone(),
-                            href: Some(crate::routes::prompts::Index{team_id}.to_string())
+                            href: Some(crate::routes::prompts::Index{team_id: team_id.clone()}.to_string())
                         },
                         BreadcrumbItem {
                             text: format!("My {}", assistants_label.clone()),
@@ -37,14 +37,14 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>, locale: &str) -> S
                 }
                 div {
                     a {
-                        href: crate::routes::prompts::Index{team_id}.to_string(),
+                        href: crate::routes::prompts::Index{team_id: team_id.clone()}.to_string(),
                         class: "btn btn-ghost btn-sm font-bold! mr-4",
                         {prompts_label.clone()}
                     }
                     Button {
                         button_type: ButtonType::Link,
                         prefix_image_src: "{button_plus_svg.name}",
-                        href: routes::prompts::New{team_id}.to_string(),
+                        href: routes::prompts::New{team_id: team_id.clone()}.to_string(),
                         button_scheme: ButtonScheme::Primary,
                         {format!("New {}", assistant_label.clone())}
                     }
@@ -70,7 +70,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>, locale: &str) -> S
                     class: "space-y-2",
                         for prompt in &prompts {
                         MyAssistantCard {
-                            team_id,
+                            team_id: team_id.clone(),
                             prompt: prompt.clone(),
                             locale: locale.to_string()
                         }
@@ -81,7 +81,7 @@ pub fn page(team_id: i32, rbac: Rbac, prompts: Vec<MyPrompt>, locale: &str) -> S
 
             for item in &prompts {
                 ConfirmModal {
-                    action: crate::routes::prompts::Delete{team_id, id: item.id}.to_string(),
+                    action: crate::routes::prompts::Delete{team_id: team_id.clone(), id: item.id}.to_string(),
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                     submit_label: "Delete".to_string(),
                     heading: format!("Delete this {}?", assistant_label.clone()),

@@ -8,15 +8,16 @@ use dioxus::prelude::*;
 #[derive(Props, Clone, PartialEq)]
 pub struct ProjectCardProps {
     pub project: ProjectSummary,
-    pub team_id: i32,
+    pub team_id: String,
 }
 
 #[component]
 pub fn ProjectCard(props: ProjectCardProps) -> Element {
     let project = props.project;
     let name = project.name.clone();
+    let team_id = props.team_id.clone();
     let project_link = crate::routes::projects::View {
-        team_id: props.team_id,
+        team_id,
         project_id: project.id,
     }
     .to_string();
