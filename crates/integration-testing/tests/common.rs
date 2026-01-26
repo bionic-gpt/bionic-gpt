@@ -87,6 +87,11 @@ impl Config {
             .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
 
         transaction
+            .execute("DELETE FROM models", &[])
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        transaction
             .execute("DELETE FROM users", &[])
             .await
             .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
@@ -232,10 +237,33 @@ pub async fn register_random_user(driver: &WebDriver, _config: &Config) -> WebDr
         .click()
         .await?;
 
-    // OTP Code
-    // Wait for page to load as code might not be in database yet.
+    // Models setup (no models yet, so we land on select provider)
+    let ollama_card = driver
+        .find(By::XPath("//h2[normalize-space()='Ollama']"))
+        .await?;
+    ollama_card.wait_until().displayed().await?;
+    ollama_card.click().await?;
+
+    let api_key_input = driver
+        .find(By::XPath(
+            "//h3[contains(normalize-space(), 'Create Model: Ollama')]/ancestor::*[self::form or self::dialog]//input[@name='api_key']",
+        ))
+        .await?;
+    api_key_input.wait_until().displayed().await?;
+    api_key_input.send_keys("ollama-test-key").await?;
+
     driver
-        .find(By::Id("console-panel"))
+        .find(By::XPath(
+            "//h3[contains(normalize-space(), 'Create Model: Ollama')]/ancestor::*[self::form or self::dialog]//button[normalize-space()='Create Model']",
+        ))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath(
+            "//*[self::a or self::button][contains(normalize-space(), 'Add Model')]",
+        ))
         .await?
         .wait_until()
         .displayed()
