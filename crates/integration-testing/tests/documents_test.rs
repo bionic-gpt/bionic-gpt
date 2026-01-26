@@ -80,8 +80,8 @@ async fn documents(driver: &WebDriver, config: &common::Config) -> WebDriverResu
 
     println!("Testing : register_user");
 
-    let email = common::register_user(driver, config).await?;
-    config.set_sys_admin(&email).await?;
+    let _email = common::register_user(driver, config).await?;
+    //config.set_sys_admin(&email).await?;
 
     driver.refresh().await?;
 

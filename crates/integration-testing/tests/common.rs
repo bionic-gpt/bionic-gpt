@@ -43,6 +43,7 @@ impl Config {
         dbg!(&webdriver_url);
         dbg!(&application_url);
         dbg!(&mailhog_url);
+        dbg!(&database_url);
 
         Config {
             webdriver_url,
@@ -66,18 +67,32 @@ impl Config {
         WebDriver::new(&self.webdriver_url, caps).await
     }
 
-    pub async fn set_sys_admin(&self, email: &str) -> WebDriverResult<()> {
-        let client = self
+    pub async fn remove_users(&self) -> WebDriverResult<()> {
+        let mut client = self
             .db_pool
             .get()
             .await
             .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
 
-        client
-            .execute(
-                "UPDATE users SET system_admin = TRUE WHERE email = $1",
-                &[&email],
-            )
+        dbg!("connected");
+
+        let transaction = client
+            .transaction()
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        transaction
+            .execute("SET LOCAL session_replication_role = replica", &[])
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        transaction
+            .execute("DELETE FROM users", &[])
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        transaction
+            .commit()
             .await
             .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
 
@@ -86,6 +101,9 @@ impl Config {
 }
 
 pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResult<String> {
+    // We have to remove users as only the first created user gets auto set to sysadmin
+    config.remove_users().await?;
+
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 

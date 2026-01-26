@@ -23,14 +23,12 @@ async fn api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResul
     let delay = std::time::Duration::new(11, 0);
     driver.set_implicit_wait_timeout(delay).await?;
 
-    driver
-        .goto(format!("{}/auth/sign_up", &config.application_url))
-        .await?;
+    driver.goto(format!("{}/", &config.application_url)).await?;
 
     println!("Testing : register_user");
 
-    let email = common::register_user(driver, config).await?;
-    config.set_sys_admin(&email).await?;
+    let _email = common::register_user(driver, config).await?;
+    //config.set_sys_admin(&email).await?;
 
     driver.refresh().await?;
 

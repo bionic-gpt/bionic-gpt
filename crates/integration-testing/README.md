@@ -13,14 +13,20 @@ We need to install another Bionic in its own namespace so that the `hostname_url
 1. Run `just selenium` to install selenium into `k3d`.
 1. Replace the bionic pod with your local version `just md-selenium`.
 
-### Database Migrations?
+### Database 
+
+The integration tests need to be able to see the database
+
+1. `kubectl port-forward pod/bionic-gpt-db-cluster-1 5432:5432 -n bionic-selenium`
 
 If you've made changes to the database they'll need to be run into this new namespace.
 
-1. `kubectl port-forward pod/bionic-gpt-db-cluster-1 5432:5432 -n bionic-selenium`
-1. `DATABASE_URL=postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable dbmate status`
+1. `export DATABASE_URL=postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable`
+1. `dbmate up`
+
+If you get db issues, you may need to restart the pod.
 
 ### Run the Tests
 
-1. Run the integration tests `cargo test -p integration-testing`.
+1. Run the integration tests `just integration-testing`.
 1. You can monitor the integration tests via `NoVNC` at `http://localhost:7900` password `secret`.

@@ -110,9 +110,10 @@ test:
 
 # Look at CONTRIBUTING.md to see how integration testing works
 integration-testing:
+    export DATABASE_URL=postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable && \
     export WEB_DRIVER_URL=http://localhost:4444 && \
-    export APPLICATION_URL=http://nginx-development && \
-    cargo test --workspace --exclude rag-engine
+    export APPLICATION_URL=http://nginx && \
+    cargo test -p integration-testing
 
 
 # Install Selenium in the bionic-gpt namespace
