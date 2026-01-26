@@ -1,28 +1,29 @@
 use crate::{CustomError, Jwt};
 use axum::{
-    extract::{Extension, Path},
+    extract::Extension,
     response::{Html, IntoResponse},
 };
-use axum_extra::extract::Form;
+use axum_extra::{extract::Form, routing::RouterExt};
 use db::authz;
 use db::queries;
 use db::Pool;
 use serde::Deserialize;
 use validator::Validate;
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use axum::Router;
+use web_pages::routes::profile::{Profile, SetDetails as SetDetailsRoute};
 
 pub fn routes() -> Router {
     Router::new()
-        .route("/app/team/{team_id}/profile", get(loader))
-        .route("/app/team/{team_id}/set_details", post(set_details_action))
+        .typed_get(loader)
+        .typed_post(set_details_action)
 }
 
 fn index_route(team_slug: &str) -> String {
-    format!("/app/team/{}/profile", team_slug)
+    Profile {
+        team_id: team_slug.to_string(),
+    }
+    .to_string()
 }
 
 #[derive(Deserialize, Validate, Default, Debug)]
@@ -34,7 +35,7 @@ pub struct SetDetails {
 }
 
 pub async fn loader(
-    Path(team_slug): Path<String>,
+    Profile { team_id: team_slug }: Profile,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
@@ -53,7 +54,7 @@ pub async fn loader(
 }
 
 pub async fn set_details_action(
-    Path(team_slug): Path<String>,
+    SetDetailsRoute { team_id: team_slug }: SetDetailsRoute,
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Form(set_name): Form<SetDetails>,
