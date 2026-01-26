@@ -24,6 +24,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # Use by the Zero to Hero course.
   postgres-mcp:
     image: ghcr.io/bionic-gpt/bionicgpt-postgres-mcp:1.12.2
 
