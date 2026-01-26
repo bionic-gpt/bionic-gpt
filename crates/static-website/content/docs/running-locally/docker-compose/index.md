@@ -9,13 +9,13 @@ The easiest way to get running with Bionic is with our `docker-compose.yml` file
 ### OSX and Linux
 
 ```sh
-curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/308b7357c8348e2fdcc0ce28ba75dfaa4378880e/infra-as-code/docker-compose.yml
+curl -O https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/885d436b943d1cda3ecf1b18bf7fdd1a2630cabb/infra-as-code/docker-compose.yml
 ```
 
 ### Windows
 
 ```sh
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/308b7357c8348e2fdcc0ce28ba75dfaa4378880e/infra-as-code/docker-compose.yml -OutFile docker-compose.yml
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/bionic-gpt/bionic-gpt/885d436b943d1cda3ecf1b18bf7fdd1a2630cabb/infra-as-code/docker-compose.yml -OutFile docker-compose.yml
 ```
 
 ### And run
