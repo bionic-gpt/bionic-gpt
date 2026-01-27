@@ -32,3 +32,7 @@ If you get db issues, you may need to restart the pod.
 
 1. Run the integration tests `just integration-testing`.
 1. You can monitor the integration tests via `NoVNC` at `http://localhost:7900` password `secret`.
+
+### Individual Tests
+
+1. `just integration-testing documents`

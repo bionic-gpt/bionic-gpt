@@ -109,12 +109,19 @@ test:
     cargo test --workspace --exclude integration-testing --exclude rag-engine
 
 # Look at CONTRIBUTING.md to see how integration testing works
-integration-testing:
-    export DATABASE_URL=postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable && \
-    export WEB_DRIVER_URL=http://localhost:4444 && \
-    export APPLICATION_URL=http://nginx && \
-    cargo test -p integration-testing
+integration-testing test="":
+    #!/usr/bin/env bash
+    set -euo pipefail
 
+    export DATABASE_URL="postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable"
+    export WEB_DRIVER_URL="http://localhost:4444"
+    export APPLICATION_URL="http://nginx"
+
+    if [ -n "{{test}}" ]; then
+        cargo test -p integration-testing "{{test}}" -- --nocapture
+    else
+        cargo test -p integration-testing -- --nocapture
+    fi
 
 # Install Selenium in the bionic-gpt namespace
 selenium:
