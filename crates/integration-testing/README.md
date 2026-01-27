@@ -11,13 +11,13 @@ We need to install another Bionic in its own namespace so that the `hostname_url
 
 1. Assuming you already have k3d setup. `just dev-selenium` to get an install using http://nginx as the hostname URL.
 1. Run `just selenium` to install selenium into `k3d`.
+1. Run `just port-forward` to forward all the needed ports.
+
+### Local Testing
+
 1. Replace the bionic pod with your local version `just md-selenium`.
 
 ### Database 
-
-The integration tests need to be able to see the database
-
-1. `kubectl port-forward pod/bionic-gpt-db-cluster-1 5432:5432 -n bionic-selenium`
 
 If you've made changes to the database they'll need to be run into this new namespace.
 

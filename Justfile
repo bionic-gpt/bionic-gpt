@@ -143,7 +143,30 @@ selenium:
         '      sizeLimit: 2Gi' \
     | kubectl replace --force -f -
     kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-selenium --timeout=60s
-    kubectl port-forward pod/selenium-chrome 4444:4444 7900:7900 -n bionic-selenium
+
+port-forward:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    pids=()
+
+    cleanup() {
+      echo "Stopping..."
+      # Kill only the port-forward processes we started
+      for pid in "${pids[@]}"; do
+        kill "$pid" 2>/dev/null || true
+      done
+      # Reap any remaining children
+      wait 2>/dev/null || true
+    }
+
+    trap cleanup INT TERM
+
+    kubectl port-forward pod/bionic-gpt-db-cluster-1 -n bionic-selenium 5432:5432 & pids+=("$!")
+    kubectl port-forward pod/selenium-chrome -n bionic-selenium 4444:4444 7900:7900 & pids+=("$!")
+
+    wait
+
 
 dev-selenium:
     stack deploy --manifest infra-as-code/stack-selenium.yaml

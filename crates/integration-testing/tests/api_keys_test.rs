@@ -166,6 +166,12 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
 }
 
 async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
+    driver
+        .find(By::LinkText("Admin Panel"))
+        .await?
+        .click()
+        .await?;
+
     driver.find(By::LinkText("API Keys")).await?.click().await?;
 
     driver
