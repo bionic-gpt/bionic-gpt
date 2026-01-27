@@ -1,6 +1,10 @@
+mod chunks;
 mod config;
+mod kreuzberg;
 mod unstructured;
 
+use crate::chunks::ChunkText;
+use crate::config::ChunkingEngine;
 use db::queries;
 use object_storage::StorageConfig;
 
@@ -46,15 +50,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 };
 
-                let structured_data = crate::unstructured::document_to_chunks(
-                    bytes,
-                    &document.file_name,
-                    dataset.combine_under_n_chars as u32,
-                    dataset.new_after_n_chars as u32,
-                    dataset.multipage_sections,
-                    &config.unstructured_endpoint,
-                )
-                .await;
+                let structured_data: Result<Vec<ChunkText>, Box<dyn std::error::Error>> =
+                    match config.chunking_engine {
+                        ChunkingEngine::UnstructuredApi => crate::unstructured::document_to_chunks(
+                            bytes,
+                            &document.file_name,
+                            dataset.combine_under_n_chars as u32,
+                            dataset.new_after_n_chars as u32,
+                            dataset.multipage_sections,
+                            &config.unstructured_endpoint,
+                        )
+                        .await
+                        .map(|chunks| {
+                            chunks
+                                .into_iter()
+                                .map(|chunk| ChunkText {
+                                    text: chunk.text,
+                                    page_number: chunk.metadata.page_number,
+                                })
+                                .collect()
+                        }),
+                        ChunkingEngine::Kreuzberg => {
+                            crate::kreuzberg::document_to_chunks(
+                                bytes,
+                                dataset.new_after_n_chars as u32,
+                                dataset.combine_under_n_chars as u32,
+                            )
+                            .await
+                        }
+                    };
 
                 match structured_data {
                     Ok(structured_data) => {
@@ -69,11 +93,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 )
                                 VALUES
                                     ($1, $2, encrypt_text($3))",
-                                    &[
-                                        &document.id,
-                                        &text.metadata.page_number.unwrap_or(0),
-                                        &text.text,
-                                    ],
+                                    &[&document.id, &text.page_number.unwrap_or(0), &text.text],
                                 )
                                 .await?;
                         }

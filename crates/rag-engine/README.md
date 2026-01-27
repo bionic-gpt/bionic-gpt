@@ -2,9 +2,9 @@
 
 Have K3s running locally so we can expose the chunking engine.
 
-## Setup an Embeddings Model
+## Remove the Existing RAG Engine
 
-i.e. Open AI
+`kubectl delete deployment rag-engine -n bionic-gpt`
 
 ## Expose Ports from K3s
 

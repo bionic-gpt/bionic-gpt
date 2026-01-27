@@ -4,11 +4,6 @@
 # This is NOT a production configuration.
 services:
 
-  # Document parsing, OCR and chunking.
-  chunking-engine:
-    image: downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc
-    platform: linux/amd64
-
   # Postgres pre-loaded with pgVector
   # To connect outside docker `docker compose exec postgres psql -U postgres`
   postgres:

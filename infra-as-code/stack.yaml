@@ -37,8 +37,3 @@ spec:
       image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.3
       port: 7703
       database_url: APP_DATABASE_URL
-
-    chunking-engine:
-      image: downloads.unstructured.io/unstructured-io/unstructured-api:e464c16
-      port: 8000
-      database_url: APP_DATABASE_URL
