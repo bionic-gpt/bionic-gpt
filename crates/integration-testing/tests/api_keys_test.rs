@@ -124,9 +124,7 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .query(By::XPath(
-            "//*[self::button or self::a][normalize-space()='...' or normalize-space()='⋯']",
-        ))
+        .query(By::XPath("//label[.//span[normalize-space()='...']]"))
         .first()
         .await?
         .click()
@@ -150,7 +148,7 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
 
     driver
         .find(By::XPath(
-            "(//*[self::a or self::button][normalize-space()='Create Assistant'])[1]",
+            "(//*[self::a or self::button][normalize-space()='Update Assistant'])[1]",
         ))
         .await?
         .click()
