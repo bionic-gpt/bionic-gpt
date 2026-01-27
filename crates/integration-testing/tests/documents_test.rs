@@ -10,33 +10,37 @@ async fn run_documents() -> WebDriverResult<()> {
 
     let driver = config.get_driver().await?;
 
-    let result = documents(&driver, &config).await;
+    driver.goto(format!("{}/", &config.application_url)).await?;
+
+    println!("Testing : register_user");
+
+    let _email = common::register_user(&driver, &config).await?;
+
+    test_documents(&driver).await?;
 
     test_pipelines(&driver).await?;
 
     driver.quit().await?;
-
-    result?;
 
     Ok(())
 }
 
 async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("Data Integrations"))
+        .find(By::LinkText("Document Pipelines"))
         .await?
         .click()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='New Document Pipeline']"))
+        .find(By::XPath("//button[text()='New Pipeline']"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='New Document Pipeline']"))
+        .find(By::XPath("//button[text()='New Pipeline']"))
         .await?
         .click()
         .await?;
@@ -70,52 +74,19 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
     Ok(())
 }
 
-async fn documents(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
-    let delay = std::time::Duration::new(11, 0);
-    driver.set_implicit_wait_timeout(delay).await?;
-
-    driver
-        .goto(format!("{}/auth/sign_up", &config.application_url))
-        .await?;
-
-    println!("Testing : register_user");
-
-    let _email = common::register_user(driver, config).await?;
-    //config.set_sys_admin(&email).await?;
-
-    driver.refresh().await?;
-
-    test_documents(driver).await?;
-
-    Ok(())
-}
-
 async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
-        .find(By::LinkText("MCP RAG Servers"))
+        .find(By::LinkText("Datasets & Documents"))
         .await?
         .click()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='Add MCP RAG Server']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Add MCP RAG Server']"))
+        .find(By::XPath(
+            "//*[self::a or self::button][normalize-space()='Add Dataset']",
+        ))
         .await?
         .click()
-        .await?;
-
-    driver
-        .query(By::Css("input[name='name']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
         .await?;
 
     driver
@@ -131,14 +102,6 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .query(By::XPath("//button[text()='Add Document']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
         .find(By::XPath("//button[text()='Add Document']"))
         .await?
         .click()
@@ -147,7 +110,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath(".//*[@type='file']"))
         .await?
-        .send_keys("/workspace/parliamentary-dialog.txt")
+        .send_keys("/home/seluser/workspace/files/parliamentary-dialog.txt")
         .await?;
 
     driver

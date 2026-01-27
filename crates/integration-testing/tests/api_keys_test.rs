@@ -45,27 +45,44 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
     driver.refresh().await?;
 
     driver
-        .find(By::LinkText("MCP Playground"))
+        .find(By::LinkText("Back to app"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .find(By::LinkText("MCP Playground"))
+        .find(By::LinkText("Back to app"))
         .await?
         .click()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='New Playground']"))
+        .find(By::LinkText("Explore Assistants"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .find(By::XPath("//button[text()='New Playground']"))
+        .find(By::LinkText("Explore Assistants"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath(
+            "//*[self::a or self::button][normalize-space()='New Assistant']",
+        ))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::XPath(
+            "//*[self::a or self::button][normalize-space()='New Assistant']",
+        ))
         .await?
         .click()
         .await?;
@@ -91,15 +108,15 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("(//button[text()='Submit'])[last()]"))
+        .find(By::XPath(
+            "(//*[self::a or self::button][normalize-space()='Create Assistant'])[last()]",
+        ))
         .await?
         .click()
         .await?;
 
     driver
-        .query(By::XPath(
-            "//table//td//strong[contains(text(), 'My Prompt')]",
-        ))
+        .query(By::XPath("//h2[contains(normalize-space(), 'My Prompt')]"))
         .first()
         .await?
         .wait_until()
@@ -107,10 +124,13 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//table//td[.//button[text()='Edit']][1]"))
+        .query(By::XPath("//label[.//span[normalize-space()='...']]"))
+        .first()
         .await?
         .click()
         .await?;
+
+    driver.find(By::LinkText("Edit")).await?.click().await?;
 
     driver
         .query(By::XPath("(//input[@name='name'])[1]"))
@@ -127,15 +147,15 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("(//button[text()='Submit'])[1]"))
+        .find(By::XPath(
+            "(//*[self::a or self::button][normalize-space()='Update Assistant'])[1]",
+        ))
         .await?
         .click()
         .await?;
 
     driver
-        .query(By::XPath(
-            "//table//td//strong[contains(text(), 'My Prompt2')]",
-        ))
+        .query(By::XPath("//h2[contains(normalize-space(), 'My Prompt2')]"))
         .first()
         .await?
         .wait_until()
@@ -146,6 +166,12 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
 }
 
 async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
+    driver
+        .find(By::LinkText("Admin Panel"))
+        .await?
+        .click()
+        .await?;
+
     driver.find(By::LinkText("API Keys")).await?.click().await?;
 
     driver
@@ -197,13 +223,13 @@ async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriver
     let client = reqwest::Client::new();
 
     println!(
-        "curl -X GET 'http://localhost:7703/v1/models' -H 'Authorization: Bearer {}'",
-        api_key
+        "curl -X GET '{}/v1/models' -H 'Authorization: Bearer {}'",
+        &config.api_base_url, api_key
     );
 
     // Making a GET request and passing the API key in the headers
     let response = client
-        .get(format!("{}/v1/models", &config.application_url))
+        .get(format!("{}/v1/models", &config.api_base_url))
         .header("Authorization", format!("Bearer {}", api_key))
         .send()
         .await;

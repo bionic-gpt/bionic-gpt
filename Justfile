@@ -16,17 +16,9 @@ ci:
 codex: 
     sudo npm install -g @openai/codex
 
-# Upgrade the testing chunking engine to the real one
-chunking-engine-setup:
-    kubectl set image deployment/chunking-engine \
-        chunking-engine=downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc \
-        -n bionic-gpt
-    kubectl patch deployment chunking-engine -n bionic-gpt \
-        --type='json' \
-        -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/command"}]'
 
-expose-chunking-engine:
-    kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/chunking-engine 8000:8000
+expose-doc-engine:
+    kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/doc-engine 8000:8000
 
 # Retrieve the cluster kube config - so kubectl and k9s work.
 get-config:
@@ -109,12 +101,19 @@ test:
     cargo test --workspace --exclude integration-testing --exclude rag-engine
 
 # Look at CONTRIBUTING.md to see how integration testing works
-integration-testing:
-    export DATABASE_URL=postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable && \
-    export WEB_DRIVER_URL=http://localhost:4444 && \
-    export APPLICATION_URL=http://nginx && \
-    cargo test -p integration-testing
+integration-testing test="":
+    #!/usr/bin/env bash
+    set -euo pipefail
 
+    export DATABASE_URL="postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable"
+    export WEB_DRIVER_URL="http://localhost:4444"
+    export APPLICATION_URL="http://nginx"
+
+    if [ -n "{{test}}" ]; then
+        cargo test -p integration-testing "{{test}}" -- --nocapture
+    else
+        cargo test -p integration-testing -- --nocapture
+    fi
 
 # Install Selenium in the bionic-gpt namespace
 selenium:
@@ -135,15 +134,44 @@ selenium:
         '    volumeMounts:' \
         '    - name: dshm' \
         '      mountPath: /dev/shm' \
-        '  # Mirrors --shm-size=2g from .devcontainer/docker-compose.yml and CI' \
         '  volumes:' \
         '  - name: dshm' \
         '    emptyDir:' \
         '      medium: Memory' \
         '      sizeLimit: 2Gi' \
     | kubectl replace --force -f -
+
     kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-selenium --timeout=60s
-    kubectl port-forward pod/selenium-chrome 4444:4444 7900:7900 -n bionic-selenium
+
+    # --- Add fixtures for file upload tests ---    
+    kubectl exec -n bionic-selenium selenium-chrome -- mkdir -p /home/seluser/workspace
+    kubectl cp crates/integration-testing/files bionic-selenium/selenium-chrome:/home/seluser/workspace
+
+
+port-forward:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    pids=()
+
+    cleanup() {
+      echo "Stopping..."
+      # Kill only the port-forward processes we started
+      for pid in "${pids[@]}"; do
+        kill "$pid" 2>/dev/null || true
+      done
+      # Reap any remaining children
+      wait 2>/dev/null || true
+    }
+
+    trap cleanup INT TERM
+
+    kubectl port-forward pod/bionic-gpt-db-cluster-1 -n bionic-selenium 5432:5432 & pids+=("$!")
+    kubectl port-forward svc/nginx -n bionic-selenium 7901:80 & pids+=("$!")
+    kubectl port-forward pod/selenium-chrome -n bionic-selenium 4444:4444 7900:7900 & pids+=("$!")
+
+    wait
+
 
 dev-selenium:
     stack deploy --manifest infra-as-code/stack-selenium.yaml

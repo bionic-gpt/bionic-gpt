@@ -8,6 +8,7 @@ use tokio::time::{sleep, Duration};
 pub struct Config {
     pub webdriver_url: String,
     pub application_url: String,
+    pub api_base_url: String,
     // The database
     pub db_pool: Pool,
     pub headless: bool,
@@ -28,6 +29,12 @@ impl Config {
             "http://nginx:80".into()
         };
 
+        let api_base_url = if env::var("API_BASE_URL").is_ok() {
+            env::var("API_BASE_URL").unwrap()
+        } else {
+            "http://localhost:7901".into()
+        };
+
         let mailhog_url = if env::var("MAILHOG_URL").is_ok() {
             env::var("MAILHOG_URL").unwrap()
         } else {
@@ -42,12 +49,14 @@ impl Config {
 
         dbg!(&webdriver_url);
         dbg!(&application_url);
+        dbg!(&api_base_url);
         dbg!(&mailhog_url);
         dbg!(&database_url);
 
         Config {
             webdriver_url,
             application_url,
+            api_base_url,
             db_pool,
             headless,
             mailhog_url,
@@ -83,6 +92,16 @@ impl Config {
 
         transaction
             .execute("SET LOCAL session_replication_role = replica", &[])
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        transaction
+            .execute("DELETE FROM prompts", &[])
+            .await
+            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+
+        transaction
+            .execute("DELETE FROM models", &[])
             .await
             .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
 
@@ -232,10 +251,33 @@ pub async fn register_random_user(driver: &WebDriver, _config: &Config) -> WebDr
         .click()
         .await?;
 
-    // OTP Code
-    // Wait for page to load as code might not be in database yet.
+    // Models setup (no models yet, so we land on select provider)
+    let ollama_card = driver
+        .find(By::XPath("//h2[normalize-space()='Ollama']"))
+        .await?;
+    ollama_card.wait_until().displayed().await?;
+    ollama_card.click().await?;
+
+    let api_key_input = driver
+        .find(By::XPath(
+            "//h3[contains(normalize-space(), 'Create Model: Ollama')]/ancestor::*[self::form or self::dialog]//input[@name='api_key']",
+        ))
+        .await?;
+    api_key_input.wait_until().displayed().await?;
+    api_key_input.send_keys("ollama-test-key").await?;
+
     driver
-        .find(By::Id("console-panel"))
+        .find(By::XPath(
+            "//h3[contains(normalize-space(), 'Create Model: Ollama')]/ancestor::*[self::form or self::dialog]//button[normalize-space()='Create Model']",
+        ))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::XPath(
+            "//*[self::a or self::button][contains(normalize-space(), 'Add Model')]",
+        ))
         .await?
         .wait_until()
         .displayed()
