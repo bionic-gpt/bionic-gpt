@@ -12,6 +12,7 @@ pub struct Config {
     pub db_pool: Pool,
     pub headless: bool,
     pub mailhog_url: String,
+    pub api_base_url: String,
 }
 
 impl Config {
@@ -34,6 +35,12 @@ impl Config {
             "http://localhost:8025".into()
         };
 
+        let api_base_url = if env::var("API_BASE_URL").is_ok() {
+            env::var("API_BASE_URL").unwrap()
+        } else {
+            "http://localhost:7901".into()
+        };
+
         let headless = env::var("ENABLE_HEADLESS").is_ok();
 
         let database_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
@@ -44,6 +51,7 @@ impl Config {
         dbg!(&application_url);
         dbg!(&mailhog_url);
         dbg!(&database_url);
+        dbg!(&api_base_url);
 
         Config {
             webdriver_url,
@@ -51,6 +59,7 @@ impl Config {
             db_pool,
             headless,
             mailhog_url,
+            api_base_url,
         }
     }
 
