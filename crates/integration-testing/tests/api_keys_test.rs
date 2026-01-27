@@ -45,14 +45,27 @@ async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
     driver.refresh().await?;
 
     driver
-        .find(By::LinkText("MCP Playground"))
+        .find(By::LinkText("Back to app"))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
     driver
-        .find(By::LinkText("MCP Playground"))
+        .find(By::LinkText("Back to app"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::LinkText("Assitants"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::LinkText("Assitants"))
         .await?
         .click()
         .await?;

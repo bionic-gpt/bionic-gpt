@@ -26,6 +26,8 @@ If you've made changes to the database they'll need to be run into this new name
 
 If you get db issues, you may need to restart the pod.
 
+`psql postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable`
+
 ### Run the Tests
 
 1. Run the integration tests `just integration-testing`.

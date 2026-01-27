@@ -19,6 +19,9 @@ spec:
       init:
         image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.3
         migrations_database_url: DATABASE_URL
+      env:    
+        - name: LOG_LEVEL
+          value: "debug"
 
     rag-engine:
       image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.3
