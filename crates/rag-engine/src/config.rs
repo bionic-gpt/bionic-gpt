@@ -5,13 +5,14 @@ pub struct Config {
     pub app_database_url: String,
     pub chunking_engine: ChunkingEngine,
     pub unstructured_endpoint: String,
+    pub kreuzberg_endpoint: String,
     pub batch_size: i64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ChunkingEngine {
     UnstructuredApi,
-    Kreuzberg,
+    KreuzbergApi,
 }
 
 impl Default for Config {
@@ -28,12 +29,16 @@ impl Config {
             Ok(value) if value.eq_ignore_ascii_case("UNSTRUCTURED_API") => {
                 ChunkingEngine::UnstructuredApi
             }
-            _ => ChunkingEngine::Kreuzberg,
+            _ => ChunkingEngine::KreuzbergApi,
         };
 
         let unstructured_endpoint = env::var("UNSTRUCTURED_ENDPOINT")
             .ok()
             .unwrap_or_else(|| "http://chunking-engine:8000".to_string());
+
+        let kreuzberg_endpoint = env::var("KREUZBERG_API_ENDPOINT")
+            .ok()
+            .unwrap_or_else(|| "http://doc-engine:8000".to_string());
 
         let batch_size = std::env::var("RAG_BATCH_SIZE")
             .ok()
@@ -44,6 +49,7 @@ impl Config {
             app_database_url,
             chunking_engine,
             unstructured_endpoint,
+            kreuzberg_endpoint,
             batch_size,
         }
     }

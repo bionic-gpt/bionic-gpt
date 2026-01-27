@@ -1,6 +1,6 @@
 mod chunks;
 mod config;
-mod kreuzberg;
+mod kreuzberg_api;
 mod unstructured;
 
 use crate::chunks::ChunkText;
@@ -70,11 +70,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 })
                                 .collect()
                         }),
-                        ChunkingEngine::Kreuzberg => {
-                            crate::kreuzberg::document_to_chunks(
+                        ChunkingEngine::KreuzbergApi => {
+                            crate::kreuzberg_api::document_to_chunks(
                                 bytes,
+                                &document.file_name,
                                 dataset.new_after_n_chars as u32,
                                 dataset.combine_under_n_chars as u32,
+                                &dataset.chunking_strategy,
+                                &config.kreuzberg_endpoint,
                             )
                             .await
                         }
