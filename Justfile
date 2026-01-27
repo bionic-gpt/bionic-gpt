@@ -163,6 +163,7 @@ port-forward:
     trap cleanup INT TERM
 
     kubectl port-forward pod/bionic-gpt-db-cluster-1 -n bionic-selenium 5432:5432 & pids+=("$!")
+    kubectl port-forward svc/nginx -n bionic-selenium 7901:80 & pids+=("$!")
     kubectl port-forward pod/selenium-chrome -n bionic-selenium 4444:4444 7900:7900 & pids+=("$!")
 
     wait
