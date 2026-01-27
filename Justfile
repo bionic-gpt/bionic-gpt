@@ -16,17 +16,9 @@ ci:
 codex: 
     sudo npm install -g @openai/codex
 
-# Upgrade the testing chunking engine to the real one
-chunking-engine-setup:
-    kubectl set image deployment/chunking-engine \
-        chunking-engine=downloads.unstructured.io/unstructured-io/unstructured-api:4ffd8bc \
-        -n bionic-gpt
-    kubectl patch deployment chunking-engine -n bionic-gpt \
-        --type='json' \
-        -p='[{"op": "remove", "path": "/spec/template/spec/containers/0/command"}]'
 
-expose-chunking-engine:
-    kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/chunking-engine 8000:8000
+expose-doc-engine:
+    kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/doc-engine 8000:8000
 
 # Retrieve the cluster kube config - so kubectl and k9s work.
 get-config:

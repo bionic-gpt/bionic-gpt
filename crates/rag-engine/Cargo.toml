@@ -22,3 +22,5 @@ serde_json = "1"
 
 ## Used to call unstructured API
 reqwest = { version = "0", default-features = false, features = ["multipart", "rustls-tls", "json"] }
+infer = "0"
+mime_guess = "2"

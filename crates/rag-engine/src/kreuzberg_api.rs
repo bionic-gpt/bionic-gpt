@@ -45,7 +45,16 @@ pub async fn document_to_chunks(
     let client = Client::new();
     let extract_url = format!("{}/extract", kreuzberg_endpoint);
 
-    let file_part = multipart::Part::bytes(bytes).file_name(file_name.to_string());
+    let detected_mime = infer::get(&bytes).map(|kind| kind.mime_type().to_string());
+    let guessed_mime = mime_guess::from_path(file_name)
+        .first()
+        .map(|mime| mime.essence_str().to_string());
+    let mime_type = detected_mime.or(guessed_mime);
+
+    let mut file_part = multipart::Part::bytes(bytes).file_name(file_name.to_string());
+    if let Some(mime_type) = mime_type {
+        file_part = file_part.mime_str(&mime_type)?;
+    }
     let form = multipart::Form::new().part("files", file_part);
 
     let extract_response = client.post(extract_url).multipart(form).send().await?;
@@ -60,6 +69,9 @@ pub async fn document_to_chunks(
         .ok_or("kreuzberg extract returned no results")?
         .content
         .to_string();
+    if content.trim().is_empty() {
+        return Err("kreuzberg extract returned empty content".into());
+    }
 
     let chunker_type = match chunking_strategy {
         ChunkingStrategy::ByTitle => "markdown",
