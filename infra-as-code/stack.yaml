@@ -37,3 +37,7 @@ spec:
       image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.3
       port: 7703
       database_url: APP_DATABASE_URL
+
+    doc-engine:
+      image: ghcr.io/kreuzberg-dev/kreuzberg:4.1.2
+      port: 8000
