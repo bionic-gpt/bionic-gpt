@@ -110,7 +110,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver
         .find(By::XPath(".//*[@type='file']"))
         .await?
-        .send_keys("/workspace/parliamentary-dialog.txt")
+        .send_keys("/home/seluser/workspace/files/parliamentary-dialog.txt")
         .await?;
 
     driver

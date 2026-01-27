@@ -142,14 +142,19 @@ selenium:
         '    volumeMounts:' \
         '    - name: dshm' \
         '      mountPath: /dev/shm' \
-        '  # Mirrors --shm-size=2g from .devcontainer/docker-compose.yml and CI' \
         '  volumes:' \
         '  - name: dshm' \
         '    emptyDir:' \
         '      medium: Memory' \
         '      sizeLimit: 2Gi' \
     | kubectl replace --force -f -
+
     kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-selenium --timeout=60s
+
+    # --- Add fixtures for file upload tests ---    
+    kubectl exec -n bionic-selenium selenium-chrome -- mkdir -p /home/seluser/workspace
+    kubectl cp crates/integration-testing/files bionic-selenium/selenium-chrome:/home/seluser/workspace
+
 
 port-forward:
     #!/usr/bin/env bash
