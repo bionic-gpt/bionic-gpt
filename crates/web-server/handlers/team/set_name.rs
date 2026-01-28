@@ -32,10 +32,18 @@ pub async fn set_name(
         .bind(&transaction, &set_name.name, &team_id_num)
         .await?;
 
+    let updated_team = queries::teams::team()
+        .bind(&transaction, &team_id_num)
+        .one()
+        .await?;
+
     transaction.commit().await?;
 
     crate::layout::redirect_and_snackbar(
-        &web_pages::routes::team::Index { team_id }.to_string(),
+        &web_pages::routes::team::Index {
+            team_id: updated_team.slug,
+        }
+        .to_string(),
         "Team Name Updated",
     )
 }
