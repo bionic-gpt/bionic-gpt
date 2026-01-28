@@ -174,18 +174,41 @@ async fn add_team_member(
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    // Click on the side menu
     driver
-        .find(By::LinkText("Team Members"))
+        .find(By::LinkText("Teams"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver.find(By::LinkText("Teams")).await?.click().await?;
+
+    driver
+        .query(By::XPath(
+            "//div[contains(@class,'card') and @data-clickable-link]",
+        ))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    // Now set the org name (re-find to avoid stale element)
+    driver
+        .find(By::XPath(
+            "//div[contains(@class,'card') and @data-clickable-link]",
+        ))
         .await?
         .click()
         .await?;
 
-    sleep(Duration::from_millis(3000)).await;
-
-    driver.refresh().await?;
-
-    sleep(Duration::from_millis(1000)).await;
+    driver
+        .query(By::XPath("//button[text()='Invite New Team Member']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     driver
         .find(By::XPath("//button[text()='Invite New Team Member']"))
