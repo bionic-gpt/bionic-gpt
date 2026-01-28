@@ -17,8 +17,7 @@ axum-extra = { version = "0.10", features = ["form", "typed-routing", "cookie"] 
 tokio = { version = "1", features = ["rt-multi-thread"] }
 http = "1"
 tokio-stream = "0.1"
-reqwest = { version = "0", default-features = false, features = ["stream", "json", "rustls-tls"] }
-reqwest-eventsource = "0"
+reqwest = { version = "0.13", default-features = false, features = ["stream", "json", "rustls"] }
 serde_json = { version = "1" }
 serde = { version = "1", features = ["derive"] }
 tracing = { version = "0.1" }

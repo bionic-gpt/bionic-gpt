@@ -65,10 +65,10 @@ impl Config {
 
     pub async fn get_driver(&self) -> WebDriverResult<WebDriver> {
         let mut caps = DesiredCapabilities::chrome();
-        caps.add_chrome_arg("--no-sandbox")?;
-        caps.add_chrome_arg("--disable-gpu")?;
-        caps.add_chrome_arg("--start-maximized")?;
-        caps.add_chrome_arg("--ignore-certificate-errors")?;
+        caps.add_arg("--no-sandbox")?;
+        caps.add_arg("--disable-gpu")?;
+        caps.add_arg("--start-maximized")?;
+        caps.add_arg("--ignore-certificate-errors")?;
 
         if self.headless {
             caps.set_headless()?;
@@ -81,34 +81,34 @@ impl Config {
             .db_pool
             .get()
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         dbg!("connected");
 
         let transaction = client
             .transaction()
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .execute("SET LOCAL session_replication_role = replica", &[])
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .execute("DELETE FROM models", &[])
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .execute("DELETE FROM users", &[])
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .commit()
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         Ok(())
     }
@@ -132,8 +132,12 @@ pub async fn sign_in_user(driver: &WebDriver, email: &str, config: &Config) -> W
     // Go to sign in page
     driver.goto(format!("{}/", &config.application_url)).await?;
 
-    // Stop stale element error
-    sleep(Duration::from_millis(1000)).await;
+    driver
+        .find(By::Id("username"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     // Sign in someone
     driver
@@ -206,8 +210,19 @@ pub async fn logout(driver: &WebDriver, _config: &Config) -> WebDriverResult<()>
     Ok(())
 }
 
-pub async fn register_random_user(driver: &WebDriver, _config: &Config) -> WebDriverResult<String> {
+pub async fn register_random_user(driver: &WebDriver, config: &Config) -> WebDriverResult<String> {
     let email = random_email();
+
+    sleep(Duration::from_millis(1000)).await;
+
+    driver.goto(format!("{}/", &config.application_url)).await?;
+
+    driver
+        .find(By::Id("username"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     // Register someone
     driver.find(By::LinkText("Register")).await?.click().await?;

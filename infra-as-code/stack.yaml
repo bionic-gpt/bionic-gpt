@@ -32,6 +32,9 @@ spec:
       init:
         image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.4
         migrations_database_url: DATABASE_URL
+      env:
+        - name: LOGOUT_URL
+          value: "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
 
     rag-engine:
       image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.4

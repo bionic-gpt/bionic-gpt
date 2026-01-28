@@ -8,9 +8,9 @@ db = { path = "../db" }
 
 [dev-dependencies]
 # WebDriver Library for UI testing.
-thirtyfour = { version = "0" }
-time = { version = "0", default-features = false }
-tokio = { version = "1", features = ["macros"] }
-rand = "0"
-quoted_printable = "0"
-reqwest = { version = "0", default-features = false, features = ["multipart", "rustls-tls", "json"] }
+thirtyfour = { version = "0.36" }
+time = { version = "0.3", default-features = false }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+rand = "0.9"
+quoted_printable = "0.5"
+reqwest = { version = "0.13", default-features = false, features = ["multipart", "rustls", "json"] }

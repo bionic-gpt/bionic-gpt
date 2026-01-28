@@ -1,10 +1,10 @@
 use crate::bionic_openapi::OAuth2Config;
 use async_trait::async_trait;
 use db::{self, Pool};
+use oauth2::reqwest::Client;
 use oauth2::{
     basic::BasicClient, AuthUrl, ClientId, ClientSecret, RefreshToken, TokenResponse, TokenUrl,
 };
-use reqwest::Client;
 use time::{Duration, OffsetDateTime};
 
 #[cfg(test)]

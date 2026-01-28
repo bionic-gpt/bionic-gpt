@@ -177,6 +177,7 @@ dev-selenium:
     stack deploy --manifest infra-as-code/stack-selenium.yaml
 
 md-selenium:
+    cargo build
     mirrord exec target/debug/web-server --steal -n bionic-selenium --target deployment/bionic-gpt
 
 schemaspy-install:

@@ -102,6 +102,14 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
+        .query(By::XPath("//button[text()='Add Document']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
         .find(By::XPath("//button[text()='Add Document']"))
         .await?
         .click()
@@ -125,7 +133,9 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     driver.refresh().await?;
 
     driver
-        .query(By::XPath("//button[contains(@class, 'label-success')]"))
+        .query(By::XPath(
+            "//*[contains(@class,'badge')][normalize-space()='Processed']",
+        ))
         .first()
         .await?
         .wait_until()
@@ -133,9 +143,18 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
-        .find(By::XPath("//span[text()='...']"))
+        .query(By::XPath("//label[.//span[normalize-space()='...']]"))
+        .first()
         .await?
         .click()
+        .await?;
+
+    driver
+        .query(By::LinkText("Delete Document"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
         .await?;
 
     driver
@@ -160,7 +179,7 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
 
     driver
         .query(By::XPath(
-            "//p[text()='Here you can upload documents in a range of formats']",
+            "//p[normalize-space()=\"This dataset doesn't have any documents yet. Upload your first document to get started.\"]",
         ))
         .first()
         .await?

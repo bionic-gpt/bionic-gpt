@@ -31,7 +31,7 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
     println!("Testing : set_profile_details");
 
-    set_profile_details(driver, &account_owner).await?;
+    set_profile_details(driver).await?;
 
     println!("Testing : add_team_member");
 
@@ -47,30 +47,46 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 }
 
 // Before we ivite people we have to have a team name and set our own name
-async fn set_profile_details(driver: &WebDriver, email: &str) -> WebDriverResult<()> {
-    // Stop stale element error
-    sleep(Duration::from_millis(1000)).await;
+async fn set_profile_details(driver: &WebDriver) -> WebDriverResult<()> {
+    driver
+        .query(By::XPath("//span[text()='Test User']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
-    // Click on the profile button
-    let path = format!("//span[text()='{}']", email);
-    driver.find(By::XPath(&path)).await?.click().await?;
+    driver
+        .find(By::XPath("//span[text()='Test User']"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .query(By::LinkText("Profile"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     driver.find(By::LinkText("Profile")).await?.click().await?;
 
-    // Stop stale element error
-    sleep(Duration::from_millis(1000)).await;
-
     driver
-        .find(By::Css("input[name='first_name']"))
+        .query(By::Css("input[name='first_name']"))
+        .first()
         .await?
-        .send_keys("David")
+        .wait_until()
+        .displayed()
         .await?;
 
-    driver
-        .find(By::Css("input[name='last_name']"))
-        .await?
-        .send_keys("Jason")
-        .await?;
+    let first_name_input = driver.find(By::Css("input[name='first_name']")).await?;
+    first_name_input.clear().await?;
+    first_name_input.send_keys("David").await?;
+
+    let last_name_input = driver.find(By::Css("input[name='last_name']")).await?;
+    last_name_input.clear().await?;
+    last_name_input.send_keys("Jason").await?;
 
     driver
         .find(By::XPath("//button[text()='Update Profile']"))
@@ -78,12 +94,45 @@ async fn set_profile_details(driver: &WebDriver, email: &str) -> WebDriverResult
         .click()
         .await?;
 
-    // Stop stale element error
-    sleep(Duration::from_millis(1000)).await;
+    sleep(Duration::from_millis(3000)).await;
 
-    // Now set the org name
     driver
-        .find(By::LinkText("Team Members"))
+        .find(By::LinkText("Admin Panel"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
+        .find(By::LinkText("Admin Panel"))
+        .await?
+        .click()
+        .await?;
+
+    driver
+        .find(By::LinkText("Teams"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver.find(By::LinkText("Teams")).await?.click().await?;
+
+    driver
+        .query(By::XPath(
+            "//div[contains(@class,'card') and @data-clickable-link]",
+        ))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    // Now set the org name (re-find to avoid stale element)
+    driver
+        .find(By::XPath(
+            "//div[contains(@class,'card') and @data-clickable-link]",
+        ))
         .await?
         .click()
         .await?;
@@ -103,11 +152,9 @@ async fn set_profile_details(driver: &WebDriver, email: &str) -> WebDriverResult
         .displayed()
         .await?;
 
-    driver
-        .find(By::Css("input[name='name']"))
-        .await?
-        .send_keys("Testing Team")
-        .await?;
+    let team_name_input = driver.find(By::Css("input[name='name']")).await?;
+    team_name_input.clear().await?;
+    team_name_input.send_keys("Testing Team").await?;
 
     driver
         .find(By::XPath("//button[text()='Set Team Name']"))
@@ -127,18 +174,41 @@ async fn add_team_member(
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    // Click on the side menu
     driver
-        .find(By::LinkText("Team Members"))
+        .find(By::LinkText("Teams"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver.find(By::LinkText("Teams")).await?.click().await?;
+
+    driver
+        .query(By::XPath(
+            "//div[contains(@class,'card') and @data-clickable-link]",
+        ))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    // Now set the org name (re-find to avoid stale element)
+    driver
+        .find(By::XPath(
+            "//div[contains(@class,'card') and @data-clickable-link]",
+        ))
         .await?
         .click()
         .await?;
 
-    sleep(Duration::from_millis(3000)).await;
-
-    driver.refresh().await?;
-
-    sleep(Duration::from_millis(1000)).await;
+    driver
+        .query(By::XPath("//button[text()='Invite New Team Member']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     driver
         .find(By::XPath("//button[text()='Invite New Team Member']"))
