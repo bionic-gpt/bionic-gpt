@@ -213,6 +213,8 @@ pub async fn logout(driver: &WebDriver, _config: &Config) -> WebDriverResult<()>
 pub async fn register_random_user(driver: &WebDriver, config: &Config) -> WebDriverResult<String> {
     let email = random_email();
 
+    sleep(Duration::from_millis(1000)).await;
+
     driver.goto(format!("{}/", &config.application_url)).await?;
 
     driver

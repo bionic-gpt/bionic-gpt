@@ -54,9 +54,6 @@
 		"LOG_LEVEL": "DEBUG",
 		"DATABASE_URL": "postgresql://db-owner:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable",
 		"APP_DATABASE_URL": "postgresql://application_user:testpassword@host.docker.internal:30001/bionic-gpt?sslmode=disable",
-		"SIGNOUT_URL": "/auth/sign_out",
-		// Use https://10015.io/tools/jwt-encoder-decoder and the option for a sample key
-		"DANGER_JWT_OVERRIDE": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc",
 		// Switch on for row level encryption
 		// "CUSTOMER_KEY": "190a5bf4b3cbb6c0991967ab1c48ab30790af876720f1835cbbf3820f4f5d949",
 		"INVITE_DOMAIN": "http://envoy:7700",
