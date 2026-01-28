@@ -132,8 +132,12 @@ pub async fn sign_in_user(driver: &WebDriver, email: &str, config: &Config) -> W
     // Go to sign in page
     driver.goto(format!("{}/", &config.application_url)).await?;
 
-    // Stop stale element error
-    sleep(Duration::from_millis(1000)).await;
+    driver
+        .find(By::Id("username"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     // Sign in someone
     driver
@@ -206,8 +210,17 @@ pub async fn logout(driver: &WebDriver, _config: &Config) -> WebDriverResult<()>
     Ok(())
 }
 
-pub async fn register_random_user(driver: &WebDriver, _config: &Config) -> WebDriverResult<String> {
+pub async fn register_random_user(driver: &WebDriver, config: &Config) -> WebDriverResult<String> {
     let email = random_email();
+
+    driver.goto(format!("{}/", &config.application_url)).await?;
+
+    driver
+        .find(By::Id("username"))
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
     // Register someone
     driver.find(By::LinkText("Register")).await?.click().await?;
