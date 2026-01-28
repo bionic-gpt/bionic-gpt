@@ -22,6 +22,8 @@ spec:
       env:    
         - name: LOG_LEVEL
           value: "debug"
+        - name: LOGOUT_URL
+          value: "/oidc/realms/bionic-selenium/protocol/openid-connect/logout"
 
     rag-engine:
       image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.4
