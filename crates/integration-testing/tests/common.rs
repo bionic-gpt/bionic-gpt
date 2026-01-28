@@ -65,10 +65,10 @@ impl Config {
 
     pub async fn get_driver(&self) -> WebDriverResult<WebDriver> {
         let mut caps = DesiredCapabilities::chrome();
-        caps.add_chrome_arg("--no-sandbox")?;
-        caps.add_chrome_arg("--disable-gpu")?;
-        caps.add_chrome_arg("--start-maximized")?;
-        caps.add_chrome_arg("--ignore-certificate-errors")?;
+        caps.add_arg("--no-sandbox")?;
+        caps.add_arg("--disable-gpu")?;
+        caps.add_arg("--start-maximized")?;
+        caps.add_arg("--ignore-certificate-errors")?;
 
         if self.headless {
             caps.set_headless()?;
@@ -81,34 +81,34 @@ impl Config {
             .db_pool
             .get()
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         dbg!("connected");
 
         let transaction = client
             .transaction()
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .execute("SET LOCAL session_replication_role = replica", &[])
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .execute("DELETE FROM models", &[])
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .execute("DELETE FROM users", &[])
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
             .commit()
             .await
-            .map_err(|e| WebDriverError::CustomError(e.to_string()))?;
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         Ok(())
     }

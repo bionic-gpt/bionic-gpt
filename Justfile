@@ -177,7 +177,8 @@ dev-selenium:
     stack deploy --manifest infra-as-code/stack-selenium.yaml
 
 md-selenium:
-    mirrord exec target/debug/web-server --steal -n bionic-selenium --target deployment/bionic-gpt
+    cargo build
+    LOGOUT_URL=/oidc/realms/bionic-selenium/protocol/openid-connect/logout mirrord exec target/debug/web-server --steal -n bionic-selenium --target deployment/bionic-gpt
 
 schemaspy-install:
     sudo apt update

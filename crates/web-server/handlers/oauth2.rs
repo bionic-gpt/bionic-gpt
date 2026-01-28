@@ -7,6 +7,7 @@ use axum_extra::routing::RouterExt;
 use db::{authz, queries, Pool, Visibility};
 use integrations::{BionicOpenAPI, OAuth2Config};
 use oauth2::basic::BasicClient;
+use oauth2::reqwest::Client;
 use oauth2::{
     AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge,
     PkceCodeVerifier, RedirectUrl, Scope, TokenResponse, TokenUrl,
@@ -202,9 +203,9 @@ pub async fn oauth2_callback(
         return Err(CustomError::FaultySetup("Invalid CSRF state".into()));
     }
 
-    let http_client = reqwest::ClientBuilder::new()
+    let http_client = Client::builder()
         // Following redirects opens the client up to SSRF vulnerabilities.
-        .redirect(reqwest::redirect::Policy::none())
+        .redirect(oauth2::reqwest::redirect::Policy::none())
         .build()
         .expect("Client should build");
 

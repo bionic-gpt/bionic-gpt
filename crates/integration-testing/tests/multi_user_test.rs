@@ -94,6 +94,8 @@ async fn set_profile_details(driver: &WebDriver) -> WebDriverResult<()> {
         .click()
         .await?;
 
+    sleep(Duration::from_millis(3000)).await;
+
     driver
         .find(By::LinkText("Admin Panel"))
         .await?

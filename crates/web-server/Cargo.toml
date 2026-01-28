@@ -35,7 +35,7 @@ rand = { version = "0.9.1" }
 http-body-util = "0.1"
 
 tracing = { version = "0.1" }
-tracing-subscriber = { version="0.3.19", features = ["env-filter"] }
+tracing-subscriber = { version="0.3", features = ["env-filter"] }
 
 # So we can store embeddings
 pgvector = { version = "0.4.0", features = ["postgres"] }
@@ -49,7 +49,7 @@ lettre = { version = "0.11.15", default-features = false,  features = ["rustls-t
 axum_typed_multipart = { version = "0.16.0", default-features = false }
 mime = "0.3"
 oas3 = "0.16.1"
-reqwest = { version = "0", default-features = false, features = ["json", "rustls-tls"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "rustls"] }
 serde_urlencoded = "0.7.1"
 oauth2 = { version = "5.0.0", features = ["reqwest"] }
 chrono = { version = "0.4", features = ["serde"] }
