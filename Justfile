@@ -34,6 +34,22 @@ get-config:
 dump-schema:
     pg_dump --schema-only --no-owner --no-privileges --file=schema.sql $DATABASE_URL
 
+db-diagram:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    mermerd_bin="bin/mermerd"
+    if [ ! -x "$mermerd_bin" ]; then
+        mkdir -p bin
+        curl -L https://github.com/KarnerTh/mermerd/releases/download/v0.13.0/mermerd_0.13.0_linux_amd64.tar.gz \
+            --output /tmp/mermerd.tar.gz
+        tar -xzf /tmp/mermerd.tar.gz -C bin
+        chmod +x "$mermerd_bin"
+    fi
+
+    mkdir -p crates/db/diagrams
+    "$mermerd_bin" -c "$DATABASE_URL" -o crates/db/diagrams/schema.mmd
+
 
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
