@@ -9,6 +9,7 @@ dev-init:
     # 30003: selenium vnc
     # 30004: mailhog web
     # 30004: postgres (selenium)
+    # 30005: nginx (selenium) So tests can call the api.
     k3d cluster create k3d-bionic --agents 1 -p "30000-30005:30000-30005@agent:0"
     just get-config
 

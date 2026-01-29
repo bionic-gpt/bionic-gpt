@@ -10,7 +10,8 @@ spec:
       danger_override_password: testpassword
     auth:
       hostname-url: http://nginx
-    ingress: {}
+    ingress:
+      port: 30005
     mailhog:
       expose_web_port: 30004
     selenium: 
