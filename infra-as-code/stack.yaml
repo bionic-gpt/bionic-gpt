@@ -25,19 +25,19 @@ spec:
           hostname-url: https://app.bionic-gpt.com
   services:
     web:
-      image: ghcr.io/bionic-gpt/bionicgpt:1.12.5
+      image: ghcr.io/bionic-gpt/bionicgpt:1.12.6
       port: 7703
       # Pass an env var called APP_DATABASE_URL which is the application_user role.
       database_url: APP_DATABASE_URL
       init:
-        image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.5
+        image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.6
         migrations_database_url: DATABASE_URL
       env:
         - name: LOGOUT_URL
           value: "/oidc/realms/bionic-gpt/protocol/openid-connect/logout"
 
     rag-engine:
-      image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.5
+      image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.6
       port: 7703
       database_url: APP_DATABASE_URL
 
