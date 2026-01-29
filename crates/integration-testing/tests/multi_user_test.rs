@@ -35,7 +35,7 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
     println!("Testing : add_team_member");
 
-    add_team_member(driver, &team_member, &account_owner, config).await?;
+    add_team_member(driver, &team_member, config).await?;
 
     println!("Testing : sign_in_user");
 
@@ -168,7 +168,6 @@ async fn set_profile_details(driver: &WebDriver) -> WebDriverResult<()> {
 async fn add_team_member(
     driver: &WebDriver,
     team_member: &str,
-    team_owner: &str,
     config: &common::Config,
 ) -> WebDriverResult<()> {
     // Stop stale element error
@@ -272,25 +271,19 @@ async fn add_team_member(
     // Accept the invitation
     driver.goto(invitation_url).await?;
 
-    let invited_by = format!("Invited by {}", team_owner);
-
     driver
-        .query(By::XPath(
-            "//p[starts-with(normalize-space(), 'Invited by ')]",
-        ))
+        .query(By::XPath("//h2[normalize-space()='Testing Team']"))
         .first()
         .await?
         .wait_until()
         .displayed()
         .await?;
 
-    let invite_owner = driver
-        .find(By::XPath(
-            "//p[starts-with(normalize-space(), 'Invited by ')]",
-        ))
+    let team_heading = driver
+        .find(By::XPath("//h2[normalize-space()='Testing Team']"))
         .await?;
 
-    assert_eq!(invite_owner.text().await?, invited_by);
+    assert_eq!(team_heading.text().await?, "Testing Team");
 
     Ok(())
 }
