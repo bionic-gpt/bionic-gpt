@@ -46,17 +46,38 @@ db-diagram:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    mermerd_bin="bin/mermerd"
+    mermerd_bin="/tmp/mermerd"
     if [ ! -x "$mermerd_bin" ]; then
-        mkdir -p bin
         curl -L https://github.com/KarnerTh/mermerd/releases/download/v0.13.0/mermerd_0.13.0_linux_amd64.tar.gz \
             --output /tmp/mermerd.tar.gz
-        tar -xzf /tmp/mermerd.tar.gz -C bin
+        tar -xzf /tmp/mermerd.tar.gz -C /tmp --overwrite
         chmod +x "$mermerd_bin"
     fi
 
-    mkdir -p crates/db/diagrams
-    "$mermerd_bin" -c "$DATABASE_URL" -o crates/db/diagrams/schema.mmd
+    tmp_schema="/tmp/schema.mmd"
+    "$mermerd_bin" -c "$DATABASE_URL" --schema public --useAllTables -o "$tmp_schema"
+    python3 - <<'PY'
+    from pathlib import Path
+
+    readme = Path("crates/db/README.md")
+    schema = Path("/tmp/schema.mmd")
+
+    content = readme.read_text()
+    diagram = schema.read_text().rstrip()
+
+    start = "<!-- mermaid-start -->"
+    end = "<!-- mermaid-end -->"
+
+    if start not in content or end not in content:
+        raise SystemExit("Mermaid markers not found in README.md")
+
+    before, rest = content.split(start, 1)
+    _, after = rest.split(end, 1)
+
+    block = f"{start}\n```mermaid\n{diagram}\n```\n{end}"
+    readme.write_text(before + block + after)
+    PY
+    rm -f "$tmp_schema"
 
 
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
@@ -148,28 +169,6 @@ integration-testing test="":
 md-selenium:
     cargo build
     mirrord exec target/debug/web-server --steal -n bionic-selenium --target deployment/bionic-gpt
-
-schemaspy-install:
-    sudo apt update
-    sudo apt install default-jre graphviz
-    mkdir -p tmp
-    curl -L https://github.com/schemaspy/schemaspy/releases/download/v6.2.4/schemaspy-6.2.4.jar \
-        --output tmp/schemaspy.jar
-    curl -L https://jdbc.postgresql.org/download/postgresql-42.5.4.jar \
-        --output tmp/jdbc-driver.jar
-
-schemaspy:
-    java -jar tmp/schemaspy.jar \
-        -t pgsql11 \
-        -dp tmp/jdbc-driver.jar \
-        -db bionic-gpt \
-        -host host.docker.internal \
-        -port 30001 \
-        -u db-owner \
-        -p testpassword \
-        -o tmp
-    cp -r tmp/diagrams/orphans/orphans.png crates/db/diagrams
-    cp -r tmp/diagrams/summary/relationships.real.large.png crates/db/diagrams
 
 # Install dependencies and optimize architect course screenshots
 opt-images:
