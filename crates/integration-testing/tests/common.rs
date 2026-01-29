@@ -96,6 +96,11 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
+            .execute("DELETE FROM prompts", &[])
+            .await
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
+
+        transaction
             .execute("DELETE FROM models", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
