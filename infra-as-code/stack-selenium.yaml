@@ -11,7 +11,7 @@ spec:
     auth:
       hostname-url: http://nginx
     ingress:
-      port: 30005
+      port: 30006
     mailhog:
       expose_web_port: 30004
     selenium: 

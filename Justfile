@@ -8,9 +8,9 @@ dev-init:
     # 30002: selenium webdriver
     # 30003: selenium vnc
     # 30004: mailhog web
-    # 30004: postgres (selenium)
-    # 30005: nginx (selenium) So tests can call the api.
-    k3d cluster create k3d-bionic --agents 1 -p "30000-30005:30000-30005@agent:0"
+    # 30005: postgres (selenium)
+    # 30006: nginx (selenium) So tests can call the api.
+    k3d cluster create k3d-bionic --agents 1 -p "30000-30006:30000-30006@agent:0"
     just get-config
 
 dev-setup:
@@ -133,6 +133,7 @@ integration-testing test="":
     export WEB_DRIVER_URL="http://host.docker.internal:30002"
     export APPLICATION_URL="http://nginx"
     export MAILHOG_URL="http://host.docker.internal:30004"
+    export API_BASE_URL="http://host.docker.internal:30006"
 
     POD=$(kubectl get pods -n bionic-selenium -l app=selenium -o jsonpath='{.items[0].metadata.name}')
     kubectl exec -n bionic-selenium $POD -- mkdir -p /home/seluser/workspace/files
