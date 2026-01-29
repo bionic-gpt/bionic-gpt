@@ -23,14 +23,9 @@ async fn api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResul
     let delay = std::time::Duration::new(11, 0);
     driver.set_implicit_wait_timeout(delay).await?;
 
-    driver.goto(format!("{}/", &config.application_url)).await?;
-
     println!("Testing : register_user");
 
     let _email = common::register_user(driver, config).await?;
-    //config.set_sys_admin(&email).await?;
-
-    driver.refresh().await?;
 
     test_ai_assistants(driver).await?;
 
@@ -41,8 +36,6 @@ async fn api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResul
 
 async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
     sleep(Duration::from_millis(3000)).await;
-
-    driver.refresh().await?;
 
     driver
         .find(By::LinkText("Back to app"))

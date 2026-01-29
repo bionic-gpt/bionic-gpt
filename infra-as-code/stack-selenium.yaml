@@ -6,10 +6,17 @@ metadata:
 spec:
   components:
     db:
+      expose_db_port: 30005
       danger_override_password: testpassword
     auth:
       hostname-url: http://nginx
-    ingress: {}
+    ingress:
+      port: 30006
+    mailhog:
+      expose_web_port: 30004
+    selenium: 
+      expose_webdriver_port: 30002
+      expose_vnc_port: 30003
   services:
     web:
       image: ghcr.io/bionic-gpt/bionicgpt:1.12.4
@@ -24,6 +31,20 @@ spec:
           value: "debug"
         - name: LOGOUT_URL
           value: "/oidc/realms/bionic-selenium/protocol/openid-connect/logout"
+        - name: INVITE_DOMAIN
+          value: "http://nginx"
+        - name: INVITE_FROM_EMAIL_ADDRESS
+          value: "support@application.com"
+        - name: SMTP_HOST
+          value: "mailhog"
+        - name: SMTP_PORT
+          value: "1025"
+        - name: SMTP_USERNAME
+          value: "thisisnotused"
+        - name: SMTP_PASSWORD
+          value: "thisisnotused"
+        - name: SMTP_TLS_OFF
+          value: "true"
 
     rag-engine:
       image: ghcr.io/bionic-gpt/bionicgpt-rag-engine:1.12.4

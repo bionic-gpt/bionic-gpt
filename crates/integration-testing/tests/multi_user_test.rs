@@ -35,7 +35,7 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
     println!("Testing : add_team_member");
 
-    add_team_member(driver, &team_member, &account_owner, config).await?;
+    add_team_member(driver, &team_member, config).await?;
 
     println!("Testing : sign_in_user");
 
@@ -168,7 +168,6 @@ async fn set_profile_details(driver: &WebDriver) -> WebDriverResult<()> {
 async fn add_team_member(
     driver: &WebDriver,
     team_member: &str,
-    team_owner: &str,
     config: &common::Config,
 ) -> WebDriverResult<()> {
     // Stop stale element error
@@ -246,11 +245,19 @@ async fn add_team_member(
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    let table_cell = driver
-        .find(By::XPath("//tbody/tr[last()]/td[1]/span"))
+    println!("Testing : Checking for Trevor");
+
+    driver
+        .query(By::XPath("//h2[normalize-space()='Trevor Invitable']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
         .await?;
 
-    assert_eq!(table_cell.text().await?, "Trevor Invitable");
+    driver
+        .find(By::XPath("//h2[normalize-space()='Trevor Invitable']"))
+        .await?;
 
     // Get the invite from mailhog
     let invitation_url = get_invite_url_from_email(config).await?;
@@ -264,9 +271,19 @@ async fn add_team_member(
     // Accept the invitation
     driver.goto(invitation_url).await?;
 
-    let table_cell = driver.find(By::XPath("//tbody/tr[1]/td[2]")).await?;
+    driver
+        .query(By::XPath("//h2[normalize-space()='Testing Team']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
 
-    assert_eq!(table_cell.text().await?, team_owner);
+    let team_heading = driver
+        .find(By::XPath("//h2[normalize-space()='Testing Team']"))
+        .await?;
+
+    assert_eq!(team_heading.text().await?, "Testing Team");
 
     Ok(())
 }

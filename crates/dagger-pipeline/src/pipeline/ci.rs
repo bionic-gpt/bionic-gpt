@@ -221,6 +221,7 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .await
         .wrap_err("failed to load images directory")?;
     println!("Resolved images directory");
+    let ca_certs = outputs.container.file("/etc/ssl/certs/ca-certificates.crt");
 
     // The generated StaticFile metadata in the web-assets crate bakes in absolute paths
     // such as `/workspace/crates/web-assets/dist/...`. Ensure the runtime image mirrors
@@ -231,6 +232,8 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .with_file("/axum-server", outputs.app_binary.clone())
         .with_directory("/workspace/crates/web-assets/dist", dist_dir.clone())
         .with_directory("/workspace/crates/web-assets/images", images_dir.clone())
+        .with_file("/etc/ssl/certs/ca-certificates.crt", ca_certs.clone())
+        .with_env_variable("SSL_CERT_FILE", "/etc/ssl/certs/ca-certificates.crt")
         .with_entrypoint(vec!["./axum-server"]);
 
     ensure_built(&app_container, "app image").await?;
@@ -249,6 +252,8 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .container()
         .with_user("1001")
         .with_file("/rag-engine", outputs.rag_engine_binary.clone())
+        .with_file("/etc/ssl/certs/ca-certificates.crt", ca_certs.clone())
+        .with_env_variable("SSL_CERT_FILE", "/etc/ssl/certs/ca-certificates.crt")
         .with_entrypoint(vec!["./rag-engine"]);
 
     ensure_built(&rag_container, "rag engine image").await?;
@@ -267,6 +272,8 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .container()
         .with_user("1001")
         .with_file("/airbyte-connector", outputs.airbyte_binary.clone())
+        .with_file("/etc/ssl/certs/ca-certificates.crt", ca_certs.clone())
+        .with_env_variable("SSL_CERT_FILE", "/etc/ssl/certs/ca-certificates.crt")
         .with_entrypoint(vec!["./airbyte-connector"]);
 
     ensure_built(&airbyte_container, "airbyte image").await?;
@@ -285,6 +292,8 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .container()
         .with_user("1001")
         .with_file("/postgres-mcp", outputs.postgres_mcp_binary.clone())
+        .with_file("/etc/ssl/certs/ca-certificates.crt", ca_certs.clone())
+        .with_env_variable("SSL_CERT_FILE", "/etc/ssl/certs/ca-certificates.crt")
         .with_entrypoint(vec!["./postgres-mcp"]);
 
     ensure_built(&postgres_mcp_container, "postgres mcp image").await?;

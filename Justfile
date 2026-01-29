@@ -3,12 +3,20 @@ list:
 
 dev-init:
     k3d cluster delete k3d-bionic
-    k3d cluster create k3d-bionic --agents 1 -p "30000-30001:30000-30001@agent:0"
+    # 30000: nginx (bionic)
+    # 30001: postgres (bionic)
+    # 30002: selenium webdriver
+    # 30003: selenium vnc
+    # 30004: mailhog web
+    # 30005: postgres (selenium)
+    # 30006: nginx (selenium) So tests can call the api.
+    k3d cluster create k3d-bionic --agents 1 -p "30000-30006:30000-30006@agent:0"
     just get-config
 
 dev-setup:
     stack init
     stack deploy --manifest infra-as-code/stack.yaml --profile dev
+    stack deploy --manifest infra-as-code/stack-selenium.yaml
 
 ci:
     cargo run --bin dagger-pipeline -- pull-request
@@ -33,6 +41,22 @@ get-config:
 # Good for feeding the schema into the AI.
 dump-schema:
     pg_dump --schema-only --no-owner --no-privileges --file=schema.sql $DATABASE_URL
+
+db-diagram:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    mermerd_bin="bin/mermerd"
+    if [ ! -x "$mermerd_bin" ]; then
+        mkdir -p bin
+        curl -L https://github.com/KarnerTh/mermerd/releases/download/v0.13.0/mermerd_0.13.0_linux_amd64.tar.gz \
+            --output /tmp/mermerd.tar.gz
+        tar -xzf /tmp/mermerd.tar.gz -C bin
+        chmod +x "$mermerd_bin"
+    fi
+
+    mkdir -p crates/db/diagrams
+    "$mermerd_bin" -c "$DATABASE_URL" -o crates/db/diagrams/schema.mmd
 
 
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
@@ -105,76 +129,21 @@ integration-testing test="":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    export DATABASE_URL="postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable"
-    export WEB_DRIVER_URL="http://localhost:4444"
+    export DATABASE_URL="postgresql://db-owner:testpassword@host.docker.internal:30005/bionic-gpt?sslmode=disable"
+    export WEB_DRIVER_URL="http://host.docker.internal:30002"
     export APPLICATION_URL="http://nginx"
+    export MAILHOG_URL="http://host.docker.internal:30004"
+    export API_BASE_URL="http://host.docker.internal:30006"
+
+    POD=$(kubectl get pods -n bionic-selenium -l app=selenium -o jsonpath='{.items[0].metadata.name}')
+    kubectl exec -n bionic-selenium $POD -- mkdir -p /home/seluser/workspace/files
+    kubectl cp crates/integration-testing/files/. bionic-selenium/$POD:/home/seluser/workspace/files
 
     if [ -n "{{test}}" ]; then
         cargo test -p integration-testing "{{test}}" -- --nocapture
     else
         cargo test -p integration-testing -- --nocapture
     fi
-
-# Install Selenium in the bionic-gpt namespace
-selenium:
-    printf '%s\n' \
-        'apiVersion: v1' \
-        'kind: Pod' \
-        'metadata:' \
-        '  name: selenium-chrome' \
-        '  namespace: bionic-selenium' \
-        '  labels:' \
-        '    app: selenium-chrome' \
-        'spec:' \
-        '  containers:' \
-        '  - name: chrome' \
-        '    image: selenium/standalone-chrome' \
-        '    ports:' \
-        '    - containerPort: 4444' \
-        '    volumeMounts:' \
-        '    - name: dshm' \
-        '      mountPath: /dev/shm' \
-        '  volumes:' \
-        '  - name: dshm' \
-        '    emptyDir:' \
-        '      medium: Memory' \
-        '      sizeLimit: 2Gi' \
-    | kubectl replace --force -f -
-
-    kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-selenium --timeout=60s
-
-    # --- Add fixtures for file upload tests ---    
-    kubectl exec -n bionic-selenium selenium-chrome -- mkdir -p /home/seluser/workspace
-    kubectl cp crates/integration-testing/files bionic-selenium/selenium-chrome:/home/seluser/workspace
-
-
-port-forward:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    pids=()
-
-    cleanup() {
-      echo "Stopping..."
-      # Kill only the port-forward processes we started
-      for pid in "${pids[@]}"; do
-        kill "$pid" 2>/dev/null || true
-      done
-      # Reap any remaining children
-      wait 2>/dev/null || true
-    }
-
-    trap cleanup INT TERM
-
-    kubectl port-forward pod/bionic-gpt-db-cluster-1 -n bionic-selenium 5432:5432 & pids+=("$!")
-    kubectl port-forward svc/nginx -n bionic-selenium 7901:80 & pids+=("$!")
-    kubectl port-forward pod/selenium-chrome -n bionic-selenium 4444:4444 7900:7900 & pids+=("$!")
-
-    wait
-
-
-dev-selenium:
-    stack deploy --manifest infra-as-code/stack-selenium.yaml
 
 md-selenium:
     cargo build

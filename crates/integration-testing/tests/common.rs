@@ -96,6 +96,11 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
+            .execute("DELETE FROM prompts", &[])
+            .await
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
+
+        transaction
             .execute("DELETE FROM models", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
@@ -150,11 +155,20 @@ pub async fn sign_in_user(driver: &WebDriver, email: &str, config: &Config) -> W
         .await?
         .send_keys(email)
         .await?;
+
+    sleep(Duration::from_millis(1000)).await;
+
+    let submit_selector = "input[type='submit'], button[type='submit'], #kc-login";
+
     driver
-        .find(By::Css("input[type='submit']"))
+        .query(By::Css(submit_selector))
+        .first()
         .await?
-        .click()
+        .wait_until()
+        .displayed()
         .await?;
+
+    driver.find(By::Css(submit_selector)).await?.click().await?;
 
     Ok(())
 }
@@ -255,11 +269,17 @@ pub async fn register_random_user(driver: &WebDriver, config: &Config) -> WebDri
         .await?
         .send_keys(&email)
         .await?;
+    let submit_selector = "input[type='submit'], button[type='submit'], #kc-login";
+
     driver
-        .find(By::Css("input[type='submit']"))
+        .query(By::Css(submit_selector))
+        .first()
         .await?
-        .click()
+        .wait_until()
+        .displayed()
         .await?;
+
+    driver.find(By::Css(submit_selector)).await?.click().await?;
 
     // Models setup (no models yet, so we land on select provider)
     let ollama_card = driver
