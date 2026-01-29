@@ -3,17 +3,19 @@ list:
 
 dev-init:
     k3d cluster delete k3d-bionic
-    # 30000: nginx
-    # 30001: postgres
+    # 30000: nginx (bionic)
+    # 30001: postgres (bionic)
     # 30002: selenium webdriver
     # 30003: selenium vnc
     # 30004: mailhog web
-    k3d cluster create k3d-bionic --agents 1 -p "30000-30004:30000-30004@agent:0"
+    # 30004: postgres (selenium)
+    k3d cluster create k3d-bionic --agents 1 -p "30000-30005:30000-30005@agent:0"
     just get-config
 
 dev-setup:
     stack init
     stack deploy --manifest infra-as-code/stack.yaml --profile dev
+    stack deploy --manifest infra-as-code/stack-selenium.yaml
 
 ci:
     cargo run --bin dagger-pipeline -- pull-request
@@ -126,8 +128,8 @@ integration-testing test="":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    export DATABASE_URL="postgresql://db-owner:testpassword@localhost:5432/bionic-gpt?sslmode=disable"
-    export WEB_DRIVER_URL="http://localhost:4444"
+    export DATABASE_URL="postgresql://db-owner:testpassword@host.docker.internal:30005/bionic-gpt?sslmode=disable"
+    export WEB_DRIVER_URL="http://host.docker.internal:30002"
     export APPLICATION_URL="http://nginx"
 
     if [ -n "{{test}}" ]; then
@@ -135,9 +137,6 @@ integration-testing test="":
     else
         cargo test -p integration-testing -- --nocapture
     fi
-
-dev-selenium:
-    stack deploy --manifest infra-as-code/stack-selenium.yaml
 
 md-selenium:
     cargo build

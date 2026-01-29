@@ -6,6 +6,7 @@ metadata:
 spec:
   components:
     db:
+      expose_db_port: 30005
       danger_override_password: testpassword
     auth:
       hostname-url: http://nginx
