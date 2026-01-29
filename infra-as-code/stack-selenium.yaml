@@ -31,7 +31,7 @@ spec:
         - name: LOGOUT_URL
           value: "/oidc/realms/bionic-selenium/protocol/openid-connect/logout"
         - name: INVITE_DOMAIN
-          value: "http://envoy:7700"
+          value: "http://nginx"
         - name: INVITE_FROM_EMAIL_ADDRESS
           value: "support@application.com"
         - name: SMTP_HOST

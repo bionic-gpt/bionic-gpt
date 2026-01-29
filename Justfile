@@ -131,6 +131,7 @@ integration-testing test="":
     export DATABASE_URL="postgresql://db-owner:testpassword@host.docker.internal:30005/bionic-gpt?sslmode=disable"
     export WEB_DRIVER_URL="http://host.docker.internal:30002"
     export APPLICATION_URL="http://nginx"
+    export MAILHOG_URL="http://host.docker.internal:30004"
 
     if [ -n "{{test}}" ]; then
         cargo test -p integration-testing "{{test}}" -- --nocapture
