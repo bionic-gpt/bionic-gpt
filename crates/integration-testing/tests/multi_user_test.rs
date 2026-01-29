@@ -275,10 +275,9 @@ async fn add_team_member(
     let invited_by = format!("Invited by {}", team_owner);
 
     driver
-        .query(By::XPath(format!(
-            "//p[normalize-space()=\"{}\"]",
-            invited_by
-        )))
+        .query(By::XPath(
+            "//p[starts-with(normalize-space(), 'Invited by ')]",
+        ))
         .first()
         .await?
         .wait_until()
@@ -286,10 +285,9 @@ async fn add_team_member(
         .await?;
 
     let invite_owner = driver
-        .find(By::XPath(format!(
-            "//p[normalize-space()=\"{}\"]",
-            invited_by
-        )))
+        .find(By::XPath(
+            "//p[starts-with(normalize-space(), 'Invited by ')]",
+        ))
         .await?;
 
     assert_eq!(invite_owner.text().await?, invited_by);
