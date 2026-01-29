@@ -3,7 +3,12 @@ list:
 
 dev-init:
     k3d cluster delete k3d-bionic
-    k3d cluster create k3d-bionic --agents 1 -p "30000-30001:30000-30001@agent:0"
+    # 30000: nginx
+    # 30001: postgres
+    # 30002: selenium webdriver
+    # 30003: selenium vnc
+    # 30004: mailhog web
+    k3d cluster create k3d-bionic --agents 1 -p "30000-30004:30000-30004@agent:0"
     just get-config
 
 dev-setup:
@@ -130,64 +135,6 @@ integration-testing test="":
     else
         cargo test -p integration-testing -- --nocapture
     fi
-
-# Install Selenium in the bionic-gpt namespace
-selenium:
-    printf '%s\n' \
-        'apiVersion: v1' \
-        'kind: Pod' \
-        'metadata:' \
-        '  name: selenium-chrome' \
-        '  namespace: bionic-selenium' \
-        '  labels:' \
-        '    app: selenium-chrome' \
-        'spec:' \
-        '  containers:' \
-        '  - name: chrome' \
-        '    image: selenium/standalone-chrome' \
-        '    ports:' \
-        '    - containerPort: 4444' \
-        '    volumeMounts:' \
-        '    - name: dshm' \
-        '      mountPath: /dev/shm' \
-        '  volumes:' \
-        '  - name: dshm' \
-        '    emptyDir:' \
-        '      medium: Memory' \
-        '      sizeLimit: 2Gi' \
-    | kubectl replace --force -f -
-
-    kubectl wait --for=condition=Ready pod/selenium-chrome -n bionic-selenium --timeout=60s
-
-    # --- Add fixtures for file upload tests ---    
-    kubectl exec -n bionic-selenium selenium-chrome -- mkdir -p /home/seluser/workspace
-    kubectl cp crates/integration-testing/files bionic-selenium/selenium-chrome:/home/seluser/workspace
-
-
-port-forward:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    pids=()
-
-    cleanup() {
-      echo "Stopping..."
-      # Kill only the port-forward processes we started
-      for pid in "${pids[@]}"; do
-        kill "$pid" 2>/dev/null || true
-      done
-      # Reap any remaining children
-      wait 2>/dev/null || true
-    }
-
-    trap cleanup INT TERM
-
-    kubectl port-forward pod/bionic-gpt-db-cluster-1 -n bionic-selenium 5432:5432 & pids+=("$!")
-    kubectl port-forward svc/nginx -n bionic-selenium 7901:80 & pids+=("$!")
-    kubectl port-forward pod/selenium-chrome -n bionic-selenium 4444:4444 7900:7900 & pids+=("$!")
-
-    wait
-
 
 dev-selenium:
     stack deploy --manifest infra-as-code/stack-selenium.yaml

@@ -10,6 +10,11 @@ spec:
     auth:
       hostname-url: http://nginx
     ingress: {}
+    mailhog:
+      expose_web_port: 30004
+    selenium: 
+      expose_webdriver_port: 30002
+      expose_vnc_port: 30003
   services:
     web:
       image: ghcr.io/bionic-gpt/bionicgpt:1.12.4
