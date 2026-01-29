@@ -133,6 +133,10 @@ integration-testing test="":
     export APPLICATION_URL="http://nginx"
     export MAILHOG_URL="http://host.docker.internal:30004"
 
+    POD=$(kubectl get pods -n bionic-selenium -l app=selenium -o jsonpath='{.items[0].metadata.name}')
+    kubectl exec -n bionic-selenium $POD -- mkdir -p /home/seluser/workspace/files
+    kubectl cp crates/integration-testing/files/. bionic-selenium/$POD:/home/seluser/workspace/files
+
     if [ -n "{{test}}" ]; then
         cargo test -p integration-testing "{{test}}" -- --nocapture
     else

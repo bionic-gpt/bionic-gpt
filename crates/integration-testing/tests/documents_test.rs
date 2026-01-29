@@ -66,6 +66,14 @@ async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
         .await?;
 
     driver
+        .query(By::XPath("//td[text()='My Pipeline']"))
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+
+    driver
         .find(By::XPath("//td[text()='My Pipeline']"))
         .await?
         .click()
