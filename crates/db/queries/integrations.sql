@@ -18,7 +18,7 @@ WHERE
             i.visibility = 'Team'
             AND i.team_id IN (
                 SELECT team_id
-                FROM tenancy.team_users
+                FROM iam.team_users
                 WHERE user_id = current_app_user()
             )
             AND i.team_id = :team_id
@@ -47,7 +47,7 @@ WHERE
             i.visibility = 'Team'
             AND i.team_id IN (
                 SELECT team_id
-                FROM tenancy.team_users
+                FROM iam.team_users
                 WHERE user_id = current_app_user()
             )
             AND i.team_id = :team_id

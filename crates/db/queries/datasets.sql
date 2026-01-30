@@ -29,7 +29,7 @@ AND
             team_id IN (
                 SELECT 
                     team_id 
-                FROM tenancy.team_users WHERE user_id = current_app_user())
+                FROM iam.team_users WHERE user_id = current_app_user())
         )
         OR 
         (visibility = 'Company')
@@ -108,7 +108,7 @@ AND
                 team_id IN (
                     SELECT 
                         team_id 
-                    FROM tenancy.team_users WHERE user_id = current_app_user())
+                    FROM iam.team_users WHERE user_id = current_app_user())
             )
         OR 
             (visibility = 'Company')
@@ -203,7 +203,7 @@ WHERE
     id = :id
 AND
     team_id
-    IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());
+    IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());
 
 --! delete
 DELETE FROM
@@ -212,4 +212,4 @@ WHERE
     id = :id
 AND
     team_id
-    IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());
+    IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());

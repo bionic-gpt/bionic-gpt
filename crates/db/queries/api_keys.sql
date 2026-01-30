@@ -13,7 +13,7 @@ SELECT
     a.api_key,
     a.created_at
 FROM
-    auth.api_keys a
+    iam.api_keys a
 WHERE 
     a.team_id = :team_id
 AND
@@ -23,13 +23,13 @@ AND
 ORDER BY created_at DESC;
 
 --! new_api_key
-INSERT INTO auth.api_keys 
+INSERT INTO iam.api_keys 
     (prompt_id, user_id, team_id, name, api_key)
 VALUES
     (:prompt_id, :user_id, :team_id, :name, encode(digest(:api_key, 'sha256'), 'hex'));
 
 --! new_mcp_api_key
-INSERT INTO auth.api_keys
+INSERT INTO iam.api_keys
     (prompt_id, user_id, team_id, name, api_key)
 VALUES
     (NULL, :user_id, :team_id, :name, encode(digest(:api_key, 'sha256'), 'hex'))
@@ -48,7 +48,7 @@ SELECT
     a.api_key,
     a.created_at
 FROM
-    auth.api_keys a
+    iam.api_keys a
 WHERE
     a.api_key = encode(digest(:api_key, 'sha256'), 'hex');
 
@@ -65,7 +65,7 @@ SELECT
     a.api_key,
     a.created_at
 FROM
-    auth.api_keys a
+    iam.api_keys a
 WHERE
     a.team_id = :team_id
     AND a.prompt_id IS NULL
@@ -73,12 +73,12 @@ ORDER BY created_at DESC;
 
 --! delete
 DELETE FROM
-    auth.api_keys
+    iam.api_keys
 WHERE
     id = :api_key_id
 AND
     team_id
-    IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());
+    IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());
 
 --! new_api_chat
 INSERT INTO llm.api_chats

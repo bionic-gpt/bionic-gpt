@@ -40,7 +40,7 @@ WHERE
 AND
     dataset_id 
     IN (SELECT id FROM rag.datasets WHERE team_id
-        IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user())
+        IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
     )
 ORDER BY updated_at;
 
@@ -65,7 +65,7 @@ AND
     d.id 
     IN (SELECT id FROM rag.documents WHERE dataset_id
         IN (SELECT id FROM rag.datasets WHERE team_id
-            IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user())
+            IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
         )
     );
 
@@ -157,6 +157,6 @@ AND
     id
     IN (SELECT id FROM rag.documents WHERE dataset_id
         IN (SELECT id FROM rag.datasets WHERE team_id
-            IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user())
+            IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
         )
     );

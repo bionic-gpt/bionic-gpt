@@ -37,8 +37,8 @@ SELECT
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
     p.created_by,
-    COALESCE((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM auth.users u WHERE id = p.created_by), 
-              (SELECT email FROM auth.users WHERE id = p.created_by)) as author_name
+    COALESCE((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM iam.users u WHERE id = p.created_by), 
+              (SELECT email FROM iam.users WHERE id = p.created_by)) as author_name
 FROM 
     prompting.prompts p
 WHERE
@@ -107,8 +107,8 @@ SELECT
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
     p.created_by,
     COALESCE(
-        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM auth.users u WHERE id = p.created_by), ' '),
-        (SELECT email FROM auth.users WHERE id = p.created_by)
+        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM iam.users u WHERE id = p.created_by), ' '),
+        (SELECT email FROM iam.users WHERE id = p.created_by)
     ) as author_name
 FROM 
     prompting.prompts p
@@ -120,7 +120,7 @@ WHERE
             p.model_id IN (
                 SELECT id FROM model_registry.models WHERE team_id IN(
                     SELECT team_id 
-                    FROM tenancy.team_users 
+                    FROM iam.team_users 
                     WHERE user_id = current_app_user()
                 )
             AND 
@@ -215,7 +215,7 @@ AND
         AND p.model_id IN (
         SELECT id FROM model_registry.models WHERE team_id IN(
             SELECT team_id 
-            FROM tenancy.team_users 
+            FROM iam.team_users 
             WHERE user_id = current_app_user()
         )
         AND team_id = :team_id
@@ -286,14 +286,14 @@ SELECT
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
     p.created_by,
     COALESCE(
-        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM auth.users u WHERE id = p.created_by), ' '),
-        (SELECT email FROM auth.users WHERE id = p.created_by)
+        NULLIF((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM iam.users u WHERE id = p.created_by), ' '),
+        (SELECT email FROM iam.users WHERE id = p.created_by)
     ) as author_name
 FROM 
     prompting.prompts p
 WHERE
     p.id IN (
-        SELECT prompt_id FROM auth.api_keys WHERE api_key = encode(digest(:api_key, 'sha256'), 'hex')
+        SELECT prompt_id FROM iam.api_keys WHERE api_key = encode(digest(:api_key, 'sha256'), 'hex')
     )
 ORDER BY updated_at;
 
@@ -320,7 +320,7 @@ AND
                 team_id IN (
                     SELECT 
                         team_id 
-                    FROM tenancy.team_users WHERE user_id = current_app_user())
+                    FROM iam.team_users WHERE user_id = current_app_user())
             )
         OR 
             (d.visibility = 'Company')
@@ -335,7 +335,7 @@ AND
         SELECT id FROM prompting.prompts WHERE model_id IN(
             SELECT id FROM model_registry.models WHERE team_id IN(
                 SELECT team_id 
-                FROM tenancy.team_users 
+                FROM iam.team_users 
                 WHERE user_id = current_app_user()
             )
         )
@@ -426,7 +426,7 @@ AND
         SELECT id FROM prompting.prompts WHERE model_id IN(
             SELECT id FROM model_registry.models WHERE team_id IN(
                 SELECT team_id 
-                FROM tenancy.team_users 
+                FROM iam.team_users 
                 WHERE user_id = current_app_user()
             )
         )
@@ -435,7 +435,7 @@ AND
     model_id IN (
         SELECT id FROM model_registry.models WHERE team_id IN(
             SELECT team_id 
-            FROM tenancy.team_users 
+            FROM iam.team_users 
             WHERE user_id = current_app_user()
         )
     );
@@ -447,4 +447,4 @@ WHERE
     id = :id
 AND
     team_id
-    IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());
+    IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());

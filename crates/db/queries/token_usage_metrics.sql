@@ -14,7 +14,7 @@ SELECT
     type as token_type,
     SUM(tokens) as total_tokens
 FROM llm.token_usage_metrics
-WHERE api_key_id IN (SELECT id FROM auth.api_keys WHERE team_id = :team_id)
+WHERE api_key_id IN (SELECT id FROM iam.api_keys WHERE team_id = :team_id)
     AND created_at >= NOW() - (:days || ' days')::INTERVAL
 GROUP BY DATE(created_at), type
 ORDER BY usage_date DESC;
@@ -24,7 +24,7 @@ SELECT
     DATE(created_at) as request_date,
     COUNT(*) as request_count
 FROM llm.token_usage_metrics
-WHERE api_key_id IN (SELECT id FROM auth.api_keys WHERE team_id = :team_id)
+WHERE api_key_id IN (SELECT id FROM iam.api_keys WHERE team_id = :team_id)
     AND created_at >= NOW() - (:days || ' days')::INTERVAL
 GROUP BY DATE(created_at)
 ORDER BY request_date DESC;

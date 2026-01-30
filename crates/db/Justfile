@@ -20,8 +20,7 @@ db-diagram:
 
     readme = Path("README.md")
     schemas = [
-        "auth",
-        "tenancy",
+        "iam",
         "integrations",
         "llm",
         "prompting",
@@ -34,8 +33,7 @@ db-diagram:
     ]
 
     descriptions = {
-        "auth": "Identity, access, roles, and API credentials.",
-        "tenancy": "Teams, memberships, and multi-tenant ownership data.",
+        "iam": "Identity, access, roles, teams, and memberships.",
         "integrations": "External integrations, connections, and OpenAPI specs.",
         "llm": "Chat conversations, messages, and runtime limits.",
         "prompting": "Prompts, categories, and project metadata for authoring.",

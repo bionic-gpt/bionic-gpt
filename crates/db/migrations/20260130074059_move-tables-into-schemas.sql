@@ -1,6 +1,5 @@
 -- migrate:up
-CREATE SCHEMA IF NOT EXISTS auth;
-CREATE SCHEMA IF NOT EXISTS tenancy;
+CREATE SCHEMA IF NOT EXISTS iam;
 CREATE SCHEMA IF NOT EXISTS integrations;
 CREATE SCHEMA IF NOT EXISTS llm;
 CREATE SCHEMA IF NOT EXISTS prompting;
@@ -10,8 +9,7 @@ CREATE SCHEMA IF NOT EXISTS model_registry;
 CREATE SCHEMA IF NOT EXISTS storage;
 CREATE SCHEMA IF NOT EXISTS ops;
 
-GRANT USAGE ON SCHEMA auth TO application_user;
-GRANT USAGE ON SCHEMA tenancy TO application_user;
+GRANT USAGE ON SCHEMA iam TO application_user;
 GRANT USAGE ON SCHEMA integrations TO application_user;
 GRANT USAGE ON SCHEMA llm TO application_user;
 GRANT USAGE ON SCHEMA prompting TO application_user;
@@ -21,8 +19,7 @@ GRANT USAGE ON SCHEMA model_registry TO application_user;
 GRANT USAGE ON SCHEMA storage TO application_user;
 GRANT USAGE ON SCHEMA ops TO application_user;
 
-GRANT USAGE ON SCHEMA auth TO application_readonly;
-GRANT USAGE ON SCHEMA tenancy TO application_readonly;
+GRANT USAGE ON SCHEMA iam TO application_readonly;
 GRANT USAGE ON SCHEMA integrations TO application_readonly;
 GRANT USAGE ON SCHEMA llm TO application_readonly;
 GRANT USAGE ON SCHEMA prompting TO application_readonly;
@@ -32,14 +29,13 @@ GRANT USAGE ON SCHEMA model_registry TO application_readonly;
 GRANT USAGE ON SCHEMA storage TO application_readonly;
 GRANT USAGE ON SCHEMA ops TO application_readonly;
 
-ALTER TABLE public.users SET SCHEMA auth;
-ALTER TABLE public.invitations SET SCHEMA auth;
-ALTER TABLE public.roles_permissions SET SCHEMA auth;
-ALTER TABLE public.oauth_clients SET SCHEMA auth;
-ALTER TABLE public.api_keys SET SCHEMA auth;
-
-ALTER TABLE public.teams SET SCHEMA tenancy;
-ALTER TABLE public.team_users SET SCHEMA tenancy;
+ALTER TABLE public.users SET SCHEMA iam;
+ALTER TABLE public.invitations SET SCHEMA iam;
+ALTER TABLE public.roles_permissions SET SCHEMA iam;
+ALTER TABLE public.oauth_clients SET SCHEMA iam;
+ALTER TABLE public.api_keys SET SCHEMA iam;
+ALTER TABLE public.teams SET SCHEMA iam;
+ALTER TABLE public.team_users SET SCHEMA iam;
 
 ALTER TABLE public.integrations SET SCHEMA integrations;
 ALTER TABLE public.oauth2_connections SET SCHEMA integrations;
@@ -86,7 +82,7 @@ $$
     SELECT
         system_admin
     FROM
-        auth.users
+        iam.users
     WHERE
         id = current_app_user()
     LIMIT 1
@@ -103,12 +99,12 @@ BEGIN
         RETURN QUERY SELECT
             team_id
         FROM
-            tenancy.team_users;
+            iam.team_users;
     ELSE
         RETURN QUERY SELECT
             team_id
         FROM
-            tenancy.team_users
+            iam.team_users
         WHERE
             user_id = current_app_user();
     END IF;
@@ -120,7 +116,7 @@ $$
     SELECT
         id
     FROM
-        tenancy.teams
+        iam.teams
     WHERE
         created_by_user_id = current_app_user()
 $$ LANGUAGE SQL SECURITY DEFINER;
@@ -136,13 +132,13 @@ BEGIN
         RETURN QUERY SELECT
             user_id
         FROM
-            tenancy.team_users;
+            iam.team_users;
     ELSE
         RETURN QUERY 
             SELECT
                 user_id
             FROM
-                tenancy.team_users
+                iam.team_users
             WHERE
                 team_id IN (SELECT get_teams_for_app_user());
     END IF;
@@ -154,7 +150,7 @@ CREATE OR REPLACE FUNCTION audit_by_user_and_org()
    LANGUAGE PLPGSQL
 AS $$
 DECLARE
-  user_id auth.users.id%type;
+  user_id iam.users.id%type;
 BEGIN
    -- trigger logic
   INSERT INTO ops.audit_trail 
@@ -180,7 +176,7 @@ CREATE OR REPLACE FUNCTION audit_by_user()
    LANGUAGE PLPGSQL
 AS $$
 DECLARE
-  user_id auth.users.id%type;
+  user_id iam.users.id%type;
 BEGIN
    -- trigger logic
   INSERT INTO ops.audit_trail 
@@ -204,7 +200,7 @@ CREATE OR REPLACE FUNCTION audit_chats()
    LANGUAGE PLPGSQL
 AS $$
 DECLARE
-  user_id auth.users.id%type;
+  user_id iam.users.id%type;
   audit_id ops.audit_trail.id%type;
 BEGIN
    -- Only audit when chat status changes to Success (completion)
@@ -232,78 +228,28 @@ DECLARE
     user_count INTEGER;
 BEGIN
     -- Count the number of users in the database
-    SELECT COUNT(*) INTO user_count FROM auth.users;
+    SELECT COUNT(*) INTO user_count FROM iam.users;
 
     RAISE NOTICE 'Got Users (%)', user_count;
 
     -- If only one user exists, set the new user as admin
     IF user_count = 1 THEN
-        UPDATE auth.users SET system_admin = TRUE;
+        UPDATE iam.users SET system_admin = TRUE;
     END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION set_team_slug()
-RETURNS TRIGGER AS $$
-DECLARE
-    base_slug text;
-    email_prefix text;
-BEGIN
-    IF slugify_simple(NEW.name) = '' THEN
-        SELECT split_part(email, '@', 1)
-        INTO email_prefix
-        FROM auth.users
-        WHERE id = NEW.created_by_user_id;
-
-        base_slug := slugify_simple(email_prefix);
-        IF base_slug = '' THEN
-            base_slug := 'team';
-        END IF;
-    ELSE
-        base_slug := slugify_simple(NEW.name);
-    END IF;
-
-    NEW.slug := base_slug || '--' || NEW.id::text;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION set_team_slug()
-RETURNS TRIGGER AS $$
-DECLARE
-    base_slug text;
-    email_prefix text;
-BEGIN
-    IF slugify_simple(NEW.name) = '' THEN
-        SELECT split_part(email, '@', 1)
-        INTO email_prefix
-        FROM auth.users
-        WHERE id = NEW.created_by_user_id;
-
-        base_slug := slugify_simple(email_prefix);
-        IF base_slug = '' THEN
-            base_slug := 'team';
-        END IF;
-    ELSE
-        base_slug := slugify_simple(NEW.name);
-    END IF;
-
-    NEW.slug := base_slug || '--' || NEW.id::text;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 -- migrate:down
-ALTER TABLE auth.users SET SCHEMA public;
-ALTER TABLE auth.invitations SET SCHEMA public;
-ALTER TABLE auth.roles_permissions SET SCHEMA public;
-ALTER TABLE auth.oauth_clients SET SCHEMA public;
-ALTER TABLE auth.api_keys SET SCHEMA public;
+ALTER TABLE iam.users SET SCHEMA public;
+ALTER TABLE iam.invitations SET SCHEMA public;
+ALTER TABLE iam.roles_permissions SET SCHEMA public;
+ALTER TABLE iam.oauth_clients SET SCHEMA public;
+ALTER TABLE iam.api_keys SET SCHEMA public;
 
-ALTER TABLE tenancy.teams SET SCHEMA public;
-ALTER TABLE tenancy.team_users SET SCHEMA public;
+ALTER TABLE iam.teams SET SCHEMA public;
+ALTER TABLE iam.team_users SET SCHEMA public;
 
 ALTER TABLE integrations.integrations SET SCHEMA public;
 ALTER TABLE integrations.oauth2_connections SET SCHEMA public;
@@ -509,33 +455,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION set_team_slug()
-RETURNS TRIGGER AS $$
-DECLARE
-    base_slug text;
-    email_prefix text;
-BEGIN
-    IF slugify_simple(NEW.name) = '' THEN
-        SELECT split_part(email, '@', 1)
-        INTO email_prefix
-        FROM users
-        WHERE id = NEW.created_by_user_id;
-
-        base_slug := slugify_simple(email_prefix);
-        IF base_slug = '' THEN
-            base_slug := 'team';
-        END IF;
-    ELSE
-        base_slug := slugify_simple(NEW.name);
-    END IF;
-
-    NEW.slug := base_slug || '--' || NEW.id::text;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP SCHEMA IF EXISTS auth;
-DROP SCHEMA IF EXISTS tenancy;
+DROP SCHEMA IF EXISTS iam;
 DROP SCHEMA IF EXISTS integrations;
 DROP SCHEMA IF EXISTS llm;
 DROP SCHEMA IF EXISTS prompting;

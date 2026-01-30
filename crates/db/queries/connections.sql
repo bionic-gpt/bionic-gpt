@@ -146,7 +146,7 @@ FROM (
         i.definition
     FROM integrations.integrations i
     JOIN integrations.api_key_connections c ON c.integration_id = i.id
-    JOIN auth.users u ON u.id = c.user_id
+    JOIN iam.users u ON u.id = c.user_id
     WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
       AND c.external_id = :external_id
 
@@ -161,7 +161,7 @@ FROM (
         i.definition
     FROM integrations.integrations i
     JOIN integrations.oauth2_connections c ON c.integration_id = i.id
-    JOIN auth.users u ON u.id = c.user_id
+    JOIN iam.users u ON u.id = c.user_id
     WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
       AND c.external_id = :external_id
 ) AS ctx
@@ -177,7 +177,7 @@ SELECT
     i.definition
 FROM integrations.integrations i
 JOIN integrations.api_key_connections c ON c.integration_id = i.id
-JOIN auth.users u ON u.id = c.user_id
+JOIN iam.users u ON u.id = c.user_id
 WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
   AND c.external_id = :external_id
 LIMIT 1;
@@ -194,7 +194,7 @@ SELECT
     i.definition
 FROM integrations.integrations i
 JOIN integrations.oauth2_connections c ON c.integration_id = i.id
-JOIN auth.users u ON u.id = c.user_id
+JOIN iam.users u ON u.id = c.user_id
 WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
   AND c.external_id = :external_id
 LIMIT 1;

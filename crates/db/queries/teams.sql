@@ -4,23 +4,23 @@
 SELECT 
     id, name, slug
 FROM 
-    tenancy.teams
+    iam.teams
 WHERE
     id = :org_id
     AND EXISTS (
         SELECT 1
-        FROM tenancy.team_users tu
+        FROM iam.team_users tu
         WHERE tu.team_id = teams.id AND tu.user_id = current_app_user()
     );
     
 --! delete
-DELETE FROM tenancy.teams 
+DELETE FROM iam.teams 
 WHERE
     id = :org_id;
 
 --! set_name
 UPDATE
-    tenancy.teams
+    iam.teams
 SET 
     name = :name
 WHERE
@@ -30,7 +30,7 @@ WHERE
 SELECT 
     id, name, slug
 FROM 
-    tenancy.teams
+    iam.teams
 WHERE
     created_by_user_id = :created_by_user_id
 ORDER BY id ASC
@@ -40,12 +40,12 @@ LIMIT 1;
 SELECT 
     id, name, slug
 FROM 
-    tenancy.teams
+    iam.teams
 WHERE
     slug = :slug
     AND EXISTS (
         SELECT 1
-        FROM tenancy.team_users tu
+        FROM iam.team_users tu
         WHERE tu.team_id = teams.id AND tu.user_id = current_app_user()
     );
 
@@ -54,18 +54,18 @@ WHERE
 SELECT
     id
 FROM
-    tenancy.teams
+    iam.teams
 WHERE
     slug = :slug;
 
 --! add_user_to_team
 INSERT INTO 
-    tenancy.team_users (user_id, team_id, roles)
+    iam.team_users (user_id, team_id, roles)
 VALUES(:user_id, :team_id, :roles);
 
 --! insert_team
 INSERT INTO 
-    tenancy.teams (created_by_user_id)
+    iam.teams (created_by_user_id)
 VALUES(current_app_user()) 
 RETURNING id;
 
@@ -78,8 +78,8 @@ SELECT
     u.last_name,
     ou.roles
 FROM 
-    tenancy.team_users ou
-LEFT JOIN auth.users u ON u.id = ou.user_id
+    iam.team_users ou
+LEFT JOIN iam.users u ON u.id = ou.user_id
 WHERE
     ou.team_id = :team_id;
 
@@ -90,16 +90,16 @@ SELECT
     o.slug as team_slug,
     u.email as team_owner
 FROM 
-    tenancy.team_users ou
-LEFT JOIN tenancy.teams o ON o.id = ou.team_id
-LEFT JOIN auth.users u ON u.id = o.created_by_user_id
+    iam.team_users ou
+LEFT JOIN iam.teams o ON o.id = ou.team_id
+LEFT JOIN iam.users u ON u.id = o.created_by_user_id
 WHERE
     ou.user_id = :user_id
 ORDER BY o.name ASC;
 
 --! remove_user
 DELETE FROM
-    tenancy.team_users
+    iam.team_users
 WHERE
     user_id = :user_id_to_remove
 AND

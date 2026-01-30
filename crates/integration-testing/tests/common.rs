@@ -110,7 +110,7 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
-            .execute("DELETE FROM auth.users", &[])
+            .execute("DELETE FROM iam.users", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 

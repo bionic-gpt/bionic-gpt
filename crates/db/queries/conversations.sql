@@ -22,7 +22,7 @@ WHERE
     user_id = current_app_user()
 AND
     -- Make sure the user has access to this conversation
-    team_id IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user())
+    team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
 ORDER BY created_at DESC
 LIMIT 1;
 

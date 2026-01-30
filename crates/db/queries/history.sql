@@ -64,7 +64,7 @@ AND
     -- Make sure the user has access to this conversation
     c.team_id IN (
         SELECT team_id
-        FROM tenancy.team_users
+        FROM iam.team_users
         WHERE user_id = current_app_user()
     )
 ORDER BY c.created_at DESC
@@ -101,7 +101,7 @@ WHERE
 AND
     c.team_id IN (
         SELECT team_id
-        FROM tenancy.team_users
+        FROM iam.team_users
         WHERE user_id = current_app_user()
     )
 ORDER BY c.created_at DESC

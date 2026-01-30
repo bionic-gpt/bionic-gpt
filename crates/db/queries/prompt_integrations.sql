@@ -25,7 +25,7 @@ AND
         SELECT id FROM prompting.prompts WHERE model_id IN(
             SELECT id FROM model_registry.models WHERE team_id IN(
                 SELECT team_id 
-                FROM tenancy.team_users 
+                FROM iam.team_users 
                 WHERE user_id = current_app_user()
             )
         )
@@ -85,7 +85,7 @@ AND prompt_id IN (
     SELECT id FROM prompting.prompts WHERE model_id IN(
         SELECT id FROM model_registry.models WHERE team_id IN(
             SELECT team_id
-            FROM tenancy.team_users
+            FROM iam.team_users
             WHERE user_id = current_app_user()
         )
     )

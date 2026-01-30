@@ -2,13 +2,13 @@
 SELECT 
     id, email, first_name, last_name, system_admin
 FROM 
-    auth.users
+    iam.users
 WHERE
     id = :id;
     
 --! insert(first_name?, last_name?)
 INSERT INTO 
-    auth.users (openid_sub, email, first_name, last_name)
+    iam.users (openid_sub, email, first_name, last_name)
 VALUES(:openid_sub, :email, :first_name, :last_name) 
 RETURNING id;
 
@@ -16,7 +16,7 @@ RETURNING id;
 SELECT 
     id, email, first_name, last_name, system_admin
 FROM 
-    auth.users
+    iam.users
 WHERE
     openid_sub = :openid_sub;
 
@@ -24,13 +24,13 @@ WHERE
 SELECT 
     id, email, first_name, last_name
 FROM 
-    auth.users
+    iam.users
 WHERE
     email = :email;
 
 --! set_name(first_name, last_name, current_user_id)
 UPDATE
-    auth.users
+    iam.users
 SET 
     first_name = :first_name, last_name = :last_name
 WHERE
@@ -40,22 +40,22 @@ WHERE
 SELECT
     count(id)
 FROM
-    auth.users;
+    iam.users;
 
 --! get_permissions
 SELECT 
     permission
 FROM 
-    auth.roles_permissions
+    iam.roles_permissions
 WHERE role IN (
     SELECT UNNEST(tu.roles)
-    FROM tenancy.team_users tu
+    FROM iam.team_users tu
     WHERE tu.team_id = :team_id AND tu.user_id = current_app_user()
 )
 OR (
     EXISTS (
         SELECT 1
-        FROM auth.users
+        FROM iam.users
         WHERE system_admin = true AND id = current_app_user()
     )
     AND role = 'SystemAdministrator'
