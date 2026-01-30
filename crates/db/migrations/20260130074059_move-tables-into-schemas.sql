@@ -10,6 +10,28 @@ CREATE SCHEMA IF NOT EXISTS model_registry;
 CREATE SCHEMA IF NOT EXISTS storage;
 CREATE SCHEMA IF NOT EXISTS ops;
 
+GRANT USAGE ON SCHEMA auth TO application_user;
+GRANT USAGE ON SCHEMA tenancy TO application_user;
+GRANT USAGE ON SCHEMA integrations TO application_user;
+GRANT USAGE ON SCHEMA llm TO application_user;
+GRANT USAGE ON SCHEMA prompting TO application_user;
+GRANT USAGE ON SCHEMA automation TO application_user;
+GRANT USAGE ON SCHEMA rag TO application_user;
+GRANT USAGE ON SCHEMA model_registry TO application_user;
+GRANT USAGE ON SCHEMA storage TO application_user;
+GRANT USAGE ON SCHEMA ops TO application_user;
+
+GRANT USAGE ON SCHEMA auth TO application_readonly;
+GRANT USAGE ON SCHEMA tenancy TO application_readonly;
+GRANT USAGE ON SCHEMA integrations TO application_readonly;
+GRANT USAGE ON SCHEMA llm TO application_readonly;
+GRANT USAGE ON SCHEMA prompting TO application_readonly;
+GRANT USAGE ON SCHEMA automation TO application_readonly;
+GRANT USAGE ON SCHEMA rag TO application_readonly;
+GRANT USAGE ON SCHEMA model_registry TO application_readonly;
+GRANT USAGE ON SCHEMA storage TO application_readonly;
+GRANT USAGE ON SCHEMA ops TO application_readonly;
+
 ALTER TABLE public.users SET SCHEMA auth;
 ALTER TABLE public.invitations SET SCHEMA auth;
 ALTER TABLE public.roles_permissions SET SCHEMA auth;
@@ -223,6 +245,55 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+CREATE OR REPLACE FUNCTION set_team_slug()
+RETURNS TRIGGER AS $$
+DECLARE
+    base_slug text;
+    email_prefix text;
+BEGIN
+    IF slugify_simple(NEW.name) = '' THEN
+        SELECT split_part(email, '@', 1)
+        INTO email_prefix
+        FROM auth.users
+        WHERE id = NEW.created_by_user_id;
+
+        base_slug := slugify_simple(email_prefix);
+        IF base_slug = '' THEN
+            base_slug := 'team';
+        END IF;
+    ELSE
+        base_slug := slugify_simple(NEW.name);
+    END IF;
+
+    NEW.slug := base_slug || '--' || NEW.id::text;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION set_team_slug()
+RETURNS TRIGGER AS $$
+DECLARE
+    base_slug text;
+    email_prefix text;
+BEGIN
+    IF slugify_simple(NEW.name) = '' THEN
+        SELECT split_part(email, '@', 1)
+        INTO email_prefix
+        FROM auth.users
+        WHERE id = NEW.created_by_user_id;
+
+        base_slug := slugify_simple(email_prefix);
+        IF base_slug = '' THEN
+            base_slug := 'team';
+        END IF;
+    ELSE
+        base_slug := slugify_simple(NEW.name);
+    END IF;
+
+    NEW.slug := base_slug || '--' || NEW.id::text;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 -- migrate:down
 ALTER TABLE auth.users SET SCHEMA public;
@@ -437,6 +508,31 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION set_team_slug()
+RETURNS TRIGGER AS $$
+DECLARE
+    base_slug text;
+    email_prefix text;
+BEGIN
+    IF slugify_simple(NEW.name) = '' THEN
+        SELECT split_part(email, '@', 1)
+        INTO email_prefix
+        FROM users
+        WHERE id = NEW.created_by_user_id;
+
+        base_slug := slugify_simple(email_prefix);
+        IF base_slug = '' THEN
+            base_slug := 'team';
+        END IF;
+    ELSE
+        base_slug := slugify_simple(NEW.name);
+    END IF;
+
+    NEW.slug := base_slug || '--' || NEW.id::text;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 DROP SCHEMA IF EXISTS auth;
 DROP SCHEMA IF EXISTS tenancy;
