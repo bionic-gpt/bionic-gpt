@@ -1,6 +1,10 @@
 use db::Pool;
 use rand::Rng;
 use std::env;
+use std::panic::AssertUnwindSafe;
+use std::pin::Pin;
+
+use futures::FutureExt;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
@@ -326,4 +330,33 @@ pub fn hex_to_bytes(hex: &str) -> Result<Vec<u8>, std::num::ParseIntError> {
 pub fn random_email() -> String {
     let mut rng = rand::rng();
     format!("{}@test.com", rng.random::<u32>())
+}
+
+pub async fn run_with_driver<T, F>(config: &Config, test: F) -> WebDriverResult<T>
+where
+    for<'a> F: FnOnce(
+        &'a WebDriver,
+    ) -> Pin<Box<dyn std::future::Future<Output = WebDriverResult<T>> + 'a>>,
+{
+    let driver = config.get_driver().await?;
+    let result = AssertUnwindSafe(test(&driver)).catch_unwind().await;
+
+    let quit_result = driver.quit().await;
+
+    match result {
+        Ok(Ok(value)) => {
+            if let Err(err) = quit_result {
+                return Err(err);
+            }
+            Ok(value)
+        }
+        Ok(Err(err)) => {
+            let _ = quit_result;
+            Err(err)
+        }
+        Err(panic) => {
+            let _ = quit_result;
+            std::panic::resume_unwind(panic)
+        }
+    }
 }

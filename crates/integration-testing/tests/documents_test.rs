@@ -8,21 +8,23 @@ use tokio::time::{sleep, Duration};
 async fn run_documents() -> WebDriverResult<()> {
     let config = common::Config::new().await;
 
-    let driver = config.get_driver().await?;
+    common::run_with_driver(&config, |driver| {
+        let config = config.clone();
+        Box::pin(async move {
+            driver.goto(format!("{}/", &config.application_url)).await?;
 
-    driver.goto(format!("{}/", &config.application_url)).await?;
+            println!("Testing : register_user");
 
-    println!("Testing : register_user");
+            let _email = common::register_user(driver, &config).await?;
 
-    let _email = common::register_user(&driver, &config).await?;
+            test_documents(driver).await?;
 
-    test_documents(&driver).await?;
+            test_pipelines(driver).await?;
 
-    test_pipelines(&driver).await?;
-
-    driver.quit().await?;
-
-    Ok(())
+            Ok(())
+        })
+    })
+    .await
 }
 
 async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {

@@ -8,15 +8,11 @@ use tokio::time::{sleep, Duration};
 async fn run_api_keys() -> WebDriverResult<()> {
     let config = common::Config::new().await;
 
-    let driver = config.get_driver().await?;
-
-    let result = api_keys(&driver, &config).await;
-
-    driver.quit().await?;
-
-    result?;
-
-    Ok(())
+    common::run_with_driver(&config, |driver| {
+        let config = config.clone();
+        Box::pin(async move { api_keys(driver, &config).await })
+    })
+    .await
 }
 
 async fn api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {

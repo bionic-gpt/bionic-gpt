@@ -2572,6 +2572,7 @@ name = "integration-testing"
 version = "0.1.0"
 dependencies = [
  "db",
+ "futures",
  "quoted_printable",
  "rand 0.9.1",
  "reqwest 0.13.1",

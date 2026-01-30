@@ -8,15 +8,11 @@ use tokio::time::{sleep, Duration};
 async fn run_multi_user() -> WebDriverResult<()> {
     let config = common::Config::new().await;
 
-    let driver = config.get_driver().await?;
-
-    let result = multi_user(&driver, &config).await;
-
-    driver.quit().await?;
-
-    result?;
-
-    Ok(())
+    common::run_with_driver(&config, |driver| {
+        let config = config.clone();
+        Box::pin(async move { multi_user(driver, &config).await })
+    })
+    .await
 }
 
 async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
