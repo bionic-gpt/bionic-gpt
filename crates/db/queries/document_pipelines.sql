@@ -7,11 +7,11 @@ SELECT
     a.dataset_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM datasets p WHERE p.id = a.dataset_id) as dataset_name,
+    (SELECT name FROM rag.datasets p WHERE p.id = a.dataset_id) as dataset_name,
     a.api_key,
     a.created_at
 FROM
-    document_pipelines a
+    rag.document_pipelines a
 WHERE 
     a.team_id = :team_id
 AND
@@ -19,7 +19,7 @@ AND
 ORDER BY created_at DESC;
 
 --! insert
-INSERT INTO document_pipelines 
+INSERT INTO rag.document_pipelines 
     (dataset_id, user_id, team_id, name, api_key)
 VALUES
     (:dataset_id, :user_id, :team_id, :name, :api_key);
@@ -31,19 +31,19 @@ SELECT
     a.dataset_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM datasets p WHERE p.id = a.dataset_id) as dataset_name,
+    (SELECT name FROM rag.datasets p WHERE p.id = a.dataset_id) as dataset_name,
     a.api_key,
     a.created_at
 FROM
-    document_pipelines a
+    rag.document_pipelines a
 WHERE
     a.api_key = :api_key;
 
 --! delete
 DELETE FROM
-    document_pipelines
+    rag.document_pipelines
 WHERE
     id = :id
 AND
     team_id
-    IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
+    IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());

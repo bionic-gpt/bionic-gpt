@@ -8,11 +8,11 @@ SELECT
     l.rpm_limit,
     l.created_at
 FROM
-    rate_limits l
+    llm.rate_limits l
 ORDER BY created_at DESC;
 
 --! new
-INSERT INTO rate_limits
+INSERT INTO llm.rate_limits
     (api_key_id, tpm_limit, rpm_limit)
 VALUES
     (:api_key_id, :tpm_limit, :rpm_limit)
@@ -20,6 +20,6 @@ RETURNING id;
 
 --! delete
 DELETE FROM
-    rate_limits
+    llm.rate_limits
 WHERE
     id = :rate_limit_id;

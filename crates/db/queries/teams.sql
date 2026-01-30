@@ -4,23 +4,23 @@
 SELECT 
     id, name, slug
 FROM 
-    teams
+    tenancy.teams
 WHERE
     id = :org_id
     AND EXISTS (
         SELECT 1
-        FROM team_users tu
+        FROM tenancy.team_users tu
         WHERE tu.team_id = teams.id AND tu.user_id = current_app_user()
     );
     
 --! delete
-DELETE FROM teams 
+DELETE FROM tenancy.teams 
 WHERE
     id = :org_id;
 
 --! set_name
 UPDATE
-    teams
+    tenancy.teams
 SET 
     name = :name
 WHERE
@@ -30,7 +30,7 @@ WHERE
 SELECT 
     id, name, slug
 FROM 
-    teams
+    tenancy.teams
 WHERE
     created_by_user_id = :created_by_user_id
 ORDER BY id ASC
@@ -40,12 +40,12 @@ LIMIT 1;
 SELECT 
     id, name, slug
 FROM 
-    teams
+    tenancy.teams
 WHERE
     slug = :slug
     AND EXISTS (
         SELECT 1
-        FROM team_users tu
+        FROM tenancy.team_users tu
         WHERE tu.team_id = teams.id AND tu.user_id = current_app_user()
     );
 
@@ -54,18 +54,18 @@ WHERE
 SELECT
     id
 FROM
-    teams
+    tenancy.teams
 WHERE
     slug = :slug;
 
 --! add_user_to_team
 INSERT INTO 
-    team_users (user_id, team_id, roles)
+    tenancy.team_users (user_id, team_id, roles)
 VALUES(:user_id, :team_id, :roles);
 
 --! insert_team
 INSERT INTO 
-    teams (created_by_user_id)
+    tenancy.teams (created_by_user_id)
 VALUES(current_app_user()) 
 RETURNING id;
 
@@ -78,8 +78,8 @@ SELECT
     u.last_name,
     ou.roles
 FROM 
-    team_users ou
-LEFT JOIN users u ON u.id = ou.user_id
+    tenancy.team_users ou
+LEFT JOIN auth.users u ON u.id = ou.user_id
 WHERE
     ou.team_id = :team_id;
 
@@ -90,16 +90,16 @@ SELECT
     o.slug as team_slug,
     u.email as team_owner
 FROM 
-    team_users ou
-LEFT JOIN teams o ON o.id = ou.team_id
-LEFT JOIN users u ON u.id = o.created_by_user_id
+    tenancy.team_users ou
+LEFT JOIN tenancy.teams o ON o.id = ou.team_id
+LEFT JOIN auth.users u ON u.id = o.created_by_user_id
 WHERE
     ou.user_id = :user_id
 ORDER BY o.name ASC;
 
 --! remove_user
 DELETE FROM
-    team_users
+    tenancy.team_users
 WHERE
     user_id = :user_id_to_remove
 AND

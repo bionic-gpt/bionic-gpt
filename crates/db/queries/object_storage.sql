@@ -11,7 +11,7 @@ SELECT
     file_hash,
     created_by
 FROM 
-    objects 
+    storage.objects 
 WHERE 
     id = :id
 LIMIT 1;
@@ -27,14 +27,14 @@ SELECT
     file_hash,
     created_by
 FROM 
-    objects 
+    storage.objects 
 WHERE 
     id = :id 
 AND team_id = :team_id 
 LIMIT 1;
 
 --! insert
-INSERT INTO objects (
+INSERT INTO storage.objects (
     object_name,
     team_id,
     object_data,
@@ -56,4 +56,4 @@ INSERT INTO objects (
 RETURNING id;
 
 --! delete
-DELETE FROM objects WHERE id = :id;
+DELETE FROM storage.objects WHERE id = :id;

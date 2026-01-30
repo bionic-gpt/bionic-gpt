@@ -29,7 +29,7 @@ SELECT
     COALESCE(SUM(im.tpm_sent), 0)::int AS tpm_sent,
     COALESCE(SUM(im.tpm_recv), 0)::int AS tpm_recv
 FROM
-    models m
+    model_registry.models m
 LEFT JOIN
     inference_metrics im
 ON

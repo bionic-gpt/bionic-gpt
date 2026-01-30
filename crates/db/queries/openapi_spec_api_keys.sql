@@ -5,7 +5,7 @@
 SELECT
     EXISTS (
         SELECT 1
-        FROM openapi_spec_api_keys
+        FROM integrations.openapi_spec_api_keys
         WHERE openapi_spec_id = :openapi_spec_id
     ) AS has_key;
 
@@ -14,12 +14,12 @@ SELECT
     openapi_spec_id,
     decrypt_text(api_key) AS api_key
 FROM
-    openapi_spec_api_keys
+    integrations.openapi_spec_api_keys
 WHERE
     openapi_spec_id = :openapi_spec_id;
 
 --! upsert
-INSERT INTO openapi_spec_api_keys (
+INSERT INTO integrations.openapi_spec_api_keys (
     openapi_spec_id,
     api_key
 ) VALUES (
@@ -32,5 +32,5 @@ DO UPDATE SET
     updated_at = NOW();
 
 --! delete
-DELETE FROM openapi_spec_api_keys
+DELETE FROM integrations.openapi_spec_api_keys
 WHERE openapi_spec_id = :openapi_spec_id;

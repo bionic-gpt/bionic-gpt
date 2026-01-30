@@ -2,7 +2,7 @@
 --: AttachmentData()
 
 --! insert
-INSERT INTO chats_attachments (
+INSERT INTO llm.chats_attachments (
     chat_id,
     object_id
 ) VALUES (
@@ -21,11 +21,11 @@ SELECT
     o.created_by,
     o.created_at
 FROM
-    objects o
+    storage.objects o
 JOIN
-    chats_attachments ca ON o.id = ca.object_id
+    llm.chats_attachments ca ON o.id = ca.object_id
 JOIN
-    chats c ON ca.chat_id = c.id
+    llm.chats c ON ca.chat_id = c.id
 WHERE
     c.conversation_id = :conversation_id;
 
@@ -35,13 +35,13 @@ SELECT
     o.file_name,
     o.mime_type
 FROM
-    objects o
+    storage.objects o
 JOIN
-    chats_attachments ca ON o.id = ca.object_id
+    llm.chats_attachments ca ON o.id = ca.object_id
 JOIN
-    chats c ON ca.chat_id = c.id
+    llm.chats c ON ca.chat_id = c.id
 JOIN
-    conversations conv ON c.conversation_id = conv.id
+    llm.conversations conv ON c.conversation_id = conv.id
 WHERE
     o.id = :id
 AND
@@ -53,13 +53,13 @@ SELECT
     o.file_name,
     o.mime_type
 FROM
-    objects o
+    storage.objects o
 JOIN
-    chats_attachments ca ON o.id = ca.object_id
+    llm.chats_attachments ca ON o.id = ca.object_id
 JOIN
-    chats ch ON ca.chat_id = ch.id
+    llm.chats ch ON ca.chat_id = ch.id
 JOIN
-    conversations c ON ch.conversation_id = c.id
+    llm.conversations c ON ch.conversation_id = c.id
 WHERE
     c.id = :conversation_id
 AND

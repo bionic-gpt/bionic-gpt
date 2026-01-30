@@ -6,7 +6,7 @@
 --: McpOauth2Secret(connection_id, integration_id, user_id, user_openid_sub?, access_token?, refresh_token?, expires_at?, definition?)
 
 --! insert_oauth2_connection(refresh_token?, expires_at?)
-INSERT INTO oauth2_connections (
+INSERT INTO integrations.oauth2_connections (
     integration_id,
     user_id,
     team_id,
@@ -27,7 +27,7 @@ INSERT INTO oauth2_connections (
 ) RETURNING id;
 
 --! update_oauth2_connection(refresh_token?, expires_at?)
-UPDATE oauth2_connections
+UPDATE integrations.oauth2_connections
 SET
     access_token = encrypt_text(:access_token),
     refresh_token = encrypt_text(:refresh_token),
@@ -43,14 +43,14 @@ SELECT
     decrypt_text(oc.refresh_token) AS refresh_token,
     oc.expires_at,
     i.definition
-FROM oauth2_connections oc
-JOIN integrations i ON oc.integration_id = i.id
+FROM integrations.oauth2_connections oc
+JOIN integrations.integrations i ON oc.integration_id = i.id
 WHERE
     oc.refresh_token IS NOT NULL
     AND (oc.expires_at IS NULL OR oc.expires_at <= NOW() + INTERVAL '1 day');
 
 --! insert_api_key_connection
-INSERT INTO api_key_connections (
+INSERT INTO integrations.api_key_connections (
     integration_id,
     user_id,
     team_id,
@@ -74,7 +74,7 @@ SELECT
     external_id,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at
-FROM api_key_connections
+FROM integrations.api_key_connections
 WHERE integration_id = :integration_id AND team_id = :team_id;
 
 --! get_oauth2_connections_for_integration : Oauth2Connection
@@ -89,15 +89,15 @@ SELECT
     scopes,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at
-FROM oauth2_connections
+FROM integrations.oauth2_connections
 WHERE integration_id = :integration_id AND team_id = :team_id;
 
 --! delete_api_key_connection
-DELETE FROM api_key_connections
+DELETE FROM integrations.api_key_connections
 WHERE id = :connection_id AND team_id = :team_id;
 
 --! delete_oauth2_connection
-DELETE FROM oauth2_connections
+DELETE FROM integrations.oauth2_connections
 WHERE id = :connection_id AND team_id = :team_id;
 
 --! get_team_api_key_connections : ApiKeyConnection
@@ -110,7 +110,7 @@ SELECT
     external_id,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at
-FROM api_key_connections
+FROM integrations.api_key_connections
 WHERE team_id = :team_id AND integration_id = :integration_id;
 
 --! get_team_oauth2_connections : Oauth2Connection
@@ -125,7 +125,7 @@ SELECT
     scopes,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at
-FROM oauth2_connections
+FROM integrations.oauth2_connections
 WHERE team_id = :team_id AND integration_id = :integration_id;
 
 --! mcp_connection_context : McpConnectionContext
@@ -144,9 +144,9 @@ FROM (
         c.user_id,
         u.openid_sub AS user_openid_sub,
         i.definition
-    FROM integrations i
-    JOIN api_key_connections c ON c.integration_id = i.id
-    JOIN users u ON u.id = c.user_id
+    FROM integrations.integrations i
+    JOIN integrations.api_key_connections c ON c.integration_id = i.id
+    JOIN auth.users u ON u.id = c.user_id
     WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
       AND c.external_id = :external_id
 
@@ -159,9 +159,9 @@ FROM (
         c.user_id,
         u.openid_sub AS user_openid_sub,
         i.definition
-    FROM integrations i
-    JOIN oauth2_connections c ON c.integration_id = i.id
-    JOIN users u ON u.id = c.user_id
+    FROM integrations.integrations i
+    JOIN integrations.oauth2_connections c ON c.integration_id = i.id
+    JOIN auth.users u ON u.id = c.user_id
     WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
       AND c.external_id = :external_id
 ) AS ctx
@@ -175,9 +175,9 @@ SELECT
     u.openid_sub AS user_openid_sub,
     decrypt_text(c.api_key) AS api_key,
     i.definition
-FROM integrations i
-JOIN api_key_connections c ON c.integration_id = i.id
-JOIN users u ON u.id = c.user_id
+FROM integrations.integrations i
+JOIN integrations.api_key_connections c ON c.integration_id = i.id
+JOIN auth.users u ON u.id = c.user_id
 WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
   AND c.external_id = :external_id
 LIMIT 1;
@@ -192,9 +192,9 @@ SELECT
     decrypt_text(c.refresh_token) AS refresh_token,
     c.expires_at,
     i.definition
-FROM integrations i
-JOIN oauth2_connections c ON c.integration_id = i.id
-JOIN users u ON u.id = c.user_id
+FROM integrations.integrations i
+JOIN integrations.oauth2_connections c ON c.integration_id = i.id
+JOIN auth.users u ON u.id = c.user_id
 WHERE LOWER(COALESCE(i.definition->'info'->>'x-bionic-slug', i.definition->'info'->>'bionic-slug')) = LOWER(:slug)
   AND c.external_id = :external_id
 LIMIT 1;
