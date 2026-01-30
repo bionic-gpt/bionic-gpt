@@ -35,36 +35,19 @@ get-config:
     echo "✅ kubeconfig updated and TLS verification disabled"
 
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
-wa:
-    CHUNKING_ENGINE=http://localhost:8000 \
-    DANGER_JWT_OVERRIDE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc" \
-    AUTOMATIONS_FEATURE=1 \
-    ENABLE_PROJECTS=1 \
-    LICENCE='{"end_date": "2028-12-31T00:00:00Z", "hostname_url": "http://localhost:7703", "signature": "lMWJJdsUGKepbp7SNCI3Zldl9l0kLOXGbgziBDHk3Q0Jm/ilI4ueDFLx1x/gVmm3xBWHJVCg21OuAm/UlTE5BQ==", "user_count": 2, "app_name": "Bionic", "app_logo_svg": "PHN2ZyB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDE0NCAxNDQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPCEtLSBSYWRpYWwgZ3JhZGllbnQgYmFja2dyb3VuZCAtLT4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmdHcmFkaWVudCIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzRlN2VmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxZjNjY2YiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CgogICAgPCEtLSBEcm9wIHNoYWRvdyBmaWx0ZXIgLS0+CiAgICA8ZmlsdGVyIGlkPSJkcm9wU2hhZG93IiB4PSItNTAlIiB5PSItNTAlIiB3aWR0aD0iMjAwJSIgaGVpZ2h0PSIyMDAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMiIgZmxvb2QtY29sb3I9ImJsYWNrIiBmbG9vZC1vcGFjaXR5PSIwLjciLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KCiAgPCEtLSBSb3VuZGVkIGJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjE0NCIgaGVpZ2h0PSIxNDQiIHJ4PSIyNCIgcnk9IjI0IiBmaWxsPSJ1cmwoI2JnR3JhZGllbnQpIiAvPgogIDxzdHlsZT4KICAgIC5zbWFsbCB7IAogICAgICAgIGZvbnQ6IG5vcm1hbCAxMjBweCBzYW5zLXNlcmlmOyAKICAgICAgICBmaWxsOiB3aGl0ZTsKICAgIH0KICA8L3N0eWxlPgogIDwhLS0gQmlnZ2VyLCBib2xkZXIgQiB3aXRoIGRyb3Agc2hhZG93IC0tPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgY2xhc3M9InNtYWxsIiBmaWxsPSJ3aGl0ZSIKICAgICAgICBmaWx0ZXI9InVybCgjZHJvcFNoYWRvdykiPgogICAgQgogIDwvdGV4dD4KPC9zdmc+"}' \
-    mold -run cargo watch --workdir /workspace/ \
-        -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
-        -w crates/web-server -w crates/db -w crates/web-assets/dist \
-        -w crates/web-assets/images -w crates/web-assets/typescript \
-        -w crates/web-assets/index.ts \
-        -w crates/web-assets/input.css \
-        --no-gitignore -x "run --bin web-server"
+wa env_file=".env":
+    #!/usr/bin/env bash
+    set -euo pipefail
 
-wad:
-    CHUNKING_ENGINE=http://localhost:8000 \
-    LICENCE='{"end_date":"2028-12-31T00:00:00Z","hostname_url":"http://localhost:7703","redirect_url":"/o/{team_id}/integrations","user_count":100000,"app_name":"Deploy","app_logo_svg":"PHN2ZyBmaWxsPSIjMDAwMDAwIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGlkPSJpY29uIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCI+PC9nPgo8ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz4KPGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPgo8ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6bm9uZTt9PC9zdHlsZT48L2RlZnM+Cjx0aXRsZT5kZXBsb3ktcnVsZXM8L3RpdGxlPgo8cG9seWdvbiBwb2ludHM9IjE4IDQgMTIgMTAgMTMuNDEgMTEuNDEgMTcgNy44MyAxNyAyMCAxOSAyMCAxOSA3LjgzIDIyLjU5IDExLjQxIDI0IDEwIDE4IDQiPjwvcG9seWdvbj4KPHJlY3QgeD0iOCIgeT0iMTgiIHdpZHRoPSI3IiBoZWlnaHQ9IjIiPjwvcmVjdD4KPHJlY3QgeD0iOCIgeT0iMjIiIHdpZHRoPSIxNiIgaGVpZ2h0PSIyIj48L3JlY3Q+CjxyZWN0IHg9IjgiIHk9IjI2IiB3aWR0aD0iMTYiIGhlaWdodD0iMiI+PC9yZWN0Pgo8cmVjdCBpZD0iX1RyYW5zcGFyZW50X1JlY3RhbmdsZV8iIGRhdGEtbmFtZT0iJmx0O1RyYW5zcGFyZW50IFJlY3RhbmdsZSZndDsiIGNsYXNzPSJjbHMtMSIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48L3JlY3Q+CjwvZz4KPC9zdmc+","features":{"automations":false,"mcp":true},"signature":"fzIKbvcQEx+hk7QICL8Eao7N1zK7p7BAF25CPrWfVmMoML4h9AsIuNPEhrID92IIgKBI/VRozFWqNSGHjvzzDA=="}' \
-    mold -run cargo watch --workdir /workspace/ \
-        -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
-        -w crates/web-server -w crates/db -w crates/web-assets/dist \
-        -w crates/web-assets/images -w crates/web-assets/typescript \
-        -w crates/web-assets/index.ts \
-        -w crates/web-assets/input.css \
-        --no-gitignore -x "run --bin web-server"
+    if [ ! -f "{{env_file}}" ]; then
+        echo "Missing env file: {{env_file}}  run just dot-env" >&2
+        exit 1
+    fi
 
-wda:
-    CHUNKING_ENGINE=http://localhost:8000 \
-    AUTOMATIONS_FEATURE=1 \
-    ENABLE_PROJECTS=1 \
-    LICENCE='{"end_date":"2028-12-31T00:00:00Z","hostname_url":"localhost:7703","redirect_url":"/o/{team_id}/integrations","user_count":100000,"app_name":"Decision Advantage","app_logo_svg":"PHN2ZyB2ZXJzaW9uPSIxLjIiIGJhc2VQcm9maWxlPSJ0aW55LXBzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTUxIDEyNTciIHdpZHRoPSIxNTUxIiBoZWlnaHQ9IjEyNTciPgoJPHRpdGxlPkFpcmJ1c19Mb2dvXzIwMTctc3ZnPC90aXRsZT4KCTxzdHlsZT4KCQl0c3BhbiB7IHdoaXRlLXNwYWNlOnByZSB9CgkJLnNocDAgeyBmaWxsOiAjMDAyMDViIH0gCgk8L3N0eWxlPgoJPGcgaWQ9ImcxNiI+CgkJPGcgaWQ9ImcxNCI+CgkJCTxwYXRoIGlkPSJwb2x5Z29uNiIgY2xhc3M9InNocDAiIGQ9Ik04MzQuNjcgNzgyLjQyTDU3Ny40OSA3ODIuNDJMNzY3LjggMzk2LjE0TDc3MS42NSAzOTYuMTRMMTE5OS40OCAxMjU2LjY4TDE1NTAuOTIgMTI1Ni42OEw5MTEuMDYgMC4yOEw2MzkuODYgMC4yOEwwIDEyNTYuNjhMMzQzLjc5IDEyNTYuNjhMNDQ3LjQ0IDEwNDYuMzNMOTYyLjYzIDEwNDYuMzNMODM0LjY3IDc4Mi40MloiIC8+CgkJPC9nPgoJPC9nPgo8L3N2Zz4=","features":{"automations":false,"mcp":false},"signature":"ZKTgpRv2cYhCKS6ID6Y7xELU0XHIKBy8YG6cXXEAKRfZ80/IcwhizJvGqZUNoGEEYr0KwulDKbP0A0OJIVkMAw=="}' \
+    set -a
+    . "{{env_file}}"
+    set +a
+
     mold -run cargo watch --workdir /workspace/ \
         -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
@@ -134,3 +117,15 @@ opt-images:
             -print -exec mogrify -resize '1200x>' -strip {} + && \
         find . -type f -name '*.png' \
             -print -exec sh -c 'for f; do pngquant --force --quality 70-85 --ext .png "$f"; done' _ {} +
+
+dot-env:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	cat > .env <<'EOF'
+	CHUNKING_ENGINE=http://localhost:8000
+	DANGER_JWT_OVERRIDE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc"
+	AUTOMATIONS_FEATURE=1
+	ENABLE_PROJECTS=1
+	LICENCE='{"end_date": "2028-12-31T00:00:00Z", "hostname_url": "http://localhost:7703", "signature": "lMWJJdsUGKepbp7SNCI3Zldl9l0kLOXGbgziBDHk3Q0Jm/ilI4ueDFLx1x/gVmm3xBWHJVCg21OuAm/UlTE5BQ==", "user_count": 2, "app_name": "Bionic", "app_logo_svg": "PHN2ZyB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDE0NCAxNDQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPCEtLSBSYWRpYWwgZ3JhZGllbnQgYmFja2dyb3VuZCAtLT4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmdHcmFkaWVudCIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzRlN2VmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxZjNjY2YiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CgogICAgPCEtLSBEcm9wIHNoYWRvdyBmaWx0ZXIgLS0+CiAgICA8ZmlsdGVyIGlkPSJkcm9wU2hhZG93IiB4PSItNTAlIiB5PSItNTAlIiB3aWR0aD0iMjAwJSIgaGVpZ2h0PSIyMDAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMiIgZmxvb2QtY29sb3I9ImJsYWNrIiBmbG9vZC1vcGFjaXR5PSIwLjciLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KCiAgPCEtLSBSb3VuZGVkIGJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjE0NCIgaGVpZ2h0PSIxNDQiIHJ4PSIyNCIgcnk9IjI0IiBmaWxsPSJ1cmwoI2JnR3JhZGllbnQpIiAvPgogIDxzdHlsZT4KICAgIC5zbWFsbCB7IAogICAgICAgIGZvbnQ6IG5vcm1hbCAxMjBweCBzYW5zLXNlcmlmOyAKICAgICAgICBmaWxsOiB3aGl0ZTsKICAgIH0KICA8L3N0eWxlPgogIDwhLS0gQmlnZ2VyLCBib2xkZXIgQiB3aXRoIGRyb3Agc2hhZG93IC0tPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgY2xhc3M9InNtYWxsIiBmaWxsPSJ3aGl0ZSIKICAgICAgICBmaWx0ZXI9InVybCgjZHJvcFNoYWRvdykiPgogICAgQgogIDwvdGV4dD4KPC9zdmc+"}'
+	EOF
