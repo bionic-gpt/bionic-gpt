@@ -20,7 +20,15 @@ curl -X POST http://localhost:11434/v1/embeddings \
   }'
 ```
 
-## Remove the Existing RAG Engine
+## With Mirrord
+
+```sh
+just -f crates/rag-engine/Justfile ag-engine-mirrord
+```
+
+## Running outside cluster
+
+Stop it pulling in jobs
 
 ```sh
 sed '/^    rag-engine:/,$d' infra-as-code/stack.yaml > /tmp/stack.yaml
@@ -35,7 +43,7 @@ kubectl delete svc rag-engine -n bionic-gpt
 ## Open a Port to the Doc Engine
 
 ```sh
-just expose-doc-engine
+just -f crates/rag-engine/Justfile expose-doc-engine
 ```
 
 ## Run the Job

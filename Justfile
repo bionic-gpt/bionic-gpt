@@ -24,10 +24,6 @@ ci:
 codex: 
     sudo npm install -g @openai/codex
 
-
-expose-doc-engine:
-    kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/doc-engine 8000:8000
-
 # Retrieve the cluster kube config - so kubectl and k9s work.
 get-config:
     sudo apt-get update -qq && sudo apt-get install -y -qq iproute2

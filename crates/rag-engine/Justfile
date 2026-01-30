@@ -1,0 +1,6 @@
+rag-engine-mirrord:
+    cargo build
+    mirrord exec target/debug/rag-engine --steal -n bionic-gpt --target deployment/rag-engine
+
+expose-doc-engine:
+    kubectl -n bionic-gpt port-forward --address 0.0.0.0 deployment/doc-engine 8000:8000
