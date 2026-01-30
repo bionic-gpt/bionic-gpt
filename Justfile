@@ -38,48 +38,6 @@ get-config:
     sed -i '/cluster:/a \ \ \ \ insecure-skip-tls-verify: true' "$HOME/.kube/config"
     echo "✅ kubeconfig updated and TLS verification disabled"
 
-# Good for feeding the schema into the AI.
-dump-schema:
-    pg_dump --schema-only --no-owner --no-privileges --file=schema.sql $DATABASE_URL
-
-db-diagram:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    mermerd_bin="/tmp/mermerd"
-    if [ ! -x "$mermerd_bin" ]; then
-        curl -L https://github.com/KarnerTh/mermerd/releases/download/v0.13.0/mermerd_0.13.0_linux_amd64.tar.gz \
-            --output /tmp/mermerd.tar.gz
-        tar -xzf /tmp/mermerd.tar.gz -C /tmp --overwrite
-        chmod +x "$mermerd_bin"
-    fi
-
-    tmp_schema="/tmp/schema.mmd"
-    "$mermerd_bin" -c "$DATABASE_URL" --schema public --useAllTables -o "$tmp_schema"
-    python3 - <<'PY'
-    from pathlib import Path
-
-    readme = Path("crates/db/README.md")
-    schema = Path("/tmp/schema.mmd")
-
-    content = readme.read_text()
-    diagram = schema.read_text().rstrip()
-
-    start = "<!-- mermaid-start -->"
-    end = "<!-- mermaid-end -->"
-
-    if start not in content or end not in content:
-        raise SystemExit("Mermaid markers not found in README.md")
-
-    before, rest = content.split(start, 1)
-    _, after = rest.split(end, 1)
-
-    block = f"{start}\n```mermaid\n{diagram}\n```\n{end}"
-    readme.write_text(before + block + after)
-    PY
-    rm -f "$tmp_schema"
-
-
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
     CHUNKING_ENGINE=http://localhost:8000 \
