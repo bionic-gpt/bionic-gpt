@@ -4,7 +4,7 @@ We use 2 main tools to manage the database
 
 - `dbmate` For schema migrations
 - `cornucopia` for generating rust code from `sql` files.
-- `just -f crates/db/Justfile db-diagrams` add schema diagrams to REDME.md
+- `just -f crates/db/Justfile db-diagram` add schema diagrams to REDME.md
 
 ## Database Schemas
 
@@ -247,9 +247,9 @@ erDiagram
     token_usage_metrics }o--|| chats : "chat_id"
 ```
 
-### `prompting`
+### `assistants`
 
-Prompts, categories, and project metadata for authoring.
+Prompts, categories, and project metadata for assistants.
 
 ```mermaid
 erDiagram
@@ -507,4 +507,5 @@ erDiagram
     }
 ```
 <!-- schemas-end -->
+
 

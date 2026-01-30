@@ -1,16 +1,16 @@
 --! categories : Category()
-SELECT id, name, description FROM prompting.categories;
+SELECT id, name, description FROM assistants.categories;
 
 --! insert
-INSERT INTO prompting.categories (name, description)
+INSERT INTO assistants.categories (name, description)
 VALUES (:name, :description)
 RETURNING id;
 
 --! update
-UPDATE prompting.categories
+UPDATE assistants.categories
 SET name = :name,
     description = :description
 WHERE id = :id;
 
 --! delete
-DELETE FROM prompting.categories WHERE id = :id;
+DELETE FROM assistants.categories WHERE id = :id;

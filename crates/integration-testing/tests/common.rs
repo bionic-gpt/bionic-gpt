@@ -100,7 +100,7 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
-            .execute("DELETE FROM prompting.prompts", &[])
+            .execute("DELETE FROM assistants.prompts", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 

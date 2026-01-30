@@ -17,7 +17,7 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     prompt_id,
-    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM prompting.prompts WHERE id = prompt_id)) as model_name,
+    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM assistants.prompts WHERE id = prompt_id)) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -49,7 +49,7 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     prompt_id,
-    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM prompting.prompts WHERE id = prompt_id)) as model_name,
+    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM assistants.prompts WHERE id = prompt_id)) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -82,7 +82,7 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     prompt_id,
-    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM prompting.prompts WHERE id = prompt_id)) as model_name,
+    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM assistants.prompts WHERE id = prompt_id)) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(

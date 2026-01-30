@@ -7,9 +7,9 @@ SELECT
     a.prompt_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM prompting.prompts p WHERE p.id = a.prompt_id) as prompt_name,
-    (SELECT prompt_type FROM prompting.prompts p WHERE p.id = a.prompt_id) as prompt_type,
-    (SELECT model_id FROM prompting.prompts p WHERE p.id = a.prompt_id) as model_id,
+    (SELECT name FROM assistants.prompts p WHERE p.id = a.prompt_id) as prompt_name,
+    (SELECT prompt_type FROM assistants.prompts p WHERE p.id = a.prompt_id) as prompt_type,
+    (SELECT model_id FROM assistants.prompts p WHERE p.id = a.prompt_id) as model_id,
     a.api_key,
     a.created_at
 FROM
@@ -42,9 +42,9 @@ SELECT
     a.prompt_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM prompting.prompts p WHERE p.id = a.prompt_id) as prompt_name,
-    (SELECT prompt_type FROM prompting.prompts p WHERE p.id = a.prompt_id) as prompt_type,
-    (SELECT model_id FROM prompting.prompts p WHERE p.id = a.prompt_id) as model_id,
+    (SELECT name FROM assistants.prompts p WHERE p.id = a.prompt_id) as prompt_name,
+    (SELECT prompt_type FROM assistants.prompts p WHERE p.id = a.prompt_id) as prompt_type,
+    (SELECT model_id FROM assistants.prompts p WHERE p.id = a.prompt_id) as model_id,
     a.api_key,
     a.created_at
 FROM
@@ -59,9 +59,9 @@ SELECT
     a.prompt_id,
     a.user_id,
     a.team_id,
-    (SELECT name FROM prompting.prompts p WHERE p.id = a.prompt_id) as prompt_name,
-    (SELECT prompt_type FROM prompting.prompts p WHERE p.id = a.prompt_id) as prompt_type,
-    (SELECT model_id FROM prompting.prompts p WHERE p.id = a.prompt_id) as model_id,
+    (SELECT name FROM assistants.prompts p WHERE p.id = a.prompt_id) as prompt_name,
+    (SELECT prompt_type FROM assistants.prompts p WHERE p.id = a.prompt_id) as prompt_type,
+    (SELECT model_id FROM assistants.prompts p WHERE p.id = a.prompt_id) as model_id,
     a.api_key,
     a.created_at
 FROM

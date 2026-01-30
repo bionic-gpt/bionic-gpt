@@ -13,7 +13,7 @@ WITH search_results AS (
     JOIN
         llm.conversations conv ON c.conversation_id = conv.id
     JOIN
-        prompting.prompts p ON c.prompt_id = p.id
+        assistants.prompts p ON c.prompt_id = p.id
     WHERE
         conv.user_id = :user_id
     AND LOWER(decrypt_text(c.content)) LIKE LOWER('%' || :search_term || '%')
@@ -57,7 +57,7 @@ JOIN
 ON
     c.id = summary.conversation_id
 JOIN
-    prompting.prompts p ON summary.prompt_id = p.id
+    assistants.prompts p ON summary.prompt_id = p.id
 WHERE
     c.user_id = current_app_user()
 AND
@@ -95,7 +95,7 @@ JOIN
 ON
     c.id = summary.conversation_id
 JOIN
-    prompting.prompts p ON summary.prompt_id = p.id
+    assistants.prompts p ON summary.prompt_id = p.id
 WHERE
     c.project_id = :project_id
 AND

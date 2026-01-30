@@ -22,7 +22,7 @@ WHERE
     prompt_id = :prompts_id
 AND
     prompt_id IN (
-        SELECT id FROM prompting.prompts WHERE model_id IN(
+        SELECT id FROM assistants.prompts WHERE model_id IN(
             SELECT id FROM model_registry.models WHERE team_id IN(
                 SELECT team_id 
                 FROM iam.team_users 
@@ -82,7 +82,7 @@ WHERE
     prompt_id = :prompt_id
 AND integration_id = :integration_id
 AND prompt_id IN (
-    SELECT id FROM prompting.prompts WHERE model_id IN(
+    SELECT id FROM assistants.prompts WHERE model_id IN(
         SELECT id FROM model_registry.models WHERE team_id IN(
             SELECT team_id
             FROM iam.team_users

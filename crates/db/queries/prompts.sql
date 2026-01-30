@@ -4,7 +4,7 @@
 
 --! update_image
 UPDATE 
-    prompting.prompts 
+    assistants.prompts 
 SET 
     image_icon_object_id = :image_icon_object_id
 WHERE
@@ -26,7 +26,7 @@ SELECT
     p.image_icon_object_id,
     p.visibility,
     p.description,
-    (SELECT count(*) FROM prompting.prompt_dataset WHERE prompt_id = id) AS dataset_count,
+    (SELECT count(*) FROM assistants.prompt_dataset WHERE prompt_id = id) AS dataset_count,
     (SELECT count(*) FROM integrations.prompt_integration WHERE prompt_id = id) AS integration_count,
     (
         SELECT count(*) FROM automation.automation_cron_triggers WHERE prompt_id = id
@@ -40,7 +40,7 @@ SELECT
     COALESCE((SELECT CONCAT(u.first_name, ' ', u.last_name) FROM iam.users u WHERE id = p.created_by), 
               (SELECT email FROM iam.users WHERE id = p.created_by)) as author_name
 FROM 
-    prompting.prompts p
+    assistants.prompts p
 WHERE
     created_by = current_app_user()
 AND 
@@ -71,14 +71,14 @@ SELECT
         SELECT 
             COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
         FROM 
-            prompting.prompt_dataset pd
+            assistants.prompt_dataset pd
         WHERE 
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM rag.datasets d WHERE d.id IN (
-            SELECT dataset_id FROM prompting.prompt_dataset WHERE prompt_id = p.id
+            SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
     -- Create a string showing the integrations.integrations connected to this prompt
@@ -111,7 +111,7 @@ SELECT
         (SELECT email FROM iam.users WHERE id = p.created_by)
     ) as author_name
 FROM 
-    prompting.prompts p
+    assistants.prompts p
 WHERE
     (
         (
@@ -144,16 +144,16 @@ SELECT
     (SELECT team_id FROM model_registry.models WHERE id = p.model_id) as team_id,  
     (SELECT base_url FROM model_registry.models WHERE id IN 
         (SELECT embeddings_model_id FROM rag.datasets ds WHERE ds.id IN
-        (SELECT dataset_id FROM prompting.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_base_url, 
+        (SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_base_url, 
     (SELECT name FROM model_registry.models WHERE id IN 
         (SELECT embeddings_model_id FROM rag.datasets ds WHERE ds.id IN
-        (SELECT dataset_id FROM prompting.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_model,
+        (SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_model,
     (SELECT api_key FROM model_registry.models WHERE id IN
         (SELECT embeddings_model_id FROM rag.datasets ds WHERE ds.id IN
-        (SELECT dataset_id FROM prompting.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_api_key,
+        (SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_api_key,
     (SELECT context_size FROM model_registry.models WHERE id IN
         (SELECT embeddings_model_id FROM rag.datasets ds WHERE ds.id IN
-        (SELECT dataset_id FROM prompting.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_context_size,
+        (SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id LIMIT 1))) as embeddings_context_size,
     p.model_id,
     p.category_id,
     p.name,
@@ -169,14 +169,14 @@ SELECT
         SELECT 
             COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
         FROM 
-            prompting.prompt_dataset pd
+            assistants.prompt_dataset pd
         WHERE 
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM rag.datasets d WHERE d.id IN (
-            SELECT dataset_id FROM prompting.prompt_dataset WHERE prompt_id = p.id
+            SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
     -- Create a string showing the integrations.integrations connected to this prompt
@@ -206,7 +206,7 @@ SELECT
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
     p.created_by
 FROM 
-    prompting.prompts p
+    assistants.prompts p
 WHERE
     p.id = :prompts_id
 AND
@@ -250,14 +250,14 @@ SELECT
         SELECT 
             COALESCE(STRING_AGG(pd.dataset_id::text, ','), '')
         FROM 
-            prompting.prompt_dataset pd
+            assistants.prompt_dataset pd
         WHERE 
             pd.prompt_id = p.id
     ) 
     as selected_datasets, 
     (
         SELECT COALESCE(STRING_AGG(name, ', '), '') FROM rag.datasets d WHERE d.id IN (
-            SELECT dataset_id FROM prompting.prompt_dataset WHERE prompt_id = p.id
+            SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
     -- Create a string showing the integrations.integrations connected to this prompt
@@ -290,7 +290,7 @@ SELECT
         (SELECT email FROM iam.users WHERE id = p.created_by)
     ) as author_name
 FROM 
-    prompting.prompts p
+    assistants.prompts p
 WHERE
     p.id IN (
         SELECT prompt_id FROM iam.api_keys WHERE api_key = encode(digest(:api_key, 'sha256'), 'hex')
@@ -305,7 +305,7 @@ SELECT
 FROM 
     rag.datasets d
 LEFT JOIN 
-        prompting.prompt_dataset p
+        assistants.prompt_dataset p
     ON 
         d.id = p.dataset_id
 WHERE
@@ -327,12 +327,12 @@ AND
     );
 
 --! delete_prompt_datasets
-DELETE FROM prompting.prompt_dataset
+DELETE FROM assistants.prompt_dataset
 WHERE
     prompt_id = :prompts_id
 AND
     prompt_id IN (
-        SELECT id FROM prompting.prompts WHERE model_id IN(
+        SELECT id FROM assistants.prompts WHERE model_id IN(
             SELECT id FROM model_registry.models WHERE team_id IN(
                 SELECT team_id 
                 FROM iam.team_users 
@@ -342,7 +342,7 @@ AND
     );
 
 --! insert_prompt_dataset
-INSERT INTO prompting.prompt_dataset(
+INSERT INTO assistants.prompt_dataset(
     prompt_id,
     dataset_id
 )
@@ -352,7 +352,7 @@ VALUES(
     
 
 --! insert(system_prompt?, example1?, example2?, example3?, example4?, image_icon_object_id?, temperature?, max_completion_tokens?)
-INSERT INTO prompting.prompts (
+INSERT INTO assistants.prompts (
     team_id, 
     model_id, 
     category_id, 
@@ -400,7 +400,7 @@ RETURNING id;
 
 --! update(system_prompt?, example1?, example2?, example3?, example4?, temperature?, max_completion_tokens?)
 UPDATE 
-    prompting.prompts 
+    assistants.prompts 
 SET 
     model_id = :model_id, 
     category_id = :category_id, 
@@ -423,7 +423,7 @@ WHERE
     id = :id
 AND
     id IN (
-        SELECT id FROM prompting.prompts WHERE model_id IN(
+        SELECT id FROM assistants.prompts WHERE model_id IN(
             SELECT id FROM model_registry.models WHERE team_id IN(
                 SELECT team_id 
                 FROM iam.team_users 
@@ -442,7 +442,7 @@ AND
 
 --! delete
 DELETE FROM
-    prompting.prompts
+    assistants.prompts
 WHERE
     id = :id
 AND

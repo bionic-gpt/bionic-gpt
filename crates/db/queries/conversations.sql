@@ -87,7 +87,7 @@ JOIN llm.chats ch ON c.id = ch.conversation_id
         FROM llm.chats
         WHERE conversation_id = :conversation_id
     )
-JOIN prompting.prompts p ON ch.prompt_id = p.id
+JOIN assistants.prompts p ON ch.prompt_id = p.id
 JOIN model_registry.models m ON p.model_id = m.id
 WHERE c.id = :conversation_id
   AND c.user_id = current_app_user();
