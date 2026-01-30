@@ -89,7 +89,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             client
                                 .execute(
                                     "
-                                INSERT INTO chunks (
+                                INSERT INTO rag.chunks (
                                     document_id,
                                     page_number,
                                     text
@@ -139,7 +139,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         client
                             .execute(
                                 "
-                                UPDATE chunks SET (processed, embeddings) = (TRUE, $1)
+                                UPDATE rag.chunks SET (processed, embeddings) = (TRUE, $1)
                                 WHERE id = $2
                                 ",
                                 &[&embedding_data, &embedding.id],
@@ -156,7 +156,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         client
                             .execute(
                                 "
-                                UPDATE chunks SET processed = TRUE
+                                UPDATE rag.chunks SET processed = TRUE
                                 WHERE id = $1
                                 ",
                                 &[&embedding.id],

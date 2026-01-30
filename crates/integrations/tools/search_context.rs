@@ -57,7 +57,7 @@ async fn search_context(
 ) -> Result<serde_json::Value, serde_json::Value> {
     let team_row = transaction
         .query_one(
-            "SELECT team_id FROM conversations WHERE id = $1",
+            "SELECT team_id FROM llm.conversations WHERE id = $1",
             &[&conversation_id],
         )
         .await

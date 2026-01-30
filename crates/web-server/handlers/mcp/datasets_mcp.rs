@@ -813,8 +813,8 @@ async fn search_context(
                 d.id,
                 d.file_name,
                 (c.embeddings <-> $2) AS distance
-            FROM chunks c
-            INNER JOIN documents d ON c.document_id = d.id
+            FROM rag.chunks c
+            INNER JOIN rag.documents d ON c.document_id = d.id
             WHERE d.dataset_id = $1 AND c.embeddings IS NOT NULL
             ORDER BY c.embeddings <-> $2
             LIMIT $3

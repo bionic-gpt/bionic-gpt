@@ -12,7 +12,7 @@ AS $$
   );
 $$;
 
-ALTER TABLE teams
+ALTER TABLE tenancy.teams
   ADD COLUMN slug text;
 
 CREATE OR REPLACE FUNCTION set_team_slug()
@@ -24,7 +24,7 @@ BEGIN
     IF slugify_simple(NEW.name) = '' THEN
         SELECT split_part(email, '@', 1)
         INTO email_prefix
-        FROM users
+        FROM auth.users
         WHERE id = NEW.created_by_user_id;
 
         base_slug := slugify_simple(email_prefix);
@@ -41,25 +41,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER set_team_slug
-BEFORE INSERT OR UPDATE OF name ON teams
+BEFORE INSERT OR UPDATE OF name ON tenancy.teams
 FOR EACH ROW
 EXECUTE FUNCTION set_team_slug();
 
-UPDATE teams SET name = name;
+UPDATE tenancy.teams SET name = name;
 
-ALTER TABLE teams
+ALTER TABLE tenancy.teams
   ALTER COLUMN slug SET NOT NULL;
 
-CREATE UNIQUE INDEX teams_slug_uq ON teams (slug);
+CREATE UNIQUE INDEX teams_slug_uq ON tenancy.teams (slug);
 
 
 -- migrate:down
 DROP INDEX IF EXISTS teams_slug_uq;
 
-DROP TRIGGER IF EXISTS set_team_slug ON teams;
+DROP TRIGGER IF EXISTS set_team_slug ON tenancy.teams;
 DROP FUNCTION IF EXISTS set_team_slug();
 
-ALTER TABLE teams
+ALTER TABLE tenancy.teams
   DROP COLUMN IF EXISTS slug;
 
 DROP FUNCTION IF EXISTS slugify_simple(text);

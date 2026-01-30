@@ -2,7 +2,7 @@
 
 
 --! new_chat(tool_call_id?, tool_calls?)
-INSERT INTO chats
+INSERT INTO llm.chats
     (conversation_id, prompt_id, tool_call_id, tool_calls, content, role, status)
 VALUES
     (:conversation_id, :prompt_id, :tool_call_id, :tool_calls, encrypt_text(:content), :role, :status)
@@ -17,7 +17,7 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     prompt_id,
-    (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
+    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM prompting.prompts WHERE id = prompt_id)) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -25,17 +25,17 @@ SELECT
             'type', o.mime_type,
             'size', o.file_size
         ))
-        FROM chats_attachments ca
-        JOIN objects o ON ca.object_id = o.id
+        FROM llm.chats_attachments ca
+        JOIN storage.objects o ON ca.object_id = o.id
         WHERE ca.chat_id = chats.id
     ) as attachments,
     created_at,
     updated_at
 FROM
-    chats
+    llm.chats
 WHERE
     -- Make sure the chat belongs to the user
-    conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
+    conversation_id IN (SELECT id FROM llm.conversations WHERE user_id = current_app_user())
 AND
     conversation_id = :conversation_id
 ORDER BY id;
@@ -49,7 +49,7 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     prompt_id,
-    (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
+    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM prompting.prompts WHERE id = prompt_id)) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -57,17 +57,17 @@ SELECT
             'type', o.mime_type,
             'size', o.file_size
         ))
-        FROM chats_attachments ca
-        JOIN objects o ON ca.object_id = o.id
+        FROM llm.chats_attachments ca
+        JOIN storage.objects o ON ca.object_id = o.id
         WHERE ca.chat_id = chats.id
     ) as attachments,
     created_at,
     updated_at
 FROM
-    chats
+    llm.chats
 WHERE
     -- Make sure the chat belongs to the user
-    conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
+    conversation_id IN (SELECT id FROM llm.conversations WHERE user_id = current_app_user())
 AND
     conversation_id = :conversation_id
 ORDER BY id ASC
@@ -82,7 +82,7 @@ SELECT
     tool_call_id,
     decrypt_text(tool_calls) as tool_calls,
     prompt_id,
-    (SELECT name FROM models WHERE id IN (SELECT model_id FROM prompts WHERE id = prompt_id)) as model_name,
+    (SELECT name FROM model_registry.models WHERE id IN (SELECT model_id FROM prompting.prompts WHERE id = prompt_id)) as model_name,
     status,
     (
         SELECT json_agg(json_build_object(
@@ -90,27 +90,27 @@ SELECT
             'type', o.mime_type,
             'size', o.file_size
         ))
-        FROM chats_attachments ca
-        JOIN objects o ON ca.object_id = o.id
+        FROM llm.chats_attachments ca
+        JOIN storage.objects o ON ca.object_id = o.id
         WHERE ca.chat_id = chats.id
     ) as attachments,
     created_at,
     updated_at
 FROM
-    chats
+    llm.chats
 WHERE
     -- Make sure the chat belongs to the user
-    conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user())
+    conversation_id IN (SELECT id FROM llm.conversations WHERE user_id = current_app_user())
 AND
     id = :chat_id
 ORDER BY id;
 
 --! set_chat_status
-UPDATE chats
+UPDATE llm.chats
 SET
     status = :chat_status
 WHERE
     id = :chat_id
 AND
     -- Make sure the chat belongs to the user
-    conversation_id IN (SELECT id FROM conversations WHERE user_id = current_app_user());
+    conversation_id IN (SELECT id FROM llm.conversations WHERE user_id = current_app_user());

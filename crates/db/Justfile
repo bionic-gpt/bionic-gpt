@@ -1,0 +1,89 @@
+db-diagram:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    mermerd_bin="/tmp/mermerd"
+    if [ ! -x "$mermerd_bin" ]; then
+        curl -L https://github.com/KarnerTh/mermerd/releases/download/v0.13.0/mermerd_0.13.0_linux_amd64.tar.gz \
+            --output /tmp/mermerd.tar.gz
+        tmp_dir="$(mktemp -d /tmp/mermerd.XXXXXX)"
+        tar -xzf /tmp/mermerd.tar.gz -C "$tmp_dir"
+        mv "$tmp_dir/mermerd" "$mermerd_bin"
+        chmod +x "$mermerd_bin"
+        rm -rf "$tmp_dir"
+    fi
+
+    python3 - <<'PY'
+    import os
+    import subprocess
+    from pathlib import Path
+
+    readme = Path("README.md")
+    schemas = [
+        "auth",
+        "tenancy",
+        "integrations",
+        "llm",
+        "prompting",
+        "automation",
+        "rag",
+        "model_registry",
+        "storage",
+        "ops",
+        "public",
+    ]
+
+    descriptions = {
+        "auth": "Identity, access, roles, and API credentials.",
+        "tenancy": "Teams, memberships, and multi-tenant ownership data.",
+        "integrations": "External integrations, connections, and OpenAPI specs.",
+        "llm": "Chat conversations, messages, and runtime limits.",
+        "prompting": "Prompts, categories, and project metadata for authoring.",
+        "automation": "Automation triggers and execution history.",
+        "rag": "Datasets, documents, chunks, and retrieval metadata.",
+        "model_registry": "Model providers, models, and capabilities.",
+        "storage": "Stored binary objects and references.",
+        "ops": "Operational data like audit trails and translations.",
+        "public": "Legacy schema for extensions, helpers, and compatibility objects.",
+    }
+
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise SystemExit("DATABASE_URL is not set")
+
+    content = readme.read_text()
+
+    start = "<!-- schemas-start -->"
+    end = "<!-- schemas-end -->"
+
+    if start not in content or end not in content:
+        raise SystemExit("Schema markers not found in README.md")
+
+    before, rest = content.split(start, 1)
+    _, after = rest.split(end, 1)
+
+    blocks = []
+    for schema in schemas:
+        tmp_schema = Path(f"/tmp/schema_{schema}.mmd")
+        subprocess.run(
+            [
+                "/tmp/mermerd",
+                "-c",
+                database_url,
+                "--schema",
+                schema,
+                "--useAllTables",
+                "-o",
+                str(tmp_schema),
+            ],
+            check=True,
+        )
+        diagram = tmp_schema.read_text().rstrip()
+        blocks.append(
+            f"### `{schema}`\n\n{descriptions.get(schema, '')}\n\n```mermaid\n{diagram}\n```"
+        )
+        tmp_schema.unlink(missing_ok=True)
+
+    block = f"{start}\n" + "\n\n".join(blocks) + f"\n{end}"
+    readme.write_text(before + block + after)
+    PY

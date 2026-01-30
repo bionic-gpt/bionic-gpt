@@ -6,12 +6,12 @@ SELECT
     capability,
     value
 FROM
-    model_capabilities
+    model_registry.model_capabilities
 WHERE
     model_id = :model_id;
 
 --! set_model_capability
-INSERT INTO model_capabilities
+INSERT INTO model_registry.model_capabilities
     (model_id, capability)
 VALUES
     (:model_id, :capability)
@@ -20,7 +20,7 @@ DO NOTHING;
 
 --! delete_model_capability
 DELETE FROM
-    model_capabilities
+    model_registry.model_capabilities
 WHERE
     model_id = :model_id
 AND
@@ -28,6 +28,6 @@ AND
 
 --! delete_all_model_capabilities
 DELETE FROM
-    model_capabilities
+    model_registry.model_capabilities
 WHERE
     model_id = :model_id;

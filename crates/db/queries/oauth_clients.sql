@@ -10,7 +10,7 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at
 FROM
-    oauth_clients
+    auth.oauth_clients
 ORDER BY provider, created_at DESC;
 
 --! oauth_client_by_provider : OauthClient
@@ -23,7 +23,7 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at
 FROM
-    oauth_clients
+    auth.oauth_clients
 WHERE
     provider = :provider;
 
@@ -37,12 +37,12 @@ SELECT
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at
 FROM
-    oauth_clients
+    auth.oauth_clients
 WHERE
     provider_url = :provider_url;
 
 --! insert_oauth_client
-INSERT INTO oauth_clients (
+INSERT INTO auth.oauth_clients (
     client_id,
     client_secret,
     provider,
@@ -58,6 +58,6 @@ RETURNING id;
 
 --! delete_oauth_client
 DELETE FROM
-    oauth_clients
+    auth.oauth_clients
 WHERE
     id = :id;

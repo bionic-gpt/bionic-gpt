@@ -6,8 +6,6 @@ metadata:
 spec:
   components:
     db: {}
-    storage:
-      install_minio: true
   profiles:
     dev:
       components:

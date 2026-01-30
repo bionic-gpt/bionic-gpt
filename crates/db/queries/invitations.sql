@@ -3,7 +3,7 @@
 
 --! insert_invitation
 INSERT INTO 
-    invitations (
+    auth.invitations (
         team_id, 
         email, 
         first_name, 
@@ -32,7 +32,7 @@ SELECT
     roles,
     created_at
 FROM 
-    invitations 
+    auth.invitations 
 WHERE
     invitation_selector = :invitation_selector;
 
@@ -48,13 +48,13 @@ SELECT
     roles,
     created_at
 FROM 
-    invitations 
+    auth.invitations 
 WHERE
     id = :invite_id;
 
 --! delete_invitation
 DELETE FROM
-    invitations
+    auth.invitations
 WHERE
     email = :email
 AND
@@ -62,7 +62,7 @@ AND
 
 --! delete
 DELETE FROM
-    invitations
+    auth.invitations
 WHERE
     id = :invite_id
 AND
@@ -80,7 +80,7 @@ SELECT
     roles,
     created_at  
 FROM 
-    invitations 
+    auth.invitations 
 WHERE team_id = :team_id;
 
 --! get_by_user : InviteSummary
@@ -89,11 +89,11 @@ SELECT
     email,
     first_name, 
     last_name, 
-    COALESCE((SELECT name FROM teams t WHERE t.id = team_id), 'Name Not Set') AS team_name,
+    COALESCE((SELECT name FROM tenancy.teams t WHERE t.id = team_id), 'Name Not Set') AS team_name,
     team_id,
-    (SELECT email FROM users u WHERE u.id IN (SELECT created_by_user_id FROM teams t WHERE t.id = team_id)) AS created_by,
+    (SELECT email FROM auth.users u WHERE u.id IN (SELECT created_by_user_id FROM tenancy.teams t WHERE t.id = team_id)) AS created_by,
     created_at  
 FROM 
-    invitations 
+    auth.invitations 
 WHERE 
-    email in (SELECT email from users WHERE id = current_app_user());
+    email in (SELECT email from auth.users WHERE id = current_app_user());

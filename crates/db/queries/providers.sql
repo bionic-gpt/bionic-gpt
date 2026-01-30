@@ -18,7 +18,7 @@ SELECT
     created_at,
     updated_at
 FROM
-    providers
+    model_registry.providers
 ORDER BY
     updated_at DESC;
 
@@ -40,12 +40,12 @@ SELECT
     created_at,
     updated_at
 FROM
-    providers
+    model_registry.providers
 WHERE
     id = :id;
 
 --! insert(default_model_name?, default_model_display_name?, default_embeddings_model_name?, default_embeddings_model_display_name?, default_embeddings_model_context_size?, default_embeddings_model_description?)
-INSERT INTO providers (
+INSERT INTO model_registry.providers (
     name,
     svg_logo,
     default_model_name,
@@ -77,7 +77,7 @@ RETURNING id;
 
 --! update(default_model_name?, default_model_display_name?, default_embeddings_model_name?, default_embeddings_model_display_name?, default_embeddings_model_context_size?, default_embeddings_model_description?)
 UPDATE
-    providers
+    model_registry.providers
 SET
     name = :name,
     svg_logo = :svg_logo,
@@ -96,6 +96,6 @@ WHERE
 
 --! delete
 DELETE FROM
-    providers
+    model_registry.providers
 WHERE
     id = :id;

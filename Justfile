@@ -38,51 +38,10 @@ get-config:
     sed -i '/cluster:/a \ \ \ \ insecure-skip-tls-verify: true' "$HOME/.kube/config"
     echo "✅ kubeconfig updated and TLS verification disabled"
 
-# Good for feeding the schema into the AI.
-dump-schema:
-    pg_dump --schema-only --no-owner --no-privileges --file=schema.sql $DATABASE_URL
-
-db-diagram:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    mermerd_bin="/tmp/mermerd"
-    if [ ! -x "$mermerd_bin" ]; then
-        curl -L https://github.com/KarnerTh/mermerd/releases/download/v0.13.0/mermerd_0.13.0_linux_amd64.tar.gz \
-            --output /tmp/mermerd.tar.gz
-        tar -xzf /tmp/mermerd.tar.gz -C /tmp --overwrite
-        chmod +x "$mermerd_bin"
-    fi
-
-    tmp_schema="/tmp/schema.mmd"
-    "$mermerd_bin" -c "$DATABASE_URL" --schema public --useAllTables -o "$tmp_schema"
-    python3 - <<'PY'
-    from pathlib import Path
-
-    readme = Path("crates/db/README.md")
-    schema = Path("/tmp/schema.mmd")
-
-    content = readme.read_text()
-    diagram = schema.read_text().rstrip()
-
-    start = "<!-- mermaid-start -->"
-    end = "<!-- mermaid-end -->"
-
-    if start not in content or end not in content:
-        raise SystemExit("Mermaid markers not found in README.md")
-
-    before, rest = content.split(start, 1)
-    _, after = rest.split(end, 1)
-
-    block = f"{start}\n```mermaid\n{diagram}\n```\n{end}"
-    readme.write_text(before + block + after)
-    PY
-    rm -f "$tmp_schema"
-
-
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
 wa:
     CHUNKING_ENGINE=http://localhost:8000 \
+    DANGER_JWT_OVERRIDE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc" \
     AUTOMATIONS_FEATURE=1 \
     ENABLE_PROJECTS=1 \
     LICENCE='{"end_date": "2028-12-31T00:00:00Z", "hostname_url": "http://localhost:7703", "signature": "lMWJJdsUGKepbp7SNCI3Zldl9l0kLOXGbgziBDHk3Q0Jm/ilI4ueDFLx1x/gVmm3xBWHJVCg21OuAm/UlTE5BQ==", "user_count": 2, "app_name": "Bionic", "app_logo_svg": "PHN2ZyB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDE0NCAxNDQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPCEtLSBSYWRpYWwgZ3JhZGllbnQgYmFja2dyb3VuZCAtLT4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmdHcmFkaWVudCIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzRlN2VmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxZjNjY2YiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CgogICAgPCEtLSBEcm9wIHNoYWRvdyBmaWx0ZXIgLS0+CiAgICA8ZmlsdGVyIGlkPSJkcm9wU2hhZG93IiB4PSItNTAlIiB5PSItNTAlIiB3aWR0aD0iMjAwJSIgaGVpZ2h0PSIyMDAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMiIgZmxvb2QtY29sb3I9ImJsYWNrIiBmbG9vZC1vcGFjaXR5PSIwLjciLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KCiAgPCEtLSBSb3VuZGVkIGJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjE0NCIgaGVpZ2h0PSIxNDQiIHJ4PSIyNCIgcnk9IjI0IiBmaWxsPSJ1cmwoI2JnR3JhZGllbnQpIiAvPgogIDxzdHlsZT4KICAgIC5zbWFsbCB7IAogICAgICAgIGZvbnQ6IG5vcm1hbCAxMjBweCBzYW5zLXNlcmlmOyAKICAgICAgICBmaWxsOiB3aGl0ZTsKICAgIH0KICA8L3N0eWxlPgogIDwhLS0gQmlnZ2VyLCBib2xkZXIgQiB3aXRoIGRyb3Agc2hhZG93IC0tPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgY2xhc3M9InNtYWxsIiBmaWxsPSJ3aGl0ZSIKICAgICAgICBmaWx0ZXI9InVybCgjZHJvcFNoYWRvdykiPgogICAgQgogIDwvdGV4dD4KPC9zdmc+"}' \

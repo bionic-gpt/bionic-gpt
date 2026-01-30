@@ -11,12 +11,12 @@ SELECT
     combine_under_n_chars,
     new_after_n_chars,
     multipage_sections,
-    (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
-    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
+    (SELECT COUNT(id) FROM rag.documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM model_registry.models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
-    datasets d
+    rag.datasets d
 WHERE
     is_project = false
 AND
@@ -29,7 +29,7 @@ AND
             team_id IN (
                 SELECT 
                     team_id 
-                FROM team_users WHERE user_id = current_app_user())
+                FROM tenancy.team_users WHERE user_id = current_app_user())
         )
         OR 
         (visibility = 'Company')
@@ -52,7 +52,7 @@ SELECT
     created_at,
     updated_at
 FROM
-    datasets
+    rag.datasets
 WHERE
     external_id = :external_id;
 
@@ -67,15 +67,15 @@ SELECT
     combine_under_n_chars,
     new_after_n_chars,
     multipage_sections,
-    (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
-    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
+    (SELECT COUNT(id) FROM rag.documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM model_registry.models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
-    datasets d
+    rag.datasets d
 WHERE
     d.id IN (
-        SELECT dataset_id FROM document_pipelines WHERE api_key = :api_key
+        SELECT dataset_id FROM rag.document_pipelines WHERE api_key = :api_key
     ) ORDER BY updated_at;
 
 --! dataset : Dataset()
@@ -89,12 +89,12 @@ SELECT
     combine_under_n_chars,
     new_after_n_chars,
     multipage_sections,
-    (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
-    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
+    (SELECT COUNT(id) FROM rag.documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM model_registry.models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
-    datasets d
+    rag.datasets d
 WHERE
     id = :dataset_id
 AND
@@ -108,7 +108,7 @@ AND
                 team_id IN (
                     SELECT 
                         team_id 
-                    FROM team_users WHERE user_id = current_app_user())
+                    FROM tenancy.team_users WHERE user_id = current_app_user())
             )
         OR 
             (visibility = 'Company')
@@ -126,19 +126,19 @@ SELECT
     combine_under_n_chars,
     new_after_n_chars,
     multipage_sections,
-    (SELECT COUNT(id) FROM documents WHERE dataset_id = d.id) as count,
-    (SELECT name FROM models WHERE id = d.embeddings_model_id) as embeddings_model_name,
+    (SELECT COUNT(id) FROM rag.documents WHERE dataset_id = d.id) as count,
+    (SELECT name FROM model_registry.models WHERE id = d.embeddings_model_id) as embeddings_model_name,
     created_at,
     updated_at
 FROM 
-    datasets d
+    rag.datasets d
 WHERE
     id = :dataset_id
 ORDER BY updated_at;
 
 --! insert
 INSERT INTO 
-    datasets (
+    rag.datasets (
         team_id, 
         name,
         embeddings_model_id,
@@ -163,7 +163,7 @@ RETURNING id;
 
 --! insert_project
 INSERT INTO 
-    datasets (
+    rag.datasets (
         team_id, 
         name,
         embeddings_model_id,
@@ -190,7 +190,7 @@ RETURNING id;
 
 --! update
 UPDATE 
-    datasets 
+    rag.datasets 
 SET 
     name = :name, 
     visibility = :visibility,
@@ -203,13 +203,13 @@ WHERE
     id = :id
 AND
     team_id
-    IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
+    IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());
 
 --! delete
 DELETE FROM
-    datasets
+    rag.datasets
 WHERE
     id = :id
 AND
     team_id
-    IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
+    IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());

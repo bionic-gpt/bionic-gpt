@@ -11,14 +11,14 @@ SELECT
     trim(both '"' from to_json(i.created_at)::text) as created_at,
     trim(both '"' from to_json(i.updated_at)::text) as updated_at
 FROM
-    integrations i
+    integrations.integrations i
 WHERE
     (
         (
             i.visibility = 'Team'
             AND i.team_id IN (
                 SELECT team_id
-                FROM team_users
+                FROM tenancy.team_users
                 WHERE user_id = current_app_user()
             )
             AND i.team_id = :team_id
@@ -39,7 +39,7 @@ SELECT
     trim(both '"' from to_json(i.created_at)::text) as created_at,
     trim(both '"' from to_json(i.updated_at)::text) as updated_at
 FROM
-    integrations i
+    integrations.integrations i
 WHERE
     i.id = :model_id
     AND (
@@ -47,7 +47,7 @@ WHERE
             i.visibility = 'Team'
             AND i.team_id IN (
                 SELECT team_id
-                FROM team_users
+                FROM tenancy.team_users
                 WHERE user_id = current_app_user()
             )
             AND i.team_id = :team_id
@@ -59,7 +59,7 @@ ORDER BY updated_at;
 
 
 --! insert(definition?)
-INSERT INTO integrations (
+INSERT INTO integrations.integrations (
     team_id,
     name,
     definition,
@@ -79,7 +79,7 @@ RETURNING id;
 
 --! update(definition?)
 UPDATE
-    integrations
+    integrations.integrations
 SET
     name = :name,
     definition = :definition,
@@ -90,6 +90,6 @@ WHERE
 
 --! delete
 DELETE FROM
-    integrations
+    integrations.integrations
 WHERE
     id = :id;

@@ -9,11 +9,11 @@ WITH search_results AS (
         decrypt_text(c.content) as content,
         p.prompt_type
     FROM
-        chats c
+        llm.chats c
     JOIN
-        conversations conv ON c.conversation_id = conv.id
+        llm.conversations conv ON c.conversation_id = conv.id
     JOIN
-        prompts p ON c.prompt_id = p.id
+        prompting.prompts p ON c.prompt_id = p.id
     WHERE
         conv.user_id = :user_id
     AND LOWER(decrypt_text(c.content)) LIKE LOWER('%' || :search_term || '%')
@@ -34,8 +34,8 @@ LIMIT :limit;
 
 --! history : History
 WITH summary AS (
-    SELECT * FROM chats
-    WHERE id IN (SELECT MIN(id) FROM chats GROUP BY conversation_id)
+    SELECT * FROM llm.chats
+    WHERE id IN (SELECT MIN(id) FROM llm.chats GROUP BY conversation_id)
 )
 SELECT
     c.id,
@@ -51,20 +51,20 @@ SELECT
     c.created_at,
     p.prompt_type
 FROM
-    conversations c
+    llm.conversations c
 JOIN
     summary
 ON
     c.id = summary.conversation_id
 JOIN
-    prompts p ON summary.prompt_id = p.id
+    prompting.prompts p ON summary.prompt_id = p.id
 WHERE
     c.user_id = current_app_user()
 AND
     -- Make sure the user has access to this conversation
     c.team_id IN (
         SELECT team_id
-        FROM team_users
+        FROM tenancy.team_users
         WHERE user_id = current_app_user()
     )
 ORDER BY c.created_at DESC
@@ -72,8 +72,8 @@ LIMIT 100;
 
 --! project_history : History
 WITH summary AS (
-    SELECT * FROM chats
-    WHERE id IN (SELECT MIN(id) FROM chats GROUP BY conversation_id)
+    SELECT * FROM llm.chats
+    WHERE id IN (SELECT MIN(id) FROM llm.chats GROUP BY conversation_id)
 )
 SELECT
     c.id,
@@ -89,19 +89,19 @@ SELECT
     c.created_at,
     p.prompt_type
 FROM
-    conversations c
+    llm.conversations c
 JOIN
     summary
 ON
     c.id = summary.conversation_id
 JOIN
-    prompts p ON summary.prompt_id = p.id
+    prompting.prompts p ON summary.prompt_id = p.id
 WHERE
     c.project_id = :project_id
 AND
     c.team_id IN (
         SELECT team_id
-        FROM team_users
+        FROM tenancy.team_users
         WHERE user_id = current_app_user()
     )
 ORDER BY c.created_at DESC

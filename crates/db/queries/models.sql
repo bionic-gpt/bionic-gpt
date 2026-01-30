@@ -14,7 +14,7 @@ SELECT
     created_at,
     updated_at
 FROM 
-    models
+    model_registry.models
 WHERE model_type = :model_type
 ORDER BY updated_at;
 
@@ -39,9 +39,9 @@ SELECT DISTINCT
     COALESCE(p.example3, '') AS example3,
     COALESCE(p.example4, '') AS example4
 FROM 
-    models m
+    model_registry.models m
 LEFT JOIN 
-    prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
+    prompting.prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
 ORDER BY 
     m.updated_at;
 
@@ -66,9 +66,9 @@ SELECT DISTINCT
     COALESCE(p.example3, '') AS example3,
     COALESCE(p.example4, '') AS example4
 FROM 
-    models m
+    model_registry.models m
 LEFT JOIN 
-    prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
+    prompting.prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
 WHERE
     m.id = :id
 ORDER BY 
@@ -89,7 +89,7 @@ SELECT
     created_at,
     updated_at
 FROM 
-    models
+    model_registry.models
 WHERE
     model_type = 'LLM'
 ORDER BY created_at
@@ -108,7 +108,7 @@ SELECT
     created_at,
     updated_at
 FROM 
-    models
+    model_registry.models
 WHERE
     model_type = 'Embeddings'
 ORDER BY created_at
@@ -128,7 +128,7 @@ SELECT
     created_at,
     updated_at
 FROM 
-    models
+    model_registry.models
 WHERE
     id = :model_id
 ORDER BY updated_at;
@@ -146,16 +146,16 @@ SELECT
     created_at,
     updated_at
 FROM 
-    models
+    model_registry.models
 WHERE
-    id IN (SELECT model_id FROM prompts p WHERE p.id IN (
-        SELECT prompt_id FROM chats WHERE id = :chat_id
+    id IN (SELECT model_id FROM prompting.prompts p WHERE p.id IN (
+        SELECT prompt_id FROM llm.chats WHERE id = :chat_id
     ))
 ORDER BY updated_at;
 
 
 --! insert(api_key?)
-INSERT INTO models (
+INSERT INTO model_registry.models (
     name,
     model_type,
     base_url,
@@ -177,7 +177,7 @@ RETURNING id;
 
 --! update(api_key?)
 UPDATE 
-    models 
+    model_registry.models 
 SET 
     name = :name,
     model_type = :model_type,
@@ -191,6 +191,6 @@ WHERE
 
 --! delete
 DELETE FROM
-    models
+    model_registry.models
 WHERE
     id = :id;

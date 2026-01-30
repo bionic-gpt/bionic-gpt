@@ -6,7 +6,7 @@ SELECT
     locale,
     value
 FROM
-    translations
+    ops.translations
 ORDER BY
     locale,
     key;
@@ -17,7 +17,7 @@ SELECT
     locale,
     value
 FROM
-    translations
+    ops.translations
 WHERE
     locale = :locale
 ORDER BY

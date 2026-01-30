@@ -14,7 +14,7 @@ SELECT
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at
 FROM
-    openapi_specs
+    integrations.openapi_specs
 ORDER BY
     title;
 
@@ -32,7 +32,7 @@ SELECT
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at
 FROM
-    openapi_specs
+    integrations.openapi_specs
 WHERE
     is_active = TRUE
 AND
@@ -54,12 +54,12 @@ SELECT
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at
 FROM
-    openapi_specs
+    integrations.openapi_specs
 WHERE
     id = :id;
 
 --! insert(description?, logo_url?)
-INSERT INTO openapi_specs (
+INSERT INTO integrations.openapi_specs (
     slug,
     title,
     description,
@@ -80,7 +80,7 @@ VALUES (
 RETURNING id;
 
 --! update(description?, logo_url?)
-UPDATE openapi_specs
+UPDATE integrations.openapi_specs
 SET
     slug = :slug,
     title = :title,
@@ -107,13 +107,13 @@ SELECT
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at
 FROM
-    openapi_specs
+    integrations.openapi_specs
 WHERE
     category = :category
 ORDER BY
     title;
 
 --! delete
-DELETE FROM openapi_specs
+DELETE FROM integrations.openapi_specs
 WHERE
     id = :id;

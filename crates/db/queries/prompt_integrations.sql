@@ -8,31 +8,31 @@ SELECT
     i.name,
     i.integration_type
 FROM 
-    integrations i
+    integrations.integrations i
 LEFT JOIN 
-    prompt_integration pi
+    integrations.prompt_integration pi
 ON 
     i.id = pi.integration_id
 WHERE
     pi.prompt_id = :prompts_id;
 
 --! delete_prompt_integrations
-DELETE FROM prompt_integration
+DELETE FROM integrations.prompt_integration
 WHERE
     prompt_id = :prompts_id
 AND
     prompt_id IN (
-        SELECT id FROM prompts WHERE model_id IN(
-            SELECT id FROM models WHERE team_id IN(
+        SELECT id FROM prompting.prompts WHERE model_id IN(
+            SELECT id FROM model_registry.models WHERE team_id IN(
                 SELECT team_id 
-                FROM team_users 
+                FROM tenancy.team_users 
                 WHERE user_id = current_app_user()
             )
         )
     );
 
 --! insert_prompt_integration
-INSERT INTO prompt_integration(
+INSERT INTO integrations.prompt_integration(
     prompt_id,
     integration_id
 )
@@ -40,7 +40,7 @@ VALUES(
     :prompt_id, :integration_id);
 
 --! insert_prompt_integration_with_connection(api_connection_id?, oauth2_connection_id?)
-INSERT INTO prompt_integration(
+INSERT INTO integrations.prompt_integration(
     prompt_id,
     integration_id,
     api_connection_id,
@@ -53,7 +53,7 @@ VALUES(
     :oauth2_connection_id
 );
 
--- This is called by the front end to show the user which integrations have connections
+-- This is called by the front end to show the user which integrations.integrations have connections
 -- It's also used in the backend to pass the bearer tokens to the open api tool
 --! get_prompt_integrations_with_connections : PromptIntegrationWithConnection
 SELECT 
@@ -70,22 +70,22 @@ SELECT
     END AS bearer_token
     , decrypt_text(o2c.refresh_token) AS refresh_token
     , o2c.expires_at
-FROM prompt_integration pi
-JOIN integrations i ON pi.integration_id = i.id
-LEFT JOIN api_key_connections akc ON pi.api_connection_id = akc.id
-LEFT JOIN oauth2_connections o2c ON pi.oauth2_connection_id = o2c.id
+FROM integrations.prompt_integration pi
+JOIN integrations.integrations i ON pi.integration_id = i.id
+LEFT JOIN integrations.api_key_connections akc ON pi.api_connection_id = akc.id
+LEFT JOIN integrations.oauth2_connections o2c ON pi.oauth2_connection_id = o2c.id
 WHERE pi.prompt_id = :prompt_id;
 
 --! delete_specific_prompt_integration
-DELETE FROM prompt_integration
+DELETE FROM integrations.prompt_integration
 WHERE
     prompt_id = :prompt_id
 AND integration_id = :integration_id
 AND prompt_id IN (
-    SELECT id FROM prompts WHERE model_id IN(
-        SELECT id FROM models WHERE team_id IN(
+    SELECT id FROM prompting.prompts WHERE model_id IN(
+        SELECT id FROM model_registry.models WHERE team_id IN(
             SELECT team_id
-            FROM team_users
+            FROM tenancy.team_users
             WHERE user_id = current_app_user()
         )
     )

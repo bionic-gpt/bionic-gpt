@@ -12,10 +12,10 @@ SELECT
     p.created_by,
     p.created_at,
     p.updated_at,
-    (SELECT COUNT(id) FROM conversations c WHERE c.project_id = p.id) as conversation_count,
-    (SELECT COUNT(id) FROM documents d WHERE d.dataset_id = p.dataset_id) as attachment_count
+    (SELECT COUNT(id) FROM llm.conversations c WHERE c.project_id = p.id) as conversation_count,
+    (SELECT COUNT(id) FROM rag.documents d WHERE d.dataset_id = p.dataset_id) as attachment_count
 FROM
-    projects p
+    prompting.projects p
 WHERE
     (visibility = 'Private' AND created_by = current_app_user())
 OR
@@ -25,7 +25,7 @@ OR
         team_id IN (
             SELECT
                 team_id
-            FROM team_users WHERE user_id = current_app_user())
+            FROM tenancy.team_users WHERE user_id = current_app_user())
     )
 OR
     (visibility = 'Company')
@@ -43,7 +43,7 @@ SELECT
     created_at,
     updated_at
 FROM
-    projects
+    prompting.projects
 WHERE
     id = :project_id
 AND
@@ -56,7 +56,7 @@ AND
             team_id IN (
                 SELECT
                     team_id
-                FROM team_users WHERE user_id = current_app_user())
+                FROM tenancy.team_users WHERE user_id = current_app_user())
         )
         OR
         (visibility = 'Company')
@@ -65,7 +65,7 @@ LIMIT 1;
 
 --! insert
 INSERT INTO
-    projects (
+    prompting.projects (
         team_id,
         dataset_id,
         name,
@@ -84,7 +84,7 @@ RETURNING id;
 
 --! update
 UPDATE
-    projects
+    prompting.projects
 SET
     name = :name,
     instructions = :instructions,
@@ -92,12 +92,12 @@ SET
 WHERE
     id = :id
 AND
-    team_id IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
+    team_id IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());
 
 --! delete
 DELETE FROM
-    projects
+    prompting.projects
 WHERE
     id = :id
 AND
-    team_id IN (SELECT team_id FROM team_users WHERE user_id = current_app_user());
+    team_id IN (SELECT team_id FROM tenancy.team_users WHERE user_id = current_app_user());
