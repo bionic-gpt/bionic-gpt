@@ -777,7 +777,7 @@ fn resolve_integration_context<'a>(
 
                 let team_id_row = transaction
                     .query_one(
-                        "SELECT team_id FROM api_key_connections WHERE id = $1",
+                        "SELECT team_id FROM integrations.api_key_connections WHERE id = $1",
                         &[&api_key_secret.connection_id],
                     )
                     .await?;
@@ -803,7 +803,7 @@ fn resolve_integration_context<'a>(
 
                 let team_id_row = transaction
                     .query_one(
-                        "SELECT team_id FROM oauth2_connections WHERE id = $1",
+                        "SELECT team_id FROM integrations.oauth2_connections WHERE id = $1",
                         &[&oauth_secret.connection_id],
                     )
                     .await?;

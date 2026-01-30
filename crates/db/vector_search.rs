@@ -34,10 +34,10 @@ pub async fn get_related_context(
                         id,
                         text 
                     FROM 
-                        chunks
+                        rag.chunks
                     WHERE
                         document_id IN (
-                            SELECT id FROM documents WHERE dataset_id = ANY($1)
+                            SELECT id FROM rag.documents WHERE dataset_id = ANY($1)
                         )
                     ORDER BY 
                         embeddings <-> $2 

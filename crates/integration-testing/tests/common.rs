@@ -96,17 +96,17 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
-            .execute("DELETE FROM prompts", &[])
+            .execute("DELETE FROM prompting.prompts", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
-            .execute("DELETE FROM models", &[])
+            .execute("DELETE FROM model_registry.models", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
-            .execute("DELETE FROM users", &[])
+            .execute("DELETE FROM auth.users", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
