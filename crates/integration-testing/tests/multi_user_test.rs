@@ -44,119 +44,32 @@ async fn multi_user(driver: &WebDriver, config: &common::Config) -> WebDriverRes
 
 // Before we ivite people we have to have a team name and set our own name
 async fn set_profile_details(driver: &WebDriver) -> WebDriverResult<()> {
-    driver
-        .query(By::XPath("//span[text()='Test User']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(driver, By::XPath("//span[text()='Test User']")).await?;
 
-    driver
-        .find(By::XPath("//span[text()='Test User']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Profile")).await?;
 
-    driver
-        .query(By::LinkText("Profile"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::set_input(driver, By::Css("input[name='first_name']"), "David").await?;
+    common::set_input(driver, By::Css("input[name='last_name']"), "Jason").await?;
 
-    driver.find(By::LinkText("Profile")).await?.click().await?;
-
-    driver
-        .query(By::Css("input[name='first_name']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    let first_name_input = driver.find(By::Css("input[name='first_name']")).await?;
-    first_name_input.clear().await?;
-    first_name_input.send_keys("David").await?;
-
-    let last_name_input = driver.find(By::Css("input[name='last_name']")).await?;
-    last_name_input.clear().await?;
-    last_name_input.send_keys("Jason").await?;
-
-    driver
-        .find(By::XPath("//button[text()='Update Profile']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Update Profile']")).await?;
 
     sleep(Duration::from_millis(3000)).await;
 
-    driver
-        .find(By::LinkText("Admin Panel"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Admin Panel")).await?;
 
-    driver
-        .find(By::LinkText("Admin Panel"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Teams")).await?;
 
-    driver
-        .find(By::LinkText("Teams"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("//div[contains(@class,'card') and @data-clickable-link]"),
+    )
+    .await?;
 
-    driver.find(By::LinkText("Teams")).await?.click().await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Edit Name']")).await?;
 
-    driver
-        .query(By::XPath(
-            "//div[contains(@class,'card') and @data-clickable-link]",
-        ))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::set_input(driver, By::Css("input[name='name']"), "Testing Team").await?;
 
-    // Now set the org name (re-find to avoid stale element)
-    driver
-        .find(By::XPath(
-            "//div[contains(@class,'card') and @data-clickable-link]",
-        ))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Edit Name']"))
-        .await?
-        .click()
-        .await?;
-
-    // Wait for the form to appear
-    driver
-        .query(By::Css("input[name='name']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    let team_name_input = driver.find(By::Css("input[name='name']")).await?;
-    team_name_input.clear().await?;
-    team_name_input.send_keys("Testing Team").await?;
-
-    driver
-        .find(By::XPath("//button[text()='Set Team Name']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Set Team Name']")).await?;
 
     Ok(())
 }
@@ -169,91 +82,39 @@ async fn add_team_member(
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    driver
-        .find(By::LinkText("Teams"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Teams")).await?;
 
-    driver.find(By::LinkText("Teams")).await?.click().await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("//div[contains(@class,'card') and @data-clickable-link]"),
+    )
+    .await?;
 
-    driver
-        .query(By::XPath(
-            "//div[contains(@class,'card') and @data-clickable-link]",
-        ))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    // Now set the org name (re-find to avoid stale element)
-    driver
-        .find(By::XPath(
-            "//div[contains(@class,'card') and @data-clickable-link]",
-        ))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath("//button[text()='Invite New Team Member']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Invite New Team Member']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("//button[text()='Invite New Team Member']"),
+    )
+    .await?;
 
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    driver
-        .find(By::Css("input[name='email']"))
-        .await?
-        .send_keys(team_member)
-        .await?;
+    common::set_input(driver, By::Css("input[name='email']"), team_member).await?;
+    common::set_input(driver, By::Css("input[name='first_name']"), "Trevor").await?;
+    common::set_input(driver, By::Css("input[name='last_name']"), "Invitable").await?;
 
-    driver
-        .find(By::Css("input[name='first_name']"))
-        .await?
-        .send_keys("Trevor")
-        .await?;
-
-    driver
-        .find(By::Css("input[name='last_name']"))
-        .await?
-        .send_keys("Invitable")
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Send Invitation']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Send Invitation']")).await?;
 
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
     println!("Testing : Checking for Trevor");
 
-    driver
-        .query(By::XPath("//h2[normalize-space()='Trevor Invitable']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//h2[normalize-space()='Trevor Invitable']"))
-        .await?;
+    common::wait_visible(
+        driver,
+        By::XPath("//h2[normalize-space()='Trevor Invitable']"),
+    )
+    .await?;
 
     // Get the invite from mailhog
     let invitation_url = get_invite_url_from_email(config).await?;
@@ -267,17 +128,8 @@ async fn add_team_member(
     // Accept the invitation
     driver.goto(invitation_url).await?;
 
-    driver
-        .query(By::XPath("//h2[normalize-space()='Testing Team']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    let team_heading = driver
-        .find(By::XPath("//h2[normalize-space()='Testing Team']"))
-        .await?;
+    let team_heading =
+        common::wait_visible(driver, By::XPath("//h2[normalize-space()='Testing Team']")).await?;
 
     assert_eq!(team_heading.text().await?, "Testing Team");
 
