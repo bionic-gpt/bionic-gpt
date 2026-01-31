@@ -127,6 +127,14 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
+            .execute(
+                "DELETE FROM integrations.openapi_specs WHERE slug IN ('sample-spec', 'bad-json')",
+                &[],
+            )
+            .await
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
+
+        transaction
             .execute("DELETE FROM model_registry.models", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
