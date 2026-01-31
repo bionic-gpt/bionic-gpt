@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{AdminLayout, SideBar};
-use crate::components::card_item::{CardItem, CountLabel};
+use crate::components::card_item::CardItem;
 use crate::SectionIntroduction;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -38,6 +38,12 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, providers: Vec<Pr
                         }
                     ]
                 }
+                Button {
+                    button_type: ButtonType::Link,
+                    href: crate::routes::models::New { team_id: team_id.clone() }.to_string(),
+                    button_scheme: ButtonScheme::Neutral,
+                    "Custom Model"
+                }
             ),
 
             div {
@@ -70,12 +76,7 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, providers: Vec<Pr
                                 })),
                                 footer: None,
                                 image_src: None,
-                                count_labels: vec![
-                                    CountLabel {
-                                        count: provider.default_model_context_size as usize,
-                                        label: "Context".into()
-                                    }
-                                ],
+                                count_labels: vec![],
                                 action: None,
                                 clickable_link: None,
                             }
@@ -83,21 +84,6 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, providers: Vec<Pr
                     }
                 }
 
-                CardItem {
-                    class: Some("cursor-pointer hover:bg-base-200 w-full".into()),
-                    clickable_link: Some(crate::routes::models::New { team_id: team_id.clone() }.to_string()),
-                    image_src: None,
-                    image_html: None,
-                    avatar_name: Some("C".to_string()),
-                    title: "Custom Provider / Model".to_string(),
-                    description: Some(rsx!(span {
-                        "Create a model with full control over all fields."
-                    })),
-                    footer: None,
-                    count_labels: vec![],
-                    action: None,
-                    popover_target: None,
-                }
             }
 
             for provider in &providers {
