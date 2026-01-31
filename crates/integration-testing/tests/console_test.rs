@@ -37,31 +37,18 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
 }
 
 async fn audit_filter(driver: &WebDriver, email: &str) -> WebDriverResult<()> {
-    let audit_link = driver.find(By::LinkText("Audit Trail")).await?;
-    audit_link.click().await?;
+    common::click_when_visible(driver, By::LinkText("Audit Trail")).await?;
 
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    let filter_button = driver.find(By::XPath("//button[text()='Filter']")).await?;
-    filter_button.click().await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Filter']")).await?;
 
-    driver
-        .find(By::Css("select:first-of-type"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    let user_selector = driver.find(By::Css("select:first-of-type")).await?;
+    let user_selector = common::wait_visible(driver, By::Css("select:first-of-type")).await?;
     let select = SelectElement::new(&user_selector).await?;
     select.select_by_exact_text(email).await?;
 
-    driver
-        .find(By::XPath("//button[text()='Apply Filter']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Apply Filter']")).await?;
 
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
@@ -75,36 +62,15 @@ async fn audit_filter(driver: &WebDriver, email: &str) -> WebDriverResult<()> {
 }
 
 async fn test_console(driver: &WebDriver) -> WebDriverResult<()> {
-    driver.find(By::LinkText("Chat")).await?.click().await?;
+    common::click_when_visible(driver, By::LinkText("Chat")).await?;
 
-    driver
-        .query(By::Css("textarea[name='message']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::Css("textarea[name='message']"))
-        .await?
-        .send_keys("How are you?")
-        .await?;
+    common::set_input(driver, By::Css("textarea[name='message']"), "How are you?").await?;
 
     let delay = std::time::Duration::new(30, 0);
     driver.set_implicit_wait_timeout(delay).await?;
-    driver
-        .find(By::XPath("//button[@id='prompt-submit-button']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::XPath("//button[@id='prompt-submit-button']")).await?;
 
-    driver
-        .find(By::XPath("//a[text()='View Prompt']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::wait_visible(driver, By::XPath("//a[text()='View Prompt']")).await?;
 
     Ok(())
 }

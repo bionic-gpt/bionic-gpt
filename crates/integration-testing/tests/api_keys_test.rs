@@ -33,175 +33,77 @@ async fn api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResul
 async fn test_ai_assistants(driver: &WebDriver) -> WebDriverResult<()> {
     sleep(Duration::from_millis(3000)).await;
 
-    driver
-        .find(By::LinkText("Back to app"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Back to app")).await?;
+    common::click_when_visible(driver, By::LinkText("Explore Assistants")).await?;
 
-    driver
-        .find(By::LinkText("Back to app"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("//*[self::a or self::button][normalize-space()='New Assistant']"),
+    )
+    .await?;
 
-    driver
-        .find(By::LinkText("Explore Assistants"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::set_input(
+        driver,
+        By::XPath("(//input[@name='name'])[last()]"),
+        "My Prompt",
+    )
+    .await?;
+    common::set_input(
+        driver,
+        By::XPath("(//textarea[@name='description'])[last()]"),
+        "A small test assistant. I don't do much.",
+    )
+    .await?;
 
-    driver
-        .find(By::LinkText("Explore Assistants"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("(//*[self::a or self::button][normalize-space()='Create Assistant'])[last()]"),
+    )
+    .await?;
 
-    driver
-        .find(By::XPath(
-            "//*[self::a or self::button][normalize-space()='New Assistant']",
-        ))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::wait_visible(
+        driver,
+        By::XPath("//h2[contains(normalize-space(), 'My Prompt')]"),
+    )
+    .await?;
 
-    driver
-        .find(By::XPath(
-            "//*[self::a or self::button][normalize-space()='New Assistant']",
-        ))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("//label[.//span[normalize-space()='...']]"),
+    )
+    .await?;
 
-    driver
-        .query(By::XPath("(//input[@name='name'])[last()]"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Edit")).await?;
 
-    driver
-        .find(By::XPath("(//input[@name='name'])[last()]"))
-        .await?
-        .send_keys("My Prompt")
-        .await?;
+    let name_input = common::wait_visible(driver, By::XPath("(//input[@name='name'])[1]")).await?;
+    name_input.send_keys("2").await?;
 
-    driver
-        .find(By::XPath("(//textarea[@name='description'])[last()]"))
-        .await?
-        .send_keys("A small test assistant. I don't do much.")
-        .await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("(//*[self::a or self::button][normalize-space()='Update Assistant'])[1]"),
+    )
+    .await?;
 
-    driver
-        .find(By::XPath(
-            "(//*[self::a or self::button][normalize-space()='Create Assistant'])[last()]",
-        ))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath("//h2[contains(normalize-space(), 'My Prompt')]"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .query(By::XPath("//label[.//span[normalize-space()='...']]"))
-        .first()
-        .await?
-        .click()
-        .await?;
-
-    driver.find(By::LinkText("Edit")).await?.click().await?;
-
-    driver
-        .query(By::XPath("(//input[@name='name'])[1]"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("(//input[@name='name'])[1]"))
-        .await?
-        .send_keys("2")
-        .await?;
-
-    driver
-        .find(By::XPath(
-            "(//*[self::a or self::button][normalize-space()='Update Assistant'])[1]",
-        ))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath("//h2[contains(normalize-space(), 'My Prompt2')]"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::wait_visible(
+        driver,
+        By::XPath("//h2[contains(normalize-space(), 'My Prompt2')]"),
+    )
+    .await?;
 
     Ok(())
 }
 
 async fn test_api_keys(driver: &WebDriver, config: &common::Config) -> WebDriverResult<()> {
-    driver
-        .find(By::LinkText("Admin Panel"))
-        .await?
-        .click()
+    common::click_when_visible(driver, By::LinkText("Admin Panel")).await?;
+    common::click_when_visible(driver, By::LinkText("API Keys")).await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Create Assistant Key']"))
         .await?;
 
-    driver.find(By::LinkText("API Keys")).await?.click().await?;
+    common::set_input(driver, By::Css("input[name='name']"), "Test Key").await?;
 
-    driver
-        .find(By::XPath("//button[text()='Create Assistant Key']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Create API Key']")).await?;
 
-    driver
-        .find(By::XPath("//button[text()='Create Assistant Key']"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::Css("input[name='name']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::Css("input[name='name']"))
-        .await?
-        .send_keys("Test Key")
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Create API Key']"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .find(By::XPath("//td[text()='Test Key']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::wait_visible(driver, By::XPath("//td[text()='Test Key']")).await?;
 
     let api_key_input = driver
         .find(By::XPath("//input[@name='generated-api-key']"))
