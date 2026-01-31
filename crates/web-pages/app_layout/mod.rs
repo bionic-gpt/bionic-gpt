@@ -179,6 +179,28 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     let admin_href = admin_home_href(&props.rbac, team_id.clone(), use_mcp_sidebar);
     let main_href = main_home_href(&props.rbac, team_id.clone(), use_mcp_sidebar);
 
+    let profile_section = if props.setup_required {
+        rsx!(
+            div {
+                class: "btn btn-ghost btn-sm w-full justify-start mb-2 flex items-center gap-2 opacity-50 pointer-events-none",
+                img {
+                    width: "16",
+                    height: "16",
+                    src: profile_svg.name
+                }
+                "Profile"
+            }
+        )
+    } else {
+        rsx!(ProfilePopup {
+            email: props.rbac.email.clone(),
+            first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
+            last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
+            team_id: team_id.clone(),
+            unlicensed: props.rbac.unlicensed,
+        })
+    };
+
     let sidebar_footer = match mode {
         LayoutMode::Main => rsx!(
             if let Some(href) = admin_href.clone() {
@@ -193,34 +215,34 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
                     "Admin Panel"
                 }
             }
-            ProfilePopup {
-                email: props.rbac.email.clone(),
-                first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
-                last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
-                team_id: team_id.clone(),
-                unlicensed: props.rbac.unlicensed,
-            }
+            {profile_section}
         ),
         LayoutMode::Admin => rsx!(
             if let Some(href) = main_href.clone() {
-                a {
-                    class: "btn btn-ghost btn-sm w-full justify-start mb-2 flex items-center gap-2",
-                    href: "{href}",
-                    img {
-                        width: "16",
-                        height: "16",
-                        src: left_arrow_svg.name
+                if props.setup_required {
+                    button {
+                        class: "btn btn-ghost btn-sm w-full justify-start mb-2 flex items-center gap-2 opacity-50 pointer-events-none",
+                        img {
+                            width: "16",
+                            height: "16",
+                            src: left_arrow_svg.name
+                        }
+                        "Back to app"
                     }
-                    "Back to app"
+                } else {
+                    a {
+                        class: "btn btn-ghost btn-sm w-full justify-start mb-2 flex items-center gap-2",
+                        href: "{href}",
+                        img {
+                            width: "16",
+                            height: "16",
+                            src: left_arrow_svg.name
+                        }
+                        "Back to app"
+                    }
                 }
             }
-            ProfilePopup {
-                email: props.rbac.email.clone(),
-                first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
-                last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
-                team_id: team_id.clone(),
-                unlicensed: props.rbac.unlicensed,
-            }
+            {profile_section}
         ),
     };
 
