@@ -135,6 +135,14 @@ impl Config {
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 
         transaction
+            .execute(
+                "DELETE FROM iam.oauth_clients WHERE provider_url IN ('https://example.com/oauth-test')",
+                &[],
+            )
+            .await
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
+
+        transaction
             .execute("DELETE FROM model_registry.models", &[])
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
