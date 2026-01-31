@@ -103,6 +103,7 @@ async fn test_providers(driver: &WebDriver) -> WebDriverResult<()> {
     // Ensure provider appears in Models -> Select Provider
     common::click_when_visible(driver, By::LinkText("Model Setup")).await?;
     common::click_when_visible(driver, By::LinkText("Add Model")).await?;
+    driver.refresh().await?;
     common::wait_visible(driver, By::XPath("//h2[normalize-space()='Test Provider']")).await?;
 
     // Delete provider
