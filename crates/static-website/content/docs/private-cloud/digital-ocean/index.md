@@ -64,3 +64,7 @@ stack deploy --manifest bionic.stack.yaml --profile dev
 ```
 
 If you get a "service unavailable" error, wait a bit longer for the cluster to finish starting.
+
+After a while you should be able to see all pods started.
+
+![Alt text](bionic-in-k8s.png "Bionic Running")
