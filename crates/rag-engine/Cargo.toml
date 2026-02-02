@@ -11,16 +11,16 @@ embeddings-api = { path = "../embeddings-api" }
 object-storage = { path = "../object-storage" }
 tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }
 
-tracing = "0"
-tracing-subscriber = { version="0", features = ["env-filter"] }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 
 # So we can store embeddings
-pgvector = { version = "0.3", features = ["postgres"] }
+pgvector = { workspace = true, features = ["postgres"] }
 
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
 
 ## Used to call unstructured API
-reqwest = { version = "0.13", default-features = false, features = ["multipart", "rustls", "json"] }
+reqwest = { workspace = true, default-features = false, features = ["multipart", "rustls", "json"] }
 infer = "0"
 mime_guess = "2"

@@ -7,4 +7,4 @@ edition = "2024"
 clap = { version = "4", features = ["derive"] }
 dagger-sdk = "0.19"
 eyre = "0.6"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

@@ -57,9 +57,7 @@ CREATE UNIQUE INDEX teams_slug_uq ON iam.teams (slug);
 DROP INDEX IF EXISTS teams_slug_uq;
 
 DROP TRIGGER IF EXISTS set_team_slug ON iam.teams;
-DROP FUNCTION IF EXISTS set_team_slug();
+DROP FUNCTION IF EXISTS set_team_slug() CASCADE;
 
-ALTER TABLE iam.teams
-  DROP COLUMN IF EXISTS slug;
 
 DROP FUNCTION IF EXISTS slugify_simple(text);

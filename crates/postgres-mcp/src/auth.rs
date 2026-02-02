@@ -1,4 +1,4 @@
-use axum::{async_trait, extract::FromRequestParts, http::request::Parts};
+use axum::{extract::FromRequestParts, http::request::Parts};
 use axum_extra::{
     extract::TypedHeader,
     headers::{authorization::Bearer, Authorization},
@@ -9,7 +9,6 @@ use crate::error::ApiError;
 #[derive(Debug, Clone)]
 pub struct ConnectionString(pub String);
 
-#[async_trait]
 impl<S> FromRequestParts<S> for ConnectionString
 where
     S: Send + Sync,

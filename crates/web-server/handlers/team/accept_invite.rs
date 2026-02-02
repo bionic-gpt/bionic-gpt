@@ -3,6 +3,8 @@ use axum::{
     extract::Extension,
     response::{IntoResponse, Redirect},
 };
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
 use db::authz;
 use db::queries;
 use db::Pool;
@@ -31,11 +33,11 @@ pub async fn accept_invitation(
     invitation_selector: &str,
     invitation_verifier: &str,
 ) -> Result<String, CustomError> {
-    let invitation_verifier = base64::decode_config(invitation_verifier, base64::URL_SAFE_NO_PAD)
+    let invitation_verifier = URL_SAFE_NO_PAD
+        .decode(invitation_verifier)
         .map_err(|e| CustomError::FaultySetup(e.to_string()))?;
     let invitation_verifier_hash = Sha256::digest(&invitation_verifier);
-    let invitation_verifier_hash_base64 =
-        base64::encode_config(invitation_verifier_hash, base64::URL_SAFE_NO_PAD);
+    let invitation_verifier_hash_base64 = URL_SAFE_NO_PAD.encode(invitation_verifier_hash);
 
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;

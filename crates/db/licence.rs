@@ -1,4 +1,5 @@
-use base64::decode;
+use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use base64::Engine;
 use ed25519_dalek::{pkcs8::DecodePublicKey, Signature, Verifier, VerifyingKey, SIGNATURE_LENGTH};
 use serde::{Deserialize, Serialize};
 use std::sync::OnceLock;
@@ -106,7 +107,7 @@ impl Licence {
             return false;
         };
 
-        let Ok(signature_bytes_vec) = decode(self.signature.trim()) else {
+        let Ok(signature_bytes_vec) = BASE64_STANDARD.decode(self.signature.trim()) else {
             tracing::error!("Unable to parse signature");
             return false;
         };

@@ -10,8 +10,8 @@ db = { path = "../db" }
 # WebDriver Library for UI testing.
 thirtyfour = { version = "0.36" }
 time = { version = "0.3", default-features = false }
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-rand = "0.9"
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+rand.workspace = true
 quoted_printable = "0.5"
-reqwest = { version = "0.13", default-features = false, features = ["multipart", "rustls", "json"] }
-futures = "0.3"
+reqwest = { workspace = true, default-features = false, features = ["multipart", "rustls", "json"] }
+futures.workspace = true

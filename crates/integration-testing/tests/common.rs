@@ -8,6 +8,28 @@ use futures::FutureExt;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
+pub async fn wait_visible(driver: &WebDriver, by: By) -> WebDriverResult<WebElement> {
+    driver
+        .query(by.clone())
+        .first()
+        .await?
+        .wait_until()
+        .displayed()
+        .await?;
+    driver.find(by).await
+}
+
+pub async fn click_when_visible(driver: &WebDriver, by: By) -> WebDriverResult<()> {
+    let el = wait_visible(driver, by).await?;
+    el.click().await
+}
+
+pub async fn set_input(driver: &WebDriver, by: By, value: &str) -> WebDriverResult<()> {
+    let el = wait_visible(driver, by).await?;
+    el.clear().await?;
+    el.send_keys(value).await
+}
+
 #[derive(Clone)]
 pub struct Config {
     pub webdriver_url: String,
@@ -101,6 +123,30 @@ impl Config {
 
         transaction
             .execute("DELETE FROM assistants.prompts", &[])
+            .await
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
+
+        transaction
+            .execute(
+                "DELETE FROM integrations.openapi_specs WHERE slug IN ('sample-spec', 'bad-json')",
+                &[],
+            )
+            .await
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
+
+        transaction
+            .execute(
+                "DELETE FROM iam.oauth_clients WHERE provider_url IN ('https://example.com/oauth-test')",
+                &[],
+            )
+            .await
+            .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
+
+        transaction
+            .execute(
+                "DELETE FROM model_registry.providers WHERE name IN ('Test Provider')",
+                &[],
+            )
             .await
             .map_err(|e| WebDriverError::RequestFailed(e.to_string()))?;
 

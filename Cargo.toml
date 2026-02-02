@@ -5,6 +5,43 @@ members = [
     "crates/*",
 ]
 
+[workspace.dependencies]
+axum = "0.8"
+axum-extra = "0.12"
+tower-http = "0.6"
+tower = "0.5.3"
+http = "1"
+hyper = "1"
+tokio = "1"
+tokio-util = "0.7.15"
+base64 = "0.22"
+pgvector = "0.4"
+reqwest = { version = "0.13", default-features = false }
+rustls = "0.23"
+rustls-native-certs = "0.8"
+tokio-postgres-rustls = "0.13"
+serde = "1"
+serde_json = "1"
+time = "0.3"
+uuid = "1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+oas3 = "0.16.1"
+futures = "0.3"
+async-trait = "0.1"
+oauth2 = "5.0.0"
+chrono = "0.4"
+validator = "0.20.0"
+rand = "0.9"
+mime = "0.3"
+tokio-postgres = { version = "0.7", features = ["with-time-0_3", "with-serde_json-1", "with-uuid-1"] }
+## Need to upgrade daisy_rsx before upgrading these
+dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
+dioxus-ssr = { version = "0.6", default-features = false }
+syntect = "5.3"
+pulldown-cmark = "0.13"
+tower-livereload = "0.10"
+
 # https://corrode.dev/blog/tips-for-faster-rust-compile-times/#turn-off-debuginfo
 [profile.dev]
 debug = 0

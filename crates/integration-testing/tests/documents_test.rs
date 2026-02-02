@@ -28,102 +28,25 @@ async fn run_documents() -> WebDriverResult<()> {
 }
 
 async fn test_pipelines(driver: &WebDriver) -> WebDriverResult<()> {
-    driver
-        .find(By::LinkText("Document Pipelines"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='New Pipeline']"))
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='New Pipeline']"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::Css("input[name='name']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::Css("input[name='name']"))
-        .await?
-        .send_keys("My Pipeline")
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Create Pipeline']"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath("//td[text()='My Pipeline']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//td[text()='My Pipeline']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Document Pipelines")).await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='New Pipeline']")).await?;
+    common::set_input(driver, By::Css("input[name='name']"), "My Pipeline").await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Create Pipeline']")).await?;
+    common::click_when_visible(driver, By::XPath("//td[text()='My Pipeline']")).await?;
 
     Ok(())
 }
 
 async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
-    driver
-        .find(By::LinkText("Datasets & Documents"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .find(By::XPath(
-            "//*[self::a or self::button][normalize-space()='Add Dataset']",
-        ))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .find(By::Css("input[name='name']"))
-        .await?
-        .send_keys("Team Dataset")
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Save']"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath("//button[text()='Add Document']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Add Document']"))
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Datasets & Documents")).await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("//*[self::a or self::button][normalize-space()='Add Dataset']"),
+    )
+    .await?;
+    common::set_input(driver, By::Css("input[name='name']"), "Team Dataset").await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Save']")).await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Add Document']")).await?;
 
     driver
         .find(By::XPath(".//*[@type='file']"))
@@ -142,60 +65,28 @@ async fn test_documents(driver: &WebDriver) -> WebDriverResult<()> {
     sleep(Duration::from_millis(10000)).await;
     driver.refresh().await?;
 
-    driver
-        .query(By::XPath(
-            "//*[contains(@class,'badge')][normalize-space()='Processed']",
-        ))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::wait_visible(
+        driver,
+        By::XPath("//*[contains(@class,'badge')][normalize-space()='Processed']"),
+    )
+    .await?;
 
-    driver
-        .query(By::XPath("//label[.//span[normalize-space()='...']]"))
-        .first()
-        .await?
-        .click()
-        .await?;
+    common::click_when_visible(
+        driver,
+        By::XPath("//label[.//span[normalize-space()='...']]"),
+    )
+    .await?;
 
-    driver
-        .query(By::LinkText("Delete Document"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+    common::click_when_visible(driver, By::LinkText("Delete Document")).await?;
+    common::click_when_visible(driver, By::XPath("//button[text()='Delete Document']")).await?;
 
-    driver
-        .find(By::LinkText("Delete Document"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath("//button[text()='Delete Document']"))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
-
-    driver
-        .find(By::XPath("//button[text()='Delete Document']"))
-        .await?
-        .click()
-        .await?;
-
-    driver
-        .query(By::XPath(
+    common::wait_visible(
+        driver,
+        By::XPath(
             "//p[normalize-space()=\"This dataset doesn't have any documents yet. Upload your first document to get started.\"]",
-        ))
-        .first()
-        .await?
-        .wait_until()
-        .displayed()
-        .await?;
+        ),
+    )
+    .await?;
 
     Ok(())
 }

@@ -32,14 +32,32 @@ pub async fn handler(
             .prompt_id
             .ok_or_else(|| CustomError::Authentication("Invalid API Key".to_string()))?;
 
+        tracing::debug!("Setting RLS {}", api_key_record.user_id);
+
+        transaction
+            .query(
+                &format!(
+                    "SET LOCAL row_level_security.user_id = {}",
+                    api_key_record.user_id
+                ),
+                &[],
+            )
+            .await?;
+
+        tracing::debug!("Getting model {}", api_key_record.model_id.is_some());
+
         let model_id = api_key_record
             .model_id
             .ok_or_else(|| CustomError::FaultySetup("API key missing model".to_string()))?;
+
+        tracing::debug!("Getting model {}", model_id);
 
         let model = queries::models::model()
             .bind(&transaction, &model_id)
             .one()
             .await?;
+
+        tracing::debug!("Getting prompt");
 
         let prompt = queries::prompts::prompt()
             .bind(&transaction, &prompt_id, &api_key_record.team_id)
