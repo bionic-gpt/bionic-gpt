@@ -5,6 +5,17 @@ members = [
     "crates/*",
 ]
 
+[workspace.dependencies]
+axum = "0.8"
+axum-extra = "0.10"
+tower-http = "0.6"
+base64 = "0.22"
+pgvector = "0.4"
+reqwest = { version = "0.13", default-features = false }
+rustls = "0.23"
+rustls-native-certs = "0.8"
+tokio-postgres-rustls = "0.13"
+
 # https://corrode.dev/blog/tips-for-faster-rust-compile-times/#turn-off-debuginfo
 [profile.dev]
 debug = 0

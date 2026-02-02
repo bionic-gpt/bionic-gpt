@@ -13,14 +13,14 @@ rag-engine = { path = "../rag-engine" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 tracing = { version = "0.1" }
-axum = { version = "0.8" }
+axum.workspace = true
 chrono = { version = "0.4" }
 db = { path = "../db" }
 tokio = { version = "1", features = ["rt", "rt-multi-thread"] }
 async-trait = { version = "0.1" }
 oas3 = "0.16.1"
 oauth2 = "5.0.0"
-reqwest = { version = "0.13", default-features = false, features = ["json", "rustls", "stream"] }
+reqwest = { workspace = true, default-features = false, features = ["json", "rustls", "stream"] }
 time = { version = "0.3", features = ["parsing", "formatting"] }
 # Used by tests
 futures = "0.3"

@@ -8,15 +8,15 @@ edition = "2021"
 
 
 [dependencies]
-axum = { version = "0.8", features = ["multipart"] }
-axum-extra = { version = "0.10", features = ["typed-routing"] }
+axum = { workspace = true, features = ["multipart"] }
+axum-extra = { workspace = true, features = ["typed-routing"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 tracing = { version = "0.1" }
 tracing-subscriber = { version="0", features = ["env-filter"] }
 dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
 dioxus-ssr = { version = "0.6", default-features = false }
 serde = "1"
-tower-http = { version = "0.6", features = ["fs", "trace"] }
+tower-http = { workspace = true, features = ["fs", "trace"] }
 
 syntect = "5.0"
 pulldown-cmark = "0.12.2"

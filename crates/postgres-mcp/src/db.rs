@@ -64,11 +64,16 @@ fn maybe_tls_connector() -> ApiResult<Option<MakeRustlsConnect>> {
 }
 
 fn build_tls_connector() -> ApiResult<MakeRustlsConnect> {
-    let certs = load_native_certs()
-        .map_err(|err| ApiError::internal(format!("failed to load native certificates: {err}")))?;
+    let cert_result = load_native_certs();
+    if !cert_result.errors.is_empty() {
+        debug!(
+            errors = cert_result.errors.len(),
+            "some native certificates failed to load"
+        );
+    }
 
     let mut roots = RootCertStore::empty();
-    let (added, ignored) = roots.add_parsable_certificates(&certs);
+    let (added, ignored) = roots.add_parsable_certificates(cert_result.certs);
     debug!(added, ignored, "loaded native certificate roots");
 
     if added == 0 {
@@ -78,7 +83,6 @@ fn build_tls_connector() -> ApiResult<MakeRustlsConnect> {
     }
 
     let config = ClientConfig::builder()
-        .with_safe_defaults()
         .with_root_certificates(roots)
         .with_no_client_auth();
 

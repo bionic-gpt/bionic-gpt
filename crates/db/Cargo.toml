@@ -18,13 +18,13 @@ cornucopia_async = { version = "0", features = ["with-serde_json-1"] }
 deadpool-postgres = { version = "0", features = ["serde"] }
 postgres-types = { version = "0", features = ["derive", "with-uuid-1"] }
 time = { version = "0.3.41", default-features = false,  features = ["formatting", "serde", "parsing"] }
-pgvector = { version = "0.4", features = ["postgres"] }
+pgvector = { workspace = true, features = ["postgres"] }
 tracing = { version = "0.1" }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["raw_value"] }
 futures = "0.3"
-base64 = "0.22"
+base64.workspace = true
 ed25519-dalek = { version = "2.1.1", features = ["pkcs8", "pem"] }
 uuid = { version = "1", features = ["serde"] }
 tokio = { version = "1", features = ["sync"] }

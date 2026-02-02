@@ -12,19 +12,19 @@ embeddings-api = { path = "../embeddings-api" }
 integrations = { path = "../integrations" }
 openai-api = { path = "../openai-api" }
 
-axum = { version = "0.8", features = ["multipart"] }
-axum-extra = { version = "0.10", features = ["form", "typed-routing", "cookie"] }
+axum = { workspace = true, features = ["multipart"] }
+axum-extra = { workspace = true, features = ["form", "typed-routing", "cookie"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 http = "1"
 tokio-stream = "0.1"
-reqwest = { version = "0.13", default-features = false, features = ["stream", "json", "rustls"] }
+reqwest = { workspace = true, default-features = false, features = ["stream", "json", "rustls"] }
 serde_json = { version = "1" }
 serde = { version = "1", features = ["derive"] }
 tracing = { version = "0.1" }
-tower-http = { version = "0.6", features = ["fs", "cors"] }
+tower-http = { workspace = true, features = ["fs", "cors"] }
 async-trait = "0.1"
 
-base64 = { version = "0.22" }
+base64.workspace = true
 
 [dev-dependencies]
 time = "0.3.36"

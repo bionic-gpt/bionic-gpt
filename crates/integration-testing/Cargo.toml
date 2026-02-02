@@ -13,5 +13,5 @@ time = { version = "0.3", default-features = false }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 rand = "0.9"
 quoted_printable = "0.5"
-reqwest = { version = "0.13", default-features = false, features = ["multipart", "rustls", "json"] }
+reqwest = { workspace = true, default-features = false, features = ["multipart", "rustls", "json"] }
 futures = "0.3"
