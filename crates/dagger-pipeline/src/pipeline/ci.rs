@@ -74,16 +74,23 @@ fn add_soft_check(container: Container, command: &str) -> Container {
          {cmd}; \
          status=$?; \
          if [ \"$status\" -eq 0 ]; then mark='✅'; else mark='❌'; fi; \
-         printf '%s `%s`\\n' \"- $mark\" \"{cmd}\" >> /build/checks.md; \
+         printf '%s `%s`\\n' \"- $mark\" \"{cmd}\" >> {summary_path}; \
          exit 0",
-        cmd = command
+        cmd = command,
+        summary_path = SUMMARY_PATH
     );
 
     container.with_exec(vec!["sh", "-lc", &script])
 }
 
-fn initialize_checks_file(container: Container) -> Container {
-    container.with_exec(vec!["sh", "-lc", "mkdir -p /build && : > /build/checks.md"])
+fn initialize_summary_file(container: Container) -> Container {
+    let header = pipeline_intro_summary();
+    let script = format!(
+        "mkdir -p /build && cat > {summary_path} <<'EOF'\n{header}EOF",
+        summary_path = SUMMARY_PATH,
+        header = header
+    );
+    container.with_exec(vec!["sh", "-lc", &script])
 }
 
 fn quality_test_command() -> &'static str {
@@ -128,19 +135,15 @@ fn pipeline_intro_summary() -> String {
 
 fn add_build_and_finalize_summary_with_intro(container: Container) -> Container {
     let build_cmd = format!("cargo build --release --target {TARGET_TRIPLE}");
-    let header = pipeline_intro_summary();
     let script = format!(
         "set +e; \
          {build_cmd}; \
          status=$?; \
          if [ \"$status\" -eq 0 ]; then mark='✅'; else mark='❌'; fi; \
-         printf '%s `%s`\\n' \"- $mark\" \"{build_cmd}\" >> /build/checks.md; \
-         cat > {summary_path} <<'EOF'\n{header}EOF\n\
-         cat /build/checks.md >> {summary_path}; \
+         printf '%s `%s`\\n' \"- $mark\" \"{build_cmd}\" >> {summary_path}; \
          exit \"$status\"",
         build_cmd = build_cmd,
-        summary_path = SUMMARY_PATH,
-        header = header
+        summary_path = SUMMARY_PATH
     );
 
     container.with_exec(vec!["sh", "-lc", &script])
@@ -162,8 +165,8 @@ fn add_migrations(container: Container) -> Container {
 }
 
 fn build_summary_pipeline(container: Container) -> Container {
-    let with_checks = initialize_checks_file(container);
-    let with_soft_checks = add_soft_checks(with_checks);
+    let with_summary = initialize_summary_file(container);
+    let with_soft_checks = add_soft_checks(with_summary);
     add_build_and_finalize_summary_with_intro(with_soft_checks)
 }
 
