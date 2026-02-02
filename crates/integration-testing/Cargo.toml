@@ -11,7 +11,7 @@ db = { path = "../db" }
 thirtyfour = { version = "0.36" }
 time = { version = "0.3", default-features = false }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-rand = "0.9"
+rand.workspace = true
 quoted_printable = "0.5"
 reqwest = { workspace = true, default-features = false, features = ["multipart", "rustls", "json"] }
-futures = "0.3"
+futures.workspace = true

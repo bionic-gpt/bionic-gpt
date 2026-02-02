@@ -14,16 +14,16 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 tracing.workspace = true
 axum.workspace = true
-chrono = { version = "0.4" }
+chrono.workspace = true
 db = { path = "../db" }
 tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
-async-trait = { version = "0.1" }
-oas3 = "0.16.1"
-oauth2 = "5.0.0"
+async-trait.workspace = true
+oas3.workspace = true
+oauth2.workspace = true
 reqwest = { workspace = true, default-features = false, features = ["json", "rustls", "stream"] }
 time = { workspace = true, features = ["parsing", "formatting"] }
 # Used by tests
-futures = "0.3"
+futures.workspace = true
 
 # Used by the web tool to stream responses
 futures-util = "0.3"

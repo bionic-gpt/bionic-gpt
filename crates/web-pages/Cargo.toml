@@ -22,6 +22,6 @@ serde_json.workspace = true
 daisy_rsx = "0.1.50"
 comrak = { version = "0.39.0", features = ["shortcodes"] }
 time.workspace = true
-validator = { version = "0.20.0", features = ["derive"] }
-oas3 = "0.16.1"
+validator = { workspace = true, features = ["derive"] }
+oas3.workspace = true
 toml = "0.8"
