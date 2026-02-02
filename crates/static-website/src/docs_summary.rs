@@ -130,6 +130,18 @@ pub fn summary() -> Summary {
                     },
                     Page {
                         date: "",
+                        title: "Digital Ocean",
+                        description: "Digital Ocean",
+                        folder: "docs/private-cloud/digital-ocean/",
+                        markdown: include_str!(
+                            "../content/docs/private-cloud/digital-ocean/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    Page {
+                        date: "",
                         title: "AWS",
                         description: "AWS",
                         folder: "docs/private-cloud/aws/",
