@@ -457,3 +457,7 @@ LibreChat
 UIs
 OpenTelemetry
 Grafana
+ - docs/private-cloud/digital-ocean/index.md
+k3s
+K8s
+Init

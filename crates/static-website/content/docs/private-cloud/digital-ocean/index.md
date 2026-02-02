@@ -22,7 +22,7 @@ curl -sfL https://get.k3s.io  | INSTALL_K3S_EXEC="--disable=traefik" sh -
 
 ## Step 4 - Access K8s form your local machine
 
-Get the kubeconfig to your loca machine
+Get the kubeconfig to your local machine
 
 ```sh
 export K3S_IP=<DROPLET_PUBLIC_IP>
