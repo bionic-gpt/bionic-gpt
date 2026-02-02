@@ -18,11 +18,7 @@ serde_json.workspace = true
 serde_with = "3"
 time = { workspace = true, features = ["serde", "formatting", "parsing", "macros"] }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "signal"] }
-tokio-postgres = { version = "0.7", features = [
-    "with-serde_json-1",
-    "with-time-0_3",
-    "with-uuid-1",
-] }
+tokio-postgres.workspace = true
 tokio-postgres-rustls.workspace = true
 rustls-native-certs.workspace = true
 rustls.workspace = true

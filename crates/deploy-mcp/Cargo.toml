@@ -10,12 +10,12 @@ axum-extra = { workspace = true, features = ["typed-routing"] }
 tokio = { workspace = true, features = ["rt-multi-thread"] }
 tracing.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
-dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
-dioxus-ssr = { version = "0.6", default-features = false }
+dioxus.workspace = true
+dioxus-ssr.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tower-http = { workspace = true, features = ["fs", "trace"] }
-syntect = "5.0"
-pulldown-cmark = "0.12.2"
-tower-livereload = "0.9.5"
+syntect.workspace = true
+pulldown-cmark.workspace = true
+tower-livereload.workspace = true
 static-website = { path = "../static-website" }

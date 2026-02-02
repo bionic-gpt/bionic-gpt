@@ -15,8 +15,8 @@ integrations = { path = "../integrations" }
 openai-api = { path = "../openai-api" }
 axum.workspace = true
 axum-extra = { workspace = true, features = ["typed-routing"] }
-dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
-dioxus-ssr = { version = "0.6", default-features = false }
+dioxus.workspace = true
+dioxus-ssr.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 daisy_rsx = "0.1.50"
