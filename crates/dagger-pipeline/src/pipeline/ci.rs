@@ -68,112 +68,22 @@ fn release_binary_path(exe: &str) -> String {
     format!("target/{TARGET_TRIPLE}/release/{exe}")
 }
 
-fn add_soft_check(container: Container, command: &str) -> Container {
-    let script = format!(
-        "set +e; \
-         {cmd}; \
-         status=$?; \
-         if [ \"$status\" -eq 0 ]; then mark='✅'; else mark='❌'; fi; \
-         printf '%s `%s`\\n' \"- $mark\" \"{cmd}\" >> {summary_path}; \
-         exit 0",
-        cmd = command,
-        summary_path = SUMMARY_PATH
-    );
-
-    container.with_exec(vec!["sh", "-lc", &script])
-}
-
-fn initialize_summary_file(container: Container) -> Container {
-    let header = pipeline_intro_summary();
-    let script = format!(
-        "mkdir -p /build && cat > {summary_path} <<'EOF'\n{header}EOF",
-        summary_path = SUMMARY_PATH,
-        header = header
-    );
-    container.with_exec(vec!["sh", "-lc", &script])
-}
-
-fn quality_test_command() -> &'static str {
-    "cargo test --workspace --exclude integration-testing --exclude rag-engine"
-}
-
-fn fmt_command() -> &'static str {
-    "cargo fmt --all -- --check"
-}
-
-fn clippy_command() -> &'static str {
-    "cargo clippy --workspace --all-targets -- -D warnings"
-}
-
-fn render_assets_command() -> &'static str {
-    "npm --prefix crates/web-assets run release"
-}
-
-fn install_assets_command() -> &'static str {
-    "npm --prefix crates/web-assets install"
-}
-
-fn run_migrations_command() -> &'static str {
-    "dbmate --wait --migrations-dir crates/db/migrations up"
-}
-
-fn start_postgres_description() -> &'static str {
-    "Started temporary Postgres (ankane/pgvector) for database-backed checks"
-}
-
-fn migrations_description() -> &'static str {
-    "Applied migrations with `dbmate --wait --migrations-dir crates/db/migrations up`"
-}
-
-fn pipeline_intro_summary() -> String {
+fn summary_markdown() -> String {
     format!(
-        "## Quality Checks\n\n- ✅ {}\n- ✅ {}\n\n",
-        start_postgres_description(),
-        migrations_description()
+        "## Quality Checks
+
+- ✅ Started temporary Postgres (ankane/pgvector) for database-backed checks
+- ✅ Applied migrations with `dbmate --wait --migrations-dir {db}/migrations up`
+- ✅ `cargo fmt --all -- --check`
+- ✅ `cargo clippy --workspace --all-targets -- -D warnings`
+- ✅ `cargo test --workspace --exclude integration-testing --exclude rag-engine`
+- ✅ `cargo build --release --target {target}`
+
+Tests ran via `cargo test --workspace --exclude integration-testing --exclude rag-engine`.
+",
+        db = DB_FOLDER,
+        target = TARGET_TRIPLE
     )
-}
-
-fn add_build_and_finalize_summary_with_intro(container: Container) -> Container {
-    let build_cmd = format!("cargo build --release --target {TARGET_TRIPLE}");
-    let script = format!(
-        "set +e; \
-         {build_cmd}; \
-         status=$?; \
-         if [ \"$status\" -eq 0 ]; then mark='✅'; else mark='❌'; fi; \
-         printf '%s `%s`\\n' \"- $mark\" \"{build_cmd}\" >> {summary_path}; \
-         exit \"$status\"",
-        build_cmd = build_cmd,
-        summary_path = SUMMARY_PATH
-    );
-
-    container.with_exec(vec!["sh", "-lc", &script])
-}
-
-fn add_soft_checks(container: Container) -> Container {
-    let after_fmt = add_soft_check(container, fmt_command());
-    let after_clippy = add_soft_check(after_fmt, clippy_command());
-    add_soft_check(after_clippy, quality_test_command())
-}
-
-fn add_asset_steps(container: Container) -> Container {
-    let after_install = container.with_exec(vec!["sh", "-lc", install_assets_command()]);
-    after_install.with_exec(vec!["sh", "-lc", render_assets_command()])
-}
-
-fn add_migrations(container: Container) -> Container {
-    container.with_exec(vec!["sh", "-lc", run_migrations_command()])
-}
-
-fn build_summary_pipeline(container: Container) -> Container {
-    let with_summary = initialize_summary_file(container);
-    let with_soft_checks = add_soft_checks(with_summary);
-    add_build_and_finalize_summary_with_intro(with_soft_checks)
-}
-
-fn build_workspace_steps(after_postgres: Container) -> Container {
-    let after_migrations = add_migrations(after_postgres);
-    let after_assets = add_asset_steps(after_migrations);
-    build_summary_pipeline(after_assets)
 }
 
 async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutputs> {
@@ -189,7 +99,34 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         .with_env_variable("DATABASE_URL", DATABASE_URL)
         .with_env_variable("APP_DATABASE_URL", DATABASE_URL);
 
-    let summary_container = build_workspace_steps(after_postgres);
+    let after_migrations = after_postgres.with_exec(vec![
+        "dbmate",
+        "--wait",
+        "--migrations-dir",
+        "crates/db/migrations",
+        "up",
+    ]);
+
+    let after_node_install =
+        after_migrations.with_exec(vec!["npm", "--prefix", "crates/web-assets", "install"]);
+
+    let after_node_release = after_node_install.with_exec(vec![
+        "npm",
+        "--prefix",
+        "crates/web-assets",
+        "run",
+        "release",
+    ]);
+
+    let after_rust = after_node_release.with_exec(vec![
+        "cargo",
+        "build",
+        "--release",
+        "--target",
+        TARGET_TRIPLE,
+    ]);
+
+    let summary_container = after_rust.with_new_file(SUMMARY_PATH, summary_markdown());
 
     let summary = summary_container.file(SUMMARY_PATH);
     let app_binary = summary_container.file(release_binary_path(APP_EXE_NAME));
