@@ -10,14 +10,14 @@ use time::{Duration, OffsetDateTime};
 #[cfg(test)]
 use oauth2::{basic::BasicTokenType, EmptyExtraTokenFields, StandardTokenResponse};
 #[cfg(test)]
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 #[cfg(test)]
 use tokio::sync::Mutex;
 
 #[cfg(test)]
-static TEST_TOKEN_RESPONSE: Lazy<
+static TEST_TOKEN_RESPONSE: LazyLock<
     Mutex<Option<StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>>>,
-> = Lazy::new(|| Mutex::new(None));
+> = LazyLock::new(|| Mutex::new(None));
 
 #[async_trait]
 pub trait TokenProvider: Send + Sync {
