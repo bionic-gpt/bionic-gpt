@@ -815,9 +815,9 @@ dependencies = [
 
 [[package]]
 name = "cornucopia_async"
-version = "0.4.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38063b8553edf452cccc674f07b3b5e3144a24712e46647bfc357040f25fdc12"
+checksum = "5a3be4786606c0fdb37fd4f1eff8132a5e3b88572e4947bde7dc1c0ab0c77999"
 dependencies = [
  "async-trait",
  "cornucopia_client_core",
@@ -936,9 +936,9 @@ dependencies = [
 
 [[package]]
 name = "dagger-sdk"
-version = "0.19.2"
+version = "0.19.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcce41502dc0b11c5a40d778709c1b66c0bb8edecb302fee01f5addb2444d1c7"
+checksum = "66dd492d27a04e2dba1aec9d48ada4956d0f782114d1cef769924211979d6bbd"
 dependencies = [
  "async-trait",
  "base64 0.21.7",
@@ -1101,29 +1101,28 @@ dependencies = [
 
 [[package]]
 name = "deadpool"
-version = "0.9.5"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "421fe0f90f2ab22016f32a9881be5134fdd71c65298917084b0c7477cbc3856e"
+checksum = "fb84100978c1c7b37f09ed3ce3e5f843af02c2a2c431bae5b19230dad2c1b490"
 dependencies = [
  "async-trait",
  "deadpool-runtime",
  "num_cpus",
- "retain_mut",
  "serde",
  "tokio",
 ]
 
 [[package]]
 name = "deadpool-postgres"
-version = "0.10.5"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "836a24a9d49deefe610b8b60c767a7412e9a931d79a89415cd2d2d71630ca8d7"
+checksum = "bda39fa1cfff190d8924d447ad04fd22772c250438ca5ce1dfb3c80621c05aaa"
 dependencies = [
  "deadpool",
- "log",
  "serde",
  "tokio",
  "tokio-postgres",
+ "tracing",
 ]
 
 [[package]]
@@ -3928,12 +3927,6 @@ dependencies = [
  "wasm-streams",
  "web-sys",
 ]
-
-[[package]]
-name = "retain_mut"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4389f1d5789befaf6029ebd9f7dac4af7f7e3d61b69d4f30e2ac02b57e7712b0"
 
 [[package]]
 name = "rgb"
