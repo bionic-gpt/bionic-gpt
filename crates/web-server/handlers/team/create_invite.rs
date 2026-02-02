@@ -3,6 +3,8 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
 use db::authz;
 use db::queries;
 use db::types;
@@ -93,14 +95,11 @@ pub async fn create(
         authz::get_permissions_by_slug(&transaction, &current_user.into(), team_slug).await?;
 
     let invitation_selector = rand::rng().random::<[u8; 6]>();
-    let invitation_selector_base64 =
-        base64::encode_config(invitation_selector, base64::URL_SAFE_NO_PAD);
+    let invitation_selector_base64 = URL_SAFE_NO_PAD.encode(invitation_selector);
     let invitation_verifier = rand::rng().random::<[u8; 8]>();
     let invitation_verifier_hash = Sha256::digest(invitation_verifier);
-    let invitation_verifier_hash_base64 =
-        base64::encode_config(invitation_verifier_hash, base64::URL_SAFE_NO_PAD);
-    let invitation_verifier_base64 =
-        base64::encode_config(invitation_verifier, base64::URL_SAFE_NO_PAD);
+    let invitation_verifier_hash_base64 = URL_SAFE_NO_PAD.encode(invitation_verifier_hash);
+    let invitation_verifier_base64 = URL_SAFE_NO_PAD.encode(invitation_verifier);
 
     let roles = if new_invite.admin.is_some() {
         vec![

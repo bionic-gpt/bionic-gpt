@@ -4,7 +4,8 @@ use axum::{
     extract::FromRequestParts,
     http::{request::Parts, StatusCode},
 };
-use base64::{decode_config, URL_SAFE_NO_PAD};
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
 use db::authz;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -59,7 +60,7 @@ where
             let jwt_parts: Vec<&str> = access_token.split('.').collect();
 
             if jwt_parts.len() == 3 {
-                if let Ok(payload) = decode_config(jwt_parts[1], URL_SAFE_NO_PAD) {
+                if let Ok(payload) = URL_SAFE_NO_PAD.decode(jwt_parts[1]) {
                     if let Ok(payload_str) = str::from_utf8(&payload) {
                         let json_value: Result<Value, _> = serde_json::from_str(payload_str);
                         if let Ok(json_value) = json_value {

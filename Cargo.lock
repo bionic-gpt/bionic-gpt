@@ -283,46 +283,12 @@ dependencies = [
 
 [[package]]
 name = "axum"
-version = "0.7.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "edca88bc138befd0323b20752846e6587272d3b03b0343c8ea28a6f819e6e71f"
-dependencies = [
- "async-trait",
- "axum-core 0.4.5",
- "axum-macros 0.4.2",
- "bytes",
- "futures-util",
- "http 1.1.0",
- "http-body 1.0.1",
- "http-body-util",
- "hyper 1.8.1",
- "hyper-util",
- "itoa",
- "matchit 0.7.3",
- "memchr",
- "mime",
- "percent-encoding",
- "pin-project-lite",
- "rustversion",
- "serde",
- "serde_json",
- "serde_path_to_error",
- "serde_urlencoded",
- "sync_wrapper 1.0.0",
- "tokio",
- "tower",
- "tower-layer",
- "tower-service",
- "tracing",
-]
-
-[[package]]
-name = "axum"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6d6fd624c75e18b3b4c6b9caf42b1afe24437daaee904069137d8bab077be8b8"
 dependencies = [
- "axum-core 0.5.0",
+ "axum-core",
+ "axum-macros",
  "bytes",
  "form_urlencoded",
  "futures-util",
@@ -332,7 +298,7 @@ dependencies = [
  "hyper 1.8.1",
  "hyper-util",
  "itoa",
- "matchit 0.8.4",
+ "matchit",
  "memchr",
  "mime",
  "multer",
@@ -346,27 +312,6 @@ dependencies = [
  "sync_wrapper 1.0.0",
  "tokio",
  "tower",
- "tower-layer",
- "tower-service",
- "tracing",
-]
-
-[[package]]
-name = "axum-core"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09f2bd6146b97ae3359fa0cc6d6b376d9539582c7b4220f041a33ec24c226199"
-dependencies = [
- "async-trait",
- "bytes",
- "futures-util",
- "http 1.1.0",
- "http-body 1.0.1",
- "http-body-util",
- "mime",
- "pin-project-lite",
- "rustversion",
- "sync_wrapper 1.0.0",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -394,41 +339,18 @@ dependencies = [
 
 [[package]]
 name = "axum-extra"
-version = "0.9.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c794b30c904f0a1c2fb7740f7df7f7972dfaa14ef6f57cb6178dc63e5dca2f04"
-dependencies = [
- "axum 0.7.9",
- "axum-core 0.4.5",
- "bytes",
- "fastrand",
- "futures-util",
- "headers",
- "http 1.1.0",
- "http-body 1.0.1",
- "http-body-util",
- "mime",
- "multer",
- "pin-project-lite",
- "serde",
- "tower",
- "tower-layer",
- "tower-service",
-]
-
-[[package]]
-name = "axum-extra"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "460fc6f625a1f7705c6cf62d0d070794e94668988b1c38111baeec177c715f7b"
 dependencies = [
- "axum 0.8.1",
- "axum-core 0.5.0",
- "axum-macros 0.5.0",
+ "axum",
+ "axum-core",
+ "axum-macros",
  "bytes",
  "cookie",
  "form_urlencoded",
  "futures-util",
+ "headers",
  "http 1.1.0",
  "http-body 1.0.1",
  "http-body-util",
@@ -441,17 +363,6 @@ dependencies = [
  "tower",
  "tower-layer",
  "tower-service",
-]
-
-[[package]]
-name = "axum-macros"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57d123550fa8d071b7255cb0cc04dc302baa6c8c4a79f55701552684d8399bce"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.95",
 ]
 
 [[package]]
@@ -473,7 +384,7 @@ checksum = "8b3a068a4636d1f08fb86d9d7b86c400bb21fba315c957c28a960239cdf19f34"
 dependencies = [
  "anyhow",
  "async-trait",
- "axum 0.8.1",
+ "axum",
  "axum_typed_multipart_macros",
  "bytes",
  "futures-core",
@@ -494,12 +405,6 @@ dependencies = [
  "syn 2.0.95",
  "ubyte",
 ]
-
-[[package]]
-name = "base64"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "base64"
@@ -1178,12 +1083,12 @@ dependencies = [
 name = "db"
 version = "0.1.0"
 dependencies = [
- "base64 0.13.1",
+ "base64 0.22.1",
  "cornucopia_async",
  "deadpool-postgres",
  "ed25519-dalek",
  "futures",
- "pgvector 0.3.2",
+ "pgvector",
  "postgres-types",
  "serde",
  "serde_json",
@@ -1234,8 +1139,8 @@ dependencies = [
 name = "deploy-mcp"
 version = "0.1.0"
 dependencies = [
- "axum 0.8.1",
- "axum-extra 0.10.0",
+ "axum",
+ "axum-extra",
  "dioxus",
  "dioxus-ssr",
  "pulldown-cmark",
@@ -1244,7 +1149,7 @@ dependencies = [
  "static-website",
  "syntect",
  "tokio",
- "tower-http 0.6.8",
+ "tower-http",
  "tower-livereload",
  "tracing",
  "tracing-subscriber",
@@ -2586,7 +2491,7 @@ name = "integrations"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "axum 0.8.1",
+ "axum",
  "chrono",
  "db",
  "embeddings-api",
@@ -2797,9 +2702,9 @@ name = "llm-proxy"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "axum 0.8.1",
- "axum-extra 0.10.0",
- "base64 0.13.1",
+ "axum",
+ "axum-extra",
+ "base64 0.22.1",
  "db",
  "embeddings-api",
  "http 1.1.0",
@@ -2811,7 +2716,7 @@ dependencies = [
  "time",
  "tokio",
  "tokio-stream",
- "tower-http 0.5.2",
+ "tower-http",
  "tracing",
 ]
 
@@ -2859,12 +2764,6 @@ checksum = "8263075bb86c5a1b1427b5ae862e8889656f126e9f77c484496e8b47cf5c5558"
 dependencies = [
  "regex-automata 0.1.10",
 ]
-
-[[package]]
-name = "matchit"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e7465ac9959cc2b1404e8e2367b43684a6d13790fe23056cc8c6c5a6b7bcb94"
 
 [[package]]
 name = "matchit"
@@ -3241,16 +3140,6 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 
 [[package]]
 name = "pgvector"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1f4c0c07ceb64a0020f2f0e610cfe51122d2e72723499f0154877b7c76c8c31"
-dependencies = [
- "bytes",
- "postgres",
-]
-
-[[package]]
-name = "pgvector"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0e8871b6d7ca78348c6cd29b911b94851f3429f0cd403130ca17f26c1fb91a6"
@@ -3381,20 +3270,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "postgres"
-version = "0.19.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bed5017bc2ff49649c0075d0d7a9d676933c1292480c1d137776fb205b5cd18"
-dependencies = [
- "bytes",
- "fallible-iterator",
- "futures-util",
- "log",
- "tokio",
- "tokio-postgres",
-]
-
-[[package]]
 name = "postgres-derive"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3411,9 +3286,9 @@ name = "postgres-mcp"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "axum 0.7.9",
- "axum-extra 0.9.6",
- "base64 0.21.7",
+ "axum",
+ "axum-extra",
+ "base64 0.22.1",
  "futures",
  "http 1.1.0",
  "hyper 1.8.1",
@@ -3425,7 +3300,6 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "thiserror 1.0.58",
  "time",
  "tokio",
  "tokio-postgres",
@@ -3700,7 +3574,7 @@ dependencies = [
  "infer",
  "mime_guess",
  "object-storage",
- "pgvector 0.3.2",
+ "pgvector",
  "reqwest 0.13.1",
  "serde",
  "serde_json",
@@ -3996,7 +3870,7 @@ dependencies = [
  "tokio",
  "tokio-rustls 0.26.4",
  "tower",
- "tower-http 0.6.8",
+ "tower-http",
  "tower-service",
  "url",
  "wasm-bindgen",
@@ -4037,7 +3911,7 @@ dependencies = [
  "tokio-rustls 0.26.4",
  "tokio-util",
  "tower",
- "tower-http 0.6.8",
+ "tower-http",
  "tower-service",
  "url",
  "wasm-bindgen",
@@ -4719,15 +4593,15 @@ dependencies = [
 name = "static-website"
 version = "0.1.0"
 dependencies = [
- "axum 0.8.1",
- "axum-extra 0.10.0",
+ "axum",
+ "axum-extra",
  "dioxus",
  "dioxus-ssr",
  "pulldown-cmark",
  "serde",
  "syntect",
  "tokio",
- "tower-http 0.6.8",
+ "tower-http",
  "tower-livereload",
  "tracing",
  "tracing-subscriber",
@@ -5235,31 +5109,6 @@ dependencies = [
 
 [[package]]
 name = "tower-http"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e9cd434a998747dd2c4276bc96ee2e0c7a2eadf3cae88e52be55a05fa9053f5"
-dependencies = [
- "bitflags 2.9.0",
- "bytes",
- "futures-util",
- "http 1.1.0",
- "http-body 1.0.1",
- "http-body-util",
- "http-range-header",
- "httpdate",
- "mime",
- "mime_guess",
- "percent-encoding",
- "pin-project-lite",
- "tokio",
- "tokio-util",
- "tower-layer",
- "tower-service",
- "tracing",
-]
-
-[[package]]
-name = "tower-http"
 version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4e6559d53cc268e5031cd8429d05415bc4cb4aefc4aa5d6cc35fbf5b924a1f8"
@@ -5705,8 +5554,8 @@ name = "web-pages"
 version = "0.1.0"
 dependencies = [
  "assets",
- "axum 0.8.1",
- "axum-extra 0.10.0",
+ "axum",
+ "axum-extra",
  "comrak",
  "daisy_rsx",
  "db",
@@ -5728,10 +5577,10 @@ version = "0.1.0"
 dependencies = [
  "assets",
  "async-trait",
- "axum 0.8.1",
- "axum-extra 0.10.0",
+ "axum",
+ "axum-extra",
  "axum_typed_multipart",
- "base64 0.13.1",
+ "base64 0.22.1",
  "chrono",
  "db",
  "embeddings-api",
@@ -5745,7 +5594,7 @@ dependencies = [
  "oauth2",
  "object-storage",
  "openai-api",
- "pgvector 0.4.0",
+ "pgvector",
  "rand 0.9.1",
  "reqwest 0.13.1",
  "serde",
@@ -5756,7 +5605,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tower",
- "tower-http 0.6.8",
+ "tower-http",
  "tracing",
  "tracing-subscriber",
  "url",
