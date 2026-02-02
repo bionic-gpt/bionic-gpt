@@ -9,6 +9,6 @@ edition = "2021"
 # For calling out to the unstrctured API
 reqwest = { workspace = true, default-features = false, features = ["multipart", "rustls", "json"] }
 
-serde = { version = "1", features = ["derive"] }
-tracing = "0"
+serde = { workspace = true, features = ["derive"] }
+tracing.workspace = true
 tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }

@@ -17,11 +17,11 @@ axum.workspace = true
 axum-extra = { workspace = true, features = ["typed-routing"] }
 dioxus = { version = "0.6", default-features = false, features = ["macro", "html", "signals"] }
 dioxus-ssr = { version = "0.6", default-features = false }
-serde = "1"
-serde_json = { version = "1" }
+serde.workspace = true
+serde_json.workspace = true
 daisy_rsx = "0.1.50"
 comrak = { version = "0.39.0", features = ["shortcodes"] }
-time = "0.3.36"
+time.workspace = true
 validator = { version = "0.20.0", features = ["derive"] }
 oas3 = "0.16.1"
 toml = "0.8"

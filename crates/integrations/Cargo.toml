@@ -10,18 +10,18 @@ path = "lib.rs"
 openai-api = { path = "../openai-api" }
 embeddings-api = { path = "../embeddings-api" }
 rag-engine = { path = "../rag-engine" }
-serde = { version = "1", features = ["derive"] }
-serde_json = { version = "1" }
-tracing = { version = "0.1" }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+tracing.workspace = true
 axum.workspace = true
 chrono = { version = "0.4" }
 db = { path = "../db" }
-tokio = { version = "1", features = ["rt", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
 async-trait = { version = "0.1" }
 oas3 = "0.16.1"
 oauth2 = "5.0.0"
 reqwest = { workspace = true, default-features = false, features = ["json", "rustls", "stream"] }
-time = { version = "0.3", features = ["parsing", "formatting"] }
+time = { workspace = true, features = ["parsing", "formatting"] }
 # Used by tests
 futures = "0.3"
 

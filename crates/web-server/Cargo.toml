@@ -24,23 +24,23 @@ openai-api = { path = "../openai-api" }
 
 axum = { workspace = true, features = ["multipart"] }
 axum-extra = { workspace = true, features = ["form", "typed-routing", "cookie"] }
-tokio = { version = "1", features = ["rt-multi-thread"] }
-tokio-util = { version = "0.7.15" }
-tower = { version = "0.5.2" }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+tokio-util.workspace = true
+tower.workspace = true
 tower-http = { workspace = true, features = ["fs", "cors"] }
-http = "1"
+http.workspace = true
 validator = { version = "0.20.0", features = ["derive"] }
-serde = { version = "1", features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
 rand = { version = "0.9.1" }
 http-body-util = "0.1"
 
-tracing = { version = "0.1" }
-tracing-subscriber = { version="0.3", features = ["env-filter"] }
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
 
 # So we can store embeddings
 pgvector = { workspace = true, features = ["postgres"] }
 
-serde_json = { version = "1" }
+serde_json.workspace = true
 
 # Generate secure invitations
 sha2 = { version = "0.10.9" }
@@ -53,10 +53,10 @@ reqwest = { workspace = true, default-features = false, features = ["json", "rus
 serde_urlencoded = "0.7.1"
 oauth2 = { version = "5.0.0", features = ["reqwest"] }
 chrono = { version = "0.4", features = ["serde"] }
-time = { version = "0.3", features = ["serde"] }
+time = { workspace = true, features = ["serde"] }
 url = "2.4"
-uuid = { version = "1", features = ["serde", "v4"] }
+uuid = { workspace = true, features = ["serde", "v4"] }
 
 [dev-dependencies]
-time = "0.3.36"
+time.workspace = true
 async-trait = "0.1"

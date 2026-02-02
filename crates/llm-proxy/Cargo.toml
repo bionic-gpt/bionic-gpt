@@ -14,17 +14,17 @@ openai-api = { path = "../openai-api" }
 
 axum = { workspace = true, features = ["multipart"] }
 axum-extra = { workspace = true, features = ["form", "typed-routing", "cookie"] }
-tokio = { version = "1", features = ["rt-multi-thread"] }
-http = "1"
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+http.workspace = true
 tokio-stream = "0.1"
 reqwest = { workspace = true, default-features = false, features = ["stream", "json", "rustls"] }
-serde_json = { version = "1" }
-serde = { version = "1", features = ["derive"] }
-tracing = { version = "0.1" }
+serde_json.workspace = true
+serde = { workspace = true, features = ["derive"] }
+tracing.workspace = true
 tower-http = { workspace = true, features = ["fs", "cors"] }
 async-trait = "0.1"
 
 base64.workspace = true
 
 [dev-dependencies]
-time = "0.3.36"
+time.workspace = true
