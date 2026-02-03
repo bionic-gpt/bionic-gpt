@@ -9,7 +9,7 @@ spec:
   profiles:
     dev:
       components:
-        auth:
+        oidc:
           hostname-url: http://localhost:30000
         ingress:
           port: 30000
@@ -18,12 +18,12 @@ spec:
           danger_override_password: testpassword
     uat:
       components:
-        auth:
+        oidc:
           # Required by keycloak for OIDC. OIDC requires a stable redirect URL.
           hostname-url: https://platform.bionic-gpt.com
     prod:
       components:
-        auth:
+        oidc:
           # Required by keycloak for OIDC. OIDC requires a stable redirect URL.
           hostname-url: https://app.bionic-gpt.com
   services:
