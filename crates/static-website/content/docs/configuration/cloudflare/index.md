@@ -17,6 +17,14 @@ We just need the secret itself.
 eyJhIjoiOGMyN2IyMTg1M2YwY2VhOWQ1YTFmNmUwMzAzMzUzNTIiLCJ0....................
 ```
 
+## Create a Kubernetes Secret
+
+```sh
+kubectl create secret generic cloudflare-tunnel \
+  --namespace bionic-gpt \
+  --from-literal=token="eyJhIjoiOGMyN2IyMTg1M2YwY2VhOWQ1YTFmNmUwMzAzMzUzNTIiLCJ0...................."
+```
+
 ## Install Cloudflare
 
 ```sh
