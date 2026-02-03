@@ -18,17 +18,11 @@ spec:
           danger_override_password: testpassword
     uat:
       components:
-        cloudflare: {
-          secret_name: "cloudflare-tunnel"
-        }
         auth:
           # Required by keycloak for OIDC. OIDC requires a stable redirect URL.
           hostname-url: https://platform.bionic-gpt.com
     prod:
       components:
-        cloudflare: {
-          secret_name: "cloudflare-tunnel"
-        }
         auth:
           # Required by keycloak for OIDC. OIDC requires a stable redirect URL.
           hostname-url: https://app.bionic-gpt.com
