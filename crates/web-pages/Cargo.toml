@@ -19,7 +19,7 @@ dioxus.workspace = true
 dioxus-ssr.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-daisy_rsx = "0.1.50"
+daisy_rsx = "0.1"
 comrak = { version = "0.39.0", features = ["shortcodes"] }
 time.workspace = true
 validator = { workspace = true, features = ["derive"] }
