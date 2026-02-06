@@ -1,4 +1,3 @@
-mod canonical_specs;
 mod datasets_mcp;
 
 use crate::CustomError;
@@ -459,30 +458,8 @@ pub async fn handle_json_rpc(
         return Ok(json_response(response));
     }
 
-    let mut openapi = integration_openapi;
-    let mut tool_definitions = openapi.create_tool_definitions();
-
-    if tool_definitions.tool_definitions.is_empty() {
-        if let Some(spec) = canonical_specs::find_spec(&slug) {
-            match serde_json::from_str::<Value>(spec.json) {
-                Ok(value) => match BionicOpenAPI::new(&value) {
-                    Ok(canonical_openapi) => {
-                        let canonical_tools = canonical_openapi.create_tool_definitions();
-                        if !canonical_tools.tool_definitions.is_empty() {
-                            openapi = canonical_openapi;
-                            tool_definitions = canonical_tools;
-                        }
-                    }
-                    Err(err) => {
-                        tracing::warn!("Failed to parse canonical spec for {}: {}", slug, err);
-                    }
-                },
-                Err(err) => {
-                    tracing::warn!("Failed to deserialize canonical spec for {}: {}", slug, err);
-                }
-            }
-        }
-    }
+    let openapi = integration_openapi;
+    let tool_definitions = openapi.create_tool_definitions();
 
     match request.method.as_str() {
         "initialize" => {
