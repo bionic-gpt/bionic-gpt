@@ -118,6 +118,10 @@ opt-images:
         find . -type f -name '*.png' \
             -print -exec sh -c 'for f; do pngquant --force --quality 70-85 --ext .png "$f"; done' _ {} +
 
+bionic:
+    cargo binstall --no-confirm zellij
+    zellij -l .devcontainer/layout.kdl
+
 dot-env:
 	#!/usr/bin/env bash
 	set -euo pipefail
