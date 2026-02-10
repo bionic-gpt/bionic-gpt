@@ -33,6 +33,13 @@ SET default_embeddings_model_name = 'text-embedding-3-small',
     default_embeddings_model_description = 'Efficient embedding model for general-purpose search and retrieval.'
 WHERE name = 'OpenAI';
 
+UPDATE providers
+SET default_embeddings_model_name = 'Qwen/Qwen3-Embedding-8B',
+    default_embeddings_model_display_name = 'Qwen3 Embedding 8B',
+    default_embeddings_model_context_size = 32768,
+    default_embeddings_model_description = 'Qwen3 embedding model via Doubleword.'
+WHERE name = 'Doubleword';
+
 -- migrate:down
 ALTER TABLE providers
     DROP COLUMN api_key_optional;

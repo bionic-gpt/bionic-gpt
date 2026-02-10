@@ -20,7 +20,7 @@ SELECT
 FROM
     model_registry.providers
 ORDER BY
-    updated_at DESC;
+    name;
 
 --! provider : Provider
 SELECT

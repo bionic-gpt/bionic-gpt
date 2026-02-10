@@ -6,6 +6,10 @@ ALTER TABLE documents
     ALTER COLUMN content DROP NOT NULL;
 
 -- migrate:down
+UPDATE documents
+SET content = ''
+WHERE content IS NULL;
+
 ALTER TABLE documents
     ALTER COLUMN content SET NOT NULL;
 
