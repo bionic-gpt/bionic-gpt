@@ -321,13 +321,22 @@ async fn save_results_db(
         .one()
         .await
     {
-        // Set any pending chats to success. We don't want to loop.
-        if let Err(e) = queries::conversations::set_pending_to_success()
-            .bind(&transaction, &chat.conversation_id)
-            .await
-        {
-            tracing::error!("Error creating chat: {:?}", e);
-            return;
+        if status == ChatStatus::Success {
+            // Mark only pending tool rows from prior iterations as completed.
+            if let Err(e) = transaction
+                .execute(
+                    "UPDATE llm.chats
+                     SET status = 'Success'
+                     WHERE status = 'Pending'
+                     AND conversation_id = $1
+                     AND role = 'Tool'",
+                    &[&chat.conversation_id],
+                )
+                .await
+            {
+                tracing::error!("Error updating pending tool chats: {:?}", e);
+                return;
+            }
         }
 
         if let Err(e) = queries::chats::new_chat()
@@ -365,40 +374,42 @@ async fn save_results_db(
             // Don't return here, continue with the rest of the function
         }
 
-        if let Some(tool_calls) = tool_calls {
-            let tool_call_results = execute_tool_calls(
-                tool_calls.clone(),
-                pool,
-                sub.to_string(),
-                chat.conversation_id,
-                chat.prompt_id,
-            )
-            .await;
-            for tool_call in tool_call_results {
-                let result_json = match serde_json::to_string(&tool_call.result) {
-                    Ok(json) => json,
-                    Err(e) => {
-                        tracing::error!("Failed to serialize tool result: {:?}", e);
+        if status == ChatStatus::Success {
+            if let Some(tool_calls) = tool_calls {
+                let tool_call_results = execute_tool_calls(
+                    tool_calls.clone(),
+                    pool,
+                    sub.to_string(),
+                    chat.conversation_id,
+                    chat.prompt_id,
+                )
+                .await;
+                for tool_call in tool_call_results {
+                    let result_json = match serde_json::to_string(&tool_call.result) {
+                        Ok(json) => json,
+                        Err(e) => {
+                            tracing::error!("Failed to serialize tool result: {:?}", e);
+                            return;
+                        }
+                    };
+
+                    if let Err(e) = queries::chats::new_chat()
+                        .bind(
+                            &transaction,
+                            &chat.conversation_id,
+                            &chat.prompt_id,
+                            &Some(tool_call.id),
+                            &None::<String>,
+                            &result_json,
+                            &ChatRole::Tool,
+                            &ChatStatus::Pending,
+                        )
+                        .one()
+                        .await
+                    {
+                        tracing::error!("Error creating tool call results chat: {:?}", e);
                         return;
                     }
-                };
-
-                if let Err(e) = queries::chats::new_chat()
-                    .bind(
-                        &transaction,
-                        &chat.conversation_id,
-                        &chat.prompt_id,
-                        &Some(tool_call.id),
-                        &None::<String>,
-                        &result_json,
-                        &ChatRole::Tool,
-                        &ChatStatus::Pending,
-                    )
-                    .one()
-                    .await
-                {
-                    tracing::error!("Error creating tool call results chat: {:?}", e);
-                    return;
                 }
             }
         }
