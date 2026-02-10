@@ -29,21 +29,17 @@ async function streamResult(chatId: string, element: HTMLElement) {
         console.error('Debug: did not find stop button');
     }
 
-    // We submit a form with the chta_id and the LLM response we have so far.
-    // The response should already have been saved by the LLM streaming proxy code
-    // However in some cases (i.e. abort) this is not the case.
-    // In the back end, if we don't have a response, we'll use this one.
-    const submitResults = () => {
-        console.log('Submitting results...');
+    // Submit the existing form to trigger redirect/reset after streaming ends.
+    // Stream persistence is handled by the backend.
+    const finalizeUiState = () => {
+        console.log('Finalizing UI state...');
         const form = document.getElementById(`chat-form-${chatId}`);
-        const llmResult = document.getElementById(`chat-result-${chatId}`);
 
-        if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
-            llmResult.value = result;
+        if (form instanceof HTMLFormElement) {
             try {
                 form.requestSubmit();
             } catch (error) {
-                console.error('Error submitting results:', error);
+                console.error('Error finalizing UI state:', error);
             }
         }
     };
@@ -80,7 +76,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const handleLegacyEvent = (data: string) => {
         if (data === '[DONE]') {
             console.log('Streaming ended.');
-            submitResults();
+            finalizeUiState();
             return true;
         }
 
@@ -118,7 +114,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
 
             if (json.type === 'done') {
                 console.log('Streaming ended.');
-                submitResults();
+                finalizeUiState();
                 return true;
             }
 
@@ -126,7 +122,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 const message = String(json?.data?.message ?? 'Unknown streaming error');
                 element.innerHTML = markdown.markdown(`${snapshot}\n\n${message}`);
                 result = `${snapshot}\n\n${message}`;
-                submitResults();
+                finalizeUiState();
                 return true;
             }
         } catch (_e) {
@@ -161,12 +157,12 @@ async function streamResult(chatId: string, element: HTMLElement) {
             }
         }
         console.log('Streaming ended.');
-        submitResults();
+        finalizeUiState();
     } catch (err) {
         console.log(err);
         element.innerHTML += `${err}`;
         result += String(err);
-        submitResults();
+        finalizeUiState();
     }
 
 }

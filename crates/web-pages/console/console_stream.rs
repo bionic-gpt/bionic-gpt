@@ -396,11 +396,6 @@ fn ProcessingForm(chat_id: i64, team_id: String) -> Element {
             id: "chat-form-{chat_id}",
             action: routes::console::UpdateResponse{team_id: team_id.clone()}.to_string(),
             input {
-                name: "response",
-                id: "chat-result-{chat_id}",
-                "type": "hidden"
-            }
-            input {
                 name: "chat_id",
                 value: "{chat_id}",
                 "type": "hidden"
