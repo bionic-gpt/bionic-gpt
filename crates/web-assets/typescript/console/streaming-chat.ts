@@ -1,13 +1,18 @@
-import { Markdown } from "./markdown"
+import { renderMarkdownSafe } from "./markdown"
 
+// SSE event contract for `/completions/{chatId}`:
+// - { type: "text_delta", data: { delta: string } }
+// - { type: "done", data: {} }
+// - { type: "error", data: { message: string } }
+//
+// The stream endpoint is backend-owned for persistence; this client only renders and
+// submits the post-stream form to reset/redirect UI state.
 export const streamingChat = () => {
     const chat = document.getElementById('streaming-chat')
 
     const chatId = chat?.dataset.chatid
-    const prompt = chat?.dataset.prompt
 
     if (chatId && chat) {
-        console.log('Performing streaming')
         streamResult(chatId, chat)
     }
 }
@@ -15,36 +20,26 @@ export const streamingChat = () => {
 async function streamResult(chatId: string, element: HTMLElement) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    const markdown = new Markdown();
-    let result = '';
 
     const stopButton = document.getElementById('streaming-button');
-    const stopListener = (event: Event) => {
-        console.log('Attempting to abort stream.');
+    const stopListener = () => {
         abortController.abort("User aborted");
     };
 
     if (stopButton) {
         stopButton.addEventListener('click', stopListener);
-    } else {
-        console.error('Debug: did not find stop button');
     }
 
-    // We submit a form with the chta_id and the LLM response we have so far.
-    // The response should already have been saved by the LLM streaming proxy code
-    // However in some cases (i.e. abort) this is not the case.
-    // In the back end, if we don't have a response, we'll use this one.
-    const submitResults = () => {
-        console.log('Submitting results...');
+    // Submit the existing form to trigger redirect/reset after streaming ends.
+    // Stream persistence is handled by the backend.
+    const finalizeUiState = () => {
         const form = document.getElementById(`chat-form-${chatId}`);
-        const llmResult = document.getElementById(`chat-result-${chatId}`);
 
-        if (form instanceof HTMLFormElement && llmResult instanceof HTMLInputElement) {
-            llmResult.value = result;
+        if (form instanceof HTMLFormElement) {
             try {
                 form.requestSubmit();
             } catch (error) {
-                console.error('Error submitting results:', error);
+                console.error('Error finalizing UI state:', error);
             }
         }
     };
@@ -62,24 +57,14 @@ async function streamResult(chatId: string, element: HTMLElement) {
         return;
     }
 
-    let isFunctionCall = false;
-    let functionCall = {
-        name: '',
-        arguments: '',
-    };
-
-    interface DeltaChunk {
-        content?: string;
-        tool_calls?: {
-            name?: string;
-            arguments?: string;
-        };
-    }
-
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let snapshot = '';
+
+    const renderNow = () => {
+        element.innerHTML = renderMarkdownSafe(snapshot);
+    };
 
     const parseEvent = (chunk: string) => {
         const lines = chunk.split(/\n/);
@@ -90,6 +75,42 @@ async function streamResult(chatId: string, element: HTMLElement) {
             }
         }
         return data;
+    };
+
+    const handleV2Event = (data: string) => {
+        try {
+            const json = JSON.parse(data);
+            if (typeof json?.type !== 'string') {
+                return false;
+            }
+
+            if (json.type === 'text_delta') {
+                const delta = json?.data?.delta;
+                if (typeof delta === 'string' && delta.length > 0) {
+                    snapshot += delta;
+                    renderNow();
+                }
+                return false;
+            }
+
+            if (json.type === 'done') {
+                renderNow();
+                finalizeUiState();
+                return true;
+            }
+
+            if (json.type === 'error') {
+                const message = String(json?.data?.message ?? 'Unknown streaming error');
+                snapshot = `${snapshot}\n\n${message}`;
+                renderNow();
+                finalizeUiState();
+                return true;
+            }
+        } catch (_e) {
+            return false;
+        }
+
+        return false;
     };
 
     try {
@@ -105,52 +126,20 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 if (!raw) continue;
 
                 const data = parseEvent(raw);
-                if (data === '[DONE]') {
-                    console.log('Streaming ended.');
-                    submitResults();
+                if (!data) continue;
+
+                if (handleV2Event(data)) {
                     return;
-                }
-
-                try {
-                    const json = JSON.parse(data);
-                    const delta = json.choices?.[0]?.delta || {};
-                    if (delta.content) {
-                        snapshot += delta.content;
-                    }
-                    const deltaChunk: DeltaChunk = {};
-                    if (delta.content) deltaChunk.content = delta.content;
-                    const tool = delta.tool_calls?.[0];
-                    if (tool && tool.function) {
-                        deltaChunk.tool_calls = {
-                            name: tool.function.name,
-                            arguments: tool.function.arguments || '',
-                        };
-                    }
-
-                    if (deltaChunk.tool_calls) {
-                        console.log('Got a function call');
-                        isFunctionCall = true;
-                        if (deltaChunk.tool_calls.name) functionCall.name = deltaChunk.tool_calls.name;
-                        if (deltaChunk.tool_calls.arguments) functionCall.arguments += deltaChunk.tool_calls.arguments;
-                    }
-
-                    if (!isFunctionCall && delta.content) {
-                        element.innerHTML = markdown.markdown(snapshot);
-                        result = snapshot;
-                    }
-                } catch (e) {
-                    console.error('Error parsing chunk', e);
                 }
             }
         }
-        console.log('Streaming ended.');
-        submitResults();
+        renderNow();
+        finalizeUiState();
     } catch (err) {
-        console.log(err);
-        element.innerHTML += `${err}`;
-        result += String(err);
-        submitResults();
+        console.error('Streaming failed', err);
+        snapshot = `${snapshot}\n\n${String(err)}`;
+        renderNow();
+        finalizeUiState();
     }
 
 }
-

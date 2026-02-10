@@ -126,3 +126,26 @@ async fn event_stream_saves_on_error() {
     assert_eq!(calls[0].status, ChatStatus::Error);
     assert!(calls[0].snapshot.contains("boom"));
 }
+
+#[tokio::test]
+async fn event_stream_emits_error_event() {
+    let result_sink = Arc::new(FakeResultSink {
+        calls: Mutex::new(Vec::new()),
+    });
+    let result_sink_dyn: Arc<dyn ResultSink> = result_sink.clone();
+    let sub = Arc::new("user-1".to_string());
+
+    let err = axum::Error::new(std::io::Error::other("boom"));
+    let input = tokio_stream::iter(vec![Err(err)]);
+
+    let stream = build_event_stream(input, Arc::clone(&result_sink_dyn), 7, sub);
+    pin!(stream);
+
+    let first = stream.next().await.expect("expected one item");
+    let event = first.expect("expected Ok(event)");
+    let formatted = format!("{:?}", event);
+    assert!(formatted.contains("\"type\":\"error\""));
+    assert!(formatted.contains("boom"));
+
+    assert!(stream.next().await.is_none());
+}

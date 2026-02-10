@@ -1,12 +1,13 @@
 pub mod console_stream;
 pub mod conversation;
 pub mod empty_stream;
-pub mod history_drawer;
 pub mod layout;
 pub mod model_popup;
 pub mod page;
-pub mod prompt_drawer;
 pub mod prompt_form;
+pub mod prompt_modal;
+pub mod response_timeline;
+pub mod tool_call_timeline;
 pub mod tools_modal;
 
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};

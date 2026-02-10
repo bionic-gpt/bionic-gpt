@@ -3,7 +3,7 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
-use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
+use super::sse_chat_enricher::{enriched_chat, EnrichedChatOutcome, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
 use crate::chat_converter;
 use crate::errors::CustomError;
@@ -23,12 +23,65 @@ use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
 };
+use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 
 use super::{limits, UICompletions};
+
+/// UI SSE contract for `/completions/{chat_id}`.
+///
+/// Event payloads are JSON encoded strings with this shape:
+/// - `{"type":"text_delta","data":{"delta":"..."}}`
+/// - `{"type":"done","data":{}}`
+/// - `{"type":"error","data":{"message":"..."}}`
+///
+/// The web client appends `text_delta` values to a local snapshot, finalizes UI on `done`,
+/// and shows an error block on `error`.
+fn event_data_for_text(delta: String) -> String {
+    let content_delta = serde_json::from_str::<serde_json::Value>(&delta)
+        .ok()
+        .and_then(|value| {
+            value
+                .get("choices")
+                .and_then(|choices| choices.get(0))
+                .and_then(|choice| choice.get("delta"))
+                .and_then(|choice_delta| choice_delta.get("content"))
+                .and_then(|content| content.as_str())
+                .map(|content| content.to_string())
+        })
+        .unwrap_or_default();
+
+    json!({
+        "type": "text_delta",
+        "data": {
+            "delta": content_delta
+        }
+    })
+    .to_string()
+}
+
+fn event_data_for_done() -> String {
+    json!({
+        "type": "done",
+        "data": {}
+    })
+    .to_string()
+}
+
+fn event_data_for_error(message: String) -> Event {
+    Event::default().data(
+        json!({
+            "type": "error",
+            "data": {
+                "message": message
+            }
+        })
+        .to_string(),
+    )
+}
 
 #[async_trait]
 pub(crate) trait ResultSink: Send + Sync {
@@ -70,6 +123,15 @@ fn extract_tool_calls(
         .and_then(|choice| choice.delta.tool_calls.clone())
 }
 
+fn extract_tool_calls_from_merged(
+    merged: &Option<openai_api::ChatCompletionDelta>,
+) -> Option<Vec<ToolCall>> {
+    merged
+        .as_ref()
+        .and_then(|merged| merged.choices.first())
+        .and_then(|choice| choice.delta.tool_calls.clone())
+}
+
 pub(crate) fn build_event_stream<S>(
     receiver_stream: S,
     result_sink: Arc<dyn ResultSink>,
@@ -86,7 +148,7 @@ where
             match item {
                 Ok(event) => match event {
                     GenerationEvent::Text(completion_chunk) => {
-                        Ok(Event::default().data(completion_chunk.delta))
+                        Ok(Event::default().data(event_data_for_text(completion_chunk.delta)))
                     }
                     GenerationEvent::End(completion_chunk) => {
                         let tool_calls = extract_tool_calls(&completion_chunk);
@@ -102,21 +164,22 @@ where
                             )
                             .await;
 
-                        Ok(Event::default().data(completion_chunk.delta))
+                        Ok(Event::default().data(event_data_for_done()))
                     }
                 },
                 Err(e) => {
+                    let message = e.to_string();
                     result_sink
-                        .save(&e.to_string(), None, chat_id, &sub, ChatStatus::Error)
+                        .save(&message, None, chat_id, &sub, ChatStatus::Error)
                         .await;
-                    Err(axum::Error::new(e))
+                    Ok(event_data_for_error(message))
                 }
             }
         }
     })
 }
 
-// Called from the front end to generate a streaming chat with the model
+// Called by the web console UI to stream a chat completion.
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
     current_user: Jwt,
@@ -132,21 +195,53 @@ pub async fn chat_generate(
 
             // Create a channel for sending SSE events
             let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
+            let result_sink_clone = Arc::clone(&result_sink);
+            let sub_for_save = current_user.sub.clone();
 
-            // Spawn a task that generates SSE events and sends them into the channel
+            // Generate provider events in the background and forward to SSE.
             tokio::spawn(async move {
                 if is_limit_breached {
-                    // Call your existing function to start generating events
-                    if let Err(e) =
-                        error_to_chat("You have exceeded your token limit for this model", sender)
-                            .await
-                    {
-                        tracing::warn!("Limits exceeded: {:?}", e);
+                    let limit_message = "You have exceeded your token limit for this model";
+                    let send_error = error_to_chat(limit_message, sender)
+                        .await
+                        .err()
+                        .map(|e| e.to_string());
+                    if let Some(err_msg) = send_error {
+                        tracing::warn!("Limits exceeded: {}", err_msg);
+                        result_sink_clone
+                            .save(
+                                limit_message,
+                                None,
+                                chat_id,
+                                &sub_for_save,
+                                ChatStatus::Error,
+                            )
+                            .await;
                     }
                 } else {
-                    // Call your existing function to start generating events
-                    if let Err(e) = enriched_chat(request, sender, true).await {
-                        tracing::error!("Error generating SSE stream: {:?}", e);
+                    let stream_outcome = enriched_chat(request, sender, true)
+                        .await
+                        .map_err(|e| e.to_string());
+                    match stream_outcome {
+                        Ok(EnrichedChatOutcome::Completed) => {}
+                        Ok(EnrichedChatOutcome::ClientDisconnected { snapshot, merged }) => {
+                            let tool_calls = extract_tool_calls_from_merged(&merged);
+                            result_sink_clone
+                                .save(
+                                    &snapshot,
+                                    tool_calls,
+                                    chat_id,
+                                    &sub_for_save,
+                                    ChatStatus::Error,
+                                )
+                                .await;
+                        }
+                        Err(err_msg) => {
+                            tracing::error!("Error generating SSE stream: {}", err_msg);
+                            result_sink_clone
+                                .save(&err_msg, None, chat_id, &sub_for_save, ChatStatus::Error)
+                                .await;
+                        }
                     }
                 }
             });
@@ -235,13 +330,22 @@ async fn save_results_db(
         .one()
         .await
     {
-        // Set any pending chats to success. We don't want to loop.
-        if let Err(e) = queries::conversations::set_pending_to_success()
-            .bind(&transaction, &chat.conversation_id)
-            .await
-        {
-            tracing::error!("Error creating chat: {:?}", e);
-            return;
+        if status == ChatStatus::Success {
+            // Mark only pending tool rows from prior iterations as completed.
+            if let Err(e) = transaction
+                .execute(
+                    "UPDATE llm.chats
+                     SET status = 'Success'
+                     WHERE status = 'Pending'
+                     AND conversation_id = $1
+                     AND role = 'Tool'",
+                    &[&chat.conversation_id],
+                )
+                .await
+            {
+                tracing::error!("Error updating pending tool chats: {:?}", e);
+                return;
+            }
         }
 
         if let Err(e) = queries::chats::new_chat()
@@ -253,7 +357,7 @@ async fn save_results_db(
                 &tool_calls_json,
                 &snapshot,
                 &ChatRole::Assistant,
-                &ChatStatus::Success,
+                &status,
             )
             .one()
             .await
@@ -279,40 +383,47 @@ async fn save_results_db(
             // Don't return here, continue with the rest of the function
         }
 
-        if let Some(tool_calls) = tool_calls {
-            let tool_call_results = execute_tool_calls(
-                tool_calls.clone(),
-                pool,
-                sub.to_string(),
-                chat.conversation_id,
-                chat.prompt_id,
-            )
-            .await;
-            for tool_call in tool_call_results {
-                let result_json = match serde_json::to_string(&tool_call.result) {
-                    Ok(json) => json,
-                    Err(e) => {
-                        tracing::error!("Failed to serialize tool result: {:?}", e);
+        if status == ChatStatus::Success {
+            if let Some(tool_calls) = tool_calls {
+                let tool_call_results = execute_tool_calls(
+                    tool_calls.clone(),
+                    pool,
+                    sub.to_string(),
+                    chat.conversation_id,
+                    chat.prompt_id,
+                )
+                .await;
+                for tool_call in tool_call_results {
+                    let result_json = match serde_json::to_string(&tool_call.result) {
+                        Ok(json) => json,
+                        Err(e) => {
+                            tracing::error!("Failed to serialize tool result: {:?}", e);
+                            return;
+                        }
+                    };
+                    let tool_chat_status = if tool_call.result.get("error").is_some() {
+                        ChatStatus::Error
+                    } else {
+                        ChatStatus::Pending
+                    };
+
+                    if let Err(e) = queries::chats::new_chat()
+                        .bind(
+                            &transaction,
+                            &chat.conversation_id,
+                            &chat.prompt_id,
+                            &Some(tool_call.id),
+                            &None::<String>,
+                            &result_json,
+                            &ChatRole::Tool,
+                            &tool_chat_status,
+                        )
+                        .one()
+                        .await
+                    {
+                        tracing::error!("Error creating tool call results chat: {:?}", e);
                         return;
                     }
-                };
-
-                if let Err(e) = queries::chats::new_chat()
-                    .bind(
-                        &transaction,
-                        &chat.conversation_id,
-                        &chat.prompt_id,
-                        &Some(tool_call.id),
-                        &None::<String>,
-                        &result_json,
-                        &ChatRole::Tool,
-                        &ChatStatus::Pending,
-                    )
-                    .one()
-                    .await
-                {
-                    tracing::error!("Error creating tool call results chat: {:?}", e);
-                    return;
                 }
             }
         }

@@ -8,6 +8,10 @@
         "report": "parcel build ./index.ts --reporter @parcel/reporter-bundle-buddy",
         "tailwind": "tailwind-extra -i ./input.css -o ./dist/output.css"
     },
+    "dependencies": {
+        "dompurify": "3.3.0",
+        "marked": "16.3.0"
+    },
     "devDependencies": {
         "@github/relative-time-element": "4.4.8",
         "@parcel/reporter-bundle-buddy": "2.15.2",
