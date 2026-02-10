@@ -27,3 +27,4 @@ futures.workspace = true
 
 # Used by the web tool to stream responses
 futures-util = "0.3"
+html2text = "0.13"

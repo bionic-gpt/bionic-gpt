@@ -2,11 +2,13 @@ use crate::tool::ToolInterface;
 use async_trait::async_trait;
 use futures_util::StreamExt;
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
+use reqwest::header::CONTENT_TYPE;
 use reqwest::Url;
 use serde_json::{json, Value};
 use std::fmt;
 
-const MAX_CONTENT_BYTES: usize = 1000; // 1 KB limit
+const MAX_CONTENT_BYTES: usize = 1000; // final output limit
+const MAX_FETCH_BYTES: usize = 64 * 1024; // fetch enough HTML to reach body text
 
 /// Error type returned by the web tool
 #[derive(Debug)]
@@ -38,12 +40,29 @@ pub async fn open_url(url: String) -> Result<String, ToolError> {
         return Err(ToolError::Request(format!("HTTP {}", response.status())));
     }
 
+    let content_type = response
+        .headers()
+        .get(CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .to_ascii_lowercase();
+
+    let is_html = content_type.contains("text/html");
+    let is_text = content_type.starts_with("text/") || content_type.is_empty();
+
+    if !is_html && !is_text {
+        return Err(ToolError::Request(format!(
+            "Unsupported content type: {}",
+            content_type
+        )));
+    }
+
     let mut stream = response.bytes_stream();
     let mut buffer: Vec<u8> = Vec::new();
     while let Some(chunk) = stream.next().await {
         let chunk = chunk.map_err(|e| ToolError::Request(e.to_string()))?;
-        if buffer.len() + chunk.len() > MAX_CONTENT_BYTES {
-            let remaining = MAX_CONTENT_BYTES - buffer.len();
+        if buffer.len() + chunk.len() > MAX_FETCH_BYTES {
+            let remaining = MAX_FETCH_BYTES - buffer.len();
             buffer.extend_from_slice(&chunk[..remaining]);
             break;
         } else {
@@ -52,7 +71,25 @@ pub async fn open_url(url: String) -> Result<String, ToolError> {
     }
 
     let body = String::from_utf8_lossy(&buffer).to_string();
-    Ok(body)
+
+    let parsed = if is_html {
+        html2text::from_read(body.as_bytes(), 120).map_err(|e| ToolError::Request(e.to_string()))?
+    } else {
+        body
+    };
+
+    Ok(truncate_bytes(parsed, MAX_CONTENT_BYTES))
+}
+
+fn truncate_bytes(mut text: String, max_bytes: usize) -> String {
+    if text.len() <= max_bytes {
+        return text;
+    }
+
+    while text.len() > max_bytes {
+        text.pop();
+    }
+    text
 }
 
 /// A tool that fetches a URL and returns the page text
