@@ -1,4 +1,4 @@
-import { Markdown } from "./markdown"
+import { renderMarkdownSafe } from "./markdown"
 
 export const streamingChat = () => {
     const chat = document.getElementById('streaming-chat')
@@ -14,7 +14,6 @@ export const streamingChat = () => {
 async function streamResult(chatId: string, element: HTMLElement) {
     const abortController = new AbortController();
     const signal = abortController.signal;
-    const markdown = new Markdown();
 
     const stopButton = document.getElementById('streaming-button');
     const stopListener = (event: Event) => {
@@ -83,7 +82,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 const delta = json?.data?.delta;
                 if (typeof delta === 'string' && delta.length > 0) {
                     snapshot += delta;
-                    element.innerHTML = markdown.markdown(snapshot);
+                    element.innerHTML = renderMarkdownSafe(snapshot);
                 }
                 return false;
             }
@@ -96,7 +95,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
 
             if (json.type === 'error') {
                 const message = String(json?.data?.message ?? 'Unknown streaming error');
-                element.innerHTML = markdown.markdown(`${snapshot}\n\n${message}`);
+                element.innerHTML = renderMarkdownSafe(`${snapshot}\n\n${message}`);
                 finalizeUiState();
                 return true;
             }
