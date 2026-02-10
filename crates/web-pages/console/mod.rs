@@ -1,7 +1,6 @@
 pub mod console_stream;
 pub mod conversation;
 pub mod empty_stream;
-pub mod history_drawer;
 pub mod layout;
 pub mod model_popup;
 pub mod page;
