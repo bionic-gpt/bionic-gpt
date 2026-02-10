@@ -401,6 +401,11 @@ async fn save_results_db(
                             return;
                         }
                     };
+                    let tool_chat_status = if tool_call.result.get("error").is_some() {
+                        ChatStatus::Error
+                    } else {
+                        ChatStatus::Pending
+                    };
 
                     if let Err(e) = queries::chats::new_chat()
                         .bind(
@@ -411,7 +416,7 @@ async fn save_results_db(
                             &None::<String>,
                             &result_json,
                             &ChatRole::Tool,
-                            &ChatStatus::Pending,
+                            &tool_chat_status,
                         )
                         .one()
                         .await
