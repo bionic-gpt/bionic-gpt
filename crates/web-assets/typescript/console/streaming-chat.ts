@@ -61,6 +61,20 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const decoder = new TextDecoder();
     let buffer = '';
     let snapshot = '';
+    let renderScheduled = false;
+
+    const renderNow = () => {
+        element.innerHTML = renderMarkdownSafe(snapshot);
+    };
+
+    const scheduleRender = () => {
+        if (renderScheduled) return;
+        renderScheduled = true;
+        window.requestAnimationFrame(() => {
+            renderScheduled = false;
+            renderNow();
+        });
+    };
 
     const parseEvent = (chunk: string) => {
         const lines = chunk.split(/\n/);
@@ -84,19 +98,21 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 const delta = json?.data?.delta;
                 if (typeof delta === 'string' && delta.length > 0) {
                     snapshot += delta;
-                    element.innerHTML = renderMarkdownSafe(snapshot);
+                    scheduleRender();
                 }
                 return false;
             }
 
             if (json.type === 'done') {
+                renderNow();
                 finalizeUiState();
                 return true;
             }
 
             if (json.type === 'error') {
                 const message = String(json?.data?.message ?? 'Unknown streaming error');
-                element.innerHTML = renderMarkdownSafe(`${snapshot}\n\n${message}`);
+                snapshot = `${snapshot}\n\n${message}`;
+                renderNow();
                 finalizeUiState();
                 return true;
             }
@@ -127,10 +143,12 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 }
             }
         }
+        renderNow();
         finalizeUiState();
     } catch (err) {
         console.error('Streaming failed', err);
-        element.innerHTML += `${err}`;
+        snapshot = `${snapshot}\n\n${String(err)}`;
+        renderNow();
         finalizeUiState();
     }
 
