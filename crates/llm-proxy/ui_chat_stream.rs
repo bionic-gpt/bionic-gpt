@@ -11,7 +11,6 @@ use crate::jwt::Jwt;
 use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
 use crate::user_config::UserConfig;
 use async_trait::async_trait;
-use axum::extract::Query;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
@@ -24,7 +23,6 @@ use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
 };
-use serde::Deserialize;
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -33,78 +31,47 @@ use tokio_stream::StreamExt;
 
 use super::{limits, UICompletions};
 
-#[derive(Debug, Deserialize, Default)]
-pub struct UiStreamQuery {
-    pub mode: Option<String>,
-}
+fn event_data_for_text(delta: String) -> String {
+    let content_delta = serde_json::from_str::<serde_json::Value>(&delta)
+        .ok()
+        .and_then(|value| {
+            value
+                .get("choices")
+                .and_then(|choices| choices.get(0))
+                .and_then(|choice| choice.get("delta"))
+                .and_then(|choice_delta| choice_delta.get("content"))
+                .and_then(|content| content.as_str())
+                .map(|content| content.to_string())
+        })
+        .unwrap_or_default();
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum UiStreamMode {
-    Legacy,
-    V2,
-}
-
-impl UiStreamMode {
-    fn from_query(query: &UiStreamQuery) -> Self {
-        match query.mode.as_deref() {
-            Some("v2") => Self::V2,
-            _ => Self::Legacy,
+    json!({
+        "type": "text_delta",
+        "data": {
+            "delta": content_delta
         }
-    }
+    })
+    .to_string()
 }
 
-fn event_data_for_text(mode: UiStreamMode, delta: String) -> String {
-    match mode {
-        UiStreamMode::Legacy => delta,
-        UiStreamMode::V2 => {
-            let content_delta = serde_json::from_str::<serde_json::Value>(&delta)
-                .ok()
-                .and_then(|value| {
-                    value
-                        .get("choices")
-                        .and_then(|choices| choices.get(0))
-                        .and_then(|choice| choice.get("delta"))
-                        .and_then(|choice_delta| choice_delta.get("content"))
-                        .and_then(|content| content.as_str())
-                        .map(|content| content.to_string())
-                })
-                .unwrap_or_default();
-
-            json!({
-                "type": "text_delta",
-                "data": {
-                    "delta": content_delta
-                }
-            })
-            .to_string()
-        }
-    }
+fn event_data_for_done() -> String {
+    json!({
+        "type": "done",
+        "data": {}
+    })
+    .to_string()
 }
 
-fn event_data_for_done(mode: UiStreamMode, delta: String) -> String {
-    match mode {
-        UiStreamMode::Legacy => delta,
-        UiStreamMode::V2 => json!({
-            "type": "done",
-            "data": {}
+fn event_data_for_error(message: String) -> Event {
+    Event::default().data(
+        json!({
+            "type": "error",
+            "data": {
+                "message": message
+            }
         })
         .to_string(),
-    }
-}
-
-fn event_data_for_error(mode: UiStreamMode, message: String) -> Result<Event, axum::Error> {
-    match mode {
-        UiStreamMode::Legacy => Err(axum::Error::new(std::io::Error::other(message))),
-        UiStreamMode::V2 => Ok(Event::default().data(
-            json!({
-                "type": "error",
-                "data": {
-                    "message": message
-                }
-            })
-            .to_string(),
-        )),
-    }
+    )
 }
 
 #[async_trait]
@@ -161,7 +128,6 @@ pub(crate) fn build_event_stream<S>(
     result_sink: Arc<dyn ResultSink>,
     chat_id: i32,
     sub: Arc<String>,
-    mode: UiStreamMode,
 ) -> impl tokio_stream::Stream<Item = Result<Event, axum::Error>>
 where
     S: tokio_stream::Stream<Item = Result<GenerationEvent, axum::Error>> + Send + 'static,
@@ -171,35 +137,33 @@ where
         let sub = Arc::clone(&sub);
         async move {
             match item {
-                Ok(event) => {
-                    match event {
-                        GenerationEvent::Text(completion_chunk) => Ok(Event::default()
-                            .data(event_data_for_text(mode, completion_chunk.delta))),
-                        GenerationEvent::End(completion_chunk) => {
-                            let tool_calls = extract_tool_calls(&completion_chunk);
-
-                            tracing::debug!("End of stream saving data");
-                            result_sink
-                                .save(
-                                    &completion_chunk.snapshot,
-                                    tool_calls,
-                                    chat_id,
-                                    &sub,
-                                    ChatStatus::Success,
-                                )
-                                .await;
-
-                            Ok(Event::default()
-                                .data(event_data_for_done(mode, completion_chunk.delta)))
-                        }
+                Ok(event) => match event {
+                    GenerationEvent::Text(completion_chunk) => {
+                        Ok(Event::default().data(event_data_for_text(completion_chunk.delta)))
                     }
-                }
+                    GenerationEvent::End(completion_chunk) => {
+                        let tool_calls = extract_tool_calls(&completion_chunk);
+
+                        tracing::debug!("End of stream saving data");
+                        result_sink
+                            .save(
+                                &completion_chunk.snapshot,
+                                tool_calls,
+                                chat_id,
+                                &sub,
+                                ChatStatus::Success,
+                            )
+                            .await;
+
+                        Ok(Event::default().data(event_data_for_done()))
+                    }
+                },
                 Err(e) => {
                     let message = e.to_string();
                     result_sink
                         .save(&message, None, chat_id, &sub, ChatStatus::Error)
                         .await;
-                    event_data_for_error(mode, message)
+                    Ok(event_data_for_error(message))
                 }
             }
         }
@@ -209,13 +173,11 @@ where
 // Called from the front end to generate a streaming chat with the model
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
-    Query(stream_query): Query<UiStreamQuery>,
     current_user: Jwt,
     user_config: UserConfig,
     Extension(pool): Extension<Pool>,
 ) -> Result<Sse<impl tokio_stream::Stream<Item = Result<Event, axum::Error>>>, CustomError> {
     let result_sink: Arc<dyn ResultSink> = Arc::new(DbResultSink { pool: pool.clone() });
-    let mode = UiStreamMode::from_query(&stream_query);
 
     match create_request(&pool, &current_user, chat_id, &user_config).await {
         Ok((request, model_id, user_id)) => {
@@ -280,13 +242,8 @@ pub async fn chat_generate(
             let sub_arc = Arc::new(current_user.sub.clone());
             let receiver_stream = ReceiverStream::new(receiver);
 
-            let event_stream = build_event_stream(
-                receiver_stream,
-                Arc::clone(&result_sink),
-                chat_id,
-                sub_arc,
-                mode,
-            );
+            let event_stream =
+                build_event_stream(receiver_stream, Arc::clone(&result_sink), chat_id, sub_arc);
 
             Ok(Sse::new(event_stream))
         }

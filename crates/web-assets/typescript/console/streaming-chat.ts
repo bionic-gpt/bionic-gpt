@@ -15,7 +15,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const abortController = new AbortController();
     const signal = abortController.signal;
     const markdown = new Markdown();
-    let result = '';
 
     const stopButton = document.getElementById('streaming-button');
     const stopListener = (event: Event) => {
@@ -44,7 +43,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
         }
     };
 
-    const res = await fetch(`/completions/${chatId}?mode=v2`, {
+    const res = await fetch(`/completions/${chatId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -73,28 +72,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
         return data;
     };
 
-    const handleLegacyEvent = (data: string) => {
-        if (data === '[DONE]') {
-            console.log('Streaming ended.');
-            finalizeUiState();
-            return true;
-        }
-
-        try {
-            const json = JSON.parse(data);
-            const delta = json.choices?.[0]?.delta || {};
-            if (delta.content) {
-                snapshot += delta.content;
-                element.innerHTML = markdown.markdown(snapshot);
-                result = snapshot;
-            }
-        } catch (e) {
-            console.error('Error parsing legacy chunk', e);
-        }
-
-        return false;
-    };
-
     const handleV2Event = (data: string) => {
         try {
             const json = JSON.parse(data);
@@ -107,7 +84,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 if (typeof delta === 'string' && delta.length > 0) {
                     snapshot += delta;
                     element.innerHTML = markdown.markdown(snapshot);
-                    result = snapshot;
                 }
                 return false;
             }
@@ -121,12 +97,12 @@ async function streamResult(chatId: string, element: HTMLElement) {
             if (json.type === 'error') {
                 const message = String(json?.data?.message ?? 'Unknown streaming error');
                 element.innerHTML = markdown.markdown(`${snapshot}\n\n${message}`);
-                result = `${snapshot}\n\n${message}`;
                 finalizeUiState();
                 return true;
             }
         } catch (_e) {
-            // Not a v2 event; caller can attempt legacy parsing.
+            console.error('Error parsing v2 chunk');
+            return false;
         }
 
         return false;
@@ -150,10 +126,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 if (handleV2Event(data)) {
                     return;
                 }
-
-                if (handleLegacyEvent(data)) {
-                    return;
-                }
             }
         }
         console.log('Streaming ended.');
@@ -161,7 +133,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
     } catch (err) {
         console.log(err);
         element.innerHTML += `${err}`;
-        result += String(err);
         finalizeUiState();
     }
 
