@@ -264,8 +264,10 @@ pub struct ToolCall {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub index: Option<u32>,
     /// The type of the tool. Currently, only `function` is supported.
+    #[serde(default = "default_tool_call_type")]
     pub r#type: String,
     /// The function that the model called.
+    #[serde(default)]
     pub function: ToolCallFunction,
 }
 
@@ -289,6 +291,7 @@ pub struct ToolCallFunction {
     /// Note that the model does not always generate valid JSON, and may
     /// hallucinate parameters not defined by your function schema.
     /// Validate the arguments in your code before calling your function.
+    #[serde(default)]
     pub arguments: String,
 }
 
@@ -305,6 +308,10 @@ impl Default for ToolCall {
 
 fn is_none_or_empty_vec<T>(opt: &Option<Vec<T>>) -> bool {
     opt.as_ref().map(|v| v.is_empty()).unwrap_or(true)
+}
+
+fn default_tool_call_type() -> String {
+    "function".to_string()
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy, Eq, PartialEq, Default)]
