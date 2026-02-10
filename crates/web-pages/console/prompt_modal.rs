@@ -5,7 +5,7 @@ use db::authz::Rbac;
 use dioxus::prelude::*;
 
 #[component]
-pub fn PromptDrawer(
+pub fn PromptModal(
     prompt: String,
     trigger_id: String,
     chunks: Vec<ChatChunks>,

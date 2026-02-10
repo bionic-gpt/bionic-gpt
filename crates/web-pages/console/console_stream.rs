@@ -75,7 +75,7 @@ pub fn ConsoleStream(
             // Show any chat history, these should all have been processed.
             for chat_with_chunks in chat_history.clone() {
                 if rbac.can_view_system_prompt() {
-                    super::prompt_drawer::PromptDrawer {
+                    super::prompt_modal::PromptModal {
                         trigger_id: format!("show-prompt-{}", chat_with_chunks.chat.id),
                         prompt: "{}".to_string(),
                         chunks: chat_with_chunks.chunks.clone(),
