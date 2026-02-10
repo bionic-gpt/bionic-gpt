@@ -1,5 +1,12 @@
 import { renderMarkdownSafe } from "./markdown"
 
+// SSE event contract for `/completions/{chatId}`:
+// - { type: "text_delta", data: { delta: string } }
+// - { type: "done", data: {} }
+// - { type: "error", data: { message: string } }
+//
+// The stream endpoint is backend-owned for persistence; this client only renders and
+// submits the post-stream form to reset/redirect UI state.
 export const streamingChat = () => {
     const chat = document.getElementById('streaming-chat')
 

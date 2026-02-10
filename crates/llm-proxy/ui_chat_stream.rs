@@ -31,6 +31,15 @@ use tokio_stream::StreamExt;
 
 use super::{limits, UICompletions};
 
+/// UI SSE contract for `/completions/{chat_id}`.
+///
+/// Event payloads are JSON encoded strings with this shape:
+/// - `{"type":"text_delta","data":{"delta":"..."}}`
+/// - `{"type":"done","data":{}}`
+/// - `{"type":"error","data":{"message":"..."}}`
+///
+/// The web client appends `text_delta` values to a local snapshot, finalizes UI on `done`,
+/// and shows an error block on `error`.
 fn event_data_for_text(delta: String) -> String {
     let content_delta = serde_json::from_str::<serde_json::Value>(&delta)
         .ok()
