@@ -61,19 +61,9 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const decoder = new TextDecoder();
     let buffer = '';
     let snapshot = '';
-    let renderScheduled = false;
 
     const renderNow = () => {
         element.innerHTML = renderMarkdownSafe(snapshot);
-    };
-
-    const scheduleRender = () => {
-        if (renderScheduled) return;
-        renderScheduled = true;
-        window.requestAnimationFrame(() => {
-            renderScheduled = false;
-            renderNow();
-        });
     };
 
     const parseEvent = (chunk: string) => {
@@ -98,7 +88,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 const delta = json?.data?.delta;
                 if (typeof delta === 'string' && delta.length > 0) {
                     snapshot += delta;
-                    scheduleRender();
+                    renderNow();
                 }
                 return false;
             }
