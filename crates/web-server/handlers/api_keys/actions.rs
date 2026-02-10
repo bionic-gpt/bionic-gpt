@@ -28,7 +28,7 @@ pub async fn action_new_api_key(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let mut generated_key: Option<GeneratedKey> = None;
 
@@ -121,7 +121,7 @@ pub async fn action_delete_api_key(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     queries::api_keys::delete().bind(&transaction, &id).await?;
 

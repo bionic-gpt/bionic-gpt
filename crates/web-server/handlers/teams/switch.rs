@@ -16,7 +16,7 @@ pub async fn switch(
     let transaction = client.transaction().await?;
     let current_user_email = current_user.email.clone();
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let teams = queries::teams::get_teams()
         .bind(&transaction, &rbac.user_id)

@@ -52,7 +52,7 @@ pub async fn upsert(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let visibility = adjust_visibility(
         string_to_visibility(&new_prompt_template.visibility),

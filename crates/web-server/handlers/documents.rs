@@ -39,7 +39,7 @@ pub async fn loader(
     let transaction = client.transaction().await?;
 
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let documents = documents::documents()
         .bind(&transaction, &dataset_id)
@@ -97,8 +97,7 @@ pub async fn delete_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &delete_doc.team_id)
-            .await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &delete_doc.team_id).await?;
 
     queries::documents::delete()
         .bind(&transaction, &delete_doc.document_id)
@@ -129,7 +128,7 @@ pub async fn row(
     let transaction = client.transaction().await?;
 
     let (_rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let document = documents::document()
         .bind(&transaction, &document_id)
@@ -155,7 +154,7 @@ pub async fn upload_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     while let Some(file) = files.next_field().await.unwrap() {
         let name = file.file_name().unwrap().to_string();

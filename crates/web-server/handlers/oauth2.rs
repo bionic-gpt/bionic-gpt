@@ -46,7 +46,7 @@ pub async fn connect_loader(
     let transaction = client.transaction().await?;
 
     let (_rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     // Get the integration from the database
     let integration = queries::integrations::integration()
@@ -167,7 +167,7 @@ pub async fn oauth2_callback(
         .map_err(|_| CustomError::FaultySetup("Invalid integration id".into()))?;
 
     let (_rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     // Load OAuth client credentials
     let integration = queries::integrations::integration()

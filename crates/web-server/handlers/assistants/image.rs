@@ -18,7 +18,7 @@ pub async fn image(
     let transaction = client.transaction().await?;
 
     let (_rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let object = object_storage::get(&storage_config, id).await?;
 

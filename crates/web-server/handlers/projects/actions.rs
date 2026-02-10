@@ -34,7 +34,7 @@ pub async fn action_upsert(
     let transaction = client.transaction().await?;
     let team_slug = team_id;
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -135,7 +135,7 @@ pub async fn action_delete(
     let transaction = client.transaction().await?;
     let team_slug = team_id;
     let (rbac, _team_id) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -171,7 +171,7 @@ pub async fn action_start_chat(
     let transaction = client.transaction().await?;
     let team_slug = team_id;
     let (rbac, team_id) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);

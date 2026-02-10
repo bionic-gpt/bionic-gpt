@@ -43,15 +43,15 @@ pub async fn new_team(
         .bind(&transaction, &new_team.name, &team_id)
         .await?;
 
-    let team = queries::teams::team()
-        .bind(&transaction, &team_id)
-        .one()
-        .await?;
-
     transaction.commit().await?;
+    let team_public_id = db::team_public_id::encode(team_id)
+        .ok_or_else(|| CustomError::FaultySetup("Could not encode team id".to_string()))?;
 
     crate::layout::redirect_and_snackbar(
-        &web_pages::routes::teams::Switch { team_id: team.slug }.to_string(),
+        &web_pages::routes::teams::Switch {
+            team_id: team_public_id,
+        }
+        .to_string(),
         "New Team Created",
     )
 }

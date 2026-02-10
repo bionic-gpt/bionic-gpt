@@ -22,7 +22,7 @@ pub async fn loader(
     let transaction = client.transaction().await?;
 
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let i18n = db::i18n::global();
     i18n.ensure_locale("en").await;
@@ -62,7 +62,7 @@ pub async fn search_action(
     let transaction = client.transaction().await?;
 
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let i18n = db::i18n::global();
     i18n.ensure_locale("en").await;

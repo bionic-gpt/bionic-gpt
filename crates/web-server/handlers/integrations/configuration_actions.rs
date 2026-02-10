@@ -28,7 +28,7 @@ pub async fn configure_api_key_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     // Parse visibility
     let visibility = match api_key_form.visibility.as_str() {
@@ -82,7 +82,7 @@ pub async fn delete_api_key_connection_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     // Delete the connection
     queries::connections::delete_api_key_connection()
@@ -113,7 +113,7 @@ pub async fn delete_oauth2_connection_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     queries::connections::delete_oauth2_connection()
         .bind(&transaction, &connection_id, &team_id_num)

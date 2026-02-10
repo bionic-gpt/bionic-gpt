@@ -89,12 +89,8 @@ pub async fn accept_invitation(
         }
     }
 
-    let team = queries::teams::team()
-        .bind(&transaction, &invitation.team_id)
-        .one()
-        .await?;
-
     transaction.commit().await?;
 
-    Ok(team.slug)
+    db::team_public_id::encode(invitation.team_id)
+        .ok_or_else(|| CustomError::FaultySetup("Could not encode team id".to_string()))
 }

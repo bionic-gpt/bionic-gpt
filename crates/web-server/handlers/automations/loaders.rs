@@ -16,7 +16,7 @@ pub async fn new_automation_loader(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let _datasets = queries::datasets::datasets()
         .bind(&transaction)
@@ -75,7 +75,7 @@ pub async fn edit_automation_loader(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let _datasets = queries::datasets::datasets()
         .bind(&transaction)

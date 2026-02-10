@@ -43,7 +43,7 @@ pub async fn loader(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_slug).await?;
 
     let user = queries::users::user()
         .bind(&transaction, &rbac.user_id)
@@ -63,7 +63,7 @@ pub async fn set_details_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_slug).await?;
 
     queries::users::set_name()
         .bind(

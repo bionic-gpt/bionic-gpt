@@ -80,10 +80,10 @@ pub async fn get_permissions(
     Ok(rbac)
 }
 
-pub async fn get_permissions_by_slug(
+pub async fn get_permisisons(
     transaction: &Transaction<'_>,
     authentication: &Authentication,
-    team_slug: &str,
+    team_public_id: &str,
 ) -> Result<(Rbac, i32), crate::TokioPostgresError> {
     let user = queries::users::user_by_openid_sub()
         .bind(transaction, &authentication.sub)
@@ -96,8 +96,9 @@ pub async fn get_permissions_by_slug(
         setup_user_if_not_already_registered(transaction, authentication).await?;
     }
 
-    let team = queries::teams::team_by_slug()
-        .bind(transaction, &team_slug)
+    let team_id = crate::team_public_id::decode(team_public_id).unwrap_or(-1);
+    let team = queries::teams::team()
+        .bind(transaction, &team_id)
         .one()
         .await?;
     let rbac = get_permissions(transaction, authentication, team.id).await?;

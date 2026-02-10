@@ -15,7 +15,7 @@ pub async fn index(
 
     let team_slug = team_id;
     let (rbac, _team_id) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);
@@ -48,7 +48,7 @@ pub async fn view(
 
     let team_slug = team_id;
     let (rbac, _team_id) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_slug).await?;
 
     if !rbac.can_manage_projects() {
         return Err(CustomError::Authorization);

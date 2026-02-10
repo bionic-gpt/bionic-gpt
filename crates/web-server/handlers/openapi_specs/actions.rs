@@ -25,7 +25,7 @@ pub async fn action_upsert(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.is_sys_admin {
         return Err(CustomError::Authorization);
@@ -135,7 +135,7 @@ pub async fn action_delete(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.is_sys_admin {
         return Err(CustomError::Authorization);

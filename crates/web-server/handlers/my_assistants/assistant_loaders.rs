@@ -14,7 +14,7 @@ pub async fn my_assistants(
     let transaction = client.transaction().await?;
 
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let prompts = queries::prompts::my_prompts()
         .bind(&transaction, &db::PromptType::Assistant)

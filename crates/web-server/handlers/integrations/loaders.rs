@@ -20,7 +20,7 @@ pub async fn loader(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let integrations_db = queries::integrations::integrations()
         .bind(&transaction, &team_id_num)
@@ -101,7 +101,7 @@ pub async fn view_loader(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let integration = db::queries::integrations::integration()
         .bind(&transaction, &id, &team_id_num)
@@ -216,7 +216,7 @@ pub async fn new_loader(
     let transaction = client.transaction().await?;
 
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let integration_form = IntegrationForm {
         visibility: web_pages::visibility_to_string(db::Visibility::Private),
@@ -245,7 +245,7 @@ pub async fn select_loader(
     let transaction = client.transaction().await?;
 
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let specs: Vec<PrebuiltSpec> = queries::openapi_specs::active()
         .bind(&transaction)
@@ -287,7 +287,7 @@ pub async fn edit_loader(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let integration = queries::integrations::integration()
         .bind(&transaction, &id, &team_id_num)

@@ -69,15 +69,15 @@ pub async fn create_invite(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
-
-    let team = queries::teams::team()
-        .bind(&transaction, &team_id_num)
-        .one()
-        .await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
+    let team_public_id = db::team_public_id::encode(team_id_num)
+        .ok_or_else(|| CustomError::FaultySetup("Could not encode team id".to_string()))?;
 
     crate::layout::redirect_and_snackbar(
-        &web_pages::routes::team::Index { team_id: team.slug }.to_string(),
+        &web_pages::routes::team::Index {
+            team_id: team_public_id,
+        }
+        .to_string(),
         "Invitation Created",
     )
 }
@@ -92,7 +92,7 @@ pub async fn create(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), team_slug).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), team_slug).await?;
 
     let invitation_selector = rand::rng().random::<[u8; 6]>();
     let invitation_selector_base64 = URL_SAFE_NO_PAD.encode(invitation_selector);

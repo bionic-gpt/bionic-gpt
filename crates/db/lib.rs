@@ -2,6 +2,7 @@ pub mod authz;
 pub mod customer_keys;
 pub mod i18n;
 pub mod licence;
+pub mod team_public_id;
 pub mod vector_search;
 
 use std::str::FromStr;

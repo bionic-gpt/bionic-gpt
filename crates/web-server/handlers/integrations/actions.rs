@@ -19,7 +19,7 @@ pub async fn delete_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     queries::integrations::delete()
         .bind(&transaction, &id)
@@ -44,7 +44,7 @@ pub async fn edit_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (permissions, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let integration_type = db::IntegrationType::OpenAPI;
 
@@ -115,7 +115,7 @@ pub async fn new_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let integration_type = db::IntegrationType::OpenAPI;
 

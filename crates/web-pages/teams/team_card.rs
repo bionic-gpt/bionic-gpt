@@ -7,7 +7,7 @@ use dioxus::prelude::*;
 #[derive(Props, Clone, PartialEq)]
 pub struct TeamCardProps {
     pub team: TeamOwner,
-    pub current_team_slug: String,
+    pub current_team_id: String,
     pub teams_len: usize,
     pub current_user_email: String,
     pub member_count: usize,
@@ -21,8 +21,10 @@ pub fn TeamCard(props: TeamCardProps) -> Element {
         .clone()
         .unwrap_or_else(|| "Name Not Set".to_string());
     let owner_email = props.team.team_owner.clone();
+    let team_public_id =
+        db::team_public_id::encode(props.team.team_id).unwrap_or_else(|| props.team.id.to_string());
     let team_link = crate::routes::team::Index {
-        team_id: props.team.team_slug.clone(),
+        team_id: team_public_id.clone(),
     }
     .to_string();
 
@@ -40,12 +42,12 @@ pub fn TeamCard(props: TeamCardProps) -> Element {
         action: Some(rsx!(
             div {
                 class: "flex flex-col items-end gap-2",
-                if props.team.team_slug != props.current_team_slug {
+                if team_public_id != props.current_team_id {
                     Button {
                         button_type: ButtonType::Link,
                         target: "_top",
                         href: crate::routes::teams::Switch {
-                            team_id: props.team.team_slug.clone(),
+                            team_id: team_public_id.clone(),
                         }
                         .to_string(),
                         button_scheme: ButtonScheme::Info,

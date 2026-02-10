@@ -26,8 +26,7 @@ pub async fn delete(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &delete_member.team_id)
-            .await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &delete_member.team_id).await?;
 
     if permissions.can_make_invitations() {
         queries::teams::remove_user()

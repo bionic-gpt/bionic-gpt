@@ -39,7 +39,7 @@ pub async fn update_datasets_action(
     let transaction = client.transaction().await?;
 
     let (_rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     // Delete existing dataset connections
     queries::prompts::delete_prompt_datasets()
@@ -68,7 +68,7 @@ pub async fn manage_datasets(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let datasets = queries::datasets::datasets()
         .bind(&transaction)

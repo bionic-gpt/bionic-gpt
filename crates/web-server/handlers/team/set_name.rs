@@ -26,22 +26,19 @@ pub async fn set_name(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     queries::teams::set_name()
         .bind(&transaction, &set_name.name, &team_id_num)
         .await?;
 
-    let updated_team = queries::teams::team()
-        .bind(&transaction, &team_id_num)
-        .one()
-        .await?;
-
     transaction.commit().await?;
+    let team_public_id = db::team_public_id::encode(team_id_num)
+        .ok_or_else(|| CustomError::FaultySetup("Could not encode team id".to_string()))?;
 
     crate::layout::redirect_and_snackbar(
         &web_pages::routes::team::Index {
-            team_id: updated_team.slug,
+            team_id: team_public_id,
         }
         .to_string(),
         "Team Name Updated",

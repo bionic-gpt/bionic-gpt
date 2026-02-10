@@ -24,3 +24,4 @@ base64.workspace = true
 ed25519-dalek = { version = "2.1.1", features = ["pkcs8", "pem"] }
 uuid = { workspace = true, features = ["serde"] }
 tokio = { workspace = true, features = ["sync"] }
+sqids = "0.4"

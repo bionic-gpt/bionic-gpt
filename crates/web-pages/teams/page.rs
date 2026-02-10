@@ -54,7 +54,7 @@ pub fn page(
                     for team in &teams {
                         TeamCard {
                             team: team.clone(),
-                            current_team_slug: team_id.clone(),
+                            current_team_id: team_id.clone(),
                             teams_len: teams.len(),
                             current_user_email: current_user_email.clone(),
                             member_count: team_member_counts
@@ -91,7 +91,11 @@ pub fn page(
 
                 for team in teams {
                     ConfirmModal {
-                        action: crate::routes::teams::Delete {team_id: team.team_slug.clone()}.to_string(),
+                        action: crate::routes::teams::Delete {
+                            team_id: db::team_public_id::encode(team.id)
+                                .unwrap_or_else(|| team.id.to_string()),
+                        }
+                        .to_string(),
                         trigger_id: format!("delete-trigger-{}", team.id),
                         submit_label: "Delete".to_string(),
                         heading: "Delete this Team?".to_string(),

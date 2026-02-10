@@ -33,7 +33,7 @@ pub async fn manage_integrations(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let integrations = queries::integrations::integrations()
         .bind(&transaction, &team_id_num)
@@ -147,7 +147,7 @@ pub async fn add_integration_action(
     let transaction = client.transaction().await?;
 
     let (_rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     // Add the integration with connection info
     queries::prompt_integrations::insert_prompt_integration_with_connection()
@@ -182,7 +182,7 @@ pub async fn remove_integration_action(
     let transaction = client.transaction().await?;
 
     let (_rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     // Remove the specific integration
     queries::prompt_integrations::delete_specific_prompt_integration()

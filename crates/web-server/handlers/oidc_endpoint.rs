@@ -66,20 +66,24 @@ pub async fn setup_user(
         .await?;
     let setup_required = llm_models.is_empty() || embeddings_models.is_empty();
 
-    let team_slug = team.slug.clone();
+    let team_public_id = db::team_public_id::encode(team.id)
+        .ok_or_else(|| CustomError::FaultySetup("Could not encode team id".to_string()))?;
     let default_console_url = web_pages::routes::console::Index {
-        team_id: team_slug.clone(),
+        team_id: team_public_id.clone(),
     }
     .to_string();
     let mut redirect_url = Licence::global()
         .redirect_url
         .as_ref()
-        .map(|template| template.replace("{team_id}", &team_slug))
+        .map(|template| template.replace("{team_id}", &team_public_id))
         .filter(|url| !url.is_empty())
         .unwrap_or(default_console_url);
 
     if setup_required {
-        redirect_url = web_pages::routes::models::Index { team_id: team_slug }.to_string();
+        redirect_url = web_pages::routes::models::Index {
+            team_id: team_public_id,
+        }
+        .to_string();
     }
 
     transaction.commit().await?;

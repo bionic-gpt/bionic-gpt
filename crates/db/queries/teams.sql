@@ -1,8 +1,8 @@
---: Team(name?, slug)
---: TeamOwner(team_name?, team_slug)
+--: Team(name?)
+--: TeamOwner(team_name?, team_id)
 --! team : Team
 SELECT 
-    id, name, slug
+    id, name
 FROM 
     iam.teams
 WHERE
@@ -28,35 +28,13 @@ WHERE
 
 --! get_primary_team : Team
 SELECT 
-    id, name, slug
+    id, name
 FROM 
     iam.teams
 WHERE
     created_by_user_id = :created_by_user_id
 ORDER BY id ASC
 LIMIT 1;
-
---! team_by_slug : Team
-SELECT 
-    id, name, slug
-FROM 
-    iam.teams
-WHERE
-    slug = :slug
-    AND EXISTS (
-        SELECT 1
-        FROM iam.team_users tu
-        WHERE tu.team_id = teams.id AND tu.user_id = current_app_user()
-    );
-
---: TeamId()
---! team_id_by_slug : TeamId
-SELECT
-    id
-FROM
-    iam.teams
-WHERE
-    slug = :slug;
 
 --! add_user_to_team
 INSERT INTO 
@@ -87,7 +65,7 @@ WHERE
 SELECT 
     o.id,
     o.name as team_name, 
-    o.slug as team_slug,
+    o.id as team_id,
     u.email as team_owner
 FROM 
     iam.team_users ou

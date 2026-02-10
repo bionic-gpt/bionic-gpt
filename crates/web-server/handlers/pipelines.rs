@@ -35,7 +35,7 @@ pub async fn loader(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_use_api_keys() {
         return Err(CustomError::Authorization);
@@ -65,7 +65,7 @@ pub async fn delete_action(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (rbac, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_use_api_keys() {
         return Err(CustomError::Authorization);
@@ -100,7 +100,7 @@ pub async fn new_action(
     let transaction = client.transaction().await?;
 
     let (rbac, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.can_use_api_keys() {
         return Err(CustomError::Authorization);

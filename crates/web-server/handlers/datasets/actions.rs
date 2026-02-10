@@ -24,7 +24,7 @@ pub async fn action_delete(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (_permissions, _team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     queries::datasets::delete().bind(&transaction, &id).await?;
 
@@ -61,7 +61,7 @@ pub async fn action_upsert(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (permissions, team_id_num) =
-        authz::get_permissions_by_slug(&transaction, &current_user.into(), &team_id).await?;
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let chunking_strategy = ChunkingStrategy::ByTitle;
 
