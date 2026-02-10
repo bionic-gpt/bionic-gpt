@@ -6,7 +6,6 @@ export const streamingChat = () => {
     const chatId = chat?.dataset.chatid
 
     if (chatId && chat) {
-        console.log('Performing streaming')
         streamResult(chatId, chat)
     }
 }
@@ -16,21 +15,17 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const signal = abortController.signal;
 
     const stopButton = document.getElementById('streaming-button');
-    const stopListener = (event: Event) => {
-        console.log('Attempting to abort stream.');
+    const stopListener = () => {
         abortController.abort("User aborted");
     };
 
     if (stopButton) {
         stopButton.addEventListener('click', stopListener);
-    } else {
-        console.error('Debug: did not find stop button');
     }
 
     // Submit the existing form to trigger redirect/reset after streaming ends.
     // Stream persistence is handled by the backend.
     const finalizeUiState = () => {
-        console.log('Finalizing UI state...');
         const form = document.getElementById(`chat-form-${chatId}`);
 
         if (form instanceof HTMLFormElement) {
@@ -88,7 +83,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
             }
 
             if (json.type === 'done') {
-                console.log('Streaming ended.');
                 finalizeUiState();
                 return true;
             }
@@ -100,7 +94,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 return true;
             }
         } catch (_e) {
-            console.error('Error parsing v2 chunk');
             return false;
         }
 
@@ -127,10 +120,9 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 }
             }
         }
-        console.log('Streaming ended.');
         finalizeUiState();
     } catch (err) {
-        console.log(err);
+        console.error('Streaming failed', err);
         element.innerHTML += `${err}`;
         finalizeUiState();
     }

@@ -170,7 +170,7 @@ where
     })
 }
 
-// Called from the front end to generate a streaming chat with the model
+// Called by the web console UI to stream a chat completion.
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
     current_user: Jwt,
@@ -189,10 +189,9 @@ pub async fn chat_generate(
             let result_sink_clone = Arc::clone(&result_sink);
             let sub_for_save = current_user.sub.clone();
 
-            // Spawn a task that generates SSE events and sends them into the channel
+            // Generate provider events in the background and forward to SSE.
             tokio::spawn(async move {
                 if is_limit_breached {
-                    // Call your existing function to start generating events
                     let limit_message = "You have exceeded your token limit for this model";
                     let send_error = error_to_chat(limit_message, sender)
                         .await
@@ -211,7 +210,6 @@ pub async fn chat_generate(
                             .await;
                     }
                 } else {
-                    // Call your existing function to start generating events
                     let stream_outcome = enriched_chat(request, sender, true)
                         .await
                         .map_err(|e| e.to_string());
