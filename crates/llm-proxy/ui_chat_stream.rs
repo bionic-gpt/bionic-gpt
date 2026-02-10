@@ -3,7 +3,7 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
-use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
+use super::sse_chat_enricher::{enriched_chat, EnrichedChatOutcome, GenerationEvent};
 use super::sse_chat_error::error_to_chat;
 use crate::chat_converter;
 use crate::errors::CustomError;
@@ -147,6 +147,15 @@ fn extract_tool_calls(
         .and_then(|choice| choice.delta.tool_calls.clone())
 }
 
+fn extract_tool_calls_from_merged(
+    merged: &Option<openai_api::ChatCompletionDelta>,
+) -> Option<Vec<ToolCall>> {
+    merged
+        .as_ref()
+        .and_then(|merged| merged.choices.first())
+        .and_then(|choice| choice.delta.tool_calls.clone())
+}
+
 pub(crate) fn build_event_stream<S>(
     receiver_stream: S,
     result_sink: Arc<dyn ResultSink>,
@@ -215,21 +224,55 @@ pub async fn chat_generate(
 
             // Create a channel for sending SSE events
             let (sender, receiver) = mpsc::channel::<Result<GenerationEvent, axum::Error>>(10);
+            let result_sink_clone = Arc::clone(&result_sink);
+            let sub_for_save = current_user.sub.clone();
 
             // Spawn a task that generates SSE events and sends them into the channel
             tokio::spawn(async move {
                 if is_limit_breached {
                     // Call your existing function to start generating events
-                    if let Err(e) =
-                        error_to_chat("You have exceeded your token limit for this model", sender)
-                            .await
-                    {
-                        tracing::warn!("Limits exceeded: {:?}", e);
+                    let limit_message = "You have exceeded your token limit for this model";
+                    let send_error = error_to_chat(limit_message, sender)
+                        .await
+                        .err()
+                        .map(|e| e.to_string());
+                    if let Some(err_msg) = send_error {
+                        tracing::warn!("Limits exceeded: {}", err_msg);
+                        result_sink_clone
+                            .save(
+                                limit_message,
+                                None,
+                                chat_id,
+                                &sub_for_save,
+                                ChatStatus::Error,
+                            )
+                            .await;
                     }
                 } else {
                     // Call your existing function to start generating events
-                    if let Err(e) = enriched_chat(request, sender, true).await {
-                        tracing::error!("Error generating SSE stream: {:?}", e);
+                    let stream_outcome = enriched_chat(request, sender, true)
+                        .await
+                        .map_err(|e| e.to_string());
+                    match stream_outcome {
+                        Ok(EnrichedChatOutcome::Completed) => {}
+                        Ok(EnrichedChatOutcome::ClientDisconnected { snapshot, merged }) => {
+                            let tool_calls = extract_tool_calls_from_merged(&merged);
+                            result_sink_clone
+                                .save(
+                                    &snapshot,
+                                    tool_calls,
+                                    chat_id,
+                                    &sub_for_save,
+                                    ChatStatus::Error,
+                                )
+                                .await;
+                        }
+                        Err(err_msg) => {
+                            tracing::error!("Error generating SSE stream: {}", err_msg);
+                            result_sink_clone
+                                .save(&err_msg, None, chat_id, &sub_for_save, ChatStatus::Error)
+                                .await;
+                        }
                     }
                 }
             });

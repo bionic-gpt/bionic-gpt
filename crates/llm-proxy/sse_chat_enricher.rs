@@ -23,11 +23,20 @@ pub enum GenerationEvent {
     End(CompletionChunk),
 }
 
+#[derive(Debug)]
+pub enum EnrichedChatOutcome {
+    Completed,
+    ClientDisconnected {
+        snapshot: String,
+        merged: Option<ChatCompletionDelta>,
+    },
+}
+
 pub async fn enriched_chat(
     request: RequestBuilder,
     sender: mpsc::Sender<Result<GenerationEvent, Error>>,
     convert_errors_to_chat: bool,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<EnrichedChatOutcome, Box<dyn std::error::Error>> {
     tracing::debug!("{:?}", &request);
     let response = request.send().await?;
     if !response.status().is_success() {
@@ -42,15 +51,16 @@ pub async fn enriched_chat(
         let chunk = match item {
             Ok(bytes) => bytes,
             Err(err) => {
-                handle_chat_error(
+                let outcome = handle_chat_error(
                     err,
                     convert_errors_to_chat,
                     &mut snapshot,
                     &sender,
                     Some(&buffer),
+                    merged.clone(),
                 )
                 .await?;
-                break;
+                return Ok(outcome);
             }
         };
 
@@ -68,23 +78,26 @@ pub async fn enriched_chat(
                     merged: merged.clone(),
                     snapshot: snapshot.clone(),
                 };
-                sender.send(Ok(GenerationEvent::End(chunk))).await.ok();
-                return Ok(());
+                if sender.send(Ok(GenerationEvent::End(chunk))).await.is_err() {
+                    return Ok(EnrichedChatOutcome::ClientDisconnected { snapshot, merged });
+                }
+                return Ok(EnrichedChatOutcome::Completed);
             }
 
             tracing::debug!("{}", &data);
             let delta: ChatCompletionDelta = match serde_json::from_str(&data) {
                 Ok(delta) => delta,
                 Err(e) => {
-                    handle_chat_error(
+                    let outcome = handle_chat_error(
                         e,
                         convert_errors_to_chat,
                         &mut snapshot,
                         &sender,
                         Some(&data),
+                        merged.clone(),
                     )
                     .await?;
-                    return Ok(());
+                    return Ok(outcome);
                 }
             };
 
@@ -106,13 +119,13 @@ pub async fn enriched_chat(
                     snapshot: snapshot.clone(),
                 };
                 if sender.send(Ok(GenerationEvent::Text(chunk))).await.is_err() {
-                    return Ok(());
+                    return Ok(EnrichedChatOutcome::ClientDisconnected { snapshot, merged });
                 }
             }
         }
     }
 
-    Ok(())
+    Ok(EnrichedChatOutcome::ClientDisconnected { snapshot, merged })
 }
 
 fn convert_error_to_chats(
@@ -154,26 +167,40 @@ async fn handle_chat_error<E: std::error::Error + Send + Sync + 'static>(
     snapshot: &mut String,
     sender: &mpsc::Sender<Result<GenerationEvent, Error>>,
     context_message: Option<&str>,
-) -> Result<(), Box<dyn std::error::Error>> {
+    merged: Option<ChatCompletionDelta>,
+) -> Result<EnrichedChatOutcome, Box<dyn std::error::Error>> {
     tracing::error!("Chat error: {:?}", err);
 
     if convert_errors_to_chat {
         for (chunk, markdown) in convert_error_to_chats(err, context_message) {
             snapshot.push_str(&markdown);
-            sender.send(Ok(GenerationEvent::Text(chunk))).await?;
+            if sender.send(Ok(GenerationEvent::Text(chunk))).await.is_err() {
+                return Ok(EnrichedChatOutcome::ClientDisconnected {
+                    snapshot: snapshot.clone(),
+                    merged,
+                });
+            }
         }
-        sender
+        if sender
             .send(Ok(GenerationEvent::End(CompletionChunk {
                 delta: "[DONE]".into(),
                 merged: None,
                 snapshot: snapshot.clone(),
             })))
-            .await?;
+            .await
+            .is_err()
+        {
+            return Ok(EnrichedChatOutcome::ClientDisconnected {
+                snapshot: snapshot.clone(),
+                merged,
+            });
+        }
+        return Ok(EnrichedChatOutcome::Completed);
     } else {
         sender.send(Err(Error::new(err))).await?;
     }
 
-    Err("stream closed after error".into())
+    Ok(EnrichedChatOutcome::Completed)
 }
 
 fn extract_next_event(buffer: &mut String) -> Option<Option<String>> {
