@@ -341,7 +341,7 @@ async fn save_results_db(
                 &tool_calls_json,
                 &snapshot,
                 &ChatRole::Assistant,
-                &ChatStatus::Success,
+                &status,
             )
             .one()
             .await
