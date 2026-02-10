@@ -4,7 +4,6 @@ export const streamingChat = () => {
     const chat = document.getElementById('streaming-chat')
 
     const chatId = chat?.dataset.chatid
-    const prompt = chat?.dataset.prompt
 
     if (chatId && chat) {
         console.log('Performing streaming')
@@ -49,7 +48,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
         }
     };
 
-    const res = await fetch(`/completions/${chatId}`, {
+    const res = await fetch(`/completions/${chatId}?mode=v2`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -60,20 +59,6 @@ async function streamResult(chatId: string, element: HTMLElement) {
     if (!res.body) {
         console.error('No response body');
         return;
-    }
-
-    let isFunctionCall = false;
-    let functionCall = {
-        name: '',
-        arguments: '',
-    };
-
-    interface DeltaChunk {
-        content?: string;
-        tool_calls?: {
-            name?: string;
-            arguments?: string;
-        };
     }
 
     const reader = res.body.getReader();
@@ -92,6 +77,65 @@ async function streamResult(chatId: string, element: HTMLElement) {
         return data;
     };
 
+    const handleLegacyEvent = (data: string) => {
+        if (data === '[DONE]') {
+            console.log('Streaming ended.');
+            submitResults();
+            return true;
+        }
+
+        try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta || {};
+            if (delta.content) {
+                snapshot += delta.content;
+                element.innerHTML = markdown.markdown(snapshot);
+                result = snapshot;
+            }
+        } catch (e) {
+            console.error('Error parsing legacy chunk', e);
+        }
+
+        return false;
+    };
+
+    const handleV2Event = (data: string) => {
+        try {
+            const json = JSON.parse(data);
+            if (typeof json?.type !== 'string') {
+                return false;
+            }
+
+            if (json.type === 'text_delta') {
+                const delta = json?.data?.delta;
+                if (typeof delta === 'string' && delta.length > 0) {
+                    snapshot += delta;
+                    element.innerHTML = markdown.markdown(snapshot);
+                    result = snapshot;
+                }
+                return false;
+            }
+
+            if (json.type === 'done') {
+                console.log('Streaming ended.');
+                submitResults();
+                return true;
+            }
+
+            if (json.type === 'error') {
+                const message = String(json?.data?.message ?? 'Unknown streaming error');
+                element.innerHTML = markdown.markdown(`${snapshot}\n\n${message}`);
+                result = `${snapshot}\n\n${message}`;
+                submitResults();
+                return true;
+            }
+        } catch (_e) {
+            // Not a v2 event; caller can attempt legacy parsing.
+        }
+
+        return false;
+    };
+
     try {
         while (true) {
             const { value, done } = await reader.read();
@@ -105,41 +149,14 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 if (!raw) continue;
 
                 const data = parseEvent(raw);
-                if (data === '[DONE]') {
-                    console.log('Streaming ended.');
-                    submitResults();
+                if (!data) continue;
+
+                if (handleV2Event(data)) {
                     return;
                 }
 
-                try {
-                    const json = JSON.parse(data);
-                    const delta = json.choices?.[0]?.delta || {};
-                    if (delta.content) {
-                        snapshot += delta.content;
-                    }
-                    const deltaChunk: DeltaChunk = {};
-                    if (delta.content) deltaChunk.content = delta.content;
-                    const tool = delta.tool_calls?.[0];
-                    if (tool && tool.function) {
-                        deltaChunk.tool_calls = {
-                            name: tool.function.name,
-                            arguments: tool.function.arguments || '',
-                        };
-                    }
-
-                    if (deltaChunk.tool_calls) {
-                        console.log('Got a function call');
-                        isFunctionCall = true;
-                        if (deltaChunk.tool_calls.name) functionCall.name = deltaChunk.tool_calls.name;
-                        if (deltaChunk.tool_calls.arguments) functionCall.arguments += deltaChunk.tool_calls.arguments;
-                    }
-
-                    if (!isFunctionCall && delta.content) {
-                        element.innerHTML = markdown.markdown(snapshot);
-                        result = snapshot;
-                    }
-                } catch (e) {
-                    console.error('Error parsing chunk', e);
+                if (handleLegacyEvent(data)) {
+                    return;
                 }
             }
         }
@@ -153,4 +170,3 @@ async function streamResult(chatId: string, element: HTMLElement) {
     }
 
 }
-

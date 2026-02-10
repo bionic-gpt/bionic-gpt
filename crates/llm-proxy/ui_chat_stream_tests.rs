@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 use crate::sse_chat_enricher::GenerationEvent;
-use crate::ui_chat_stream::{build_event_stream, ResultSink};
+use crate::ui_chat_stream::{build_event_stream, ResultSink, UiStreamMode};
 use async_trait::async_trait;
 use db::ChatStatus;
 use openai_api::{
@@ -93,7 +93,13 @@ async fn event_stream_saves_on_end_with_tool_calls() {
         Ok(GenerationEvent::End(end_chunk)),
     ]);
 
-    let stream = build_event_stream(input, Arc::clone(&result_sink_dyn), 42, sub);
+    let stream = build_event_stream(
+        input,
+        Arc::clone(&result_sink_dyn),
+        42,
+        sub,
+        UiStreamMode::Legacy,
+    );
     pin!(stream);
     while stream.next().await.is_some() {}
 
@@ -116,7 +122,13 @@ async fn event_stream_saves_on_error() {
     let err = axum::Error::new(std::io::Error::other("boom"));
     let input = tokio_stream::iter(vec![Err(err)]);
 
-    let stream = build_event_stream(input, Arc::clone(&result_sink_dyn), 7, sub);
+    let stream = build_event_stream(
+        input,
+        Arc::clone(&result_sink_dyn),
+        7,
+        sub,
+        UiStreamMode::Legacy,
+    );
     pin!(stream);
     while stream.next().await.is_some() {}
 
@@ -125,4 +137,33 @@ async fn event_stream_saves_on_error() {
     assert_eq!(calls.len(), 1);
     assert_eq!(calls[0].status, ChatStatus::Error);
     assert!(calls[0].snapshot.contains("boom"));
+}
+
+#[tokio::test]
+async fn event_stream_v2_emits_error_event() {
+    let result_sink = Arc::new(FakeResultSink {
+        calls: Mutex::new(Vec::new()),
+    });
+    let result_sink_dyn: Arc<dyn ResultSink> = result_sink.clone();
+    let sub = Arc::new("user-1".to_string());
+
+    let err = axum::Error::new(std::io::Error::other("boom"));
+    let input = tokio_stream::iter(vec![Err(err)]);
+
+    let stream = build_event_stream(
+        input,
+        Arc::clone(&result_sink_dyn),
+        7,
+        sub,
+        UiStreamMode::V2,
+    );
+    pin!(stream);
+
+    let first = stream.next().await.expect("expected one item");
+    let event = first.expect("expected Ok(event) in v2 mode");
+    let formatted = format!("{:?}", event);
+    assert!(formatted.contains("\"type\":\"error\""));
+    assert!(formatted.contains("boom"));
+
+    assert!(stream.next().await.is_none());
 }
