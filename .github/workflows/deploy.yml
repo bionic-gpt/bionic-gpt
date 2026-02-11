@@ -1,0 +1,26 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.K3S_SSH_KEY }}
+
+      - name: Deploy
+        env:
+          K3S_IP: 159.89.17.34
+        run: |
+          export K3S_IP=${K3S_IP}
+          mkdir -p ~/.kube
+          scp -o StrictHostKeyChecking=no root@$K3S_IP:/etc/rancher/k3s/k3s.yaml ~/.kube/config
+          sed -i.bak "s#127.0.0.1#$K3S_IP#" ~/.kube/config
+          stack deploy --manifest infra-as-code/stack.yaml --profile prod
