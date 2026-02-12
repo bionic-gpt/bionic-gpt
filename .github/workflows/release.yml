@@ -54,7 +54,6 @@ jobs:
         run: |
           set -euo pipefail
           ./update-config.sh "${RELEASE_VERSION}"
-          ./update-version.sh "${RELEASE_VERSION}"
 
       - name: Configure git author
         run: |
