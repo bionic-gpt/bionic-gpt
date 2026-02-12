@@ -48,12 +48,19 @@ jobs:
           git push origin "${stable}"
 
       - name: Update versioned assets
-        working-directory: .github/workflows
         env:
           RELEASE_VERSION: ${{ steps.rc.outputs.base }}
         run: |
           set -euo pipefail
-          ./update-config.sh "${RELEASE_VERSION}"
+          containers=("ghcr.io/bionic-gpt/bionicgpt" "ghcr.io/bionic-gpt/bionicgpt-postgres-mcp" "ghcr.io/bionic-gpt/bionicgpt-rabbitmq" "ghcr.io/bionic-gpt/bionicgpt-rag-engine" "ghcr.io/bionic-gpt/bionicgpt-db-migrations")
+
+          for i in "${containers[@]}"; do
+            CONFIG_NAME=$(echo "$i" | cut -c 20-)
+            echo "Name $CONFIG_NAME"
+            sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:${RELEASE_VERSION}/}" infra-as-code/docker-compose.yml
+            sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:${RELEASE_VERSION}/}" infra-as-code/stack.yaml
+            sed -i "0,/$CONFIG_NAME:/{s/$CONFIG_NAME:.*$/$CONFIG_NAME:${RELEASE_VERSION}/}" infra-as-code/stack-selenium.yaml
+          done
 
       - name: Configure git author
         run: |
@@ -61,7 +68,20 @@ jobs:
           git config user.name "github-actions"
 
       - name: Commit version bump
-        run: ./.github/workflows/update-git.sh "${{ steps.rc.outputs.base }}"
+        run: |
+          set -euo pipefail
+          git add infra-as-code/docker-compose.yml \
+                  infra-as-code/stack.yaml \
+                  infra-as-code/stack-selenium.yaml \
+                  crates/static-website/content/docs/running-locally/docker-compose/index.md
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore(deployment): Update release metadata for ${{ steps.rc.outputs.base }} [ci skip]"
+          git push
 
       - name: Create GitHub Release (stable)
         uses: softprops/action-gh-release@v2
