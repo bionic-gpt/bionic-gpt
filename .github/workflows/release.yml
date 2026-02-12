@@ -72,8 +72,7 @@ jobs:
           set -euo pipefail
           git add infra-as-code/docker-compose.yml \
                   infra-as-code/stack.yaml \
-                  infra-as-code/stack-selenium.yaml \
-                  crates/static-website/content/docs/running-locally/docker-compose/index.md
+                  infra-as-code/stack-selenium.yaml
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
