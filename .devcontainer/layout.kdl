@@ -1,3 +1,5 @@
+on_force_close "quit"
+
 layout {
     tab {
         pane size=1 borderless=true {
