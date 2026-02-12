@@ -89,7 +89,7 @@ Tests ran via `cargo test --workspace --exclude integration-testing --exclude ra
 async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutputs> {
     let postgres_service = postgres_service(client);
 
-    let after_postgres = client
+    let mut after_postgres = client
         .container()
         .from(BASE_IMAGE)
         .with_directory("/workspace", repo.clone())
@@ -98,6 +98,13 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         .with_service_binding("postgres", postgres_service)
         .with_env_variable("DATABASE_URL", DATABASE_URL)
         .with_env_variable("APP_DATABASE_URL", DATABASE_URL);
+
+    if let Ok(version) = env::var("RELEASE_VERSION") {
+        let version = version.trim();
+        if !version.is_empty() {
+            after_postgres = after_postgres.with_env_variable("RELEASE_VERSION", version);
+        }
+    }
 
     let after_migrations = after_postgres.with_exec(vec![
         "dbmate",
