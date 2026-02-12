@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
+use crate::components::card_item::CardItem;
 use crate::i18n;
 use crate::routes;
 use daisy_rsx::*;
@@ -49,10 +50,10 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str)
             ),
 
             div {
-                class: "flex flex-col gap-4",
+                class: "mx-auto max-w-3xl overflow-x-clip px-4 flex flex-col gap-4",
                 h2 {
                     class: "text-xl font-semibold",
-                    "Select a {integration_label}"
+                    "Select an Integration"
                 }
                 if specs.is_empty() {
                     div {
@@ -61,58 +62,52 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<PrebuiltSpec>, locale: &str)
                     }
                 } else {
                     div {
-                        class: "grid grid-cols-1 gap-4 md:grid-cols-2",
+                        class: "flex flex-col gap-3 w-full",
                         for spec in specs {
-                            Card {
-                                class: "bg-base-100 shadow border border-base-300 h-full flex flex-col",
-                                CardHeader {
-                                    title: spec.title.clone()
-                                }
-                                CardBody {
-                                    class: "flex-1 flex flex-col gap-4",
-                                    if let Some(logo_url) = spec.logo_data_url.clone() {
-                                        div {
-                                            class: "flex justify-center",
-                                            img {
-                                                class: "h-16 w-auto object-contain",
-                                                src: "{logo_url}",
-                                                alt: format!("{} logo", spec.title),
-                                            }
-                                        }
-                                    }
-                                    if let Some(description) = spec.description.clone() {
-                                        p {
-                                            class: "text-sm text-base-content/80",
+                            CardItem {
+                                class: Some("mt-0 border border-base-300 shadow-sm".to_string()),
+                                popover_target: None,
+                                clickable_link: None,
+                                image_html: None,
+                                image_src: spec.logo_data_url.clone(),
+                                avatar_name: if spec.logo_data_url.is_none() {
+                                    Some(spec.title.clone())
+                                } else {
+                                    None
+                                },
+                                title: spec.title.clone(),
+                                description: Some(rsx!(
+                                    span {
+                                        class: "truncate",
+                                        if let Some(description) = spec.description.clone() {
                                             "{description}"
                                         }
                                     }
-                                    p {
-                                        class: "text-xs text-base-content/60",
-                                        "Slug: {spec.slug}"
-                                    }
-                                    div {
-                                        class: "mt-auto",
-                                        form {
-                                            method: "post",
-                                            action: routes::integrations::New { team_id: team_id.clone() }.to_string(),
-                                            input {
-                                                r#type: "hidden",
-                                                name: "visibility",
-                                                value: private_visibility.clone(),
-                                            }
-                                            textarea {
-                                                class: "hidden",
-                                                name: "openapi_spec",
-                                                "{spec.spec_json}"
-                                            }
-                                            Button {
-                                                button_type: ButtonType::Submit,
-                                                button_scheme: ButtonScheme::Primary,
-                                                "Run {integration_label}"
-                                            }
+                                )),
+                                footer: None,
+                                count_labels: vec![],
+                                action: Some(rsx!(
+                                    form {
+                                        method: "post",
+                                        action: routes::integrations::New { team_id: team_id.clone() }.to_string(),
+                                        input {
+                                            r#type: "hidden",
+                                            name: "visibility",
+                                            value: private_visibility.clone(),
+                                        }
+                                        textarea {
+                                            class: "hidden",
+                                            name: "openapi_spec",
+                                            "{spec.spec_json}"
+                                        }
+                                        Button {
+                                            button_type: ButtonType::Submit,
+                                            button_scheme: ButtonScheme::Primary,
+                                            button_size: ButtonSize::Small,
+                                            "Select"
                                         }
                                     }
-                                }
+                                )),
                             }
                         }
                     }
