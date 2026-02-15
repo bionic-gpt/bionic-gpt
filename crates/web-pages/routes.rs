@@ -83,6 +83,15 @@ pub mod automations {
     }
 }
 
+#[path = "routes/rate_limits.rs"]
+pub mod rate_limits;
+
+#[path = "routes/api_keys.rs"]
+pub mod api_keys;
+
+#[path = "routes/providers.rs"]
+pub mod providers;
+
 pub mod history {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
@@ -97,54 +106,6 @@ pub mod history {
     #[typed_path("/o/{team_id}/search")]
     pub struct Search {
         pub team_id: String,
-    }
-}
-
-pub mod rate_limits {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/rate_limits")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/rate_limits/upsert")]
-    pub struct Upsert {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/rate_limits/delete/{id}")]
-    pub struct Delete {
-        pub team_id: String,
-        pub id: i32,
-    }
-}
-
-pub mod api_keys {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/api_keys")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/api_keys/new")]
-    pub struct New {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/api_keys/delete/{id}")]
-    pub struct Delete {
-        pub team_id: String,
-        pub id: i32,
     }
 }
 
@@ -375,43 +336,6 @@ pub mod models {
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/o/{team_id}/models/delete/{id}")]
-    pub struct Delete {
-        pub team_id: String,
-        pub id: i32,
-    }
-}
-
-pub mod providers {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/providers")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/providers/new")]
-    pub struct New {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/providers/edit/{id}")]
-    pub struct Edit {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/providers/upsert")]
-    pub struct Upsert {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/providers/delete/{id}")]
     pub struct Delete {
         pub team_id: String,
         pub id: i32,
