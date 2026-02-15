@@ -1,11 +1,7 @@
 import 'highlight.js/styles/a11y-dark.css'
-// Highlight JS
 import hljs from 'highlight.js';
-
-// Web components
 import '@github/relative-time-element';
 
-// Misc.
 import { modalTriggers } from './typescript/components/modal-trigger'
 import { clickableCard } from './typescript/components/clickable-card'
 import { toggleVisibility } from './typescript/api-keys/toggle-visibility'
@@ -27,32 +23,38 @@ import { fileUpload } from './typescript/console/file-upload';
 import { examplePrompts } from './typescript/console/example-prompts';
 import { initInstantPage } from './typescript/instant-page';
 
-// Set everything up
+const runWhenPresent = (selector: string, callback: () => void) => {
+    if (document.querySelector(selector)) {
+        callback()
+    }
+}
+
 function loadEverything() {
     hljs.highlightAll()
-    modalTriggers()
-    clickableCard()
-    toggleVisibility()
-    autoExpand()
-    examplePrompts()
-    formatter()
-    streamingChat()
-    copyPaste()
-    snackBar()
-    selectMenu()
-    copy()
-    speechToText()
-    readAloud()
-    initializeSidebar()
-    rememberForm()
-    textareaSubmit()
-    disableSubmitButton()
-    fileUpload()
+
+    runWhenPresent('[data-target]', modalTriggers)
+    runWhenPresent('[data-clickable-link]', clickableCard)
+    runWhenPresent('.api-keys-toggle-visibility', toggleVisibility)
+    runWhenPresent('textarea.auto-expand', autoExpand)
+    runWhenPresent('#streaming-chat', streamingChat)
+    runWhenPresent('pre.json, .format-json', formatter)
+    runWhenPresent('pre code', copyPaste)
+    runWhenPresent('#snackbar', snackBar)
+    runWhenPresent('.copy-trigger', copy)
+    runWhenPresent('.select-menu', selectMenu)
+    runWhenPresent('.read-aloud', readAloud)
+    runWhenPresent('form.remember', rememberForm)
+    runWhenPresent('textarea.submit-on-enter', textareaSubmit)
+    runWhenPresent('form[data-disable-submit], button[data-disable-submit]', disableSubmitButton)
+    runWhenPresent('#speech-to-text-button', speechToText)
+    runWhenPresent('#attach-button', fileUpload)
+    runWhenPresent('[data-example-prompts]', examplePrompts)
+    runWhenPresent('#toggleButton', initializeSidebar)
+
     initInstantPage()
 
-    // Apply dark or light mode
     setTheme()
-    themeSwitcher()
+    runWhenPresent('[data-theme-switcher]', themeSwitcher)
 }
 
 if (document.readyState === 'loading') {

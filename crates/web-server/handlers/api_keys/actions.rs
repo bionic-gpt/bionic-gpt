@@ -71,41 +71,18 @@ pub async fn action_new_api_key(
         }
     }
 
-    let api_keys = queries::api_keys::api_keys()
-        .bind(&transaction, &team_id_num)
-        .all()
-        .await?;
-
-    let assistants = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Assistant)
-        .all()
-        .await?;
-
-    let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Model)
-        .all()
-        .await?;
-
-    let token_usage_data = queries::token_usage_metrics::get_daily_token_usage_for_team()
-        .bind(&transaction, &team_id_num, &"7")
-        .all()
-        .await?;
-
-    let api_request_data = queries::token_usage_metrics::get_daily_api_request_count_for_team()
-        .bind(&transaction, &team_id_num, &"7")
-        .all()
-        .await?;
+    let page_data = super::page_data::load_api_keys_page_data(&transaction, team_id_num).await?;
 
     transaction.commit().await?;
 
     let html = web_pages::api_keys::page::page(
         rbac,
         team_id,
-        api_keys,
-        assistants,
-        models,
-        token_usage_data,
-        api_request_data,
+        page_data.api_keys,
+        page_data.assistants,
+        page_data.models,
+        page_data.token_usage_data,
+        page_data.api_request_data,
         generated_key,
     );
 
