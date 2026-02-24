@@ -176,7 +176,10 @@ async fn save_results_db(
                 .await;
 
                 for tool_call in tool_call_results {
-                    let tool_call_id = tool_call.id.clone();
+                    let stored_tool_call_id = tool_call
+                        .call_id
+                        .clone()
+                        .unwrap_or_else(|| tool_call.id.clone());
                     let result_json = match tool_call.content.first() {
                         ToolResultContent::Text(text) => text.text,
                         ToolResultContent::Image(image) => {
@@ -206,7 +209,7 @@ async fn save_results_db(
                             &transaction,
                             &chat.conversation_id,
                             &chat.prompt_id,
-                            &Some(tool_call_id.clone()),
+                            &Some(stored_tool_call_id.clone()),
                             &None::<String>,
                             &result_json,
                             &ChatRole::Tool,

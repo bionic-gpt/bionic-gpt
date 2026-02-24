@@ -33,11 +33,10 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                     .unwrap_or_else(|_| OneOrMany::one(AssistantContent::text("")));
                 Message::Assistant { id: None, content }
             }
-            ChatRole::Tool => Message::tool_result_with_call_id(
-                chat.tool_call_id.unwrap_or_else(|| "tool_call".to_string()),
-                None,
-                content,
-            ),
+            ChatRole::Tool => {
+                let tool_call_id = chat.tool_call_id.unwrap_or_else(|| "tool_call".to_string());
+                Message::tool_result_with_call_id(tool_call_id.clone(), Some(tool_call_id), content)
+            }
             ChatRole::User | ChatRole::System | ChatRole::Developer => Message::user(content),
         };
 
