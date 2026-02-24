@@ -39,8 +39,8 @@ async fn main() {
         // Adjust these patterns to match your crate names
         .add_directive(format!("web_server={}", log_level).parse().unwrap())
         .add_directive(format!("db={}", log_level).parse().unwrap())
-        .add_directive(format!("llm_proxy={}", log_level).parse().unwrap())
-        .add_directive(format!("integrations={}", log_level).parse().unwrap())
+        .add_directive(format!("agent_runtime={}", log_level).parse().unwrap())
+        .add_directive(format!("tool_runtime={}", log_level).parse().unwrap())
         .add_directive(format!("embeddings_api={}", log_level).parse().unwrap())
         // Add more of your crates as needed
         ;
@@ -100,7 +100,7 @@ async fn main() {
         .merge(handlers::oauth2::routes())
         .merge(handlers::oauth_clients::routes())
         .merge(handlers::openapi_specs::routes())
-        .merge(llm_proxy::routes())
+        .merge(agent_runtime::routes())
         .merge(handlers::mcp::routes())
         .merge(handlers::models::routes())
         .merge(handlers::providers::routes())

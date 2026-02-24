@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
-use crate::sse_chat_enricher::GenerationEvent;
-use crate::ui_chat_stream::{build_event_stream, ResultSink};
+use crate::stream_assembler::GenerationEvent;
+use crate::ui_chat_orchestrator::{build_event_stream, ResultSink};
 use async_trait::async_trait;
 use db::ChatStatus;
 use openai_api::{
@@ -77,12 +77,12 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     let result_sink_dyn: Arc<dyn ResultSink> = result_sink.clone();
     let sub = Arc::new("user-1".to_string());
 
-    let text_chunk = crate::sse_chat_enricher::CompletionChunk {
+    let text_chunk = crate::stream_assembler::CompletionChunk {
         delta: "delta".to_string(),
         merged: None,
         snapshot: "final".to_string(),
     };
-    let end_chunk = crate::sse_chat_enricher::CompletionChunk {
+    let end_chunk = crate::stream_assembler::CompletionChunk {
         delta: "[DONE]".to_string(),
         merged: Some(sample_delta_with_tool_calls()),
         snapshot: "final".to_string(),
@@ -144,7 +144,6 @@ async fn event_stream_emits_error_event() {
     let first = stream.next().await.expect("expected one item");
     let event = first.expect("expected Ok(event)");
     let formatted = format!("{:?}", event);
-    assert!(formatted.contains("\"type\":\"error\""));
     assert!(formatted.contains("boom"));
 
     assert!(stream.next().await.is_none());

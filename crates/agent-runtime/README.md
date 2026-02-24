@@ -1,6 +1,6 @@
-# llm-proxy
+# agent-runtime
 
-This crate implements the server-side proxy layer for Large Language Model (LLM)
+This crate implements the server-side agent orchestration runtime for Large Language Model (LLM)
 requests in the Bionic application. It handles two main use cases:
 
 - UI-driven chat and synthesis calls from the web app.
@@ -46,12 +46,12 @@ Route: `/app/synthesize` (POST)
 
 - Axum handlers live in this crate and are wired in `lib.rs`.
 - Database access uses the generated queries from the `db` crate.
-- Prompt building happens in `prompt.rs` with token-aware trimming.
+- Prompt building happens in `context_builder.rs` with token-aware trimming.
 - Chat history is converted to OpenAI-compatible message structures in
   `chat_converter.rs`.
-- Streaming responses are processed in `sse_chat_enricher.rs` to merge deltas
+- Streaming responses are processed in `stream_assembler.rs` to merge deltas
   and build a snapshot.
-- Tool execution uses the `integrations` crate to call external tools and store
+- Tool execution uses the `tool-runtime` crate to call external tools and store
   results back into the conversation.
 - Limits are enforced via `limits.rs` based on model TPM usage.
 - Moderation (for guarded models) happens in `moderation.rs` by calling a
@@ -59,12 +59,12 @@ Route: `/app/synthesize` (POST)
 
 ## Key modules
 
-- `api_chat_stream.rs`: OpenAI-compatible `/v1/chat/completions` handler.
-- `api_reverse_proxy.rs`: Generic `/v1/*` proxy for other endpoints.
-- `ui_chat_stream.rs`: UI chat streaming, tools, moderation, persistence.
-- `sse_chat_enricher.rs`: SSE stream processing and delta merging.
-- `sse_chat_error.rs`: Streaming error helpers for UI chat.
-- `prompt.rs`: Prompt assembly and history truncation.
+- `api_chat_orchestrator.rs`: OpenAI-compatible `/v1/chat/completions` handler.
+- `provider_passthrough.rs`: Generic `/v1/*` proxy for other endpoints.
+- `ui_chat_orchestrator.rs`: UI chat streaming, tools, moderation, persistence.
+- `stream_assembler.rs`: SSE stream processing and delta merging.
+- `stream_errors.rs`: Streaming error helpers for UI chat.
+- `context_builder.rs`: Prompt assembly and history truncation.
 - `limits.rs`: Rate/usage enforcement logic.
 - `moderation.rs`: Guard model moderation for chats.
 - `jwt.rs`: User identity extraction for UI requests.
@@ -97,7 +97,7 @@ just test
 Or run only this crate:
 
 ```
-cargo test -p llm-proxy
+cargo test -p agent-runtime
 ```
 
 ## Notes and assumptions
@@ -105,4 +105,3 @@ cargo test -p llm-proxy
 - API key authentication is required for `/v1/*` routes.
 - UI routes rely on upstream auth to provide user identity headers/cookies.
 - This crate assumes models are OpenAI-compatible for chat and SSE streams.
-

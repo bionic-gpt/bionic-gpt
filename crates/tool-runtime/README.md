@@ -1,7 +1,7 @@
-# integrations
+# tool-runtime
 
 This crate provides the tool and integration system used by the app and
-`llm-proxy`. It exposes OpenAI-style tool definitions, executes tool calls, and
+`agent-runtime`. It exposes OpenAI-style tool definitions, executes tool calls, and
 supports both built-in tools and OpenAPI-based external integrations.
 
 ## What it does
@@ -16,13 +16,13 @@ supports both built-in tools and OpenAPI-based external integrations.
 
 ## Key modules
 
-- `tool.rs`: `ToolInterface` trait (definition + execute).
-- `tool_registry.rs`: catalog of built-in tools and tool scopes.
-- `tool_executor.rs`: resolve tool instances and execute tool calls.
-- `bionic_openapi.rs`: OpenAPI v3 parsing and tool definition generation.
-- `system_openapi.rs`: system-selected OpenAPI specs (per category).
-- `tools/`: built-in tool implementations.
-- `token_providers.rs`: auth token providers for OpenAPI tools.
+- `tool_interface.rs`: `ToolInterface` trait (definition + execute).
+- `tool_catalog.rs`: catalog of built-in tools and tool scopes.
+- `tool_dispatcher.rs`: resolve tool instances and execute tool calls.
+- `openapi_tool_factory.rs`: OpenAPI v3 parsing and tool definition generation.
+- `system_tool_sources.rs`: system-selected OpenAPI specs (per category).
+- `builtin_tools/`: built-in tool implementations.
+- `tool_auth.rs`: auth token providers for OpenAPI tools.
 
 ## Tool scopes
 
@@ -67,7 +67,6 @@ external OpenAPI) and dispatches each call via `ToolInterface::execute`.
 
 ## Testing
 
-- `tool_registry.rs` includes basic tests for tool selection.
-- `tool_executor.rs` includes a tool execution test for the time/date tool.
-- `tools/open_api_tool.rs` supports HTTP client overrides for tests.
-
+- `tool_catalog.rs` includes basic tests for tool selection.
+- `tool_dispatcher.rs` includes a tool execution test for the time/date tool.
+- `builtin_tools/openapi_tool_adapter.rs` supports HTTP client overrides for tests.

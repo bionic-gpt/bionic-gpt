@@ -11,7 +11,7 @@ use web_pages::{
 
 fn analyze_integration_auth(integration: &db::Integration) -> Result<(bool, bool), CustomError> {
     if let Some(definition) = &integration.definition {
-        let bionic_api = integrations::bionic_openapi::BionicOpenAPI::new(definition)
+        let bionic_api = tool_runtime::BionicOpenAPI::new(definition)
             .map_err(|e| CustomError::FaultySetup(format!("Invalid OpenAPI spec: {}", e)))?;
         let requires_api_key = bionic_api.has_api_key_security();
         let requires_oauth2 = bionic_api.has_oauth2_security();

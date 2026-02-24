@@ -7,8 +7,8 @@ use crate::i18n;
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKeyConnection, Integration, Oauth2Connection};
 use dioxus::prelude::*;
-use integrations::bionic_openapi::BionicOpenAPI;
 use openai_api::BionicToolDefinition;
+use tool_runtime::BionicOpenAPI;
 
 #[allow(clippy::too_many_arguments)]
 pub fn view(

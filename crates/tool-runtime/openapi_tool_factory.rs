@@ -3,7 +3,7 @@
 //! This module provides a structured way to work with OpenAPI v3 specifications,
 //! extracting tool definitions and handling parameter parsing.
 
-use crate::tool::ToolInterface;
+use crate::tool_interface::ToolInterface;
 use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
@@ -395,7 +395,7 @@ impl BionicOpenAPI {
     /// Create tools from the OpenAPI specification
     pub fn create_tools(
         &self,
-        token_provider: Option<Arc<dyn crate::token_providers::TokenProvider>>,
+        token_provider: Option<Arc<dyn crate::tool_auth::TokenProvider>>,
     ) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
         let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
         let integration_tools = self.create_tool_definitions();
@@ -434,12 +434,12 @@ pub fn create_tools_from_integration(
             .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
 
         let bionic_api = BionicOpenAPI::from_spec(oas3);
-        let token_provider: Option<Arc<dyn crate::token_providers::TokenProvider>> =
+        let token_provider: Option<Arc<dyn crate::tool_auth::TokenProvider>> =
             if let Some(conn_id) = integration.oauth2_connection_id {
                 if let Some(token) = &integration.bearer_token {
                     if let (Some(pool), Some(sub)) = (pool, sub) {
                         if let Some(config) = bionic_api.get_oauth2_config() {
-                            Some(Arc::new(crate::token_providers::OAuth2TokenProvider::new(
+                            Some(Arc::new(crate::tool_auth::OAuth2TokenProvider::new(
                                 pool,
                                 sub,
                                 conn_id,
@@ -448,25 +448,25 @@ pub fn create_tools_from_integration(
                                 integration.expires_at,
                                 config,
                             ))
-                                as Arc<dyn crate::token_providers::TokenProvider>)
+                                as Arc<dyn crate::tool_auth::TokenProvider>)
                         } else {
-                            Some(Arc::new(crate::token_providers::StaticTokenProvider::new(
-                                token.clone(),
-                            )) as Arc<_>)
+                            Some(
+                                Arc::new(crate::tool_auth::StaticTokenProvider::new(token.clone()))
+                                    as Arc<_>,
+                            )
                         }
                     } else {
-                        Some(Arc::new(crate::token_providers::StaticTokenProvider::new(
-                            token.clone(),
-                        )) as Arc<_>)
+                        Some(
+                            Arc::new(crate::tool_auth::StaticTokenProvider::new(token.clone()))
+                                as Arc<_>,
+                        )
                     }
                 } else {
                     None
                 }
             } else {
                 integration.bearer_token.as_ref().map(|token| {
-                    Arc::new(crate::token_providers::StaticTokenProvider::new(
-                        token.clone(),
-                    )) as Arc<_>
+                    Arc::new(crate::tool_auth::StaticTokenProvider::new(token.clone())) as Arc<_>
                 })
             };
         bionic_api.create_tools(token_provider)

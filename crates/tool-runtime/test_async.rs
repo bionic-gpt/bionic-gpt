@@ -1,5 +1,5 @@
-use crate::tool::ToolInterface;
-use crate::tools::time_date::TimeDateTool;
+use crate::builtin_tools::time_date::TimeDateTool;
+use crate::tool_interface::ToolInterface;
 use openai_api::ToolCall;
 use std::sync::Arc;
 
@@ -26,7 +26,7 @@ async fn test_async_tool_execution() {
 // Test the execute_tool_call_with_tools function
 #[tokio::test]
 async fn test_execute_tool_call_with_tools() {
-    use crate::tool_executor::execute_tool_call_with_tools;
+    use crate::tool_dispatcher::execute_tool_call_with_tools;
     use openai_api::ToolCallFunction;
     use serde_json::json;
 

@@ -9,11 +9,11 @@ use axum::{
 };
 use axum_extra::routing::{RouterExt, TypedPath};
 use db::Pool;
-use integrations::{BionicOpenAPI, OAuth2TokenProvider, StaticTokenProvider};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use std::{future::Future, pin::Pin, sync::Arc};
 use time::OffsetDateTime;
+use tool_runtime::{BionicOpenAPI, OAuth2TokenProvider, StaticTokenProvider};
 use tower_http::cors::{Any, CorsLayer};
 use uuid::Uuid;
 

@@ -6,7 +6,7 @@ use crate::SectionIntroduction;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use dioxus::prelude::*;
-use integrations::bionic_openapi::BionicOpenAPI;
+use tool_runtime::BionicOpenAPI;
 
 pub fn page(
     team_id: String,

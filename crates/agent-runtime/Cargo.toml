@@ -1,5 +1,5 @@
 [package]
-name = "llm-proxy"
+name = "agent-runtime"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,7 +9,7 @@ path = "lib.rs"
 [dependencies]
 db = { path = "../db" }
 embeddings-api = { path = "../embeddings-api" }
-integrations = { path = "../integrations" }
+tool-runtime = { path = "../tool-runtime" }
 openai-api = { path = "../openai-api" }
 
 axum = { workspace = true, features = ["multipart"] }

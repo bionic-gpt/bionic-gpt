@@ -3,8 +3,8 @@
 //! ```not_rust
 //! cargo run -p example-reqwest-response
 //! ```
-use super::sse_chat_enricher::{enriched_chat, EnrichedChatOutcome, GenerationEvent};
-use super::sse_chat_error::error_to_chat;
+use super::stream_assembler::{enriched_chat, EnrichedChatOutcome, GenerationEvent};
+use super::stream_errors::error_to_chat;
 use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
@@ -15,9 +15,6 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
 use db::{ChatRole, ChatStatus};
-use integrations::{
-    execute_tool_calls, get_chat_tools_user_selected_with_system_openapi, get_tools, ToolScope,
-};
 use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
@@ -28,6 +25,9 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
+use tool_runtime::{
+    execute_tool_calls, get_chat_tools_user_selected_with_system_openapi, get_tools, ToolScope,
+};
 
 use super::{limits, UICompletions};
 
@@ -114,7 +114,7 @@ impl ResultSink for DbResultSink {
 }
 
 fn extract_tool_calls(
-    completion_chunk: &super::sse_chat_enricher::CompletionChunk,
+    completion_chunk: &super::stream_assembler::CompletionChunk,
 ) -> Option<Vec<ToolCall>> {
     completion_chunk
         .merged
@@ -515,7 +515,7 @@ async fn create_request(
 
     let chat_history = chat_converter::convert_chat_to_messages(chat_history);
 
-    let messages = super::prompt::execute_prompt(
+    let messages = super::context_builder::execute_prompt(
         &transaction,
         prompt.clone(),
         Some(conversation.id),
@@ -563,7 +563,7 @@ async fn create_request(
         }
 
         // Add integration tools from the prompt
-        match super::prompt::get_prompt_integration_tools(&transaction, prompt.id).await {
+        match super::context_builder::get_prompt_integration_tools(&transaction, prompt.id).await {
             Ok(integration_tools) => {
                 tracing::info!("Adding {} integration tools", integration_tools.len());
                 all_tools.extend(integration_tools);

@@ -134,7 +134,7 @@ fn convert_error_to_chats(
 ) -> Vec<(CompletionChunk, String)> {
     let mut messages = vec![{
         let msg = "\n\n*Unable to complete your request due to the following error*";
-        (super::sse_chat_error::string_to_chunk(msg), msg.to_string())
+        (super::stream_errors::string_to_chunk(msg), msg.to_string())
     }];
 
     // Add original context message if provided
@@ -143,18 +143,18 @@ fn convert_error_to_chats(
             "\n\n**Original LLM Provider Response:**\n```\n{}\n```",
             context
         );
-        messages.push((super::sse_chat_error::string_to_chunk(&msg), msg));
+        messages.push((super::stream_errors::string_to_chunk(&msg), msg));
     }
 
     // Add processing error
     messages.extend([
         {
             let msg = format!("\n\n**Processing Error:**\n`{}`", err);
-            (super::sse_chat_error::string_to_chunk(&msg), msg)
+            (super::stream_errors::string_to_chunk(&msg), msg)
         },
         {
             let msg = format!("\n\n```\n{:#?}\n```", err);
-            (super::sse_chat_error::string_to_chunk(&msg), msg)
+            (super::stream_errors::string_to_chunk(&msg), msg)
         },
     ]);
 

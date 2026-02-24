@@ -1,5 +1,5 @@
-use integrations::ToolScope;
-use llm_proxy::user_config::UserConfig;
+use agent_runtime::user_config::UserConfig;
+use tool_runtime::ToolScope;
 
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
@@ -7,7 +7,7 @@ use axum::response::Html;
 use db::authz;
 use db::queries;
 use db::Pool;
-use integrations;
+use tool_runtime;
 use web_pages::console;
 use web_pages::routes::console::Index;
 
@@ -57,7 +57,7 @@ pub async fn index(
 
     // Get available tools from the integrations crate
     let available_tools =
-        integrations::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
+        tool_runtime::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
 
     let html = console::page::new_conversation(
         team_id,

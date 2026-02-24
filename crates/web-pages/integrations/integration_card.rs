@@ -3,7 +3,7 @@ use crate::components::card_item::{CardItem, CountLabel};
 use daisy_rsx::*;
 use db::{IntegrationType, Licence};
 use dioxus::prelude::*;
-use integrations::{BionicOpenAPI, OAuth2Config};
+use tool_runtime::{BionicOpenAPI, OAuth2Config};
 
 #[derive(Clone, PartialEq)]
 pub struct IntegrationSummary {

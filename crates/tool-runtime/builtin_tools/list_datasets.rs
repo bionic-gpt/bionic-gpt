@@ -1,4 +1,4 @@
-use crate::tool::ToolInterface;
+use crate::tool_interface::ToolInterface;
 use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
 use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};

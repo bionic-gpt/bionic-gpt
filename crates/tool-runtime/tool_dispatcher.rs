@@ -1,7 +1,7 @@
-use crate::bionic_openapi::create_tools_from_integrations;
-use crate::system_openapi::get_system_openapi_tools;
-use crate::tool::ToolInterface;
-use crate::tools;
+use crate::builtin_tools;
+use crate::openapi_tool_factory::create_tools_from_integrations;
+use crate::system_tool_sources::get_system_openapi_tools;
+use crate::tool_interface::ToolInterface;
 use db::{queries::prompt_integrations, Pool};
 use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
@@ -87,37 +87,41 @@ pub async fn get_tools(
 
     // Start with internal tools
     let mut tools: Vec<Arc<dyn ToolInterface>> = vec![
-        Arc::new(tools::time_date::TimeDateTool),
-        Arc::new(tools::web::WebTool),
+        Arc::new(builtin_tools::time_date::TimeDateTool),
+        Arc::new(builtin_tools::web::WebTool),
     ];
 
     debug!("Adding attachment tools with database pool");
-    tools.push(Arc::new(tools::list_documents::ListDocumentsTool::new(
-        pool.clone(),
-        sub.clone(),
-        conversation_id,
-    )));
-    tools.push(Arc::new(tools::read_document::ReadDocumentTool::new(
-        pool.clone(),
-        sub.clone(),
-        conversation_id,
-    )));
+    tools.push(Arc::new(
+        builtin_tools::list_documents::ListDocumentsTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        ),
+    ));
+    tools.push(Arc::new(
+        builtin_tools::read_document::ReadDocumentTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        ),
+    ));
 
     debug!("Adding dataset tools with database pool");
-    tools.push(Arc::new(tools::list_datasets::ListDatasetsTool::new(
-        pool.clone(),
-        sub.clone(),
-        prompt_id,
-    )));
     tools.push(Arc::new(
-        tools::list_dataset_files::ListDatasetFilesTool::new(pool.clone(), sub.clone()),
+        builtin_tools::list_datasets::ListDatasetsTool::new(pool.clone(), sub.clone(), prompt_id),
     ));
-    tools.push(Arc::new(tools::search_context::SearchContextTool::new(
-        pool.clone(),
-        sub.clone(),
-        conversation_id,
-        prompt_id,
-    )));
+    tools.push(Arc::new(
+        builtin_tools::list_dataset_files::ListDatasetFilesTool::new(pool.clone(), sub.clone()),
+    ));
+    tools.push(Arc::new(
+        builtin_tools::search_context::SearchContextTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+            prompt_id,
+        ),
+    ));
 
     // Get system OpenAPI tools (Web Search / Code Sandbox)
     match get_system_openapi_tools(pool).await {
@@ -231,7 +235,7 @@ pub async fn execute_tool_call_with_tools(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tools::time_date::TimeDateTool;
+    use crate::builtin_tools::time_date::TimeDateTool;
     use openai_api::{ToolCall, ToolCallFunction};
     use serde_json::json;
 
