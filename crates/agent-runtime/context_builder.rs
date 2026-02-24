@@ -2,21 +2,19 @@ use crate::errors::CustomError;
 use db::queries::{prompt_integrations, prompts};
 use db::Transaction;
 use db::{Chat, ChatRole};
-use rig::message::{AssistantContent, Message, ToolCall as RigToolCall, ToolFunction};
+use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
 use tool_runtime::ToolDefinition;
-use tool_runtime::{create_tools_from_integrations, get_tools, ToolCall, ToolScope};
+use tool_runtime::{
+    create_tools_from_integrations, get_tools, parse_tool_calls, ToolCall, ToolScope,
+};
 
 /// Converts database chats into rig-native messages.
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
     let mut messages: Vec<Message> = Vec::new();
 
     for chat in conversation {
-        let tool_calls: Vec<ToolCall> = chat
-            .tool_calls
-            .as_ref()
-            .and_then(|tool_calls| serde_json::from_str(tool_calls).ok())
-            .unwrap_or_default();
+        let tool_calls: Vec<ToolCall> = parse_tool_calls(chat.tool_calls.as_deref());
 
         let content = chat.content.unwrap_or_default();
 
@@ -28,14 +26,7 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 }
 
                 for tool_call in tool_calls {
-                    items.push(AssistantContent::ToolCall(RigToolCall {
-                        id: tool_call.id,
-                        call_id: None,
-                        function: ToolFunction {
-                            name: tool_call.function.name,
-                            arguments: tool_call.function.arguments,
-                        },
-                    }));
+                    items.push(AssistantContent::ToolCall(tool_call));
                 }
 
                 let content = OneOrMany::many(items)

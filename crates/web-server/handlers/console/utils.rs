@@ -1,8 +1,7 @@
 use crate::CustomError;
 use db::queries::{chats::Chat, chats_chunks};
 use db::{ChatRole, ChatStatus, Transaction};
-use serde_json::from_str;
-use tool_runtime::ToolCall;
+use tool_runtime::parse_tool_calls;
 use web_pages::console::{ChatWithChunks, PendingChat, PendingChatState};
 
 pub fn determine_pending_chat_state(chats: Vec<Chat>) -> (Vec<Chat>, PendingChatState) {
@@ -31,8 +30,9 @@ pub fn determine_pending_chat_state(chats: Vec<Chat>) -> (Vec<Chat>, PendingChat
                     if chat.id == last_chat_id {
                         let tool_calls = chat
                             .tool_calls
-                            .as_ref()
-                            .and_then(|s| from_str::<Vec<ToolCall>>(s).ok());
+                            .as_deref()
+                            .map(|tool_calls_json| parse_tool_calls(Some(tool_calls_json)))
+                            .filter(|calls| !calls.is_empty());
 
                         return (
                             non_pending,

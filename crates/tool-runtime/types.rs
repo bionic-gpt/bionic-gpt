@@ -1,13 +1,12 @@
-use serde::{Deserialize, Serialize};
-
 pub type ToolDefinition = rig::completion::ToolDefinition;
 
 pub type ToolCallFunction = rig::message::ToolFunction;
 pub type ToolCall = rig::message::ToolCall;
+pub type ToolResult = rig::message::ToolResult;
+pub type ToolResultContent = rig::message::ToolResultContent;
 
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
-pub struct ToolCallResult {
-    pub id: String,
-    pub result: serde_json::Value,
-    pub name: String,
+pub fn parse_tool_calls(tool_calls_json: Option<&str>) -> Vec<ToolCall> {
+    tool_calls_json
+        .and_then(|s| serde_json::from_str::<Vec<ToolCall>>(s).ok())
+        .unwrap_or_default()
 }

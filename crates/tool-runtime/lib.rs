@@ -38,4 +38,6 @@ pub use tool_catalog::{
 };
 pub use tool_dispatcher::{execute_tool_call_with_tools, execute_tool_calls};
 pub use tool_interface::ToolInterface;
-pub use types::{ToolCall, ToolCallFunction, ToolCallResult, ToolDefinition};
+pub use types::{
+    parse_tool_calls, ToolCall, ToolCallFunction, ToolDefinition, ToolResult, ToolResultContent,
+};

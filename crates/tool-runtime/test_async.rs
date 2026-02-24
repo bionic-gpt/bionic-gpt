@@ -1,6 +1,6 @@
 use crate::builtin_tools::time_date::TimeDateTool;
 use crate::tool_interface::ToolInterface;
-use crate::types::ToolCall;
+use crate::types::{ToolCall, ToolResultContent};
 use serde_json::json;
 use std::sync::Arc;
 
@@ -49,6 +49,10 @@ async fn test_execute_tool_call_with_tools() {
 
     // Verify the result
     assert_eq!(result.id, "call_123".to_string());
-    assert_eq!(result.name, "get_current_time_and_date".to_string());
-    assert!(result.result["current_time"].is_string());
+    let payload = match result.content.first() {
+        ToolResultContent::Text(text) => text.text,
+        ToolResultContent::Image(_) => String::new(),
+    };
+    let parsed: serde_json::Value = serde_json::from_str(&payload).unwrap_or_default();
+    assert!(parsed["current_time"].is_string());
 }

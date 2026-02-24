@@ -62,7 +62,7 @@ Prompt integrations are stored in the DB. The flow is:
 ## Executing tool calls
 
 `execute_tool_calls` accepts a list of OpenAI-style tool calls and returns
-`ToolCallResult` values. It resolves tool instances (built-in, system OpenAPI,
+rig-native `ToolResult` values. It resolves tool instances (built-in, system OpenAPI,
 external OpenAPI) and dispatches each call via `ToolInterface::execute`.
 
 ## Testing

@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use db::{queries, ChatRole, ChatStatus, Pool};
-use tool_runtime::{execute_tool_calls, ToolCall};
+use tool_runtime::{execute_tool_calls, ToolCall, ToolResultContent};
 
 #[async_trait]
 pub(crate) trait ResultSink: Send + Sync {
@@ -145,15 +145,25 @@ async fn save_results_db(
                 .await;
 
                 for tool_call in tool_call_results {
-                    let result_json = match serde_json::to_string(&tool_call.result) {
-                        Ok(json) => json,
-                        Err(e) => {
-                            tracing::error!("Failed to serialize tool result: {:?}", e);
-                            return;
+                    let result_json = match tool_call.content.first() {
+                        ToolResultContent::Text(text) => text.text,
+                        ToolResultContent::Image(image) => {
+                            match serde_json::to_string(&serde_json::json!({ "image": image })) {
+                                Ok(json) => json,
+                                Err(e) => {
+                                    tracing::error!(
+                                        "Failed to serialize tool result image: {:?}",
+                                        e
+                                    );
+                                    return;
+                                }
+                            }
                         }
                     };
+                    let result_value = serde_json::from_str::<serde_json::Value>(&result_json)
+                        .unwrap_or_else(|_| serde_json::json!({ "content": result_json }));
 
-                    let tool_chat_status = if tool_call.result.get("error").is_some() {
+                    let tool_chat_status = if result_value.get("error").is_some() {
                         ChatStatus::Error
                     } else {
                         ChatStatus::Pending

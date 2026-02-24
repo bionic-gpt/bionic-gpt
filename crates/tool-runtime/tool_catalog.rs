@@ -20,56 +20,54 @@ pub struct IntegrationTool {
     pub definitions_json: String,
 }
 
+fn to_definitions_json(definitions: &[ToolDefinition]) -> String {
+    serde_json::to_string_pretty(definitions).expect("Failed to serialize tool definitions to JSON")
+}
+
+fn integration_tool(
+    title: &str,
+    scope: ToolScope,
+    definitions: Vec<ToolDefinition>,
+) -> IntegrationTool {
+    let definitions_json = to_definitions_json(&definitions);
+    IntegrationTool {
+        title: title.into(),
+        scope,
+        definitions,
+        definitions_json,
+    }
+}
+
 pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
     let mut internal_integrations = vec![
-        IntegrationTool {
-            scope: ToolScope::UserSelectable,
-            title: "Date and time tools".into(),
-            definitions: vec![builtin_tools::time_date::get_time_date_tool()],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::time_date::get_time_date_tool(),
-            ])
-            .expect("Failed to serialize time_date_tool to JSON"),
-        },
-        IntegrationTool {
-            scope: ToolScope::UserSelectable,
-            title: "Web tools".into(),
-            definitions: vec![builtin_tools::web::get_open_url_tool()],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::web::get_open_url_tool(),
-            ])
-            .expect("Failed to serialize web tools to JSON"),
-        },
-        IntegrationTool {
-            scope: ToolScope::DocumentIntelligence,
-            title: "Tools to retrieve documents and read their contents.".into(),
-            definitions: vec![
+        integration_tool(
+            "Date and time tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::time_date::get_time_date_tool()],
+        ),
+        integration_tool(
+            "Web tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::web::get_open_url_tool()],
+        ),
+        integration_tool(
+            "Tools to retrieve documents and read their contents.",
+            ToolScope::DocumentIntelligence,
+            vec![
                 builtin_tools::list_documents::get_tool_definition(),
                 builtin_tools::read_document::get_tool_definition(),
                 //builtin_tools::read_document_section::get_tool_definition(),
             ],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::list_documents::get_tool_definition(),
-                builtin_tools::read_document::get_tool_definition(),
-                //builtin_tools::read_document_section::get_tool_definition(),
-            ])
-            .expect("Failed to serialize attachment tools to JSON"),
-        },
-        IntegrationTool {
-            scope: ToolScope::Rag,
-            title: "Tools to work with datasets".into(),
-            definitions: vec![
+        ),
+        integration_tool(
+            "Tools to work with datasets",
+            ToolScope::Rag,
+            vec![
                 builtin_tools::list_datasets::get_tool_definition(),
                 builtin_tools::list_dataset_files::get_tool_definition(),
                 builtin_tools::search_context::get_tool_definition(),
             ],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::list_datasets::get_tool_definition(),
-                builtin_tools::list_dataset_files::get_tool_definition(),
-                builtin_tools::search_context::get_tool_definition(),
-            ])
-            .expect("Failed to serialize RAG tools to JSON"),
-        },
+        ),
     ];
 
     // Filter by scope if provided
