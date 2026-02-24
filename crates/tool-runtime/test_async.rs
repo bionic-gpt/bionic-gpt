@@ -1,6 +1,6 @@
 use crate::builtin_tools::time_date::TimeDateTool;
-use crate::tool_interface::ToolInterface;
 use crate::types::{ToolCall, ToolResultContent};
+use rig::tool::ToolDyn;
 use serde_json::json;
 use std::sync::Arc;
 
@@ -12,12 +12,12 @@ async fn test_async_tool_execution() {
 
     // Execute the tool
     let result = time_date_tool
-        .execute(&json!({"timezone": "utc", "format": "human_readable"}))
+        .call(json!({"timezone": "utc", "format": "human_readable"}).to_string())
         .await;
 
     // Verify the result
     assert!(result.is_ok());
-    let result_value = result.unwrap();
+    let result_value: serde_json::Value = serde_json::from_str(&result.unwrap()).unwrap();
     assert!(result_value["current_time"].is_string());
     assert!(result_value["timestamp"].is_number());
     assert!(result_value["timezone"].is_string());
@@ -31,8 +31,8 @@ async fn test_execute_tool_call_with_tools() {
     use crate::types::ToolCallFunction;
 
     // Create a TimeDateTool instance
-    let time_date_tool: Arc<dyn ToolInterface> = Arc::new(TimeDateTool);
-    let tools: Vec<Arc<dyn ToolInterface>> = vec![time_date_tool];
+    let time_date_tool: Arc<dyn ToolDyn> = Arc::new(TimeDateTool);
+    let tools: Vec<Arc<dyn ToolDyn>> = vec![time_date_tool];
 
     // Create a tool call
     let tool_call = ToolCall {

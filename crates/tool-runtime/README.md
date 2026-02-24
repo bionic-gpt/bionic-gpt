@@ -6,7 +6,7 @@ supports both built-in tools and OpenAPI-based external integrations.
 
 ## What it does
 
-- Defines a common `ToolInterface` for all tools.
+- Uses rig's `ToolDyn` trait for all executable tools.
 - Registers built-in tools (time, web, datasets, documents, RAG search).
 - Loads system-level OpenAPI specs (web search / code sandbox) and converts them
   into tools.
@@ -16,7 +16,7 @@ supports both built-in tools and OpenAPI-based external integrations.
 
 ## Key modules
 
-- `tool_interface.rs`: `ToolInterface` trait (definition + execute).
+- `builtin_tools/` and OpenAPI adapters implement rig `ToolDyn`.
 - `tool_catalog.rs`: catalog of built-in tools and tool scopes.
 - `tool_dispatcher.rs`: resolve tool instances and execute tool calls.
 - `openapi_tool_factory.rs`: OpenAPI v3 parsing and tool definition generation.
@@ -63,7 +63,7 @@ Prompt integrations are stored in the DB. The flow is:
 
 `execute_tool_calls` accepts a list of OpenAI-style tool calls and returns
 rig-native `ToolResult` values. It resolves tool instances (built-in, system OpenAPI,
-external OpenAPI) and dispatches each call via `ToolInterface::execute`.
+external OpenAPI) and dispatches each call via `ToolDyn::call`.
 
 ## Testing
 

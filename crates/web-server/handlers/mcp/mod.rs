@@ -643,11 +643,12 @@ pub async fn handle_json_rpc(
                 }
             };
 
-            match tool.execute(&argument_payload).await {
-                Ok(result) => {
-                    let text = match result {
-                        Value::String(text) => text,
-                        other => other.to_string(),
+            match tool.call(argument_payload.to_string()).await {
+                Ok(result_json) => {
+                    let text = match serde_json::from_str::<Value>(&result_json) {
+                        Ok(Value::String(text)) => text,
+                        Ok(other) => other.to_string(),
+                        Err(_) => result_json,
                     };
 
                     let response_payload = json!({
@@ -668,7 +669,7 @@ pub async fn handle_json_rpc(
                         request_id.clone(),
                         -32002,
                         "Tool execution failed".to_string(),
-                        Some(error),
+                        Some(json!({ "details": error.to_string() })),
                     );
                     Ok(json_response(response))
                 }

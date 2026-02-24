@@ -1,9 +1,9 @@
-use crate::tool_interface::ToolInterface;
 use crate::types::ToolDefinition;
-use async_trait::async_trait;
 use futures_util::StreamExt;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::Url;
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde_json::{json, Value};
 use std::fmt;
 
@@ -12,32 +12,32 @@ const MAX_FETCH_BYTES: usize = 64 * 1024; // fetch enough HTML to reach body tex
 
 /// Error type returned by the web tool
 #[derive(Debug)]
-pub enum ToolError {
+pub enum WebToolError {
     InvalidUrl(String),
     Request(String),
 }
 
-impl fmt::Display for ToolError {
+impl fmt::Display for WebToolError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ToolError::InvalidUrl(u) => write!(f, "Invalid URL: {}", u),
-            ToolError::Request(e) => write!(f, "Request error: {}", e),
+            WebToolError::InvalidUrl(u) => write!(f, "Invalid URL: {}", u),
+            WebToolError::Request(e) => write!(f, "Request error: {}", e),
         }
     }
 }
 
-impl std::error::Error for ToolError {}
+impl std::error::Error for WebToolError {}
 
 /// Fetches the plain text content from the given URL
-pub async fn open_url(url: String) -> Result<String, ToolError> {
-    let parsed = Url::parse(&url).map_err(|_| ToolError::InvalidUrl(url.clone()))?;
+pub async fn open_url(url: String) -> Result<String, WebToolError> {
+    let parsed = Url::parse(&url).map_err(|_| WebToolError::InvalidUrl(url.clone()))?;
 
     let response = reqwest::get(parsed)
         .await
-        .map_err(|e| ToolError::Request(e.to_string()))?;
+        .map_err(|e| WebToolError::Request(e.to_string()))?;
 
     if !response.status().is_success() {
-        return Err(ToolError::Request(format!("HTTP {}", response.status())));
+        return Err(WebToolError::Request(format!("HTTP {}", response.status())));
     }
 
     let content_type = response
@@ -51,7 +51,7 @@ pub async fn open_url(url: String) -> Result<String, ToolError> {
     let is_text = content_type.starts_with("text/") || content_type.is_empty();
 
     if !is_html && !is_text {
-        return Err(ToolError::Request(format!(
+        return Err(WebToolError::Request(format!(
             "Unsupported content type: {}",
             content_type
         )));
@@ -60,7 +60,7 @@ pub async fn open_url(url: String) -> Result<String, ToolError> {
     let mut stream = response.bytes_stream();
     let mut buffer: Vec<u8> = Vec::new();
     while let Some(chunk) = stream.next().await {
-        let chunk = chunk.map_err(|e| ToolError::Request(e.to_string()))?;
+        let chunk = chunk.map_err(|e| WebToolError::Request(e.to_string()))?;
         if buffer.len() + chunk.len() > MAX_FETCH_BYTES {
             let remaining = MAX_FETCH_BYTES - buffer.len();
             buffer.extend_from_slice(&chunk[..remaining]);
@@ -73,7 +73,8 @@ pub async fn open_url(url: String) -> Result<String, ToolError> {
     let body = String::from_utf8_lossy(&buffer).to_string();
 
     let parsed = if is_html {
-        html2text::from_read(body.as_bytes(), 120).map_err(|e| ToolError::Request(e.to_string()))?
+        html2text::from_read(body.as_bytes(), 120)
+            .map_err(|e| WebToolError::Request(e.to_string()))?
     } else {
         body
     };
@@ -95,21 +96,34 @@ fn truncate_bytes(mut text: String, max_bytes: usize) -> String {
 /// A tool that fetches a URL and returns the page text
 pub struct WebTool;
 
-#[async_trait]
-impl ToolInterface for WebTool {
-    fn get_tool(&self) -> ToolDefinition {
-        get_open_url_tool()
+async fn execute_web(arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
+    let url = arguments["url"]
+        .as_str()
+        .ok_or_else(|| json!({"error": "Missing url"}))?;
+
+    match open_url(url.to_string()).await {
+        Ok(content) => Ok(json!({"content": content})),
+        Err(e) => Err(json!({"error": e.to_string()})),
+    }
+}
+
+impl ToolDyn for WebTool {
+    fn name(&self) -> String {
+        get_open_url_tool().name
     }
 
-    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
-        let url = arguments["url"]
-            .as_str()
-            .ok_or_else(|| json!({"error": "Missing url"}))?;
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_open_url_tool() })
+    }
 
-        match open_url(url.to_string()).await {
-            Ok(content) => Ok(json!({"content": content})),
-            Err(e) => Err(json!({"error": e.to_string()})),
-        }
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_web(&arguments).await.map_err(|err| {
+                ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+            })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 

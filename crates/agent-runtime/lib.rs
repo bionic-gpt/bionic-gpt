@@ -1,3 +1,4 @@
+mod chat_request;
 mod context_builder;
 mod errors;
 mod jwt;

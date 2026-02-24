@@ -1,8 +1,8 @@
 use crate::openapi_tool_factory::BionicOpenAPI;
 use crate::tool_auth::StaticTokenProvider;
-use crate::tool_interface::ToolInterface;
 use crate::types::ToolDefinition;
 use db::{queries, OpenapiSpec, OpenapiSpecCategory, Pool};
+use rig::tool::ToolDyn;
 use std::sync::Arc;
 
 #[derive(Clone, Debug)]
@@ -92,7 +92,7 @@ pub async fn get_system_openapi_tool_definitions(
     Ok(definitions)
 }
 
-pub async fn get_system_openapi_tools(pool: &Pool) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
+pub async fn get_system_openapi_tools(pool: &Pool) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
     let mut tools = Vec::new();
     for (openapi, api_key) in load_selected_helpers(pool).await? {
         let token_provider = api_key.map(|key| Arc::new(StaticTokenProvider::new(key)) as Arc<_>);

@@ -1,7 +1,7 @@
-use crate::tool_interface::ToolInterface;
 use crate::types::ToolDefinition;
-use async_trait::async_trait;
 use db::{Pool, Transaction};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde_json::{json, Value};
 use tracing;
 
@@ -42,63 +42,82 @@ pub fn get_tool_definition() -> ToolDefinition {
     }
 }
 
-#[async_trait]
-impl ToolInterface for ListDocumentsTool {
-    fn get_tool(&self) -> ToolDefinition {
-        tracing::debug!("Getting tool definition for ListDocumentsTool");
-        get_tool_definition()
+#[tracing::instrument(skip(tool, arguments), fields(conversation_id = ?tool.conversation_id, sub = ?tool.sub))]
+async fn execute_list_documents(
+    tool: &ListDocumentsTool,
+    arguments: &Value,
+) -> Result<serde_json::Value, serde_json::Value> {
+    tracing::info!(
+        "Executing list_documents tool with arguments: {}",
+        arguments
+    );
+
+    // Create transaction
+    let mut client = match tool.pool.get().await {
+        Ok(client) => client,
+        Err(e) => {
+            return Err(json!({
+                "error": "Failed to get database client",
+                "details": e.to_string()
+            }));
+        }
+    };
+
+    let transaction = match client.transaction().await {
+        Ok(transaction) => transaction,
+        Err(e) => {
+            return Err(json!({
+                "error": "Failed to create transaction",
+                "details": e.to_string()
+            }));
+        }
+    };
+
+    // Set row-level security
+    if let Err(e) = db::authz::set_row_level_security_user_id(&transaction, tool.sub.clone()).await
+    {
+        return Err(json!({
+            "error": "Failed to set row level security",
+            "details": e.to_string()
+        }));
     }
 
-    #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
-    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
-        tracing::info!(
-            "Executing list_documents tool with arguments: {}",
-            arguments
-        );
+    // Use the conversation ID to get documents
+    let result = list_documents(&transaction, tool.conversation_id).await;
 
-        // Create transaction
-        let mut client = match self.pool.get().await {
-            Ok(client) => client,
-            Err(e) => {
-                return Err(json!({
-                    "error": "Failed to get database client",
-                    "details": e.to_string()
-                }));
-            }
-        };
+    // Commit transaction
+    if let Err(e) = transaction.commit().await {
+        return Err(json!({
+            "error": "Failed to commit transaction",
+            "details": e.to_string()
+        }));
+    }
 
-        let transaction = match client.transaction().await {
-            Ok(transaction) => transaction,
-            Err(e) => {
-                return Err(json!({
-                    "error": "Failed to create transaction",
-                    "details": e.to_string()
-                }));
-            }
-        };
+    result
+}
 
-        // Set row-level security
-        if let Err(e) =
-            db::authz::set_row_level_security_user_id(&transaction, self.sub.clone()).await
-        {
-            return Err(json!({
-                "error": "Failed to set row level security",
-                "details": e.to_string()
-            }));
-        }
+impl ToolDyn for ListDocumentsTool {
+    fn name(&self) -> String {
+        get_tool_definition().name
+    }
 
-        // Use the conversation ID to get documents
-        let result = list_documents(&transaction, self.conversation_id).await;
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move {
+            tracing::debug!("Getting tool definition for ListDocumentsTool");
+            get_tool_definition()
+        })
+    }
 
-        // Commit transaction
-        if let Err(e) = transaction.commit().await {
-            return Err(json!({
-                "error": "Failed to commit transaction",
-                "details": e.to_string()
-            }));
-        }
-
-        result
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_list_documents(self, &arguments)
+                .await
+                .map_err(|err| {
+                    ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+                })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 

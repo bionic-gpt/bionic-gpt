@@ -1,9 +1,9 @@
 use crate::token_count;
-use crate::tool_interface::ToolInterface;
 use crate::types::ToolDefinition;
-use async_trait::async_trait;
 use db::Pool;
 use rag_engine::unstructured::{document_to_chunks, Unstructured};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde::Deserialize;
 use serde_json::{json, Value};
 
@@ -77,79 +77,103 @@ fn accumulate_sections(
     )
 }
 
-#[async_trait]
-impl ToolInterface for ReadDocumentTool {
-    fn get_tool(&self) -> ToolDefinition {
-        get_tool_definition()
-    }
+async fn execute_read_document(
+    tool: &ReadDocumentTool,
+    arguments: &Value,
+) -> Result<serde_json::Value, serde_json::Value> {
+    let params: ReadDocumentParams = serde_json::from_value(arguments.clone())
+        .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
 
-    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
-        let params: ReadDocumentParams = serde_json::from_value(arguments.clone())
-            .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
-
-        let mut client = self.pool.get().await.map_err(
+    let mut client =
+        tool.pool.get().await.map_err(
             |e| json!({"error": "Failed to get DB connection", "details": e.to_string()}),
         )?;
-        let transaction = client.transaction().await.map_err(
-            |e| json!({"error": "Failed to start transaction", "details": e.to_string()}),
-        )?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
 
-        db::authz::set_row_level_security_user_id(&transaction, self.sub.clone())
-            .await
-            .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+    db::authz::set_row_level_security_user_id(&transaction, tool.sub.clone())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
 
-        let context_size = db::queries::conversations::conversation_context_size()
-            .bind(&transaction, &self.conversation_id)
+    let context_size = db::queries::conversations::conversation_context_size()
+        .bind(&transaction, &tool.conversation_id)
+        .one()
+        .await
+        .map_err(|e| {
+            json!({
+                "error": "Failed to fetch conversation",
+                "details": e.to_string()
+            })
+        })?
+        .context_size;
+
+    let max_tokens = context_size / 2;
+
+    let content = if let Some(file_id) = params.file_id {
+        db::queries::attachments::get_content()
+            .bind(&transaction, &file_id)
             .one()
             .await
-            .map_err(|e| {
-                json!({
-                    "error": "Failed to fetch conversation",
-                    "details": e.to_string()
-                })
-            })?
-            .context_size;
+            .map_err(
+                |e| json!({"error": "Failed to get attachment content", "details": e.to_string()}),
+            )?
+    } else {
+        match db::queries::attachments::get_latest_content()
+            .bind(&transaction, &tool.conversation_id)
+            .opt()
+            .await
+            .map_err(
+                |e| json!({"error": "Failed to get attachment content", "details": e.to_string()}),
+            )? {
+            Some(content) => content,
+            None => return Err(json!({"error": "No attachments found"})),
+        }
+    };
 
-        let max_tokens = context_size / 2;
+    let bytes = content.object_data;
+    let config = rag_engine::config::Config::new();
+    let sections = document_to_chunks(
+        bytes,
+        &content.file_name,
+        500,
+        1500,
+        true,
+        &config.unstructured_endpoint,
+    )
+    .await
+    .map_err(|e| json!({"error": "Document processing failed", "details": e.to_string()}))?;
 
-        let content = if let Some(file_id) = params.file_id {
-            db::queries::attachments::get_content()
-                .bind(&transaction, &file_id)
-                .one()
+    let start = params.section_index.min(sections.len());
+    let (text, sections_read, has_more) = accumulate_sections(&sections, start, max_tokens);
+
+    Ok(json!({
+        "text": text,
+        "sections_read": sections_read,
+        "has_more": has_more
+    }))
+}
+
+impl ToolDyn for ReadDocumentTool {
+    fn name(&self) -> String {
+        get_tool_definition().name
+    }
+
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_tool_definition() })
+    }
+
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_read_document(self, &arguments)
                 .await
-                .map_err(|e| json!({"error": "Failed to get attachment content", "details": e.to_string()}))?
-        } else {
-            match db::queries::attachments::get_latest_content()
-                .bind(&transaction, &self.conversation_id)
-                .opt()
-                .await
-                .map_err(|e| json!({"error": "Failed to get attachment content", "details": e.to_string()}))? {
-                Some(content) => content,
-                None => return Err(json!({"error": "No attachments found"})),
-            }
-        };
-
-        let bytes = content.object_data;
-        let config = rag_engine::config::Config::new();
-        let sections = document_to_chunks(
-            bytes,
-            &content.file_name,
-            500,
-            1500,
-            true,
-            &config.unstructured_endpoint,
-        )
-        .await
-        .map_err(|e| json!({"error": "Document processing failed", "details": e.to_string()}))?;
-
-        let start = params.section_index.min(sections.len());
-        let (text, sections_read, has_more) = accumulate_sections(&sections, start, max_tokens);
-
-        Ok(json!({
-            "text": text,
-            "sections_read": sections_read,
-            "has_more": has_more
-        }))
+                .map_err(|err| {
+                    ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+                })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 

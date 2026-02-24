@@ -1,28 +1,26 @@
+use crate::chat_request::{create_request, RigChatRequest};
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
-use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
 use crate::result_sink::DbResultSink;
 pub(crate) use crate::result_sink::ResultSink;
 use crate::user_config::UserConfig;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
-use db::{queries, ChatRole, ChatStatus, Pool};
+use db::{ChatStatus, Pool};
 use rig::client::CompletionClient;
-use rig::completion::{CompletionModel as _, CompletionRequest, Message as RigMessage};
+use rig::completion::CompletionModel as _;
 use rig::providers::openai;
 use rig::streaming::StreamedAssistantContent;
-use rig::OneOrMany;
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
-use tool_runtime::{
-    get_chat_tools_user_selected_with_system_openapi, get_tools, ToolCall, ToolScope,
-};
+use tool_runtime::ToolCall;
 
 use super::{limits, UICompletions};
 
+/// Formats an SSE message for a streaming text chunk.
 fn event_data_for_text(delta: String) -> String {
     json!({
         "type": "text_delta",
@@ -33,6 +31,7 @@ fn event_data_for_text(delta: String) -> String {
     .to_string()
 }
 
+/// Formats an SSE message for stream completion.
 fn event_data_for_done() -> String {
     json!({
         "type": "done",
@@ -41,6 +40,7 @@ fn event_data_for_done() -> String {
     .to_string()
 }
 
+/// Formats an SSE error event payload.
 fn event_data_for_error(message: String) -> Event {
     Event::default().data(
         json!({
@@ -73,6 +73,7 @@ enum StreamOutcome {
     },
 }
 
+/// Converts generation events into SSE events and persists the final result.
 pub(crate) fn build_event_stream<S>(
     receiver_stream: S,
     result_sink: Arc<dyn ResultSink>,
@@ -113,6 +114,7 @@ where
     })
 }
 
+/// Handles `/completions/{chat_id}` and streams model output to the client.
 pub async fn chat_generate(
     UICompletions { chat_id }: UICompletions,
     current_user: Jwt,
@@ -196,15 +198,7 @@ pub async fn chat_generate(
     }
 }
 
-struct RigChatRequest {
-    model_name: String,
-    base_url: String,
-    api_key: Option<String>,
-    completion: CompletionRequest,
-    model_id: i32,
-    user_id: i32,
-}
-
+/// Executes a streaming rig completion and publishes intermediate events.
 async fn stream_chat_with_rig(
     request: RigChatRequest,
     sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
@@ -275,182 +269,4 @@ async fn stream_chat_with_rig(
     }
 
     Ok(StreamOutcome::Completed)
-}
-
-async fn create_request(
-    pool: &Pool,
-    current_user: &Jwt,
-    chat_id: i32,
-    user_config: &UserConfig,
-) -> Result<RigChatRequest, CustomError> {
-    let mut db_client = pool.get().await?;
-    let transaction = db_client.transaction().await?;
-    db::authz::set_row_level_security_user_id(&transaction, current_user.sub.to_string()).await?;
-
-    let model = queries::models::model_host_by_chat_id()
-        .bind(&transaction, &chat_id)
-        .one()
-        .await?;
-
-    let capabilities = queries::capabilities::get_model_capabilities()
-        .bind(&transaction, &model.id)
-        .all()
-        .await?;
-
-    let chat = queries::chats::chat()
-        .bind(&transaction, &chat_id)
-        .one()
-        .await?;
-
-    let conversation = queries::conversations::get_conversation_from_chat()
-        .bind(&transaction, &chat_id)
-        .one()
-        .await?;
-
-    let attachment_count = queries::conversations::count_attachments()
-        .bind(&transaction, &conversation.id)
-        .one()
-        .await?;
-
-    let prompt = queries::prompts::prompt()
-        .bind(&transaction, &chat.prompt_id, &conversation.team_id)
-        .one()
-        .await?;
-
-    let chat_history = queries::chats::chat_history()
-        .bind(
-            &transaction,
-            &conversation.id,
-            &(prompt.max_history_items as i64),
-        )
-        .all()
-        .await?;
-
-    let chat_history = super::context_builder::convert_chat_to_messages(chat_history);
-
-    let messages = super::context_builder::execute_prompt(
-        &transaction,
-        prompt.clone(),
-        Some(conversation.id),
-        chat_history,
-    )
-    .await?;
-
-    let size = crate::token_count::token_count(messages.clone());
-
-    queries::token_usage_metrics::create_token_usage_metric()
-        .bind(
-            &transaction,
-            &Some(chat_id),
-            &None::<i32>,
-            &db::TokenUsageType::Prompt,
-            &size,
-            &None::<i32>,
-        )
-        .one()
-        .await?;
-
-    queries::chats::set_chat_status()
-        .bind(&transaction, &ChatStatus::InProgress, &chat_id)
-        .await?;
-
-    let tools = if capabilities
-        .iter()
-        .any(|c| c.capability == db::ModelCapability::tool_use)
-    {
-        let mut all_tools = get_chat_tools_user_selected_with_system_openapi(
-            pool,
-            user_config.enabled_tools.as_ref(),
-        )
-        .await;
-
-        if attachment_count > 0 {
-            all_tools.extend(get_tools(ToolScope::DocumentIntelligence));
-        }
-
-        if let Ok(integration_tools) =
-            super::context_builder::get_prompt_integration_tools(&transaction, prompt.id).await
-        {
-            all_tools.extend(integration_tools);
-        }
-
-        if all_tools.is_empty() {
-            None
-        } else {
-            Some(all_tools)
-        }
-    } else {
-        None
-    };
-
-    if capabilities
-        .iter()
-        .any(|c| c.capability == db::ModelCapability::Guarded)
-    {
-        let guard_model = queries::models::models()
-            .bind(&transaction, &db::ModelType::Guard)
-            .one()
-            .await?;
-
-        let sanitized = strip_tool_data(&messages);
-        match moderate_chat(
-            &guard_model.base_url,
-            guard_model.api_key.as_deref(),
-            &guard_model.name,
-            sanitized,
-        )
-        .await
-        {
-            Ok(ModerationVerdict::Safe) => {}
-            Ok(ModerationVerdict::Unsafe(code)) => {
-                queries::chats::new_chat()
-                    .bind(
-                        &transaction,
-                        &conversation.id,
-                        &chat.prompt_id,
-                        &None::<String>,
-                        &None::<String>,
-                        &"Your question violated our guidelines",
-                        &ChatRole::Assistant,
-                        &ChatStatus::Error,
-                    )
-                    .one()
-                    .await?;
-                queries::prompt_flags::insert_prompt_flag()
-                    .bind(&transaction, &chat_id, &code)
-                    .await?;
-                transaction.commit().await?;
-                return Err(CustomError::FaultySetup("Moderation failed".into()));
-            }
-            Err(status) => {
-                transaction.commit().await?;
-                return Err(CustomError::FaultySetup(format!(
-                    "Moderation failed: {status}"
-                )));
-            }
-        }
-    }
-
-    transaction.commit().await?;
-
-    let completion = CompletionRequest {
-        preamble: None,
-        chat_history: OneOrMany::many(messages)
-            .unwrap_or_else(|_| OneOrMany::one(RigMessage::user(""))),
-        documents: vec![],
-        tools: tools.unwrap_or_default(),
-        temperature: prompt.temperature.map(|t| t as f64),
-        max_tokens: prompt.max_completion_tokens.map(|t| t as u64),
-        tool_choice: None,
-        additional_params: None,
-    };
-
-    Ok(RigChatRequest {
-        model_name: model.name,
-        base_url: model.base_url,
-        api_key: model.api_key,
-        completion,
-        model_id: model.id,
-        user_id: conversation.user_id,
-    })
 }

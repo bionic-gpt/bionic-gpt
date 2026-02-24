@@ -4,7 +4,6 @@
 //! based on OpenAPI operation definitions.
 
 use crate::tool_auth::TokenProvider;
-use crate::tool_interface::ToolInterface;
 use async_trait::async_trait;
 use oas3::{
     self,
@@ -13,6 +12,8 @@ use oas3::{
 
 use crate::types::ToolDefinition;
 use reqwest::{Client, Method, StatusCode, Url};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde_json::Value;
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, OnceLock};
@@ -211,124 +212,141 @@ impl OpenApiTool {
     }
 }
 
-#[async_trait]
-impl ToolInterface for OpenApiTool {
-    fn get_tool(&self) -> ToolDefinition {
-        self.definition.clone()
+async fn execute_openapi_tool(
+    tool: &OpenApiTool,
+    arguments: &Value,
+) -> Result<serde_json::Value, serde_json::Value> {
+    tracing::info!(
+        "Executing OpenAPI tool {} with arguments: {}",
+        tool.name(),
+        arguments
+    );
+
+    // Find operation details by operation_id
+    let (path, method, operation) = tool
+        .find_operation_details()
+        .map_err(|e| crate::json_error("Operation not found", e))?;
+
+    // Parse arguments
+    let args: Value = arguments.clone();
+
+    // Separate path, query, and request body parameters
+    let (path_params, query_params, request_body_params) = separate_parameters(&args, operation)
+        .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
+
+    tracing::debug!(
+        "Separated parameters - Path: {}, Query: {}, Request Body: {}",
+        serde_json::to_string(&path_params).unwrap_or_default(),
+        serde_json::to_string(&query_params).unwrap_or_default(),
+        serde_json::to_string(&request_body_params).unwrap_or_default()
+    );
+
+    // Substitute path parameters in the URL using only path params
+    let path_with_params = substitute_path_parameters(&path, &path_params, operation)
+        .map_err(|e| crate::json_error("Failed to substitute path parameters", e))?;
+
+    // Construct the final URL and append query parameters
+    let mut url = Url::parse(&format!("{}{}", tool.base_url, path_with_params))
+        .map_err(|e| crate::json_error("Invalid URL", e))?;
+    if let Some(obj) = query_params.as_object() {
+        if !obj.is_empty() {
+            let mut pairs = url.query_pairs_mut();
+            for (k, v) in obj {
+                let value = match v {
+                    Value::String(s) => s.clone(),
+                    Value::Number(n) => n.to_string(),
+                    Value::Bool(b) => b.to_string(),
+                    _ => v.to_string(),
+                };
+                pairs.append_pair(k, &value);
+            }
+        }
+    }
+    tracing::debug!("Making request to URL: {} using method: {}", url, method);
+
+    // Determine if we should send a request body
+    let body_obj = request_body_params.as_object();
+    let has_request_body = body_obj.is_some_and(|obj| !obj.is_empty());
+    if body_obj.is_none() {
+        return Err(serde_json::json!({
+            "error": "Malformed request body arguments"
+        }));
     }
 
-    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
-        tracing::info!(
-            "Executing OpenAPI tool {} with arguments: {}",
-            self.name(),
-            arguments
-        );
+    // Parse the HTTP method
+    let http_method: Method = method
+        .parse()
+        .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
 
-        // Find operation details by operation_id
-        let (path, method, operation) = self
-            .find_operation_details()
-            .map_err(|e| crate::json_error("Operation not found", e))?;
+    let body = if has_request_body {
+        Some(request_body_params.clone())
+    } else {
+        None
+    };
 
-        // Parse arguments
-        let args: Value = arguments.clone();
+    let mut response = tool
+        .client
+        .send(
+            http_method.clone(),
+            url.clone(),
+            tool.collect_headers().await,
+            body.clone(),
+        )
+        .await
+        .map_err(|e| crate::json_error("Failed to make request", e))?;
 
-        // Separate path, query, and request body parameters
-        let (path_params, query_params, request_body_params) =
-            separate_parameters(&args, operation)
-                .map_err(|e| crate::json_error("Failed to separate parameters", e))?;
-
-        tracing::debug!(
-            "Separated parameters - Path: {}, Query: {}, Request Body: {}",
-            serde_json::to_string(&path_params).unwrap_or_default(),
-            serde_json::to_string(&query_params).unwrap_or_default(),
-            serde_json::to_string(&request_body_params).unwrap_or_default()
-        );
-
-        // Substitute path parameters in the URL using only path params
-        let path_with_params = substitute_path_parameters(&path, &path_params, operation)
-            .map_err(|e| crate::json_error("Failed to substitute path parameters", e))?;
-
-        // Construct the final URL and append query parameters
-        let mut url = Url::parse(&format!("{}{}", self.base_url, path_with_params))
-            .map_err(|e| crate::json_error("Invalid URL", e))?;
-        if let Some(obj) = query_params.as_object() {
-            if !obj.is_empty() {
-                let mut pairs = url.query_pairs_mut();
-                for (k, v) in obj {
-                    let value = match v {
-                        Value::String(s) => s.clone(),
-                        Value::Number(n) => n.to_string(),
-                        Value::Bool(b) => b.to_string(),
-                        _ => v.to_string(),
-                    };
-                    pairs.append_pair(k, &value);
-                }
-            }
+    if response.status == StatusCode::UNAUTHORIZED {
+        if let Some(provider) = &tool.token_provider {
+            tracing::info!("Received 401 response; forcing token refresh and retrying");
+            provider.force_refresh().await;
+            response = tool
+                .client
+                .send(http_method, url, tool.collect_headers().await, body.clone())
+                .await
+                .map_err(|e| crate::json_error("Failed to make request", e))?;
         }
-        tracing::debug!("Making request to URL: {} using method: {}", url, method);
+    }
 
-        // Determine if we should send a request body
-        let body_obj = request_body_params.as_object();
-        let has_request_body = body_obj.is_some_and(|obj| !obj.is_empty());
-        if body_obj.is_none() {
-            return Err(serde_json::json!({
-                "error": "Malformed request body arguments"
-            }));
-        }
+    // Check if the request was successful
+    if !response.status.is_success() {
+        return Err(serde_json::json!({
+            "error": "Request failed",
+            "status": response.status.to_string()
+        }));
+    }
 
-        // Parse the HTTP method
-        let http_method: Method = method
-            .parse()
-            .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
+    // Parse the response
+    let response_text = response.body;
 
-        let body = if has_request_body {
-            Some(request_body_params.clone())
-        } else {
-            None
-        };
+    // Try to parse as JSON, fallback to text if it fails
+    match serde_json::from_str::<serde_json::Value>(&response_text) {
+        Ok(json_value) => Ok(json_value),
+        Err(_) => Ok(serde_json::json!({
+            "content": response_text,
+            "content_type": "text"
+        })),
+    }
+}
 
-        let mut response = self
-            .client
-            .send(
-                http_method.clone(),
-                url.clone(),
-                self.collect_headers().await,
-                body.clone(),
-            )
-            .await
-            .map_err(|e| crate::json_error("Failed to make request", e))?;
+impl ToolDyn for OpenApiTool {
+    fn name(&self) -> String {
+        self.definition.name.clone()
+    }
 
-        if response.status == StatusCode::UNAUTHORIZED {
-            if let Some(provider) = &self.token_provider {
-                tracing::info!("Received 401 response; forcing token refresh and retrying");
-                provider.force_refresh().await;
-                response = self
-                    .client
-                    .send(http_method, url, self.collect_headers().await, body.clone())
-                    .await
-                    .map_err(|e| crate::json_error("Failed to make request", e))?;
-            }
-        }
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { self.definition.clone() })
+    }
 
-        // Check if the request was successful
-        if !response.status.is_success() {
-            return Err(serde_json::json!({
-                "error": "Request failed",
-                "status": response.status.to_string()
-            }));
-        }
-
-        // Parse the response
-        let response_text = response.body;
-
-        // Try to parse as JSON, fallback to text if it fails
-        match serde_json::from_str::<serde_json::Value>(&response_text) {
-            Ok(json_value) => Ok(json_value),
-            Err(_) => Ok(serde_json::json!({
-                "content": response_text,
-                "content_type": "text"
-            })),
-        }
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_openapi_tool(self, &arguments)
+                .await
+                .map_err(|err| {
+                    ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+                })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 
@@ -813,7 +831,8 @@ mod tests {
             client.clone(),
         );
 
-        let result = tool.execute(&json!({})).await.unwrap();
+        let result_json = tool.call("{}".to_string()).await.unwrap();
+        let result: Value = serde_json::from_str(&result_json).unwrap();
         assert_eq!(result, json!({"ok": true}));
 
         let headers = client.captured_headers().await;

@@ -1,22 +1,29 @@
-use crate::tool_interface::ToolInterface;
 use crate::types::ToolDefinition;
-use async_trait::async_trait;
 use chrono::{Local, Utc};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde_json::{json, Value};
 
 /// A tool that provides current time and date information
 pub struct TimeDateTool;
 
-#[async_trait]
-impl ToolInterface for TimeDateTool {
-    fn get_tool(&self) -> ToolDefinition {
-        get_time_date_tool()
+impl ToolDyn for TimeDateTool {
+    fn name(&self) -> String {
+        get_time_date_tool().name
     }
 
-    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
-        // Since execute_time_date_tool is synchronous, we can just call it
-        // It will be automatically wrapped in a future
-        execute_time_date_tool(arguments)
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_time_date_tool() })
+    }
+
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_time_date_tool(&arguments).map_err(|err| {
+                ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+            })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 

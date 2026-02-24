@@ -1,10 +1,10 @@
-use crate::tool_interface::ToolInterface;
 use crate::types::ToolDefinition;
-use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
 use rig::client::EmbeddingsClient;
 use rig::embeddings::EmbeddingModel;
 use rig::providers::{ollama, openai};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde::Deserialize;
 use serde_json::json;
 
@@ -170,52 +170,70 @@ async fn search_context(
     Ok(json!({"chunks": chunks_json}))
 }
 
-#[async_trait]
-impl ToolInterface for SearchContextTool {
-    fn get_tool(&self) -> ToolDefinition {
-        get_tool_definition()
+async fn execute_search_context(
+    tool: &SearchContextTool,
+    arguments: &serde_json::Value,
+) -> Result<serde_json::Value, serde_json::Value> {
+    let params: SearchContextParams = serde_json::from_value(arguments.clone())
+        .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
+
+    let limit = params.limit.unwrap_or(5);
+
+    let mut client = tool
+        .pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, tool.sub.clone())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let result = search_context(
+        &transaction,
+        tool.prompt_id,
+        tool.conversation_id,
+        &params.query,
+        limit,
+    )
+    .await;
+
+    if result.is_ok() {
+        transaction
+            .commit()
+            .await
+            .map_err(|e| json!({"error": "Failed to commit", "details": e.to_string()}))?;
+    } else {
+        transaction.rollback().await.ok();
     }
 
-    async fn execute(
-        &self,
-        arguments: &serde_json::Value,
-    ) -> Result<serde_json::Value, serde_json::Value> {
-        let params: SearchContextParams = serde_json::from_value(arguments.clone())
-            .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
+    result
+}
 
-        let limit = params.limit.unwrap_or(5);
+impl ToolDyn for SearchContextTool {
+    fn name(&self) -> String {
+        get_tool_definition().name
+    }
 
-        let mut client =
-            self.pool.get().await.map_err(
-                |e| json!({"error": "Failed to get DB client", "details": e.to_string()}),
-            )?;
-        let transaction = client.transaction().await.map_err(
-            |e| json!({"error": "Failed to start transaction", "details": e.to_string()}),
-        )?;
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_tool_definition() })
+    }
 
-        db::authz::set_row_level_security_user_id(&transaction, self.sub.clone())
-            .await
-            .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
-
-        let result = search_context(
-            &transaction,
-            self.prompt_id,
-            self.conversation_id,
-            &params.query,
-            limit,
-        )
-        .await;
-
-        if result.is_ok() {
-            transaction
-                .commit()
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: serde_json::Value =
+                serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_search_context(self, &arguments)
                 .await
-                .map_err(|e| json!({"error": "Failed to commit", "details": e.to_string()}))?;
-        } else {
-            transaction.rollback().await.ok();
-        }
-
-        result
+                .map_err(|err| {
+                    ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+                })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 

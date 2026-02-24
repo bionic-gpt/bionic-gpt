@@ -1,9 +1,9 @@
 use crate::builtin_tools;
 use crate::openapi_tool_factory::create_tools_from_integrations;
 use crate::system_tool_sources::get_system_openapi_tools;
-use crate::tool_interface::ToolInterface;
 use crate::types::{ToolCall, ToolResult, ToolResultContent};
 use db::{queries::prompt_integrations, Pool};
+use rig::tool::ToolDyn;
 use rig::OneOrMany;
 use serde_json::{json, Value};
 use std::collections::HashSet;
@@ -11,8 +11,8 @@ use std::sync::Arc;
 use tracing::{debug, error, info, trace, warn};
 
 fn merge_tools_by_name(
-    base_tools: &mut Vec<Arc<dyn ToolInterface>>,
-    incoming_tools: Vec<Arc<dyn ToolInterface>>,
+    base_tools: &mut Vec<Arc<dyn ToolDyn>>,
+    incoming_tools: Vec<Arc<dyn ToolDyn>>,
 ) {
     if incoming_tools.is_empty() {
         return;
@@ -35,7 +35,7 @@ async fn get_external_integration_tools(
     pool: &Pool,
     sub: String,
     prompt_id: i32,
-) -> Result<Vec<Arc<dyn ToolInterface>>, Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<Vec<Arc<dyn ToolDyn>>, Box<dyn std::error::Error + Send + Sync>> {
     debug!("Getting external integrations from database");
 
     let mut client = pool.get().await?;
@@ -103,11 +103,11 @@ pub async fn get_tools(
     sub: String,
     conversation_id: i64,
     prompt_id: i32,
-) -> Vec<Arc<dyn ToolInterface>> {
+) -> Vec<Arc<dyn ToolDyn>> {
     trace!("Getting available tool instances");
 
     // Start with internal tools
-    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![
+    let mut tools: Vec<Arc<dyn ToolDyn>> = vec![
         Arc::new(builtin_tools::time_date::TimeDateTool),
         Arc::new(builtin_tools::web::WebTool),
     ];
@@ -177,7 +177,7 @@ pub async fn get_tools(
 
 /// Execute a tool call with a specific set of tools
 pub async fn execute_tool_call_with_tools(
-    tools: &[Arc<dyn ToolInterface>],
+    tools: &[Arc<dyn ToolDyn>],
     tool_call: &ToolCall,
 ) -> ToolResult {
     let tool_name = &tool_call.function.name;
@@ -194,18 +194,18 @@ pub async fn execute_tool_call_with_tools(
     if let Ok(tool) = tool {
         debug!("Found matching tool, executing");
         // Execute the tool asynchronously
-        let result = tool.execute(&tool_call.function.arguments).await;
+        let result = tool.call(tool_call.function.arguments.to_string()).await;
 
         if let Ok(result) = result {
             debug!("Tool execution successful");
             return ToolResult {
                 id: tool_call.id.clone(),
                 call_id: tool_call.call_id.clone(),
-                content: OneOrMany::one(ToolResultContent::text(result.to_string())),
+                content: OneOrMany::one(ToolResultContent::text(result)),
             };
         } else if let Err(e) = result {
             error!("Tool execution failed: {}", e);
-            return to_error_result(tool_call, e);
+            return to_error_result(tool_call, json!({"error": e.to_string()}));
         }
     } else {
         warn!("Tool not found: {}", tool_name);
@@ -228,12 +228,13 @@ mod tests {
     use super::*;
     use crate::builtin_tools::time_date::TimeDateTool;
     use crate::types::{ToolCall, ToolCallFunction};
+    use rig::tool::ToolDyn;
     use serde_json::json;
 
     #[tokio::test]
     async fn test_execute_tool_call_time_date() {
-        let time_date_tool: Arc<dyn ToolInterface> = Arc::new(TimeDateTool);
-        let tools: Vec<Arc<dyn ToolInterface>> = vec![time_date_tool];
+        let time_date_tool: Arc<dyn ToolDyn> = Arc::new(TimeDateTool);
+        let tools: Vec<Arc<dyn ToolDyn>> = vec![time_date_tool];
 
         let tool_call = ToolCall {
             id: "call_123".to_string(),

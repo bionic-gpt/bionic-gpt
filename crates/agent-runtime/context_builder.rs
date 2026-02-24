@@ -82,10 +82,10 @@ pub async fn get_prompt_integration_tools(
         })?;
 
     let external_tools = create_tools_from_integrations(prompt_integrations, None, None).await;
-    let mut filtered_tools: Vec<ToolDefinition> = external_tools
-        .into_iter()
-        .map(|tool| tool.get_tool())
-        .collect();
+    let mut filtered_tools: Vec<ToolDefinition> = Vec::new();
+    for tool in external_tools {
+        filtered_tools.push(tool.definition(String::new()).await);
+    }
 
     let datasets = prompts::prompt_datasets()
         .bind(transaction, &prompt_id)

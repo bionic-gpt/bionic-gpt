@@ -3,13 +3,13 @@
 //! This module provides a structured way to work with OpenAPI v3 specifications,
 //! extracting tool definitions and handling parameter parsing.
 
-use crate::tool_interface::ToolInterface;
 use crate::types::ToolDefinition;
 use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
     spec::{Operation, RequestBody, SecurityScheme},
 };
+use rig::tool::ToolDyn;
 use serde_json::{json, Value};
 use std::sync::Arc;
 
@@ -393,8 +393,8 @@ impl BionicOpenAPI {
     pub fn create_tools(
         &self,
         token_provider: Option<Arc<dyn crate::tool_auth::TokenProvider>>,
-    ) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
-        let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+    ) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
+        let mut tools: Vec<Arc<dyn ToolDyn>> = Vec::new();
         let integration_tools = self.create_tool_definitions();
         let base_url = integration_tools
             .base_url
@@ -425,7 +425,7 @@ pub fn create_tools_from_integration(
     integration: &PromptIntegrationWithConnection,
     pool: Option<db::Pool>,
     sub: Option<String>,
-) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
+) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
     if let Some(definition) = &integration.definition {
         let oas3 = oas3::from_json(definition.to_string())
             .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
@@ -477,8 +477,8 @@ pub async fn create_tools_from_integrations(
     integrations: Vec<PromptIntegrationWithConnection>,
     pool: Option<db::Pool>,
     sub: Option<String>,
-) -> Vec<Arc<dyn ToolInterface>> {
-    let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+) -> Vec<Arc<dyn ToolDyn>> {
+    let mut tools: Vec<Arc<dyn ToolDyn>> = Vec::new();
 
     for integration in integrations {
         match create_tools_from_integration(&integration, pool.clone(), sub.clone()) {
