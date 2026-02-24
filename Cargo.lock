@@ -19,6 +19,7 @@ dependencies = [
  "db",
  "http 1.4.0",
  "reqwest 0.13.1",
+ "rig-core",
  "serde",
  "serde_json",
  "tiktoken-rs",

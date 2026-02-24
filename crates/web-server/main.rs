@@ -41,7 +41,6 @@ async fn main() {
         .add_directive(format!("db={}", log_level).parse().unwrap())
         .add_directive(format!("agent_runtime={}", log_level).parse().unwrap())
         .add_directive(format!("tool_runtime={}", log_level).parse().unwrap())
-        .add_directive(format!("embeddings_api={}", log_level).parse().unwrap())
         // Add more of your crates as needed
         ;
 

@@ -1,71 +1,66 @@
-use crate::chat_types::{BionicChatCompletionRequest, ChatCompletionMessage};
 use db::PromptFlagType;
 use reqwest::{
     header::{AUTHORIZATION, CONTENT_TYPE},
     StatusCode,
 };
+use rig::message::{AssistantContent, Message, UserContent};
 use serde::Deserialize;
 
-/// Remove tool call related data from chat messages and drop any
-/// messages that were solely used for tool calling.
-pub fn strip_tool_data(messages: &[ChatCompletionMessage]) -> Vec<ChatCompletionMessage> {
-    use crate::chat_types::ChatCompletionMessageRole;
-
+pub fn strip_tool_data(messages: &[Message]) -> Vec<Message> {
     messages
         .iter()
         .cloned()
-        .filter_map(|mut m| {
-            // Drop tool call messages entirely.
-            if m.role == ChatCompletionMessageRole::Tool {
-                return None;
+        .filter_map(|m| match m {
+            Message::User { content } => {
+                let kept: Vec<UserContent> = content
+                    .into_iter()
+                    .filter(|c| !matches!(c, UserContent::ToolResult(_)))
+                    .collect();
+
+                if kept.is_empty() {
+                    None
+                } else {
+                    Some(Message::User {
+                        content: rig::OneOrMany::many(kept)
+                            .unwrap_or_else(|_| rig::OneOrMany::one(UserContent::text(""))),
+                    })
+                }
             }
+            Message::Assistant { id, content } => {
+                let kept: Vec<AssistantContent> = content
+                    .into_iter()
+                    .filter(|c| !matches!(c, AssistantContent::ToolCall(_)))
+                    .collect();
 
-            let had_tool_calls = m.tool_calls.is_some();
-            m.tool_calls = None;
-            m.tool_call_id = None;
-
-            // Drop assistant messages that had only tool calls and no content.
-            if had_tool_calls
-                && m.role == ChatCompletionMessageRole::Assistant
-                && m.content.as_deref().map(str::trim).unwrap_or("").is_empty()
-            {
-                return None;
+                if kept.is_empty() {
+                    None
+                } else {
+                    Some(Message::Assistant {
+                        id,
+                        content: rig::OneOrMany::many(kept)
+                            .unwrap_or_else(|_| rig::OneOrMany::one(AssistantContent::text(""))),
+                    })
+                }
             }
-
-            if m.role == ChatCompletionMessageRole::System {
-                m.role = ChatCompletionMessageRole::User;
-            }
-
-            Some(m)
         })
         .collect()
 }
 
-/// Result of running chat moderation.
 pub enum ModerationVerdict {
     Safe,
     Unsafe(PromptFlagType),
 }
 
-/// Send a moderation request to the Guard model.
-/// Takes the model information and the chat messages.
-/// Returns `Ok(())` if the request succeeded with a 200 response
-/// otherwise returns the status code of the failed request.
 pub async fn moderate_chat(
     base_url: &str,
     api_key: Option<&str>,
     model_name: &str,
-    messages: Vec<ChatCompletionMessage>,
+    messages: Vec<Message>,
 ) -> Result<ModerationVerdict, StatusCode> {
-    let completion = BionicChatCompletionRequest {
-        model: model_name.to_string(),
-        stream: None,
-        max_tokens: None,
-        messages,
-        temperature: None,
-        tools: None,
-        tool_choice: None,
-    };
+    let completion = serde_json::json!({
+        "model": model_name,
+        "messages": messages,
+    });
 
     let client = reqwest::Client::new();
     let mut request = client
@@ -74,8 +69,9 @@ pub async fn moderate_chat(
     if let Some(key) = api_key {
         request = request.header(AUTHORIZATION, format!("Bearer {}", key));
     }
+
     let resp = request
-        .body(serde_json::to_string(&completion).unwrap())
+        .body(completion.to_string())
         .send()
         .await
         .map_err(|_| StatusCode::BAD_GATEWAY)?;
@@ -85,7 +81,7 @@ pub async fn moderate_chat(
 
     #[derive(Deserialize)]
     struct ResponseChoice {
-        message: ChatCompletionMessage,
+        message: Message,
     }
 
     #[derive(Deserialize)]
@@ -97,14 +93,20 @@ pub async fn moderate_chat(
 
     let content = choices
         .first()
-        .and_then(|c| c.message.content.clone())
+        .and_then(|c| match &c.message {
+            Message::Assistant { content, .. } => content.iter().find_map(|item| match item {
+                AssistantContent::Text(text) => Some(text.text.clone()),
+                AssistantContent::ToolCall(_) | AssistantContent::Reasoning(_) => None,
+            }),
+            Message::User { .. } => None,
+        })
         .unwrap_or_default();
+
     let content = content.trim();
 
     if content.to_lowercase().starts_with("safe") {
         Ok(ModerationVerdict::Safe)
     } else {
-        // Expect format "unsafe\nS1" etc
         let code = content.split_whitespace().last().unwrap_or("");
         let flag = match code {
             "S1" => PromptFlagType::S1,

@@ -1,9 +1,5 @@
 #![allow(non_snake_case)]
-use crate::chat_types::{
-    ChatCompletionChoiceDelta, ChatCompletionDelta, ChatCompletionMessageDelta,
-};
-use crate::stream_assembler::GenerationEvent;
-use crate::ui_chat_orchestrator::{build_event_stream, ResultSink};
+use crate::ui_chat_orchestrator::{build_event_stream, GenerationEvent, ResultSink};
 use async_trait::async_trait;
 use db::ChatStatus;
 use std::sync::{Arc, Mutex};
@@ -40,35 +36,6 @@ impl ResultSink for FakeResultSink {
     }
 }
 
-fn sample_delta_with_tool_calls() -> ChatCompletionDelta {
-    ChatCompletionDelta {
-        id: "id".to_string(),
-        object: "chat.completion.chunk".to_string(),
-        created: 0,
-        model: "model".to_string(),
-        choices: vec![ChatCompletionChoiceDelta {
-            index: 0,
-            finish_reason: None,
-            delta: ChatCompletionMessageDelta {
-                role: None,
-                content: None,
-                name: None,
-                tool_call_id: None,
-                tool_calls: Some(vec![ToolCall {
-                    id: "call_1".to_string(),
-                    index: Some(0),
-                    r#type: "function".to_string(),
-                    function: ToolCallFunction {
-                        name: "do_thing".to_string(),
-                        arguments: "{}".to_string(),
-                    },
-                }]),
-            },
-        }],
-        usage: None,
-    }
-}
-
 #[tokio::test]
 async fn event_stream_saves_on_end_with_tool_calls() {
     let result_sink = Arc::new(FakeResultSink {
@@ -77,20 +44,24 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     let result_sink_dyn: Arc<dyn ResultSink> = result_sink.clone();
     let sub = Arc::new("user-1".to_string());
 
-    let text_chunk = crate::stream_assembler::CompletionChunk {
-        delta: "delta".to_string(),
-        merged: None,
-        snapshot: "final".to_string(),
-    };
-    let end_chunk = crate::stream_assembler::CompletionChunk {
-        delta: "[DONE]".to_string(),
-        merged: Some(sample_delta_with_tool_calls()),
-        snapshot: "final".to_string(),
-    };
+    let tool_calls = vec![ToolCall {
+        id: "call_1".to_string(),
+        index: Some(0),
+        r#type: "function".to_string(),
+        function: ToolCallFunction {
+            name: "do_thing".to_string(),
+            arguments: "{}".to_string(),
+        },
+    }];
 
     let input = tokio_stream::iter(vec![
-        Ok(GenerationEvent::Text(text_chunk)),
-        Ok(GenerationEvent::End(end_chunk)),
+        Ok(GenerationEvent::Text {
+            delta: "delta".to_string(),
+        }),
+        Ok(GenerationEvent::End {
+            snapshot: "final".to_string(),
+            tool_calls: Some(tool_calls),
+        }),
     ]);
 
     let stream = build_event_stream(input, Arc::clone(&result_sink_dyn), 42, sub);
