@@ -630,7 +630,7 @@ pub async fn handle_json_rpc(
                 return Ok(json_response(response));
             };
 
-            let argument_payload = match arguments_to_string(params.arguments) {
+            let argument_payload = match arguments_to_value(params.arguments) {
                 Ok(payload) => payload,
                 Err(err) => {
                     let response = JsonRpcResponse::failure(
@@ -817,10 +817,10 @@ pub(super) fn json_response(response: JsonRpcResponse) -> Response {
     (StatusCode::OK, Json(response)).into_response()
 }
 
-pub(super) fn arguments_to_string(value: Value) -> Result<String, serde_json::Error> {
+pub(super) fn arguments_to_value(value: Value) -> Result<Value, serde_json::Error> {
     match value {
-        Value::String(s) => Ok(s),
-        other => serde_json::to_string(&other),
+        Value::String(s) => serde_json::from_str(&s),
+        other => Ok(other),
     }
 }
 

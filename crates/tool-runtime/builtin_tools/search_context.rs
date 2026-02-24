@@ -179,8 +179,11 @@ impl ToolInterface for SearchContextTool {
         get_tool_definition()
     }
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let params: SearchContextParams = serde_json::from_str(arguments)
+    async fn execute(
+        &self,
+        arguments: &serde_json::Value,
+    ) -> Result<serde_json::Value, serde_json::Value> {
+        let params: SearchContextParams = serde_json::from_value(arguments.clone())
             .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
 
         let limit = params.limit.unwrap_or(5);

@@ -1,6 +1,7 @@
 use crate::builtin_tools::time_date::TimeDateTool;
 use crate::tool_interface::ToolInterface;
 use crate::types::ToolCall;
+use serde_json::json;
 use std::sync::Arc;
 
 // A simple test to verify that our async implementation works correctly
@@ -11,7 +12,7 @@ async fn test_async_tool_execution() {
 
     // Execute the tool
     let result = time_date_tool
-        .execute(r#"{"timezone": "utc", "format": "human_readable"}"#)
+        .execute(&json!({"timezone": "utc", "format": "human_readable"}))
         .await;
 
     // Verify the result
@@ -28,7 +29,6 @@ async fn test_async_tool_execution() {
 async fn test_execute_tool_call_with_tools() {
     use crate::tool_dispatcher::execute_tool_call_with_tools;
     use crate::types::ToolCallFunction;
-    use serde_json::json;
 
     // Create a TimeDateTool instance
     let time_date_tool: Arc<dyn ToolInterface> = Arc::new(TimeDateTool);
@@ -41,7 +41,7 @@ async fn test_execute_tool_call_with_tools() {
         r#type: "function".to_string(),
         function: ToolCallFunction {
             name: "get_current_time_and_date".to_string(),
-            arguments: json!({"timezone": "utc"}).to_string(),
+            arguments: json!({"timezone": "utc"}),
         },
     };
 

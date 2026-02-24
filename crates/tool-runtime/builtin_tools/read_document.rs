@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use db::Pool;
 use rag_engine::unstructured::{document_to_chunks, Unstructured};
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, Value};
 
 #[derive(Debug, Deserialize)]
 struct ReadDocumentParams {
@@ -87,8 +87,8 @@ impl ToolInterface for ReadDocumentTool {
         get_tool_definition()
     }
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let params: ReadDocumentParams = serde_json::from_str(arguments)
+    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
+        let params: ReadDocumentParams = serde_json::from_value(arguments.clone())
             .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
 
         let mut client = self.pool.get().await.map_err(

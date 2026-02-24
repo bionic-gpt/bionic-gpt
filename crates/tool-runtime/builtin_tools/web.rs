@@ -101,11 +101,8 @@ impl ToolInterface for WebTool {
         get_open_url_tool()
     }
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let args: Value = serde_json::from_str(arguments)
-            .map_err(|e| json!({"error": "Failed to parse arguments", "details": e.to_string()}))?;
-
-        let url = args["url"]
+    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
+        let url = arguments["url"]
             .as_str()
             .ok_or_else(|| json!({"error": "Missing url"}))?;
 

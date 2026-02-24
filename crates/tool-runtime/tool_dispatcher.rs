@@ -250,7 +250,7 @@ mod tests {
             r#type: "function".to_string(),
             function: ToolCallFunction {
                 name: "get_current_time_and_date".to_string(),
-                arguments: json!({"timezone": "utc"}).to_string(),
+                arguments: json!({"timezone": "utc"}),
             },
         };
 

@@ -28,14 +28,12 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 }
 
                 for tool_call in tool_calls {
-                    let arguments: serde_json::Value =
-                        serde_json::from_str(&tool_call.function.arguments).unwrap_or_default();
                     items.push(AssistantContent::ToolCall(RigToolCall {
                         id: tool_call.id,
                         call_id: None,
                         function: ToolFunction {
                             name: tool_call.function.name,
-                            arguments,
+                            arguments: tool_call.function.arguments,
                         },
                     }));
                 }

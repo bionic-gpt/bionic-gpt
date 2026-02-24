@@ -3,7 +3,7 @@ use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, Value};
 
 #[derive(Debug, Deserialize)]
 struct ListDatasetFilesParams {
@@ -67,8 +67,8 @@ impl ToolInterface for ListDatasetFilesTool {
         get_tool_definition()
     }
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let params: ListDatasetFilesParams = serde_json::from_str(arguments)
+    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
+        let params: ListDatasetFilesParams = serde_json::from_value(arguments.clone())
             .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
 
         let mut client = self.pool.get().await.map_err(

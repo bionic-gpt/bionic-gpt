@@ -2,6 +2,7 @@
 use crate::ui_chat_orchestrator::{build_event_stream, GenerationEvent, ResultSink};
 use async_trait::async_trait;
 use db::ChatStatus;
+use serde_json::json;
 use std::sync::{Arc, Mutex};
 use tokio::pin;
 use tokio_stream::StreamExt;
@@ -50,7 +51,7 @@ async fn event_stream_saves_on_end_with_tool_calls() {
         r#type: "function".to_string(),
         function: ToolCallFunction {
             name: "do_thing".to_string(),
-            arguments: "{}".to_string(),
+            arguments: json!({}),
         },
     }];
 

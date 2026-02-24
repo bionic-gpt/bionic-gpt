@@ -241,15 +241,13 @@ async fn stream_chat_with_rig(
                 }
             }
             Ok(StreamedAssistantContent::ToolCall(tool_call)) => {
-                let arguments = serde_json::to_string(&tool_call.function.arguments)
-                    .unwrap_or_else(|_| "{}".to_string());
                 tool_calls.push(ToolCall {
                     id: tool_call.id,
                     index: None,
                     r#type: "function".to_string(),
                     function: tool_runtime::ToolCallFunction {
                         name: tool_call.function.name,
-                        arguments,
+                        arguments: tool_call.function.arguments,
                     },
                 });
             }

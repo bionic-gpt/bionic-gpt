@@ -217,7 +217,7 @@ impl ToolInterface for OpenApiTool {
         self.definition.clone()
     }
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
+    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
         tracing::info!(
             "Executing OpenAPI tool {} with arguments: {}",
             self.name(),
@@ -230,8 +230,7 @@ impl ToolInterface for OpenApiTool {
             .map_err(|e| crate::json_error("Operation not found", e))?;
 
         // Parse arguments
-        let args: Value = serde_json::from_str(arguments)
-            .map_err(|e| crate::json_error("Failed to parse arguments", e))?;
+        let args: Value = arguments.clone();
 
         // Separate path, query, and request body parameters
         let (path_params, query_params, request_body_params) =
@@ -830,7 +829,7 @@ mod tests {
             client.clone(),
         );
 
-        let result = tool.execute("{}").await.unwrap();
+        let result = tool.execute(&json!({})).await.unwrap();
         assert_eq!(result, json!({"ok": true}));
 
         let headers = client.captured_headers().await;

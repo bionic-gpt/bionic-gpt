@@ -2,7 +2,7 @@ use crate::tool_interface::ToolInterface;
 use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
-use serde_json::json;
+use serde_json::{json, Value};
 
 pub struct ListDatasetsTool {
     pool: Pool,
@@ -59,7 +59,7 @@ impl ToolInterface for ListDatasetsTool {
         get_tool_definition()
     }
 
-    async fn execute(&self, _arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
+    async fn execute(&self, _arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
         let mut client = self.pool.get().await.map_err(
             |e| json!({"error": "Failed to get database client", "details": e.to_string()}),
         )?;

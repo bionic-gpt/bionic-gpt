@@ -3,6 +3,7 @@
 use assets::files::*;
 use daisy_rsx::*;
 use dioxus::prelude::*;
+use serde_json::Value;
 use tool_runtime::ToolCall;
 
 fn format_json_string(raw: &str) -> String {
@@ -11,6 +12,10 @@ fn format_json_string(raw: &str) -> String {
     } else {
         raw.to_string()
     }
+}
+
+fn format_json_value(raw: &Value) -> String {
+    serde_json::to_string_pretty(raw).unwrap_or_else(|_| raw.to_string())
 }
 
 fn display_tool_name(tool_call_id: &Option<String>, tool_call: Option<&ToolCall>) -> String {
@@ -39,7 +44,7 @@ pub fn ToolCallTimeline(
     let trigger_id = format!("tool-call-details-{}", trigger_suffix);
     let request_body = tool_call
         .as_ref()
-        .map(|call| format_json_string(&call.function.arguments));
+        .map(|call| format_json_value(&call.function.arguments));
     let response_body = response
         .as_ref()
         .map(|body| format_json_string(body))

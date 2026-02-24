@@ -2,7 +2,7 @@ use crate::tool_interface::ToolInterface;
 use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use db::{Pool, Transaction};
-use serde_json::json;
+use serde_json::{json, Value};
 use tracing;
 
 /// A tool that lists all documents available to the user in this chat session or knowledge base.
@@ -53,7 +53,7 @@ impl ToolInterface for ListDocumentsTool {
     }
 
     #[tracing::instrument(skip(self, arguments), fields(conversation_id = ?self.conversation_id, sub = ?self.sub))]
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
+    async fn execute(&self, arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
         tracing::info!(
             "Executing list_documents tool with arguments: {}",
             arguments

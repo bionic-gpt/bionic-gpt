@@ -19,7 +19,7 @@ pub struct ToolCallFunction {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
-    pub arguments: String,
+    pub arguments: Value,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq, Default)]
