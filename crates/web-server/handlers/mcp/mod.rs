@@ -545,13 +545,13 @@ pub async fn handle_json_rpc(
                 .tool_definitions
                 .iter()
                 .map(|tool| McpTool {
-                    name: tool.function.name.clone(),
-                    description: if tool.function.description.trim().is_empty() {
+                    name: tool.name.clone(),
+                    description: if tool.description.trim().is_empty() {
                         None
                     } else {
-                        Some(tool.function.description.clone())
+                        Some(tool.description.clone())
                     },
-                    input_schema: tool.function.parameters.clone(),
+                    input_schema: tool.parameters.clone(),
                     metadata: Some(json!({
                         "integrationId": context.integration_id,
                         "connectionId": context.connection.internal_id(),

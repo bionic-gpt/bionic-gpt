@@ -1,5 +1,5 @@
 use crate::tool_interface::ToolInterface;
-use crate::types::{ToolDefinition, ToolFunctionDefinition};
+use crate::types::ToolDefinition;
 use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
 use rig::client::EmbeddingsClient;
@@ -35,11 +35,9 @@ impl SearchContextTool {
 
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
-        r#type: "function".to_string(),
-        function: ToolFunctionDefinition {
-            name: "search_context".to_string(),
-            description: "Search the knowledge base for text related to the given query and return relevant document chunks.".to_string(),
-            parameters: json!({
+        name: "search_context".to_string(),
+        description: "Search the knowledge base for text related to the given query and return relevant document chunks.".to_string(),
+        parameters: json!({
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "The search query"},
@@ -47,7 +45,6 @@ pub fn get_tool_definition() -> ToolDefinition {
                 },
                 "required": ["query"]
             }),
-        },
     }
 }
 
@@ -229,6 +226,6 @@ mod tests {
     #[test]
     fn test_get_search_context_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "search_context");
+        assert_eq!(tool.name, "search_context");
     }
 }

@@ -243,8 +243,7 @@ async fn stream_chat_with_rig(
             Ok(StreamedAssistantContent::ToolCall(tool_call)) => {
                 tool_calls.push(ToolCall {
                     id: tool_call.id,
-                    index: None,
-                    r#type: "function".to_string(),
+                    call_id: None,
                     function: tool_runtime::ToolCallFunction {
                         name: tool_call.function.name,
                         arguments: tool_call.function.arguments,
@@ -283,17 +282,6 @@ async fn stream_chat_with_rig(
     }
 
     Ok(StreamOutcome::Completed)
-}
-
-fn to_rig_tools(tools: Vec<tool_runtime::ToolDefinition>) -> Vec<rig::completion::ToolDefinition> {
-    tools
-        .into_iter()
-        .map(|tool| rig::completion::ToolDefinition {
-            name: tool.function.name,
-            description: tool.function.description,
-            parameters: tool.function.parameters,
-        })
-        .collect()
 }
 
 async fn create_request(
@@ -457,7 +445,7 @@ async fn create_request(
         chat_history: OneOrMany::many(messages)
             .unwrap_or_else(|_| OneOrMany::one(RigMessage::user(""))),
         documents: vec![],
-        tools: tools.map(to_rig_tools).unwrap_or_default(),
+        tools: tools.unwrap_or_default(),
         temperature: prompt.temperature.map(|t| t as f64),
         max_tokens: prompt.max_completion_tokens.map(|t| t as u64),
         tool_choice: None,

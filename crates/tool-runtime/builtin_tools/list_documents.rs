@@ -1,5 +1,5 @@
 use crate::tool_interface::ToolInterface;
-use crate::types::{ToolDefinition, ToolFunctionDefinition};
+use crate::types::ToolDefinition;
 use async_trait::async_trait;
 use db::{Pool, Transaction};
 use serde_json::{json, Value};
@@ -30,18 +30,15 @@ impl ListDocumentsTool {
 /// Returns the tool definition for list_documents
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
-        r#type: "function".to_string(),
-        function: ToolFunctionDefinition {
-            name: "list_documents".to_string(),
-            description:
-                "Use this tool to list all documents attached in the current conversation. Always call this before attempting to read or summarize a document. Do not guess file IDs. This returns real 'file_id' values that are required for calling 'read_document'."
-                    .to_string(),
-            parameters: json!({
+        name: "list_documents".to_string(),
+        description:
+            "Use this tool to list all documents attached in the current conversation. Always call this before attempting to read or summarize a document. Do not guess file IDs. This returns real 'file_id' values that are required for calling 'read_document'."
+                .to_string(),
+        parameters: json!({
                 "type": "object",
                 "properties": {},
                 "required": []
             }),
-        },
     }
 }
 
@@ -146,6 +143,6 @@ mod tests {
     #[test]
     fn test_get_list_documents_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "list_documents");
+        assert_eq!(tool.name, "list_documents");
     }
 }

@@ -25,13 +25,13 @@ pub fn ToolsModal(enabled_tools: Vec<String>, available_tools: Vec<ToolDefinitio
                                 input {
                                     r#type: "checkbox",
                                     name: "tools",
-                                    value: "{tool.function.name}",
+                                    value: "{tool.name}",
                                     class: "checkbox checkbox-primary mr-2",
-                                    checked: enabled_tools.contains(&tool.function.name),
+                                    checked: enabled_tools.contains(&tool.name),
                                 }
                                 label {
                                     class: "cursor-pointer label",
-                                    "{tool.function.name}"
+                                    "{tool.name}"
                                 }
                             }
                         }

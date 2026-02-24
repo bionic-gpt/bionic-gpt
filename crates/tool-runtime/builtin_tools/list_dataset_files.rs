@@ -1,5 +1,5 @@
 use crate::tool_interface::ToolInterface;
-use crate::types::{ToolDefinition, ToolFunctionDefinition};
+use crate::types::ToolDefinition;
 use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
 use serde::Deserialize;
@@ -23,18 +23,15 @@ impl ListDatasetFilesTool {
 
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
-        r#type: "function".to_string(),
-        function: ToolFunctionDefinition {
-            name: "list_dataset_files".to_string(),
-            description: "List all files within a specific dataset.".to_string(),
-            parameters: json!({
-                "type": "object",
-                "properties": {
-                    "dataset_id": {"type": "integer", "description": "ID of the dataset"}
-                },
-                "required": ["dataset_id"]
-            }),
-        },
+        name: "list_dataset_files".to_string(),
+        description: "List all files within a specific dataset.".to_string(),
+        parameters: json!({
+            "type": "object",
+            "properties": {
+                "dataset_id": {"type": "integer", "description": "ID of the dataset"}
+            },
+            "required": ["dataset_id"]
+        }),
     }
 }
 
@@ -103,6 +100,6 @@ mod tests {
     #[test]
     fn test_get_list_dataset_files_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "list_dataset_files");
+        assert_eq!(tool.name, "list_dataset_files");
     }
 }

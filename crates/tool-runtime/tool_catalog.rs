@@ -5,14 +5,14 @@ use crate::types::ToolDefinition;
 use db::Pool;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub enum ToolScope {
     UserSelectable,
     DocumentIntelligence,
     Rag,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct IntegrationTool {
     pub title: String,
     pub scope: ToolScope,
@@ -93,11 +93,9 @@ pub async fn get_tools_with_system_openapi(pool: &Pool, scope: ToolScope) -> Vec
     if scope == ToolScope::UserSelectable {
         if let Ok(mut system_defs) = get_system_openapi_tool_definitions(pool).await {
             if !system_defs.is_empty() {
-                let system_names: Vec<String> = system_defs
-                    .iter()
-                    .map(|def| def.function.name.clone())
-                    .collect();
-                definitions.retain(|def| !system_names.contains(&def.function.name));
+                let system_names: Vec<String> =
+                    system_defs.iter().map(|def| def.name.clone()).collect();
+                definitions.retain(|def| !system_names.contains(&def.name));
                 definitions.append(&mut system_defs);
             }
         }
@@ -116,7 +114,7 @@ pub fn get_chat_tools_user_selected(enabled_tools: Option<&Vec<String>>) -> Vec<
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
             .into_iter()
-            .filter(|tool_def| tool_names.contains(&tool_def.function.name))
+            .filter(|tool_def| tool_names.contains(&tool_def.name))
             .collect(),
         _ => vec![],
     }
@@ -130,7 +128,7 @@ pub async fn get_chat_tools_user_selected_with_system_openapi(
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
             .into_iter()
-            .filter(|tool_def| tool_names.contains(&tool_def.function.name))
+            .filter(|tool_def| tool_names.contains(&tool_def.name))
             .collect(),
         _ => vec![],
     }
@@ -167,14 +165,14 @@ mod tests {
     fn test_get_openai_tools_with_valid_names() {
         // Override the get_tools function for this test
         let time_date_tool = get_time_date_tool();
-        let time_date_tool_name = time_date_tool.function.name.clone();
+        let time_date_tool_name = time_date_tool.name.clone();
 
         // When enabled_tools contains valid tool names, it should return only those tools
         let valid_names = vec![time_date_tool_name];
         let tools = get_chat_tools_user_selected(Some(&valid_names));
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
-        assert_eq!(tools[0].function.name, "get_current_time_and_date");
+        assert_eq!(tools[0].name, "get_current_time_and_date");
     }
 
     #[test]
@@ -192,7 +190,7 @@ mod tests {
     fn test_get_openai_tools_with_mixed_names() {
         // Get the actual tool name from the implementation
         let time_date_tool = get_time_date_tool();
-        let time_date_tool_name = time_date_tool.function.name.clone();
+        let time_date_tool_name = time_date_tool.name.clone();
 
         // When enabled_tools contains both valid and invalid tool names,
         // it should return only the valid ones
@@ -200,7 +198,7 @@ mod tests {
         let tools = get_chat_tools_user_selected(Some(&mixed_names));
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
-        assert_eq!(tools[0].function.name, "get_current_time_and_date");
+        assert_eq!(tools[0].name, "get_current_time_and_date");
     }
 
     #[test]

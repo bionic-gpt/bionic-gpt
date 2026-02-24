@@ -17,6 +17,6 @@ pub trait ToolInterface: Send + Sync {
 
     /// Returns the name of the tool
     fn name(&self) -> String {
-        self.get_tool().function.name.clone()
+        self.get_tool().name.clone()
     }
 }

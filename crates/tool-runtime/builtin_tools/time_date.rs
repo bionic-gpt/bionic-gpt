@@ -1,5 +1,5 @@
 use crate::tool_interface::ToolInterface;
-use crate::types::{ToolDefinition, ToolFunctionDefinition};
+use crate::types::ToolDefinition;
 use async_trait::async_trait;
 use chrono::{Local, Utc};
 use serde_json::{json, Value};
@@ -23,28 +23,24 @@ impl ToolInterface for TimeDateTool {
 /// Returns a Tool definition for the time and date tool
 pub fn get_time_date_tool() -> ToolDefinition {
     ToolDefinition {
-        r#type: "function".to_string(),
-        function: ToolFunctionDefinition {
-            name: "get_current_time_and_date".to_string(),
-            description: "Get the current time and date, optionally for a specific timezone"
-                .to_string(),
-
-            parameters: json!({
-                "type": "object",
-                "properties": {
-                    "timezone": {
-                        "type": "string",
-                        "description": "The timezone to get the time for (default: UTC)"
-                    },
-                    "format": {
-                        "type": "string",
-                        "enum": ["iso", "human_readable"],
-                        "description": "The format to return the time in"
-                    }
+        name: "get_current_time_and_date".to_string(),
+        description: "Get the current time and date, optionally for a specific timezone"
+            .to_string(),
+        parameters: json!({
+            "type": "object",
+            "properties": {
+                "timezone": {
+                    "type": "string",
+                    "description": "The timezone to get the time for (default: UTC)"
                 },
-                "required": []
-            }),
-        },
+                "format": {
+                    "type": "string",
+                    "enum": ["iso", "human_readable"],
+                    "description": "The format to return the time in"
+                }
+            },
+            "required": []
+        }),
     }
 }
 
@@ -93,7 +89,7 @@ mod tests {
     #[test]
     fn test_get_time_date_tool() {
         let tool = get_time_date_tool();
-        assert_eq!(tool.function.name, "get_current_time_and_date");
+        assert_eq!(tool.name, "get_current_time_and_date");
     }
 
     #[test]

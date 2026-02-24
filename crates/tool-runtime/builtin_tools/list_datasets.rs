@@ -1,5 +1,5 @@
 use crate::tool_interface::ToolInterface;
-use crate::types::{ToolDefinition, ToolFunctionDefinition};
+use crate::types::ToolDefinition;
 use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
 use serde_json::{json, Value};
@@ -22,16 +22,13 @@ impl ListDatasetsTool {
 
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
-        r#type: "function".to_string(),
-        function: ToolFunctionDefinition {
-            name: "list_datasets".to_string(),
-            description: "List all datasets connected to this assistant.".to_string(),
-            parameters: json!({
-                "type": "object",
-                "properties": {},
-                "required": []
-            }),
-        },
+        name: "list_datasets".to_string(),
+        description: "List all datasets connected to this assistant.".to_string(),
+        parameters: json!({
+            "type": "object",
+            "properties": {},
+            "required": []
+        }),
     }
 }
 
@@ -92,6 +89,6 @@ mod tests {
     #[test]
     fn test_get_list_datasets_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "list_datasets");
+        assert_eq!(tool.name, "list_datasets");
     }
 }

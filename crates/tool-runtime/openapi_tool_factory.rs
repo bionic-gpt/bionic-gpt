@@ -4,7 +4,7 @@
 //! extracting tool definitions and handling parameter parsing.
 
 use crate::tool_interface::ToolInterface;
-use crate::types::{ToolDefinition, ToolFunctionDefinition};
+use crate::types::ToolDefinition;
 use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
@@ -121,16 +121,13 @@ impl BionicOpenAPI {
                     self.merge_parameters(schema_params, operation_params, request_body_params);
 
                 let definition = ToolDefinition {
-                    r#type: "function".to_string(),
-                    function: ToolFunctionDefinition {
-                        name: function_name,
-                        description: (operation
-                            .description
-                            .clone()
-                            .or_else(|| operation.summary.clone()))
-                        .unwrap_or_default(),
-                        parameters,
-                    },
+                    name: function_name,
+                    description: (operation
+                        .description
+                        .clone()
+                        .or_else(|| operation.summary.clone()))
+                    .unwrap_or_default(),
+                    parameters,
                 };
 
                 tool_definitions.push(definition);
@@ -406,7 +403,7 @@ impl BionicOpenAPI {
 
         // Create tools for each tool definition
         for tool_def in integration_tools.tool_definitions {
-            let operation_id = tool_def.function.name.clone();
+            let operation_id = tool_def.name.clone();
 
             let tool = crate::OpenApiTool::new(
                 tool_def,
@@ -607,7 +604,7 @@ mod tests {
         let tool_names: Vec<String> = integration_tools
             .tool_definitions
             .iter()
-            .map(|t| t.function.name.clone())
+            .map(|t| t.name.clone())
             .collect();
 
         assert!(tool_names.contains(&"getUsers".to_string()));
@@ -635,11 +632,11 @@ mod tests {
         let tool = integration_tools
             .tool_definitions
             .iter()
-            .find(|t| t.function.name == "getPoliceForceDetails")
+            .find(|t| t.name == "getPoliceForceDetails")
             .expect("getPoliceForceDetails tool should exist");
 
         // Verify parameters are correctly extracted
-        let params = tool.function.parameters.clone();
+        let params = tool.parameters.clone();
 
         // Check JSON Schema structure
         assert_eq!(params["type"], "object");
@@ -655,7 +652,7 @@ mod tests {
         let _get_forces_tool = integration_tools
             .tool_definitions
             .iter()
-            .find(|t| t.function.name == "getForces")
+            .find(|t| t.name == "getForces")
             .expect("getForces tool should exist");
     }
 
@@ -687,10 +684,10 @@ mod tests {
         let tool = integration_tools
             .tool_definitions
             .iter()
-            .find(|t| t.function.name == "getItems")
+            .find(|t| t.name == "getItems")
             .expect("getItems tool should exist");
 
-        let params = tool.function.parameters.clone();
+        let params = tool.parameters.clone();
 
         assert_eq!(params["properties"]["limit"]["type"], "integer");
         assert_eq!(params["properties"]["active"]["type"], "boolean");

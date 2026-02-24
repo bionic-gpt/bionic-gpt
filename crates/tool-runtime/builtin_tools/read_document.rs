@@ -1,6 +1,6 @@
 use crate::token_count;
 use crate::tool_interface::ToolInterface;
-use crate::types::{ToolDefinition, ToolFunctionDefinition};
+use crate::types::ToolDefinition;
 use async_trait::async_trait;
 use db::Pool;
 use rag_engine::unstructured::{document_to_chunks, Unstructured};
@@ -32,14 +32,11 @@ impl ReadDocumentTool {
 
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
-        r#type: "function".to_string(),
-        function: ToolFunctionDefinition {
-            name: "read_document".to_string(),
-            description:
-                "Reads the content of a document attachment. You must provide a valid 'file_id' from 'list_documents'. Never guess or hard-code the ID. The tool returns one or more sections from the document starting at the 'section_index' (default is 0). Always pass the file_id as an integer. Include an 'id' field in the tool call JSON structure."
-                    .to_string(),
-
-            parameters: json!({
+        name: "read_document".to_string(),
+        description:
+            "Reads the content of a document attachment. You must provide a valid 'file_id' from 'list_documents'. Never guess or hard-code the ID. The tool returns one or more sections from the document starting at the 'section_index' (default is 0). Always pass the file_id as an integer. Include an 'id' field in the tool call JSON structure."
+                .to_string(),
+        parameters: json!({
                 "type": "object",
                 "properties": {
                     "file_id": {"type": "integer", "description": "The ID of the document to read. Must be obtained from 'list_documents'."},
@@ -47,7 +44,6 @@ pub fn get_tool_definition() -> ToolDefinition {
                 },
                 "required": []
             }),
-        },
     }
 }
 
@@ -178,7 +174,7 @@ mod tests {
     #[test]
     fn test_get_read_document_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "read_document");
+        assert_eq!(tool.name, "read_document");
     }
 
     #[test]

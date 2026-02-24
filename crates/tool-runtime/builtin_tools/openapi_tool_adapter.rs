@@ -425,7 +425,6 @@ fn substitute_path_parameters(
 mod tests {
     use super::*;
     use crate::tool_auth::StaticTokenProvider;
-    use crate::types::ToolFunctionDefinition;
     use serde_json::json;
     use std::collections::VecDeque;
     use std::sync::Arc;
@@ -526,12 +525,9 @@ mod tests {
     fn test_openapi_tool_find_operation_details() {
         let spec = create_test_openapi_spec();
         let tool_def = ToolDefinition {
-            r#type: "function".to_string(),
-            function: ToolFunctionDefinition {
-                name: "getUsers".to_string(),
-                description: "Get all users".to_string(),
-                parameters: json!({}),
-            },
+            name: "getUsers".to_string(),
+            description: "Get all users".to_string(),
+            parameters: json!({}),
         };
 
         let tool = OpenApiTool::new(
@@ -556,12 +552,9 @@ mod tests {
     fn test_openapi_tool_operation_not_found() {
         let spec = create_test_openapi_spec();
         let tool_def = ToolDefinition {
-            r#type: "function".to_string(),
-            function: ToolFunctionDefinition {
-                name: "nonExistentOperation".to_string(),
-                description: "Non-existent operation".to_string(),
-                parameters: json!({}),
-            },
+            name: "nonExistentOperation".to_string(),
+            description: "Non-existent operation".to_string(),
+            parameters: json!({}),
         };
 
         let tool = OpenApiTool::new(
@@ -584,12 +577,9 @@ mod tests {
     fn test_tool_name_returns_operation_id() {
         let spec = create_test_openapi_spec();
         let tool_def = ToolDefinition {
-            r#type: "function".to_string(),
-            function: ToolFunctionDefinition {
-                name: "createUser".to_string(),
-                description: "Create a user".to_string(),
-                parameters: json!({}),
-            },
+            name: "createUser".to_string(),
+            description: "Create a user".to_string(),
+            parameters: json!({}),
         };
 
         let tool = OpenApiTool::new(
@@ -689,12 +679,9 @@ mod tests {
     async fn test_add_auth_header_custom_name() {
         let spec = create_test_openapi_spec();
         let tool_def = ToolDefinition {
-            r#type: "function".to_string(),
-            function: ToolFunctionDefinition {
-                name: "getUsers".to_string(),
-                description: "Get all users".to_string(),
-                parameters: json!({}),
-            },
+            name: "getUsers".to_string(),
+            description: "Get all users".to_string(),
+            parameters: json!({}),
         };
 
         let provider = StaticTokenProvider::new("abc123".to_string());
@@ -800,12 +787,9 @@ mod tests {
             "second".into(),
         ]));
         let tool_def = ToolDefinition {
-            r#type: "function".to_string(),
-            function: ToolFunctionDefinition {
-                name: "getProtected".to_string(),
-                description: "".to_string(),
-                parameters: json!({}),
-            },
+            name: "getProtected".to_string(),
+            description: "".to_string(),
+            parameters: json!({}),
         };
 
         let client = Arc::new(MockHttpClient::new(vec![
