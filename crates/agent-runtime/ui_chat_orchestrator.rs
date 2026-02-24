@@ -241,14 +241,7 @@ async fn stream_chat_with_rig(
                 }
             }
             Ok(StreamedAssistantContent::ToolCall(tool_call)) => {
-                tool_calls.push(ToolCall {
-                    id: tool_call.id,
-                    call_id: None,
-                    function: tool_runtime::ToolCallFunction {
-                        name: tool_call.function.name,
-                        arguments: tool_call.function.arguments,
-                    },
-                });
+                tool_calls.push(tool_call);
             }
             Ok(StreamedAssistantContent::ToolCallDelta { .. }) => {}
             Ok(StreamedAssistantContent::Reasoning(_)) => {}
