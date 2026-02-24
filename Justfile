@@ -49,7 +49,7 @@ wa env_file=".env":
     set +a
 
     mold -run cargo watch --workdir /workspace/ \
-        -w crates/web-pages -w crates/llm-proxy -w crates/integrations \
+        -w crates/web-pages -w crates/agent-runtime -w crates/tool-runtime \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
         -w crates/web-assets/images -w crates/web-assets/typescript \
         -w crates/web-assets/index.ts \

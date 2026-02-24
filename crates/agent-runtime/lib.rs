@@ -1,13 +1,10 @@
-pub mod api_chat_orchestrator;
-mod chat_converter;
+mod chat_request;
 mod context_builder;
 mod errors;
 mod jwt;
 pub mod limits;
 pub mod moderation;
-pub mod provider_passthrough;
-pub mod stream_assembler;
-pub mod stream_errors;
+mod result_sink;
 pub mod synthesize;
 #[cfg(test)]
 mod tests;
@@ -31,11 +28,7 @@ pub fn routes() -> Router {
         .allow_headers(Any); // Allows any header
 
     Router::new()
-        .typed_get(api_chat_orchestrator::chat_generate)
-        .typed_post(api_chat_orchestrator::chat_generate)
         .typed_post(synthesize::synthesize)
-        .typed_get(provider_passthrough::handler)
-        .typed_post(provider_passthrough::handler)
         .typed_post(ui_chat_orchestrator::chat_generate)
         .typed_get(ui_chat_orchestrator::chat_generate)
         .layer(cors) // Apply the CORS layer
@@ -50,13 +43,3 @@ pub struct UICompletions {
 #[derive(TypedPath, Deserialize)]
 #[typed_path("/app/synthesize")]
 pub struct UISynthesize {}
-
-#[derive(TypedPath, Deserialize)]
-#[typed_path("/v1/{*path}")]
-pub struct LLMHandler {
-    pub path: String,
-}
-
-#[derive(TypedPath, Deserialize)]
-#[typed_path("/v1/chat/completions")]
-pub struct ApiChatHandler {}

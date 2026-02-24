@@ -1,20 +1,41 @@
 use crate::builtin_tools;
 use crate::openapi_tool_factory::create_tools_from_integrations;
 use crate::system_tool_sources::get_system_openapi_tools;
-use crate::tool_interface::ToolInterface;
+use crate::types::{ToolCall, ToolResult, ToolResultContent};
 use db::{queries::prompt_integrations, Pool};
-use openai_api::{ToolCall, ToolCallResult};
-use serde_json::json;
+use rig::tool::ToolDyn;
+use rig::OneOrMany;
+use serde_json::{json, Value};
 use std::collections::HashSet;
 use std::sync::Arc;
 use tracing::{debug, error, info, trace, warn};
+
+fn merge_tools_by_name(
+    base_tools: &mut Vec<Arc<dyn ToolDyn>>,
+    incoming_tools: Vec<Arc<dyn ToolDyn>>,
+) {
+    if incoming_tools.is_empty() {
+        return;
+    }
+
+    let mut existing_names: HashSet<String> = base_tools.iter().map(|tool| tool.name()).collect();
+
+    for tool in incoming_tools {
+        let name = tool.name();
+        if existing_names.contains(&name) {
+            base_tools.retain(|existing| existing.name() != name);
+        }
+        base_tools.push(tool);
+        existing_names.insert(name);
+    }
+}
 
 /// Get external integration tools using direct database operations
 async fn get_external_integration_tools(
     pool: &Pool,
     sub: String,
     prompt_id: i32,
-) -> Result<Vec<Arc<dyn ToolInterface>>, Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<Vec<Arc<dyn ToolDyn>>, Box<dyn std::error::Error + Send + Sync>> {
     debug!("Getting external integrations from database");
 
     let mut client = pool.get().await?;
@@ -52,7 +73,7 @@ pub async fn execute_tool_calls(
     sub: String,
     conversation_id: i64,
     prompt_id: i32,
-) -> Vec<ToolCallResult> {
+) -> Vec<ToolResult> {
     info!("Executing {} tool calls", tool_calls.len());
 
     // Get tool instances with the pool for execution
@@ -60,7 +81,7 @@ pub async fn execute_tool_calls(
     let tools = get_tools(pool, sub.clone(), conversation_id, prompt_id).await;
     debug!("Got {} tool instances", tools.len());
 
-    let mut tool_results: Vec<ToolCallResult> = Vec::new();
+    let mut tool_results: Vec<ToolResult> = Vec::new();
     for (i, tool_call) in tool_calls.iter().enumerate() {
         debug!(
             "Executing tool call {}/{}: {}",
@@ -82,11 +103,11 @@ pub async fn get_tools(
     sub: String,
     conversation_id: i64,
     prompt_id: i32,
-) -> Vec<Arc<dyn ToolInterface>> {
+) -> Vec<Arc<dyn ToolDyn>> {
     trace!("Getting available tool instances");
 
     // Start with internal tools
-    let mut tools: Vec<Arc<dyn ToolInterface>> = vec![
+    let mut tools: Vec<Arc<dyn ToolDyn>> = vec![
         Arc::new(builtin_tools::time_date::TimeDateTool),
         Arc::new(builtin_tools::web::WebTool),
     ];
@@ -125,22 +146,7 @@ pub async fn get_tools(
 
     // Get system OpenAPI tools (Web Search / Code Sandbox)
     match get_system_openapi_tools(pool).await {
-        Ok(system_tools) => {
-            if !system_tools.is_empty() {
-                let mut tool_names = HashSet::new();
-                for tool in &tools {
-                    tool_names.insert(tool.name());
-                }
-                for system_tool in system_tools {
-                    let name = system_tool.name();
-                    if tool_names.contains(&name) {
-                        tools.retain(|t| t.name() != name);
-                    }
-                    tools.push(system_tool);
-                    tool_names.insert(name);
-                }
-            }
-        }
+        Ok(system_tools) => merge_tools_by_name(&mut tools, system_tools),
         Err(err) => {
             warn!("Failed to load system OpenAPI tools: {}", err);
         }
@@ -158,27 +164,7 @@ pub async fn get_tools(
 
     if !external_tools.is_empty() {
         debug!("Found {} external integration tools", external_tools.len());
-
-        // Check for name conflicts and override internal tools
-        let mut tool_names = HashSet::new();
-        for tool in &tools {
-            tool_names.insert(tool.name());
-        }
-
-        for external_tool in external_tools {
-            let name = external_tool.name();
-            if tool_names.contains(&name) {
-                debug!(
-                    "External tool {} overrides internal tool with the same name",
-                    name
-                );
-                // Remove the internal tool with the same name
-                tools.retain(|t| t.name() != name);
-            }
-            tools.push(external_tool);
-            tool_names.insert(name);
-        }
-
+        merge_tools_by_name(&mut tools, external_tools);
         debug!(
             "Added external integration tools, total tools: {}",
             tools.len()
@@ -191,9 +177,9 @@ pub async fn get_tools(
 
 /// Execute a tool call with a specific set of tools
 pub async fn execute_tool_call_with_tools(
-    tools: &[Arc<dyn ToolInterface>],
+    tools: &[Arc<dyn ToolDyn>],
     tool_call: &ToolCall,
-) -> ToolCallResult {
+) -> ToolResult {
     let tool_name = &tool_call.function.name;
     info!("Executing tool call: {}", tool_name);
     debug!("Tool call arguments: {}", tool_call.function.arguments);
@@ -208,27 +194,32 @@ pub async fn execute_tool_call_with_tools(
     if let Ok(tool) = tool {
         debug!("Found matching tool, executing");
         // Execute the tool asynchronously
-        let result = tool.execute(&tool_call.function.arguments).await;
+        let result = tool.call(tool_call.function.arguments.to_string()).await;
 
         if let Ok(result) = result {
             debug!("Tool execution successful");
-            return ToolCallResult {
+            return ToolResult {
                 id: tool_call.id.clone(),
-                name: tool_call.function.name.clone(),
-                result,
+                call_id: tool_call.call_id.clone(),
+                content: OneOrMany::one(ToolResultContent::text(result)),
             };
         } else if let Err(e) = result {
             error!("Tool execution failed: {}", e);
+            return to_error_result(tool_call, json!({"error": e.to_string()}));
         }
     } else {
         warn!("Tool not found: {}", tool_name);
     }
 
+    to_error_result(tool_call, json!({"error": "Problem calling tool"}))
+}
+
+fn to_error_result(tool_call: &ToolCall, error: Value) -> ToolResult {
     debug!("Returning error result for tool call");
-    ToolCallResult {
+    ToolResult {
         id: tool_call.id.clone(),
-        name: tool_call.function.name.clone(),
-        result: json!({"error": "Problem calling tool"}),
+        call_id: tool_call.call_id.clone(),
+        content: OneOrMany::one(ToolResultContent::text(error.to_string())),
     }
 }
 
@@ -236,26 +227,31 @@ pub async fn execute_tool_call_with_tools(
 mod tests {
     use super::*;
     use crate::builtin_tools::time_date::TimeDateTool;
-    use openai_api::{ToolCall, ToolCallFunction};
+    use crate::types::{ToolCall, ToolCallFunction};
+    use rig::tool::ToolDyn;
     use serde_json::json;
 
     #[tokio::test]
     async fn test_execute_tool_call_time_date() {
-        let time_date_tool: Arc<dyn ToolInterface> = Arc::new(TimeDateTool);
-        let tools: Vec<Arc<dyn ToolInterface>> = vec![time_date_tool];
+        let time_date_tool: Arc<dyn ToolDyn> = Arc::new(TimeDateTool);
+        let tools: Vec<Arc<dyn ToolDyn>> = vec![time_date_tool];
 
         let tool_call = ToolCall {
             id: "call_123".to_string(),
-            index: None,
-            r#type: "function".to_string(),
+            call_id: None,
             function: ToolCallFunction {
                 name: "get_current_time_and_date".to_string(),
-                arguments: json!({"timezone": "utc"}).to_string(),
+                arguments: json!({"timezone": "utc"}),
             },
         };
 
         let result = execute_tool_call_with_tools(&tools, &tool_call).await;
         assert_eq!(result.id, "call_123".to_string());
-        assert_eq!(result.name, "get_current_time_and_date".to_string());
+        let payload = match result.content.first() {
+            ToolResultContent::Text(text) => text.text,
+            ToolResultContent::Image(_) => String::new(),
+        };
+        let parsed: Value = serde_json::from_str(&payload).unwrap_or_default();
+        assert_eq!(parsed["timezone"], "utc");
     }
 }

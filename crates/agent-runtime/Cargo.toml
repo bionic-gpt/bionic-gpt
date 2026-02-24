@@ -8,9 +8,7 @@ path = "lib.rs"
 
 [dependencies]
 db = { path = "../db" }
-embeddings-api = { path = "../embeddings-api" }
 tool-runtime = { path = "../tool-runtime" }
-openai-api = { path = "../openai-api" }
 
 axum = { workspace = true, features = ["multipart"] }
 axum-extra = { workspace = true, features = ["form", "typed-routing", "cookie"] }
@@ -23,6 +21,8 @@ serde = { workspace = true, features = ["derive"] }
 tracing.workspace = true
 tower-http = { workspace = true, features = ["fs", "cors"] }
 async-trait.workspace = true
+tiktoken-rs = "0.7.0"
+rig-core = { version = "0.24", default-features = false, features = ["reqwest-rustls"] }
 
 base64.workspace = true
 

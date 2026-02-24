@@ -1,75 +1,73 @@
 // Import the tool trait and time date tool
 use crate::builtin_tools;
 use crate::system_tool_sources::get_system_openapi_tool_definitions;
+use crate::types::ToolDefinition;
 use db::Pool;
-use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub enum ToolScope {
     UserSelectable,
     DocumentIntelligence,
     Rag,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct IntegrationTool {
     pub title: String,
     pub scope: ToolScope,
-    pub definitions: Vec<BionicToolDefinition>,
+    pub definitions: Vec<ToolDefinition>,
     pub definitions_json: String,
+}
+
+fn to_definitions_json(definitions: &[ToolDefinition]) -> String {
+    serde_json::to_string_pretty(definitions).expect("Failed to serialize tool definitions to JSON")
+}
+
+fn integration_tool(
+    title: &str,
+    scope: ToolScope,
+    definitions: Vec<ToolDefinition>,
+) -> IntegrationTool {
+    let definitions_json = to_definitions_json(&definitions);
+    IntegrationTool {
+        title: title.into(),
+        scope,
+        definitions,
+        definitions_json,
+    }
 }
 
 pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
     let mut internal_integrations = vec![
-        IntegrationTool {
-            scope: ToolScope::UserSelectable,
-            title: "Date and time tools".into(),
-            definitions: vec![builtin_tools::time_date::get_time_date_tool()],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::time_date::get_time_date_tool(),
-            ])
-            .expect("Failed to serialize time_date_tool to JSON"),
-        },
-        IntegrationTool {
-            scope: ToolScope::UserSelectable,
-            title: "Web tools".into(),
-            definitions: vec![builtin_tools::web::get_open_url_tool()],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::web::get_open_url_tool(),
-            ])
-            .expect("Failed to serialize web tools to JSON"),
-        },
-        IntegrationTool {
-            scope: ToolScope::DocumentIntelligence,
-            title: "Tools to retrieve documents and read their contents.".into(),
-            definitions: vec![
+        integration_tool(
+            "Date and time tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::time_date::get_time_date_tool()],
+        ),
+        integration_tool(
+            "Web tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::web::get_open_url_tool()],
+        ),
+        integration_tool(
+            "Tools to retrieve documents and read their contents.",
+            ToolScope::DocumentIntelligence,
+            vec![
                 builtin_tools::list_documents::get_tool_definition(),
                 builtin_tools::read_document::get_tool_definition(),
                 //builtin_tools::read_document_section::get_tool_definition(),
             ],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::list_documents::get_tool_definition(),
-                builtin_tools::read_document::get_tool_definition(),
-                //builtin_tools::read_document_section::get_tool_definition(),
-            ])
-            .expect("Failed to serialize attachment tools to JSON"),
-        },
-        IntegrationTool {
-            scope: ToolScope::Rag,
-            title: "Tools to work with datasets".into(),
-            definitions: vec![
+        ),
+        integration_tool(
+            "Tools to work with datasets",
+            ToolScope::Rag,
+            vec![
                 builtin_tools::list_datasets::get_tool_definition(),
                 builtin_tools::list_dataset_files::get_tool_definition(),
                 builtin_tools::search_context::get_tool_definition(),
             ],
-            definitions_json: serde_json::to_string_pretty(&vec![
-                builtin_tools::list_datasets::get_tool_definition(),
-                builtin_tools::list_dataset_files::get_tool_definition(),
-                builtin_tools::search_context::get_tool_definition(),
-            ])
-            .expect("Failed to serialize RAG tools to JSON"),
-        },
+        ),
     ];
 
     // Filter by scope if provided
@@ -81,26 +79,21 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
 }
 
 /// The full list of tools a user can select for the chat.
-pub fn get_tools(scope: ToolScope) -> Vec<BionicToolDefinition> {
+pub fn get_tools(scope: ToolScope) -> Vec<ToolDefinition> {
     get_integrations(Some(scope))
         .into_iter()
         .flat_map(|integration| integration.definitions)
         .collect()
 }
 
-pub async fn get_tools_with_system_openapi(
-    pool: &Pool,
-    scope: ToolScope,
-) -> Vec<BionicToolDefinition> {
+pub async fn get_tools_with_system_openapi(pool: &Pool, scope: ToolScope) -> Vec<ToolDefinition> {
     let mut definitions = get_tools(scope.clone());
     if scope == ToolScope::UserSelectable {
         if let Ok(mut system_defs) = get_system_openapi_tool_definitions(pool).await {
             if !system_defs.is_empty() {
-                let system_names: Vec<String> = system_defs
-                    .iter()
-                    .map(|def| def.function.name.clone())
-                    .collect();
-                definitions.retain(|def| !system_names.contains(&def.function.name));
+                let system_names: Vec<String> =
+                    system_defs.iter().map(|def| def.name.clone()).collect();
+                definitions.retain(|def| !system_names.contains(&def.name));
                 definitions.append(&mut system_defs);
             }
         }
@@ -113,15 +106,13 @@ pub async fn get_tools_with_system_openapi(
 /// This is for backward compatibility
 ///
 /// If enabled_tools is provided, only returns tools with names in that list
-pub fn get_chat_tools_user_selected(
-    enabled_tools: Option<&Vec<String>>,
-) -> Vec<BionicToolDefinition> {
+pub fn get_chat_tools_user_selected(enabled_tools: Option<&Vec<String>>) -> Vec<ToolDefinition> {
     let all_tool_definitions = get_tools(ToolScope::UserSelectable);
 
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
             .into_iter()
-            .filter(|tool_def| tool_names.contains(&tool_def.function.name))
+            .filter(|tool_def| tool_names.contains(&tool_def.name))
             .collect(),
         _ => vec![],
     }
@@ -130,12 +121,12 @@ pub fn get_chat_tools_user_selected(
 pub async fn get_chat_tools_user_selected_with_system_openapi(
     pool: &Pool,
     enabled_tools: Option<&Vec<String>>,
-) -> Vec<BionicToolDefinition> {
+) -> Vec<ToolDefinition> {
     let all_tool_definitions = get_tools_with_system_openapi(pool, ToolScope::UserSelectable).await;
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
             .into_iter()
-            .filter(|tool_def| tool_names.contains(&tool_def.function.name))
+            .filter(|tool_def| tool_names.contains(&tool_def.name))
             .collect(),
         _ => vec![],
     }
@@ -172,14 +163,14 @@ mod tests {
     fn test_get_openai_tools_with_valid_names() {
         // Override the get_tools function for this test
         let time_date_tool = get_time_date_tool();
-        let time_date_tool_name = time_date_tool.function.name.clone();
+        let time_date_tool_name = time_date_tool.name.clone();
 
         // When enabled_tools contains valid tool names, it should return only those tools
         let valid_names = vec![time_date_tool_name];
         let tools = get_chat_tools_user_selected(Some(&valid_names));
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
-        assert_eq!(tools[0].function.name, "get_current_time_and_date");
+        assert_eq!(tools[0].name, "get_current_time_and_date");
     }
 
     #[test]
@@ -197,7 +188,7 @@ mod tests {
     fn test_get_openai_tools_with_mixed_names() {
         // Get the actual tool name from the implementation
         let time_date_tool = get_time_date_tool();
-        let time_date_tool_name = time_date_tool.function.name.clone();
+        let time_date_tool_name = time_date_tool.name.clone();
 
         // When enabled_tools contains both valid and invalid tool names,
         // it should return only the valid ones
@@ -205,7 +196,7 @@ mod tests {
         let tools = get_chat_tools_user_selected(Some(&mixed_names));
 
         assert_eq!(tools.len(), 1, "Expected exactly one tool");
-        assert_eq!(tools[0].function.name, "get_current_time_and_date");
+        assert_eq!(tools[0].name, "get_current_time_and_date");
     }
 
     #[test]

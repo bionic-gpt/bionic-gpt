@@ -2,13 +2,10 @@
 use crate::routes;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use openai_api::BionicToolDefinition;
+use tool_runtime::ToolDefinition;
 
 #[component]
-pub fn ToolsModal(
-    enabled_tools: Vec<String>,
-    available_tools: Vec<BionicToolDefinition>,
-) -> Element {
+pub fn ToolsModal(enabled_tools: Vec<String>, available_tools: Vec<ToolDefinition>) -> Element {
     rsx!(
         form {
             action: routes::console::SetTools{}.to_string(),
@@ -28,13 +25,13 @@ pub fn ToolsModal(
                                 input {
                                     r#type: "checkbox",
                                     name: "tools",
-                                    value: "{tool.function.name}",
+                                    value: "{tool.name}",
                                     class: "checkbox checkbox-primary mr-2",
-                                    checked: enabled_tools.contains(&tool.function.name),
+                                    checked: enabled_tools.contains(&tool.name),
                                 }
                                 label {
                                     class: "cursor-pointer label",
-                                    "{tool.function.name}"
+                                    "{tool.name}"
                                 }
                             }
                         }

@@ -1,57 +1,59 @@
-use crate::tool_interface::ToolInterface;
-use async_trait::async_trait;
+use crate::types::ToolDefinition;
 use chrono::{Local, Utc};
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde_json::{json, Value};
 
 /// A tool that provides current time and date information
 pub struct TimeDateTool;
 
-#[async_trait]
-impl ToolInterface for TimeDateTool {
-    fn get_tool(&self) -> BionicToolDefinition {
-        get_time_date_tool()
+impl ToolDyn for TimeDateTool {
+    fn name(&self) -> String {
+        get_time_date_tool().name
     }
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        // Since execute_time_date_tool is synchronous, we can just call it
-        // It will be automatically wrapped in a future
-        execute_time_date_tool(arguments)
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_time_date_tool() })
+    }
+
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_time_date_tool(&arguments).map_err(|err| {
+                ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+            })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 
 /// Returns a Tool definition for the time and date tool
-pub fn get_time_date_tool() -> BionicToolDefinition {
-    BionicToolDefinition {
-        r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
-            name: "get_current_time_and_date".to_string(),
-            description: "Get the current time and date, optionally for a specific timezone"
-                .to_string(),
-
-            parameters: json!({
-                "type": "object",
-                "properties": {
-                    "timezone": {
-                        "type": "string",
-                        "description": "The timezone to get the time for (default: UTC)"
-                    },
-                    "format": {
-                        "type": "string",
-                        "enum": ["iso", "human_readable"],
-                        "description": "The format to return the time in"
-                    }
+pub fn get_time_date_tool() -> ToolDefinition {
+    ToolDefinition {
+        name: "get_current_time_and_date".to_string(),
+        description: "Get the current time and date, optionally for a specific timezone"
+            .to_string(),
+        parameters: json!({
+            "type": "object",
+            "properties": {
+                "timezone": {
+                    "type": "string",
+                    "description": "The timezone to get the time for (default: UTC)"
                 },
-                "required": []
-            }),
-        },
+                "format": {
+                    "type": "string",
+                    "enum": ["iso", "human_readable"],
+                    "description": "The format to return the time in"
+                }
+            },
+            "required": []
+        }),
     }
 }
 
 /// Execute the time and date tool with the given arguments
-pub fn execute_time_date_tool(arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-    let args: Value =
-        serde_json::from_str(arguments).map_err(|e| format!("Failed to parse arguments: {}", e))?;
+pub fn execute_time_date_tool(arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
+    let args = arguments.clone();
 
     // Get current time in UTC
     let now_utc = Utc::now();
@@ -94,13 +96,13 @@ mod tests {
     #[test]
     fn test_get_time_date_tool() {
         let tool = get_time_date_tool();
-        assert_eq!(tool.function.name, "get_current_time_and_date");
+        assert_eq!(tool.name, "get_current_time_and_date");
     }
 
     #[test]
     fn test_execute_time_date_tool_valid() {
-        let args = r#"{"timezone": "utc", "format": "human_readable"}"#;
-        let result = execute_time_date_tool(args).unwrap();
+        let args = json!({"timezone": "utc", "format": "human_readable"});
+        let result = execute_time_date_tool(&args).unwrap();
         let parsed: Value = result;
 
         assert!(parsed["current_time"].is_string());
@@ -111,8 +113,8 @@ mod tests {
 
     #[test]
     fn test_execute_time_date_tool_iso_format() {
-        let args = r#"{"format": "iso"}"#;
-        let result = execute_time_date_tool(args).unwrap();
+        let args = json!({"format": "iso"});
+        let result = execute_time_date_tool(&args).unwrap();
         let parsed: Value = result;
 
         assert!(parsed["current_time"].is_string());

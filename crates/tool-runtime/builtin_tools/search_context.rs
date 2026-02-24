@@ -1,7 +1,10 @@
-use crate::tool_interface::ToolInterface;
-use async_trait::async_trait;
+use crate::types::ToolDefinition;
 use db::{queries, Pool, Transaction};
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
+use rig::client::EmbeddingsClient;
+use rig::embeddings::EmbeddingModel;
+use rig::providers::{ollama, openai};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde::Deserialize;
 use serde_json::json;
 
@@ -30,13 +33,11 @@ impl SearchContextTool {
     }
 }
 
-pub fn get_tool_definition() -> BionicToolDefinition {
-    BionicToolDefinition {
-        r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
-            name: "search_context".to_string(),
-            description: "Search the knowledge base for text related to the given query and return relevant document chunks.".to_string(),
-            parameters: json!({
+pub fn get_tool_definition() -> ToolDefinition {
+    ToolDefinition {
+        name: "search_context".to_string(),
+        description: "Search the knowledge base for text related to the given query and return relevant document chunks.".to_string(),
+        parameters: json!({
                 "type": "object",
                 "properties": {
                     "query": {"type": "string", "description": "The search query"},
@@ -44,8 +45,65 @@ pub fn get_tool_definition() -> BionicToolDefinition {
                 },
                 "required": ["query"]
             }),
-        },
     }
+}
+
+fn trim_to_context_length(input: &str, context_length: i32) -> String {
+    if input.is_empty() {
+        return String::new();
+    }
+    let effective_context_length = if context_length <= 0 {
+        256
+    } else {
+        context_length
+    };
+    let char_count = input.chars().count() as i32;
+    if char_count <= effective_context_length {
+        return input.to_string();
+    }
+    input
+        .chars()
+        .take(effective_context_length as usize)
+        .collect()
+}
+
+async fn get_embeddings_via_rig(
+    input: &str,
+    api_end_point: &str,
+    model: &str,
+    context_length: i32,
+    api_key: Option<&str>,
+) -> Result<Vec<f32>, String> {
+    let text = String::from_utf8_lossy(input.as_bytes()).to_string();
+    let trimmed_text = trim_to_context_length(&text, context_length);
+
+    let normalized_base_url = api_end_point
+        .strip_suffix("/embeddings")
+        .or_else(|| api_end_point.strip_suffix("/v1/embeddings"))
+        .map(|s| s.trim_end_matches('/').to_string())
+        .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
+
+    let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
+        let client = openai::Client::builder(key)
+            .base_url(&normalized_base_url)
+            .build();
+        client
+            .embedding_model(model)
+            .embed_text(&trimmed_text)
+            .await
+            .map_err(|e| e.to_string())?
+    } else {
+        let client = ollama::Client::builder()
+            .base_url(&normalized_base_url)
+            .build();
+        client
+            .embedding_model(model)
+            .embed_text(&trimmed_text)
+            .await
+            .map_err(|e| e.to_string())?
+    };
+
+    Ok(embedding.vec.into_iter().map(|v| v as f32).collect())
 }
 
 async fn search_context(
@@ -75,18 +133,18 @@ async fn search_context(
         prompt.embeddings_model,
         prompt.embeddings_api_key,
     ) {
-        (Some(url), Some(model), Some(key)) => (url, model, key),
+        (Some(url), Some(model), api_key) => (url, model, api_key),
         _ => {
             return Err(json!({"error": "Prompt missing embeddings configuration"}));
         }
     };
 
-    let embeddings = embeddings_api::get_embeddings(
+    let embeddings = get_embeddings_via_rig(
         query,
         &base_url,
         &model,
         prompt.embeddings_context_size.unwrap_or(256),
-        &Some(api_key),
+        api_key.as_deref(),
     )
     .await
     .map_err(|e| json!({"error": "Failed to get embeddings", "details": e.to_string()}))?;
@@ -112,49 +170,70 @@ async fn search_context(
     Ok(json!({"chunks": chunks_json}))
 }
 
-#[async_trait]
-impl ToolInterface for SearchContextTool {
-    fn get_tool(&self) -> BionicToolDefinition {
-        get_tool_definition()
+async fn execute_search_context(
+    tool: &SearchContextTool,
+    arguments: &serde_json::Value,
+) -> Result<serde_json::Value, serde_json::Value> {
+    let params: SearchContextParams = serde_json::from_value(arguments.clone())
+        .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
+
+    let limit = params.limit.unwrap_or(5);
+
+    let mut client = tool
+        .pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, tool.sub.clone())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let result = search_context(
+        &transaction,
+        tool.prompt_id,
+        tool.conversation_id,
+        &params.query,
+        limit,
+    )
+    .await;
+
+    if result.is_ok() {
+        transaction
+            .commit()
+            .await
+            .map_err(|e| json!({"error": "Failed to commit", "details": e.to_string()}))?;
+    } else {
+        transaction.rollback().await.ok();
     }
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let params: SearchContextParams = serde_json::from_str(arguments)
-            .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
+    result
+}
 
-        let limit = params.limit.unwrap_or(5);
+impl ToolDyn for SearchContextTool {
+    fn name(&self) -> String {
+        get_tool_definition().name
+    }
 
-        let mut client =
-            self.pool.get().await.map_err(
-                |e| json!({"error": "Failed to get DB client", "details": e.to_string()}),
-            )?;
-        let transaction = client.transaction().await.map_err(
-            |e| json!({"error": "Failed to start transaction", "details": e.to_string()}),
-        )?;
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_tool_definition() })
+    }
 
-        db::authz::set_row_level_security_user_id(&transaction, self.sub.clone())
-            .await
-            .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
-
-        let result = search_context(
-            &transaction,
-            self.prompt_id,
-            self.conversation_id,
-            &params.query,
-            limit,
-        )
-        .await;
-
-        if result.is_ok() {
-            transaction
-                .commit()
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: serde_json::Value =
+                serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_search_context(self, &arguments)
                 .await
-                .map_err(|e| json!({"error": "Failed to commit", "details": e.to_string()}))?;
-        } else {
-            transaction.rollback().await.ok();
-        }
-
-        result
+                .map_err(|err| {
+                    ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+                })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 
@@ -165,6 +244,6 @@ mod tests {
     #[test]
     fn test_get_search_context_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "search_context");
+        assert_eq!(tool.name, "search_context");
     }
 }

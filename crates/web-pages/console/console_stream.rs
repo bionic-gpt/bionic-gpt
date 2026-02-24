@@ -5,8 +5,8 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, ChatRole};
 use dioxus::prelude::*;
-use openai_api::ToolCall;
 use std::collections::HashMap;
+use tool_runtime::{parse_tool_calls, ToolCall};
 
 use super::response_timeline::ResponseTimeline;
 use super::tool_call_timeline::ToolCallTimeline;
@@ -132,10 +132,8 @@ fn build_tool_call_index(chat_history: &[ChatWithChunks]) -> HashMap<String, Too
         }
 
         if let Some(tool_calls_json) = &chat_with_chunks.chat.tool_calls {
-            if let Ok(tool_calls) = serde_json::from_str::<Vec<ToolCall>>(tool_calls_json) {
-                for tool_call in tool_calls {
-                    index.insert(tool_call.id.clone(), tool_call);
-                }
+            for tool_call in parse_tool_calls(Some(tool_calls_json)) {
+                index.insert(tool_call.id.clone(), tool_call);
             }
         }
     }

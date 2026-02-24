@@ -2,13 +2,10 @@
 use super::parameter_renderer::render_parameter;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use openai_api::BionicToolDefinition;
+use tool_runtime::ToolDefinition;
 
 #[component]
-pub fn ActionsSection(
-    logo_url: Option<String>,
-    tool_definitions: Vec<BionicToolDefinition>,
-) -> Element {
+pub fn ActionsSection(logo_url: Option<String>, tool_definitions: Vec<ToolDefinition>) -> Element {
     rsx! {
         div {
             h2 {
@@ -35,7 +32,7 @@ pub fn ActionsSection(
                                     } else {
                                         Avatar {
                                             avatar_size: AvatarSize::Medium,
-                                            name: "{tool.function.name}"
+                                            name: "{tool.name}"
                                         }
                                     }
                                 }
@@ -43,10 +40,10 @@ pub fn ActionsSection(
                                     class: "ml-4",
                                     h2 {
                                         class: "font-semibold",
-                                        "{tool.function.name}"
+                                        "{tool.name}"
                                     }
                                     p {
-                                        "{tool.function.description}"
+                                        "{tool.description}"
                                     }
                                 }
                             }
@@ -55,9 +52,9 @@ pub fn ActionsSection(
                         // Enhanced parameter display content
                         {
                             // Parse the JSON schema parameters
-                            if let Some(properties) = tool.function.parameters.get("properties") {
+                            if let Some(properties) = tool.parameters.get("properties") {
                                 if let Some(properties_obj) = properties.as_object() {
-                                    let required_params = tool.function.parameters.get("required")
+                                    let required_params = tool.parameters.get("required")
                                         .and_then(|r| r.as_array())
                                         .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<std::collections::HashSet<_>>())
                                         .unwrap_or_default();

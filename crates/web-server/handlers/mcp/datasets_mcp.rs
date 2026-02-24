@@ -13,6 +13,9 @@ use axum::{
 use axum_extra::routing::{RouterExt, TypedPath};
 use db::Pool;
 use pgvector::Vector;
+use rig::client::EmbeddingsClient;
+use rig::embeddings::EmbeddingModel;
+use rig::providers::{ollama, openai};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::cmp;
@@ -791,15 +794,14 @@ async fn search_context(
         ));
     }
 
-    let embeddings = embeddings_api::get_embeddings(
+    let embeddings = get_embeddings_via_rig(
         &params.query,
         &base_url,
         &embeddings_model,
         context_size,
-        &api_key,
+        api_key.as_deref(),
     )
-    .await
-    .map_err(|err| DatasetToolError::Internal(err.to_string()))?;
+    .await?;
 
     let embedding_vector = Vector::from(embeddings);
 
@@ -844,6 +846,64 @@ async fn search_context(
         .collect();
 
     Ok(json!({ "chunks": chunks }))
+}
+
+fn trim_to_context_length(input: &str, context_length: i32) -> String {
+    if input.is_empty() {
+        return String::new();
+    }
+    let effective_context_length = if context_length <= 0 {
+        256
+    } else {
+        context_length
+    };
+    let char_count = input.chars().count() as i32;
+    if char_count <= effective_context_length {
+        return input.to_string();
+    }
+    input
+        .chars()
+        .take(effective_context_length as usize)
+        .collect()
+}
+
+async fn get_embeddings_via_rig(
+    input: &str,
+    api_end_point: &str,
+    model: &str,
+    context_length: i32,
+    api_key: Option<&str>,
+) -> Result<Vec<f32>, DatasetToolError> {
+    let text = String::from_utf8_lossy(input.as_bytes()).to_string();
+    let trimmed_text = trim_to_context_length(&text, context_length);
+
+    let normalized_base_url = api_end_point
+        .strip_suffix("/embeddings")
+        .or_else(|| api_end_point.strip_suffix("/v1/embeddings"))
+        .map(|s| s.trim_end_matches('/').to_string())
+        .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
+
+    let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
+        let client = openai::Client::builder(key)
+            .base_url(&normalized_base_url)
+            .build();
+        client
+            .embedding_model(model)
+            .embed_text(&trimmed_text)
+            .await
+            .map_err(|err| DatasetToolError::Internal(err.to_string()))?
+    } else {
+        let client = ollama::Client::builder()
+            .base_url(&normalized_base_url)
+            .build();
+        client
+            .embedding_model(model)
+            .embed_text(&trimmed_text)
+            .await
+            .map_err(|err| DatasetToolError::Internal(err.to_string()))?
+    };
+
+    Ok(embedding.vec.into_iter().map(|v| v as f32).collect())
 }
 
 async fn apply_customer_key(transaction: &db::Transaction<'_>) -> Result<(), DatasetToolError> {

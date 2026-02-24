@@ -3,19 +3,19 @@
 //! This module provides a structured way to work with OpenAPI v3 specifications,
 //! extracting tool definitions and handling parameter parsing.
 
-use crate::tool_interface::ToolInterface;
+use crate::types::ToolDefinition;
 use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
     spec::{Operation, RequestBody, SecurityScheme},
 };
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
+use rig::tool::ToolDyn;
 use serde_json::{json, Value};
 use std::sync::Arc;
 
 /// Result of parsing an OpenAPI specification for tool creation
 pub struct IntegrationTools {
-    pub tool_definitions: Vec<BionicToolDefinition>,
+    pub tool_definitions: Vec<ToolDefinition>,
     pub base_url: Option<String>,
 }
 
@@ -88,7 +88,7 @@ impl BionicOpenAPI {
 
     /// Create tool definitions from the OpenAPI specification
     pub fn create_tool_definitions(&self) -> IntegrationTools {
-        let mut tool_definitions: Vec<BionicToolDefinition> = vec![];
+        let mut tool_definitions: Vec<ToolDefinition> = vec![];
         let base_url = self.extract_base_url();
 
         // Process each operation in the OpenAPI spec
@@ -120,17 +120,14 @@ impl BionicOpenAPI {
                 let parameters =
                     self.merge_parameters(schema_params, operation_params, request_body_params);
 
-                let definition = BionicToolDefinition {
-                    r#type: "function".to_string(),
-                    function: ChatCompletionFunctionDefinition {
-                        name: function_name,
-                        description: (operation
-                            .description
-                            .clone()
-                            .or_else(|| operation.summary.clone()))
-                        .unwrap_or_default(),
-                        parameters,
-                    },
+                let definition = ToolDefinition {
+                    name: function_name,
+                    description: (operation
+                        .description
+                        .clone()
+                        .or_else(|| operation.summary.clone()))
+                    .unwrap_or_default(),
+                    parameters,
                 };
 
                 tool_definitions.push(definition);
@@ -396,8 +393,8 @@ impl BionicOpenAPI {
     pub fn create_tools(
         &self,
         token_provider: Option<Arc<dyn crate::tool_auth::TokenProvider>>,
-    ) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
-        let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+    ) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
+        let mut tools: Vec<Arc<dyn ToolDyn>> = Vec::new();
         let integration_tools = self.create_tool_definitions();
         let base_url = integration_tools
             .base_url
@@ -406,7 +403,7 @@ impl BionicOpenAPI {
 
         // Create tools for each tool definition
         for tool_def in integration_tools.tool_definitions {
-            let operation_id = tool_def.function.name.clone();
+            let operation_id = tool_def.name.clone();
 
             let tool = crate::OpenApiTool::new(
                 tool_def,
@@ -428,7 +425,7 @@ pub fn create_tools_from_integration(
     integration: &PromptIntegrationWithConnection,
     pool: Option<db::Pool>,
     sub: Option<String>,
-) -> Result<Vec<Arc<dyn ToolInterface>>, String> {
+) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
     if let Some(definition) = &integration.definition {
         let oas3 = oas3::from_json(definition.to_string())
             .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
@@ -480,8 +477,8 @@ pub async fn create_tools_from_integrations(
     integrations: Vec<PromptIntegrationWithConnection>,
     pool: Option<db::Pool>,
     sub: Option<String>,
-) -> Vec<Arc<dyn ToolInterface>> {
-    let mut tools: Vec<Arc<dyn ToolInterface>> = Vec::new();
+) -> Vec<Arc<dyn ToolDyn>> {
+    let mut tools: Vec<Arc<dyn ToolDyn>> = Vec::new();
 
     for integration in integrations {
         match create_tools_from_integration(&integration, pool.clone(), sub.clone()) {
@@ -607,7 +604,7 @@ mod tests {
         let tool_names: Vec<String> = integration_tools
             .tool_definitions
             .iter()
-            .map(|t| t.function.name.clone())
+            .map(|t| t.name.clone())
             .collect();
 
         assert!(tool_names.contains(&"getUsers".to_string()));
@@ -635,11 +632,11 @@ mod tests {
         let tool = integration_tools
             .tool_definitions
             .iter()
-            .find(|t| t.function.name == "getPoliceForceDetails")
+            .find(|t| t.name == "getPoliceForceDetails")
             .expect("getPoliceForceDetails tool should exist");
 
         // Verify parameters are correctly extracted
-        let params = tool.function.parameters.clone();
+        let params = tool.parameters.clone();
 
         // Check JSON Schema structure
         assert_eq!(params["type"], "object");
@@ -655,7 +652,7 @@ mod tests {
         let _get_forces_tool = integration_tools
             .tool_definitions
             .iter()
-            .find(|t| t.function.name == "getForces")
+            .find(|t| t.name == "getForces")
             .expect("getForces tool should exist");
     }
 
@@ -687,10 +684,10 @@ mod tests {
         let tool = integration_tools
             .tool_definitions
             .iter()
-            .find(|t| t.function.name == "getItems")
+            .find(|t| t.name == "getItems")
             .expect("getItems tool should exist");
 
-        let params = tool.function.parameters.clone();
+        let params = tool.parameters.clone();
 
         assert_eq!(params["properties"]["limit"]["type"], "integer");
         assert_eq!(params["properties"]["active"]["type"], "boolean");

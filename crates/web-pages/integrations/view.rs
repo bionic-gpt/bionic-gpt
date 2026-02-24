@@ -7,15 +7,15 @@ use crate::i18n;
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKeyConnection, Integration, Oauth2Connection};
 use dioxus::prelude::*;
-use openai_api::BionicToolDefinition;
 use tool_runtime::BionicOpenAPI;
+use tool_runtime::ToolDefinition;
 
 #[allow(clippy::too_many_arguments)]
 pub fn view(
     team_id: String,
     rbac: Rbac,
     integration: Integration,
-    tool_definitions: Vec<BionicToolDefinition>,
+    tool_definitions: Vec<ToolDefinition>,
     openapi: BionicOpenAPI,
     api_key_connections: Vec<ApiKeyConnection>,
     oauth2_connections: Vec<Oauth2Connection>,

@@ -1,9 +1,9 @@
-use crate::tool_interface::ToolInterface;
-use async_trait::async_trait;
+use crate::types::ToolDefinition;
 use db::{queries, Pool, Transaction};
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, Value};
 
 #[derive(Debug, Deserialize)]
 struct ListDatasetFilesParams {
@@ -21,20 +21,17 @@ impl ListDatasetFilesTool {
     }
 }
 
-pub fn get_tool_definition() -> BionicToolDefinition {
-    BionicToolDefinition {
-        r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
-            name: "list_dataset_files".to_string(),
-            description: "List all files within a specific dataset.".to_string(),
-            parameters: json!({
-                "type": "object",
-                "properties": {
-                    "dataset_id": {"type": "integer", "description": "ID of the dataset"}
-                },
-                "required": ["dataset_id"]
-            }),
-        },
+pub fn get_tool_definition() -> ToolDefinition {
+    ToolDefinition {
+        name: "list_dataset_files".to_string(),
+        description: "List all files within a specific dataset.".to_string(),
+        parameters: json!({
+            "type": "object",
+            "properties": {
+                "dataset_id": {"type": "integer", "description": "ID of the dataset"}
+            },
+            "required": ["dataset_id"]
+        }),
     }
 }
 
@@ -61,38 +58,58 @@ async fn list_files(
     }))
 }
 
-#[async_trait]
-impl ToolInterface for ListDatasetFilesTool {
-    fn get_tool(&self) -> BionicToolDefinition {
-        get_tool_definition()
-    }
+async fn execute_list_dataset_files(
+    tool: &ListDatasetFilesTool,
+    arguments: &Value,
+) -> Result<serde_json::Value, serde_json::Value> {
+    let params: ListDatasetFilesParams = serde_json::from_value(arguments.clone())
+        .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
 
-    async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let params: ListDatasetFilesParams = serde_json::from_str(arguments)
-            .map_err(|e| json!({"error": "Invalid parameters", "details": e.to_string()}))?;
-
-        let mut client = self.pool.get().await.map_err(
+    let mut client =
+        tool.pool.get().await.map_err(
             |e| json!({"error": "Failed to get database client", "details": e.to_string()}),
         )?;
-        let transaction = client.transaction().await.map_err(
-            |e| json!({"error": "Failed to start transaction", "details": e.to_string()}),
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, tool.sub.clone())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let result = list_files(&transaction, params.dataset_id).await;
+
+    if result.is_ok() {
+        transaction.commit().await.map_err(
+            |e| json!({"error": "Failed to commit transaction", "details": e.to_string()}),
         )?;
+    } else {
+        transaction.rollback().await.ok();
+    }
 
-        db::authz::set_row_level_security_user_id(&transaction, self.sub.clone())
-            .await
-            .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+    result
+}
 
-        let result = list_files(&transaction, params.dataset_id).await;
+impl ToolDyn for ListDatasetFilesTool {
+    fn name(&self) -> String {
+        get_tool_definition().name
+    }
 
-        if result.is_ok() {
-            transaction.commit().await.map_err(
-                |e| json!({"error": "Failed to commit transaction", "details": e.to_string()}),
-            )?;
-        } else {
-            transaction.rollback().await.ok();
-        }
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_tool_definition() })
+    }
 
-        result
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_list_dataset_files(self, &arguments)
+                .await
+                .map_err(|err| {
+                    ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+                })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 
@@ -103,6 +120,6 @@ mod tests {
     #[test]
     fn test_get_list_dataset_files_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "list_dataset_files");
+        assert_eq!(tool.name, "list_dataset_files");
     }
 }

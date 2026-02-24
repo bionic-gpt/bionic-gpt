@@ -6,10 +6,11 @@
 pub mod builtin_tools;
 pub mod openapi_tool_factory;
 pub mod system_tool_sources;
+pub mod token_count;
 pub mod tool_auth;
 pub mod tool_catalog;
 pub mod tool_dispatcher;
-pub mod tool_interface;
+pub mod types;
 
 #[cfg(test)]
 mod test_async;
@@ -35,4 +36,6 @@ pub use tool_catalog::{
     get_integrations, get_tools, get_tools_with_system_openapi, IntegrationTool, ToolScope,
 };
 pub use tool_dispatcher::{execute_tool_call_with_tools, execute_tool_calls};
-pub use tool_interface::ToolInterface;
+pub use types::{
+    parse_tool_calls, ToolCall, ToolCallFunction, ToolDefinition, ToolResult, ToolResultContent,
+};

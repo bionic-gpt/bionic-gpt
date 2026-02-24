@@ -545,13 +545,13 @@ pub async fn handle_json_rpc(
                 .tool_definitions
                 .iter()
                 .map(|tool| McpTool {
-                    name: tool.function.name.clone(),
-                    description: if tool.function.description.trim().is_empty() {
+                    name: tool.name.clone(),
+                    description: if tool.description.trim().is_empty() {
                         None
                     } else {
-                        Some(tool.function.description.clone())
+                        Some(tool.description.clone())
                     },
-                    input_schema: tool.function.parameters.clone(),
+                    input_schema: tool.parameters.clone(),
                     metadata: Some(json!({
                         "integrationId": context.integration_id,
                         "connectionId": context.connection.internal_id(),
@@ -630,7 +630,7 @@ pub async fn handle_json_rpc(
                 return Ok(json_response(response));
             };
 
-            let argument_payload = match arguments_to_string(params.arguments) {
+            let argument_payload = match arguments_to_value(params.arguments) {
                 Ok(payload) => payload,
                 Err(err) => {
                     let response = JsonRpcResponse::failure(
@@ -643,11 +643,12 @@ pub async fn handle_json_rpc(
                 }
             };
 
-            match tool.execute(&argument_payload).await {
-                Ok(result) => {
-                    let text = match result {
-                        Value::String(text) => text,
-                        other => other.to_string(),
+            match tool.call(argument_payload.to_string()).await {
+                Ok(result_json) => {
+                    let text = match serde_json::from_str::<Value>(&result_json) {
+                        Ok(Value::String(text)) => text,
+                        Ok(other) => other.to_string(),
+                        Err(_) => result_json,
                     };
 
                     let response_payload = json!({
@@ -668,7 +669,7 @@ pub async fn handle_json_rpc(
                         request_id.clone(),
                         -32002,
                         "Tool execution failed".to_string(),
-                        Some(error),
+                        Some(json!({ "details": error.to_string() })),
                     );
                     Ok(json_response(response))
                 }
@@ -817,10 +818,10 @@ pub(super) fn json_response(response: JsonRpcResponse) -> Response {
     (StatusCode::OK, Json(response)).into_response()
 }
 
-pub(super) fn arguments_to_string(value: Value) -> Result<String, serde_json::Error> {
+pub(super) fn arguments_to_value(value: Value) -> Result<Value, serde_json::Error> {
     match value {
-        Value::String(s) => Ok(s),
-        other => serde_json::to_string(&other),
+        Value::String(s) => serde_json::from_str(&s),
+        other => Ok(other),
     }
 }
 

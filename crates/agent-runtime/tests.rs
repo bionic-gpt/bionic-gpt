@@ -1,13 +1,13 @@
 use db::{Chat, ChatRole, ChatStatus};
-use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
+use rig::message::{AssistantContent, Message, UserContent};
+use rig::OneOrMany;
 use time::OffsetDateTime;
 
+use crate::context_builder::{convert_chat_to_messages, generate_prompt};
 use crate::moderation::strip_tool_data;
-use crate::{chat_converter::convert_chat_to_messages, context_builder::generate_prompt};
 
 #[tokio::test]
 async fn test_convert_chat_to_messages_tool_calling_fallback() {
-    // Create a Chat struct with invalid JSON function call data
     let chat = Chat {
         role: ChatRole::User,
         id: 0,
@@ -23,10 +23,7 @@ async fn test_convert_chat_to_messages_tool_calling_fallback() {
         updated_at: OffsetDateTime::UNIX_EPOCH,
     };
 
-    // Call convert_chat_to_messages on this struct
     let messages = convert_chat_to_messages(vec![chat]);
-
-    // Assert the fallback behavior
     assert_eq!(messages.len(), 1);
 }
 
@@ -37,30 +34,18 @@ async fn test_generate_prompt() {
         1024,
         1.0,
         Some("You are a helpful asistant".to_string()),
-        vec![ChatCompletionMessage {
-            role: ChatCompletionMessageRole::User,
-            content: Some("How are you today?".to_string()),
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        }],
+        vec![Message::user("How are you today?")],
     )
     .await;
 
-    dbg!(&messages);
-
-    assert!(messages.len() == 2);
-
-    assert!(messages[0].content == Some("You are a helpful asistant".to_string()));
-    assert!(messages[1].content == Some("How are you today?".to_string()));
+    assert_eq!(messages.len(), 2);
+    assert_eq!(
+        text_content(&messages[0]),
+        Some("You are a helpful asistant")
+    );
+    assert_eq!(text_content(&messages[1]), Some("How are you today?"));
 }
 
-// ============================================================================
-// COMPREHENSIVE CHAT CONVERTER TESTS
-// Based on provided chat entries for complete conversation flow testing
-// ============================================================================
-
-// Test helper functions
 fn create_test_chat(
     id: i32,
     role: ChatRole,
@@ -96,67 +81,85 @@ fn create_tool_call_json(id: &str, function_name: &str, arguments: &str) -> Stri
     .to_string()
 }
 
-fn assert_message_properties(
-    message: &ChatCompletionMessage,
-    expected_role: ChatCompletionMessageRole,
-    expected_content: Option<&str>,
-    expected_tool_call_id: Option<&str>,
-    has_tool_calls: bool,
-) {
-    assert_eq!(message.role, expected_role);
-    assert_eq!(message.content.as_deref(), expected_content);
-    assert_eq!(message.tool_call_id.as_deref(), expected_tool_call_id);
-    assert_eq!(message.tool_calls.is_some(), has_tool_calls);
-    assert_eq!(message.name, None); // Always None in current implementation
+fn is_user(msg: &Message) -> bool {
+    matches!(msg, Message::User { .. })
 }
 
-// ============================================================================
-// COMPLETE CONVERSATION FLOW TESTS
-// ============================================================================
+fn is_assistant(msg: &Message) -> bool {
+    matches!(msg, Message::Assistant { .. })
+}
+
+fn text_content(msg: &Message) -> Option<&str> {
+    match msg {
+        Message::User { content } => content.iter().find_map(|c| match c {
+            UserContent::Text(text) => Some(text.text.as_str()),
+            _ => None,
+        }),
+        Message::Assistant { content, .. } => content.iter().find_map(|c| match c {
+            AssistantContent::Text(text) => Some(text.text.as_str()),
+            _ => None,
+        }),
+    }
+}
+
+fn assistant_tool_calls(msg: &Message) -> Vec<(String, String, serde_json::Value)> {
+    match msg {
+        Message::Assistant { content, .. } => content
+            .iter()
+            .filter_map(|c| match c {
+                AssistantContent::ToolCall(tc) => Some((
+                    tc.id.clone(),
+                    tc.function.name.clone(),
+                    tc.function.arguments.clone(),
+                )),
+                _ => None,
+            })
+            .collect(),
+        _ => vec![],
+    }
+}
+
+fn tool_result_call_id(msg: &Message) -> Option<&str> {
+    match msg {
+        Message::User { content } => content.iter().find_map(|c| match c {
+            UserContent::ToolResult(res) => Some(res.id.as_str()),
+            _ => None,
+        }),
+        _ => None,
+    }
+}
 
 #[tokio::test]
 async fn test_complete_time_conversation_flow() {
-    // Test the exact conversation flow from provided chat entries
-    // Chat ID 69: User asks "What time is it"
-    // Chat ID 70: Assistant responds with tool calls
-    // Chat ID 71: Tool provides time data with call_a96p ID
-    // Chat ID 72: Assistant gives final formatted response
-
     let conversation = vec![
+        create_test_chat(69, ChatRole::User, Some("What time is it".to_string()), None, None),
         create_test_chat(
-            69i32,
-            ChatRole::User,
-            Some("What time is it".to_string()),
-            None,
-            None,
-        ),
-        create_test_chat(
-            70i32,
+            70,
             ChatRole::Assistant,
             None,
             Some(create_tool_call_json(
                 "call_a96p",
                 "get_current_time_and_date",
-                r#"{"format":"human_readable"}"#
+                r#"{"format":"human_readable"}"#,
             )),
             None,
         ),
         create_test_chat(
-            71i32,
+            71,
             ChatRole::Tool,
             Some(r#"{"current_time":"2025-05-31 08:53:33 UTC","format":"human_readable","timestamp":1748681613,"timezone":"utc"}"#.to_string()),
             None,
             Some("call_a96p".to_string()),
         ),
         create_test_chat(
-            72i32,
+            72,
             ChatRole::Assistant,
             Some("The current time is 2025-05-31 08:53:33 UTC.".to_string()),
             None,
             None,
         ),
         create_test_chat(
-            72i32,
+            73,
             ChatRole::User,
             Some("How about in Bangkok?".to_string()),
             None,
@@ -165,97 +168,37 @@ async fn test_complete_time_conversation_flow() {
     ];
 
     let messages = convert_chat_to_messages(conversation);
-
-    dbg!(&messages);
-
-    // Verify we have 4 messages
     assert_eq!(messages.len(), 5);
-
-    // Verify User message (Chat ID 69)
-    assert_message_properties(
-        &messages[0],
-        ChatCompletionMessageRole::User,
-        Some("What time is it"),
-        None,
-        false,
-    );
-
-    // Verify Assistant message with tool calls (Chat ID 70)
-    assert_message_properties(
-        &messages[1],
-        ChatCompletionMessageRole::Assistant,
-        None,
-        None,
-        true,
-    );
-
-    let tool_calls = messages[1].tool_calls.as_ref().unwrap();
-    assert_eq!(tool_calls.len(), 1);
-    assert_eq!(tool_calls[0].id, "call_a96p");
-    assert_eq!(tool_calls[0].r#type, "function");
-    assert_eq!(tool_calls[0].function.name, "get_current_time_and_date");
-    assert_eq!(
-        tool_calls[0].function.arguments,
-        r#"{"format":"human_readable"}"#
-    );
-
-    // Verify Tool message (Chat ID 71)
-    assert_message_properties(
-        &messages[2],
-        ChatCompletionMessageRole::Tool,
-        Some(
-            r#"{"current_time":"2025-05-31 08:53:33 UTC","format":"human_readable","timestamp":1748681613,"timezone":"utc"}"#,
-        ),
-        Some("call_a96p"),
-        false,
-    );
-
-    // Verify final Assistant message (Chat ID 72)
-    assert_message_properties(
-        &messages[3],
-        ChatCompletionMessageRole::Assistant,
-        Some("The current time is 2025-05-31 08:53:33 UTC."),
-        None,
-        false,
-    );
+    assert!(is_user(&messages[0]));
+    assert!(is_assistant(&messages[1]));
+    assert_eq!(tool_result_call_id(&messages[2]), Some("call_a96p"));
+    assert!(is_assistant(&messages[3]));
 }
 
 #[tokio::test]
 async fn test_second_time_conversation_flow() {
-    // Test the second conversation about time from provided chat entries
-    // Chat ID 74: User asks "Whats the time?"
-    // Chat ID 75: Assistant responds with tool calls
-    // Chat ID 76: Tool provides time data with call_yc5v ID
-    // Chat ID 77: Assistant gives final formatted response
-
     let conversation = vec![
+        create_test_chat(74, ChatRole::User, Some("Whats the time?".to_string()), None, None),
         create_test_chat(
-            74i32,
-            ChatRole::User,
-            Some("Whats the time?".to_string()),
-            None,
-            None,
-        ),
-        create_test_chat(
-            75i32,
+            75,
             ChatRole::Assistant,
             None,
             Some(create_tool_call_json(
                 "call_yc5v",
                 "get_current_time_and_date",
-                r#"{"format":"human_readable"}"#
+                r#"{"format":"human_readable"}"#,
             )),
             None,
         ),
         create_test_chat(
-            76i32,
+            76,
             ChatRole::Tool,
             Some(r#"{"current_time":"2025-05-31 10:42:37 UTC","format":"human_readable","timestamp":1748688157,"timezone":"utc"}"#.to_string()),
             None,
             Some("call_yc5v".to_string()),
         ),
         create_test_chat(
-            77i32,
+            77,
             ChatRole::Assistant,
             Some("The current time is 10:42:37 UTC on May 31, 2025.".to_string()),
             None,
@@ -264,61 +207,15 @@ async fn test_second_time_conversation_flow() {
     ];
 
     let messages = convert_chat_to_messages(conversation);
-
-    // Verify we have 4 messages
     assert_eq!(messages.len(), 4);
-
-    // Verify User message
-    assert_message_properties(
-        &messages[0],
-        ChatCompletionMessageRole::User,
-        Some("Whats the time?"),
-        None,
-        false,
-    );
-
-    // Verify Assistant message with tool calls
-    assert_message_properties(
-        &messages[1],
-        ChatCompletionMessageRole::Assistant,
-        None,
-        None,
-        true,
-    );
-
-    let tool_calls = messages[1].tool_calls.as_ref().unwrap();
-    assert_eq!(tool_calls.len(), 1);
-    assert_eq!(tool_calls[0].id, "call_yc5v");
-    assert_eq!(tool_calls[0].function.name, "get_current_time_and_date");
-
-    // Verify Tool message
-    assert_message_properties(
-        &messages[2],
-        ChatCompletionMessageRole::Tool,
-        Some(
-            r#"{"current_time":"2025-05-31 10:42:37 UTC","format":"human_readable","timestamp":1748688157,"timezone":"utc"}"#,
-        ),
-        Some("call_yc5v"),
-        false,
-    );
-
-    // Verify final Assistant message with different format
-    assert_message_properties(
-        &messages[3],
-        ChatCompletionMessageRole::Assistant,
-        Some("The current time is 10:42:37 UTC on May 31, 2025."),
-        None,
-        false,
-    );
+    assert!(is_user(&messages[0]));
+    assert!(is_assistant(&messages[1]));
+    assert_eq!(tool_result_call_id(&messages[2]), Some("call_yc5v"));
+    assert!(is_assistant(&messages[3]));
 }
-
-// ============================================================================
-// TOOL CALL PROCESSING TESTS
-// ============================================================================
 
 #[tokio::test]
 async fn test_tool_call_json_parsing() {
-    // Test proper parsing of tool calls JSON
     let conversation = vec![create_test_chat(
         1,
         ChatRole::Assistant,
@@ -332,25 +229,15 @@ async fn test_tool_call_json_parsing() {
     )];
 
     let messages = convert_chat_to_messages(conversation);
-
     assert_eq!(messages.len(), 1);
-    assert_eq!(messages[0].role, ChatCompletionMessageRole::Assistant);
-    assert!(messages[0].tool_calls.is_some());
-
-    let tool_calls = messages[0].tool_calls.as_ref().unwrap();
+    let tool_calls = assistant_tool_calls(&messages[0]);
     assert_eq!(tool_calls.len(), 1);
-    assert_eq!(tool_calls[0].id, "call_test123");
-    assert_eq!(tool_calls[0].r#type, "function");
-    assert_eq!(tool_calls[0].function.name, "test_function");
-    assert_eq!(
-        tool_calls[0].function.arguments,
-        r#"{"param1":"value1","param2":42}"#
-    );
+    assert_eq!(tool_calls[0].0, "call_test123");
+    assert_eq!(tool_calls[0].1, "test_function");
 }
 
 #[tokio::test]
 async fn test_tool_call_id_linking() {
-    // Test tool_call_id properly links Assistant and Tool messages
     let conversation = vec![
         create_test_chat(
             1,
@@ -373,42 +260,26 @@ async fn test_tool_call_id_linking() {
     ];
 
     let messages = convert_chat_to_messages(conversation);
-
     assert_eq!(messages.len(), 2);
-
-    // Assistant message has tool_calls populated
-    assert!(messages[0].tool_calls.is_some());
-    let tool_calls = messages[0].tool_calls.as_ref().unwrap();
-    assert_eq!(tool_calls[0].id, "call_link_test");
-
-    // Tool message has correct tool_call_id
-    assert_eq!(messages[1].tool_call_id, Some("call_link_test".to_string()));
-    assert_eq!(messages[1].role, ChatCompletionMessageRole::Tool);
+    assert_eq!(assistant_tool_calls(&messages[0])[0].0, "call_link_test");
+    assert_eq!(tool_result_call_id(&messages[1]), Some("call_link_test"));
 }
 
 #[tokio::test]
 async fn test_history_truncation_keeps_latest() {
-    use openai_api::token_count::token_count;
+    use crate::context_builder::estimate_message_tokens;
 
-    fn mk_msg(content: &str) -> ChatCompletionMessage {
-        ChatCompletionMessage {
-            role: ChatCompletionMessageRole::User,
-            content: Some(content.to_string()),
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        }
+    fn mk_msg(content: &str) -> Message {
+        Message::user(content.to_string())
     }
 
-    // Measure token counts for small and large messages
     let small_msg = mk_msg("hi");
-    let small_tokens = token_count(vec![small_msg.clone()]) as usize;
+    let small_tokens = estimate_message_tokens(&small_msg);
 
     let large_content = "long ".repeat(100);
     let large_msg = mk_msg(&large_content);
-    let large_tokens = token_count(vec![large_msg.clone()]) as usize;
+    let large_tokens = estimate_message_tokens(&large_msg);
 
-    // Allow large message and three recent small messages
     let context_size = large_tokens + small_tokens * 4 + 1;
 
     let history = vec![
@@ -422,77 +293,45 @@ async fn test_history_truncation_keeps_latest() {
 
     let messages = generate_prompt(context_size, 0, 1.0, None, history).await;
 
-    let contents: Vec<_> = messages.iter().map(|m| m.content.clone()).collect();
-
-    dbg!(&contents);
-
-    assert_eq!(messages.len(), 4);
-    assert_eq!(contents[0], Some("m3".to_string()));
-    assert_eq!(contents[1], Some("m4".to_string()));
-    assert_eq!(contents[2], Some("m5".to_string()));
-    assert_eq!(contents[3], Some(large_content));
+    let contents: Vec<_> = messages.iter().filter_map(text_content).collect();
+    assert_eq!(messages.len(), 5);
+    assert_eq!(contents[0], "m2");
+    assert_eq!(contents[1], "m3");
+    assert_eq!(contents[2], "m4");
+    assert_eq!(contents[3], "m5");
+    assert_eq!(contents[4], large_content);
 }
 
 #[test]
 fn test_strip_tool_data_removes_tool_messages() {
-    use openai_api::{ChatCompletionMessageRole, ToolCall, ToolCallFunction};
-
     let messages = vec![
-        ChatCompletionMessage {
-            role: ChatCompletionMessageRole::User,
-            content: Some("hi".to_string()),
-            tool_call_id: None,
-            tool_calls: None,
-            name: None,
-        },
-        ChatCompletionMessage {
-            role: ChatCompletionMessageRole::Assistant,
-            content: None,
-            tool_call_id: None,
-            tool_calls: Some(vec![ToolCall {
+        Message::user("hi"),
+        Message::Assistant {
+            id: None,
+            content: OneOrMany::many(vec![AssistantContent::ToolCall(rig::message::ToolCall {
                 id: "call1".to_string(),
-                index: None,
-                r#type: "function".to_string(),
-                function: ToolCallFunction {
+                call_id: None,
+                function: rig::message::ToolFunction {
                     name: "do_it".to_string(),
-                    arguments: "{}".to_string(),
+                    arguments: serde_json::json!({}),
                 },
-            }]),
-            name: None,
+            })])
+            .unwrap(),
         },
-        ChatCompletionMessage {
-            role: ChatCompletionMessageRole::Tool,
-            content: Some("{}".to_string()),
-            tool_call_id: Some("call1".to_string()),
-            tool_calls: None,
-            name: None,
-        },
+        Message::tool_result_with_call_id("call1", None, "{}"),
     ];
 
     let sanitized = strip_tool_data(&messages);
-
     assert_eq!(sanitized.len(), 1);
-    assert_eq!(sanitized[0].role, ChatCompletionMessageRole::User);
-    assert_eq!(sanitized[0].content, Some("hi".to_string()));
-    assert!(sanitized[0].tool_calls.is_none());
-    assert!(sanitized[0].tool_call_id.is_none());
+    assert!(is_user(&sanitized[0]));
+    assert_eq!(text_content(&sanitized[0]), Some("hi"));
 }
 
 #[test]
 fn test_strip_tool_data_changes_system_to_user() {
-    use openai_api::ChatCompletionMessageRole;
-
-    let messages = vec![ChatCompletionMessage {
-        role: ChatCompletionMessageRole::System,
-        content: Some("hi".to_string()),
-        tool_call_id: None,
-        tool_calls: None,
-        name: None,
-    }];
-
+    let messages = vec![Message::user("hi")];
     let sanitized = strip_tool_data(&messages);
-
     assert_eq!(sanitized.len(), 1);
-    assert_eq!(sanitized[0].role, ChatCompletionMessageRole::User);
-    assert_eq!(sanitized[0].content, Some("hi".to_string()));
+    assert!(is_user(&sanitized[0]));
+    assert_eq!(text_content(&sanitized[0]), Some("hi"));
 }

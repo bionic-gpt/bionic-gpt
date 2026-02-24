@@ -1,8 +1,8 @@
-use crate::tool_interface::ToolInterface;
-use async_trait::async_trait;
+use crate::types::ToolDefinition;
 use db::{queries, Pool, Transaction};
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
-use serde_json::json;
+use rig::tool::{ToolDyn, ToolError};
+use rig::wasm_compat::WasmBoxedFuture;
+use serde_json::{json, Value};
 
 pub struct ListDatasetsTool {
     pool: Pool,
@@ -20,18 +20,15 @@ impl ListDatasetsTool {
     }
 }
 
-pub fn get_tool_definition() -> BionicToolDefinition {
-    BionicToolDefinition {
-        r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
-            name: "list_datasets".to_string(),
-            description: "List all datasets connected to this assistant.".to_string(),
-            parameters: json!({
-                "type": "object",
-                "properties": {},
-                "required": []
-            }),
-        },
+pub fn get_tool_definition() -> ToolDefinition {
+    ToolDefinition {
+        name: "list_datasets".to_string(),
+        description: "List all datasets connected to this assistant.".to_string(),
+        parameters: json!({
+            "type": "object",
+            "properties": {},
+            "required": []
+        }),
     }
 }
 
@@ -53,35 +50,52 @@ async fn list_datasets(
     }))
 }
 
-#[async_trait]
-impl ToolInterface for ListDatasetsTool {
-    fn get_tool(&self) -> BionicToolDefinition {
-        get_tool_definition()
-    }
-
-    async fn execute(&self, _arguments: &str) -> Result<serde_json::Value, serde_json::Value> {
-        let mut client = self.pool.get().await.map_err(
+async fn execute_list_datasets(
+    tool: &ListDatasetsTool,
+) -> Result<serde_json::Value, serde_json::Value> {
+    let mut client =
+        tool.pool.get().await.map_err(
             |e| json!({"error": "Failed to get database client", "details": e.to_string()}),
         )?;
-        let transaction = client.transaction().await.map_err(
-            |e| json!({"error": "Failed to start transaction", "details": e.to_string()}),
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, tool.sub.clone())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let result = list_datasets(&transaction, tool.prompt_id).await;
+
+    if result.is_ok() {
+        transaction.commit().await.map_err(
+            |e| json!({"error": "Failed to commit transaction", "details": e.to_string()}),
         )?;
+    } else {
+        transaction.rollback().await.ok();
+    }
 
-        db::authz::set_row_level_security_user_id(&transaction, self.sub.clone())
-            .await
-            .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+    result
+}
 
-        let result = list_datasets(&transaction, self.prompt_id).await;
+impl ToolDyn for ListDatasetsTool {
+    fn name(&self) -> String {
+        get_tool_definition().name
+    }
 
-        if result.is_ok() {
-            transaction.commit().await.map_err(
-                |e| json!({"error": "Failed to commit transaction", "details": e.to_string()}),
-            )?;
-        } else {
-            transaction.rollback().await.ok();
-        }
+    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
+        Box::pin(async move { get_tool_definition() })
+    }
 
-        result
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let _arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+            let result = execute_list_datasets(self).await.map_err(|err| {
+                ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
+            })?;
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
     }
 }
 
@@ -92,6 +106,6 @@ mod tests {
     #[test]
     fn test_get_list_datasets_tool() {
         let tool = get_tool_definition();
-        assert_eq!(tool.function.name, "list_datasets");
+        assert_eq!(tool.name, "list_datasets");
     }
 }

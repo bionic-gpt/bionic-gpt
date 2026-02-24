@@ -7,7 +7,7 @@ use daisy_rsx::*;
 use db::queries::capabilities::Capability;
 use db::types::public::ModelCapability;
 use dioxus::prelude::*;
-use openai_api::BionicToolDefinition;
+use tool_runtime::ToolDefinition;
 
 #[component]
 pub fn Form(
@@ -18,7 +18,7 @@ pub fn Form(
     disclaimer: String,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
-    available_tools: Vec<BionicToolDefinition>,
+    available_tools: Vec<ToolDefinition>,
 ) -> Element {
     // Check if tool_use capability is present
     let has_tool_use = capabilities
