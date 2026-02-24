@@ -1,4 +1,3 @@
-use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
@@ -348,7 +347,7 @@ async fn create_request(
         .all()
         .await?;
 
-    let chat_history = chat_converter::convert_chat_to_messages(chat_history);
+    let chat_history = super::context_builder::convert_chat_to_messages(chat_history);
 
     let messages = super::context_builder::execute_prompt(
         &transaction,

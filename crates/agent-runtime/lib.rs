@@ -1,4 +1,3 @@
-mod chat_converter;
 mod context_builder;
 mod errors;
 mod jwt;

@@ -31,10 +31,8 @@ Route: `/app/synthesize` (POST)
 
 - Axum handlers live in this crate and are wired in `lib.rs`.
 - Database access uses the generated queries from the `db` crate.
-- Prompt building happens in `context_builder.rs` with token-aware trimming.
-- Chat history is converted to internal chat message structures in
-  `chat_converter.rs`, then mapped into `rig` messages in
-  `ui_chat_orchestrator.rs`.
+- Prompt building and chat-history conversion happen in `context_builder.rs`
+  with token-aware trimming.
 - Streaming responses use `rig` streaming primitives and are mapped to UI SSE
   events.
 - Tool execution uses the `tool-runtime` crate to call external tools and store
