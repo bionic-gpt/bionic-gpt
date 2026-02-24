@@ -8,7 +8,6 @@ mod result_sink;
 pub mod synthesize;
 #[cfg(test)]
 mod tests;
-mod token_count;
 pub mod ui_chat_orchestrator;
 #[cfg(test)]
 mod ui_chat_orchestrator_tests;

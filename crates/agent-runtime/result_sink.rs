@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use db::{queries, ChatRole, ChatStatus, Pool};
+use rig::completion::Usage;
 use tool_runtime::{execute_tool_calls, ToolCall, ToolResultContent};
 
 #[async_trait]
@@ -8,6 +9,7 @@ pub(crate) trait ResultSink: Send + Sync {
         &self,
         snapshot: &str,
         tool_calls: Option<Vec<ToolCall>>,
+        usage: Option<Usage>,
         chat_id: i32,
         sub: &str,
         status: ChatStatus,
@@ -30,11 +32,15 @@ impl ResultSink for DbResultSink {
         &self,
         snapshot: &str,
         tool_calls: Option<Vec<ToolCall>>,
+        usage: Option<Usage>,
         chat_id: i32,
         sub: &str,
         status: ChatStatus,
     ) {
-        save_results_db(&self.pool, snapshot, tool_calls, chat_id, sub, status).await;
+        save_results_db(
+            &self.pool, snapshot, tool_calls, usage, chat_id, sub, status,
+        )
+        .await;
     }
 }
 
@@ -42,6 +48,7 @@ async fn save_results_db(
     pool: &Pool,
     snapshot: &str,
     tool_calls: Option<Vec<ToolCall>>,
+    usage: Option<Usage>,
     chat_id: i32,
     sub: &str,
     status: ChatStatus,
@@ -76,7 +83,6 @@ async fn save_results_db(
     }
 
     let tool_calls_json = serde_json::to_string(&tool_calls).ok();
-    let completion_tokens = crate::token_count::token_count_from_string(snapshot);
 
     if let Ok(chat) = queries::chats::chat()
         .bind(&transaction, &chat_id)
@@ -118,19 +124,43 @@ async fn save_results_db(
             return;
         }
 
-        if let Err(e) = queries::token_usage_metrics::create_token_usage_metric()
-            .bind(
-                &transaction,
-                &Some(chat_id),
-                &None::<i32>,
-                &db::TokenUsageType::Completion,
-                &completion_tokens,
-                &None::<i32>,
-            )
-            .one()
-            .await
-        {
-            tracing::error!("Error tracking completion tokens: {:?}", e);
+        if status == ChatStatus::Success {
+            let (prompt_tokens, completion_tokens) = usage
+                .map(|u| (u.input_tokens as i32, u.output_tokens as i32))
+                .unwrap_or_else(|| {
+                    tracing::warn!("Missing provider token usage, storing zeros");
+                    (0, 0)
+                });
+
+            if let Err(e) = queries::token_usage_metrics::create_token_usage_metric()
+                .bind(
+                    &transaction,
+                    &Some(chat_id),
+                    &None::<i32>,
+                    &db::TokenUsageType::Prompt,
+                    &prompt_tokens,
+                    &None::<i32>,
+                )
+                .one()
+                .await
+            {
+                tracing::error!("Error tracking prompt tokens: {:?}", e);
+            }
+
+            if let Err(e) = queries::token_usage_metrics::create_token_usage_metric()
+                .bind(
+                    &transaction,
+                    &Some(chat_id),
+                    &None::<i32>,
+                    &db::TokenUsageType::Completion,
+                    &completion_tokens,
+                    &None::<i32>,
+                )
+                .one()
+                .await
+            {
+                tracing::error!("Error tracking completion tokens: {:?}", e);
+            }
         }
 
         if status == ChatStatus::Success {

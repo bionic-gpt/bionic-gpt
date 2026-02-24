@@ -267,18 +267,18 @@ async fn test_tool_call_id_linking() {
 
 #[tokio::test]
 async fn test_history_truncation_keeps_latest() {
-    use crate::token_count::token_count;
+    use crate::context_builder::estimate_message_tokens;
 
     fn mk_msg(content: &str) -> Message {
         Message::user(content.to_string())
     }
 
     let small_msg = mk_msg("hi");
-    let small_tokens = token_count(vec![small_msg.clone()]) as usize;
+    let small_tokens = estimate_message_tokens(&small_msg);
 
     let large_content = "long ".repeat(100);
     let large_msg = mk_msg(&large_content);
-    let large_tokens = token_count(vec![large_msg.clone()]) as usize;
+    let large_tokens = estimate_message_tokens(&large_msg);
 
     let context_size = large_tokens + small_tokens * 4 + 1;
 
@@ -294,11 +294,12 @@ async fn test_history_truncation_keeps_latest() {
     let messages = generate_prompt(context_size, 0, 1.0, None, history).await;
 
     let contents: Vec<_> = messages.iter().filter_map(text_content).collect();
-    assert_eq!(messages.len(), 4);
-    assert_eq!(contents[0], "m3");
-    assert_eq!(contents[1], "m4");
-    assert_eq!(contents[2], "m5");
-    assert_eq!(contents[3], large_content);
+    assert_eq!(messages.len(), 5);
+    assert_eq!(contents[0], "m2");
+    assert_eq!(contents[1], "m3");
+    assert_eq!(contents[2], "m4");
+    assert_eq!(contents[3], "m5");
+    assert_eq!(contents[4], large_content);
 }
 
 #[test]

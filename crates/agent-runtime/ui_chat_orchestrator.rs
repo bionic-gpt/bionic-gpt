@@ -8,7 +8,7 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{ChatStatus, Pool};
 use rig::client::CompletionClient;
-use rig::completion::CompletionModel as _;
+use rig::completion::{CompletionModel as _, GetTokenUsage, Usage};
 use rig::providers::openai;
 use rig::streaming::StreamedAssistantContent;
 use serde_json::json;
@@ -61,6 +61,7 @@ pub enum GenerationEvent {
     End {
         snapshot: String,
         tool_calls: Option<Vec<ToolCall>>,
+        usage: Option<Usage>,
     },
 }
 
@@ -70,6 +71,7 @@ enum StreamOutcome {
     ClientDisconnected {
         snapshot: String,
         tool_calls: Option<Vec<ToolCall>>,
+        usage: Option<Usage>,
     },
 }
 
@@ -95,9 +97,17 @@ where
                     GenerationEvent::End {
                         snapshot,
                         tool_calls,
+                        usage,
                     } => {
                         result_sink
-                            .save(&snapshot, tool_calls, chat_id, &sub, ChatStatus::Success)
+                            .save(
+                                &snapshot,
+                                tool_calls,
+                                usage,
+                                chat_id,
+                                &sub,
+                                ChatStatus::Success,
+                            )
                             .await;
                         Ok(Event::default().data(event_data_for_done()))
                     }
@@ -105,7 +115,7 @@ where
                 Err(e) => {
                     let message = e.to_string();
                     result_sink
-                        .save(&message, None, chat_id, &sub, ChatStatus::Error)
+                        .save(&message, None, None, chat_id, &sub, ChatStatus::Error)
                         .await;
                     Ok(event_data_for_error(message))
                 }
@@ -143,6 +153,7 @@ pub async fn chat_generate(
                         .save(
                             limit_message,
                             None,
+                            None,
                             chat_id,
                             &sub_for_save,
                             ChatStatus::Error,
@@ -156,11 +167,13 @@ pub async fn chat_generate(
                     Ok(StreamOutcome::ClientDisconnected {
                         snapshot,
                         tool_calls,
+                        usage,
                     }) => {
                         result_sink_clone
                             .save(
                                 &snapshot,
                                 tool_calls,
+                                usage,
                                 chat_id,
                                 &sub_for_save,
                                 ChatStatus::Error,
@@ -171,7 +184,14 @@ pub async fn chat_generate(
                         let err_msg = err.to_string();
                         tracing::error!("Error generating SSE stream: {}", err_msg);
                         result_sink_clone
-                            .save(&err_msg, None, chat_id, &sub_for_save, ChatStatus::Error)
+                            .save(
+                                &err_msg,
+                                None,
+                                None,
+                                chat_id,
+                                &sub_for_save,
+                                ChatStatus::Error,
+                            )
                             .await;
                     }
                 }
@@ -187,6 +207,7 @@ pub async fn chat_generate(
             result_sink
                 .save(
                     &err.to_string(),
+                    None,
                     None,
                     chat_id,
                     &current_user.sub,
@@ -212,6 +233,7 @@ async fn stream_chat_with_rig(
 
     let mut snapshot = String::new();
     let mut tool_calls: Vec<ToolCall> = Vec::new();
+    let mut usage: Option<Usage> = None;
 
     while let Some(item) = stream.next().await {
         match item {
@@ -231,6 +253,7 @@ async fn stream_chat_with_rig(
                         } else {
                             Some(tool_calls)
                         },
+                        usage,
                     });
                 }
             }
@@ -239,7 +262,9 @@ async fn stream_chat_with_rig(
             }
             Ok(StreamedAssistantContent::ToolCallDelta { .. }) => {}
             Ok(StreamedAssistantContent::Reasoning(_)) => {}
-            Ok(StreamedAssistantContent::Final(_)) => {}
+            Ok(StreamedAssistantContent::Final(final_response)) => {
+                usage = final_response.token_usage();
+            }
             Err(err) => return Err(Box::new(err)),
         }
     }
@@ -254,6 +279,7 @@ async fn stream_chat_with_rig(
         .send(Ok(GenerationEvent::End {
             snapshot: snapshot.clone(),
             tool_calls: tool_calls_for_end,
+            usage,
         }))
         .await
         .is_err()
@@ -265,6 +291,7 @@ async fn stream_chat_with_rig(
             } else {
                 Some(tool_calls)
             },
+            usage,
         });
     }
 

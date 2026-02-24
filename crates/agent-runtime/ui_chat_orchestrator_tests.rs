@@ -2,6 +2,7 @@
 use crate::ui_chat_orchestrator::{build_event_stream, GenerationEvent, ResultSink};
 use async_trait::async_trait;
 use db::ChatStatus;
+use rig::completion::Usage;
 use serde_json::json;
 use std::sync::{Arc, Mutex};
 use tokio::pin;
@@ -25,6 +26,7 @@ impl ResultSink for FakeResultSink {
         &self,
         snapshot: &str,
         tool_calls: Option<Vec<ToolCall>>,
+        _usage: Option<Usage>,
         _chat_id: i32,
         _sub: &str,
         status: ChatStatus,
@@ -61,6 +63,7 @@ async fn event_stream_saves_on_end_with_tool_calls() {
         Ok(GenerationEvent::End {
             snapshot: "final".to_string(),
             tool_calls: Some(tool_calls),
+            usage: None,
         }),
     ]);
 

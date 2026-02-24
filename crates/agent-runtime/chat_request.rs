@@ -79,20 +79,6 @@ pub(crate) async fn create_request(
     )
     .await?;
 
-    let size = crate::token_count::token_count(messages.clone());
-
-    queries::token_usage_metrics::create_token_usage_metric()
-        .bind(
-            &transaction,
-            &Some(chat_id),
-            &None::<i32>,
-            &db::TokenUsageType::Prompt,
-            &size,
-            &None::<i32>,
-        )
-        .one()
-        .await?;
-
     queries::chats::set_chat_status()
         .bind(&transaction, &ChatStatus::InProgress, &chat_id)
         .await?;

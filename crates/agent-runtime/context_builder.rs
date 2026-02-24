@@ -163,7 +163,7 @@ fn add_message(
     size_so_far: usize,
     size_allowed: usize,
 ) -> usize {
-    let size: usize = crate::token_count::token_count(vec![message_to_add.clone()]) as usize;
+    let size = estimate_message_tokens(&message_to_add);
 
     if (size + size_so_far) < size_allowed {
         messages.push(message_to_add);
@@ -171,4 +171,9 @@ fn add_message(
     }
 
     size_so_far
+}
+
+pub(crate) fn estimate_message_tokens(message: &Message) -> usize {
+    let bytes = serde_json::to_vec(message).unwrap_or_default().len();
+    (bytes / 4).max(1)
 }
