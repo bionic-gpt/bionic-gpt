@@ -6,8 +6,8 @@ use axum::{
 };
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, OpenapiSpecCategory, Pool};
-use integrations::bionic_openapi::BionicOpenAPI;
 use serde::Deserialize;
+use tool_runtime::BionicOpenAPI;
 use validator::Validate;
 use web_pages::routes::code_sandbox::{ConfigureApiKey, DeleteApiKey, Index, Select};
 use web_pages::shared::openapi_spec_api_keys::OpenapiSpecKeySummary;

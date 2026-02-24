@@ -1,8 +1,8 @@
+use agent_runtime::user_config::{create_user_config_cookie, UserConfig};
 use axum::http::HeaderMap;
 use axum::response::Redirect;
 use axum::Form;
 use axum_extra::extract::cookie::{Cookie, CookieJar};
-use llm_proxy::user_config::{create_user_config_cookie, UserConfig};
 use serde::Deserialize;
 use web_pages::routes::console::SetPrompt;
 

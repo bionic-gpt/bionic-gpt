@@ -1,8 +1,8 @@
 use crate::errors::CustomError;
 use db::queries::{prompt_integrations, prompts};
 use db::Transaction;
-use integrations::{create_tools_from_integrations, get_tools, ToolScope};
 use openai_api::{BionicToolDefinition, ChatCompletionMessage, ChatCompletionMessageRole};
+use tool_runtime::{create_tools_from_integrations, get_tools, ToolScope};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
 // that's why chat is a Vec<Message>

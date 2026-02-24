@@ -6,8 +6,8 @@ use daisy_rsx::*;
 use db::authz::Rbac;
 use db::{ApiKeyConnection, Oauth2Connection};
 use dioxus::prelude::*;
-use integrations::bionic_openapi::BionicOpenAPI;
-use integrations::OAuth2Config;
+use tool_runtime::BionicOpenAPI;
+use tool_runtime::OAuth2Config;
 
 #[component]
 pub fn ConnectionsSection(

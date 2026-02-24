@@ -1,4 +1,4 @@
-use crate::bionic_openapi::OAuth2Config;
+use crate::openapi_tool_factory::OAuth2Config;
 use async_trait::async_trait;
 use db::{self, Pool};
 use oauth2::reqwest::Client;

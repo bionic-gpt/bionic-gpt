@@ -1,8 +1,8 @@
+use agent_runtime::user_config::{create_user_config_cookie, UserConfig};
 use axum::body::Bytes;
 use axum::http::HeaderMap;
 use axum::response::Redirect;
 use axum_extra::extract::cookie::{Cookie, CookieJar};
-use llm_proxy::user_config::{create_user_config_cookie, UserConfig};
 use web_pages::routes::console::SetTools;
 
 pub async fn set_tools(

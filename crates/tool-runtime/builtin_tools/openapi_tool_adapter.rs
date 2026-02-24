@@ -3,8 +3,8 @@
 //! This module provides the OpenApiTool struct that executes HTTP requests
 //! based on OpenAPI operation definitions.
 
-use crate::token_providers::TokenProvider;
-use crate::tool::ToolInterface;
+use crate::tool_auth::TokenProvider;
+use crate::tool_interface::ToolInterface;
 use async_trait::async_trait;
 use oas3::{
     self,
@@ -425,7 +425,7 @@ fn substitute_path_parameters(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::token_providers::StaticTokenProvider;
+    use crate::tool_auth::StaticTokenProvider;
     use openai_api::ChatCompletionFunctionDefinition;
     use serde_json::json;
     use std::collections::VecDeque;

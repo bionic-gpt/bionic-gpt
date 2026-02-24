@@ -1,6 +1,6 @@
-use crate::bionic_openapi::BionicOpenAPI;
-use crate::token_providers::StaticTokenProvider;
-use crate::tool::ToolInterface;
+use crate::openapi_tool_factory::BionicOpenAPI;
+use crate::tool_auth::StaticTokenProvider;
+use crate::tool_interface::ToolInterface;
 use db::{queries, OpenapiSpec, OpenapiSpecCategory, Pool};
 use openai_api::BionicToolDefinition;
 use std::sync::Arc;

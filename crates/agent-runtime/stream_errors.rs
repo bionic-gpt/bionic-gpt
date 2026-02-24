@@ -2,7 +2,7 @@ use axum::Error;
 use serde::Serialize;
 use tokio::sync::mpsc;
 
-use super::sse_chat_enricher::{CompletionChunk, GenerationEvent};
+use super::stream_assembler::{CompletionChunk, GenerationEvent};
 
 // We needed a way to send errors to the users UI console.
 // So we use the existing stream and send the message as a chunk.

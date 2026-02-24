@@ -9,6 +9,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "512761e0bb2578dd7380c6baaa0f4ce03e84f95e960231d1dec8bf4d7d6e2627"
 
 [[package]]
+name = "agent-runtime"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "axum-extra",
+ "base64 0.22.1",
+ "db",
+ "embeddings-api",
+ "http 1.4.0",
+ "openai-api",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "time",
+ "tokio",
+ "tokio-stream",
+ "tool-runtime",
+ "tower-http",
+ "tracing",
+]
+
+[[package]]
 name = "ahash"
 version = "0.8.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2592,30 +2615,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "integrations"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "axum",
- "chrono",
- "db",
- "embeddings-api",
- "futures",
- "futures-util",
- "html2text",
- "oas3",
- "oauth2",
- "openai-api",
- "rag-engine",
- "reqwest 0.13.1",
- "serde",
- "serde_json",
- "time",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "interpolate_name"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2810,29 +2809,6 @@ name = "litemap"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23fb14cb19457329c82206317a5663005a4d404783dc74f4252769b0d5f42856"
-
-[[package]]
-name = "llm-proxy"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "axum",
- "axum-extra",
- "base64 0.22.1",
- "db",
- "embeddings-api",
- "http 1.4.0",
- "integrations",
- "openai-api",
- "reqwest 0.13.1",
- "serde",
- "serde_json",
- "time",
- "tokio",
- "tokio-stream",
- "tower-http",
- "tracing",
-]
 
 [[package]]
 name = "lock_api"
@@ -5288,6 +5264,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "tool-runtime"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "chrono",
+ "db",
+ "embeddings-api",
+ "futures",
+ "futures-util",
+ "html2text",
+ "oas3",
+ "oauth2",
+ "openai-api",
+ "rag-engine",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "time",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "tower"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5749,13 +5749,13 @@ dependencies = [
  "db",
  "dioxus",
  "dioxus-ssr",
- "integrations",
  "oas3",
  "openai-api",
  "serde",
  "serde_json",
  "time",
  "toml",
+ "tool-runtime",
  "validator",
 ]
 
@@ -5763,6 +5763,7 @@ dependencies = [
 name = "web-server"
 version = "0.1.0"
 dependencies = [
+ "agent-runtime",
  "assets",
  "async-trait",
  "axum",
@@ -5774,9 +5775,7 @@ dependencies = [
  "embeddings-api",
  "http 1.4.0",
  "http-body-util",
- "integrations",
  "lettre",
- "llm-proxy",
  "mime",
  "oas3",
  "oauth2",
@@ -5792,6 +5791,7 @@ dependencies = [
  "time",
  "tokio",
  "tokio-util",
+ "tool-runtime",
  "tower",
  "tower-http",
  "tracing",

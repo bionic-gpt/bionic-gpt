@@ -3,7 +3,7 @@ use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 use time::OffsetDateTime;
 
 use crate::moderation::strip_tool_data;
-use crate::{chat_converter::convert_chat_to_messages, prompt::generate_prompt};
+use crate::{chat_converter::convert_chat_to_messages, context_builder::generate_prompt};
 
 #[tokio::test]
 async fn test_convert_chat_to_messages_tool_calling_fallback() {

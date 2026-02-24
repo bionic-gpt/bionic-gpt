@@ -3,7 +3,7 @@ use axum::extract::Extension;
 use axum::response::Html;
 use axum::response::IntoResponse;
 use db::{authz, queries, Pool};
-use integrations::bionic_openapi::BionicOpenAPI;
+use tool_runtime::BionicOpenAPI;
 use web_pages::integrations::integration_card::IntegrationSummary;
 use web_pages::integrations::select::PrebuiltSpec;
 use web_pages::integrations::upsert::IntegrationForm;

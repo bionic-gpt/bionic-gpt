@@ -5,7 +5,6 @@ use axum::Router;
 use axum_extra::extract::cookie::{Cookie, CookieJar};
 use axum_extra::routing::RouterExt;
 use db::{authz, queries, Pool, Visibility};
-use integrations::{BionicOpenAPI, OAuth2Config};
 use oauth2::basic::BasicClient;
 use oauth2::reqwest::Client;
 use oauth2::{
@@ -13,6 +12,7 @@ use oauth2::{
     PkceCodeVerifier, RedirectUrl, Scope, TokenResponse, TokenUrl,
 };
 use serde::Deserialize;
+use tool_runtime::{BionicOpenAPI, OAuth2Config};
 use web_pages::routes::integrations::{Connect, OAuth2Callback};
 
 #[derive(Deserialize)]

@@ -1,5 +1,5 @@
 use super::limits;
-use super::sse_chat_enricher::{enriched_chat, GenerationEvent};
+use super::stream_assembler::{enriched_chat, GenerationEvent};
 use crate::errors::CustomError;
 use axum::body::Body;
 use axum::extract::Request;
@@ -172,9 +172,13 @@ async fn create_request(
         .one()
         .await?;
 
-    let messages =
-        super::prompt::execute_prompt(transaction, prompt.clone(), None, completion.messages)
-            .await?;
+    let messages = super::context_builder::execute_prompt(
+        transaction,
+        prompt.clone(),
+        None,
+        completion.messages,
+    )
+    .await?;
     let completion = BionicChatCompletionRequest {
         messages,
         ..completion

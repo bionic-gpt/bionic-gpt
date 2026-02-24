@@ -1,13 +1,13 @@
 use super::super::console::process_chats;
 use crate::{CustomError, Jwt};
+use agent_runtime::UserConfig;
 use axum::extract::Extension;
 use axum::response::Html;
 use db::queries;
 use db::Pool;
 use db::{authz, ModelType};
-use integrations::ToolScope;
-use llm_proxy::UserConfig;
 use openai_api::BionicToolDefinition;
+use tool_runtime::ToolScope;
 use web_pages::routes::prompts::Conversation;
 
 pub async fn conversation(
@@ -63,7 +63,7 @@ pub async fn conversation(
     let enabled_tools = user_config.enabled_tools.unwrap_or_default();
 
     let available_tools: Vec<BionicToolDefinition> =
-        integrations::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
+        tool_runtime::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
 
     let html = web_pages::assistants::conversation::page(
         team_id,

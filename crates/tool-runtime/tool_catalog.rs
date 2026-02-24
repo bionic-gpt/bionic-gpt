@@ -1,6 +1,6 @@
 // Import the tool trait and time date tool
-use crate::system_openapi::get_system_openapi_tool_definitions;
-use crate::tools;
+use crate::builtin_tools;
+use crate::system_tool_sources::get_system_openapi_tool_definitions;
 use db::Pool;
 use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
@@ -25,31 +25,33 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
         IntegrationTool {
             scope: ToolScope::UserSelectable,
             title: "Date and time tools".into(),
-            definitions: vec![tools::time_date::get_time_date_tool()],
+            definitions: vec![builtin_tools::time_date::get_time_date_tool()],
             definitions_json: serde_json::to_string_pretty(&vec![
-                tools::time_date::get_time_date_tool(),
+                builtin_tools::time_date::get_time_date_tool(),
             ])
             .expect("Failed to serialize time_date_tool to JSON"),
         },
         IntegrationTool {
             scope: ToolScope::UserSelectable,
             title: "Web tools".into(),
-            definitions: vec![tools::web::get_open_url_tool()],
-            definitions_json: serde_json::to_string_pretty(&vec![tools::web::get_open_url_tool()])
-                .expect("Failed to serialize web tools to JSON"),
+            definitions: vec![builtin_tools::web::get_open_url_tool()],
+            definitions_json: serde_json::to_string_pretty(&vec![
+                builtin_tools::web::get_open_url_tool(),
+            ])
+            .expect("Failed to serialize web tools to JSON"),
         },
         IntegrationTool {
             scope: ToolScope::DocumentIntelligence,
             title: "Tools to retrieve documents and read their contents.".into(),
             definitions: vec![
-                tools::list_documents::get_tool_definition(),
-                tools::read_document::get_tool_definition(),
-                //tools::read_document_section::get_tool_definition(),
+                builtin_tools::list_documents::get_tool_definition(),
+                builtin_tools::read_document::get_tool_definition(),
+                //builtin_tools::read_document_section::get_tool_definition(),
             ],
             definitions_json: serde_json::to_string_pretty(&vec![
-                tools::list_documents::get_tool_definition(),
-                tools::read_document::get_tool_definition(),
-                //tools::read_document_section::get_tool_definition(),
+                builtin_tools::list_documents::get_tool_definition(),
+                builtin_tools::read_document::get_tool_definition(),
+                //builtin_tools::read_document_section::get_tool_definition(),
             ])
             .expect("Failed to serialize attachment tools to JSON"),
         },
@@ -57,14 +59,14 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
             scope: ToolScope::Rag,
             title: "Tools to work with datasets".into(),
             definitions: vec![
-                tools::list_datasets::get_tool_definition(),
-                tools::list_dataset_files::get_tool_definition(),
-                tools::search_context::get_tool_definition(),
+                builtin_tools::list_datasets::get_tool_definition(),
+                builtin_tools::list_dataset_files::get_tool_definition(),
+                builtin_tools::search_context::get_tool_definition(),
             ],
             definitions_json: serde_json::to_string_pretty(&vec![
-                tools::list_datasets::get_tool_definition(),
-                tools::list_dataset_files::get_tool_definition(),
-                tools::search_context::get_tool_definition(),
+                builtin_tools::list_datasets::get_tool_definition(),
+                builtin_tools::list_dataset_files::get_tool_definition(),
+                builtin_tools::search_context::get_tool_definition(),
             ])
             .expect("Failed to serialize RAG tools to JSON"),
         },
@@ -142,7 +144,7 @@ pub async fn get_chat_tools_user_selected_with_system_openapi(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tools::time_date::get_time_date_tool;
+    use crate::builtin_tools::time_date::get_time_date_tool;
     use serde_json;
 
     #[test]
