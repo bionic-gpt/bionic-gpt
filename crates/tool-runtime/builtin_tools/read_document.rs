@@ -1,7 +1,8 @@
+use crate::token_count;
 use crate::tool_interface::ToolInterface;
+use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use db::Pool;
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use rag_engine::unstructured::{document_to_chunks, Unstructured};
 use serde::Deserialize;
 use serde_json::json;
@@ -29,10 +30,10 @@ impl ReadDocumentTool {
     }
 }
 
-pub fn get_tool_definition() -> BionicToolDefinition {
-    BionicToolDefinition {
+pub fn get_tool_definition() -> ToolDefinition {
+    ToolDefinition {
         r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
+        function: ToolFunctionDefinition {
             name: "read_document".to_string(),
             description:
                 "Reads the content of a document attachment. You must provide a valid 'file_id' from 'list_documents'. Never guess or hard-code the ID. The tool returns one or more sections from the document starting at the 'section_index' (default is 0). Always pass the file_id as an integer. Include an 'id' field in the tool call JSON structure."
@@ -61,7 +62,7 @@ fn accumulate_sections(
 
     while end_index < sections.len() {
         let section = &sections[end_index];
-        let section_tokens = openai_api::token_count::token_count_from_string(&section.text);
+        let section_tokens = token_count::token_count_from_string(&section.text);
         dbg!(&section.text, tokens_so_far, section_tokens, max_tokens);
         if tokens_so_far + section_tokens > max_tokens {
             break;
@@ -82,7 +83,7 @@ fn accumulate_sections(
 
 #[async_trait]
 impl ToolInterface for ReadDocumentTool {
-    fn get_tool(&self) -> BionicToolDefinition {
+    fn get_tool(&self) -> ToolDefinition {
         get_tool_definition()
     }
 
@@ -183,8 +184,8 @@ mod tests {
     #[test]
     fn test_accumulate_sections_limit() {
         let sections = vec![dummy("one"), dummy("two three"), dummy("four five six")];
-        let tokens = openai_api::token_count::token_count_from_string("one");
-        let tokens = tokens + openai_api::token_count::token_count_from_string("two three");
+        let tokens = token_count::token_count_from_string("one");
+        let tokens = tokens + token_count::token_count_from_string("two three");
         let (text, count, has_more) = accumulate_sections(&sections, 0, tokens);
         assert_eq!(count, 2);
         assert!(has_more);

@@ -8,7 +8,6 @@ path = "lib.rs"
 
 [dependencies]
 db = { path = "../db" }
-embeddings-api = { path = "../embeddings-api" }
 tool-runtime = { path = "../tool-runtime" }
 openai-api = { path = "../openai-api" }
 
@@ -23,6 +22,7 @@ serde = { workspace = true, features = ["derive"] }
 tracing.workspace = true
 tower-http = { workspace = true, features = ["fs", "cors"] }
 async-trait.workspace = true
+tiktoken-rs = "0.7.0"
 
 base64.workspace = true
 

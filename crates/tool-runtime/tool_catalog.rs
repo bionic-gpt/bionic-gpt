@@ -1,8 +1,8 @@
 // Import the tool trait and time date tool
 use crate::builtin_tools;
 use crate::system_tool_sources::get_system_openapi_tool_definitions;
+use crate::types::ToolDefinition;
 use db::Pool;
-use openai_api::BionicToolDefinition;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
@@ -16,7 +16,7 @@ pub enum ToolScope {
 pub struct IntegrationTool {
     pub title: String,
     pub scope: ToolScope,
-    pub definitions: Vec<BionicToolDefinition>,
+    pub definitions: Vec<ToolDefinition>,
     pub definitions_json: String,
 }
 
@@ -81,17 +81,14 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
 }
 
 /// The full list of tools a user can select for the chat.
-pub fn get_tools(scope: ToolScope) -> Vec<BionicToolDefinition> {
+pub fn get_tools(scope: ToolScope) -> Vec<ToolDefinition> {
     get_integrations(Some(scope))
         .into_iter()
         .flat_map(|integration| integration.definitions)
         .collect()
 }
 
-pub async fn get_tools_with_system_openapi(
-    pool: &Pool,
-    scope: ToolScope,
-) -> Vec<BionicToolDefinition> {
+pub async fn get_tools_with_system_openapi(pool: &Pool, scope: ToolScope) -> Vec<ToolDefinition> {
     let mut definitions = get_tools(scope.clone());
     if scope == ToolScope::UserSelectable {
         if let Ok(mut system_defs) = get_system_openapi_tool_definitions(pool).await {
@@ -113,9 +110,7 @@ pub async fn get_tools_with_system_openapi(
 /// This is for backward compatibility
 ///
 /// If enabled_tools is provided, only returns tools with names in that list
-pub fn get_chat_tools_user_selected(
-    enabled_tools: Option<&Vec<String>>,
-) -> Vec<BionicToolDefinition> {
+pub fn get_chat_tools_user_selected(enabled_tools: Option<&Vec<String>>) -> Vec<ToolDefinition> {
     let all_tool_definitions = get_tools(ToolScope::UserSelectable);
 
     match enabled_tools {
@@ -130,7 +125,7 @@ pub fn get_chat_tools_user_selected(
 pub async fn get_chat_tools_user_selected_with_system_openapi(
     pool: &Pool,
     enabled_tools: Option<&Vec<String>>,
-) -> Vec<BionicToolDefinition> {
+) -> Vec<ToolDefinition> {
     let all_tool_definitions = get_tools_with_system_openapi(pool, ToolScope::UserSelectable).await;
     match enabled_tools {
         Some(tool_names) if !tool_names.is_empty() => all_tool_definitions

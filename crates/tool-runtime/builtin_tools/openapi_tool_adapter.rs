@@ -11,7 +11,7 @@ use oas3::{
     spec::{ObjectOrReference, Operation, Parameter, ParameterIn},
 };
 
-use openai_api::BionicToolDefinition;
+use crate::types::ToolDefinition;
 use reqwest::{Client, Method, StatusCode, Url};
 use serde_json::Value;
 use std::collections::HashSet;
@@ -111,7 +111,7 @@ pub fn clear_http_client_override() {
 /// A tool that executes external integrations based on OpenAPI definitions
 pub struct OpenApiTool {
     /// The tool definition
-    definition: BionicToolDefinition,
+    definition: ToolDefinition,
     /// The base URL for the API
     base_url: String,
     /// The HTTP client
@@ -129,7 +129,7 @@ pub struct OpenApiTool {
 /// Start a simple scheduler that logs token refresh events
 impl OpenApiTool {
     pub fn new(
-        definition: BionicToolDefinition,
+        definition: ToolDefinition,
         base_url: String,
         spec: oas3::OpenApiV3Spec,
         operation_id: String,
@@ -149,7 +149,7 @@ impl OpenApiTool {
     }
 
     pub fn with_http_client(
-        definition: BionicToolDefinition,
+        definition: ToolDefinition,
         base_url: String,
         spec: oas3::OpenApiV3Spec,
         operation_id: String,
@@ -213,7 +213,7 @@ impl OpenApiTool {
 
 #[async_trait]
 impl ToolInterface for OpenApiTool {
-    fn get_tool(&self) -> BionicToolDefinition {
+    fn get_tool(&self) -> ToolDefinition {
         self.definition.clone()
     }
 
@@ -426,7 +426,7 @@ fn substitute_path_parameters(
 mod tests {
     use super::*;
     use crate::tool_auth::StaticTokenProvider;
-    use openai_api::ChatCompletionFunctionDefinition;
+    use crate::types::ToolFunctionDefinition;
     use serde_json::json;
     use std::collections::VecDeque;
     use std::sync::Arc;
@@ -526,9 +526,9 @@ mod tests {
     #[test]
     fn test_openapi_tool_find_operation_details() {
         let spec = create_test_openapi_spec();
-        let tool_def = BionicToolDefinition {
+        let tool_def = ToolDefinition {
             r#type: "function".to_string(),
-            function: ChatCompletionFunctionDefinition {
+            function: ToolFunctionDefinition {
                 name: "getUsers".to_string(),
                 description: "Get all users".to_string(),
                 parameters: json!({}),
@@ -556,9 +556,9 @@ mod tests {
     #[test]
     fn test_openapi_tool_operation_not_found() {
         let spec = create_test_openapi_spec();
-        let tool_def = BionicToolDefinition {
+        let tool_def = ToolDefinition {
             r#type: "function".to_string(),
-            function: ChatCompletionFunctionDefinition {
+            function: ToolFunctionDefinition {
                 name: "nonExistentOperation".to_string(),
                 description: "Non-existent operation".to_string(),
                 parameters: json!({}),
@@ -584,9 +584,9 @@ mod tests {
     #[test]
     fn test_tool_name_returns_operation_id() {
         let spec = create_test_openapi_spec();
-        let tool_def = BionicToolDefinition {
+        let tool_def = ToolDefinition {
             r#type: "function".to_string(),
-            function: ChatCompletionFunctionDefinition {
+            function: ToolFunctionDefinition {
                 name: "createUser".to_string(),
                 description: "Create a user".to_string(),
                 parameters: json!({}),
@@ -689,9 +689,9 @@ mod tests {
     #[tokio::test]
     async fn test_add_auth_header_custom_name() {
         let spec = create_test_openapi_spec();
-        let tool_def = BionicToolDefinition {
+        let tool_def = ToolDefinition {
             r#type: "function".to_string(),
-            function: ChatCompletionFunctionDefinition {
+            function: ToolFunctionDefinition {
                 name: "getUsers".to_string(),
                 description: "Get all users".to_string(),
                 parameters: json!({}),
@@ -800,9 +800,9 @@ mod tests {
             "first".into(),
             "second".into(),
         ]));
-        let tool_def = BionicToolDefinition {
+        let tool_def = ToolDefinition {
             r#type: "function".to_string(),
-            function: ChatCompletionFunctionDefinition {
+            function: ToolFunctionDefinition {
                 name: "getProtected".to_string(),
                 description: "".to_string(),
                 parameters: json!({}),

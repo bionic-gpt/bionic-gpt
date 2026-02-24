@@ -1,7 +1,7 @@
 use crate::tool_interface::ToolInterface;
+use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use db::{Pool, Transaction};
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::json;
 use tracing;
 
@@ -28,10 +28,10 @@ impl ListDocumentsTool {
 }
 
 /// Returns the tool definition for list_documents
-pub fn get_tool_definition() -> BionicToolDefinition {
-    BionicToolDefinition {
+pub fn get_tool_definition() -> ToolDefinition {
+    ToolDefinition {
         r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
+        function: ToolFunctionDefinition {
             name: "list_documents".to_string(),
             description:
                 "Use this tool to list all documents attached in the current conversation. Always call this before attempting to read or summarize a document. Do not guess file IDs. This returns real 'file_id' values that are required for calling 'read_document'."
@@ -47,7 +47,7 @@ pub fn get_tool_definition() -> BionicToolDefinition {
 
 #[async_trait]
 impl ToolInterface for ListDocumentsTool {
-    fn get_tool(&self) -> BionicToolDefinition {
+    fn get_tool(&self) -> ToolDefinition {
         tracing::debug!("Getting tool definition for ListDocumentsTool");
         get_tool_definition()
     }

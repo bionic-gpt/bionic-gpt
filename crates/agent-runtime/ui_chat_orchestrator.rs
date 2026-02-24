@@ -9,6 +9,7 @@ use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
+use crate::tool_conversion::{to_openai_tool_definitions, to_tool_runtime_tool_calls};
 use crate::user_config::UserConfig;
 use async_trait::async_trait;
 use axum::response::{sse::Event, Sse};
@@ -319,7 +320,7 @@ async fn save_results_db(
     let tool_calls_json = serde_json::to_string(&tool_calls).ok();
 
     // Calculate completion tokens from the response
-    let completion_tokens = openai_api::token_count_from_string(snapshot);
+    let completion_tokens = crate::token_count::token_count_from_string(snapshot);
 
     tracing::debug!(
         "save_results: Executing chat query with chat_id: {}",
@@ -386,7 +387,7 @@ async fn save_results_db(
         if status == ChatStatus::Success {
             if let Some(tool_calls) = tool_calls {
                 let tool_call_results = execute_tool_calls(
-                    tool_calls.clone(),
+                    to_tool_runtime_tool_calls(tool_calls.clone()),
                     pool,
                     sub.to_string(),
                     chat.conversation_id,
@@ -523,7 +524,7 @@ async fn create_request(
     )
     .await?;
 
-    let size = openai_api::token_count(messages.clone());
+    let size = crate::token_count::token_count(messages.clone());
 
     // Track prompt tokens in the new token_usage_metrics table
     queries::token_usage_metrics::create_token_usage_metric()
@@ -640,7 +641,7 @@ async fn create_request(
         max_tokens: prompt.max_completion_tokens,
         temperature: prompt.temperature,
         messages,
-        tools,
+        tools: tools.map(to_openai_tool_definitions),
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;

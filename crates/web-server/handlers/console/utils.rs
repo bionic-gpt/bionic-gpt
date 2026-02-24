@@ -1,8 +1,8 @@
 use crate::CustomError;
 use db::queries::{chats::Chat, chats_chunks};
 use db::{ChatRole, ChatStatus, Transaction};
-use openai_api::ToolCall;
 use serde_json::from_str;
+use tool_runtime::ToolCall;
 use web_pages::console::{ChatWithChunks, PendingChat, PendingChatState};
 
 pub fn determine_pending_chat_state(chats: Vec<Chat>) -> (Vec<Chat>, PendingChatState) {

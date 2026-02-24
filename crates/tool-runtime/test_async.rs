@@ -1,6 +1,6 @@
 use crate::builtin_tools::time_date::TimeDateTool;
 use crate::tool_interface::ToolInterface;
-use openai_api::ToolCall;
+use crate::types::ToolCall;
 use std::sync::Arc;
 
 // A simple test to verify that our async implementation works correctly
@@ -27,7 +27,7 @@ async fn test_async_tool_execution() {
 #[tokio::test]
 async fn test_execute_tool_call_with_tools() {
     use crate::tool_dispatcher::execute_tool_call_with_tools;
-    use openai_api::ToolCallFunction;
+    use crate::types::ToolCallFunction;
     use serde_json::json;
 
     // Create a TimeDateTool instance

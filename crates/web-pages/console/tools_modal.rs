@@ -2,13 +2,10 @@
 use crate::routes;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use openai_api::BionicToolDefinition;
+use tool_runtime::ToolDefinition;
 
 #[component]
-pub fn ToolsModal(
-    enabled_tools: Vec<String>,
-    available_tools: Vec<BionicToolDefinition>,
-) -> Element {
+pub fn ToolsModal(enabled_tools: Vec<String>, available_tools: Vec<ToolDefinition>) -> Element {
     rsx!(
         form {
             action: routes::console::SetTools{}.to_string(),

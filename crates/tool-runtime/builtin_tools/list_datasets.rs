@@ -1,7 +1,7 @@
 use crate::tool_interface::ToolInterface;
+use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use db::{queries, Pool, Transaction};
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::json;
 
 pub struct ListDatasetsTool {
@@ -20,10 +20,10 @@ impl ListDatasetsTool {
     }
 }
 
-pub fn get_tool_definition() -> BionicToolDefinition {
-    BionicToolDefinition {
+pub fn get_tool_definition() -> ToolDefinition {
+    ToolDefinition {
         r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
+        function: ToolFunctionDefinition {
             name: "list_datasets".to_string(),
             description: "List all datasets connected to this assistant.".to_string(),
             parameters: json!({
@@ -55,7 +55,7 @@ async fn list_datasets(
 
 #[async_trait]
 impl ToolInterface for ListDatasetsTool {
-    fn get_tool(&self) -> BionicToolDefinition {
+    fn get_tool(&self) -> ToolDefinition {
         get_tool_definition()
     }
 

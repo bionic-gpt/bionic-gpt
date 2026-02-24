@@ -7,6 +7,9 @@ use crate::chunks::ChunkText;
 use crate::config::ChunkingEngine;
 use db::queries;
 use object_storage::StorageConfig;
+use rig::client::EmbeddingsClient;
+use rig::embeddings::EmbeddingModel;
+use rig::providers::{ollama, openai};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -125,12 +128,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             for embedding in unprocessed {
-                match embeddings_api::get_embeddings(
+                match get_embeddings_via_rig(
                     &embedding.text,
                     &embedding.base_url,
                     &embedding.model,
                     embedding.context_size,
-                    &embedding.api_key,
+                    embedding.api_key.as_deref(),
                 )
                 .await
                 {
@@ -187,4 +190,60 @@ async fn load_document_bytes(
     }
 
     Err("document bytes missing".into())
+}
+
+fn trim_to_context_length(input: &str, context_length: i32) -> String {
+    if input.is_empty() {
+        return String::new();
+    }
+    let effective_context_length = if context_length <= 0 {
+        256
+    } else {
+        context_length
+    };
+    let char_count = input.chars().count() as i32;
+    if char_count <= effective_context_length {
+        return input.to_string();
+    }
+    input
+        .chars()
+        .take(effective_context_length as usize)
+        .collect()
+}
+
+async fn get_embeddings_via_rig(
+    input: &str,
+    api_end_point: &str,
+    model: &str,
+    context_length: i32,
+    api_key: Option<&str>,
+) -> Result<Vec<f32>, Box<dyn std::error::Error>> {
+    let text = String::from_utf8_lossy(input.as_bytes()).to_string();
+    let trimmed_text = trim_to_context_length(&text, context_length);
+
+    let normalized_base_url = api_end_point
+        .strip_suffix("/embeddings")
+        .or_else(|| api_end_point.strip_suffix("/v1/embeddings"))
+        .map(|s| s.trim_end_matches('/').to_string())
+        .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
+
+    let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
+        let client = openai::Client::builder(key)
+            .base_url(&normalized_base_url)
+            .build();
+        client
+            .embedding_model(model)
+            .embed_text(&trimmed_text)
+            .await?
+    } else {
+        let client = ollama::Client::builder()
+            .base_url(&normalized_base_url)
+            .build();
+        client
+            .embedding_model(model)
+            .embed_text(&trimmed_text)
+            .await?
+    };
+
+    Ok(embedding.vec.into_iter().map(|v| v as f32).collect())
 }

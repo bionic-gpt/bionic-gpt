@@ -1,7 +1,8 @@
 use crate::errors::CustomError;
 use db::queries::{prompt_integrations, prompts};
 use db::Transaction;
-use openai_api::{BionicToolDefinition, ChatCompletionMessage, ChatCompletionMessageRole};
+use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
+use tool_runtime::ToolDefinition;
 use tool_runtime::{create_tools_from_integrations, get_tools, ToolScope};
 
 // If we are getting called from the API we'll possible have a buch of chat messaages
@@ -34,7 +35,7 @@ pub async fn execute_prompt(
 pub async fn get_prompt_integration_tools(
     transaction: &Transaction<'_>,
     prompt_id: i32,
-) -> Result<Vec<BionicToolDefinition>, CustomError> {
+) -> Result<Vec<ToolDefinition>, CustomError> {
     // Get integrations for this specific prompt using existing transaction
     let prompt_integrations = prompt_integrations::get_prompt_integrations_with_connections()
         .bind(transaction, &prompt_id)
@@ -48,7 +49,7 @@ pub async fn get_prompt_integration_tools(
     // Create tools from the integrations
     let external_tools = create_tools_from_integrations(prompt_integrations, None, None).await;
 
-    let mut filtered_tools: Vec<BionicToolDefinition> = external_tools
+    let mut filtered_tools: Vec<ToolDefinition> = external_tools
         .into_iter()
         .map(|tool| tool.get_tool())
         .collect();
@@ -141,7 +142,7 @@ fn add_message(
     size_so_far: usize,
     size_allowed: usize,
 ) -> usize {
-    let size: usize = openai_api::token_count(vec![message_to_add.clone()]) as usize;
+    let size: usize = crate::token_count::token_count(vec![message_to_add.clone()]) as usize;
 
     if (size + size_so_far) < size_allowed {
         messages.push(message_to_add);

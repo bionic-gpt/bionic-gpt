@@ -11,7 +11,7 @@ pub mod tool_call_timeline;
 pub mod tools_modal;
 
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};
-use openai_api::ToolCall;
+use tool_runtime::ToolCall;
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct ChatWithChunks {

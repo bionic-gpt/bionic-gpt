@@ -7,11 +7,11 @@ edition = "2021"
 path = "lib.rs"
 
 [dependencies]
-openai-api = { path = "../openai-api" }
-embeddings-api = { path = "../embeddings-api" }
 rag-engine = { path = "../rag-engine" }
+rig-core = { version = "0.24", default-features = false, features = ["reqwest-rustls"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
+tiktoken-rs = "0.7.0"
 tracing.workspace = true
 axum.workspace = true
 chrono.workspace = true

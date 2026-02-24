@@ -10,7 +10,7 @@ use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::{Prompt, SinglePrompt};
 use dioxus::prelude::*;
-use openai_api::BionicToolDefinition;
+use tool_runtime::ToolDefinition;
 
 pub fn page(
     team_id: String,
@@ -23,7 +23,7 @@ pub fn page(
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
     enabled_tools: Vec<String>,
-    available_tools: Vec<BionicToolDefinition>,
+    available_tools: Vec<ToolDefinition>,
 ) -> String {
     // Rerverse it because that's how we display it.
     let chat_history: Vec<ChatWithChunks> = chat_history.into_iter().rev().collect();

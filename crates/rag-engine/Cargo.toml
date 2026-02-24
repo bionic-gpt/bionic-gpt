@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 db = { path = "../db" }
-embeddings-api = { path = "../embeddings-api" }
 object-storage = { path = "../object-storage" }
+rig-core = { version = "0.24", default-features = false, features = ["reqwest-rustls"] }
 tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }
 
 tracing.workspace = true

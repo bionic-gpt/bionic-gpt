@@ -2,13 +2,10 @@
 use super::parameter_renderer::render_parameter;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use openai_api::BionicToolDefinition;
+use tool_runtime::ToolDefinition;
 
 #[component]
-pub fn ActionsSection(
-    logo_url: Option<String>,
-    tool_definitions: Vec<BionicToolDefinition>,
-) -> Element {
+pub fn ActionsSection(logo_url: Option<String>, tool_definitions: Vec<ToolDefinition>) -> Element {
     rsx! {
         div {
             h2 {

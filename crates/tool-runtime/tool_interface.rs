@@ -2,15 +2,15 @@
 //!
 //! This module defines the ToolInterface trait that all tools must implement.
 
+use crate::types::ToolDefinition;
 use async_trait::async_trait;
-use openai_api::BionicToolDefinition;
 use serde_json;
 
 /// Tool interface trait that defines the common functionality for all tools
 #[async_trait]
 pub trait ToolInterface: Send + Sync {
     /// Returns the tool definition
-    fn get_tool(&self) -> BionicToolDefinition;
+    fn get_tool(&self) -> ToolDefinition;
 
     /// Executes the tool with the given arguments
     async fn execute(&self, arguments: &str) -> Result<serde_json::Value, serde_json::Value>;

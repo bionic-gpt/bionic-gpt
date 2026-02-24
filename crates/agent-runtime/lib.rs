@@ -11,6 +11,8 @@ pub mod stream_errors;
 pub mod synthesize;
 #[cfg(test)]
 mod tests;
+mod token_count;
+mod tool_conversion;
 pub mod ui_chat_orchestrator;
 #[cfg(test)]
 mod ui_chat_orchestrator_tests;

@@ -3,7 +3,7 @@
 use assets::files::*;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use openai_api::ToolCall;
+use tool_runtime::ToolCall;
 
 fn format_json_string(raw: &str) -> String {
     if let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) {

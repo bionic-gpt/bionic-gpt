@@ -1,7 +1,7 @@
 use crate::tool_interface::ToolInterface;
+use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use futures_util::StreamExt;
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use reqwest::header::CONTENT_TYPE;
 use reqwest::Url;
 use serde_json::{json, Value};
@@ -97,7 +97,7 @@ pub struct WebTool;
 
 #[async_trait]
 impl ToolInterface for WebTool {
-    fn get_tool(&self) -> BionicToolDefinition {
+    fn get_tool(&self) -> ToolDefinition {
         get_open_url_tool()
     }
 
@@ -117,10 +117,10 @@ impl ToolInterface for WebTool {
 }
 
 /// Returns the tool definition for the Open URL tool
-pub fn get_open_url_tool() -> BionicToolDefinition {
-    BionicToolDefinition {
+pub fn get_open_url_tool() -> ToolDefinition {
+    ToolDefinition {
         r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
+        function: ToolFunctionDefinition {
             name: "open_url".to_string(),
             description: "The Open URL tool lets me fetch and read the content of a webpage when you provide a specific link (URL).\n\nHow it works: You give me a URL, and I retrieve the text content from that page. I can then summarize, analyze, or pull out specific info for you.\n\nWhat it’s useful for:\n* Summarizing articles, blog posts, or reports.\n* Extracting important details from a specific webpage.\n* Checking the content of a document or page you want to discuss.\n\nWhat it can’t do:\n* It won’t interact with web forms, download files, or access content behind logins/paywalls.\n* It’s not meant for browsing the web in real time—just for fetching and reading the content of links you provide.".to_string(),
             parameters: json!({

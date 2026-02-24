@@ -1,7 +1,7 @@
 use crate::tool_interface::ToolInterface;
+use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use async_trait::async_trait;
 use chrono::{Local, Utc};
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
 
 /// A tool that provides current time and date information
@@ -9,7 +9,7 @@ pub struct TimeDateTool;
 
 #[async_trait]
 impl ToolInterface for TimeDateTool {
-    fn get_tool(&self) -> BionicToolDefinition {
+    fn get_tool(&self) -> ToolDefinition {
         get_time_date_tool()
     }
 
@@ -21,10 +21,10 @@ impl ToolInterface for TimeDateTool {
 }
 
 /// Returns a Tool definition for the time and date tool
-pub fn get_time_date_tool() -> BionicToolDefinition {
-    BionicToolDefinition {
+pub fn get_time_date_tool() -> ToolDefinition {
+    ToolDefinition {
         r#type: "function".to_string(),
-        function: ChatCompletionFunctionDefinition {
+        function: ToolFunctionDefinition {
             name: "get_current_time_and_date".to_string(),
             description: "Get the current time and date, optionally for a specific timezone"
                 .to_string(),

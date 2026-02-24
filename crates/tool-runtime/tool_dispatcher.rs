@@ -2,8 +2,8 @@ use crate::builtin_tools;
 use crate::openapi_tool_factory::create_tools_from_integrations;
 use crate::system_tool_sources::get_system_openapi_tools;
 use crate::tool_interface::ToolInterface;
+use crate::types::{ToolCall, ToolCallResult};
 use db::{queries::prompt_integrations, Pool};
-use openai_api::{ToolCall, ToolCallResult};
 use serde_json::json;
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -236,7 +236,7 @@ pub async fn execute_tool_call_with_tools(
 mod tests {
     use super::*;
     use crate::builtin_tools::time_date::TimeDateTool;
-    use openai_api::{ToolCall, ToolCallFunction};
+    use crate::types::{ToolCall, ToolCallFunction};
     use serde_json::json;
 
     #[tokio::test]

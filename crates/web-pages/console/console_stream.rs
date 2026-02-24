@@ -5,8 +5,8 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::{authz::Rbac, ChatRole};
 use dioxus::prelude::*;
-use openai_api::ToolCall;
 use std::collections::HashMap;
+use tool_runtime::ToolCall;
 
 use super::response_timeline::ResponseTimeline;
 use super::tool_call_timeline::ToolCallTimeline;

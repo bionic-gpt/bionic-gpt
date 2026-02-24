@@ -4,18 +4,18 @@
 //! extracting tool definitions and handling parameter parsing.
 
 use crate::tool_interface::ToolInterface;
+use crate::types::{ToolDefinition, ToolFunctionDefinition};
 use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
     spec::{Operation, RequestBody, SecurityScheme},
 };
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition};
 use serde_json::{json, Value};
 use std::sync::Arc;
 
 /// Result of parsing an OpenAPI specification for tool creation
 pub struct IntegrationTools {
-    pub tool_definitions: Vec<BionicToolDefinition>,
+    pub tool_definitions: Vec<ToolDefinition>,
     pub base_url: Option<String>,
 }
 
@@ -88,7 +88,7 @@ impl BionicOpenAPI {
 
     /// Create tool definitions from the OpenAPI specification
     pub fn create_tool_definitions(&self) -> IntegrationTools {
-        let mut tool_definitions: Vec<BionicToolDefinition> = vec![];
+        let mut tool_definitions: Vec<ToolDefinition> = vec![];
         let base_url = self.extract_base_url();
 
         // Process each operation in the OpenAPI spec
@@ -120,9 +120,9 @@ impl BionicOpenAPI {
                 let parameters =
                     self.merge_parameters(schema_params, operation_params, request_body_params);
 
-                let definition = BionicToolDefinition {
+                let definition = ToolDefinition {
                     r#type: "function".to_string(),
-                    function: ChatCompletionFunctionDefinition {
+                    function: ToolFunctionDefinition {
                         name: function_name,
                         description: (operation
                             .description
