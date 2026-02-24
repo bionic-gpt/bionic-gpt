@@ -1,7 +1,7 @@
 use super::limits;
 use super::stream_assembler::{enriched_chat, GenerationEvent};
+use crate::chat_types::BionicChatCompletionRequest;
 use crate::errors::CustomError;
-use crate::openai_types::BionicChatCompletionRequest;
 use axum::body::Body;
 use axum::extract::Request;
 use axum::response::{sse::Event, Sse};

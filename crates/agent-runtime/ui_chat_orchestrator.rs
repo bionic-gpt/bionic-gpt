@@ -6,11 +6,10 @@
 use super::stream_assembler::{enriched_chat, EnrichedChatOutcome, GenerationEvent};
 use super::stream_errors::error_to_chat;
 use crate::chat_converter;
+use crate::chat_types::{BionicChatCompletionRequest, ChatCompletionDelta};
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
-use crate::openai_types::{BionicChatCompletionRequest, ToolCall};
-use crate::tool_conversion::{to_openai_tool_definitions, to_tool_runtime_tool_calls};
 use crate::user_config::UserConfig;
 use async_trait::async_trait;
 use axum::response::{sse::Event, Sse};
@@ -27,7 +26,8 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
 use tool_runtime::{
-    execute_tool_calls, get_chat_tools_user_selected_with_system_openapi, get_tools, ToolScope,
+    execute_tool_calls, get_chat_tools_user_selected_with_system_openapi, get_tools, ToolCall,
+    ToolScope,
 };
 
 use super::{limits, UICompletions};
@@ -124,9 +124,7 @@ fn extract_tool_calls(
         .and_then(|choice| choice.delta.tool_calls.clone())
 }
 
-fn extract_tool_calls_from_merged(
-    merged: &Option<crate::openai_types::ChatCompletionDelta>,
-) -> Option<Vec<ToolCall>> {
+fn extract_tool_calls_from_merged(merged: &Option<ChatCompletionDelta>) -> Option<Vec<ToolCall>> {
     merged
         .as_ref()
         .and_then(|merged| merged.choices.first())
@@ -387,7 +385,7 @@ async fn save_results_db(
         if status == ChatStatus::Success {
             if let Some(tool_calls) = tool_calls {
                 let tool_call_results = execute_tool_calls(
-                    to_tool_runtime_tool_calls(tool_calls.clone()),
+                    tool_calls.clone(),
                     pool,
                     sub.to_string(),
                     chat.conversation_id,
@@ -641,7 +639,7 @@ async fn create_request(
         max_tokens: prompt.max_completion_tokens,
         temperature: prompt.temperature,
         messages,
-        tools: tools.map(to_openai_tool_definitions),
+        tools,
         tool_choice: None,
     };
     let completion_json = serde_json::to_string(&completion)?;

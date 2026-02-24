@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
-use crate::openai_types::{
-    ChatCompletionChoiceDelta, ChatCompletionDelta, ChatCompletionMessageDelta, ToolCall,
-    ToolCallFunction,
+use crate::chat_types::{
+    ChatCompletionChoiceDelta, ChatCompletionDelta, ChatCompletionMessageDelta,
 };
 use crate::stream_assembler::GenerationEvent;
 use crate::ui_chat_orchestrator::{build_event_stream, ResultSink};
@@ -10,6 +9,7 @@ use db::ChatStatus;
 use std::sync::{Arc, Mutex};
 use tokio::pin;
 use tokio_stream::StreamExt;
+use tool_runtime::{ToolCall, ToolCallFunction};
 
 #[derive(Debug, Clone)]
 struct SaveCall {

@@ -1,5 +1,5 @@
+use crate::chat_types::{ChatCompletionMessage, ChatCompletionMessageRole};
 use crate::errors::CustomError;
-use crate::openai_types::{ChatCompletionMessage, ChatCompletionMessageRole};
 use db::queries::{prompt_integrations, prompts};
 use db::Transaction;
 use tool_runtime::ToolDefinition;

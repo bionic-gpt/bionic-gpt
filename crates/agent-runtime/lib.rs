@@ -1,11 +1,11 @@
 pub mod api_chat_orchestrator;
 mod chat_converter;
+mod chat_types;
 mod context_builder;
 mod errors;
 mod jwt;
 pub mod limits;
 pub mod moderation;
-mod openai_types;
 pub mod provider_passthrough;
 pub mod stream_assembler;
 pub mod stream_errors;
@@ -13,7 +13,6 @@ pub mod synthesize;
 #[cfg(test)]
 mod tests;
 mod token_count;
-mod tool_conversion;
 pub mod ui_chat_orchestrator;
 #[cfg(test)]
 mod ui_chat_orchestrator_tests;

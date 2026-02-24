@@ -4,7 +4,7 @@
 //! cargo run -p example-reqwest-response
 //! ```
 
-use crate::openai_types::ChatCompletionDelta;
+use crate::chat_types::ChatCompletionDelta;
 use axum::Error;
 use reqwest::RequestBuilder;
 use tokio::sync::mpsc;

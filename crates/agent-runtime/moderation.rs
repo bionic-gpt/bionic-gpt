@@ -1,4 +1,4 @@
-use crate::openai_types::{BionicChatCompletionRequest, ChatCompletionMessage};
+use crate::chat_types::{BionicChatCompletionRequest, ChatCompletionMessage};
 use db::PromptFlagType;
 use reqwest::{
     header::{AUTHORIZATION, CONTENT_TYPE},
@@ -9,7 +9,7 @@ use serde::Deserialize;
 /// Remove tool call related data from chat messages and drop any
 /// messages that were solely used for tool calling.
 pub fn strip_tool_data(messages: &[ChatCompletionMessage]) -> Vec<ChatCompletionMessage> {
-    use crate::openai_types::ChatCompletionMessageRole;
+    use crate::chat_types::ChatCompletionMessageRole;
 
     messages
         .iter()

@@ -1,4 +1,4 @@
-use crate::openai_types::{ChatCompletionMessage, ChatCompletionMessageRole};
+use crate::chat_types::{ChatCompletionMessage, ChatCompletionMessageRole};
 use db::{Chat, ChatRole, ChatStatus};
 use time::OffsetDateTime;
 
@@ -435,7 +435,8 @@ async fn test_history_truncation_keeps_latest() {
 
 #[test]
 fn test_strip_tool_data_removes_tool_messages() {
-    use crate::openai_types::{ChatCompletionMessageRole, ToolCall, ToolCallFunction};
+    use crate::chat_types::ChatCompletionMessageRole;
+    use tool_runtime::{ToolCall, ToolCallFunction};
 
     let messages = vec![
         ChatCompletionMessage {
@@ -480,7 +481,7 @@ fn test_strip_tool_data_removes_tool_messages() {
 
 #[test]
 fn test_strip_tool_data_changes_system_to_user() {
-    use crate::openai_types::ChatCompletionMessageRole;
+    use crate::chat_types::ChatCompletionMessageRole;
 
     let messages = vec![ChatCompletionMessage {
         role: ChatCompletionMessageRole::System,

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use tool_runtime::{ToolCall, ToolDefinition};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BionicChatCompletionRequest {
@@ -12,22 +12,9 @@ pub struct BionicChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<BionicToolDefinition>>,
+    pub tools: Option<Vec<ToolDefinition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<serde_json::Value>,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
-pub struct BionicToolDefinition {
-    pub r#type: String,
-    pub function: ChatCompletionFunctionDefinition,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
-pub struct ChatCompletionFunctionDefinition {
-    pub name: String,
-    pub description: String,
-    pub parameters: Value,
 }
 
 pub type ChatCompletionDelta = ChatCompletionGeneric<ChatCompletionChoiceDelta>;
@@ -215,43 +202,8 @@ pub struct ChatCompletionMessage {
     pub tool_calls: Option<Vec<ToolCall>>,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
-pub struct ToolCall {
-    #[serde(default)]
-    pub id: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub index: Option<u32>,
-    #[serde(default = "default_tool_call_type")]
-    pub r#type: String,
-    #[serde(default)]
-    pub function: ToolCallFunction,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq, Default)]
-pub struct ToolCallFunction {
-    #[serde(default)]
-    pub name: String,
-    #[serde(default)]
-    pub arguments: String,
-}
-
-impl Default for ToolCall {
-    fn default() -> Self {
-        Self {
-            id: String::new(),
-            index: None,
-            r#type: "function".to_string(),
-            function: ToolCallFunction::default(),
-        }
-    }
-}
-
 fn is_none_or_empty_vec<T>(opt: &Option<Vec<T>>) -> bool {
     opt.as_ref().map(|v| v.is_empty()).unwrap_or(true)
-}
-
-fn default_tool_call_type() -> String {
-    "function".to_string()
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy, Eq, PartialEq, Default)]
