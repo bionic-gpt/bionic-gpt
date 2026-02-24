@@ -1,6 +1,7 @@
 use super::limits;
 use super::stream_assembler::{enriched_chat, GenerationEvent};
 use crate::errors::CustomError;
+use crate::openai_types::BionicChatCompletionRequest;
 use axum::body::Body;
 use axum::extract::Request;
 use axum::response::{sse::Event, Sse};
@@ -8,7 +9,6 @@ use axum::response::{IntoResponse, Response};
 use axum::{Extension, RequestExt};
 use db::{queries, Pool, Transaction};
 use http::{HeaderMap, StatusCode};
-use openai_api::BionicChatCompletionRequest;
 use reqwest::header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use std::sync::Arc;
 use tokio::sync::mpsc;

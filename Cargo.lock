@@ -18,7 +18,6 @@ dependencies = [
  "base64 0.22.1",
  "db",
  "http 1.4.0",
- "openai-api",
  "reqwest 0.13.1",
  "serde",
  "serde_json",
@@ -3255,15 +3254,6 @@ checksum = "c7f86c6eef3d6df15f23bcfb6af487cbd2fed4e5581d58d5bf1f5f8b7f6727dc"
 dependencies = [
  "cc",
  "pkg-config",
-]
-
-[[package]]
-name = "openai-api"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "tiktoken-rs",
 ]
 
 [[package]]

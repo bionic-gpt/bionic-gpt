@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-pub mod token_count;
-
-pub use token_count::{token_count, token_count_from_string};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BionicChatCompletionRequest {
@@ -28,17 +25,11 @@ pub struct BionicToolDefinition {
 
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
 pub struct ChatCompletionFunctionDefinition {
-    /// The name of the function
     pub name: String,
-    /// The description of the function
     pub description: String,
-    /// The parameters of the function formatted in JSON Schema
-    /// [API Reference](https://platform.openai.com/docs/api-reference/chat/create#chat/create-parameters)
-    /// [See more information about JSON Schema.](https://json-schema.org/understanding-json-schema/)
     pub parameters: Value,
 }
 
-/// A delta chat completion, which is streamed token by token.
 pub type ChatCompletionDelta = ChatCompletionGeneric<ChatCompletionChoiceDelta>;
 
 #[derive(Deserialize, Clone, Debug, Eq, PartialEq)]
@@ -66,7 +57,6 @@ pub struct ChatCompletionChoiceDelta {
 }
 
 impl ChatCompletionDelta {
-    /// Merges the input delta completion into `self`.
     pub fn merge(
         &mut self,
         other: ChatCompletionDelta,
@@ -93,63 +83,31 @@ impl ChatCompletionChoiceDelta {
         }
         if self.delta.role.is_none() {
             if let Some(other_role) = other.delta.role {
-                // Set role to other_role.
                 self.delta.role = Some(other_role);
             }
         }
         if self.delta.name.is_none() {
             if let Some(other_name) = &other.delta.name {
-                // Set name to other_name.
                 self.delta.name = Some(other_name.clone());
             }
         }
-        // Merge contents.
         match self.delta.content.as_mut() {
             Some(content) => {
                 if let Some(other_content) = &other.delta.content {
-                    // Push other content into this one.
                     content.push_str(other_content)
                 }
             }
             None => {
                 if let Some(other_content) = &other.delta.content {
-                    // Set this content to other content.
                     self.delta.content = Some(other_content.clone());
                 }
             }
         };
 
-        // Merge tool calls.
         match self.delta.tool_calls.as_mut() {
             Some(tool_calls) => {
                 if let Some(other_tool_calls) = &other.delta.tool_calls {
-                    for (i, other_tool_call) in other_tool_calls.iter().enumerate() {
-                        let target_index = other_tool_call.index.unwrap_or(i as u32) as usize;
-                        if tool_calls.len() <= target_index {
-                            tool_calls.resize_with(target_index + 1, ToolCall::default);
-                        }
-                        let target = &mut tool_calls[target_index];
-                        if target.id.is_empty() && !other_tool_call.id.is_empty() {
-                            target.id = other_tool_call.id.clone();
-                        }
-                        if target.index.is_none() && other_tool_call.index.is_some() {
-                            target.index = other_tool_call.index;
-                        }
-                        if target.r#type.is_empty() && !other_tool_call.r#type.is_empty() {
-                            target.r#type = other_tool_call.r#type.clone();
-                        }
-                        if target.function.name.is_empty()
-                            && !other_tool_call.function.name.is_empty()
-                        {
-                            target.function.name = other_tool_call.function.name.clone();
-                        }
-                        if !other_tool_call.function.arguments.is_empty() {
-                            target
-                                .function
-                                .arguments
-                                .push_str(&other_tool_call.function.arguments);
-                        }
-                    }
+                    merge_tool_calls(tool_calls, other_tool_calls);
                 }
             }
             None => {
@@ -157,9 +115,54 @@ impl ChatCompletionChoiceDelta {
                     self.delta.tool_calls = Some(other_tool_calls.clone());
                 }
             }
-        };
+        }
 
         Ok(())
+    }
+}
+
+fn merge_tool_calls(target_tool_calls: &mut Vec<ToolCall>, incoming_tool_calls: &[ToolCall]) {
+    for incoming in incoming_tool_calls {
+        let maybe_target = target_tool_calls.iter_mut().find(|existing| {
+            match (&existing.id[..], &incoming.id[..]) {
+                ("", "") => existing.index == incoming.index,
+                (_, "") => existing.index == incoming.index,
+                ("", _) => false,
+                _ => existing.id == incoming.id,
+            }
+        });
+
+        let target = if let Some(existing) = maybe_target {
+            existing
+        } else {
+            target_tool_calls.push(incoming.clone());
+            target_tool_calls.last_mut().expect("just pushed")
+        };
+
+        if target.id.is_empty() && !incoming.id.is_empty() {
+            target.id = incoming.id.clone();
+        }
+        if target.index.is_none() && incoming.index.is_some() {
+            target.index = incoming.index;
+        }
+        if target.r#type.is_empty() && !incoming.r#type.is_empty() {
+            target.r#type = incoming.r#type.clone();
+        }
+        if target.function.name.is_empty() && !incoming.function.name.is_empty() {
+            target.function.name = incoming.function.name.clone();
+        }
+
+        if !incoming.function.arguments.is_empty()
+            && !target
+                .function
+                .arguments
+                .ends_with(&incoming.function.arguments)
+        {
+            target
+                .function
+                .arguments
+                .push_str(&incoming.function.arguments);
+        }
     }
 }
 
@@ -188,94 +191,48 @@ impl std::fmt::Display for ChatCompletionDeltaMergeError {
 
 impl std::error::Error for ChatCompletionDeltaMergeError {}
 
-/// Same as ChatCompletionMessage, but received during a response stream.
 #[derive(Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct ChatCompletionMessageDelta {
-    /// The role of the author of this message.
     pub role: Option<ChatCompletionMessageRole>,
-    /// The contents of the message
     pub content: Option<String>,
-    /// The name of the user in a multi-user chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Tool call that this message is responding to.
-    /// Required if the role is `Tool`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_call_id: Option<String>,
-    /// Tool calls that the assistant is requesting to invoke.
-    /// Can only be populated if the role is `Assistant`,
-    /// otherwise it should be empty.
     #[serde(skip_serializing_if = "is_none_or_empty_vec")]
     pub tool_calls: Option<Vec<ToolCall>>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Default)]
 pub struct ChatCompletionMessage {
-    /// The role of the author of this message.
     pub role: ChatCompletionMessageRole,
-    /// The contents of the message
-    ///
-    /// This is always required for all messages, except for when ChatGPT calls
-    /// a function.
     pub content: Option<String>,
-    /// The name of the user in a multi-user chat
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Tool call that this message is responding to.
-    /// Required if the role is `Tool`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_call_id: Option<String>,
-    /// Tool calls that the assistant is requesting to invoke.
-    /// Can only be populated if the role is `Assistant`,
-    /// otherwise it should be empty.
     #[serde(skip_serializing_if = "is_none_or_empty_vec")]
     pub tool_calls: Option<Vec<ToolCall>>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
 pub struct ToolCall {
-    /// The ID of the tool call.
     #[serde(default)]
     pub id: String,
-    /// The index of the tool call in the list of calls. Optional when not streamed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub index: Option<u32>,
-    /// The type of the tool. Currently, only `function` is supported.
+    #[serde(default = "default_tool_call_type")]
     pub r#type: String,
-    /// The function that the model called.
+    #[serde(default)]
     pub function: ToolCallFunction,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
-pub struct ToolCallResult {
-    /// The ID of the tool call we are responding to.
-    pub id: String,
-    /// This will be the response in json format.
-    pub result: serde_json::Value,
-    /// The name of the function that was called.
-    pub name: String,
-}
-
-#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Debug, Eq, PartialEq, Default)]
 pub struct ToolCallFunction {
-    /// The name of the function to call.
     #[serde(default)]
     pub name: String,
-    /// The arguments to call the function with, as generated by the model in
-    /// JSON format.
-    /// Note that the model does not always generate valid JSON, and may
-    /// hallucinate parameters not defined by your function schema.
-    /// Validate the arguments in your code before calling your function.
+    #[serde(default)]
     pub arguments: String,
-}
-
-impl Default for ToolCallFunction {
-    fn default() -> Self {
-        Self {
-            name: String::new(),
-            arguments: String::new(),
-        }
-    }
 }
 
 impl Default for ToolCall {
@@ -293,19 +250,18 @@ fn is_none_or_empty_vec<T>(opt: &Option<Vec<T>>) -> bool {
     opt.as_ref().map(|v| v.is_empty()).unwrap_or(true)
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy, Eq, PartialEq)]
+fn default_tool_call_type() -> String {
+    "function".to_string()
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, Eq, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum ChatCompletionMessageRole {
     System,
+    #[default]
     User,
     Assistant,
     Function,
     Tool,
     Developer,
-}
-
-impl Default for ChatCompletionMessageRole {
-    fn default() -> Self {
-        Self::User
-    }
 }

@@ -9,7 +9,6 @@ path = "lib.rs"
 [dependencies]
 db = { path = "../db" }
 tool-runtime = { path = "../tool-runtime" }
-openai-api = { path = "../openai-api" }
 
 axum = { workspace = true, features = ["multipart"] }
 axum-extra = { workspace = true, features = ["form", "typed-routing", "cookie"] }

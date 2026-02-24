@@ -5,6 +5,7 @@ mod errors;
 mod jwt;
 pub mod limits;
 pub mod moderation;
+mod openai_types;
 pub mod provider_passthrough;
 pub mod stream_assembler;
 pub mod stream_errors;

@@ -1,4 +1,4 @@
-use openai_api::{BionicToolDefinition, ChatCompletionFunctionDefinition, ToolCall};
+use crate::openai_types::{BionicToolDefinition, ChatCompletionFunctionDefinition, ToolCall};
 use tool_runtime::ToolDefinition;
 
 pub fn to_openai_tool_definition(def: ToolDefinition) -> BionicToolDefinition {

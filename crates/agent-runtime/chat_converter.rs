@@ -1,5 +1,5 @@
+use crate::openai_types::{ChatCompletionMessage, ChatCompletionMessageRole};
 use db::{Chat, ChatRole};
-use openai_api::{ChatCompletionMessage, ChatCompletionMessageRole};
 
 /// Converts a database chat role to an OpenAI API chat completion message role
 pub fn convert_chat_role(db_role: &ChatRole) -> ChatCompletionMessageRole {

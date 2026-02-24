@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
+use crate::openai_types::{
+    ChatCompletionChoiceDelta, ChatCompletionDelta, ChatCompletionMessageDelta, ToolCall,
+    ToolCallFunction,
+};
 use crate::stream_assembler::GenerationEvent;
 use crate::ui_chat_orchestrator::{build_event_stream, ResultSink};
 use async_trait::async_trait;
 use db::ChatStatus;
-use openai_api::{
-    ChatCompletionChoiceDelta, ChatCompletionDelta, ChatCompletionMessageDelta, ToolCall,
-    ToolCallFunction,
-};
 use std::sync::{Arc, Mutex};
 use tokio::pin;
 use tokio_stream::StreamExt;

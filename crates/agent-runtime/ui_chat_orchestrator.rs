@@ -9,6 +9,7 @@ use crate::chat_converter;
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
 use crate::moderation::{moderate_chat, strip_tool_data, ModerationVerdict};
+use crate::openai_types::{BionicChatCompletionRequest, ToolCall};
 use crate::tool_conversion::{to_openai_tool_definitions, to_tool_runtime_tool_calls};
 use crate::user_config::UserConfig;
 use async_trait::async_trait;
@@ -16,7 +17,6 @@ use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{queries, Pool};
 use db::{ChatRole, ChatStatus};
-use openai_api::{BionicChatCompletionRequest, ToolCall};
 use reqwest::{
     header::{HeaderValue, AUTHORIZATION, CONTENT_TYPE},
     RequestBuilder,
@@ -125,7 +125,7 @@ fn extract_tool_calls(
 }
 
 fn extract_tool_calls_from_merged(
-    merged: &Option<openai_api::ChatCompletionDelta>,
+    merged: &Option<crate::openai_types::ChatCompletionDelta>,
 ) -> Option<Vec<ToolCall>> {
     merged
         .as_ref()
