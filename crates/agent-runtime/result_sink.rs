@@ -132,7 +132,7 @@ async fn save_results_db(
                     (0, 0)
                 });
 
-            if let Err(e) = queries::token_usage_metrics::create_token_usage_metric()
+            let prompt_metric_result = queries::token_usage_metrics::create_token_usage_metric()
                 .bind(
                     &transaction,
                     &Some(chat_id),
@@ -142,23 +142,24 @@ async fn save_results_db(
                     &None::<i32>,
                 )
                 .one()
-                .await
-            {
+                .await;
+            if let Err(e) = prompt_metric_result {
                 tracing::error!("Error tracking prompt tokens: {:?}", e);
             }
 
-            if let Err(e) = queries::token_usage_metrics::create_token_usage_metric()
-                .bind(
-                    &transaction,
-                    &Some(chat_id),
-                    &None::<i32>,
-                    &db::TokenUsageType::Completion,
-                    &completion_tokens,
-                    &None::<i32>,
-                )
-                .one()
-                .await
-            {
+            let completion_metric_result =
+                queries::token_usage_metrics::create_token_usage_metric()
+                    .bind(
+                        &transaction,
+                        &Some(chat_id),
+                        &None::<i32>,
+                        &db::TokenUsageType::Completion,
+                        &completion_tokens,
+                        &None::<i32>,
+                    )
+                    .one()
+                    .await;
+            if let Err(e) = completion_metric_result {
                 tracing::error!("Error tracking completion tokens: {:?}", e);
             }
         }
@@ -175,6 +176,7 @@ async fn save_results_db(
                 .await;
 
                 for tool_call in tool_call_results {
+                    let tool_call_id = tool_call.id.clone();
                     let result_json = match tool_call.content.first() {
                         ToolResultContent::Text(text) => text.text,
                         ToolResultContent::Image(image) => {
@@ -204,7 +206,7 @@ async fn save_results_db(
                             &transaction,
                             &chat.conversation_id,
                             &chat.prompt_id,
-                            &Some(tool_call.id),
+                            &Some(tool_call_id.clone()),
                             &None::<String>,
                             &result_json,
                             &ChatRole::Tool,

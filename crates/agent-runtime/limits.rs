@@ -15,10 +15,13 @@ pub async fn is_limit_exceeded(
     // Get the inference metrics
     let inference_metric = inference_metrics::inference_metric()
         .bind(transaction, &model_id, &user_id)
-        .one()
+        .opt()
         .await?;
 
-    let total_tokens = inference_metric.tpm_recv + inference_metric.tpm_sent;
+    let (tpm_recv, tpm_sent) = inference_metric
+        .map(|m| (m.tpm_recv, m.tpm_sent))
+        .unwrap_or((0, 0));
+    let total_tokens = tpm_recv + tpm_sent;
 
     let model = models::model().bind(transaction, &model_id).one().await?;
 
