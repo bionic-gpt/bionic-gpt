@@ -1,0 +1,183 @@
+{
+  "components": {
+    "schemas": {
+      "Error": {
+        "properties": {
+          "message": {
+            "example": "Invalid query parameter",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "in": "header",
+        "name": "x-rapidapi-key",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "description": "Scrapes contact details (emails, phone numbers, etc.) from a given website URL.",
+    "title": "Website Contacts Scraper API",
+    "version": "1.0.0",
+    "x-bionic-slug": "contacts"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/scrape-contacts": {
+      "get": {
+        "description": "Returns publicly available contact information from the provided website URL.",
+        "operationId": "scrapeContacts",
+        "parameters": [
+          {
+            "description": "The domain or website to scrape contact details from (e.g., wsgr.com)",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "example": "wsgr.com",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Whether to match emails strictly on the domain (true/false)",
+            "in": "query",
+            "name": "match_email_domain",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Whether to include external matching emails (true/false)",
+            "in": "query",
+            "name": "external_matching",
+            "required": false,
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "address": {
+                      "example": "One Market Plaza, Spear Tower, San Francisco, CA 94105",
+                      "type": "string"
+                    },
+                    "emails": {
+                      "example": [
+                        "info@wsgr.com",
+                        "support@wsgr.com"
+                      ],
+                      "items": {
+                        "format": "email",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "phones": {
+                      "example": [
+                        "+1-202-555-0171"
+                      ],
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "social_links": {
+                      "properties": {
+                        "facebook": {
+                          "example": "https://facebook.com/wsgr",
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "instagram": {
+                          "example": "https://instagram.com/wsgr",
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "linkedin": {
+                          "example": "https://linkedin.com/company/wsgr",
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "twitter": {
+                          "example": "https://twitter.com/wsgr",
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful contact information retrieval"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad Request - Invalid or missing query parameter"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized - Missing or invalid API key"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Too many requests - Rate limit exceeded"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Scrape contact details from a website"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://website-contacts-scraper.p.rapidapi.com"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "components": {
+    "schemas": {
+      "Event": {
+        "properties": {
+          "attendees": {
+            "items": {
+              "properties": {
+                "email": {
+                  "example": "alice@example.com",
+                  "format": "email",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "description": {
+            "example": "Weekly sync-up meeting",
+            "type": "string"
+          },
+          "end": {
+            "properties": {
+              "dateTime": {
+                "example": "2025-06-08T11:00:00-07:00",
+                "format": "date-time",
+                "type": "string"
+              },
+              "timeZone": {
+                "example": "America/Los_Angeles",
+                "type": "string"
+              }
+            },
+            "required": [
+              "dateTime"
+            ],
+            "type": "object"
+          },
+          "location": {
+            "example": "Zoom",
+            "type": "string"
+          },
+          "start": {
+            "properties": {
+              "dateTime": {
+                "example": "2025-06-08T10:00:00-07:00",
+                "format": "date-time",
+                "type": "string"
+              },
+              "timeZone": {
+                "example": "America/Los_Angeles",
+                "type": "string"
+              }
+            },
+            "required": [
+              "dateTime"
+            ],
+            "type": "object"
+          },
+          "summary": {
+            "example": "Project Sync",
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary",
+          "start",
+          "end"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2": {
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+            "scopes": {
+              "https://www.googleapis.com/auth/calendar": "Read/write access to a user's calendar"
+            },
+            "tokenUrl": "https://oauth2.googleapis.com/token"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "description": "Minimal OpenAPI spec for creating events in Google Calendar using OAuth 2.0",
+    "title": "Google Calendar API - Create Events",
+    "version": "1.0.0",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjU2IDI1NiIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgZmlsbD0iIzAwMDAwMCI+PGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiPjwvZz48ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz48ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+IDxnPiA8cG9seWdvbiBmaWxsPSIjRkZGRkZGIiBwb2ludHM9IjE5NS4zNjg0MjEgNjAuNjMxNTc4OSA2MC42MzE1Nzg5IDYwLjYzMTU3ODkgNjAuNjMxNTc4OSAxOTUuMzY4NDIxIDE5NS4zNjg0MjEgMTk1LjM2ODQyMSI+IDwvcG9seWdvbj4gPHBvbHlnb24gZmlsbD0iI0VBNDMzNSIgcG9pbnRzPSIxOTUuMzY4NDIxIDI1NiAyNTYgMTk1LjM2ODQyMSAyMjUuNjg0MjExIDE5MC4xOTYwMDUgMTk1LjM2ODQyMSAxOTUuMzY4NDIxIDE4OS44MzUxNjIgMjIzLjA5ODAwMiI+IDwvcG9seWdvbj4gPHBhdGggZD0iTTEuNDIxMDg1NDdlLTE0LDE5NS4zNjg0MjEgTDEuNDIxMDg1NDdlLTE0LDIzNS43ODk0NzQgQzEuNDIxMDg1NDdlLTE0LDI0Ni45NTU3ODkgOS4wNDQyMTA1MywyNTYgMjAuMjEwNTI2MywyNTYgTDYwLjYzMTU3ODksMjU2IEw2Ni44NTY4NjQ1LDIyNS42ODQyMTEgTDYwLjYzMTU3ODksMTk1LjM2ODQyMSBMMjcuNTk5MTg3NCwxOTAuMTk2MDA1IEwxLjQyMTA4NTQ3ZS0xNCwxOTUuMzY4NDIxIFoiIGZpbGw9IiMxODgwMzgiPiA8L3BhdGg+IDxwYXRoIGQ9Ik0yNTYsNjAuNjMxNTc4OSBMMjU2LDIwLjIxMDUyNjMgQzI1Niw5LjA0NDIxMDUzIDI0Ni45NTU3ODksMS40MjEwODU0N2UtMTQgMjM1Ljc4OTQ3NCwxLjQyMTA4NTQ3ZS0xNCBMMTk1LjM2ODQyMSwxLjQyMTA4NTQ3ZS0xNCBDMTkxLjY3OTU4MiwxNS4wMzU4NTQ3IDE4OS44MzUxNjIsMjYuMTAxMDk0OCAxODkuODM1MTYyLDMzLjE5NTcyMDIgQzE4OS44MzUxNjIsNDAuMjkwMzQ1NiAxOTEuNjc5NTgyLDQ5LjQzNTYzMTkgMTk1LjM2ODQyMSw2MC42MzE1Nzg5IEMyMDguNzc3OTg2LDY0LjQ3MTQ4NjYgMjE4Ljg4MzI0OSw2Ni4zOTE0NDA0IDIyNS42ODQyMTEsNjYuMzkxNDQwNCBDMjMyLjQ4NTE3Miw2Ni4zOTE0NDA0IDI0Mi41OTA0MzUsNjQuNDcxNDg2NiAyNTYsNjAuNjMxNTc4OSBaIiBmaWxsPSIjMTk2N0QyIj4gPC9wYXRoPiA8cG9seWdvbiBmaWxsPSIjRkJCQzA0IiBwb2ludHM9IjI1NiA2MC42MzE1Nzg5IDE5NS4zNjg0MjEgNjAuNjMxNTc4OSAxOTUuMzY4NDIxIDE5NS4zNjg0MjEgMjU2IDE5NS4zNjg0MjEiPiA8L3BvbHlnb24+IDxwb2x5Z29uIGZpbGw9IiMzNEE4NTMiIHBvaW50cz0iMTk1LjM2ODQyMSAxOTUuMzY4NDIxIDYwLjYzMTU3ODkgMTk1LjM2ODQyMSA2MC42MzE1Nzg5IDI1NiAxOTUuMzY4NDIxIDI1NiI+IDwvcG9seWdvbj4gPHBhdGggZD0iTTE5NS4zNjg0MjEsMCBMMjAuMjEwNTI2MywwIEM5LjA0NDIxMDUzLDAgMCw5LjA0NDIxMDUzIDAsMjAuMjEwNTI2MyBMMCwxOTUuMzY4NDIxIEw2MC42MzE1Nzg5LDE5NS4zNjg0MjEgTDYwLjYzMTU3ODksNjAuNjMxNTc4OSBMMTk1LjM2ODQyMSw2MC42MzE1Nzg5IEwxOTUuMzY4NDIxLDAgWiIgZmlsbD0iIzQyODVGNCI+IDwvcGF0aD4gPHBhdGggZD0iTTg4LjI2OTQ3MzcsMTY1LjE1MzY4NCBDODMuMjMzNjg0MiwxNjEuNzUxNTc5IDc5Ljc0NzM2ODQsMTU2Ljc4MzE1OCA3Ny44NDQyMTA1LDE1MC4yMTQ3MzcgTDg5LjUzMjYzMTYsMTQ1LjM5Nzg5NSBDOTAuNTkzNjg0MiwxNDkuNDQgOTIuNDQ2MzE1OCwxNTIuNTcyNjMyIDk1LjA5MDUyNjMsMTU0Ljc5NTc4OSBDOTcuNzE3ODk0NywxNTcuMDE4OTQ3IDEwMC45MTc4OTUsMTU4LjExMzY4NCAxMDQuNjU2ODQyLDE1OC4xMTM2ODQgQzEwOC40OCwxNTguMTEzNjg0IDExMS43NjQyMTEsMTU2Ljk1MTU3OSAxMTQuNTA5NDc0LDE1NC42MjczNjggQzExNy4yNTQ3MzcsMTUyLjMwMzE1OCAxMTguNjM1Nzg5LDE0OS4zMzg5NDcgMTE4LjYzNTc4OSwxNDUuNzUxNTc5IEMxMTguNjM1Nzg5LDE0Mi4wOCAxMTcuMTg3MzY4LDEzOS4wODIxMDUgMTE0LjI5MDUyNiwxMzYuNzU3ODk1IEMxMTEuMzkzNjg0LDEzNC40MzM2ODQgMTA3Ljc1NTc4OSwxMzMuMjcxNTc5IDEwMy40MTA1MjYsMTMzLjI3MTU3OSBMOTYuNjU2ODQyMSwxMzMuMjcxNTc5IEw5Ni42NTY4NDIxLDEyMS43MDEwNTMgTDEwMi43MiwxMjEuNzAxMDUzIEMxMDYuNDU4OTQ3LDEyMS43MDEwNTMgMTA5LjYwODQyMSwxMjAuNjkwNTI2IDExMi4xNjg0MjEsMTE4LjY2OTQ3NCBDMTE0LjcyODQyMSwxMTYuNjQ4NDIxIDExNi4wMDg0MjEsMTEzLjg4NjMxNiAxMTYuMDA4NDIxLDExMC4zNjYzMTYgQzExNi4wMDg0MjEsMTA3LjIzMzY4NCAxMTQuODYzMTU4LDEwNC43NDEwNTMgMTEyLjU3MjYzMiwxMDIuODcxNTc5IEMxMTAuMjgyMTA1LDEwMS4wMDIxMDUgMTA3LjM4NTI2MywxMDAuMDU4OTQ3IDEwMy44NjUyNjMsMTAwLjA1ODk0NyBDMTAwLjQyOTQ3NCwxMDAuMDU4OTQ3IDk3LjcwMTA1MjYsMTAwLjk2ODQyMSA5NS42OCwxMDIuODA0MjExIEM5My42NjAyODE5LDEwNC42NDQ4ODUgOTIuMTQxODIwOCwxMDYuOTY4OTQyIDkxLjI2NzM2ODQsMTA5LjU1Nzg5NSBMNzkuNjk2ODQyMSwxMDQuNzQxMDUzIEM4MS4yMjk0NzM3LDEwMC4zOTU3ODkgODQuMDQyMTA1Myw5Ni41NTU3ODk1IDg4LjE2ODQyMTEsOTMuMjM3ODk0NyBDOTIuMjk0NzM2OCw4OS45MiA5Ny41NjYzMTU4LDg4LjI1MjYzMTYgMTAzLjk2NjMxNiw4OC4yNTI2MzE2IEMxMDguNjk4OTQ3LDg4LjI1MjYzMTYgMTEyLjk2LDg5LjE2MjEwNTMgMTE2LjczMjYzMiw5MC45OTc4OTQ3IEMxMjAuNTA1MjYzLDkyLjgzMzY4NDIgMTIzLjQ2OTQ3NCw5NS4zNzY4NDIxIDEyNS42MDg0MjEsOTguNjEwNTI2MyBDMTI3Ljc0NzM2OCwxMDEuODYxMDUzIDEyOC44MDg0MjEsMTA1LjQ5ODk0NyAxMjguODA4NDIxLDEwOS41NDEwNTMgQzEyOC44MDg0MjEsMTEzLjY2NzM2OCAxMjcuODE0NzM3LDExNy4xNTM2ODQgMTI1LjgyNzM2OCwxMjAuMDE2ODQyIEMxMjMuODQsMTIyLjg4IDEyMS4zOTc4OTUsMTI1LjA2OTQ3NCAxMTguNTAxMDUzLDEyNi42MDIxMDUgTDExOC41MDEwNTMsMTI3LjI5MjYzMiBDMTIyLjI0MTU2OCwxMjguODM0Nzg5IDEyNS40OTA3NDcsMTMxLjM2Nzc1MiAxMjcuODk4OTQ3LDEzNC42MTg5NDcgQzEzMC4zNDEwNTMsMTM3LjkwMzE1OCAxMzEuNTcwNTI2LDE0MS44MjczNjggMTMxLjU3MDUyNiwxNDYuNDA4NDIxIEMxMzEuNTcwNTI2LDE1MC45ODk0NzQgMTMwLjQwODQyMSwxNTUuMDgyMTA1IDEyOC4wODQyMTEsMTU4LjY2OTQ3NCBDMTI1Ljc2LDE2Mi4yNTY4NDIgMTIyLjU0MzE1OCwxNjUuMDg2MzE2IDExOC40NjczNjgsMTY3LjE0MTA1MyBDMTE0LjM3NDczNywxNjkuMTk1Nzg5IDEwOS43NzY4NDIsMTcwLjI0MDEyNCAxMDQuNjczNjg0LDE3MC4yNDAxMjQgQzk4Ljc2MjEwNTMsMTcwLjI1Njg0MiA5My4zMDUyNjMyLDE2OC41NTU3ODkgODguMjY5NDczNywxNjUuMTUzNjg0IEw4OC4yNjk0NzM3LDE2NS4xNTM2ODQgWiBNMTYwLjA2NzM2OCwxMDcuMTQ5NDc0IEwxNDcuMjMzNjg0LDExNi40Mjk0NzQgTDE0MC44MTY4NDIsMTA2LjY5NDczNyBMMTYzLjg0LDkwLjA4ODQyMTEgTDE3Mi42NjUyNjMsOTAuMDg4NDIxMSBMMTcyLjY2NTI2MywxNjguNDIxMDUzIEwxNjAuMDY3MzY4LDE2OC40MjEwNTMgTDE2MC4wNjczNjgsMTA3LjE0OTQ3NCBaIiBmaWxsPSIjNDI4NUY0Ij4gPC9wYXRoPiA8L2c+IDwvZz48L3N2Zz4="
+    },
+    "x-bionic-slug": "gcal"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/calendars/{calendarId}/events": {
+      "post": {
+        "operationId": "createEvent",
+        "parameters": [
+          {
+            "description": "Calendar identifier, e.g. 'primary'",
+            "in": "path",
+            "name": "calendarId",
+            "required": true,
+            "schema": {
+              "example": "primary",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Event"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            },
+            "description": "Event successfully created"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "https://accounts.google.com/o/oauth2/v2/auth"
+            ]
+          }
+        ],
+        "summary": "Create a calendar event"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://www.googleapis.com/calendar/v3"
+    }
+  ]
+}

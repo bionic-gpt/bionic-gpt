@@ -1,0 +1,538 @@
+{
+  "info": {
+    "description": "Consolidated OpenAPI spec for all openFDA Drug endpoints: adverse event, labeling, NDC directory, Drugs@FDA, enforcement, shortages.",
+    "title": "openFDA Drug API",
+    "version": "1.0.0",
+    "x-bionic-slug": "openfda"
+  },
+  "openapi": "3.0.1",
+  "paths": {
+    "/drugsfda.json": {
+      "get": {
+        "description": "Returns approval history, sponsors, products, submission data for Drugs@FDA dataset.",
+        "operationId": "getDrugsFDA",
+        "parameters": [
+          {
+            "description": "Filter, e.g. sponsor_name:\"Pfizer\"",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max records",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "maximum": 99,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset",
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "API key",
+            "in": "query",
+            "name": "api_key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Drugs@FDA data"
+          }
+        },
+        "summary": "Retrieve FDA\u2011approved drug application & product history"
+      }
+    },
+    "/drugshortages.json": {
+      "get": {
+        "description": "Fetch current and historical drug shortages data provided by manufacturers and FDA.",
+        "operationId": "getDrugShortages",
+        "parameters": [
+          {
+            "description": "Filter e.g. product_name:\"hydrocortisone\"",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max records",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "maximum": 100,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset",
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "API key",
+            "in": "query",
+            "name": "api_key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Drug shortage status records"
+          }
+        },
+        "summary": "Retrieve drug shortage status records"
+      }
+    },
+    "/enforcement.json": {
+      "get": {
+        "description": "Provides recall enforcement data from FDA\u2019s RES database (recalls classification, reason, dates, firm, product).",
+        "operationId": "getDrugEnforcement",
+        "parameters": [
+          {
+            "description": "Filter, e.g. classification:\"Class I\"",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max records",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "maximum": 100,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset",
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "API key",
+            "in": "query",
+            "name": "api_key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Recall enforcement results"
+          }
+        },
+        "summary": "Retrieve drug recall enforcement reports"
+      }
+    },
+    "/event.json": {
+      "get": {
+        "description": "Returns public adverse event and medication error reports from FDA\u2019s FAERS database.",
+        "operationId": "getDrugAdverseEvent",
+        "parameters": [
+          {
+            "description": "Elasticsearch\u2010style filter, e.g. reactionmeddrapt:\"headache\"",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max number of records to return (default 1)",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "maximum": 1000,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Number of records to skip",
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Your API key for higher rate limits",
+            "in": "query",
+            "name": "api_key",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "meta": {
+                      "description": "Metadata about the response",
+                      "properties": {
+                        "disclaimer": {
+                          "type": "string"
+                        },
+                        "last_updated": {
+                          "format": "date",
+                          "type": "string"
+                        },
+                        "license": {
+                          "type": "string"
+                        },
+                        "results": {
+                          "properties": {
+                            "limit": {
+                              "type": "integer"
+                            },
+                            "skip": {
+                              "type": "integer"
+                            },
+                            "total": {
+                              "type": "integer"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "results": {
+                      "description": "List of adverse event reports",
+                      "items": {
+                        "properties": {
+                          "patient": {
+                            "properties": {
+                              "death": {
+                                "properties": {
+                                  "patientdeathdate": {
+                                    "type": "string"
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              "drug": {
+                                "items": {
+                                  "properties": {
+                                    "drugadministrationroute": {
+                                      "type": "string"
+                                    },
+                                    "drugcharacterization": {
+                                      "type": "string"
+                                    },
+                                    "drugindication": {
+                                      "type": "string"
+                                    },
+                                    "medicinalproduct": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "patientonsetage": {
+                                "type": "string"
+                              },
+                              "patientonsetageunit": {
+                                "type": "string"
+                              },
+                              "patientsex": {
+                                "type": "string"
+                              },
+                              "reaction": {
+                                "items": {
+                                  "properties": {
+                                    "reactionmeddrapt": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "receivedate": {
+                            "type": "string"
+                          },
+                          "safetyreportid": {
+                            "type": "string"
+                          },
+                          "serious": {
+                            "type": "string"
+                          },
+                          "transmissiondate": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Search results for adverse events"
+          }
+        },
+        "summary": "Retrieve drug adverse event reports (FAERS)"
+      }
+    },
+    "/label.json": {
+      "get": {
+        "description": "Fetch structured product labeling (prescribing/OTC info, adverse reactions, indications, boxed warnings, etc.)",
+        "operationId": "getDrugLabeling",
+        "parameters": [
+          {
+            "description": "Search filter, e.g. openfda.brand_name:\"aspirin\"",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max records",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "maximum": 100,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Skip offset",
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "API key",
+            "in": "query",
+            "name": "api_key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "meta": {
+                      "type": "object"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "adverse_reactions": {
+                            "type": "string"
+                          },
+                          "boxed_warning": {
+                            "type": "string"
+                          },
+                          "effective_time": {
+                            "type": "string"
+                          },
+                          "inactive_ingredient": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "indications_and_usage": {
+                            "type": "string"
+                          },
+                          "purpose": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Labeling search results"
+          }
+        },
+        "summary": "Retrieve drug labeling records (SPL)"
+      }
+    },
+    "/ndc.json": {
+      "get": {
+        "description": "Fetch NDC Directory data: packaging, marketing status, labeler, dosage form etc.",
+        "operationId": "getDrugNDC",
+        "parameters": [
+          {
+            "description": "Filter, e.g. dosage_form:\"TABLET\"",
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Max records",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "maximum": 100,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Offset",
+            "in": "query",
+            "name": "skip",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "API key",
+            "in": "query",
+            "name": "api_key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "meta": {
+                      "type": "object"
+                    },
+                    "results": {
+                      "items": {
+                        "properties": {
+                          "active_ingredients": {
+                            "items": {
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "strength": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "dosage_form": {
+                            "type": "string"
+                          },
+                          "listing_expiration_date": {
+                            "type": "string"
+                          },
+                          "marketing_start_date": {
+                            "type": "string"
+                          },
+                          "ndc": {
+                            "type": "string"
+                          },
+                          "packaging": {
+                            "properties": {
+                              "description": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "product_type": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "NDC directory entries"
+          }
+        },
+        "summary": "Retrieve National Drug Code directory entries"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.fda.gov/drug"
+    }
+  ]
+}

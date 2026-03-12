@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Blockchain Ticker API",
+    "version": "1.0.0",
+    "description": "Returns current Bitcoin price in various currencies.",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,ICA8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjQ4IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+CiAgICBCCiAgPC90ZXh0Pgo8L3N2Zz4="
+    },
+    "x-bionic-slug": "blockchain"
+  },
+  "servers": [
+    {
+      "url": "https://blockchain.info",
+      "description": "Main Blockchain API server"
+    }
+  ],
+  "paths": {
+    "/ticker": {
+      "get": {
+        "summary": "Get Bitcoin prices by currency",
+        "operationId": "getTicker",
+        "responses": {
+          "200": {
+            "description": "A map of currency codes to price information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/CurrencyInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Use the format `Authorization: Bearer <API_KEY>`"
+      }
+    },
+    "schemas": {
+      "CurrencyInfo": {
+        "type": "object",
+        "properties": {
+          "15m": {
+            "type": "number",
+            "format": "float"
+          },
+          "last": {
+            "type": "number",
+            "format": "float"
+          },
+          "buy": {
+            "type": "number",
+            "format": "float"
+          },
+          "sell": {
+            "type": "number",
+            "format": "float"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "15m",
+          "last",
+          "buy",
+          "sell",
+          "symbol"
+        ]
+      }
+    }
+  }
+}

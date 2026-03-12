@@ -1,0 +1,88 @@
+use crate::marketing::{
+    customer_logos::Customers,
+    extra_footer::{ExtraFooter, EXTRA_FOOTER_TITLE},
+    features::BionicFeatures,
+    footer::Footer,
+    image_hero::ImageHero,
+    small_image_feature::SmallImageFeature,
+    testamonials::Testamonial2,
+};
+use crate::ui_links::footer_links;
+use dioxus::prelude::*;
+use ssg_whiz::layouts::layout::Layout;
+use ssg_whiz::Section;
+
+pub fn page() -> String {
+    let page = rsx! {
+        Layout {
+            title: "Enterprise Generative AI",
+            description: "The Industry Standard For Enterprise Generative AI",
+            mobile_menu: None,
+            section: Section::Home,
+
+            div {
+                class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-24",
+
+                ImageHero {
+                    title: "The fastest way to build an AI assistant on your technical content.".to_string(),
+                    image: "/solutions/chat-bot.png",
+                    subtitle: "Add AI to your docs, product, and support flows to answer technical questions—in days, not months. ".to_string(),
+                    cta_label: "Book a Call",
+                    cta_href: crate::routes::marketing::Contact {}.to_string()
+                }
+
+                Customers {
+                }
+
+                SmallImageFeature {
+                    title: "Agentic AI",
+                    sub_title: "It's not easy to build AI assistants on your data",
+                    text: "We manage all the complexity of Agentic RAG pipelines and you build no code assistants.",
+                    image: "/river/assistants.png",
+                    flip: false
+                }
+
+                SmallImageFeature {
+                    title: "Integrations",
+                    sub_title: "Connect assistants to anything",
+                    text: "We are not just an Agentic RAG pipeline—we also support integrating with your support systems.",
+                    image: "/river/integrations.png",
+                    flip: true
+                }
+
+                SmallImageFeature {
+                    title: "Teams",
+                    sub_title: "Collaborate with Ease",
+                    text: "Our Teams feature makes it simple for all your support teams to together in one place.",
+                    image: "/river/teams.png",
+                    flip: false
+                }
+
+                SmallImageFeature {
+                    title: "Observability",
+                    sub_title: "AI Support at Scale",
+                    text: "We provide monitoring tools to help identify performance bottlenecks and usage issues.",
+                    image: "/landing-page/dashboard.png",
+                    flip: true
+                }
+
+                BionicFeatures {}
+
+                Testamonial2 { }
+            }
+
+            ExtraFooter {
+                title: EXTRA_FOOTER_TITLE.to_string(),
+                image: "/landing-page/bionic-console.png",
+                cta: "Find out more",
+                cta_url: crate::routes::marketing::Index {}.to_string()
+            }
+            Footer {
+                margin_top: "mt-0",
+                links: footer_links()
+            }
+        }
+    };
+
+    crate::render(page)
+}

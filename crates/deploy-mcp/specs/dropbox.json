@@ -1,0 +1,402 @@
+{
+  "components": {
+    "schemas": {
+      "Entry": {
+        "description": "A file or folder returned from list_folder.",
+        "properties": {
+          ".tag": {
+            "enum": [
+              "file",
+              "folder",
+              "deleted"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path_display": {
+            "type": "string"
+          },
+          "path_lower": {
+            "type": "string"
+          }
+        },
+        "required": [
+          ".tag",
+          "name",
+          "id"
+        ],
+        "type": "object"
+      },
+      "Error": {
+        "properties": {
+          "error": {
+            "type": "object"
+          },
+          "error_summary": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FileRequest": {
+        "properties": {
+          "created": {
+            "description": "The time this file request was created.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "file_count": {
+            "description": "The number of files uploaded to the file request.",
+            "type": "integer"
+          },
+          "id": {
+            "description": "The ID of the file request.",
+            "type": "string"
+          },
+          "is_open": {
+            "description": "Whether or not the file request is currently open.",
+            "type": "boolean"
+          },
+          "title": {
+            "description": "The title of the file request.",
+            "type": "string"
+          },
+          "url": {
+            "description": "The URL of the file request.",
+            "format": "uri",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "title",
+          "created",
+          "is_open",
+          "file_count"
+        ],
+        "type": "object"
+      },
+      "ListFolderResult": {
+        "properties": {
+          "cursor": {
+            "type": "string"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/Entry"
+            },
+            "type": "array"
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entries",
+          "cursor",
+          "has_more"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2": {
+        "description": "OAuth2 authentication for Dropbox API",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://www.dropbox.com/oauth2/authorize",
+            "scopes": {
+              "file_requests.read": "Read file requests",
+              "file_requests.write": "Create and manage file requests",
+              "files.content.read": "Read file metadata and content"
+            },
+            "tokenUrl": "https://api.dropboxapi.com/oauth2/token"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "description": "OpenAPI spec including file requests, files/folders listing, and file download endpoints.",
+    "title": "Dropbox API - File & Folder Listing",
+    "version": "1.2.0",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+DQo8IS0tIFVwbG9hZGVkIHRvOiBTVkcgUmVwbywgd3d3LnN2Z3JlcG8uY29tLCBHZW5lcmF0b3I6IFNWRyBSZXBvIE1peGVyIFRvb2xzIC0tPg0KPHN2ZyB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgLTEuNSA0OCA0OCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4NCiAgICANCiAgICA8dGl0bGU+RHJvcGJveC1jb2xvcjwvdGl0bGU+DQogICAgPGRlc2M+Q3JlYXRlZCB3aXRoIFNrZXRjaC48L2Rlc2M+DQogICAgPGRlZnM+DQoNCjwvZGVmcz4NCiAgICA8ZyBpZD0iSWNvbnMiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPg0KICAgICAgICA8ZyBpZD0iQ29sb3ItIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtODAwLjAwMDAwMCwgLTM2My4wMDAwMDApIiBmaWxsPSIjMEY4MkUyIj4NCiAgICAgICAgICAgIDxwYXRoIGQ9Ik04MjQsMzg5LjAzMzI1NSBMODE0LjExOTUsMzk3LjM0NTczIEw4MDAsMzg4LjA1MzUzOCBMODA5Ljc2MzUsMzgwLjE3MzQ3IEw4MjMuOTk5OTcxLDM4OS4wMzMyMzggTDgzOC4yMzYyLDM4MC4xNzIxMDkgTDg0Ny45OTk3LDM4OC4wNTM2OSBMODMzLjg4MDIsMzk3LjM0NTg4MSBMODIzLjk5OTcsMzg5LjAzMzQwNiBaIE04MTQuMTE5OCwzNjMgTDgwMC4wMDAzLDM3Mi4yOTIxOTEgTDgwOS43NjM4LDM4MC4xNzIyNiBMODI0LjAwMDMsMzcxLjMxMjQ3NSBMODE0LjExOTgsMzYzIFogTTgyNC4wMjg5NSwzOTAuODIxNjkyIEw4MTQuMTE5OTUsMzk5LjEwOTk3NiBMODA5Ljg3OTQ1LDM5Ni4zMTg5OTMgTDgwOS44Nzk0NSwzOTkuNDQ3MTMyIEw4MjQuMDI4OTUsNDA4IEw4MzguMTc4NDUsMzk5LjQ0NzEzMiBMODM4LjE3ODQ1LDM5Ni4zMTg5OTMgTDgzMy45Mzc5NSwzOTkuMTA5OTc2IEw4MjQuMDI4OTUsMzkwLjgyMTY5MiBaIE04NDgsMzcyLjI5MjM0MyBMODMzLjg4MDUsMzYzLjAwMDE1MSBMODI0LDM3MS4zMTI2MjYgTDgzOC4yMzY1LDM4MC4xNzI0MTEgTDg0OCwzNzIuMjkyMzQzIFoiIGlkPSJEcm9wYm94Ij4NCg0KPC9wYXRoPg0KICAgICAgICA8L2c+DQogICAgPC9nPg0KPC9zdmc+"
+    },
+    "x-bionic-slug": "dropbox"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/2/file_requests/list": {
+      "post": {
+        "description": "Returns a list of file requests owned by this user.",
+        "operationId": "listFileRequests",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {},
+              "schema": {
+                "additionalProperties": false,
+                "type": "object"
+              }
+            }
+          },
+          "description": "Empty JSON object",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "file_requests": {
+                      "items": {
+                        "$ref": "#/components/schemas/FileRequest"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "file_requests"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "List of file requests"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "file_requests.read"
+            ]
+          }
+        ],
+        "summary": "List File Requests",
+        "tags": [
+          "file_requests"
+        ]
+      }
+    },
+    "/2/files/download": {
+      "post": {
+        "description": "Download the raw contents of a file (binary or text). Returns file data in the HTTP response body, not JSON.",
+        "operationId": "downloadFile",
+        "parameters": [
+          {
+            "description": "A JSON-encoded object with a 'path' property specifying the file to download (e.g. {\"path\": \"/my-folder/file.txt\"})",
+            "example": "{\"path\": \"/Documents/report.txt\"}",
+            "in": "header",
+            "name": "Dropbox-API-Arg",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {},
+              "text/plain": {}
+            },
+            "description": "Raw contents of the specified file returned in the response body."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "files.content.read"
+            ]
+          }
+        ],
+        "servers": [
+          {
+            "url": "https://content.dropboxapi.com"
+          }
+        ],
+        "summary": "Download file contents",
+        "tags": [
+          "files"
+        ]
+      }
+    },
+    "/2/files/list_folder": {
+      "post": {
+        "description": "Returns the contents of a folder. Includes both files and subfolders.",
+        "operationId": "listFilesAndFolders",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "path": "",
+                "recursive": false
+              },
+              "schema": {
+                "properties": {
+                  "include_deleted": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "include_media_info": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "path": {
+                    "description": "Path to the folder. Empty string for root.",
+                    "type": "string"
+                  },
+                  "recursive": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "path"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListFolderResult"
+                }
+              }
+            },
+            "description": "Folder listing result"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "files.content.read"
+            ]
+          }
+        ],
+        "summary": "List contents of a folder",
+        "tags": [
+          "files"
+        ]
+      }
+    },
+    "/2/files/list_folder/continue": {
+      "post": {
+        "description": "Retrieve more results if the previous response indicated `has_more`.",
+        "operationId": "listFilesAndFoldersContinue",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "cursor": {
+                    "description": "Cursor from previous /list_folder call.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "cursor"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListFolderResult"
+                }
+              }
+            },
+            "description": "Next set of folder listing results"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "files.content.read"
+            ]
+          }
+        ],
+        "summary": "Continue folder listing",
+        "tags": [
+          "files"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2": [
+        "file_requests.read",
+        "files.content.read"
+      ]
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.dropboxapi.com"
+    },
+    {
+      "url": "https://content.dropboxapi.com"
+    }
+  ]
+}

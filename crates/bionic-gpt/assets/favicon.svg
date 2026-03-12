@@ -1,0 +1,28 @@
+<svg width="144" height="144" viewBox="0 0 144 144" xmlns="http://www.w3.org/2000/svg">
+  <!-- Radial gradient background -->
+  <defs>
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#4e7eff"/>
+      <stop offset="100%" stop-color="#1f3ccf"/>
+    </radialGradient>
+
+    <!-- Drop shadow filter -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="black" flood-opacity="0.7"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded background -->
+  <rect width="144" height="144" rx="24" ry="24" fill="url(#bgGradient)" />
+  <style>
+    .small { 
+        font: normal 120px sans-serif; 
+        fill: white;
+    }
+  </style>
+  <!-- Bigger, bolder B with drop shadow -->
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" class="small" fill="white"
+        filter="url(#dropShadow)">
+    B
+  </text>
+</svg>

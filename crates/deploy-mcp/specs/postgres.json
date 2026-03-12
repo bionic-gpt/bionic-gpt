@@ -1,0 +1,1249 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Deploy MCP Postgres Server",
+    "version": "1.0.0",
+    "description": "OpenAPI definition for the Deploy MCP Postgres server. The API exposes schema discovery, SQL execution, performance insights, and health checks backed by a live PostgreSQL connection provided at request time.",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSItNCAwIDI2NCAyNjQiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQiIGZpbGw9IiMwMDAwMDAiPjxnIGlkPSJTVkdSZXBvX2JnQ2FycmllciIgc3Ryb2tlLXdpZHRoPSIwIj48L2c+PGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L2c+PGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8Zz4gPHBhdGggZD0iTTI1NS4wMDc5MjYsMTU4LjA4NTYxNyBDMjUzLjQ3MzEwOSwxNTMuNDM3NDEzIDI0OS40NTIxOTQsMTUwLjE5OTI3OSAyNDQuMjUxNzg4LDE0OS40MjE4MiBDMjQxLjc5OTk4MiwxNDkuMDU1ODUyIDIzOC45OTE2NjcsMTQ5LjIxMTkzNSAyMzUuNjY4OTg4LDE0OS44OTcxNjQgQzIyOS44NzczNTgsMTUxLjA5MjAyOCAyMjUuNTgwMzQyLDE1MS41NDY2NzkgMjIyLjQ0NDQ5LDE1MS42MzUzNjMgQzIzNC4yODA3OTQsMTMxLjY1MDIxNyAyNDMuOTA1OTIxLDEwOC44NTk3MTQgMjQ5LjQ0Njg3Myw4Ny40MDY1NTg5IEMyNTguNDA2MjgyLDUyLjcxODI2MzMgMjUzLjYxODU1LDM2LjkxNTQzNjUgMjQ4LjAyMzc5NywyOS43NjY5NDY5IEMyMzMuMjE3MTgyLDEwLjg0Nzc3ODMgMjExLjYxNDQ0OCwwLjY4MzQ1NDk2NSAxODUuNTUxNTIsMC4zNzE4Nzk5MDggQzE3MS42NDk0NzgsMC4yMDIxOTg2MTQgMTU5LjQ0MzY1OCwyLjk0NzI1MTczIDE1My4wNzczNTgsNC45MjA3NTc1MSBDMTQ3LjE0OTE1NSwzLjg3NTQ3MzQ0IDE0MC43NzQ1NzcsMy4yOTEzNDQxMSAxMzQuMDg2MDYsMy4xODMxNTAxMiBDMTIxLjU1MDMzNywyLjk4MzMxNjQgMTEwLjQ3MzE2NCw1LjcxNTk1MzgxIDEwMS4wMDgyNTksMTEuMzMyNTgyIEM5NS43NjcwNTc3LDkuNTYxMjc0ODMgODcuMzU4MDc4NSw3LjA2MzM1MzM1IDc3LjY0NjA0MTYsNS40Njg4MjIxNyBDNTQuODAzNTEwNCwxLjcxODY4ODIyIDM2LjM5Mzk3NjksNC42NDExMDg1NSAyMi45MjgyNTg3LDE0LjE1MzkwMyBDNi42MjIzMDAyMywyNS42NzIxMjkzIC0wLjkzNzA5MDA2OSw0NS42ODM4Nzk5IDAuNDYxMTU0NzM0LDczLjYzMzk5NTQgQzAuOTA0NTcyNzQ4LDgyLjUwODI2NzkgNS44NjkwODA4MywxMDkuNTA3Njk1IDEzLjY4NTA2MjQsMTM1LjExNDE5OSBDMTguMTc3MTgyNCwxNDkuODMxNTM4IDIyLjk2NzI3OTQsMTYyLjA1MzkxMiAyNy45MjIzMjc5LDE3MS40NDM3MzIgQzM0Ljk0OTAyNTQsMTg0Ljc1ODY4OCA0Mi40Njc2MjEyLDE5Mi42MDAwOTIgNTAuOTA4NTI2NiwxOTUuNDE1NTAxIEM1NS42NDAwOTI0LDE5Ni45OTIyOTYgNjQuMjM1ODk4NCwxOTguMDk1NTIgNzMuMjc3NDg3MywxOTAuNTY2ODczIEM3NC40MjMyNzk0LDE5MS45NTM4ODUgNzUuOTUxNTkzNSwxOTMuMzMzMjEgNzcuOTgxMjY1NiwxOTQuNjEzODAxIEM4MC41NTc4MTk5LDE5Ni4yMzkwNzYgODMuNzA5MDQzOSwxOTcuNTY2OTY1IDg2Ljg1NTUzODEsMTk4LjM1Mzg4NSBDOTguMTk2OTg4NSwyMDEuMTg5Mzk1IDEwOC44MjAxMDIsMjAwLjQ3OTkyNiAxMTcuODgyOTc1LDE5Ni41MDYzMDkgQzExNy45Mzg1NSwxOTguMTE3OTg2IDExNy45ODE3MDksMTk5LjY1ODEyNSAxMTguMDE4MzY1LDIwMC45ODc3ODggQzExOC4wNzg2NywyMDMuMTQ1MTY0IDExOC4xMzc3OTIsMjA1LjI1OTk3MiAxMTguMjE3MDE2LDIwNy4yMzc2MTcgQzExOC43NTM4NDgsMjIwLjYxMjI4NiAxMTkuNjYzNzQxLDIzMS4wMTEzMjYgMTIyLjM1OTcyMywyMzguMjg2OTI4IEMxMjIuNTA3NTI5LDIzOC42ODc3NzggMTIyLjcwNjc3MSwyMzkuMjk3MzMgMTIyLjkxNzI0NywyMzkuOTQzNTM4IEMxMjQuMjYxNjkxLDI0NC4wNjIwMDUgMTI2LjUxMTI5OCwyNTAuOTU1Njc3IDEzMi4yMzI1NzMsMjU2LjM1NTMyNiBDMTM4LjE1ODQxMSwyNjEuOTQ3NzE0IDE0NS4zMjUyMjksMjYzLjY2MzQ0NiAxNTEuODg4OTk4LDI2My42NjI4NTUgQzE1NS4xODA5MzMsMjYzLjY2Mjg1NSAxNTguMzIyMTA2LDI2My4yMzEyNjEgMTYxLjA3NjYxOSwyNjIuNjQwNjI4IEMxNzAuODk3NDQxLDI2MC41MzY0NjIgMTgyLjA1MDI5MSwyNTcuMzI5NjYzIDE5MC4xMTgxMzQsMjQ1Ljg0MjE4IEMxOTcuNzQ1NTE1LDIzNC45ODE5ODYgMjAxLjQ1MzY3MiwyMTguNjI1MTgyIDIwMi4xMjQ3MTEsMTkyLjg1MTM2MyBDMjAyLjIxMTYyMSwxOTIuMTIyOTc1IDIwMi4yOTIwMjgsMTkxLjQyNzEwNCAyMDIuMzY5NDc4LDE5MC43NjM3NTEgQzIwMi40MjE1MDYsMTkwLjMxNjE5NCAyMDIuNDc0NzE2LDE4OS44NTg1ODcgMjAyLjUyODUxNywxODkuNDAyMTYyIEwyMDQuMzI1ODM4LDE4OS41NjAwMTggTDIwNC43ODg3NjcsMTg5LjU5MTM1MyBDMjE0Ljc5MTA5NSwxOTAuMDQ3MTg3IDIyNy4wMjExNTUsMTg3LjkyNTg3NSAyMzQuNTMyMDY1LDE4NC40MzcwNjIgQzI0MC40NjczNjMsMTgxLjY4MjU1IDI1OS40ODU4NTcsMTcxLjY0MjM4MyAyNTUuMDA3OTI2LDE1OC4wODU2MTciIGZpbGw9IiMwMDAwMDAiPiA8L3BhdGg+IDxwYXRoIGQ9Ik0yMzcuOTA1NTg5LDE2MC43MjI0NzYgQzIwOC4xNjU4MzgsMTY2Ljg1NzAxNiAyMDYuMTIxMzg2LDE1Ni43ODc4OCAyMDYuMTIxMzg2LDE1Ni43ODc4OCBDMjM3LjUyMTg4NSwxMTAuMTk0Njk3IDI1MC42NDgyNCw1MS4wNTE2MDI4IDIzOS4zMjAzODgsMzYuNTc2NjY1MSBDMjA4LjQxNzEwOSwtMi45MDgyMzA5NSAxNTQuOTIxOTc3LDE1Ljc2NTU3OTcgMTU0LjAyOTIyOSwxNi4yNTAzODM0IEwxNTMuNzQxODk0LDE2LjMwMTgxOTkgQzE0Ny44NjYzMDksMTUuMDgyMTI0NyAxNDEuMjkwNzE2LDE0LjM1NTUxMDQgMTMzLjkwMDQxNiwxNC4yMzQ5MDA3IEMxMjAuNDQzNTY2LDE0LjAxNDM3NDEgMTEwLjIzNjA4MywxNy43NjI3MzQ0IDEwMi40OTA0NTcsMjMuNjM2NTQ1IEMxMDIuNDkwNDU3LDIzLjYzNjU0NSA3LjA2MDM5NzIzLC0xNS42NzY4OTYxIDExLjQ5ODcxNTksNzMuMDgwNjA5NyBDMTIuNDQyOTAwNyw5MS45NjMxMjI0IDM4LjU2MjU4NjYsMjE1Ljk1NDAzMiA2OS43MTcxMzYzLDE3OC41MDI5NDcgQzgxLjEwNDExMDksMTY0LjgwODQyNSA5Mi4xMDYxOTg2LDE1My4yMjkzMDMgOTIuMTA2MTk4NiwxNTMuMjI5MzAzIEM5Ny41NzA4ODIyLDE1Ni44NTk0MTggMTA0LjExMjc3NiwxNTguNzExMTMyIDExMC45NzA5NzUsMTU4LjA0NjAwNSBMMTExLjUwMzY2NywxNTcuNTkzNzE4IEMxMTEuMzM4MTI1LDE1OS4yOTQwNzkgMTExLjQxMzgwMSwxNjAuOTU3MTkyIDExMS43MTcwOTksMTYyLjkyNTk2OCBDMTAzLjY5MTIzMywxNzEuODkzMDYyIDEwNi4wNDk2MjYsMTczLjQ2NzQ5MiA5MC4wMDU1Nzk3LDE3Ni43NzAwNjkgQzczLjc3MTE1OTQsMTgwLjExNTgwNiA4My4zMDgxOTQsMTg2LjA3MjM4OCA4OS41MzQ5NjU0LDE4Ny42MjkwODEgQzk3LjA4MzcxMzYsMTg5LjUxNjg1OSAxMTQuNTQ3ODgsMTkyLjE5MDk2NSAxMjYuMzQ4MTIsMTc1LjY3MjE2NiBMMTI1Ljg3NzUwNiwxNzcuNTU2OTg4IEMxMjkuMDIyMjI2LDE4MC4wNzU2MDMgMTMxLjIzMDQ0OCwxOTMuOTQwMzk3IDEzMC44NjAzNDIsMjA2LjUwODYzNyBDMTMwLjQ5MDIzNiwyMTkuMDc3NDY5IDEzMC4yNDMxMDQsMjI3LjcwNjM4MyAxMzIuNzIwOTI0LDIzNC40NDYzMzcgQzEzNS4xOTg3NDQsMjQxLjE4NjI5MSAxMzcuNjY4Mjg2LDI1Ni4zNTExODcgMTU4Ljc1OTYxMiwyNTEuODMxODcxIEMxNzYuMzgzNDA5LDI0OC4wNTUxMzIgMTg1LjUxNjA0NiwyMzguMjY4MDA5IDE4Ni43ODY1ODcsMjIxLjk0MjU0IEMxODcuNjg4MjAzLDIxMC4zMzYyMjIgMTg5LjcyODUxNywyMTIuMDUxOTU0IDE4OS44NTc0MDQsMjAxLjY3NTM4MSBMMTkxLjQ5MzkxMiwxOTYuNzYyOTAxIEMxOTMuMzgxMDk5LDE4MS4wMjk4MzggMTkxLjc5MzY2MywxNzUuOTU0MTggMjAyLjY1MTQ5MiwxNzguMzE0OTM4IEwyMDUuMjkwMTI1LDE3OC41NDY2OTcgQzIxMy4yODE3LDE3OC45MTAzIDIyMy43NDEwNDQsMTc3LjI2MTM3NiAyMjkuODc5NzIzLDE3NC40MDgxMjkgQzI0My4wOTgzMDksMTY4LjI3MzU4OSAyNTAuOTM3OTQsMTU4LjAzMTIyNCAyMzcuOTA0NDA2LDE2MC43MjI0NzYgTDIzNy45MDU1ODksMTYwLjcyMjQ3NiIgZmlsbD0iIzMzNjc5MSI+IDwvcGF0aD4gPHBhdGggZD0iTTEwOC4wNzYzNDIsODEuNTI1MDYyNCBDMTA1LjM5NjkxNSw4MS4xNTIgMTAyLjk2OTM0OSw4MS40OTcyNzQ4IDEwMS43NDEzNzYsODIuNDI2Njc5IEMxMDEuMDUwMjM2LDgyLjk0OTkxMjIgMTAwLjgzNjgwNCw4My41NTU5MTY5IDEwMC43Nzk0NTUsODMuOTczMzIxIEMxMDAuNjI1MTQ1LDg1LjA3ODMxODcgMTAxLjM5OTY0OSw4Ni4yOTk3ODc1IDEwMS44NzQ5OTMsODYuOTMwMDMyMyBDMTAzLjIyMDYxOSw4OC43MTM3NTUyIDEwNS4xODcwMyw4OS45Mzk5NTM4IDEwNy4xMzMzMzksOTAuMjEwMTQzMiBDMTA3LjQxNTM1Myw5MC4yNDkxNjQgMTA3LjY5NTU5NCw5MC4yNjgwODMxIDEwNy45NzQ2NTEsOTAuMjY4MDgzMSBDMTExLjIyMDQ3MSw5MC4yNjgwODMxIDExNC4xNzA2NzksODcuNzQxMTkxNyAxMTQuNDMwODE4LDg1Ljg3NTg3OTkgQzExNC43NTU5OTEsODMuNTM5OTUzOCAxMTEuMzY0NzMsODEuOTgyNjY5NyAxMDguMDc2MzQyLDgxLjUyNTA2MjQiIGZpbGw9IiNGRkZGRkYiPiA8L3BhdGg+IDxwYXRoIGQ9Ik0xOTYuODYwNDUzLDgxLjU5ODk2NTQgTDE5Ni44NTk4NjEsODEuNTk4OTY1NCBDMTk2LjYwNDQ1Myw3OS43Njc5NDQ2IDE5My4zNDU2MjYsNzkuMjQ1ODkzOCAxOTAuMjUzNTI0LDc5LjY3NTcxMzYgQzE4Ny4xNjYxNTIsODAuMTA2MTI0NyAxODQuMTcxNjAzLDgxLjQ5OTYzOTcgMTg0LjQyMTY5MSw4My4zMzQ3OTkxIEMxODQuNjIyNzA3LDg0Ljc2MjAxMzkgMTg3LjE5ODY3LDg3LjE5ODQ0OCAxOTAuMjQ5Mzg2LDg3LjE5Nzg1NjggQzE5MC41MDY1NjgsODcuMTk3ODU2OCAxOTAuNzY2NzA3LDg3LjE4MDcxMTMgMTkxLjAyODYxOSw4Ny4xNDQwNTU0IEMxOTMuMDY0Nzk0LDg2Ljg2MjA0MTYgMTk0LjU1ODgxOCw4NS41NjkwMzQ2IDE5NS4yNjgyODYsODQuODIzNTAxMiBDMTk2LjM0OTYzNSw4My42ODgzNTEgMTk2Ljk3NDU1OSw4Mi40MjE5NDkyIDE5Ni44NjA0NTMsODEuNTk4OTY1NCIgZmlsbD0iI0ZGRkZGRiI+IDwvcGF0aD4gPHBhdGggZD0iTTI0Ny44MDIwODgsMTYwLjAyNTQyMyBDMjQ2LjY2ODEyLDE1Ni41OTYzMjMgMjQzLjAxODQ5NCwxNTUuNDkyNTA4IDIzNi45NTQzMDksMTU2Ljc0NTMxMiBDMjE4Ljk0OTE3MywxNjAuNDYxMTU1IDIxMi41MDEyODQsMTU3Ljg4Njk2NSAyMTAuMzgzNTIsMTU2LjMyNzkwOCBDMjI0LjM3ODk3NSwxMzUuMDA3MTg3IDIzNS44OTE4OCwxMDkuMjM2MzIzIDI0Mi4xMDI2ODgsODUuMTkwNjUxMyBDMjQ1LjA0NTIxLDczLjgwMDcyMDYgMjQ2LjY3MDQ4NSw2My4yMjMxMzE2IDI0Ni44MDI5MTksNTQuNjAxOTAzIEMyNDYuOTQ5NTQzLDQ1LjEzNzU4ODkgMjQ1LjMzODQ1NywzOC4xODQyMDMyIDI0Mi4wMTQwMDUsMzMuOTM2MjU4NyBDMjI4LjYxMTU0NywxNi44MTA4NjM3IDIwOC45NDIxMTUsNy42MjUwMTYxNyAxODUuMTMxNzUxLDcuMzcyNTYzNTEgQzE2OC43NjMxMjIsNy4xODg2OTI4NCAxNTQuOTMzMjEsMTEuMzc4MTA2MiAxNTIuMjUyMDA5LDEyLjU1NTgyNDUgQzE0Ni42MDU4MiwxMS4xNTE2Njc0IDE0MC40NTA1ODcsMTAuMjg5NjYyOCAxMzMuNzUwMjQ1LDEwLjE3OTY5NTIgQzEyMS40NjE2NTQsOS45ODEwNDM4OCAxMTAuODQwMzE0LDEyLjkyMjk3NDYgMTAyLjA0NTg1NywxOC45MTkxNjg2IEM5OC4yMjU5NTg0LDE3LjQ5Nzg2NjEgODguMzUzNjk5OCwxNC4xMDg5NyA3Ni4yODE0OTY1LDEyLjE2NDQzNDIgQzU1LjQwODkyMzgsOC44MDMzMjU2NCAzOC44MjMzMTY0LDExLjM0OTcyNzUgMjYuOTg3MDExNSwxOS43MzUwNTc3IEMxMi44NjM4NTIyLDI5Ljc0MDkzMyA2LjM0MzgzMzcyLDQ3LjYyNjY0MiA3LjYwNzI3OTQ1LDcyLjg5NDM3NDEgQzguMDMyMzY5NTIsODEuMzk2MTc1NSAxMi44NzU2NzY3LDEwNy41NDc3ODggMjAuNTIwMjAzMiwxMzIuNTkzMjE5IEMzMC41ODIyNDQ4LDE2NS41NTY5MTUgNDEuNTE5Mjk3OSwxODQuMjE4MzA5IDUzLjAyODA2NDcsMTg4LjA1NjUzNiBDNTQuMzc0ODczLDE4OC41MDU4NjYgNTUuOTI4NjA5NywxODguODIwMzk3IDU3LjY0MDc5NDUsMTg4LjgyMDM5NyBDNjEuODM5MDc2MiwxODguODIwMzk3IDY2Ljk4NTY4MTMsMTg2LjkyNzg4OSA3Mi4zNDA5ODg1LDE4MC40OTAwNTEgQzgxLjIzNTk1MzgsMTY5Ljc4ODg5NiA4OS41NDA4Nzc2LDE2MC44MjE4MDEgOTIuNjAyMjM1NiwxNTcuNTYzNTY2IEM5Ny4xMjYyODE4LDE1OS45OTIzMTQgMTAyLjA5NTUyLDE2MS4zNDc5OTEgMTA3LjE3OTQ1NSwxNjEuNDgzOTcyIEMxMDcuMTg4MzIzLDE2MS42MTY5OTggMTA3LjIwMTkyMSwxNjEuNzUwMDIzIDEwNy4yMTM3NDYsMTYxLjg4MjQ1NyBDMTA2LjE5Mzg4NSwxNjMuMDkyMTAyIDEwNS4zNTczMDMsMTY0LjE1MjE2NiAxMDQuNjQ0Mjg2LDE2NS4wNTczMyBDMTAxLjEyMjM2NSwxNjkuNTI4MTY2IDEwMC4zODkyNDcsMTcwLjQ1ODc1MyA4OS4wNTE5MzUzLDE3Mi43OTM0OTcgQzg1LjgyNzM5OTUsMTczLjQ1ODYyNCA3Ny4yNjExNTQ3LDE3NS4yMjQwMTggNzcuMTM2NDA2NSwxODEuMjI3ODk4IEM3Ni45OTk4MzM3LDE4Ny43ODc1MjkgODcuMjYwNTI2NiwxOTAuNTQyNjMzIDg4LjQyOTk2NzcsMTkwLjgzNDY5NyBDOTIuNTA0MDkyNCwxOTEuODU0NTU5IDk2LjQyODYzNzQsMTkyLjM1NzY5MSAxMDAuMTcxNjc3LDE5Mi4zNTc2OTEgQzEwOS4yNzUzNDQsMTkyLjM1NzA5OSAxMTcuMjg1ODM4LDE4OS4zNjU1MDYgMTIzLjY4ODIwMywxODMuNTc2ODMxIEMxMjMuNDkwNzM0LDIwNi45NjI2OTcgMTI0LjQ2NjI1NCwyMzAuMDA2ODM2IDEyNy4yNzM5NzcsMjM3LjAyODIxMiBDMTI5LjU3MzI0NywyNDIuNzc1NTAxIDEzNS4xOTE2NDksMjU2LjgyMjk4NCAxNTIuOTM4NDIsMjU2LjgyMTgwMSBDMTU1LjU0MTU4LDI1Ni44MjE4MDEgMTU4LjQwODQyNSwyNTYuNTE5MDk1IDE2MS41NjE0MjMsMjU1Ljg0MzMyNiBDMTgwLjA4MjEwNiwyNTEuODcyMDc0IDE4OC4xMjQ1MjcsMjQzLjY4NjU3NyAxOTEuMjM2MTM5LDIyNS42NDAwNTUgQzE5Mi45MDEwMjUsMjE1Ljk5NTQxOCAxOTUuNzU4NDExLDE5Mi45NjM2OTUgMTk3LjEwMTY3MiwxODAuNjEwMDY5IEMxOTkuOTM3Nzc0LDE4MS40OTQ1NCAyMDMuNTg5MTczLDE4MS44OTk1MjkgMjA3LjUzNjE4NSwxODEuODk4OTM4IEMyMTUuNzY4Mzg4LDE4MS44OTg5MzggMjI1LjI2Njk5MywxODAuMTUwMDk3IDIzMS4yMjQxNjYsMTc3LjM4NDk0MiBDMjM3LjkxNTY0LDE3NC4yNzc0NjkgMjQ5Ljk5MTk4MiwxNjYuNjUwNjc5IDI0Ny44MDIwODgsMTYwLjAyNTQyMyBMMjQ3LjgwMjA4OCwxNjAuMDI1NDIzIFogTTIwMy42OTYxODUsNzYuNTQ0NTkxMiBDMjAzLjYzNDY5Nyw4MC4xOTE4NTIyIDIwMy4xMzI3NDgsODMuNTAyNzA2NyAyMDIuNjAwNjQ3LDg2Ljk1OTAwMjMgQzIwMi4wMjgzNDIsOTAuNjc2MDI3NyAyMDEuNDM1OTM1LDk0LjUxODk4MzggMjAxLjI4Njk0Nyw5OS4xODQzMzI2IEMyMDEuMTM5NzMyLDEwMy43MjQzNDIgMjAxLjcwNjcxNiwxMDguNDQ0Njc0IDIwMi4yNTUzNzIsMTEzLjAwODkyNCBDMjAzLjM2MzMyNiwxMjIuMjI4NDcxIDIwNC41MDAyNDksMTMxLjcyMDU3MyAyMDAuMDk4NTg3LDE0MS4wODY3NDQgQzE5OS40MTQ1NCwxMzkuODcxNzc4IDE5OC43NTQxNDMsMTM4LjU0NjI1NCAxOTguMTQ4NzMsMTM3LjA3ODI0NSBDMTk3LjYwMTg0OCwxMzUuNzUyMTI5IDE5Ni40MTQwNzksMTMzLjYyMTk0OSAxOTQuNzY5ODg1LDEzMC42NzM1MTUgQzE4OC4zNzA0NzYsMTE5LjE5Nzg1NyAxNzMuMzg1MzEyLDkyLjMyNDM2MDMgMTgxLjA1NjQ0Myw4MS4zNTgzMzcyIEMxODMuMzQwOTMzLDc4LjA5MzU5ODIgMTg5LjEzOTY1OCw3NC43Mzg0MDE4IDIwMy42OTYxODUsNzYuNTQ0NTkxMiBMMjAzLjY5NjE4NSw3Ni41NDQ1OTEyIFogTTE4Ni4wNTIyODYsMTQuNzU4MTMzOSBDMjA3LjM4NjAxNCwxNS4yMjkzMzk1IDIyNC4yNjEzMjEsMjMuMjEwMjcyNSAyMzYuMjA5OTU4LDM4LjQ3ODA0MTYgQzI0NS4zNzM5MzEsNTAuMTg5MDA2OSAyMzUuMjgyOTE5LDEwMy40NzYwMjggMjA2LjA2OTk0OSwxNDkuNDQ2NjUxIEMyMDUuNzgxNDMyLDE0OS4wODAwOTIgMjA1LjQ4NzU5NCwxNDguNzA5OTg2IDIwNS4xODM3MDQsMTQ4LjMzMDQyIEMyMDUuMDYyNTAzLDE0OC4xNzg0NzYgMjA0LjkzODkzOCwxNDguMDI0MTY2IDIwNC44MTQxODksMTQ3Ljg2ODA4MyBDMjEyLjM2MjkzOCwxMzUuNDAwOTQyIDIxMC44ODY2NTEsMTIzLjA2NjIzNiAyMDkuNTcyOTUyLDExMi4xMjk3NzQgQzIwOS4wMzMxNjQsMTA3LjY0MTc5MiAyMDguNTIzNTI5LDEwMy40MDI3MTYgMjA4LjY1MzAwNyw5OS40MjE0MTM0IEMyMDguNzg3MjE1LDk1LjIwMDA3MzkgMjA5LjM0NTMzLDkxLjU4MTE5MTcgMjA5Ljg4NDUyNyw4OC4wODExNDU1IEMyMTAuNTQ4NDcxLDgzLjc2NzU3NTEgMjExLjIyMzA1OCw3OS4zMDUwMTYyIDIxMS4wMzY4MjIsNzQuMDQzNzEzNiBDMjExLjE3NTc2LDczLjQ5MjEwMTYgMjExLjIzMTkyNiw3Mi44Mzk5ODE1IDIxMS4xNTkyMDYsNzIuMDY2MDY5MyBDMjEwLjY4Mzg2MSw2Ny4wMjA1NjM1IDIwNC45MjQxNTcsNTEuOTIyNDc1OCAxOTMuMTgzNjMsMzguMjU1MTUwMSBDMTg2Ljc2MjM0NiwzMC43ODA4OTYxIDE3Ny4zOTY3NjcsMjIuNDE1NjY3NCAxNjQuNjA5Nzc0LDE2Ljc3MzYxNjYgQzE3MC4xMDk5MzEsMTUuNjMzNzM2NyAxNzcuNjMxNDgzLDE0LjU3MDcxNTkgMTg2LjA1MjI4NiwxNC43NTgxMzM5IEwxODYuMDUyMjg2LDE0Ljc1ODEzMzkgWiBNNjYuNjc0MTA2MiwxNzUuNzc3OTk1IEM2MC43NzQyODE4LDE4Mi44NzE1MDEgNTYuNjk5NTY1OCwxODEuNTEyMjc3IDU1LjM1OTg1MjIsMTgxLjA2NTkwMyBDNDYuNjI5MjQ3MSwxNzguMTUzNTMzIDM2LjQ5OTgwNiwxNTkuNzAyMDIzIDI3LjU2ODc3NiwxMzAuNDQxNzU1IEMxOS44NDA4ODY4LDEwNS4xMjM3NjkgMTUuMzI0NTI2Niw3OS42NjUwNzE2IDE0Ljk2NzQyNzMsNzIuNTI2MDQxNiBDMTMuODM4NzgwNiw0OS45NDgzNzg4IDE5LjMxMTc0MTMsMzQuMjEyOTUxNSAzMS4yMzQ5NTYxLDI1Ljc1NzI2NTYgQzUwLjYzODkyODQsMTEuOTk2NTI2NiA4Mi41NDEzNzY0LDIwLjIzMjg2ODQgOTUuMzYwMjk1NiwyNC40MTA0NTczIEM5NS4xNzU4MzM3LDI0LjU5MTk2MyA5NC45ODQyNzcxLDI0Ljc2MjIzNTYgOTQuODAxNTg4OSwyNC45NDY2OTc1IEM3My43NjY0Mjk2LDQ2LjE5MTE1MDEgNzQuMjY1NDIyNiw4Mi40ODc1NzUxIDc0LjMxNjg1OTEsODQuNzA1ODQ3NiBDNzQuMzE1MDg1NSw4NS41NjE5NCA3NC4zODY2MjM2LDg2Ljc3Mzk0OTIgNzQuNDg1MzU4LDg4LjQ0MTIwMDkgQzc0Ljg0NzE4NzEsOTQuNTQ1NTg4OSA3NS41MjA1OTEyLDEwNS45MDc3MzIgNzMuNzIxNDk2NSwxMTguNzc1MTMyIEM3Mi4wNDg5MjM4LDEzMC43MzIwNDYgNzUuNzM0NjE0MywxNDIuNDM1MzI2IDgzLjgzMjAxODUsMTUwLjg4MzkxNyBDODQuNjcwMzc0MSwxNTEuNzU4MzM3IDg1LjU0NTM4NTcsMTUyLjU3OTU0NyA4Ni40NDkzNjcyLDE1My4zNTIyNzcgQzgyLjg0NDY3NDQsMTU3LjIxMjM3OSA3NS4wMTE1NDczLDE2NS43NDc4OCA2Ni42NzQxMDYyLDE3NS43Nzc5OTUgTDY2LjY3NDEwNjIsMTc1Ljc3Nzk5NSBaIE04OS4xNTMwMzQ2LDE0NS43ODQ2MSBDODIuNjI2NTEyNywxMzguOTc1NDgzIDc5LjY2MjcwNjcsMTI5LjUwMzQ4MyA4MS4wMjAxNTcsMTE5Ljc5NTU4NCBDODIuOTIwMzUxLDEwNi4yMDI3NTMgODIuMjE4NTY4MSw5NC4zNjQ2NzQ0IDgxLjg0MTk1ODQsODguMDA0ODc3NiBDODEuNzg5MzM5NSw4Ny4xMTUwODU1IDgxLjc0MjYzMjgsODYuMzM1MjYxIDgxLjcxNDg0NTMsODUuNzE5Nzk2OCBDODQuNzg4MDI3Nyw4Mi45OTU0MzY1IDk5LjAyODg0MDYsNzUuMzY0NTA4MSAxMDkuMTg0Mjk2LDc3LjY5MTU2NTggQzExMy44MTk0OTIsNzguNzUzNDA0MiAxMTYuNjQyNTg3LDgxLjkwODc2NjcgMTE3LjgxNjc1OCw4Ny4zMzczODU3IEMxMjMuODkzMzU4LDExNS40NDAwMzcgMTE4LjYyMTQxMywxMjcuMTUzMzY3IDExNC4zODUyOTMsMTM2LjU2NTY1NCBDMTEzLjUxMjA1NSwxMzguNTA0ODY4IDExMi42ODcyOTgsMTQwLjMzNzY2MyAxMTEuOTgyNTU5LDE0Mi4yMzQzMDkgTDExMS40MzY4NTksMTQzLjY5OTk1NCBDMTEwLjA1NDU3NywxNDcuNDA2MzM3IDEwOC43Njg2NjUsMTUwLjg1MTk5MSAxMDcuOTcxNjk1LDE1NC4xMjQ0MTYgQzEwMS4wMzQyNzMsMTU0LjEwMzEzMiA5NC4yODQ4NTkxLDE1MS4xMzk5MTcgODkuMTUzMDM0NiwxNDUuNzg0NjEgTDg5LjE1MzAzNDYsMTQ1Ljc4NDYxIFogTTkwLjIxNzgyOTEsMTgzLjY4NTAyNSBDODguMTkyMjk1NiwxODMuMTc4OTM4IDg2LjM3MDE0MzIsMTgyLjI5OTc4OCA4NS4zMDEyMTAyLDE4MS41NzA4MDggQzg2LjE5Mzk1ODQsMTgxLjE1MDQ0OCA4Ny43ODMxNjg2LDE4MC41NzkzMjYgOTAuNTM4ODYzNywxODAuMDExNzUxIEMxMDMuODc2Mjg2LDE3Ny4yNjU1MTUgMTA1LjkzNTUyLDE3NS4zMjgwNzQgMTEwLjQzMzU1MiwxNjkuNjE2ODUgQzExMS40NjUyMzgsMTY4LjMwNzg4IDExMi42MzQwODgsMTY2LjgyMzMxNiAxMTQuMjUyODU5LDE2NS4wMTUzNTMgQzExNC4yNTM0NSwxNjUuMDE0MTcxIDExNC4yNTQwNDIsMTY1LjAxMzU4IDExNC4yNTQ2MzMsMTY1LjAxMjk4OCBDMTE2LjY2NjIzNiwxNjIuMzEzNDYgMTE3Ljc2ODg2OCwxNjIuNzcxMDY3IDExOS43Njg5NzksMTYzLjYwMDU1NCBDMTIxLjM5MDExNSwxNjQuMjcxNTk0IDEyMi45Njg2ODQsMTY2LjMwMzAzOSAxMjMuNjA4OTc5LDE2OC41MzkwNDggQzEyMy45MTE2ODYsMTY5LjU5NDk3NSAxMjQuMjUyMjMxLDE3MS41OTk4MTUgMTIzLjEzODk1NiwxNzMuMTU4ODczIEMxMTMuNzQyNjMzLDE4Ni4zMTQ3OSAxMDAuMDUxMDY3LDE4Ni4xNDU3IDkwLjIxNzgyOTEsMTgzLjY4NTAyNSBMOTAuMjE3ODI5MSwxODMuNjg1MDI1IFogTTE2MC4wMTY1NTQsMjQ4LjYzNzQ4NyBDMTQzLjcwMDU0NSwyNTIuMTMzMzk1IDEzNy45MjM2OTUsMjQzLjgwODM3IDEzNC4xMTY4MDQsMjM0LjI5MTQzNiBDMTMxLjY1OTY3NywyMjguMTQ2ODQ1IDEzMC40NTIzOTcsMjAwLjQ0MDMxNCAxMzEuMzA5MDgxLDE2OS44NDM4OCBDMTMxLjMyMDMxNCwxNjkuNDM2NTI3IDEzMS4yNjIzNzQsMTY5LjA0MzM2MyAxMzEuMTUwMDQyLDE2OC42NzM4NDggQzEzMS4wNTI0OSwxNjcuOTYwMjQgMTMwLjkwMjMxOSwxNjcuMjM4MzU2IDEzMC42OTQyMDgsMTY2LjUxMTc0MSBDMTI5LjQxOTUyOSwxNjIuMDU5ODI0IDEyNi4zMTUwMTIsMTU4LjMzNTcwNCAxMjIuNTkwMywxNTYuNzkyMDE4IEMxMjEuMTEwNDY3LDE1Ni4xNzg5MTkgMTE4LjM5Mzc5MiwxNTUuMDUzODIgMTE1LjEyOTY0NCwxNTUuODg4NjI4IEMxMTUuODI2MTA2LDE1My4wMjA2IDExNy4wMzMzODYsMTQ5Ljc4MjQ2NyAxMTguMzQxNzY0LDE0Ni4yNzUzMjYgTDExOC44OTEwMTIsMTQ0Ljc5OTYzIEMxMTkuNTA5NDMyLDE0My4xMzY1MTcgMTIwLjI4NDUyNywxNDEuNDEzNjkxIDEyMS4xMDUxNDUsMTM5LjU5MDM1NiBDMTI1LjUzODE0MywxMjkuNzQxNzQ2IDEzMS42MDk0MjMsMTE2LjI1Mjk3IDEyNS4wMjAyMzEsODUuNzc5NTEwNCBDMTIyLjU1MTg3MSw3NC4zNjU5MzA3IDExNC4zMTAyMDgsNjguNzkyNDYxOSAxMDEuODE1ODcxLDcwLjA4NjY1MTMgQzk0LjMyNTA2MjQsNzAuODYxNzQ2IDg3LjQ3Mjc3Niw3My44ODQwODMxIDg0LjA1NDkwOTksNzUuNjE2OTYwNyBDODMuMzIwMDE4NSw3NS45ODk0MzE5IDgyLjY0Nzc5NjgsNzYuMzQ4ODk2MSA4Mi4wMTk5MTY5LDc2LjY5OTQ5MTkgQzgyLjk3MzU2MTIsNjUuMTk5MDAyMyA4Ni41NzgyNTQsNDMuNzA3NDE4IDEwMC4wNjA1MjcsMzAuMTA5ODU2OCBDMTA4LjU0ODczLDIxLjU0ODkzMyAxMTkuODU0MTE1LDE3LjMyMTA5MDEgMTMzLjYyODQ1MywxNy41NDg3MTEzIEMxNjAuNzY4NTkxLDE3Ljk5MzMxMTggMTc4LjE3MjQ1MywzMS45MjEzNjcyIDE4Ny45OTQ0NTcsNDMuNTI3Njg1OSBDMTk2LjQ1NzgyOSw1My41Mjk0MjI2IDIwMS4wNDA5OTgsNjMuNjAzODc5OSAyMDIuODcwMjQ1LDY5LjAzNzIyODYgQzE4OS4xMTU0MTgsNjcuNjM4OTgzOCAxNzkuNzYwNDgsNzAuMzU0NDc1OCAxNzUuMDE3NjgxLDc3LjEzNDA0MTYgQzE2NC43MDA4MjIsOTEuODgxNTMzNSAxODAuNjYyMDk3LDEyMC41MDYyMzYgMTg4LjMzMzIyOSwxMzQuMjYyODM2IEMxODkuNzM5NzUxLDEzNi43ODQ0MDYgMTkwLjk1NDEyNSwxMzguOTYzMDY3IDE5MS4zMzYwNTUsMTM5Ljg4ODkyNCBDMTkzLjgzMzk3NywxNDUuOTQzMDU4IDE5Ny4wNjc5NzIsMTQ5Ljk4NDY2NSAxOTkuNDI5MzIxLDE1Mi45MzU0NjQgQzIwMC4xNTI5NzksMTUzLjgzOTQ0NiAyMDAuODU1MzUzLDE1NC43MTYyMzEgMjAxLjM4OTIyOSwxNTUuNDgxODY2IEMxOTcuMjIzNDY0LDE1Ni42ODMyMzMgMTg5Ljc0MDM0MiwxNTkuNDU3ODQ4IDE5MC40MjIwMjMsMTczLjMyODU1NCBDMTg5Ljg3MjE4NSwxODAuMjg5MDM1IDE4NS45NjA2NDcsMjEyLjg3NDkzOCAxODMuOTc0MTM0LDIyNC4zODc4NDMgQzE4MS4zNTE0NjQsMjM5LjU5NzY3MiAxNzUuNzU0MzQ2LDI0NS4yNjMzNzIgMTYwLjAxNjU1NCwyNDguNjM3NDg3IEwxNjAuMDE2NTU0LDI0OC42Mzc0ODcgWiBNMjI4LjEyMDgzMSwxNzAuNzAwNTY0IEMyMjMuODYxMDYyLDE3Mi42NzgyMDggMjE2LjczMjA4MywxNzQuMTYxNTg5IDIwOS45NTk2MTIsMTc0LjQ3OTY2NyBDMjAyLjQ3OTQ0NiwxNzQuODMwMjYzIDE5OC42NzE5NjMsMTczLjY0MTkwMyAxOTcuNzc2MjU5LDE3Mi45MTExNSBDMTk3LjM1NTMwNywxNjQuMjY3NDU1IDIwMC41NzMzMzksMTYzLjM2NDA2NSAyMDMuOTc4MTk5LDE2Mi40MDgwNTUgQzIwNC41MTMyNTYsMTYyLjI1NzI5MyAyMDUuMDM1MzA3LDE2Mi4xMTEyNjEgMjA1LjUzOTAzLDE2MS45MzUwNzYgQzIwNS44NTIzNzksMTYyLjE4OTg5NCAyMDYuMTk1Mjg5LDE2Mi40NDI5MzggMjA2LjU3MDcxNiwxNjIuNjkwNjYxIEMyMTIuNTgyODczLDE2Ni42NTg5NTYgMjIzLjMwNjQ5NCwxNjcuMDg3MDAyIDIzOC40NDQ3ODUsMTYzLjk2MjM4MyBDMjM4LjUwMDM2LDE2My45NTA1NTkgMjM4LjU1NTkzNSwxNjMuOTM5OTE3IDIzOC42MTA5MTksMTYzLjkyODY4NCBDMjM2LjU2OTQyMywxNjUuODM3NzQ2IDIzMy4wNzUyODksMTY4LjQwMDExMSAyMjguMTIwODMxLDE3MC43MDA1NjQgTDIyOC4xMjA4MzEsMTcwLjcwMDU2NCBaIiBmaWxsPSIjRkZGRkZGIj4gPC9wYXRoPiA8L2c+IDwvZz48L3N2Zz4="
+    },
+    "x-bionic-slug": "postgres"
+  },
+  "servers": [
+    {
+      "url": "http://postgres-mcp:8080/v1",
+      "description": "Base URL for the Deploy Postgres MCP server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Use the format `Authorization: Bearer <API_KEY>`"
+      }
+    },
+    "schemas": {
+      "ErrorDetail": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Machine readable error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human readable description of the error"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional context that may help diagnose the issue",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "JsonValue": {
+        "description": "Flexible JSON value used for parameters, query results, and diagnostics.",
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JsonValue"
+            }
+          }
+        ]
+      },
+      "SchemaSummary": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Optional description supplied via COMMENT ON SCHEMA"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "ListSchemasResponse": {
+        "type": "object",
+        "properties": {
+          "schemas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SchemaSummary"
+            }
+          }
+        },
+        "required": [
+          "schemas"
+        ]
+      },
+      "ObjectType": {
+        "type": "string",
+        "description": "Supported Postgres object types",
+        "enum": [
+          "table",
+          "view",
+          "materialized_view",
+          "function",
+          "procedure",
+          "index",
+          "sequence"
+        ]
+      },
+      "ObjectSummary": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ObjectType"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "name",
+          "type"
+        ]
+      },
+      "ListObjectsResponse": {
+        "type": "object",
+        "properties": {
+          "objects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectSummary"
+            }
+          }
+        },
+        "required": [
+          "objects"
+        ]
+      },
+      "ColumnDetail": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "data_type": {
+            "type": "string"
+          },
+          "nullable": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "data_type",
+          "nullable"
+        ]
+      },
+      "IndexDetail": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "is_unique": {
+            "type": "boolean"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "comment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "definition",
+          "is_unique"
+        ]
+      },
+      "ObjectDependency": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ObjectType"
+          }
+        },
+        "required": [
+          "schema",
+          "name",
+          "type"
+        ]
+      },
+      "DatabaseObject": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ObjectType"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ColumnDetail"
+            }
+          },
+          "indexes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndexDetail"
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectDependency"
+            }
+          }
+        },
+        "required": [
+          "schema",
+          "name",
+          "type"
+        ]
+      },
+      "GetObjectDetailsResponse": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "$ref": "#/components/schemas/DatabaseObject"
+          }
+        },
+        "required": [
+          "object"
+        ]
+      },
+      "SqlParameters": {
+        "type": "object",
+        "description": "Mapping of named parameters to the values that should be bound when executing a statement.",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/JsonValue"
+        }
+      },
+      "ExecuteSqlRequest": {
+        "type": "object",
+        "properties": {
+          "statement": {
+            "type": "string",
+            "description": "SQL statement to run against the target database"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/SqlParameters"
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of result rows to return",
+            "default": 500
+          }
+        },
+        "required": [
+          "statement"
+        ]
+      },
+      "SqlResultColumn": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "data_type": {
+            "type": "string"
+          },
+          "table": {
+            "type": "string"
+          },
+          "nullable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "data_type"
+        ]
+      },
+      "SqlResultRow": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/JsonValue"
+        }
+      },
+      "ExecuteSqlResponse": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SqlResultColumn"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SqlResultRow"
+            }
+          }
+        },
+        "required": [
+          "columns",
+          "rows"
+        ]
+      },
+      "ExplainQueryRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "SQL statement to explain"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/SqlParameters"
+          },
+          "analyze": {
+            "type": "boolean",
+            "description": "Run EXPLAIN ANALYZE to execute the query",
+            "default": false
+          },
+          "verbose": {
+            "type": "boolean",
+            "default": false
+          },
+          "costs": {
+            "type": "boolean",
+            "default": true
+          },
+          "buffers": {
+            "type": "boolean",
+            "default": false
+          },
+          "settings": {
+            "type": "boolean",
+            "default": false
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "json",
+              "yaml",
+              "xml"
+            ],
+            "default": "json"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "ExplainPlan": {
+        "description": "Representation of the query plan returned by EXPLAIN.",
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "additionalProperties": true
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JsonValue"
+            }
+          }
+        ]
+      },
+      "ExplainQueryResponse": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "json",
+              "yaml",
+              "xml"
+            ]
+          },
+          "plan": {
+            "$ref": "#/components/schemas/ExplainPlan"
+          }
+        },
+        "required": [
+          "format",
+          "plan"
+        ]
+      },
+      "TopQuery": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "calls": {
+            "type": "integer"
+          },
+          "total_time_ms": {
+            "type": "number"
+          },
+          "mean_time_ms": {
+            "type": "number"
+          },
+          "rows": {
+            "type": "integer"
+          },
+          "shared_blks_hit": {
+            "type": "integer"
+          },
+          "shared_blks_read": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "query",
+          "calls",
+          "total_time_ms",
+          "mean_time_ms"
+        ]
+      },
+      "GetTopQueriesResponse": {
+        "type": "object",
+        "properties": {
+          "queries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopQuery"
+            }
+          }
+        },
+        "required": [
+          "queries"
+        ]
+      },
+      "WorkloadQuery": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/SqlParameters"
+          },
+          "frequency": {
+            "type": "integer",
+            "description": "Estimated executions per hour",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "AnalyzeWorkloadIndexesRequest": {
+        "type": "object",
+        "properties": {
+          "workload": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkloadQuery"
+            },
+            "minItems": 1
+          },
+          "max_recommendations": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 5
+          }
+        },
+        "required": [
+          "workload"
+        ]
+      },
+      "AnalyzeQueryIndexesRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/SqlParameters"
+          },
+          "max_recommendations": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 5
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "IndexRecommendation": {
+        "type": "object",
+        "properties": {
+          "statement": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "estimated_improvement_percent": {
+            "type": "number"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "required": [
+          "statement",
+          "reason"
+        ]
+      },
+      "AnalyzeIndexesResponse": {
+        "type": "object",
+        "properties": {
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndexRecommendation"
+            }
+          }
+        },
+        "required": [
+          "recommendations"
+        ]
+      },
+      "HealthCheckStatus": {
+        "type": "string",
+        "enum": [
+          "pass",
+          "warn",
+          "fail"
+        ]
+      },
+      "HealthCheckResult": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/HealthCheckStatus"
+          },
+          "message": {
+            "type": "string"
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            }
+          }
+        },
+        "required": [
+          "check",
+          "status"
+        ]
+      },
+      "AnalyzeDbHealthResponse": {
+        "type": "object",
+        "properties": {
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HealthCheckResult"
+            }
+          }
+        },
+        "required": [
+          "checks"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/schemas": {
+      "get": {
+        "operationId": "list_schemas",
+        "summary": "List available schemas",
+        "description": "Return the schemas accessible through the provided Postgres connection.",
+        "parameters": [
+          {
+            "name": "include_system_schemas",
+            "in": "query",
+            "description": "Whether to include system schemas such as `pg_catalog` and `information_schema`.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schemas visible to the connection user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListSchemasResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schemas/{schema}/objects": {
+      "get": {
+        "operationId": "list_objects",
+        "summary": "List objects within a schema",
+        "description": "Enumerate tables, views, functions, and other objects that live in the target schema.",
+        "parameters": [
+          {
+            "name": "schema",
+            "in": "path",
+            "required": true,
+            "description": "Schema name to inspect.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "description": "Filter results to one or more object types.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ObjectType"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Objects that match the criteria.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListObjectsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schemas/{schema}/objects/{object}": {
+      "get": {
+        "operationId": "get_object_details",
+        "summary": "Describe a database object",
+        "description": "Return DDL, column metadata, indexes, and dependencies for a schema-qualified object.",
+        "parameters": [
+          {
+            "name": "schema",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Schema that owns the object."
+          },
+          {
+            "name": "object",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Name of the object to inspect."
+          },
+          {
+            "name": "include_stats",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "When true, include planner statistics and index usage details where available."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detailed metadata for the requested object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetObjectDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sql/execute": {
+      "post": {
+        "operationId": "execute_sql",
+        "summary": "Execute arbitrary SQL",
+        "description": "Run a SQL statement and return any resulting rows.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteSqlRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Execution results from the database.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecuteSqlResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sql/explain": {
+      "post": {
+        "operationId": "explain_query",
+        "summary": "Explain a SQL statement",
+        "description": "Return the execution plan produced by EXPLAIN or EXPLAIN ANALYZE.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainQueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Query plan returned by Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplainQueryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitoring/top-queries": {
+      "get": {
+        "operationId": "get_top_queries",
+        "summary": "Fetch high-cost queries",
+        "description": "Return statements with the highest execution cost according to pg_stat_statements.",
+        "parameters": [
+          {
+            "name": "interval_minutes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 60
+            },
+            "description": "How far back in minutes to consider statistics for ranking."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            },
+            "description": "Maximum number of queries to return."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top queries ordered by total execution time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTopQueriesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analysis/workload/indexes": {
+      "post": {
+        "operationId": "analyze_workload_indexes",
+        "summary": "Recommend indexes for a workload",
+        "description": "Suggest indexes that could improve performance for a representative workload of queries.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeWorkloadIndexesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Index recommendations tailored to the supplied workload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeIndexesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analysis/query/indexes": {
+      "post": {
+        "operationId": "analyze_query_indexes",
+        "summary": "Recommend indexes for a single query",
+        "description": "Analyze a specific query and suggest indexes that could improve its execution plan.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeQueryIndexesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Index recommendations relevant to the query.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeIndexesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analysis/db-health": {
+      "get": {
+        "operationId": "analyze_db_health",
+        "summary": "Assess database health",
+        "description": "Run diagnostic checks against the connected database and report potential issues.",
+        "parameters": [
+          {
+            "name": "include_diagnostics",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Include raw diagnostic data alongside summarized findings."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Results of health checks and recommended actions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeDbHealthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload or parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed or connection string could not be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error while communicating with Postgres.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

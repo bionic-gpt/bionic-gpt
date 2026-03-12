@@ -1,0 +1,131 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Generic MySQL Search API",
+    "version": "1.0.0",
+    "description": "A generic search API for querying MySQL tables using dynamic filters.",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIC0yIDI1NiAyNTYiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQiIGZpbGw9IiMwMDAwMDAiPjxnIGlkPSJTVkdSZXBvX2JnQ2FycmllciIgc3Ryb2tlLXdpZHRoPSIwIj48L2c+PGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L2c+PGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8cGF0aCBkPSJNMjM1LjY0ODI3NiwxOTQuMjExNjMyIEMyMjEuNzI5ODUxLDE5My44NjQ1NTkgMjEwLjk0Mjg3MiwxOTUuMjU3MjcyIDIwMS44OTU2MDQsMTk5LjA4Mzk2NCBDMTk5LjI4NTg5OSwyMDAuMTI3NDA2IDE5NS4xMDk5MjcsMjAwLjEyODQ5OCAxOTQuNzYxNzY3LDIwMy40MzM0NTggQzE5Ni4xNTQ0OTgsMjA0LjgyNjE4OSAxOTYuMzI4MDM0LDIwNy4wODc3MTYgMTk3LjU0NjA5NiwyMDkuMDAxMDU1IEMxOTkuNjM1MTkyLDIxMi40Nzk1NTEgMjAzLjI4NzI0NywyMTcuMTc4MzQzIDIwNi41OTMzMTcsMjE5LjYxNDUwNyBDMjEwLjI0NjQ2MSwyMjIuMzk3NzQ4IDIxMy45MDA2OTEsMjI1LjE4MDk4OSAyMTcuNzI3NDE2LDIyNy42MTcxNTMgQzIyNC41MTMwOTIsMjMxLjc5MzEyNSAyMzIuMTY4NjI1LDIzNC4yMjgxNyAyMzguNzc5Njc3LDIzOC40MDQxMjMgQzI0Mi42MDg1NzcsMjQwLjgzODA2NyAyNDYuNDM0MTIzLDI0My45NzE3MTEgMjUwLjI2MTkzNCwyNDYuNTgxNDExIEMyNTIuMTc2NDA3LDI0Ny45NzE5MjYgMjUzLjM5MzM4MSwyNTAuMjM0NTQ1IDI1NS44Mjk1NDksMjUxLjEwNDQ0NiBMMjU1LjgyOTU0OSwyNTAuNTgyNzMyIEMyNTQuNjExNDQyLDI0OS4wMTY0NzkgMjU0LjI2MzI4MiwyNDYuNzU0OTUyIDI1My4wNDYzMDgsMjQ1LjAxNTE0NCBDMjUxLjMwNzU5MiwyNDMuMjc1MzQxIDI0OS41NjY3MDIsMjQxLjcwOTA4MyAyNDcuODI2ODk5LDIzOS45NjkyOCBDMjQyLjc4MTAyNSwyMzMuMTg0NyAyMzYuNTE4MTMzLDIyNy4yNjg5ODQgMjI5LjczMjU0NywyMjIuMzk3NzQ4IEMyMjQuMTY2MDY1LDIxOC41Njk5NSAyMTEuOTg2MzU1LDIxMy4zNTA1NSAyMDkuNzI0NzY0LDIwNi45MTMwNTEgQzIwOS43MjQ3NjQsMjA2LjkxMzA1MSAyMDkuNTUwMTQsMjA2LjczOTUxIDIwOS4zNzY2MDQsMjA2LjU2NTk3IEMyMTMuMjA0MzcxLDIwNi4yMTc3ODcgMjE3LjcyNzQxNiwyMDQuODI2MTggMjIxLjM4MTY5MSwyMDMuNzgxNjIzIEMyMjcuMjk3NDY2LDIwMi4yMTUzNzQgMjMyLjY5MDQ1NywyMDIuNTYzNTQ4IDIzOC43Nzk2NzcsMjAwLjk5ODM4MiBDMjQxLjU2MjkxOSwyMDAuMzAyMDMgMjQ0LjM0NzI5MiwxOTkuNDMyMTI5IDI0Ny4xMzA1MzMsMTk4LjU2MjIyMiBMMjQ3LjEzMDUzMywxOTYuOTk3MDc1IEMyNDQuMDAwMjIsMTkzLjg2NDUzMiAyNDEuNzM3NTg4LDE4OS42ODk2ODQgMjM4LjQzMTUxNywxODYuNzMxNzc4IEMyMjkuNTU4OTY1LDE3OS4wNzUxMTMgMjE5LjgxNTM3OSwxNzEuNTk1MjY5IDIwOS43MjQ3NjQsMTY1LjMzMjM5NCBDMjA0LjMzMDY4NSwxNjEuODUyNzkyIDE5Ny4zNzE0NzIsMTU5LjU5MDE1MSAxOTEuNjMwNDEyLDE1Ni42MzMzNjkgQzE4OS41NDM1MzYsMTU1LjU4NzcyOSAxODYuMDYyNzk3LDE1NS4wNjcxMiAxODQuODQ1ODIzLDE1My4zMjcyOTkgQzE4MS43MTMzMDIsMTQ5LjQ5OTUyMyAxNzkuOTczNDk5LDE0NC40NTQ3NiAxNzcuNzExOTgyLDEzOS45MzA1NzkgQzE3Mi42NjgzMjksMTMwLjM2MDYwNSAxNjcuNzk0ODYzLDExOS43NDkzMDYgMTYzLjQ0NTQxLDEwOS42NTg2NjUgQzE2MC4zMTUwOTYsMTAyLjg3Mjk5MyAxNTguNDAwNjUxLDk2LjA4NzI4OTIgMTU0LjU3Mjg2Miw4OS44MjQ1MjMzIEMxMzYuNjUzMTY2LDYwLjI0NzkwNTQgMTE3LjE2NzA5NSw0Mi4zMjgxMTAyIDg3LjI0MjMwOCwyNC43NTU0NTc0IEM4MC44MDQ4MjMyLDIxLjEwMjMwNTIgNzMuMTUwMzc3OSwxOS41MzYwNTQxIDY0Ljk3MzA2MjgsMTcuNjIyNzEyNCBDNjAuNjI0NjY0OSwxNy40NDgwNjgzIDU2LjI3NDA0NjksMTcuMTAwOTk2NiA1MS45MjQ1MDcyLDE2LjkyNjM1MjUgQzQ5LjE0MTI2NjEsMTUuNzA4MjU3OSA0Ni4zNTY5MTk1LDEyLjQwMzMwOTIgNDMuOTIwNzQ2NSwxMC44MzcwNDQxIEMzNC4wMDU4NzU1LDQuNTczMDk2MSA4LjQyOTQyMzAxLC04Ljk5NjA3MTA4IDEuMTIyMDU0OCw4LjkyMzcwMjM3IEMtMy41NzU2MzU4MiwyMC4yMzI0NTE2IDguMDgxMjY3NTQsMzEuMzY2NDc3IDEyLjA4MjU0NzUsMzcuMTA4NjgxMiBDMTUuMDQxNTM2LDQxLjExMDAxNzggMTguODY4MjE5NSw0NS42MzMwNTEyIDIwLjk1NjIwNTMsNTAuMTU3MjQ2MyBDMjIuMTc0Mjk0MSw1My4xMTI5MjI2IDIyLjUyMTM2MjEsNTYuMjQ2NTQ4NCAyMy43Mzk0NTA5LDU5LjM3Nzk3NjYgQzI2LjUyMzc5Myw2Ny4wMzEzMzkgMjkuMTMyMzkyMiw3NS41NTc4NzQ0IDMyLjc4NjY0MDQsODIuNjkxODA2IEMzNC43MDEwODU1LDg2LjM0NDk1NzcgMzYuNzg3OTY1Nyw5MC4xNzI3NDIyIDM5LjIyNDEyOTcsOTMuNDc3NjY2IEM0MC42MTU3NDU3LDk1LjM5MTAwNTUgNDMuMDUwODA4Niw5Ni4yNjIwMTI2IDQzLjU3MzYyODYsOTkuMzkzNDM2MyBDNDEuMTM4NTc0NywxMDIuODczMDI5IDQwLjk2MzkyODQsMTA4LjA5MjQ1MiAzOS41NzExOTc3LDExMi40NDE5OTIgQzMzLjMwODM1NDgsMTMyLjEwMTQ5MiAzNS43NDQ1MTQzLDE1Ni40NTg4IDQ0LjYxNzA3MSwxNzAuODk4ODkgQzQ3LjQwMDMxMjEsMTc1LjI0NzI5NyA1NC4wMTI0MDY5LDE4NC44MTg0MjEgNjIuODg1MDMxNiwxODEuMTY0MTgyIEM3MC43MTQxNDE1LDE3OC4wMzI3NDQgNjguOTc0MzMzNywxNjguMTE1NjI2IDcxLjIzNTg2MDQsMTU5LjQxNjYxIEM3MS43NTg2ODk0LDE1Ny4zMjc1MjMgNzEuNDEwNTAyMiwxNTUuOTM3MDE3IDcyLjQ1Mzk0NDYsMTU0LjU0NTM4MyBDNzIuNDU0ODUwOCwxNTQuNzE4OTI0IDcyLjQ1Mzk0NDYsMTU0Ljg5MzU2MSA3Mi40NTM5NDQ2LDE1NC44OTM1NjEgQzc0Ljg5MDEwNDEsMTU5Ljc2NDc4OCA3Ny4zMjUxNzE1LDE2NC40NjI1MSA3OS41ODY2ODkxLDE2OS4zMzM2NTYgQzg0Ljk4MDczNiwxNzcuODU4MDI1IDk0LjM3NTA0MzQsMTg2LjczMTY3NCAxMDIuMjA0MTAzLDE5Mi42NDc1MDMgQzEwNi4zODExODEsMTk1Ljc3NzgwOCAxMDkuNjg2MTM2LDIwMS4xNzE4NzcgMTE0LjkwNTUyMywyMDMuMDg2MzEzIEwxMTQuOTA1NTIzLDIwMi41NjM0ODQgTDExNC41NTczNDUsMjAyLjU2MzQ4NCBDMTEzLjUxMjgwMSwyMDAuOTk3MjMxIDExMS45NDc2NDUsMjAwLjMwMTk1OCAxMTAuNTU2MDIsMTk5LjA4Mzg5MiBDMTA3LjQyNDU5MSwxOTUuOTUyNDYzIDEwMy45NDM4ODQsMTkyLjEyNDY2NSAxMDEuNTA4ODMsMTg4LjY0NTA4MSBDOTQuMjAyNTQ0NywxNzguOTAxNDg2IDg3Ljc2Mzk0MDgsMTY4LjExNTYzNSA4Mi4wMjI4NDg2LDE1Ni45ODA0OTYgQzc5LjIzOTYwNzUsMTUxLjU4NzU1NSA3Ni44MDM0NDgxLDE0NS42NzE3MzQgNzQuNTQxOTIxNCwxNDAuMjc4ODExIEM3My40OTczNzgsMTM4LjE4OTcyOSA3My40OTczNzgsMTM1LjA1OTQwNiA3MS43NTc1NzQ4LDEzNC4wMTU5NzMgQzY5LjE0Nzg3NDUsMTM3Ljg0MjY0NyA2NS4zMjExOTExLDE0MS4xNDg3MTcgNjMuNDA2NzQ2MSwxNDUuODQ2NDE3IEM2MC4xMDI4OTE2LDE1My4zMjczNDQgNTkuNzUzNjAzNCwxNjIuNTQ4MDk3IDU4LjUzNTUxOTIsMTcyLjExNjk0NyBDNTcuODQwMjUwMywxNzIuMjkxNTk4IDU4LjE4NzMzMiwxNzIuMTE2OTQ3IDU3LjgzOTE0OTMsMTcyLjQ2NTEzOCBDNTIuMjcyNjYyNywxNzEuMDcyNDA4IDUwLjM1ODIxNzYsMTY1LjMzMjM5NCA0OC4yNzAxOTU1LDE2MC40NjAwNTIgQzQzLjA1MDc5MDUsMTQ4LjEwNzkyNiA0Mi4xODA4OTM1LDEyOC4yNzM2ODQgNDYuNzA1MDM4NywxMTQuMDA4MjM2IEM0Ny45MjMxMjMsMTEwLjM1Mzk4OCA1My4xNDI1MjgsOTguODcxNzEyOCA1MS4wNTQ1NDIyLDk1LjM5MjEwMTkgQzUwLjAxMTA5OTgsOTIuMDg2MDI3MyA0Ni41MzAzOTI0LDkwLjE3MjY5NjkgNDQuNjE3MDUyOSw4Ny41NjI5OTY3IEM0Mi4zNTU1MjYyLDg0LjI1NjkyNjYgMzkuOTE5MzY2OCw4MC4wODIwNjUgMzguMzU0MjEsNzYuNDI3ODU3NiBDMzQuMTc4MjM4Myw2Ni42ODUzODExIDMyLjA5MDI2MTUsNTUuODk4NDExIDI3LjU2NzIzNTQsNDYuMTU0ODE1NCBDMjUuNDc5MjQ5Niw0MS42MzA2NjY1IDIxLjgyNjEwNjksMzYuOTM0MDgzNyAxOC44NjgyMTk1LDMyLjc1OTIwNjMgQzE1LjU2MzI2NCwyOC4wNjE1Mjg0IDExLjkwOTAwNjcsMjQuNzU1NDU3NCA5LjI5OTI3MDIzLDE5LjE4Nzg1MDYgQzguNDMwNDY5NjYsMTcuMjc0NTA4OSA3LjIxMTI4NDM5LDE0LjE0MzA5MTUgOC42MDI5MDk0NSwxMi4wNTUwOTY2IEM4Ljk1MTA5MjExLDEwLjY2MzQ4NDcgOS42NDYzNDczMywxMC4xNDE3NTk5IDExLjAzOTA2ODksOS43OTM1NzQ5NyBDMTMuMzAwNTk1NSw3Ljg3OTEyOTQ5IDE5LjczODA4NDgsMTAuMzE1MjkwNyAyMS45OTk1NjE2LDExLjM1ODczNjMgQzI4LjQzNzA1MDksMTMuOTY3MzI1MSAzMy44MzAwMDU4LDE2LjQwNDYwODcgMzkuMjI0MDUyNywyMC4wNTc3NTEzIEM0MS42NTkxMTExLDIxLjc5NzU1MjMgNDQuMjY4ODExMywyNS4xMDM2MjMyIDQ3LjQwMDIzOTYsMjUuOTczNTIzOSBMNTEuMDU0NDgzMywyNS45NzM1MjM5IEM1Ni42MjIwNzA5LDI3LjE5MDUwNTMgNjIuODg0OTI3NCwyNi4zMjE2ODk4IDY4LjEwNDMyNzksMjcuODg2ODY1MiBDNzcuMzI2MTYzOCwzMC44NDM2NDggODUuNjc1ODY0NCwzNS4xOTQyNTQzIDkzLjE1Nzk2OTYsMzkuODkxOTUxMiBDMTE1Ljk1MDAzLDU0LjMzMjA0OSAxMzQuNzM4NTUzLDc0Ljg2MjYxNDcgMTQ3LjQ0MDA2Myw5OS4zOTM0NDU0IEMxNDkuNTI4MDQ5LDEwMy4zOTM2NyAxNTAuMzk2ODQ1LDEwNy4wNDkwMSAxNTIuMzExMjksMTExLjIyMzg5IEMxNTUuOTY1NTM4LDExOS43NDkzNjUgMTYwLjQ4ODU3OCwxMjguNDQ4Mzc2IDE2NC4xNDE3MywxMzYuNzk5MjE4IEMxNjcuNzk0ODcyLDE0NC45NzU0MDEgMTcxLjI3NDQ3NCwxNTMuMzI3MzYyIDE3Ni40OTM4NjEsMTYwLjExMzA0OCBDMTc5LjEwNDY2NywxNjMuNzY1MDk0IDE4OS41NDI0MDMsMTY1LjY3OTUzIDE5NC4yNDAwMjYsMTY3LjU5Mzk3NSBDMTk3LjcxOTYzMiwxNjkuMTU5MTQxIDIwMy4xMTM3MTEsMTcwLjU1MTg3MSAyMDYuMjQ1MTEyLDE3Mi40NjUyMDYgQzIxMi4xNTk4MDEsMTc2LjExNzI0MyAyMTguMDc1NTc2LDE4MC4yOTQzMyAyMjMuNjQzMTQ1LDE4NC4yOTU2NDYgQzIyNi40Mjc0NzQsMTg2LjM4MjUzNSAyMzUuMTI1NDAyLDE5MC43MzMxNDQgMjM1LjY0ODIzMSwxOTQuMjExNjUgTDIzNS42NDgyNzYsMTk0LjIxMTYzMiBMMjM1LjY0ODI3NiwxOTQuMjExNjMyIFoiIGZpbGw9IiMwMDU0NkIiPjwvcGF0aD4gPHBhdGggZD0iTTU4LjE4NjQ4OTIsNDMuMDIyMjY0NCBDNTUuMjI4NjA2Myw0My4wMjIyNjQ0IDUzLjE0MTczMDUsNDMuMzcxNTUyNiA1MS4wNTM3NDQ3LDQzLjg5MzI4MDYgQzUxLjA1Mzc0NDcsNDMuODkyMzc0NCA1MS4wNTM3NDQ3LDQ0LjA2NzkyMjUgNTEuMDUzNzQ0Nyw0NC4yNDE0NjMzIEw1MS40MDE5MzE5LDQ0LjI0MTQ2MzMgQzUyLjc5NDY1OCw0Ny4wMjQ3MDM0IDU1LjIyODYxNTQsNDguOTM5MTQ4NSA1Ni45Njg0MTQsNTEuMzc0MTk3OCBDNTguMzYxMTQ0Niw1NC4xNTc0Mzg5IDU5LjU3ODExNDMsNTYuOTQxNzk0NSA2MC45NzA4NDQ5LDU5LjcyNjE0MTIgQzYxLjE0NDM3NjYsNTkuNTUxNDk0OCA2MS4zMTc5MTc1LDU5LjM3Nzk1ODUgNjEuMzE3OTE3NSw1OS4zNzc5NTg1IEM2My43NTUxOTE1LDU3LjYzNzA0OTggNjQuOTcyMTY1Nyw1NC44NTM4MDg3IDY0Ljk3MjE2NTcsNTAuNjc4OTQyNiBDNjMuOTI3NjE3Nyw0OS40NjA4NTgzIDYzLjc1NDA3NjksNDguMjQyNzc4NiA2Mi44ODQxNzk4LDQ3LjAyNDY5NDQgQzYxLjg0MDczNzQsNDUuMjgzNzgyIDU5LjU3ODEwNTIsNDQuNDE0OTk1IDU4LjE4NjQ4OTIsNDMuMDIyMjY0NCBMNTguMTg2NDg5Miw0My4wMjIyNjQ0IEw1OC4xODY0ODkyLDQzLjAyMjI2NDQgWiIgZmlsbD0iIzAwNTQ2QiI+PC9wYXRoPiA8L2c+PC9zdmc+"
+    },
+    "x-bionic-slug": "mysql"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Bearer token (e.g., `Bearer YOUR_TOKEN`)"
+      }
+    }
+  },
+  "paths": {
+    "/search": {
+      "get": {
+        "operationId": "search",
+        "summary": "Search a MySQL table",
+        "description": "Perform a filtered query against any table in the database.",
+        "parameters": [
+          {
+            "name": "table",
+            "in": "query",
+            "required": true,
+            "description": "The name of the table to search.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "description": "Comma-separated list of fields to return (e.g., `id,name,email`).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "where",
+            "in": "query",
+            "required": false,
+            "description": "JSON object representing WHERE conditions (e.g., `{\"status\":\"active\"}`).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "required": false,
+            "description": "Column name to order by.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "description": "Order direction (`asc` or `desc`).",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of results to return.",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Number of records to skip (for pagination).",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of records matching the query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (e.g., missing `table`, bad `where` JSON)"
+          }
+        }
+      }
+    }
+  }
+}

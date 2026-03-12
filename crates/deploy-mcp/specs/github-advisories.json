@@ -1,0 +1,539 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GitHub Global Security Advisories API",
+    "version": "2022-11-28",
+    "description": "API to view global security advisories from the GitHub Advisory Database.",
+    "x-bionic-slug": "github-adv"
+  },
+  "servers": [
+    {
+      "url": "https://api.github.com"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/advisories": {
+      "get": {
+        "summary": "List global security advisories",
+        "operationId": "listAdvisories",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Set to application/vnd.github+json"
+          },
+          {
+            "name": "ghsa_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "reviewed",
+                "malware",
+                "unreviewed"
+              ],
+              "default": "reviewed"
+            }
+          },
+          {
+            "name": "cve_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ecosystem",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rubygems",
+                "npm",
+                "pip",
+                "maven",
+                "nuget",
+                "composer",
+                "go",
+                "rust",
+                "erlang",
+                "actions",
+                "pub",
+                "other",
+                "swift"
+              ]
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unknown",
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            }
+          },
+          {
+            "name": "cwes",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true
+          },
+          {
+            "name": "is_withdrawn",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "affects",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true
+          },
+          {
+            "name": "published",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "updated",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "modified",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "epss_percentage",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "epss_percentile",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "default": 30
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "updated",
+                "published",
+                "epss_percentage",
+                "epss_percentile"
+              ],
+              "default": "published"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SecurityAdvisory"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        }
+      }
+    },
+    "/advisories/{ghsa_id}": {
+      "get": {
+        "summary": "Get a global security advisory",
+        "operationId": "getAdvisory",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Set to application/vnd.github+json"
+          },
+          {
+            "name": "ghsa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityAdvisory"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Bearer token (e.g., `Bearer YOUR_TOKEN`)"
+      }
+    },
+    "schemas": {
+      "SecurityAdvisory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "ghsa_id": {
+            "type": "string"
+          },
+          "cve_id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "html_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "repository_advisory_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "source_code_location": {
+            "type": "string"
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "github_reviewed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "nvd_published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "withdrawn_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "vulnerabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "package": {
+                  "type": "object",
+                  "properties": {
+                    "ecosystem": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "first_patched_version": {
+                  "type": "string"
+                },
+                "vulnerable_version_range": {
+                  "type": "string"
+                },
+                "vulnerable_functions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "cvss": {
+            "type": "object",
+            "properties": {
+              "vector_string": {
+                "type": "string"
+              },
+              "score": {
+                "type": "number"
+              }
+            }
+          },
+          "cvss_severities": {
+            "type": "object",
+            "properties": {
+              "cvss_v3": {
+                "$ref": "#/components/schemas/CvssDetail"
+              },
+              "cvss_v4": {
+                "$ref": "#/components/schemas/CvssDetail"
+              }
+            }
+          },
+          "cwes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "cwe_id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "epss": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "percentage": {
+                  "type": "number"
+                },
+                "percentile": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "credits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "login": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "node_id": {
+                      "type": "string"
+                    },
+                    "avatar_url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "html_url": {
+                      "type": "string"
+                    },
+                    "followers_url": {
+                      "type": "string"
+                    },
+                    "following_url": {
+                      "type": "string"
+                    },
+                    "gists_url": {
+                      "type": "string"
+                    },
+                    "starred_url": {
+                      "type": "string"
+                    },
+                    "subscriptions_url": {
+                      "type": "string"
+                    },
+                    "organizations_url": {
+                      "type": "string"
+                    },
+                    "repos_url": {
+                      "type": "string"
+                    },
+                    "events_url": {
+                      "type": "string"
+                    },
+                    "received_events_url": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "site_admin": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CvssDetail": {
+        "type": "object",
+        "properties": {
+          "vector_string": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

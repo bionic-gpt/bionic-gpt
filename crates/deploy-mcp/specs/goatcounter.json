@@ -1,0 +1,233 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GoatCounter Statistics API",
+    "version": "0.1",
+    "description": "Statistics-related endpoints from the GoatCounter API.",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IiMwMDAwMDAiPjxnIGlkPSJTVkdSZXBvX2JnQ2FycmllciIgc3Ryb2tlLXdpZHRoPSIwIj48L2c+PGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L2c+PGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzlhMTVhNCI+PC9jaXJjbGU+IDxwYXRoIGQ9Ik03OTEuNTUgNTQ2LjZTNzM0IDQ1MS4zMiA2NDcuMTggMzY5Ljg3Yy00My40Mi00MC43My05NC4zOS03OC41NC0xNTEuMzQtOTktMjguNDgtMTAuMjItNTguNzktMTUuOC04OS42Ny0xNC43NmEyMTIuNTggMjEyLjU4IDAgMCAwLTkzIDI0LjljLTYuMzYgMy4zNi0xNC43NiAxNi0xNC4yMyAyNS4yMnMzLjgyIDEyLjU5IDUuNTMgMTQuODJjMy40MSA0LjQ3IDQuODMgNSA2LjE2IDZhNTguNDMgNTguNDMgMCAwIDAgNi42OSA0LjI1YzQuNTEgMi41OCAxMC4xNiA1LjUyIDE3IDkgMTMuNzYgNi45MiAzMi4wNyAxNS43MSA1MC41MyAyNC40MiAyMC44NCA5Ljg0IDI3LjYzIDEyLjg4IDQyIDE5LjQ4bC0xMTguMjggMTM1YTI2LjU5IDI2LjU5IDAgMSAwIDQwIDM1bDE0MS42Ny0xNjEuNjNhMjYuNjEgMjYuNjEgMCAwIDAtOC45NS00MS43MXMtMzcuMTgtMTctNzMuNjktMzQuMjJjLTQuNTMtMi4xNC03LjgtMy44LTEyLjIzLTUuOTEgMjcuNTUtMy4yMiA1NC44Ni4zMiA4Mi40OSAxMC4yNCA0Ni41OSAxNi43MyA5Mi43OSA1MC4wOCAxMzIuOTIgODcuNzFDNjgzLjUgNDc2Ljg4IDcyOS44OSA1NDkuNDMgNzM5IDU2NGwtMTcuOTMgNDcuMjhhNDg1Ljg0IDQ4NS44NCAwIDAgMS04MS40NC0xMC4xMWMtMjUuNDYtNS4zNi01MS4xNy0xMy40NC03MC4zNi0yNC4xMXMtMzAuNjYtMjIuNzktMzQuNzUtMzYuNDdhMjYuNiAyNi42IDAgMSAwLTUxIDE1LjI2YzcuMDUgMjMuNTggMjIuNDUgNDEuNyA0MC45NCA1NS41MS00LjEgOS40NC05LjA4IDIxLjI5LTE0LjA3IDM0LjE1LTExLjg3IDMwLjYzLTI0Ljc2IDY0Ljg2LTI0LjcyIDk2YTI2LjYgMjYuNiAwIDEgMCA1My4yLS4wNmMwLTEyLjI2IDEwLTQ4LjA5IDIxLjEzLTc2LjY4IDQtMTAuMzIgOC0yMCAxMS40OC0yOC4wNyAxOC43MSA3LjMzIDM4LjI2IDEyLjU5IDU3LjE4IDE2LjU3QzY4Ni4wOSA2NjUuMjYgNzM5IDY2NS4zIDczOSA2NjUuM2EyNi42MSAyNi42MSAwIDAgMCAyNS0xNy4xN2wyOS42OS03OC4zYTI2LjYxIDI2LjYxIDAgMCAwLTIuMTQtMjMuMjN6IiBzdHlsZT0iZmlsbDojZmZmZmZmO2ZpbGwtcnVsZTpldmVub2RkIj48L3BhdGg+IDwvZz48L3N2Zz4="
+    },
+    "contact": {
+      "name": "Martin Tournoij",
+      "url": "https://www.goatcounter.com/help/api",
+      "email": "support@goatcounter.com"
+    },
+    "x-bionic-slug": "goatcounter"
+  },
+  "servers": [
+    {
+      "url": "https://[my-code].goatcounter.com"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Use the format `Authorization: Bearer <API_KEY>`"
+      }
+    },
+    "schemas": {
+      "apiHitsResponse": {
+        "type": "object",
+        "properties": {
+          "hits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "count": {
+                  "type": "integer"
+                },
+                "max": {
+                  "type": "integer"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "path_id": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "more": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "TotalCount": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "total_events": {
+            "type": "integer"
+          },
+          "total_utc": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v0/stats/hits": {
+      "get": {
+        "operationId": "getStatsHits",
+        "summary": "Get an overview of pageviews.",
+        "tags": [
+          "stats"
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "default": "one week ago"
+            },
+            "description": "Start time, should be rounded to the hour."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "default": "current time"
+            },
+            "description": "End time, should be rounded to the hour."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Maximum number of pages to get."
+          },
+          {
+            "name": "daily",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Group by day instead of hour."
+          },
+          {
+            "name": "include_paths",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": false,
+            "description": "Only include these paths."
+          },
+          {
+            "name": "exclude_paths",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": false,
+            "description": "Exclude these paths."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/apiHitsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/stats/total": {
+      "get": {
+        "operationId": "getStatsTotal",
+        "summary": "Count total number of pageviews for a date range.",
+        "tags": [
+          "stats"
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "default": "one week ago"
+            },
+            "description": "Start time."
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "default": "current time"
+            },
+            "description": "End time."
+          },
+          {
+            "name": "include_paths",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "style": "form",
+            "explode": false,
+            "description": "Only include these paths."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Total counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotalCount"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,522 @@
+{
+  "entries": {
+    "ai-agents/ai-agents.png": {
+      "source_hash": "5a371e01f3a964c6685966781060d829ee4d0a2815a5d5b0229a9e640da4b36d",
+      "variants": [
+        "ai-agents/ai-agents-384x216.png",
+        "ai-agents/ai-agents-768x432.png"
+      ]
+    },
+    "ai-agents/howagentswork-horz-sm.png": {
+      "source_hash": "fc0d814efd1a6d659f75a8ca89e0b934cb016b0e583956daa7c5a318ec76fae9",
+      "variants": [
+        "ai-agents/howagentswork-horz-sm-384x216.png",
+        "ai-agents/howagentswork-horz-sm-768x432.png"
+      ]
+    },
+    "ai-coding-automation/llama-coder.jpg": {
+      "source_hash": "6b2e43eca482a0c918608dc4adf4ec14bdcc081affdfd4cc0c7530b08fc9368c",
+      "variants": [
+        "ai-coding-automation/llama-coder-384x216.jpg",
+        "ai-coding-automation/llama-coder-768x432.jpg"
+      ]
+    },
+    "ai-coding-automation/pr-agent.png": {
+      "source_hash": "ec84a2ed0d83ecd1d4b26c7d58e2de4b600036e877056568d87c7c215b6ed4d9",
+      "variants": [
+        "ai-coding-automation/pr-agent-384x216.png",
+        "ai-coding-automation/pr-agent-768x432.png"
+      ]
+    },
+    "ai-lakehouse/lakehouse-architecture.png": {
+      "source_hash": "8d373251c7a993b39132663cae39f5ab09b3a60145442a6b506a246c452e31c6",
+      "variants": [
+        "ai-lakehouse/lakehouse-architecture-384x216.png",
+        "ai-lakehouse/lakehouse-architecture-768x432.png"
+      ]
+    },
+    "ai-lakehouse/lakehouse-k3s.png": {
+      "source_hash": "353f39c9106504600420643436a21f9cb4a1eb04982fba7d9f68822b5dbd6a44",
+      "variants": [
+        "ai-lakehouse/lakehouse-k3s-384x216.png",
+        "ai-lakehouse/lakehouse-k3s-768x432.png"
+      ]
+    },
+    "ai-lakehouse/minio-k3s.png": {
+      "source_hash": "ff8fe4a7d232ca945219e33cabdab4b4c9af0f29fde50b78e93f2839de626134",
+      "variants": [
+        "ai-lakehouse/minio-k3s-384x216.png",
+        "ai-lakehouse/minio-k3s-768x432.png"
+      ]
+    },
+    "ai-lakehouse/trino-query.png": {
+      "source_hash": "2440dc319aa8c9fc6ecd15ddc7e4e8de16236aab3b2ad7088e8ccfebd4ac526d",
+      "variants": [
+        "ai-lakehouse/trino-query-384x216.png",
+        "ai-lakehouse/trino-query-768x432.png"
+      ]
+    },
+    "api-chatbot/api-key.png": {
+      "source_hash": "1d3b3e4817db55a124a19cf81bcc55a0b3f34a105dd6099775b88fb2437e45fb",
+      "variants": [
+        "api-chatbot/api-key-384x216.png",
+        "api-chatbot/api-key-768x432.png"
+      ]
+    },
+    "api-chatbot/bionic-structure.png": {
+      "source_hash": "ef8d3b62346234bbd9fe482dab9f0028eb43f12ec720cb9084d71d3dc3de429f",
+      "variants": [
+        "api-chatbot/bionic-structure-384x216.png",
+        "api-chatbot/bionic-structure-768x432.png"
+      ]
+    },
+    "api-chatbot/chatbot-screenshot.png": {
+      "source_hash": "7a830be402a4019bba1809543825a0f44ea96288ead10087778addf0f959b48c",
+      "variants": [
+        "api-chatbot/chatbot-screenshot-384x216.png",
+        "api-chatbot/chatbot-screenshot-768x432.png"
+      ]
+    },
+    "banning-chat-gpt/chat-gpt-banned.png": {
+      "source_hash": "fcfdde6b257987956d354490af4f157d7c69fcbf9f8076561e1e96638029cf3b",
+      "variants": [
+        "banning-chat-gpt/chat-gpt-banned-384x216.png",
+        "banning-chat-gpt/chat-gpt-banned-768x432.png"
+      ]
+    },
+    "banning-chat-gpt/dlp-software.png": {
+      "source_hash": "3d7fc7849053e4fc9425444441c28b7344d26dfc6ba368406584ba5bcc494da4",
+      "variants": [
+        "banning-chat-gpt/dlp-software-384x216.png",
+        "banning-chat-gpt/dlp-software-768x432.png"
+      ]
+    },
+    "banning-chat-gpt/e2e.png": {
+      "source_hash": "44634b4621614926f3ffae3c1ccc0842fe375b40311508419bab75620f98b15c",
+      "variants": [
+        "banning-chat-gpt/e2e-384x216.png",
+        "banning-chat-gpt/e2e-768x432.png"
+      ]
+    },
+    "banning-chat-gpt/regulation.png": {
+      "source_hash": "b6e718496bea50d5391f8c5a74505e7c9d80922369b2de03d489f2c82caf4d45",
+      "variants": [
+        "banning-chat-gpt/regulation-384x216.png",
+        "banning-chat-gpt/regulation-768x432.png"
+      ]
+    },
+    "banning-chat-gpt/the-pile.png": {
+      "source_hash": "84df492eb758eaa4fa2fd1ed032a0c32f5a4ca8c473e8465cd10a718edcc8432",
+      "variants": [
+        "banning-chat-gpt/the-pile-384x216.png",
+        "banning-chat-gpt/the-pile-768x432.png"
+      ]
+    },
+    "code-rag-usecase/codeimage.png": {
+      "source_hash": "6bb0b4fae4c07392eef68707fa85aaeb2c3255d79357b13715312f91f944e51f",
+      "variants": [
+        "code-rag-usecase/codeimage-384x216.png",
+        "code-rag-usecase/codeimage-768x432.png"
+      ]
+    },
+    "confidential-saas/attestation.png": {
+      "source_hash": "d48efb70b414a033712bc29c17fd8a7f05dc2ce474dbe1afaa3404817a130a49",
+      "variants": [
+        "confidential-saas/attestation-384x216.png",
+        "confidential-saas/attestation-768x432.png"
+      ]
+    },
+    "confidential-saas/byok.png": {
+      "source_hash": "024f625fb52dc5f9580d2eeed278673f48c7996d90dfb81df843913b6a01837d",
+      "variants": [
+        "confidential-saas/byok-384x216.png",
+        "confidential-saas/byok-768x432.png"
+      ]
+    },
+    "confidential-saas/cloud-encryption.png": {
+      "source_hash": "2714571ad2d344eaf594b351bad44cd6da971a6bc7faa0e220b338fcd565dfba",
+      "variants": [
+        "confidential-saas/cloud-encryption-384x216.png",
+        "confidential-saas/cloud-encryption-768x432.png"
+      ]
+    },
+    "confidential-saas/confidential-compute-consortium.jpeg": {
+      "source_hash": "5dc966ad02111505f449f40e159e186d47d5220101c2ad08e652f5ecde7d4b7e",
+      "variants": [
+        "confidential-saas/confidential-compute-consortium-384x216.jpeg",
+        "confidential-saas/confidential-compute-consortium-768x432.jpeg"
+      ]
+    },
+    "confidential-saas/confidential-compute.jpeg": {
+      "source_hash": "727e75f40168193bbda73185e52bdfe282602860780d0ea1a4c5302e7a1e9335",
+      "variants": [
+        "confidential-saas/confidential-compute-384x216.jpeg",
+        "confidential-saas/confidential-compute-768x432.jpeg"
+      ]
+    },
+    "confidential-saas/defense-in-depth.jpg": {
+      "source_hash": "7ebf595af67e33abe43b49c9c6061643abea1331990c568d1642e8af8e0b7994",
+      "variants": [
+        "confidential-saas/defense-in-depth-384x216.jpg",
+        "confidential-saas/defense-in-depth-768x432.jpg"
+      ]
+    },
+    "confidential-saas/deterministic-build.jpg": {
+      "source_hash": "e8f51029ad2859c392889519a4c15629e40dc82baef07337a09fb436095b986a",
+      "variants": [
+        "confidential-saas/deterministic-build-384x216.jpg",
+        "confidential-saas/deterministic-build-768x432.jpg"
+      ]
+    },
+    "confidential-saas/hashes.png": {
+      "source_hash": "57f08a856f526aa6600ec03d7e609505899a27257cdddd146a485baa94b1028f",
+      "variants": [
+        "confidential-saas/hashes-384x216.png",
+        "confidential-saas/hashes-768x432.png"
+      ]
+    },
+    "confidential-saas/kubernetes.png": {
+      "source_hash": "c49d9292780f2b6bb4be1104b537d192cfe936394724075f9b35131daf1f9442",
+      "variants": [
+        "confidential-saas/kubernetes-384x216.png",
+        "confidential-saas/kubernetes-768x432.png"
+      ]
+    },
+    "confidential-saas/multi-tenancy.png": {
+      "source_hash": "e5458c6992c5a990e31ad278a000a6bcf238f01a9c38d7e67a37063e186da477",
+      "variants": [
+        "confidential-saas/multi-tenancy-384x216.png",
+        "confidential-saas/multi-tenancy-768x432.png"
+      ]
+    },
+    "confidential-saas/multi-tenant.jpg": {
+      "source_hash": "15390ea58c5ddb4b8d8feaae3fceb83e90cd5a2629ec1e25d46b9cc2a21ddbfd",
+      "variants": [
+        "confidential-saas/multi-tenant-384x216.jpg",
+        "confidential-saas/multi-tenant-768x432.jpg"
+      ]
+    },
+    "guardrails/guardrails.jpg": {
+      "source_hash": "b794fc8a7b90f6593104b206023575be3aaf1b51cd679c7cc6323af0e6f651c7",
+      "variants": [
+        "guardrails/guardrails-384x216.jpg",
+        "guardrails/guardrails-768x432.jpg"
+      ]
+    },
+    "integrations/integrations-blog-image2.png": {
+      "source_hash": "987403537b34a8ba149e7fb64f910e9233a086423eb368ba2f0631ae4f08e0ab",
+      "variants": [
+        "integrations/integrations-blog-image2-384x216.png",
+        "integrations/integrations-blog-image2-768x432.png"
+      ]
+    },
+    "integrations/integrations-blog-mcp.png": {
+      "source_hash": "301afeed48fafac6f89de75df2642768c5b09de9b3b196cae675e1864e44fa13",
+      "variants": [
+        "integrations/integrations-blog-mcp-384x216.png",
+        "integrations/integrations-blog-mcp-768x432.png"
+      ]
+    },
+    "integrations/integrations.png": {
+      "source_hash": "e9b49ad9cdf80a387454f70f57e9806b18a7928955a1b2a7779ea9295fa54c9a",
+      "variants": [
+        "integrations/integrations-384x216.png",
+        "integrations/integrations-768x432.png"
+      ]
+    },
+    "junior-developers/ai-software.png": {
+      "source_hash": "53dce5dbc77594b401a3099b7e8f987722df56c4cc33ce34ce59e55332959a9d",
+      "variants": [
+        "junior-developers/ai-software-384x216.png",
+        "junior-developers/ai-software-768x432.png"
+      ]
+    },
+    "junior-developers/banking.png": {
+      "source_hash": "73689171f89680d9fb8c7ec009dbce24c5760b144dce81b047c171d61ef15192",
+      "variants": [
+        "junior-developers/banking-384x216.png",
+        "junior-developers/banking-768x432.png"
+      ]
+    },
+    "junior-developers/enterprise-architetcure.png": {
+      "source_hash": "8321680acfc449427fc5dff142a9e69d43a08c58cde8b56846a1ea5415dc8536",
+      "variants": [
+        "junior-developers/enterprise-architetcure-384x216.png",
+        "junior-developers/enterprise-architetcure-768x432.png"
+      ]
+    },
+    "junior-developers/junior-developer.png": {
+      "source_hash": "0a7abccc6b375ddc674d288df415ea51bf5777ac44c6b03fba701225632262de",
+      "variants": [
+        "junior-developers/junior-developer-384x216.png",
+        "junior-developers/junior-developer-768x432.png"
+      ]
+    },
+    "junior-developers/leetcode.png": {
+      "source_hash": "e1b95ac89e1c4b6241aa2a155458c6f3417fa873b2463aa1061f77fc9975f7e8",
+      "variants": [
+        "junior-developers/leetcode-384x216.png",
+        "junior-developers/leetcode-768x432.png"
+      ]
+    },
+    "junior-developers/tech-stack.png": {
+      "source_hash": "8ab4459d47292b960ec0dfb77447dbe54197718f9969691f4578ca825084e314",
+      "variants": [
+        "junior-developers/tech-stack-384x216.png",
+        "junior-developers/tech-stack-768x432.png"
+      ]
+    },
+    "junior-developers/trend.png": {
+      "source_hash": "4929a936740f9dde00d392d8790ecf9d7afffbae04861c5f88fef7661dc666ff",
+      "variants": [
+        "junior-developers/trend-384x216.png",
+        "junior-developers/trend-768x432.png"
+      ]
+    },
+    "jupyter/llama-jupyter.jpg": {
+      "source_hash": "a7a567a9bbb1f3f2df2deb81a8b8af5a98da0a810d2a15c9fed0c4e3d866b7c3",
+      "variants": [
+        "jupyter/llama-jupyter-384x216.jpg",
+        "jupyter/llama-jupyter-768x432.jpg"
+      ]
+    },
+    "jupyter/screenshot1.png": {
+      "source_hash": "165e28bfe6cbb41bf2234d378a5914b0aeb5a5728602e7ed4d0ac7bc7ceefb88",
+      "variants": [
+        "jupyter/screenshot1-384x216.png",
+        "jupyter/screenshot1-768x432.png"
+      ]
+    },
+    "jupyter/screenshot2.png": {
+      "source_hash": "57a4836068453ecaf5405c84e43518be1b7dc7cb8f68326ce346e00570ad450a",
+      "variants": [
+        "jupyter/screenshot2-384x216.png",
+        "jupyter/screenshot2-768x432.png"
+      ]
+    },
+    "jupyter/screenshot3.png": {
+      "source_hash": "f2ffa038cb52ca805502de17ef10eea573c54d7072b349ef5c4b46c4b714c118",
+      "variants": [
+        "jupyter/screenshot3-384x216.png",
+        "jupyter/screenshot3-768x432.png"
+      ]
+    },
+    "jupyter/screenshot4.png": {
+      "source_hash": "a1de7d9ec9eae2c88e5c5a3571ff8f27a03a438922092f0ec63a30a2c95203c2",
+      "variants": [
+        "jupyter/screenshot4-384x216.png",
+        "jupyter/screenshot4-768x432.png"
+      ]
+    },
+    "llm-hardware/batching.png": {
+      "source_hash": "343730cf0fa1c33588dd929d3578f063449b6df097d963f414a212bf333cd20f",
+      "variants": [
+        "llm-hardware/batching-384x216.png",
+        "llm-hardware/batching-768x432.png"
+      ]
+    },
+    "llm-hardware/mac-studio.png": {
+      "source_hash": "e51c5ba2510397cec7a3c57b08f93a9661eb39c543228aac5fb212e1c200faf5",
+      "variants": [
+        "llm-hardware/mac-studio-384x216.png",
+        "llm-hardware/mac-studio-768x432.png"
+      ]
+    },
+    "llm-hardware/multi-gpu-llm-setup.jpg": {
+      "source_hash": "9b098d1675fd8419d4121edddfafd620d69b7042c68a0c41947a8252bc15dcdc",
+      "variants": [
+        "llm-hardware/multi-gpu-llm-setup-384x216.jpg",
+        "llm-hardware/multi-gpu-llm-setup-768x432.jpg"
+      ]
+    },
+    "model-denial-of-service/bionic-limits.png": {
+      "source_hash": "2443ffdcf81ccdb95aeacf1877c0d115641f4455546ce170b9e0aacbf49faac6",
+      "variants": [
+        "model-denial-of-service/bionic-limits-384x216.png",
+        "model-denial-of-service/bionic-limits-768x432.png"
+      ]
+    },
+    "model-denial-of-service/llama3_70b_performance.png": {
+      "source_hash": "194a2ff10a3bfb8ef04c3c186777430faa08a710107df297f707b9089aab3f01",
+      "variants": [
+        "model-denial-of-service/llama3_70b_performance-384x216.png",
+        "model-denial-of-service/llama3_70b_performance-768x432.png"
+      ]
+    },
+    "model-denial-of-service/model-denial-of-service.png": {
+      "source_hash": "fd139ba703ec44133bec7d597b6f11440c58c148cea5693433d8d128b52142e3",
+      "variants": [
+        "model-denial-of-service/model-denial-of-service-384x216.png",
+        "model-denial-of-service/model-denial-of-service-768x432.png"
+      ]
+    },
+    "model-denial-of-service/nvidia-a100-80gb.jpg": {
+      "source_hash": "ad68453acfdc9fac0f9d5de29420264393b9002b54ecd86ded4dc92603c8b79e",
+      "variants": [
+        "model-denial-of-service/nvidia-a100-80gb-384x216.jpg",
+        "model-denial-of-service/nvidia-a100-80gb-768x432.jpg"
+      ]
+    },
+    "model-denial-of-service/rag-arch.png": {
+      "source_hash": "c8e7ae8c7a461317272dc7f81afb19f4e11b905fb123f04ceccdd8f8388c0e8b",
+      "variants": [
+        "model-denial-of-service/rag-arch-384x216.png",
+        "model-denial-of-service/rag-arch-768x432.png"
+      ]
+    },
+    "model-denial-of-service/rate-limiter.jpeg": {
+      "source_hash": "72a96deb3f7a78756b2ae792c29bd6efe59be2e8e54089323593c4a528a945c7",
+      "variants": [
+        "model-denial-of-service/rate-limiter-384x216.jpeg",
+        "model-denial-of-service/rate-limiter-768x432.jpeg"
+      ]
+    },
+    "model-denial-of-service/token-bucket.webp": {
+      "source_hash": "a56059db1644fb6f656fb589986746d711ca86bd7693c86afee4e84eec127fdb",
+      "variants": [
+        "model-denial-of-service/token-bucket-384x216.webp",
+        "model-denial-of-service/token-bucket-768x432.webp"
+      ]
+    },
+    "preparing-for-gen-ai/enterprise.png": {
+      "source_hash": "fc7f753ec17e8c8b983ebc7de727637ab13e23ebbabf28b678912729b12980a1",
+      "variants": [
+        "preparing-for-gen-ai/enterprise-384x216.png",
+        "preparing-for-gen-ai/enterprise-768x432.png"
+      ]
+    },
+    "quantisation/futuristic-llama.jpg": {
+      "source_hash": "d3434d5369dbd85c9abaae85eb48c21a781b9fa13892918fe4239f6fbe8d2893",
+      "variants": [
+        "quantisation/futuristic-llama-384x216.jpg",
+        "quantisation/futuristic-llama-768x432.jpg"
+      ]
+    },
+    "retrieval-augmented-generation/bionic-llama.png": {
+      "source_hash": "9692afc99097c37154a76bdc157cac53075b622157ab4caea94205c758493433",
+      "variants": [
+        "retrieval-augmented-generation/bionic-llama-384x216.png",
+        "retrieval-augmented-generation/bionic-llama-768x432.png"
+      ]
+    },
+    "retrieval-augmented-generation/for-dummies.jpg": {
+      "source_hash": "1b3312c2c655b654585250031bd040c7956b107c62e51ae404adb931822c46d8",
+      "variants": [
+        "retrieval-augmented-generation/for-dummies-384x216.jpg",
+        "retrieval-augmented-generation/for-dummies-768x432.jpg"
+      ]
+    },
+    "retrieval-augmented-generation/rag-llama.webp": {
+      "source_hash": "6b900b3a1ff249780d18533c8d793a40887f6515058f3863a41938ae5f80d70c",
+      "variants": [
+        "retrieval-augmented-generation/rag-llama-384x216.webp",
+        "retrieval-augmented-generation/rag-llama-768x432.webp"
+      ]
+    },
+    "self-hosted-llm-platforms/integrations.png": {
+      "source_hash": "5059c42483a89ebf256dd01698cc9f6fec12cc440e9ae9e26aa985bc89523b84",
+      "variants": [
+        "self-hosted-llm-platforms/integrations-384x216.png",
+        "self-hosted-llm-platforms/integrations-768x432.png"
+      ]
+    },
+    "self-hosted-llm-platforms/open-api.png": {
+      "source_hash": "779375782a67675573199fc177603cb0d27e42523da9ac8096838d68ec2ab52b",
+      "variants": [
+        "self-hosted-llm-platforms/open-api-384x216.png",
+        "self-hosted-llm-platforms/open-api-768x432.png"
+      ]
+    },
+    "self-hosted-llm-platforms/projects.png": {
+      "source_hash": "cbd757b114d6c881302158532be5a608f070fb067f595d8225467d7111848f32",
+      "variants": [
+        "self-hosted-llm-platforms/projects-384x216.png",
+        "self-hosted-llm-platforms/projects-768x432.png"
+      ]
+    },
+    "self-hosted-llm-platforms/rag-pipeline.png": {
+      "source_hash": "e46dd6b2c7df12e0e43e2bab3b76863e977d4b42034fb5771c6849d3638aed90",
+      "variants": [
+        "self-hosted-llm-platforms/rag-pipeline-384x216.png",
+        "self-hosted-llm-platforms/rag-pipeline-768x432.png"
+      ]
+    },
+    "self-hosted-llm-platforms/sso.png": {
+      "source_hash": "1f331243ec78180d43a3cd7dfcacf13b47fff9311519ef407804e847bcb7a658",
+      "variants": [
+        "self-hosted-llm-platforms/sso-384x216.png",
+        "self-hosted-llm-platforms/sso-768x432.png"
+      ]
+    },
+    "self-hosted-llm-platforms/the-console.png": {
+      "source_hash": "26ba9774c5f41ae8fec7f8afb2b8fa87e6c53940591ef2e4b7ca04b2262804aa",
+      "variants": [
+        "self-hosted-llm-platforms/the-console-384x216.png",
+        "self-hosted-llm-platforms/the-console-768x432.png"
+      ]
+    },
+    "show-me-the-prompt/aider-screenshot.png": {
+      "source_hash": "8266d42d73e6842e366b7f3891c3e6f2242ac45c7854081e591c97f679a259de",
+      "variants": [
+        "show-me-the-prompt/aider-screenshot-384x216.png",
+        "show-me-the-prompt/aider-screenshot-768x432.png"
+      ]
+    },
+    "show-me-the-prompt/aider-web.png": {
+      "source_hash": "ee5a0b5583ea8e92f639fb9bf8dc38ef9e08eb4a793618d067efe632c761ac77",
+      "variants": [
+        "show-me-the-prompt/aider-web-384x216.png",
+        "show-me-the-prompt/aider-web-768x432.png"
+      ]
+    },
+    "show-me-the-prompt/cline-prompt.png": {
+      "source_hash": "19f023a923f2030c7e65a1e3b61d27590f64b9fdfc1988520ed12ace202e3498",
+      "variants": [
+        "show-me-the-prompt/cline-prompt-384x216.png",
+        "show-me-the-prompt/cline-prompt-768x432.png"
+      ]
+    },
+    "show-me-the-prompt/cline.png": {
+      "source_hash": "142bc31361d049d86c206981fa3a55272be21ea9a93c9600d72736f055a493d1",
+      "variants": [
+        "show-me-the-prompt/cline-384x216.png",
+        "show-me-the-prompt/cline-768x432.png"
+      ]
+    },
+    "show-me-the-prompt/helicone.png": {
+      "source_hash": "16978ca8b6b72376ceb5acf0ee2578ae9676edf23d92b0f2d8210019d5b35dde",
+      "variants": [
+        "show-me-the-prompt/helicone-384x216.png",
+        "show-me-the-prompt/helicone-768x432.png"
+      ]
+    },
+    "show-me-the-prompt/mcp.png": {
+      "source_hash": "23dfefad3c3949c9016e7260c8e1ccbb8cb65994ab22197752e05ea7b0b66afc",
+      "variants": [
+        "show-me-the-prompt/mcp-384x216.png",
+        "show-me-the-prompt/mcp-768x432.png"
+      ]
+    },
+    "streaming/contentMonitoring.png": {
+      "source_hash": "7113b0eb79645d39daa51ac41f6fa8585793df8ca5542eccb74612fd55c6f165",
+      "variants": [
+        "streaming/contentMonitoring-384x216.png",
+        "streaming/contentMonitoring-768x432.png"
+      ]
+    },
+    "streaming/streaming.jpeg": {
+      "source_hash": "bf863939d3565a6a2b43061565feb2b5094ad7d0c4f66116a025b714d1288888",
+      "variants": [
+        "streaming/streaming-384x216.jpeg",
+        "streaming/streaming-768x432.jpeg"
+      ]
+    },
+    "you-dont-need-a-vector-database/postgres-vs-vector.jpg": {
+      "source_hash": "1c603f3d97333588a70c307252cf0cd79d4505dfcd9b2a550a72a87bc38fbb7b",
+      "variants": [
+        "you-dont-need-a-vector-database/postgres-vs-vector-384x216.jpg",
+        "you-dont-need-a-vector-database/postgres-vs-vector-768x432.jpg"
+      ]
+    }
+  }
+}

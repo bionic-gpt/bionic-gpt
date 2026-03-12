@@ -1,0 +1,206 @@
+{
+  "components": {
+    "schemas": {
+      "Error": {
+        "properties": {
+          "message": {
+            "example": "Invalid URL or API key",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Organization": {
+        "properties": {
+          "domain": {
+            "example": "example.com",
+            "type": "string"
+          },
+          "id": {
+            "example": "5fcd2cf3ed78c700f9383e4e",
+            "type": "string"
+          },
+          "industry": {
+            "example": "Software",
+            "type": "string"
+          },
+          "linkedin_url": {
+            "example": "https://linkedin.com/company/example-corp",
+            "type": "string"
+          },
+          "name": {
+            "example": "Example Corp",
+            "type": "string"
+          },
+          "num_employees": {
+            "example": 12000,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SearchViaURLResponse": {
+        "properties": {
+          "organizations": {
+            "items": {
+              "$ref": "#/components/schemas/Organization"
+            },
+            "type": "array"
+          },
+          "page": {
+            "example": 1,
+            "type": "integer"
+          },
+          "per_page": {
+            "example": 25,
+            "type": "integer"
+          },
+          "total": {
+            "example": 123,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "in": "header",
+        "name": "x-rapidapi-key",
+        "type": "apiKey"
+      },
+      "RapidAPIHost": {
+        "in": "header",
+        "name": "x-rapidapi-host",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "description": "Search organizations using Apollo.io via a saved URL from the Apollo UI. This endpoint parses and executes searches from saved Apollo links. \u26a0\ufe0f Consumes one credit per call.",
+    "title": "Apollo.io Organization Search via URL",
+    "version": "1.0.1",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiBmaWxsPSJub25lIj4KICA8cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgZmlsbD0iI0ZFQ0Y0MCIgcng9IjgiIC8+CiAgPHBhdGggZmlsbD0iIzAwMCIKICAgIGQ9Ik05MS4wNDQgMzYuMTM1SDc4LjQ4OWw2LjUxIDExLjEzNCA2LjA0NS0xMS4xMzRaTTEwOC40OTQgOTguOTg3IDYzLjkyMiAyNSAxOS41IDk4LjgzMmgyMy43OTJjMy4xNzQgMCA2LjI5Ny0uOCA5LjA1OC0yLjMxNiAyLjk4LTEuNjM4IDUuMjMtNC4wMTIgNi45ODktNi44OSAyLjA1Ni0zLjM2NyA0LjA1My02Ljc3MyA2LjA3Ny0xMC4xNmw1LjE3OC04LjY3LTYuNjc4LTExLjE2Ny0yLjk2MSA0Ljc1NWMtMy4zNzUgNS42MzEtNi41NjkgMTEuMzkyLTEwLjA2NiAxNi45NDctMS43NTkgMi43ODYtNC4wNTQgNS40MTgtNy40NDIgNi4wOTZhOS42ODYgOS42ODYgMCAwIDEtMS41NTguMTc0Yy0uNjk4LjAyNi0xLjM5Ny4wMTMtMi4wODguMDEzbDI0LjEyMS00MC45OSAzMC45NzUgNTIuMzYzaDEzLjU5N1oiIC8+Cjwvc3ZnPgo="
+    },
+    "x-bionic-slug": "apollo"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/search_organizations_via_url": {
+      "post": {
+        "description": "Execute an Apollo.io organization search using a full saved search URL from the Apollo UI. This endpoint allows recreating searches from the front-end. Returns a paginated list of matching organizations.",
+        "operationId": "searchOrganizationsViaUrl",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "default": {
+                  "value": {
+                    "page": 1,
+                    "url": "https://app.apollo.io/#/companies?organizationNumEmployeesRanges[]=10001&page=1&sortByField=%5Bnone%5D&sortAscending=false&organizationIds[]=5fcd2cf3ed78c700f9383e4e"
+                  }
+                }
+              },
+              "schema": {
+                "properties": {
+                  "page": {
+                    "example": 1,
+                    "type": "integer"
+                  },
+                  "url": {
+                    "description": "The full Apollo UI saved search URL",
+                    "example": "https://app.apollo.io/#/companies?organizationNumEmployeesRanges[]=10001&page=1&sortByField=%5Bnone%5D&sortAscending=false&organizationIds[]=5fcd2cf3ed78c700f9383e4e",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "page"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchViaURLResponse"
+                }
+              }
+            },
+            "description": "Search results returned successfully"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad request \u2013 missing or invalid parameters"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized \u2013 API key missing or invalid"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not Found \u2013 invalid path or resource"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Search organizations via Apollo.io saved URL"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "RapidAPIHost": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://apollo-io-no-cookies-required.p.rapidapi.com"
+    }
+  ]
+}

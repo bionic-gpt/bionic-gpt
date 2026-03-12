@@ -1,0 +1,555 @@
+{
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+            "scopes": {
+              "https://www.googleapis.com/auth/drive.readonly": "View files in your Google Drive"
+            },
+            "tokenUrl": "https://oauth2.googleapis.com/token"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "description": "Interact with Google Drive to list files and track changes. This API lets you search, filter, and monitor files and changes in a user's or shared drive.",
+    "title": "Google Drive API",
+    "version": "1.0.0",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCEtLSBVcGxvYWRlZCB0bzogU1ZHIFJlcG8sIHd3dy5zdmdyZXBvLmNvbSwgR2VuZXJhdG9yOiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4KPHN2ZyB3aWR0aD0iODAwcHgiIGhlaWdodD0iODAwcHgiIHZpZXdCb3g9IjAgLTEzLjUgMjU2IDI1NiIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCI+CiAgICA8Zz4KICAgICAgICA8cGF0aCBkPSJNMTkuMzU0MjMxMiwxOTYuMDMzOTI4IEwzMC42NDQxNzIsMjE1LjUzNDgxNiBDMzIuOTkwMDI4NywyMTkuNjQwMTQgMzYuMzYyMjE2NCwyMjIuODY1ODggNDAuMzIxMDkyOSwyMjUuMjExNzM3IEM1MS42NjAyNDIxLDIxMC44MTgzNzYgNTkuNTUzNDIyNSwxOTkuNzcyODY0IDY0LjAwMDYzNCwxOTIuMDc1MjAxIEM2OC41MTM3MTE5LDE4NC4yNjM1MjkgNzQuMDYwOTY1NywxNzIuMDQ1MDM5IDgwLjY0MjM5NTQsMTU1LjQxOTczIEM2Mi45MDY0MzE1LDE1My4wODUyODIgNDkuNDY1OTk3NCwxNTEuOTE4MDU4IDQwLjMyMTA5MjksMTUxLjkxODA1OCBDMzEuNTQ1NDY1LDE1MS45MTgwNTggMTguMTA1MTAwNywxNTMuMDg1MjgyIDAsMTU1LjQxOTczIEMwLDE1OS45NjQ5OTYgMS4xNzI5ODgyNSwxNjQuNTEwMjYxIDMuNTE4OTM0NzksMTY4LjYxNTU4NiBMMTkuMzU0MjMxMiwxOTYuMDMzOTI4IFoiIGZpbGw9IiMwMDY2REEiPgoNPC9wYXRoPgogICAgICAgIDxwYXRoIGQ9Ik0yMTUuNjgxNDQzLDIyNS4yMTE3MzcgQzIxOS42NDAzMiwyMjIuODY1ODggMjIzLjAxMjUwNywyMTkuNjQwMTQgMjI1LjM1ODM2NCwyMTUuNTM0ODE2IEwyMzAuMDUwMzc3LDIwNy40NzA2MTUgTDI1Mi40ODM1MTEsMTY4LjYxNTU4NiBDMjU0LjgyOTM2OCwxNjQuNTEwMjYxIDI1Ni4wMDI0NDYsMTU5Ljk2NDk5NiAyNTYuMDAyNDQ2LDE1NS40MTk3MyBDMjM3Ljc5MjU0LDE1My4wODUyODIgMjI0LjM3NjYxMywxNTEuOTE4MDU4IDIxNS43NTQ2NjcsMTUxLjkxODA1OCBDMjA2LjQ4ODcxMiwxNTEuOTE4MDU4IDE5My4wNzI3ODUsMTUzLjA4NTI4MiAxNzUuNTA2ODg4LDE1NS40MTk3MyBDMTgyLjAxMDQ3OSwxNzIuMTM2MDkzIDE4Ny40ODQzOTQsMTg0LjM1NDU4NCAxOTEuOTI4NjMzLDE5Mi4wNzUyMDEgQzE5Ni40MTIwNzMsMTk5Ljg2MzkxOSAyMDQuMzI5Njc3LDIxMC45MDk0MzEgMjE1LjY4MTQ0MywyMjUuMjExNzM3IFoiIGZpbGw9IiNFQTQzMzUiPgoNPC9wYXRoPgogICAgICAgIDxwYXRoIGQ9Ik0xMjguMDAxMjY4LDczLjMxMTE1MTUgQzE0MS4xMjExODIsNTcuNDY1NTI2MyAxNTAuMTYyODk4LDQ1LjI0NzAwMTEgMTU1LjEyNjQxNSwzNi42NTU1NzU3IEMxNTkuMTIzMTIxLDI5LjczNzYxOTYgMTYzLjUyMTczOSwxOC42OTIwNzI2IDE2OC4zMjIyNzEsMy41MTg5MzQ3OSBDMTY0LjM2MzM5NSwxLjE3Mjk1ODMgMTU5LjgxODEyOSwwIDE1NS4xMjY0MTUsMCBMMTAwLjg3NjEyMSwwIEM5Ni4xODQxMDc5LDAgOTEuNjM4ODQyLDEuMzE5NTg1NTcgODcuNjc5OTY1NSwzLjUxODkzNDc5IEM5My43ODYxOTQzLDIwLjkyMTAwNjUgOTguOTY3NTQyOCwzMy4zMDU4MDY3IDEwMy4yMjQwMTEsNDAuNjczMzM1NCBDMTA3LjkyNzgzMiw0OC44MTUxODgxIDExNi4xODY5MTgsNTkuNjk0NDYwMiAxMjguMDAxMjY4LDczLjMxMTE1MTUgWiIgZmlsbD0iIzAwODMyRCI+Cg08L3BhdGg+CiAgICAgICAgPHBhdGggZD0iTTE3NS4zNjAxNDEsMTU1LjQxOTczIEw4MC42NDIwOTU5LDE1NS40MTk3MyBMNDAuMzIxMDkyOSwyMjUuMjExNzM3IEM0NC4yNzk5Njk0LDIyNy41NTc4OTMgNDguODI1MjM1MiwyMjguNzMwNjcyIDUzLjUxNzI0ODEsMjI4LjczMDY3MiBMMjAyLjQ4NTI4OCwyMjguNzMwNjcyIEMyMDcuMTc3MzAxLDIyOC43MzA2NzIgMjExLjcyMjU2NywyMjcuNDExMTQ2IDIxNS42ODE0NDMsMjI1LjIxMTczNyBMMTc1LjM2MDE0MSwxNTUuNDE5NzMgWiIgZmlsbD0iIzI2ODRGQyI+Cg08L3BhdGg+CiAgICAgICAgPHBhdGggZD0iTTEyOC4wMDEyNjgsNzMuMzExMTUxNSBMODcuNjgwMjY1LDMuNTE4OTM0NzkgQzgzLjcyMTM4ODUsNS44NjQ4ODEzNCA4MC4zNDg5MDEzLDkuMDkwNDQxNzkgNzguMDAzMDQ0NiwxMy4xOTYwNjU0IEwzLjUxODkzNDc5LDE0Mi4yMjM1NzUgQzEuMTcyOTg4MjUsMTQ2LjMyOTE5OCAwLDE1MC44NzQ0NjQgMCwxNTUuNDE5NzMgTDgwLjY0MjM5NTQsMTU1LjQxOTczIEwxMjguMDAxMjY4LDczLjMxMTE1MTUgWiIgZmlsbD0iIzAwQUM0NyI+Cg08L3BhdGg+CiAgICAgICAgPHBhdGggZD0iTTIxNS4yNDE1MDEsNzcuNzA5OTY5NyBMMTc3Ljk5OTQ5MiwxMy4xOTYwNjU0IEMxNzUuNjUzNjM1LDkuMDkwNDQxNzkgMTcyLjI4MTE0OCw1Ljg2NDg4MTM0IDE2OC4zMjIyNzEsMy41MTg5MzQ3OSBMMTI4LjAwMTI2OCw3My4zMTExNTE1IEwxNzUuMzYwMTQxLDE1NS40MTk3MyBMMjU1Ljg1NTk5OSwxNTUuNDE5NzMgQzI1NS44NTU5OTksMTUwLjg3NDQ2NCAyNTQuNjgyOTIxLDE0Ni4zMjkxOTggMjUyLjMzNzA2NCwxNDIuMjIzNTc1IEwyMTUuMjQxNTAxLDc3LjcwOTk2OTcgWiIgZmlsbD0iI0ZGQkEwMCI+Cg08L3BhdGg+CiAgICA8L2c+Cjwvc3ZnPg=="
+    },
+    "x-bionic-slug": "gdrive"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/changes": {
+      "get": {
+        "description": "Lists all changes (file modifications, deletions, additions) that have occurred in Drive **since a given start page token**.\n\n**To list files changed since a specific date:**\n1. First, call `/changes/startPageToken` at or just after your desired date to obtain a token.\n2. Use the returned token as the `pageToken` parameter in this endpoint.\n3. Each change entry includes the file and the time of the change; filter or process these results as needed.\n\n**Important:** The `pageToken` parameter must be a valid token from `/changes/startPageToken`, not a date string.",
+        "operationId": "changes_list",
+        "parameters": [
+          {
+            "description": "The shared drive from which changes will be returned. If specified, change IDs will be reflective of the shared drive.",
+            "in": "query",
+            "name": "driveId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Whether to include file resources that are still accessible even after removal from the list of changes.",
+            "in": "query",
+            "name": "includeCorpusRemovals",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Whether to include items from both My Drive and shared drives.",
+            "in": "query",
+            "name": "includeItemsFromAllDrives",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Whether to include changes indicating items have been removed (e.g., deleted or lost access).",
+            "in": "query",
+            "name": "includeRemoved",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Maximum number of changes to return per page.",
+            "example": 100,
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Token for continuing a previous list request (from `nextPageToken` or `/changes/startPageToken`). This must be a valid token, not a date string.",
+            "example": "start-page-token",
+            "in": "query",
+            "name": "pageToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Restrict results to changes inside the My Drive hierarchy.",
+            "in": "query",
+            "name": "restrictToMyDrive",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Comma-separated list of spaces to query within the corpora. Supported: `drive`, `appDataFolder`.",
+            "example": "drive",
+            "in": "query",
+            "name": "spaces",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Whether the application supports both My Drives and shared drives.",
+            "in": "query",
+            "name": "supportsAllDrives",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Specifies which additional view's permissions to include. Only `published` is supported.",
+            "in": "query",
+            "name": "includePermissionsForView",
+            "schema": {
+              "enum": [
+                "published"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated list of label IDs to include in the response.",
+            "in": "query",
+            "name": "includeLabels",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "changes": [
+                    {
+                      "changeType": "file",
+                      "file": {
+                        "id": "fileId123",
+                        "mimeType": "application/vnd.google-apps.document",
+                        "modifiedTime": "2025-06-15T10:00:00Z",
+                        "name": "Example Document"
+                      },
+                      "kind": "drive#change",
+                      "time": "2025-06-15T10:00:00Z"
+                    }
+                  ],
+                  "kind": "drive#changeList",
+                  "newStartPageToken": "token_for_future_changes",
+                  "nextPageToken": "token_for_next_page"
+                },
+                "schema": {
+                  "properties": {
+                    "changes": {
+                      "items": {
+                        "properties": {
+                          "changeType": {
+                            "type": "string"
+                          },
+                          "file": {
+                            "description": "File resource associated with the change.",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "mimeType": {
+                                "type": "string"
+                              },
+                              "modifiedTime": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "time": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "kind": {
+                      "description": "Resource type.",
+                      "type": "string"
+                    },
+                    "newStartPageToken": {
+                      "description": "Token for future changes.",
+                      "type": "string"
+                    },
+                    "nextPageToken": {
+                      "description": "Token for next page of results.",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A list of changes for a user or shared drive. Each change includes the file, the type of change, and the time it occurred. Use this endpoint to list files changed since a specific date (using a valid page token)."
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/drive.appdata",
+              "https://www.googleapis.com/auth/drive.file",
+              "https://www.googleapis.com/auth/drive.meet.readonly",
+              "https://www.googleapis.com/auth/drive.metadata",
+              "https://www.googleapis.com/auth/drive.metadata.readonly",
+              "https://www.googleapis.com/auth/drive.photos.readonly",
+              "https://www.googleapis.com/auth/drive.readonly"
+            ]
+          }
+        ],
+        "summary": "List changes in Google Drive"
+      }
+    },
+    "/changes/startPageToken": {
+      "get": {
+        "description": "Returns a token representing the current state of Drive. **To list all changes (such as file modifications, deletions, or additions) that occur after a specific date:**\n1. Call this endpoint at or just after your desired start date (e.g., \"2025-06-01\") to obtain a start page token.\n2. Save the returned token for use with the `/changes` endpoint.\n**Note:** The API does not accept a date string to fetch changes; you must use a valid token from this endpoint.\n\n**Workflow Example:**\n- On 2025-06-01, call `/changes/startPageToken` and save the `startPageToken` value.\n- Later, call `/changes` with `pageToken` set to this value to retrieve all changes since that time.",
+        "operationId": "changes_startPageToken",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "kind": "drive#startPageToken",
+                  "startPageToken": "token_for_2025-06-01"
+                },
+                "schema": {
+                  "properties": {
+                    "kind": {
+                      "type": "string"
+                    },
+                    "startPageToken": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Start page token for change tracking."
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "https://www.googleapis.com/auth/drive.readonly"
+            ]
+          }
+        ],
+        "summary": "Get the current start page token for change tracking"
+      }
+    },
+    "/files": {
+      "get": {
+        "description": "Lists files the user has access to. Supports advanced filtering, sorting, and pagination. Use the `q` parameter for powerful search queries (e.g., `name contains 'bionic'`).\n\n**Note:** This endpoint lists current files and their metadata, but does **not** provide change history or timestamps of when files were changed. For queries about files changed since a specific date, see the `/changes` endpoint and the workflow below.",
+        "operationId": "files_list",
+        "parameters": [
+          {
+            "description": "A query string for filtering the file results. Example: `name contains 'bionic'`.",
+            "example": "name contains 'bionic'",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Bodies of items to which the query applies. Example: `user`.",
+            "example": "user",
+            "in": "query",
+            "name": "corpora",
+            "schema": {
+              "enum": [
+                "user",
+                "domain",
+                "drive",
+                "allDrives"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "ID of the shared drive to search.",
+            "in": "query",
+            "name": "driveId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Whether to include items from both My Drive and shared drives.",
+            "in": "query",
+            "name": "includeItemsFromAllDrives",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Comma-separated list of sort keys. Example: `modifiedTime desc`.",
+            "example": "modifiedTime desc",
+            "in": "query",
+            "name": "orderBy",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Maximum number of files to return per page (1-1000).",
+            "example": 50,
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "maximum": 1000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Token for continuing a previous list request.",
+            "in": "query",
+            "name": "pageToken",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Spaces to query within the corpora. Example: `drive`.",
+            "example": "drive",
+            "in": "query",
+            "name": "spaces",
+            "schema": {
+              "enum": [
+                "drive",
+                "appDataFolder"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Selector specifying which fields to include in a partial response.",
+            "example": "files(id,name,mimeType,modifiedTime,size),nextPageToken",
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "files": [
+                    {
+                      "id": "1A2B3C4D",
+                      "mimeType": "application/pdf",
+                      "modifiedTime": "2025-07-08T15:00:00Z",
+                      "name": "bionic_report.pdf",
+                      "size": "123456"
+                    },
+                    {
+                      "id": "5E6F7G8H",
+                      "mimeType": "text/plain",
+                      "modifiedTime": "2025-07-07T10:15:00Z",
+                      "name": "bionic_notes.txt",
+                      "size": "2345"
+                    }
+                  ],
+                  "kind": "drive#fileList",
+                  "nextPageToken": "next-page-token-string"
+                },
+                "schema": {
+                  "properties": {
+                    "files": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "mimeType": {
+                            "type": "string"
+                          },
+                          "modifiedTime": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "incompleteSearch": {
+                      "type": "boolean"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "nextPageToken": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A list of files matching the query."
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "https://www.googleapis.com/auth/drive.readonly"
+            ]
+          }
+        ],
+        "summary": "List files in Google Drive"
+      }
+    },
+    "/files/{fileId}": {
+      "get": {
+        "description": "Retrieves the metadata or content of a specific file in Google Drive using its unique file ID. By default, only metadata is returned unless the `alt=media` parameter is specified, in which case the file's content is downloaded.\n\n**Typical Use Cases:**\n- Obtain file details (name, mime type, modified time, etc.) for display or further processing.\n- Download file content directly if the file is not a native Google Doc format.\n\n**File Content Download Workflow:**\n- To download binary or textual content, set `alt=media`.\n- For Google Workspace documents (Docs, Sheets, Slides), use the export endpoint or API export mechanism.\n\n**Permissions Required:**\n- The requester must have access to the file and appropriate OAuth scopes.\n\n**Usage Example (Metadata):**\n`GET /files/1A2B3C4D?fields=id,name,mimeType`\n\n**Usage Example (Download):**\n`GET /files/1A2B3C4D?alt=media`",
+        "operationId": "files_get",
+        "parameters": [
+          {
+            "description": "The unique ID of the file in Google Drive.",
+            "example": "1A2B3C4D",
+            "in": "path",
+            "name": "fileId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Selector specifying which fields to include in a partial response.",
+            "example": "id,name,mimeType,modifiedTime",
+            "in": "query",
+            "name": "fields",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Set to `media` to download file content instead of metadata (for binary/text files).",
+            "example": "media",
+            "in": "query",
+            "name": "alt",
+            "schema": {
+              "enum": [
+                "media"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Whether the user is acknowledging the risk of downloading a file flagged as abusive.",
+            "example": false,
+            "in": "query",
+            "name": "acknowledgeAbuse",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "1A2B3C4D",
+                  "mimeType": "application/pdf",
+                  "modifiedTime": "2025-07-08T15:00:00Z",
+                  "name": "example.pdf",
+                  "size": "123456"
+                },
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "mimeType": {
+                      "type": "string"
+                    },
+                    "modifiedTime": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "size": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "application/octet-stream": {
+                "example": "(binary file content)",
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "File metadata in JSON format, or file content if `alt=media` is used."
+          },
+          "404": {
+            "description": "File not found or access not permitted."
+          }
+        },
+        "security": [
+          {
+            "OAuth2": [
+              "https://www.googleapis.com/auth/drive.readonly"
+            ]
+          }
+        ],
+        "summary": "Get metadata or content of a file by ID"
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2": [
+        "https://www.googleapis.com/auth/drive.readonly"
+      ]
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://www.googleapis.com/drive/v3"
+    }
+  ]
+}

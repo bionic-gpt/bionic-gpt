@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Licence Signer (PEM supported)</title>
+</head>
+<body>
+  <h2>Licence Generator</h2>
+
+  <label><b>JSON Licence (input):</b></label><br>
+  <textarea id="jsonInput" rows="10" cols="80">{"end_date":"2028-12-31T00:00:00Z","hostname_url":"https://app.deploy-mcp.com","redirect_url":"/o/{team_id}/integrations","user_count":100000,"app_name":"Deploy","app_logo_svg":"PHN2ZyBmaWxsPSIjMDAwMDAwIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGlkPSJpY29uIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCI+PC9nPgo8ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz4KPGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPgo8ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6bm9uZTt9PC9zdHlsZT48L2RlZnM+Cjx0aXRsZT5kZXBsb3ktcnVsZXM8L3RpdGxlPgo8cG9seWdvbiBwb2ludHM9IjE4IDQgMTIgMTAgMTMuNDEgMTEuNDEgMTcgNy44MyAxNyAyMCAxOSAyMCAxOSA3LjgzIDIyLjU5IDExLjQxIDI0IDEwIDE4IDQiPjwvcG9seWdvbj4KPHJlY3QgeD0iOCIgeT0iMTgiIHdpZHRoPSI3IiBoZWlnaHQ9IjIiPjwvcmVjdD4KPHJlY3QgeD0iOCIgeT0iMjIiIHdpZHRoPSIxNiIgaGVpZ2h0PSIyIj48L3JlY3Q+CjxyZWN0IHg9IjgiIHk9IjI2IiB3aWR0aD0iMTYiIGhlaWdodD0iMiI+PC9yZWN0Pgo8cmVjdCBpZD0iX1RyYW5zcGFyZW50X1JlY3RhbmdsZV8iIGRhdGEtbmFtZT0iJmx0O1RyYW5zcGFyZW50IFJlY3RhbmdsZSZndDsiIGNsYXNzPSJjbHMtMSIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj48L3JlY3Q+CjwvZz4KPC9zdmc+","features":{"automations":true,"mcp":true},"signature":"3rE+PeAYQuqwQYNws7rNos9/vhS51W3Wu6gt9Zs8CZOD9iekNXeGQxC7Agn5/Vi6/czTEOLecPPuK8XyFa82CQ=="}</textarea><br><br>
+
+  <label><b>Private Key (PKCS#8 PEM or raw base64 seed):</b></label><br>
+  <textarea id="privateKey" rows="6" cols="80" placeholder="Paste your Ed25519 private key seed or PKCS#8 PEM here"></textarea><br><br>
+
+  <button onclick="signLicence()">Generate Signed Output</button>
+
+  <h3>Derived Public Key</h3>
+  <label><b>Raw base64 (32 bytes):</b></label><br>
+  <textarea id="publicKeyRaw" rows="2" cols="80" readonly style="background:#f6f6f6;"></textarea><br><br>
+  <label><b>PEM (compare with server value MCowBQYDK2VwAyEAJguqlxohUamZpCPUGY8k5oBYlHSnCY66eTyothyPJM0=):</b></label><br>
+  <textarea id="publicKeyPem" rows="6" cols="80" readonly style="background:#f6f6f6;"></textarea>
+
+  <h3>Signed JSON (one line):</h3>
+  <textarea id="signedJson" rows="3" cols="80" readonly style="background:#f6f6f6;"></textarea>
+
+  <h3>Kubernetes Secret YAML:</h3>
+  <textarea id="output" rows="12" cols="80" readonly style="background:#f6f6f6;"></textarea>
+
+  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+  <script>
+    function toBase64(bytes) {
+      const binary = String.fromCharCode(...Array.from(bytes));
+      return btoa(binary);
+    }
+
+    function toPem(publicKey) {
+      const header = new Uint8Array([0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00]);
+      const der = new Uint8Array(header.length + publicKey.length);
+      der.set(header, 0);
+      der.set(publicKey, header.length);
+      const base64Der = toBase64(der);
+      const lines = base64Der.match(/.{1,64}/g);
+      const body = lines ? lines.join("\n") : base64Der;
+      return `-----BEGIN PUBLIC KEY-----\n${body}\n-----END PUBLIC KEY-----`;
+    }
+
+    function signLicence() {
+      const jsonStr = document.getElementById("jsonInput").value;
+      const privateKeyInput = document.getElementById("privateKey").value;
+      const signedJson = document.getElementById("signedJson");
+      const output = document.getElementById("output");
+      const publicKeyRaw = document.getElementById("publicKeyRaw");
+      const publicKeyPem = document.getElementById("publicKeyPem");
+
+      signedJson.value = "";
+      output.value = "";
+      publicKeyRaw.value = "";
+      publicKeyPem.value = "";
+
+      try {
+        // Clean PEM or base64 key
+        const b64 = privateKeyInput
+          .replace(/-----.*-----/g, '')
+          .replace(/\s+/g, '');
+        const keyBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+
+        // Extract Ed25519 seed
+        let seed;
+        if (keyBytes.length === 48 && keyBytes[0] === 0x30) {
+          seed = keyBytes.slice(-32);
+        } else if (keyBytes.length === 32) {
+          seed = keyBytes;
+        } else {
+          throw new Error("Key must be a raw 32-byte seed or a 48-byte PKCS#8 Ed25519 key");
+        }
+
+        const keyPair = nacl.sign.keyPair.fromSeed(seed);
+        const secretKey = keyPair.secretKey;
+        const publicKey = keyPair.publicKey;
+
+        publicKeyRaw.value = toBase64(publicKey);
+        publicKeyPem.value = toPem(publicKey);
+
+        // Sign the input
+        const licence = JSON.parse(jsonStr);
+        delete licence.signature;
+
+        // Only sign the canonical fields that the server verifies against
+        const features = licence.features || {};
+        const canonicalPayload = {
+          user_count: licence.user_count,
+          hostname_url: licence.hostname_url,
+          end_date: licence.end_date,
+          app_name: licence.app_name,
+          app_logo_svg: licence.app_logo_svg,
+          features: {
+            automations: !!features.automations,
+            mcp: !!features.mcp,
+          },
+        };
+
+        if (
+          canonicalPayload.user_count === undefined ||
+          canonicalPayload.hostname_url === undefined ||
+          canonicalPayload.end_date === undefined ||
+          canonicalPayload.app_name === undefined ||
+          canonicalPayload.app_logo_svg === undefined
+        ) {
+          throw new Error(
+            "Licence JSON must include user_count, hostname_url, end_date, app_name, and app_logo_svg",
+          );
+        }
+
+        licence.features = canonicalPayload.features;
+
+        const encoded = new TextEncoder().encode(JSON.stringify(canonicalPayload));
+        const sig = nacl.sign.detached(encoded, secretKey);
+        const sigB64 = toBase64(sig);
+        licence.signature = sigB64;
+
+        const signedStr = JSON.stringify(licence);
+        signedJson.value = signedStr;
+
+        const licenceB64 = btoa(signedStr);
+        const yaml = `apiVersion: v1\nkind: Secret\nmetadata:\n  name: bionic-gpt-licence\ntype: Opaque\ndata:\n  LICENCE: ${licenceB64}`;
+
+        output.value = yaml;
+      } catch (e) {
+        signedJson.value = "";
+        output.value = "❌ Error: " + e.message;
+      }
+    }
+  </script>
+</body>
+</html>

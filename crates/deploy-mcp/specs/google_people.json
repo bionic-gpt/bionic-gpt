@@ -1,0 +1,568 @@
+{
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.google.com/o/oauth2/v2/auth",
+            "scopes": {
+              "https://www.googleapis.com/auth/contacts": "Manage your contacts",
+              "https://www.googleapis.com/auth/contacts.readonly": "View your contacts"
+            },
+            "tokenUrl": "https://oauth2.googleapis.com/token"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "description": "Interact programmatically with a user's Google contacts using the People API. Supports reading, creating, updating, deleting, searching, and batch operations on contacts, with field selection and pagination. OAuth2 is required for all operations.",
+    "title": "Google People API - Contacts",
+    "version": "v1",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IS0tIFVwbG9hZGVkIHRvOiBTVkcgUmVwbywgd3d3LnN2Z3JlcG8uY29tLCBHZW5lcmF0b3I6IFNWRyBSZXBvIE1peGVyIFRvb2xzIC0tPgo8c3ZnIHdpZHRoPSI4MDBweCIgaGVpZ2h0PSI4MDBweCIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPg0KPHBhdGggZD0iTTE5IDIwQzIyLjg2NiAyMCAyNiAxNi44NjYgMjYgMTNDMjYgOS4xMzQwMSAyMi44NjYgNiAxOSA2QzE1LjEzNCA2IDEyIDkuMTM0MDEgMTIgMTNDMTIgMTYuODY2IDE1LjEzNCAyMCAxOSAyMFoiIGZpbGw9IiMyRjg4RkYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4NCjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMzIgMjJINDRaIiBmaWxsPSIjMkY4OEZGIi8+DQo8cGF0aCBkPSJNMzIgMjJINDQiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4NCjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMzIgMTZINDRaIiBmaWxsPSIjMkY4OEZGIi8+DQo8cGF0aCBkPSJNMzIgMTZINDQiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4NCjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMzUgMTNWMjVaIiBmaWxsPSIjMkY4OEZGIi8+DQo8cGF0aCBkPSJNMzUgMTNWMjUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4NCjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNNDEgMTNWMjVaIiBmaWxsPSIjMkY4OEZGIi8+DQo8cGF0aCBkPSJNNDEgMTNWMjUiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4NCjxwYXRoIGQ9Ik00IDQwLjhWNDJIMzRWNDAuOEMzNCAzNi4zMTk2IDM0IDM0LjA3OTQgMzMuMTI4MSAzMi4zNjgxQzMyLjM2MTEgMzAuODYyOCAzMS4xMzcyIDI5LjYzODkgMjkuNjMxOSAyOC44NzE5QzI3LjkyMDYgMjggMjUuNjgwNCAyOCAyMS4yIDI4SDE2LjhDMTIuMzE5NiAyOCAxMC4wNzk0IDI4IDguMzY4MDggMjguODcxOUM2Ljg2Mjc4IDI5LjYzODkgNS42Mzg5MyAzMC44NjI4IDQuODcxOTUgMzIuMzY4MUM0IDM0LjA3OTQgNCAzNi4zMTk2IDQgNDAuOFoiIGZpbGw9IiMyRjg4RkYiIHN0cm9rZT0iIzAwMDAwMCIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4NCjwvc3ZnPg=="
+    },
+    "x-bionic-slug": "gpeople"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/people/me/connections": {
+      "get": {
+        "description": "Retrieves a list of contacts for the authenticated user. Specify which details to include via the `personFields` parameter (e.g., names, email addresses, phone numbers). Supports results pagination.",
+        "operationId": "listContacts",
+        "parameters": [
+          {
+            "description": "Comma-separated list of fields to return, e.g., 'names,emailAddresses'.",
+            "in": "query",
+            "name": "personFields",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Token to retrieve a specific page of results.",
+            "in": "query",
+            "name": "pageToken",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "Sample response",
+                    "value": {
+                      "connections": [
+                        {
+                          "emailAddresses": [
+                            {
+                              "value": "john.doe@example.com"
+                            }
+                          ],
+                          "etag": "etag123",
+                          "names": [
+                            {
+                              "displayName": "John Doe"
+                            }
+                          ],
+                          "resourceName": "people/c123"
+                        }
+                      ],
+                      "nextPageToken": "nextToken"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A list of contacts with the requested fields."
+          }
+        },
+        "summary": "List the user's contacts"
+      }
+    },
+    "/people/{resourceName}:deleteContact": {
+      "delete": {
+        "description": "Permanently deletes a contact identified by its resource name from the user's Google Contacts.",
+        "operationId": "deleteContact",
+        "parameters": [
+          {
+            "description": "Resource name of the contact to delete.",
+            "in": "path",
+            "name": "resourceName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact deleted successfully."
+          }
+        },
+        "summary": "Delete an existing contact"
+      }
+    },
+    "/people/{resourceName}:updateContact": {
+      "patch": {
+        "description": "Updates a contact by resource name. The latest `etag` value must be provided for concurrency control. Specify fields to update with `updatePersonFields`.",
+        "operationId": "updateContact",
+        "parameters": [
+          {
+            "description": "Resource name of the contact (e.g., 'people/c123').",
+            "in": "path",
+            "name": "resourceName",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated fields to update (e.g., 'emailAddresses').",
+            "in": "query",
+            "name": "updatePersonFields",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "example1": {
+                  "summary": "Update John Doe\u2019s email",
+                  "value": {
+                    "emailAddresses": [
+                      {
+                        "value": "john.doe@gmail.com"
+                      }
+                    ],
+                    "etag": "etag123",
+                    "resourceName": "people/c123"
+                  }
+                }
+              },
+              "schema": {
+                "properties": {
+                  "emailAddresses": {
+                    "items": {
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "etag": {
+                    "type": "string"
+                  },
+                  "resourceName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "resourceName",
+                  "etag"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "Updated contact",
+                    "value": {
+                      "emailAddresses": [
+                        {
+                          "value": "john.doe@gmail.com"
+                        }
+                      ],
+                      "etag": "etag124",
+                      "resourceName": "people/c123"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Updated contact details."
+          }
+        },
+        "summary": "Update an existing contact"
+      }
+    },
+    "/people:batchCreateContacts": {
+      "post": {
+        "description": "Create multiple contacts in a single request by providing an array of contact objects.",
+        "operationId": "batchCreateContacts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "example1": {
+                  "summary": "Create John Doe and Bob Dylan",
+                  "value": {
+                    "contacts": [
+                      {
+                        "contactPerson": {
+                          "names": [
+                            {
+                              "familyName": "Doe",
+                              "givenName": "John"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "contactPerson": {
+                          "names": [
+                            {
+                              "familyName": "Dylan",
+                              "givenName": "Bob"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              "schema": {
+                "properties": {
+                  "contacts": {
+                    "items": {
+                      "properties": {
+                        "contactPerson": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "contactPerson"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "contacts"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "Batch create response",
+                    "value": {
+                      "createdContacts": [
+                        {
+                          "etag": "etag1",
+                          "resourceName": "people/c123"
+                        },
+                        {
+                          "etag": "etag2",
+                          "resourceName": "people/c124"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Details of batch created contacts."
+          }
+        },
+        "summary": "Batch create new contacts"
+      }
+    },
+    "/people:batchDeleteContacts": {
+      "post": {
+        "description": "Delete multiple contacts by specifying an array of resource names.",
+        "operationId": "batchDeleteContacts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "example1": {
+                  "summary": "Delete two contacts",
+                  "value": {
+                    "resourceNames": [
+                      "people/c123",
+                      "people/c124"
+                    ]
+                  }
+                }
+              },
+              "schema": {
+                "properties": {
+                  "resourceNames": {
+                    "description": "List of resource names to delete.",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "resourceNames"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Contacts deleted successfully."
+          }
+        },
+        "summary": "Batch delete contacts"
+      }
+    },
+    "/people:batchUpdateContacts": {
+      "post": {
+        "description": "Update multiple existing contacts at once. Each contact object must include `etag` and the fields to update, as well as `resourceName`.",
+        "operationId": "batchUpdateContacts",
+        "parameters": [
+          {
+            "description": "Comma-separated fields to update (e.g., 'names,emailAddresses').",
+            "in": "query",
+            "name": "updateMask",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated fields to return in response (e.g., 'names,emailAddresses').",
+            "in": "query",
+            "name": "readMask",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "example1": {
+                  "summary": "Batch update emails",
+                  "value": {
+                    "contacts": {
+                      "people/c123": {
+                        "emailAddresses": [
+                          {
+                            "value": "john.doe@gmail.com"
+                          }
+                        ],
+                        "etag": "etag1",
+                        "resourceName": "people/c123"
+                      }
+                    }
+                  }
+                }
+              },
+              "schema": {
+                "properties": {
+                  "contacts": {
+                    "additionalProperties": {
+                      "type": "object"
+                    },
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "contacts"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "Batch update response",
+                    "value": {
+                      "updatedContacts": [
+                        {
+                          "etag": "etag1",
+                          "resourceName": "people/c123"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Batch updated contact details."
+          }
+        },
+        "summary": "Batch update existing contacts"
+      }
+    },
+    "/people:createContact": {
+      "post": {
+        "description": "Creates a new contact. Supply details such as names and email addresses in the request body. The new contact is added to the user's Google Contacts.",
+        "operationId": "createContact",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "example1": {
+                  "summary": "Create John Doe",
+                  "value": {
+                    "names": [
+                      {
+                        "familyName": "Doe",
+                        "givenName": "John"
+                      }
+                    ]
+                  }
+                }
+              },
+              "schema": {
+                "properties": {
+                  "names": {
+                    "description": "List of names for the new contact.",
+                    "items": {
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "names"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "Created contact",
+                    "value": {
+                      "etag": "etag123",
+                      "names": [
+                        {
+                          "displayName": "John Doe"
+                        }
+                      ],
+                      "resourceName": "people/c123"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Newly created contact details."
+          }
+        },
+        "summary": "Create a new contact"
+      }
+    },
+    "/people:searchContacts": {
+      "get": {
+        "description": "Searches contacts for the authenticated user matching a query string (e.g., name or email). The returned fields are specified by the `readMask` query parameter.",
+        "operationId": "searchContacts",
+        "parameters": [
+          {
+            "description": "Text query for searching contacts (e.g., part of a name or email address).",
+            "in": "query",
+            "name": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated fields to return, e.g., 'names,emailAddresses'.",
+            "in": "query",
+            "name": "readMask",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "Sample search response",
+                    "value": {
+                      "results": [
+                        {
+                          "person": {
+                            "emailAddresses": [
+                              {
+                                "value": "john.doe@example.com"
+                              }
+                            ],
+                            "names": [
+                              {
+                                "displayName": "John Doe"
+                              }
+                            ],
+                            "resourceName": "people/c123"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Matching contacts for the search query."
+          }
+        },
+        "summary": "Search the user's contacts"
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2": [
+        "https://www.googleapis.com/auth/contacts"
+      ]
+    }
+  ],
+  "servers": [
+    {
+      "description": "Google People API base URL",
+      "url": "https://people.googleapis.com/v1"
+    }
+  ]
+}

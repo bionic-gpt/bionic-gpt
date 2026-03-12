@@ -1,0 +1,176 @@
+{
+  "components": {
+    "schemas": {
+      "Error": {
+        "properties": {
+          "message": {
+            "example": "An error occurred while processing your request",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "in": "header",
+        "name": "x-rapidapi-key",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "description": "Fetches LinkedIn-style company data using a domain name. Useful when you want structured metadata about a company based on its website domain. \u26a0\ufe0f Charges 1 credit per call.",
+    "title": "LinkedIn API",
+    "version": "1.0.0",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjIwMHB4IiB3aWR0aD0iMjAwcHgiIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAzODIgMzgyIiB4bWw6c3BhY2U9InByZXNlcnZlIiBmaWxsPSIjMDAwMDAwIj48ZyBpZD0iU1ZHUmVwb19iZ0NhcnJpZXIiIHN0cm9rZS13aWR0aD0iMCI+PC9nPjxnIGlkPSJTVkdSZXBvX3RyYWNlckNhcnJpZXIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PC9nPjxnIGlkPSJTVkdSZXBvX2ljb25DYXJyaWVyIj4gPHBhdGggc3R5bGU9ImZpbGw6IzAwNzdCNzsiIGQ9Ik0zNDcuNDQ1LDBIMzQuNTU1QzE1LjQ3MSwwLDAsMTUuNDcxLDAsMzQuNTU1djMxMi44ODlDMCwzNjYuNTI5LDE1LjQ3MSwzODIsMzQuNTU1LDM4MmgzMTIuODg5IEMzNjYuNTI5LDM4MiwzODIsMzY2LjUyOSwzODIsMzQ3LjQ0NFYzNC41NTVDMzgyLDE1LjQ3MSwzNjYuNTI5LDAsMzQ3LjQ0NSwweiBNMTE4LjIwNywzMjkuODQ0YzAsNS41NTQtNC41MDIsMTAuMDU2LTEwLjA1NiwxMC4wNTYgSDY1LjM0NWMtNS41NTQsMC0xMC4wNTYtNC41MDItMTAuMDU2LTEwLjA1NlYxNTAuNDAzYzAtNS41NTQsNC41MDItMTAuMDU2LDEwLjA1Ni0xMC4wNTZoNDIuODA2IGM1LjU1NCwwLDEwLjA1Niw0LjUwMiwxMC4wNTYsMTAuMDU2VjMyOS44NDR6IE04Ni43NDgsMTIzLjQzMmMtMjIuNDU5LDAtNDAuNjY2LTE4LjIwNy00MC42NjYtNDAuNjY2UzY0LjI4OSw0Mi4xLDg2Ljc0OCw0Mi4xIHM0MC42NjYsMTguMjA3LDQwLjY2Niw0MC42NjZTMTA5LjIwOCwxMjMuNDMyLDg2Ljc0OCwxMjMuNDMyeiBNMzQxLjkxLDMzMC42NTRjMCw1LjEwNi00LjE0LDkuMjQ2LTkuMjQ2LDkuMjQ2SDI4Ni43MyBjLTUuMTA2LDAtOS4yNDYtNC4xNC05LjI0Ni05LjI0NnYtODQuMTY4YzAtMTIuNTU2LDMuNjgzLTU1LjAyMS0zMi44MTMtNTUuMDIxYy0yOC4zMDksMC0zNC4wNTEsMjkuMDY2LTM1LjIwNCw0Mi4xMXY5Ny4wNzkgYzAsNS4xMDYtNC4xMzksOS4yNDYtOS4yNDYsOS4yNDZoLTQ0LjQyNmMtNS4xMDYsMC05LjI0Ni00LjE0LTkuMjQ2LTkuMjQ2VjE0OS41OTNjMC01LjEwNiw0LjE0LTkuMjQ2LDkuMjQ2LTkuMjQ2aDQ0LjQyNiBjNS4xMDYsMCw5LjI0Niw0LjE0LDkuMjQ2LDkuMjQ2djE1LjY1NWMxMC40OTctMTUuNzUzLDI2LjA5Ny0yNy45MTIsNTkuMzEyLTI3LjkxMmM3My41NTIsMCw3My4xMzEsNjguNzE2LDczLjEzMSwxMDYuNDcyIEwzNDEuOTEsMzMwLjY1NEwzNDEuOTEsMzMwLjY1NHoiPjwvcGF0aD4gPC9nPjwvc3ZnPg=="
+    },
+    "x-bionic-slug": "linkedin"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/get-company-by-domain": {
+      "get": {
+        "description": "Fetches LinkedIn-style company data (name, industry, size, website, logo, LinkedIn URL, etc.) using the company's domain. Useful when you have a domain (e.g., example.com) and want structured company metadata.",
+        "operationId": "getCompanyByDomain",
+        "parameters": [
+          {
+            "description": "The domain associated with the company (e.g., example.com)",
+            "in": "query",
+            "name": "domain",
+            "required": true,
+            "schema": {
+              "format": "hostname",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "properties": {
+                        "company_name": {
+                          "example": "Example Inc.",
+                          "type": "string"
+                        },
+                        "domain": {
+                          "example": "example.com",
+                          "type": "string"
+                        },
+                        "employee_count": {
+                          "example": "201-500",
+                          "type": "string"
+                        },
+                        "hq_city": {
+                          "example": "San Francisco",
+                          "type": "string"
+                        },
+                        "hq_country": {
+                          "example": "USA",
+                          "type": "string"
+                        },
+                        "industry": {
+                          "example": "Software Development",
+                          "type": "string"
+                        },
+                        "linkedin_url": {
+                          "example": "https://www.linkedin.com/company/example/",
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "logo_url": {
+                          "example": "https://logo.example.com/image.png",
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "website": {
+                          "example": "https://example.com",
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "year_founded": {
+                          "example": 2005,
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "message": {
+                      "example": "Request successful.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Company data retrieved successfully"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized - missing or invalid API key"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Company not found for the provided domain"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get company details by domain"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://fresh-linkedin-profile-data.p.rapidapi.com"
+    }
+  ]
+}

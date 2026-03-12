@@ -1,0 +1,288 @@
+{
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "description": "Bearer token (e.g., Bearer YOUR_TOKEN)",
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "description": "API for accessing public data from Companies House including company profiles, officers, filings, and more.",
+    "title": "Companies House Public Data API",
+    "version": "1.0.0",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8c3R5bGU+CiAgICAuYmcgeyBmaWxsOiAjMDAyMTQ3OyB9CiAgICAuYmFyMSwgLmJhcjIsIC5iYXIzIHsgZmlsbDogI0ZGRkZGRjsgcng6IDI7IH0KICA8L3N0eWxlPgogIDwhLS0gQmFja2dyb3VuZCAtLT4KICA8cmVjdCBjbGFzcz0iYmciIHg9IjAiIHk9IjAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgcng9IjEyIiAvPgoKICA8IS0tIFN0eWxpemVkICJidWlsZGluZyIgLyBiYXIgY2hhcnQgc3ltYm9sIC0tPgogIDxyZWN0IGNsYXNzPSJiYXIxIiB4PSIyMCIgeT0iMjAiIHdpZHRoPSIxMCIgaGVpZ2h0PSI0MCIgLz4KICA8cmVjdCBjbGFzcz0iYmFyMiIgeD0iMzUiIHk9IjE1IiB3aWR0aD0iMTAiIGhlaWdodD0iNDUiIC8+CiAgPHJlY3QgY2xhc3M9ImJhcjMiIHg9IjUwIiB5PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjUwIiAvPgo8L3N2Zz4K"
+    },
+    "x-bionic-slug": "companies"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/company/{company_number}": {
+      "get": {
+        "description": "Returns basic company details, registered office address, status, and more.",
+        "operationId": "getCompanyProfile",
+        "parameters": [
+          {
+            "description": "The unique number of the company.",
+            "in": "path",
+            "name": "company_number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "company_name": "ACME LTD",
+                  "company_number": "01234567",
+                  "company_status": "active",
+                  "date_of_creation": "2000-01-01",
+                  "registered_office_address": {
+                    "address_line_1": "1 High Street",
+                    "locality": "London",
+                    "postal_code": "W1A 1AA"
+                  }
+                }
+              }
+            },
+            "description": "Company profile found"
+          }
+        },
+        "summary": "Get Company Profile"
+      }
+    },
+    "/company/{company_number}/charges": {
+      "get": {
+        "description": "Returns details of registered charges (mortgages or debentures) for a company.",
+        "operationId": "getCompanyCharges",
+        "parameters": [
+          {
+            "description": "The unique number of the company.",
+            "in": "path",
+            "name": "company_number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "charge_code": "1234567890",
+                      "created_on": "2021-04-15",
+                      "status": "outstanding"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "List of charges"
+          }
+        },
+        "summary": "Get Company Charges"
+      }
+    },
+    "/company/{company_number}/filing-history": {
+      "get": {
+        "description": "Returns filings made by the company (e.g., annual returns, changes of directors).",
+        "operationId": "getFilingHistory",
+        "parameters": [
+          {
+            "description": "The unique number of the company.",
+            "in": "path",
+            "name": "company_number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "date": "2022-01-01",
+                      "description": "Confirmation statement made on 2022-01-01",
+                      "type": "CS01"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "List of filings"
+          }
+        },
+        "summary": "Get Filing History"
+      }
+    },
+    "/company/{company_number}/officers": {
+      "get": {
+        "description": "Returns a list of current and resigned officers for a given company.",
+        "operationId": "listCompanyOfficers",
+        "parameters": [
+          {
+            "description": "The unique number of the company.",
+            "in": "path",
+            "name": "company_number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "appointed_on": "2015-06-01",
+                      "name": "John Smith",
+                      "officer_role": "director"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "List of company officers"
+          }
+        },
+        "summary": "List Company Officers"
+      }
+    },
+    "/company/{company_number}/persons-with-significant-control": {
+      "get": {
+        "description": "Returns PSCs (people with significant control) registered against a company.",
+        "operationId": "getPSC",
+        "parameters": [
+          {
+            "description": "The unique number of the company.",
+            "in": "path",
+            "name": "company_number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "kind": "individual-person-with-significant-control",
+                      "name": "Jane Doe",
+                      "notified_on": "2020-01-01"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "List of PSCs"
+          }
+        },
+        "summary": "Get Persons with Significant Control"
+      }
+    },
+    "/company/{company_number}/registers": {
+      "get": {
+        "description": "Returns information about where company registers (e.g., members, directors) are kept.",
+        "operationId": "getCompanyRegisters",
+        "parameters": [
+          {
+            "description": "The unique number of the company.",
+            "in": "path",
+            "name": "company_number",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "registers": {
+                    "directors": {
+                      "location": "registered_office",
+                      "register_type": "directors"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Details of company registers"
+          }
+        },
+        "summary": "Get Company Registers"
+      }
+    },
+    "/search/companies": {
+      "get": {
+        "description": "Search for companies by name or number.",
+        "operationId": "searchCompanies",
+        "parameters": [
+          {
+            "description": "The search term (e.g., company name or number).",
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "address_snippet": "1 High Street, London",
+                      "company_number": "01234567",
+                      "company_status": "active",
+                      "title": "ACME LTD"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "List of matching companies"
+          }
+        },
+        "summary": "Search Companies"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.company-information.service.gov.uk"
+    }
+  ]
+}

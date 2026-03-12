@@ -1,0 +1,172 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "SAP Demo Integration API",
+    "description": "Sample OpenAPI spec for demoing integration between an LLM and SAP using REST endpoints.",
+    "version": "1.0.0",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IiMwMDAwMDAiPjxnIGlkPSJTVkdSZXBvX2JnQ2FycmllciIgc3Ryb2tlLXdpZHRoPSIwIj48L2c+PGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L2c+PGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8Y2lyY2xlIGN4PSI1MTIiIGN5PSI1MTIiIHI9IjUxMiIgc3R5bGU9ImZpbGw6IzAwN2NjNSI+PC9jaXJjbGU+IDxwYXRoIGQ9Ik0yNTYgMzU5Ljg4djMwNC4yNGgzMTAuODJMODcxIDM1OS44OHptODMuNjIgNTYuNThoLjE0YzIyLjExIDAgNDkuMDYgNi4yOSA2OC41NiAxNi4yMmwtMjEgMzYuNjRDMzY1LjkyIDQ1OSAzNTUuMTcgNDU4IDM0MyA0NTcuMzZjLTE4LjE0LTEtMjcuMjYgNS41MS0yNy40IDEyLjUtLjE4IDguNTIgMTcuMTMgMTYuMjMgMzMuNDUgMjEuNDcgMjQuNyA3Ljg1IDU2LjEgMTguMzMgNjAuOSA0OC43bDQ1LjE1LTExOS4zNmg1Mi40NWw1Mi44OCAxNDIuOTEtLjItMTQyLjg2SDYyMWM1Ny44NCAwIDg1IDE5LjU4IDg1IDY0LjUzIDAgNDAuMzYtMjggNjQuNDItNzUuMjUgNjQuNDJoLTE5LjU2bC0uMTkgNTMuNjktOTItLjA5LTYuMzgtMjMuMjdhMTAxLjY1IDEwMS42NSAwIDAgMS0zMS41NiA0LjgzIDEwMC41MiAxMDAuNTIgMCAwIDEtMzIuMzItNS4xMmwtOS4xOSAyMy41NC01MS4yNS4xNiAyLjMtMTEuODRjLS43My42NC0xLjQzIDEuMjktMi4yMiAxLjkxLTEzLjcgMTEtMzAuOTQgMTYuMTEtNTIuMTggMTYuNDloLTUuNDhjLTI0LjQxIDAtNDUuODktNS43OC02Ni4xMy0xNy4yOGwxOC43MS0zNy4xMmMyMC4yNiAxMiAzMyAxNC42OCA1MC4xMSAxNC4zMSA4Ljg5LS4xOCAxNS4zMi0xLjggMTkuNTItNi4xM2ExNC4yOSAxNC4yOSAwIDAgMCA0LTkuNDVjLjE3LTkuNjQtMTMuNTYtMTQuMTctMzAuMzYtMTkuMzctMTMuNjItNC4yMi0yOS4wOC0xMC00MS4xNy0xOC44My0xNC4zMS0xMC41My0yMS4xMi0yMy42OS0yMC43OC00Mi4yN2E1MSA1MSAwIDAgMSAxNC40OS0zNS4zMWMxMy4zMS0xMy43NiAzNC43Ni0yMi4xMiA2MC41NC0yMi4xMnptMjcxLjU1IDQyLjh2NDguOGgxMy4zNWMxNy43OCAwIDMyLTUuOTIgMzItMjQuNzIgMC0xOC4xNi0xNC4xOS0yNC4wOS0zMi0yNC4wOXptLTEzMC4zMiAxOS42NS0xOS4xNyA2MC41NGE1NC45MiA1NC45MiAwIDAgMCAxOS4zOCAzLjM5IDU2Ljc5IDU2Ljc5IDAgMCAwIDE5LTMuMjJsLTE4Ljg3LTYwLjcxeiIgc3R5bGU9ImZpbGw6I2ZmZiI+PC9wYXRoPiA8L2c+PC9zdmc+"
+    },
+    "x-bionic-slug": "sap"
+  },
+  "servers": [
+    {
+      "url": "https://sap.example.com"
+    }
+  ],
+  "paths": {
+    "/business-partners": {
+      "get": {
+        "summary": "Get list of business partners",
+        "operationId": "getBusinessPartners",
+        "responses": {
+          "200": {
+            "description": "A list of business partners",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BusinessPartner"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sales-orders": {
+      "post": {
+        "summary": "Create a new sales order",
+        "operationId": "createSalesOrder",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sales order created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/material-stock": {
+      "get": {
+        "summary": "Check stock availability",
+        "operationId": "getMaterialStock",
+        "parameters": [
+          {
+            "name": "materialId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock level for the material",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialStock"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BusinessPartner": {
+        "type": "object",
+        "properties": {
+          "BusinessPartner": {
+            "type": "string"
+          },
+          "FirstName": {
+            "type": "string"
+          },
+          "LastName": {
+            "type": "string"
+          },
+          "OrganizationBPName1": {
+            "type": "string"
+          }
+        }
+      },
+      "SalesOrderRequest": {
+        "type": "object",
+        "properties": {
+          "CustomerId": {
+            "type": "string"
+          },
+          "Items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "MaterialId": {
+                  "type": "string"
+                },
+                "Quantity": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "MaterialId",
+                "Quantity"
+              ]
+            }
+          }
+        },
+        "required": [
+          "CustomerId",
+          "Items"
+        ]
+      },
+      "SalesOrderResponse": {
+        "type": "object",
+        "properties": {
+          "SalesOrderId": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "string"
+          }
+        }
+      },
+      "MaterialStock": {
+        "type": "object",
+        "properties": {
+          "MaterialId": {
+            "type": "string"
+          },
+          "AvailableQuantity": {
+            "type": "number"
+          },
+          "Unit": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

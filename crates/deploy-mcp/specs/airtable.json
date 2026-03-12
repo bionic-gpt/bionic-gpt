@@ -1,0 +1,284 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Airtable Records & Comments API",
+    "version": "1.0.0",
+    "description": "API for viewing Airtable records and record comments using OAuth2.",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIC0yMC41IDI1NiAyNTYiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQiIGZpbGw9IiMwMDAwMDAiPjxnIGlkPSJTVkdSZXBvX2JnQ2FycmllciIgc3Ryb2tlLXdpZHRoPSIwIj48L2c+PGcgaWQ9IlNWR1JlcG9fdHJhY2VyQ2FycmllciIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L2c+PGcgaWQ9IlNWR1JlcG9faWNvbkNhcnJpZXIiPiA8Zz4gPHBhdGggZD0iTTExNC4yNTg3MywyLjcwMTAxNjk1IEwxOC44NjA0MDIzLDQyLjE3NTYzODQgQzEzLjU1NTI3MjMsNDQuMzcxMTYzOCAxMy42MTAyMzI4LDUxLjkwNjUzMTEgMTguOTQ4NjI4Miw1NC4wMjI1MDg1IEwxMTQuNzQ2MTQyLDkyLjAxMTc1MTQgQzEyMy4xNjM3NjksOTUuMzQ5ODc1NyAxMzIuNTM3NDE5LDk1LjM0OTg3NTcgMTQwLjk1MzYsOTIuMDExNzUxNCBMMjM2Ljc1MjU2LDU0LjAyMjUwODUgQzI0Mi4wODk1MSw1MS45MDY1MzExIDI0Mi4xNDU5MTYsNDQuMzcxMTYzOCAyMzYuODM5MzQsNDIuMTc1NjM4NCBMMTQxLjQ0MjQ1OSwyLjcwMTAxNjk1IEMxMzIuNzM4NDU5LC0wLjkwMDMzODk4MyAxMjIuOTYxMjg0LC0wLjkwMDMzODk4MyAxMTQuMjU4NzMsMi43MDEwMTY5NSIgZmlsbD0iI0ZGQkYwMCI+IDwvcGF0aD4gPHBhdGggZD0iTTEzNi4zNDkwNzEsMTEyLjc1Njg2MyBMMTM2LjM0OTA3MSwyMDcuNjU5MTAxIEMxMzYuMzQ5MDcxLDIxMi4xNzMwODkgMTQwLjkwMDY2NCwyMTUuMjYzODkyIDE0NS4wOTY0NjEsMjEzLjYwMDYxNSBMMjUxLjg0NDEyMiwxNzIuMTY2MjE5IEMyNTQuMjgxMTg0LDE3MS4yMDAwNzIgMjU1Ljg3OTM3NiwxNjguODQ1NDUxIDI1NS44NzkzNzYsMTY2LjIyNDcwNSBMMjU1Ljg3OTM3Niw3MS4zMjI0Njc4IEMyNTUuODc5Mzc2LDY2LjgwODQ3OTEgMjUxLjMyNzc4Myw2My43MTc2NzY4IDI0Ny4xMzE5ODYsNjUuMzgwOTUzNyBMMTQwLjM4NDMyNSwxMDYuODE1MzQ5IEMxMzcuOTQ4NzEsMTA3Ljc4MTQ5NiAxMzYuMzQ5MDcxLDExMC4xMzYxMTggMTM2LjM0OTA3MSwxMTIuNzU2ODYzIiBmaWxsPSIjMjZCNUY4Ij4gPC9wYXRoPiA8cGF0aCBkPSJNMTExLjQyMjc3MSwxMTcuNjUzNTUgTDc5Ljc0MjQwOSwxMzIuOTQ5OTEyIEw3Ni41MjU3NzYzLDEzNC41MDQ3MTQgTDkuNjUwNDc2ODQsMTY2LjU0ODEwNCBDNS40MTEyOTA0LDE2OC41OTMyMTEgMC4wMDA1Nzg1MzEwNzMsMTY1LjUwMzg1NSAwLjAwMDU3ODUzMTA3MywxNjAuNzk0NjEyIEwwLjAwMDU3ODUzMTA3Myw3MS43MjEwNzU3IEMwLjAwMDU3ODUzMTA3Myw3MC4wMTczMDE3IDAuODc0MTYwNDUyLDY4LjU0NjM4NjQgMi4wNDU2ODU4OCw2Ny40Mzg0OTk0IEMyLjUzNDU0NDYzLDY2Ljk0ODE5NDQgMy4wODg0ODgxNCw2Ni41NDQ2Njg5IDMuNjY0MTI2NTUsNjYuMjI1MDMwNSBDNS4yNjIzMTg2NCw2NS4yNjYxMTUzIDcuNTQxNzMxMDcsNjUuMDEwMTE1MyA5LjQ3OTgxMDE3LDY1Ljc3NjY2ODkgTDExMC44OTA1MjIsMTA1Ljk1NzA5OCBDMTE2LjA0NTIzNCwxMDguMDAyMjA2IDExNi40NTAyMDYsMTE1LjIyNTE2NiAxMTEuNDIyNzcxLDExNy42NTM1NSIgZmlsbD0iI0VEMzA0OSI+IDwvcGF0aD4gPHBhdGggZD0iTTExMS40MjI3NzEsMTE3LjY1MzU1IEw3OS43NDI0MDksMTMyLjk0OTkxMiBMMi4wNDU2ODU4OCw2Ny40Mzg0OTk0IEMyLjUzNDU0NDYzLDY2Ljk0ODE5NDQgMy4wODg0ODgxNCw2Ni41NDQ2Njg5IDMuNjY0MTI2NTUsNjYuMjI1MDMwNSBDNS4yNjIzMTg2NCw2NS4yNjYxMTUzIDcuNTQxNzMxMDcsNjUuMDEwMTE1MyA5LjQ3OTgxMDE3LDY1Ljc3NjY2ODkgTDExMC44OTA1MjIsMTA1Ljk1NzA5OCBDMTE2LjA0NTIzNCwxMDguMDAyMjA2IDExNi40NTAyMDYsMTE1LjIyNTE2NiAxMTEuNDIyNzcxLDExNy42NTM1NSIgZmlsbC1vcGFjaXR5PSIwLjI1IiBmaWxsPSIjMDAwMDAwIj4gPC9wYXRoPiA8L2c+IDwvZz48L3N2Zz4="
+    },
+    "x-bionic-slug": "airtable"
+  },
+  "servers": [
+    {
+      "url": "https://api.airtable.com/v0",
+      "variables": {
+        "baseId": {
+          "description": "The ID of the Airtable base",
+          "default": "app1234567890"
+        }
+      }
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://airtable.com/oauth2/v1/authorize",
+            "tokenUrl": "https://airtable.com/oauth2/v1/token",
+            "scopes": {
+              "data.records:read": "See the data in records",
+              "data.recordComments:read": "See comments in records",
+              "schema.bases:read": "See information about bases"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Record": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "fields"
+        ]
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "text": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ]
+      },
+      "Base": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissionLevel": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "oauth2": [
+        "data.records:read",
+        "data.recordComments:read",
+        "data.bases:read"
+      ]
+    }
+  ],
+  "paths": {
+    "/meta/bases": {
+      "get": {
+        "operationId": "listBases",
+        "summary": "List available bases",
+        "security": [
+          {
+            "oauth2": [
+              "data.bases:read"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bases",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bases": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Base"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{tableName}/records": {
+      "get": {
+        "operationId": "listRecords",
+        "summary": "List records",
+        "security": [
+          {
+            "oauth2": [
+              "data.records:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tableName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Record"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{tableName}/records/{recordId}": {
+      "get": {
+        "operationId": "getRecord",
+        "summary": "Retrieve a record",
+        "security": [
+          {
+            "oauth2": [
+              "data.records:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tableName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Single record retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{tableName}/records/{recordId}/comments": {
+      "get": {
+        "operationId": "listRecordComments",
+        "summary": "List comments on a record",
+        "security": [
+          {
+            "oauth2": [
+              "data.recordComments:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "tableName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of comments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Comment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

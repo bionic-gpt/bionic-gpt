@@ -1,0 +1,69 @@
+direction: right
+style.fill: "#eef2ff"
+style.stroke: "#4f46e5"
+style.font-color: "#1e1b4b"
+
+# ─────────────────────────────────────────────
+# Model-facing boundary (untrusted)
+# ─────────────────────────────────────────────
+model_boundary: "Model Interaction Boundary" {
+  shape: rectangle
+  style.stroke-dash: 6
+  style.fill: "#f8fafc"
+  style.stroke-width: 2
+
+  user: "HTTP Request\n(prompt)" {
+    shape: rectangle
+  }
+
+  model: "LLM\nInference" {
+    shape: rectangle
+  }
+
+  model_output: "Model Output" {
+    shape: rectangle
+  }
+
+  tool_call: "Tool Call\n(optional)" {
+    shape: rectangle
+    style.fill: "#cffafe"
+    style.stroke: "#06b6d4"
+  }
+
+  final: "HTTP Response\n(final answer)" {
+    shape: rectangle
+  }
+
+  user -> model
+  model -> model_output
+  model_output -> final: "no tool call"
+  model_output -> tool_call: "tool_call"
+}
+
+# ─────────────────────────────────────────────
+# Tool runtime boundary (trusted)
+# ─────────────────────────────────────────────
+tool_runtime: "Tool Runtime (trusted)" {
+  shape: rectangle
+  style.fill: "#f5f3ff"
+  style.stroke: "#8b5cf6"
+  style.stroke-width: 2
+
+  dispatcher: "Tool Dispatcher" {
+    shape: rectangle
+  }
+
+  tool_result: "Tool Result" {
+    shape: rectangle
+    style.fill: "#cffafe"
+    style.stroke: "#06b6d4"
+  }
+
+  dispatcher -> tool_result
+}
+
+# ─────────────────────────────────────────────
+# Cross-boundary flow
+# ─────────────────────────────────────────────
+model_boundary.tool_call -> tool_runtime.dispatcher
+tool_runtime.tool_result -> model_boundary.model

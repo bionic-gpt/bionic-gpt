@@ -1,0 +1,406 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Reddit API",
+    "version": "v1",
+    "description": "Community-maintained Reddit API endpoints.",
+    "x-bionic-slug": "reddit"
+  },
+  "servers": [
+    {
+      "url": "https://oauth.reddit.com",
+      "description": "OAuth-protected endpoint"
+    },
+    {
+      "url": "https://www.reddit.com",
+      "description": "Public endpoint"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://www.reddit.com/api/v1/authorize",
+            "tokenUrl": "https://www.reddit.com/api/v1/access_token",
+            "scopes": {
+              "identity": "Read access to identity",
+              "read": "Read public data",
+              "submit": "Submit content",
+              "modconfig": "Subreddit mod management"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2": []
+    }
+  ],
+  "paths": {
+    "/api/v1/me": {
+      "get": {
+        "summary": "Get current user profile",
+        "security": [
+          {
+            "OAuth2": [
+              "identity"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current user details"
+          }
+        },
+        "operationId": "get_api_v1_me"
+      }
+    },
+    "/api/v1/me/karma": {
+      "get": {
+        "summary": "Get user karma breakdown",
+        "security": [
+          {
+            "OAuth2": [
+              "read",
+              "identity"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Karma by subreddit"
+          }
+        },
+        "operationId": "get_api_v1_me_karma"
+      }
+    },
+    "/api/v1/me/prefs": {
+      "get": {
+        "summary": "Get user preferences",
+        "security": [
+          {
+            "OAuth2": [
+              "identity"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Preferences object"
+          }
+        },
+        "operationId": "get_api_v1_me_prefs"
+      },
+      "patch": {
+        "summary": "Update user preferences",
+        "security": [
+          {
+            "OAuth2": [
+              "identity"
+            ]
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated preferences"
+          }
+        },
+        "operationId": "patch_api_v1_me_prefs"
+      }
+    },
+    "/best": {
+      "get": {
+        "summary": "Get best listings",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "show",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listing response"
+          }
+        },
+        "operationId": "get_best"
+      }
+    },
+    "/api/comment": {
+      "post": {
+        "summary": "Create a comment or message reply",
+        "security": [
+          {
+            "OAuth2": [
+              "submit"
+            ]
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parent": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "api_type": {
+                    "type": "string",
+                    "default": "json"
+                  },
+                  "return_rtjson": {
+                    "type": "boolean"
+                  },
+                  "richtext_json": {
+                    "type": "object"
+                  },
+                  "recaptcha_token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created comment"
+          }
+        },
+        "operationId": "post_api_comment"
+      }
+    },
+    "/api/editusertext": {
+      "post": {
+        "summary": "Edit a comment or self-post",
+        "security": [
+          {
+            "OAuth2": [
+              "submit"
+            ]
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "thing_id": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "api_type": {
+                    "type": "string",
+                    "default": "json"
+                  },
+                  "return_rtjson": {
+                    "type": "boolean"
+                  },
+                  "richtext_json": {
+                    "type": "object"
+                  },
+                  "video_poster_url": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Edited content"
+          }
+        },
+        "operationId": "post_api_editusertext"
+      }
+    },
+    "/api/vote": {
+      "post": {
+        "summary": "Vote on item",
+        "security": [
+          {
+            "OAuth2": [
+              "vote"
+            ]
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "dir": {
+                    "type": "integer",
+                    "enum": [
+                      1,
+                      0,
+                      -1
+                    ]
+                  },
+                  "rank": {
+                    "type": "integer"
+                  },
+                  "api_type": {
+                    "type": "string",
+                    "default": "json"
+                  },
+                  "uh": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vote applied"
+          }
+        },
+        "operationId": "post_api_vote"
+      }
+    },
+    "/r/{subreddit}/about": {
+      "get": {
+        "summary": "Get subreddit info",
+        "parameters": [
+          {
+            "name": "subreddit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sr_detail",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subreddit metadata"
+          }
+        },
+        "operationId": "get_r_subreddit_about"
+      }
+    },
+    "/r/{subreddit}/api/subscribe": {
+      "post": {
+        "summary": "Subscribe or unsubscribe to a subreddit",
+        "security": [
+          {
+            "OAuth2": [
+              "subscribe"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subreddit",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "sub",
+                      "unsub"
+                    ]
+                  },
+                  "skip_initial_defaults": {
+                    "type": "boolean"
+                  },
+                  "sr_name": {
+                    "type": "string"
+                  },
+                  "uh": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription status"
+          }
+        },
+        "operationId": "post_r_subreddit_api_subscribe"
+      }
+    }
+  }
+}

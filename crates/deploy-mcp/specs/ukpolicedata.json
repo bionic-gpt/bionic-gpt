@@ -1,0 +1,600 @@
+{
+  "components": {
+    "schemas": {
+      "EngagementMethod": {
+        "properties": {
+          "description": {
+            "description": "Optional description of the engagement method.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "description": "The display title for this engagement method.",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of engagement method (e.g., 'facebook', 'twitter', 'website').",
+            "type": "string"
+          },
+          "url": {
+            "description": "The URL for this engagement method (e.g., contact form, social media, etc.).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "type",
+          "title"
+        ],
+        "type": "object"
+      },
+      "Force": {
+        "properties": {
+          "id": {
+            "description": "The unique identifier for the police force. Use this value as the 'force' parameter in endpoints that require a force ID.",
+            "example": "avon-and-somerset",
+            "type": "string"
+          },
+          "name": {
+            "description": "The full name of the police force.",
+            "example": "Avon and Somerset Constabulary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "Neighbourhood": {
+        "properties": {
+          "id": {
+            "description": "The unique identifier for the neighbourhood. Use this value as the 'neighbourhood_id' parameter in endpoints that require a neighbourhood ID.",
+            "example": "NC04",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the neighbourhood policing area.",
+            "example": "City Centre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "NeighbourhoodDetails": {
+        "properties": {
+          "centre": {
+            "description": "The geographical centre of the neighbourhood.",
+            "properties": {
+              "latitude": {
+                "description": "Latitude of the neighbourhood centre.",
+                "example": 52.6346,
+                "type": "number"
+              },
+              "longitude": {
+                "description": "Longitude of the neighbourhood centre.",
+                "example": -1.129,
+                "type": "number"
+              }
+            },
+            "type": "object"
+          },
+          "contact_details": {
+            "description": "Contact details for the neighbourhood policing team.",
+            "properties": {
+              "email": {
+                "description": "Contact email for the neighbourhood policing team, if available.",
+                "type": "string"
+              },
+              "telephone": {
+                "description": "Contact telephone for the neighbourhood policing team, if available.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "description": {
+            "description": "A description of the neighbourhood policing area.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The unique identifier for the neighbourhood.",
+            "example": "NC04",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the neighbourhood policing area.",
+            "example": "City Centre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "centre",
+          "contact_details"
+        ],
+        "type": "object"
+      },
+      "NeighbourhoodEvent": {
+        "properties": {
+          "description": {
+            "description": "A description of the event.",
+            "type": "string"
+          },
+          "location": {
+            "description": "The location where the event will take place.",
+            "example": "Town Hall, Main Street",
+            "type": "string"
+          },
+          "start_date": {
+            "description": "The date and time when the event starts (ISO 8601 format).",
+            "example": "2025-07-10T18:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "title": {
+            "description": "The title of the event.",
+            "example": "Community Meeting",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "start_date",
+          "location"
+        ],
+        "type": "object"
+      },
+      "NeighbourhoodPriority": {
+        "properties": {
+          "action": {
+            "description": "A description of the action taken or planned to address the issue.",
+            "type": "string"
+          },
+          "issue": {
+            "description": "A description of the issue or concern being addressed.",
+            "type": "string"
+          },
+          "priority": {
+            "description": "The title or short description of the priority.",
+            "example": "Anti-social behaviour",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue",
+          "action",
+          "priority"
+        ],
+        "type": "object"
+      },
+      "NeighbourhoodTeamMember": {
+        "properties": {
+          "bio": {
+            "description": "A short biography or description of the team member's role.",
+            "type": "string"
+          },
+          "contact_details": {
+            "description": "Contact details for the team member, if available.",
+            "properties": {
+              "email": {
+                "description": "The email address for contacting the team member, if available.",
+                "type": "string"
+              },
+              "telephone": {
+                "description": "The telephone number for contacting the team member, if available.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "name": {
+            "description": "The name of the neighbourhood team member.",
+            "example": "PC John Doe",
+            "type": "string"
+          },
+          "rank": {
+            "description": "The rank or role of the team member (e.g., 'PC', 'Sergeant', 'Inspector').",
+            "example": "PC",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "rank"
+        ],
+        "type": "object"
+      },
+      "PoliceForceDetails": {
+        "properties": {
+          "description": {
+            "description": "A description of the police force.",
+            "type": "string"
+          },
+          "engagement_methods": {
+            "description": "A list of available engagement methods for contacting or interacting with the police force (e.g., website, social media, contact forms).",
+            "items": {
+              "$ref": "#/components/schemas/EngagementMethod"
+            },
+            "type": "array"
+          },
+          "id": {
+            "description": "The unique identifier for the police force. Use this value in endpoints that require a force ID.",
+            "example": "leicestershire",
+            "type": "string"
+          },
+          "name": {
+            "description": "The full name of the police force.",
+            "example": "Leicestershire Police",
+            "type": "string"
+          },
+          "telephone": {
+            "description": "The general telephone contact number for the police force.",
+            "example": "101",
+            "type": "string"
+          },
+          "url": {
+            "description": "The official website URL for the police force.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "url",
+          "engagement_methods",
+          "telephone"
+        ],
+        "type": "object"
+      },
+      "SeniorOfficer": {
+        "properties": {
+          "bio": {
+            "description": "A short biography or description of the officer's role and background.",
+            "type": "string"
+          },
+          "contact_details": {
+            "description": "Contact details for the officer, if available.",
+            "properties": {
+              "email": {
+                "description": "The email address for contacting the officer, if available.",
+                "type": "string"
+              },
+              "telephone": {
+                "description": "The telephone number for contacting the officer, if available.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "name": {
+            "description": "The full name of the senior officer.",
+            "example": "Jane Smith",
+            "type": "string"
+          },
+          "rank": {
+            "description": "The rank of the senior officer (e.g., 'Chief Constable', 'Deputy Chief Constable').",
+            "example": "Chief Constable",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "rank"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Provides access to UK police force data, including forces, senior officers, neighbourhoods, neighbourhood teams, events, and priorities. Endpoints are designed for easy chaining: use force and neighbourhood IDs from listing endpoints in detail endpoints.",
+    "title": "UK Police Forces & Neighbourhoods API",
+    "version": "1.1.0",
+    "x-logo": {
+      "url": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBVcGxvYWRlZCB0bzogU1ZHIFJlcG8sIHd3dy5zdmdyZXBvLmNvbSwgR2VuZXJhdG9yOiBTVkcgUmVwbyBNaXhlciBUb29scyAtLT4NCjxzdmcgaGVpZ2h0PSI4MDBweCIgd2lkdGg9IjgwMHB4IiB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiANCgkgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggc3R5bGU9ImZpbGw6IzY2NjY2NjsiIGQ9Ik01MDMuNDA3LDQzMi40MjJjLTEwLjYzNS0wLjgzNi0yMS4zODYtMS4yNjYtMzIuMjMtMS4yNjZjLTc4Ljk5NiwwLTE1Mi43MDksMjIuNTgyLTIxNS4wNjgsNjEuNjI3DQoJYy0zNC43NzMtMjEuNzY5LTczLjA3NS0zOC40My0xMTMuODYyLTQ4Ljg5MWMtMzIuMzQ2LTguMzI1LTY2LjI2LTEyLjczNi0xMDEuMjA2LTEyLjczNmMtMTAuODQ0LDAtMjEuNTgzLDAuNDMtMzIuMjE4LDEuMjY2DQoJYzEyLjE5MS00NS4yOCw1OS4yMTItNTkuMjEyLDU5LjIxMi01OS4yMTJsNC44NTMtMzcuNzU2bDE4LjA3Ny0xNDAuODU1YzUuMzI5LTQxLjUzLDI1LjY4Mi03Ny44NTgsNTUuMTYtMTAzLjgwNw0KCWMyOS40OS0yNS45MzcsNjguMTA2LTQxLjQ5NSwxMDkuOTk1LTQxLjQ5NWM4My43NTYsMCwxNTQuNDc0LDYyLjIzMSwxNjUuMTQ0LDE0NS4zMDJsMjIuOTMsMTc4LjYxMg0KCUM0NDQuMTk1LDM3My4yMSw0OTEuMjE2LDM4Ny4xNDMsNTAzLjQwNyw0MzIuNDIyeiIvPg0KPGc+DQoJPHBhdGggc3R5bGU9ImZpbGw6IzRENEQ0RDsiIGQ9Ik0yNTYuMTEzLDQ5LjI5NmMtNDkuMjg1LDAtOTAuODk3LDYyLjIzMS05Ny4xNzgsMTQ1LjMwMmwtMTMuMDk2LDE5NS4yODQNCgkJYy0yNi4xNDYtNC4wODctNTIuMTE4LTkuNjQ4LTc3Ljc4OS0xNi42NzJoLTAuMDEybDIyLjkzLTE3OC42MTJDMTAxLjYzOSwxMTEuNTI3LDE3Mi4zNTcsNDkuMjk2LDI1Ni4xMTMsNDkuMjk2eiIvPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiM0RDRENEQ7IiBkPSJNMTQyLjM0LDQ0My43NjZsLTAuMDkzLDAuMTI4Yy0zMi4zNDYtOC4zMjUtNjYuMjYtMTIuNzM2LTEwMS4yMDYtMTIuNzM2DQoJCWMtMTAuODQ0LDAtMjEuNTgzLDAuNDMtMzIuMjE4LDEuMjY2YzEyLjE5MS00NS4yOCw1OS4yMTItNTkuMjEyLDU5LjIxMi01OS4yMTJsNC44NTMtMzcuNzU2bDcyLjk0Nyw1NC40MjkNCgkJQzEzMy4wODcsNDEwLjMwNSwxNDIuMzQsNDQzLjc2NiwxNDIuMzQsNDQzLjc2NnoiLz4NCjwvZz4NCjxnPg0KCTxwYXRoIHN0eWxlPSJmaWxsOiNFQUI5NkM7IiBkPSJNMzM3Ljg1Niw3MC43MjlsLTAuMzAyLDAuNTM0Yy0xMi4wMTcsMjUuMDktNDMuOTkxLDQxLjMwOS04MS40NDYsNDEuMzA5DQoJCWMtMzcuNDQzLDAtNjkuNDA2LTE2LjIyLTgxLjQzNC00MS4zMDlsLTAuMzAyLTAuNTM0YzguNDA2LTQuNzQ5LDE3LjI2NC04Ljc3NywyNi40ODMtMTIuMDE3djAuMDEyDQoJCWM2Ljg2MiwxNC4zMjcsMjkuMDAyLDI0LjgyMyw1NS4yNTMsMjQuODIzYzI2LjI2MiwwLDQ4LjQwMy0xMC40OTYsNTUuMjY1LTI0LjgyM3YtMC4wMTINCgkJQzMyMC41OTIsNjEuOTUxLDMyOS40NTEsNjUuOTgsMzM3Ljg1Niw3MC43Mjl6Ii8+DQoJPHBvbHlnb24gc3R5bGU9ImZpbGw6I0VBQjk2QzsiIHBvaW50cz0iMjU2LjExNywxOTQuMjgxIDI3OS42NDYsMjE3LjgxMSAzMTIuOTIxLDIxNy44MTEgMzEyLjkyMSwyNTEuMDg2IDMzNi40NDksMjc0LjYxNCANCgkJMzEyLjkyMSwyOTguMTQzIDMxMi45MjEsMzMxLjQxOCAyNzkuNjQ2LDMzMS40MTggMjU2LjExNywzNTQuOTQ3IDIzMi41ODgsMzMxLjQxOCAxOTkuMzEzLDMzMS40MTggMTk5LjMxMywyOTguMTQzIA0KCQkxNzUuNzg0LDI3NC42MTQgMTk5LjMxMywyNTEuMDg2IDE5OS4zMTMsMjE3LjgxMSAyMzIuNTg4LDIxNy44MTEgCSIvPg0KPC9nPg0KPHBhdGggZD0iTTUxMS43MDEsNDMwLjc4OWMtMTAuODU0LTQwLjMxNC00NS45NTctNTcuODk0LTU5LjY2My02My4zNDJsLTIyLjI1Mi0xNzMuMzI4Yy0zLjUxNy0yNy4zNjEtMTMuNTctNTMuODEtMjkuMDcyLTc2LjQ4OA0KCWMtMTUuMDkzLTIyLjA3OS0zNS4zODktNDAuNzAyLTU4LjY5LTUzLjg1MmMtOC44NjctNS4wMDktMTguMjQ3LTkuMjY1LTI3Ljg3My0xMi42NDhjLTE1LjkzOS01LjYxNi0zMi41MzMtOC44NTktNDkuNDQzLTkuNjg5DQoJVjE4LjU4NWMwLTQuODA5LTMuODk5LTguNzA4LTguNzA4LTguNzA4Yy00LjgwOSwwLTguNzA4LDMuODk5LTguNzA4LDguNzA4djIyLjg1N2MtMTYuOTA1LDAuODMxLTMzLjQ5OSw0LjA3My00OS40MzksOS42ODYNCgljLTkuNjMyLDMuMzg0LTE5LjAxMiw3LjY0MS0yNy44NzMsMTIuNjQ2Yy0xMC41NzEsNS45Ni0yMC41NzEsMTMuMDYyLTI5LjcyNiwyMS4xMTNjLTMuODY3LDMuNDA0LTcuNjI0LDcuMDE3LTExLjE2NywxMC43MzgNCgljLTMuMzE2LDMuNDgzLTMuMTgxLDguOTk0LDAuMzAyLDEyLjMxMmMzLjQ4MiwzLjMxNiw4Ljk5NCwzLjE4MiwxMi4zMTEtMC4zMDJjMy4xOTItMy4zNTIsNi41NzctNi42MDcsMTAuMDU5LTkuNjc0DQoJYzYuMDczLTUuMzQyLDEyLjU2My0xMC4yMTUsMTkuMzY3LTE0LjU2MmMxNS43NzQsMjMuNjQ1LDQ3Ljk3NiwzOC41MTEsODQuODY2LDM4LjUxMWMzNi45MDIsMCw2OS4xMDYtMTQuODYyLDg0Ljg3NC0zOC41MDMNCgljMzkuMTM5LDI1LjA0OCw2NS42OTgsNjYuNjU4LDcxLjY0NCwxMTIuOTNsMjEuOTYxLDE3MS4wNTdjLTE1Ljk3Niw0LjE4NC0zMi4yMjIsNy44MzgtNDguNDAyLDEwLjg4DQoJYy00LjcyNywwLjg4OS03LjgzNyw1LjQ0MS02Ljk0OSwxMC4xNjdjMC43ODYsNC4xODMsNC40NDIsNy4xMDEsOC41NDksNy4xMDFjMC41MzMsMCwxLjA3NS0wLjA0OSwxLjYxOC0wLjE1MQ0KCWMxOC4yMzMtMy40MjcsMzYuNTQ2LTcuNjIsNTQuNDgzLTEyLjQ1M2M3LjcwMywyLjg0MSwzNC4wOSwxNC4yMiw0Ni43NDUsNDAuNTk1Yy02LjQ5MS0wLjMwMS0xMi45OTgtMC40NTMtMTkuNDU1LTAuNDUzDQoJYy03Ni4xMjgsMC0xNTAuMzY1LDIwLjc2NC0yMTUuMDY3LDYwLjEwM2MtNjQuNjkxLTM5LjMzOS0xMzguOTI4LTYwLjEwMy0yMTUuMDY5LTYwLjEwM2MtNi40NDcsMC0xMi45NDQsMC4xNTEtMTkuNDI5LDAuNDUyDQoJYzEyLjY1Ni0yNi4yNDQsMzkuMTAyLTM3LjczNiw0Ni43NjMtNDAuNTk1YzYxLjYxMiwxNi42MTEsMTI0LjI2MywyNC45NTQsMTg3LjI1MywyNC45NTRjMzUuNTE3LDAsNzEuMTQxLTIuNjQ3LDEwNi43NDYtNy45NQ0KCWM0Ljc1Ny0wLjcwOCw4LjAzOS01LjEzOSw3LjMzMS05Ljg5NGMtMC43MDgtNC43NTctNS4xNC04LjA0Ny05Ljg5NS03LjMzYy05NC43NTEsMTQuMTA4LTE4OS42MzksOC45NDMtMjgyLjE2Ny0xNS4zMjgNCglsMjEuOTYtMTcxLjA1M2MzLjIyMy0yNS4xMjIsMTIuNTUyLTQ5LjM0MiwyNi45NzYtNzAuMDQ1YzIuNzQ5LTMuOTQ1LDEuNzgtOS4zNzMtMi4xNjYtMTIuMTIyDQoJYy0zLjk0NS0yLjc1Mi05LjM3NC0xLjc4MS0xMi4xMjIsMi4xNjZjLTE2LjAyMiwyMi45OTQtMjYuMzgzLDQ5Ljg5Mi0yOS45NjEsNzcuNzg0TDU5Ljk2MiwzNjcuNDQ3DQoJYy0xMy43MDYsNS40NDgtNDguODA4LDIzLjAyOC01OS42NjMsNjMuMzQyYy0wLjczNSwyLjczMi0wLjA5OCw1LjY1MSwxLjcxLDcuODI4YzEuODA5LDIuMTc3LDQuNTYzLDMuMzMyLDcuMzgxLDMuMTE3DQoJYzEwLjQ1My0wLjgyMiwyMS4wNjMtMS4yMzksMzEuNTM2LTEuMjM5Yzc0LjY4NSwwLDE0Ny40NTcsMjAuODUxLDIxMC40NDYsNjAuM2MxLjQxNCwwLjg4NSwzLjAxOCwxLjMyOCw0LjYyMiwxLjMyOA0KCWMxLjYwMywwLDMuMjA4LTAuNDQyLDQuNjIxLTEuMzI4YzYzLjAwMi0zOS40NDgsMTM1Ljc3Mi02MC4zLDIxMC40NDYtNjAuM2MxMC40ODEsMCwyMS4wOTUsMC40MTcsMzEuNTQ3LDEuMjM5DQoJYzIuODEyLDAuMjEyLDUuNTczLTAuOTQyLDcuMzgxLTMuMTE3QzUxMS43OTksNDM2LjQ0LDUxMi40MzYsNDMzLjUyMSw1MTEuNzAxLDQzMC43ODl6IE0yNTUuOTM2LDU4LjYzNA0KCWMwLjAyMiwwLDAuMDQzLDAuMDAzLDAuMDY0LDAuMDAzYzAuMDIyLDAsMC4wNDQtMC4wMDMsMC4wNjYtMC4wMDNjMTMuNjcsMC4wMDUsMjcuMTQ4LDEuNzU4LDQwLjIyNiw1LjIxMg0KCWMtOC4zNjQsNi41MTctMjIuNTI0LDExLjYyMy00MC4yOTgsMTEuNjIzYy0xNy43NjcsMC0zMS45MjItNS4xMDUtNDAuMjg1LTExLjYyMkMyMjguNzg5LDYwLjM5NCwyNDIuMjY5LDU4LjY0MSwyNTUuOTM2LDU4LjYzNHoNCgkgTTI1NS45OTQsMTA0LjQ5NWMtMzAuNTIyLDAtNTYuODQ4LTExLjQzNi02OS42MzgtMjkuNjdjMy41NTctMS43NTIsNy4xODMtMy4zNzksMTAuODY3LTQuODU3DQoJYzExLjA5OCwxMy45NTMsMzMuNDg1LDIyLjkxNiw1OC43NzEsMjIuOTE2YzI1LjI5MiwwLDQ3LjY4My04Ljk2NCw1OC43ODItMjIuOTE2YzMuNjg0LDEuNDc5LDcuMzExLDMuMTA2LDEwLjg3LDQuODU5DQoJQzMxMi44NjMsOTMuMDU5LDI4Ni41MzIsMTA0LjQ5NSwyNTUuOTk0LDEwNC40OTV6Ii8+DQo8cGF0aCBkPSJNMzEyLjgwNSwyMDkuNzMyaC0yOS42NjhsLTIwLjk3OS0yMC45NzljLTMuMzk5LTMuNDAxLTguOTEzLTMuNDAxLTEyLjMxNCwwbC0yMC45NzksMjAuOTc5aC0yOS42NjgNCgljLTQuODA5LDAtOC43MDgsMy44OTktOC43MDgsOC43MDh2MjkuNjY5bC0yMC45NzksMjAuOTc5Yy0zLjQwMSwzLjQwMS0zLjQwMSw4LjkxNCwwLDEyLjMxNGwyMC45NzksMjAuOTc5djI5LjY2OA0KCWMwLDQuODA5LDMuODk5LDguNzA4LDguNzA4LDguNzA4aDI5LjY2OGwyMC45NzksMjAuOTc5YzEuNywxLjcsMy45MjksMi41NTEsNi4xNTcsMi41NTFjMi4yMjgsMCw0LjQ1Ny0wLjg1LDYuMTU3LTIuNTUxDQoJbDIwLjk3OS0yMC45NzloMjkuNjY4YzQuODA5LDAsOC43MDgtMy44OTksOC43MDgtOC43MDhWMzAyLjM4bDIwLjk3OS0yMC45NzljMy40MDEtMy40MDEsMy40MDEtOC45MTQsMC0xMi4zMTRsLTIwLjk3OS0yMC45NzkNCglWMjE4LjQ0QzMyMS41MTMsMjEzLjYzMSwzMTcuNjE1LDIwOS43MzIsMzEyLjgwNSwyMDkuNzMyeiBNMzI0LjAyMSwyNzUuMjQ0bC0xNy4zNzEsMTcuMzcxYy0xLjYzNCwxLjYzMi0yLjU1MSwzLjg0OC0yLjU1MSw2LjE1Nw0KCXYyNC41NjdoLTI0LjU2N2MtMi4zMDksMC00LjUyNSwwLjkxNy02LjE1NywyLjU1MWwtMTcuMzcxLDE3LjM3MWwtMTcuMzcyLTE3LjM3MWMtMS42MzQtMS42MzQtMy44NDgtMi41NTEtNi4xNTctMi41NTFoLTI0LjU2Nw0KCXYtMjQuNTY3YzAtMi4zMDktMC45MTctNC41MjUtMi41NTEtNi4xNTdsLTE3LjM3MS0xNy4zNzFsMTcuMzcxLTE3LjM3MWMxLjYzNC0xLjYzMiwyLjU1MS0zLjg0OCwyLjU1MS02LjE1N3YtMjQuNTY3aDI0LjU2Nw0KCWMyLjMwOSwwLDQuNTIzLTAuOTE3LDYuMTU3LTIuNTUxbDE3LjM3Mi0xNy4zNzFsMTcuMzcxLDE3LjM3MWMxLjYzMiwxLjYzNCwzLjg0OCwyLjU1MSw2LjE1NywyLjU1MWgyNC41Njd2MjQuNTY3DQoJYzAsMi4zMDksMC45MTcsNC41MjUsMi41NTEsNi4xNTdMMzI0LjAyMSwyNzUuMjQ0eiIvPg0KPHBhdGggZD0iTTI1Ni4wMDIsMjM1LjA2MWMtMjIuMTU2LDAtNDAuMTgyLDE4LjAyNi00MC4xODIsNDAuMTgyczE4LjAyNiw0MC4xODIsNDAuMTgyLDQwLjE4MnM0MC4xODItMTguMDI1LDQwLjE4Mi00MC4xODINCglDMjk2LjE4NCwyNTMuMDg2LDI3OC4xNTksMjM1LjA2MSwyNTYuMDAyLDIzNS4wNjF6IE0yNTYuMDAyLDI5OC4wMTFjLTEyLjU1NCwwLTIyLjc2Ny0xMC4yMTItMjIuNzY3LTIyLjc2Nw0KCXMxMC4yMTQtMjIuNzY3LDIyLjc2Ny0yMi43NjdjMTIuNTUzLDAsMjIuNzY3LDEwLjIxNCwyMi43NjcsMjIuNzY3QzI3OC43NjgsMjg3Ljc5NywyNjguNTU2LDI5OC4wMTEsMjU2LjAwMiwyOTguMDExeiIvPg0KPC9zdmc+"
+    },
+    "x-bionic-slug": "ukpolice"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/api/forces": {
+      "get": {
+        "description": "Returns a list of all UK police forces. Each force object contains the force's name and unique identifier (id). Use this endpoint to discover available force IDs, which are required for retrieving force details, senior officers, or neighbourhood data.",
+        "operationId": "getForces",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Force"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "A list of all UK police forces, each with its name and unique identifier (id). Use the 'id' value to call other endpoints that require a force ID."
+          }
+        },
+        "summary": "List all UK police forces"
+      }
+    },
+    "/api/forces/{id}": {
+      "get": {
+        "description": "Retrieves detailed information for a single UK police force, specified by its unique identifier (id). The response includes the force's name, description, website URL, telephone, and engagement methods. To obtain a valid force ID, call the 'List all UK police forces' endpoint first.",
+        "operationId": "getPoliceForceDetails",
+        "parameters": [
+          {
+            "description": "The unique identifier for the police force (e.g. 'leicestershire'). Obtain this value from the 'List all UK police forces' endpoint.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoliceForceDetails"
+                }
+              }
+            },
+            "description": "Detailed information about the specified UK police force, including description, website, telephone, and engagement methods."
+          }
+        },
+        "summary": "Get details of a UK police force"
+      }
+    },
+    "/api/forces/{id}/people": {
+      "get": {
+        "description": "Returns a list of senior officers for a specific UK police force, identified by its unique id. Each officer object includes rank, name, and contact details. To obtain a valid force ID, first call the 'List all UK police forces' endpoint.",
+        "operationId": "getSeniorOfficers",
+        "parameters": [
+          {
+            "description": "The unique identifier for the police force (e.g. 'leicestershire'). Obtain this value from the 'List all UK police forces' endpoint.",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SeniorOfficer"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "A list of senior officers for the specified police force, including their names, ranks, and contact details."
+          }
+        },
+        "summary": "List senior officers for a UK police force"
+      }
+    },
+    "/api/{force}/neighbourhoods": {
+      "get": {
+        "description": "Returns a list of all neighbourhood policing areas for a specific police force, identified by the force's unique id. Each neighbourhood object contains its name and unique identifier (neighbourhood_id). Use this endpoint to discover neighbourhood IDs for use in other endpoints. To obtain a valid force ID, call the 'List all UK police forces' endpoint first.",
+        "operationId": "getNeighbourhoods",
+        "parameters": [
+          {
+            "description": "The unique identifier for the police force (e.g. 'leicestershire'). Obtain this value from the 'List all UK police forces' endpoint.",
+            "in": "path",
+            "name": "force",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Neighbourhood"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "A list of neighbourhoods for the specified police force, each with its name and unique neighbourhood ID. Use the 'neighbourhood_id' value to call other endpoints that require a neighbourhood ID."
+          }
+        },
+        "summary": "List neighbourhoods for a police force"
+      }
+    },
+    "/api/{force}/{neighbourhood_id}": {
+      "get": {
+        "description": "Retrieves detailed information about a specific neighbourhood policing area, identified by the police force ID and neighbourhood ID. The response includes the neighbourhood's name, description, location, and contact details. To obtain valid IDs, first call 'List all UK police forces', then 'List neighbourhoods for a police force'.",
+        "operationId": "getNeighbourhoodDetails",
+        "parameters": [
+          {
+            "description": "The unique identifier for the police force (e.g. 'leicestershire').",
+            "in": "path",
+            "name": "force",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The unique identifier for the neighbourhood. Obtain this value from the 'List neighbourhoods for a police force' endpoint.",
+            "in": "path",
+            "name": "neighbourhood_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighbourhoodDetails"
+                }
+              }
+            },
+            "description": "Detailed information about the specified neighbourhood, including name, description, location, and contact details."
+          }
+        },
+        "summary": "Get details of a neighbourhood"
+      }
+    },
+    "/api/{force}/{neighbourhood_id}/events": {
+      "get": {
+        "description": "Returns a list of upcoming public events and meetings for a specific neighbourhood policing team, identified by police force ID and neighbourhood ID. Each event includes title, description, date, and location. To obtain valid IDs, first call 'List all UK police forces', then 'List neighbourhoods for a police force'.",
+        "operationId": "getNeighbourhoodEvents",
+        "parameters": [
+          {
+            "description": "The unique identifier for the police force (e.g. 'leicestershire').",
+            "in": "path",
+            "name": "force",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The unique identifier for the neighbourhood. Obtain this value from the 'List neighbourhoods for a police force' endpoint.",
+            "in": "path",
+            "name": "neighbourhood_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighbourhoodEvent"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "A list of upcoming events for the specified neighbourhood policing team, including title, description, date, and location."
+          }
+        },
+        "summary": "List upcoming neighbourhood policing events"
+      }
+    },
+    "/api/{force}/{neighbourhood_id}/people": {
+      "get": {
+        "description": "Returns a list of police officers and staff assigned to a specific neighbourhood policing team, identified by police force ID and neighbourhood ID. Each team member includes name, rank, and contact details. To obtain valid IDs, call 'List all UK police forces', then 'List neighbourhoods for a police force'.",
+        "operationId": "getNeighbourhoodTeam",
+        "parameters": [
+          {
+            "description": "The unique identifier for the police force (e.g. 'leicestershire').",
+            "in": "path",
+            "name": "force",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The unique identifier for the neighbourhood. Obtain this value from the 'List neighbourhoods for a police force' endpoint.",
+            "in": "path",
+            "name": "neighbourhood_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighbourhoodTeamMember"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "A list of police officers and staff for the specified neighbourhood policing team, including names, ranks, and contact details."
+          }
+        },
+        "summary": "List neighbourhood policing team members"
+      }
+    },
+    "/api/{force}/{neighbourhood_id}/priorities": {
+      "get": {
+        "description": "Returns a list of current policing priorities for a specific neighbourhood, identified by police force ID and neighbourhood ID. Each priority includes a title, issue, and action taken. To obtain valid IDs, first call 'List all UK police forces', then 'List neighbourhoods for a police force'.",
+        "operationId": "getNeighbourhoodPriorities",
+        "parameters": [
+          {
+            "description": "The unique identifier for the police force (e.g. 'leicestershire').",
+            "in": "path",
+            "name": "force",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The unique identifier for the neighbourhood. Obtain this value from the 'List neighbourhoods for a police force' endpoint.",
+            "in": "path",
+            "name": "neighbourhood_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NeighbourhoodPriority"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "A list of current policing priorities for the specified neighbourhood, including title, issue, and action taken."
+          }
+        },
+        "summary": "List policing priorities for a neighbourhood"
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "Production server",
+      "url": "https://data.police.uk"
+    }
+  ]
+}
