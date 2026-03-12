@@ -1,5 +1,5 @@
 use db::Pool;
-use rand::Rng;
+use rand::RngExt;
 use std::env;
 use std::panic::AssertUnwindSafe;
 use std::pin::Pin;

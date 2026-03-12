@@ -14,7 +14,10 @@
 
 	// Gives access to the ssh keys on the host for git operations.
 	"mounts": [
-		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+		// Codex stores auth + config in ~/.codex.
+		// Without this volume every container rebuild logs you out.
+		"source=codex-config,target=/home/vscode/.codex,type=volume"
 	],
 
 	"features": {

@@ -4,7 +4,7 @@ use axum::{extract::Extension, Router};
 use axum_extra::{extract::Form, routing::RouterExt};
 use db::{authz, queries, Pool};
 use rand::distr::Alphanumeric;
-use rand::{rng, Rng};
+use rand::{rng, RngExt};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::mcp_api_keys::{GeneratedKey, NewKeyForm};

@@ -17,7 +17,7 @@ use validator::Validate;
 use web_pages::routes::document_pipelines::Delete;
 use web_pages::routes::document_pipelines::New;
 
-use rand::{distr::Alphanumeric, rng, Rng};
+use rand::{distr::Alphanumeric, rng, RngExt};
 
 pub fn routes() -> Router {
     Router::new()

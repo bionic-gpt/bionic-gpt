@@ -5,7 +5,7 @@ use axum_extra::extract::Form;
 use db::authz;
 use db::{queries, Pool};
 use rand::distr::Alphanumeric;
-use rand::{rng, Rng};
+use rand::{rng, RngExt};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::api_keys::page::GeneratedKey;

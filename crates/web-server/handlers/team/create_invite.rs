@@ -10,7 +10,7 @@ use db::queries;
 use db::types;
 use db::Pool;
 use lettre::Message;
-use rand::Rng;
+use rand::RngExt;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use validator::Validate;
