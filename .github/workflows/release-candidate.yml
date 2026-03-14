@@ -24,7 +24,7 @@ jobs:
       tag: ${{ steps.release_tag.outputs.tag }}
       version: ${{ steps.release_tag.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref || 'main' }}
