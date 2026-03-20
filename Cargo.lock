@@ -1097,9 +1097,9 @@ dependencies = [
 
 [[package]]
 name = "dagger-sdk"
-version = "0.19.10"
+version = "0.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66dd492d27a04e2dba1aec9d48ada4956d0f782114d1cef769924211979d6bbd"
+checksum = "a5c6556e786a750ca94de6b018ac8392cebf1311e2c6f0203ec2aec682e2968e"
 dependencies = [
  "async-trait",
  "base64 0.21.7",

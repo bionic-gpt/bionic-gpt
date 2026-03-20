@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-dagger-sdk = "0.19"
+dagger-sdk = "0.20"
 eyre = "0.6"
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
