@@ -96,8 +96,12 @@ impl ToolDyn for ListDatasetFilesTool {
         get_tool_definition().name
     }
 
-    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
-        Box::pin(async move { get_tool_definition() })
+    fn description(&self) -> String {
+        get_tool_definition().description
+    }
+
+    fn parameters(&self) -> Value {
+        get_tool_definition().parameters
     }
 
     fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {

@@ -112,8 +112,12 @@ impl ToolDyn for WebTool {
         get_open_url_tool().name
     }
 
-    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
-        Box::pin(async move { get_open_url_tool() })
+    fn description(&self) -> String {
+        get_open_url_tool().description
+    }
+
+    fn parameters(&self) -> Value {
+        get_open_url_tool().parameters
     }
 
     fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {

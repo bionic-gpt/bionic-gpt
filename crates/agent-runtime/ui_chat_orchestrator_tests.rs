@@ -50,6 +50,8 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     let tool_calls = vec![ToolCall {
         id: "call_1".to_string(),
         call_id: None,
+        signature: None,
+        additional_params: None,
         function: ToolCallFunction {
             name: "do_thing".to_string(),
             arguments: json!({}),

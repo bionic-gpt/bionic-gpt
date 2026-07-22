@@ -228,17 +228,19 @@ async fn get_embeddings_via_rig(
         .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
 
     let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
-        let client = openai::Client::builder(key)
+        let client = openai::Client::builder()
+            .api_key(key)
             .base_url(&normalized_base_url)
-            .build();
+            .build()?;
         client
             .embedding_model(model)
             .embed_text(&trimmed_text)
             .await?
     } else {
         let client = ollama::Client::builder()
+            .api_key("")
             .base_url(&normalized_base_url)
-            .build();
+            .build()?;
         client
             .embedding_model(model)
             .embed_text(&trimmed_text)

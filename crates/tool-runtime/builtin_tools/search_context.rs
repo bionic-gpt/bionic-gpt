@@ -6,7 +6,7 @@ use rig::providers::{ollama, openai};
 use rig::tool::{ToolDyn, ToolError};
 use rig::wasm_compat::WasmBoxedFuture;
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, Value};
 
 #[derive(Debug, Deserialize)]
 struct SearchContextParams {
@@ -84,9 +84,11 @@ async fn get_embeddings_via_rig(
         .unwrap_or_else(|| api_end_point.trim_end_matches('/').to_string());
 
     let embedding = if let Some(key) = api_key.filter(|k| !k.trim().is_empty()) {
-        let client = openai::Client::builder(key)
+        let client = openai::Client::builder()
+            .api_key(key)
             .base_url(&normalized_base_url)
-            .build();
+            .build()
+            .map_err(|e| e.to_string())?;
         client
             .embedding_model(model)
             .embed_text(&trimmed_text)
@@ -94,8 +96,10 @@ async fn get_embeddings_via_rig(
             .map_err(|e| e.to_string())?
     } else {
         let client = ollama::Client::builder()
+            .api_key("")
             .base_url(&normalized_base_url)
-            .build();
+            .build()
+            .map_err(|e| e.to_string())?;
         client
             .embedding_model(model)
             .embed_text(&trimmed_text)
@@ -219,8 +223,12 @@ impl ToolDyn for SearchContextTool {
         get_tool_definition().name
     }
 
-    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
-        Box::pin(async move { get_tool_definition() })
+    fn description(&self) -> String {
+        get_tool_definition().description
+    }
+
+    fn parameters(&self) -> Value {
+        get_tool_definition().parameters
     }
 
     fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {

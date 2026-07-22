@@ -99,8 +99,18 @@ pub(crate) async fn create_request(
             all_tools.extend(integration_tools);
         }
 
-        Some(dedupe_tools_by_name(all_tools))
-            .filter(|tool_defs: &Vec<ToolDefinition>| !tool_defs.is_empty())
+        let tools = dedupe_tools_by_name(all_tools);
+        tracing::debug!(
+            "Sending {} tool definitions to model {}: {:?}",
+            tools.len(),
+            model.name,
+            tools
+                .iter()
+                .map(|tool| tool.name.as_str())
+                .collect::<Vec<_>>()
+        );
+
+        Some(tools).filter(|tool_defs: &Vec<ToolDefinition>| !tool_defs.is_empty())
     } else {
         None
     };
@@ -156,6 +166,7 @@ pub(crate) async fn create_request(
     transaction.commit().await?;
 
     let completion = CompletionRequest {
+        model: None,
         preamble: None,
         chat_history: OneOrMany::many(messages)
             .unwrap_or_else(|_| OneOrMany::one(RigMessage::user(""))),
@@ -165,6 +176,7 @@ pub(crate) async fn create_request(
         max_tokens: prompt.max_completion_tokens.map(|t| t as u64),
         tool_choice: None,
         additional_params: None,
+        output_schema: None,
     };
 
     Ok(RigChatRequest {

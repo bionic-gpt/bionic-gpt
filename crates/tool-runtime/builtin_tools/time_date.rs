@@ -12,8 +12,12 @@ impl ToolDyn for TimeDateTool {
         get_time_date_tool().name
     }
 
-    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
-        Box::pin(async move { get_time_date_tool() })
+    fn description(&self) -> String {
+        get_time_date_tool().description
+    }
+
+    fn parameters(&self) -> Value {
+        get_time_date_tool().parameters
     }
 
     fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {

@@ -103,6 +103,7 @@ fn text_content(msg: &Message) -> Option<&str> {
             AssistantContent::Text(text) => Some(text.text.as_str()),
             _ => None,
         }),
+        Message::System { .. } => None,
     }
 }
 
@@ -315,6 +316,8 @@ fn test_strip_tool_data_removes_tool_messages() {
             content: OneOrMany::many(vec![AssistantContent::ToolCall(rig::message::ToolCall {
                 id: "call1".to_string(),
                 call_id: None,
+                signature: None,
+                additional_params: None,
                 function: rig::message::ToolFunction {
                     name: "do_it".to_string(),
                     arguments: serde_json::json!({}),

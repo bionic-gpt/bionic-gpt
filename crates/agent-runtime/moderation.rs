@@ -26,6 +26,7 @@ pub fn strip_tool_data(messages: &[Message]) -> Vec<Message> {
                     })
                 }
             }
+            Message::System { content } => Some(Message::System { content }),
             Message::Assistant { id, content } => {
                 let kept: Vec<AssistantContent> = content
                     .into_iter()
@@ -96,9 +97,11 @@ pub async fn moderate_chat(
         .and_then(|c| match &c.message {
             Message::Assistant { content, .. } => content.iter().find_map(|item| match item {
                 AssistantContent::Text(text) => Some(text.text.clone()),
-                AssistantContent::ToolCall(_) | AssistantContent::Reasoning(_) => None,
+                AssistantContent::ToolCall(_)
+                | AssistantContent::Reasoning(_)
+                | AssistantContent::Image(_) => None,
             }),
-            Message::User { .. } => None,
+            Message::System { .. } | Message::User { .. } => None,
         })
         .unwrap_or_default();
 

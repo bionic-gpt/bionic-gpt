@@ -240,6 +240,8 @@ mod tests {
         let tool_call = ToolCall {
             id: "call_123".to_string(),
             call_id: None,
+            signature: None,
+            additional_params: None,
             function: ToolCallFunction {
                 name: "get_current_time_and_date".to_string(),
                 arguments: json!({"timezone": "utc"}),

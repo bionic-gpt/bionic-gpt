@@ -8,7 +8,7 @@ path = "lib.rs"
 
 [dependencies]
 rag-engine = { path = "../rag-engine" }
-rig-core = { version = "0.24", default-features = false, features = ["reqwest-rustls"] }
+rig = { package = "rig-core", version = "0.40", default-features = false, features = ["reqwest", "rustls"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 tiktoken-rs = "0.9.1"
