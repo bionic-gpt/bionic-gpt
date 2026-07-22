@@ -1,3 +1,4 @@
+pub mod html_canvas;
 pub mod list_dataset_files;
 pub mod list_datasets;
 pub mod list_documents;

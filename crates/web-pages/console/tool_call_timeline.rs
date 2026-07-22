@@ -3,8 +3,18 @@
 use assets::files::*;
 use daisy_rsx::*;
 use dioxus::prelude::*;
+use serde::Deserialize;
 use serde_json::Value;
 use tool_runtime::ToolCall;
+
+#[derive(Debug, Deserialize)]
+struct HtmlCanvasPayload {
+    #[serde(rename = "type")]
+    artifact_type: String,
+    version: u32,
+    title: Option<String>,
+    html: String,
+}
 
 fn format_json_string(raw: &str) -> String {
     if let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) {
@@ -25,6 +35,18 @@ fn display_tool_name(tool_call_id: &Option<String>, tool_call: Option<&ToolCall>
         }
     }
     format!("Tool Call {}", tool_call_id.as_deref().unwrap_or("Unknown"))
+}
+
+fn parse_html_canvas(raw: Option<&str>) -> Option<HtmlCanvasPayload> {
+    let payload = serde_json::from_str::<HtmlCanvasPayload>(raw?).ok()?;
+    if payload.artifact_type == "html_canvas"
+        && payload.version == 1
+        && !payload.html.trim().is_empty()
+    {
+        Some(payload)
+    } else {
+        None
+    }
 }
 
 #[component]
@@ -49,6 +71,7 @@ pub fn ToolCallTimeline(
         .as_ref()
         .map(|body| format_json_string(body))
         .filter(|body| !body.trim().is_empty());
+    let html_canvas = parse_html_canvas(response.as_deref());
 
     rsx! {
         TimeLine {
@@ -57,29 +80,49 @@ pub fn ToolCallTimeline(
             }
             TimeLineBody {
                 div {
-                    class: "flex items-center gap-2",
-                    Badge {
-                        badge_style: BadgeStyle::Outline,
-                        badge_size: BadgeSize::Sm,
-                        "Tool Call:"
-                        strong {
-                            class: "ml-2",
-                            "{display_name}"
+                    class: "space-y-3",
+                    div {
+                        class: "flex items-center gap-2",
+                        Badge {
+                            badge_style: BadgeStyle::Outline,
+                            badge_size: BadgeSize::Sm,
+                            "Tool Call:"
+                            strong {
+                                class: "ml-2",
+                                "{display_name}"
+                            }
+                        }
+                        Button {
+                            class: "btn-xs",
+                            button_style: ButtonStyle::Outline,
+                            button_shape: ButtonShape::Circle,
+                            popover_target: trigger_id.clone(),
+                            button_scheme: ButtonScheme::Neutral,
+                            img {
+                                class: "svg-icon",
+                                src: button_plus_svg.name
+                            }
+                            span {
+                                class: "sr-only",
+                                "View tool call details"
+                            }
                         }
                     }
-                    Button {
-                        class: "btn-xs",
-                        button_style: ButtonStyle::Outline,
-                        button_shape: ButtonShape::Circle,
-                        popover_target: trigger_id.clone(),
-                        button_scheme: ButtonScheme::Neutral,
-                        img {
-                            class: "svg-icon",
-                            src: button_plus_svg.name
-                        }
-                        span {
-                            class: "sr-only",
-                            "View tool call details"
+                    if let Some(canvas) = html_canvas.as_ref() {
+                        div {
+                            class: "border border-base-300 bg-base-100 rounded-lg overflow-hidden",
+                            if let Some(title) = canvas.title.as_ref() {
+                                div {
+                                    class: "px-3 py-2 border-b border-base-300 text-sm font-semibold",
+                                    "{title}"
+                                }
+                            }
+                            iframe {
+                                class: "w-full h-96 bg-white",
+                                title: canvas.title.as_deref().unwrap_or("HTML canvas"),
+                                "sandbox": "",
+                                srcdoc: "{canvas.html}"
+                            }
                         }
                     }
                 }
@@ -157,5 +200,32 @@ pub fn ToolCallTimeline(
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_html_canvas() {
+        let payload =
+            r#"{"type":"html_canvas","version":1,"title":"Preview","html":"<h1>Hello</h1>"}"#;
+        let canvas = parse_html_canvas(Some(payload)).expect("expected html canvas");
+
+        assert_eq!(canvas.title.as_deref(), Some("Preview"));
+        assert_eq!(canvas.html, "<h1>Hello</h1>");
+    }
+
+    #[test]
+    fn test_parse_html_canvas_rejects_normal_json() {
+        assert!(parse_html_canvas(Some(r#"{"result":"ok"}"#)).is_none());
+    }
+
+    #[test]
+    fn test_parse_html_canvas_rejects_empty_html() {
+        assert!(
+            parse_html_canvas(Some(r#"{"type":"html_canvas","version":1,"html":"   "}"#)).is_none()
+        );
     }
 }

@@ -56,6 +56,11 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
             vec![builtin_tools::monty::get_tool_definition()],
         ),
         integration_tool(
+            "HTML canvas tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::html_canvas::get_tool_definition()],
+        ),
+        integration_tool(
             "Tools to retrieve documents and read their contents.",
             ToolScope::DocumentIntelligence,
             vec![
@@ -128,6 +133,7 @@ mod tests {
         assert!(names.contains(&"get_current_time_and_date"));
         assert!(names.contains(&"open_url"));
         assert!(names.contains(&"run_python"));
+        assert!(names.contains(&"render_html"));
     }
 
     #[test]

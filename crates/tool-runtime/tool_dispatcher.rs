@@ -111,6 +111,7 @@ pub async fn get_tools(
         Arc::new(builtin_tools::time_date::TimeDateTool),
         Arc::new(builtin_tools::web::WebTool),
         Arc::new(builtin_tools::monty::MontyTool),
+        Arc::new(builtin_tools::html_canvas::HtmlCanvasTool),
     ];
 
     debug!("Adding attachment tools with database pool");
