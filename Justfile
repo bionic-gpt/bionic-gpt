@@ -22,6 +22,8 @@ ci:
     cargo run --bin dagger-pipeline -- pull-request
 
 codex: 
+    sudo apt update && sudo apt install bubblewrap
+    sudo chown -R vscode:vscode /home/vscode/.codex
     sudo npm install -g @openai/codex
 
 # Retrieve the cluster kube config - so kubectl and k9s work.
