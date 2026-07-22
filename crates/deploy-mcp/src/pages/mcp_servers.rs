@@ -101,7 +101,7 @@ pub fn load_integration_specs() -> Vec<IntegrationSpec> {
         });
     }
 
-    specs.sort_by(|a, b| a.title.to_lowercase().cmp(&b.title.to_lowercase()));
+    specs.sort_by_key(|spec| spec.title.to_lowercase());
     specs
 }
 

@@ -110,6 +110,7 @@ pub async fn get_tools(
     let mut tools: Vec<Arc<dyn ToolDyn>> = vec![
         Arc::new(builtin_tools::time_date::TimeDateTool),
         Arc::new(builtin_tools::web::WebTool),
+        Arc::new(builtin_tools::monty::MontyTool),
     ];
 
     debug!("Adding attachment tools with database pool");
@@ -144,7 +145,7 @@ pub async fn get_tools(
         ),
     ));
 
-    // Get system OpenAPI tools (Web Search / Code Sandbox)
+    // Get system OpenAPI tools (Web Search)
     match get_system_openapi_tools(pool).await {
         Ok(system_tools) => merge_tools_by_name(&mut tools, system_tools),
         Err(err) => {

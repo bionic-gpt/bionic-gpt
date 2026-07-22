@@ -27,4 +27,4 @@ rig-core = { version = "0.24", default-features = false, features = ["reqwest-ru
 base64.workspace = true
 
 [dev-dependencies]
-time.workspace = true
+chrono.workspace = true

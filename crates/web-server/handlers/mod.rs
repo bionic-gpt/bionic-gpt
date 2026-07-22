@@ -4,7 +4,6 @@ pub mod assistants;
 pub mod audit_trail;
 pub mod automations;
 pub mod categories;
-pub mod code_sandbox;
 pub mod console;
 pub mod datasets;
 pub mod documents;

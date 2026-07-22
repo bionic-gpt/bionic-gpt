@@ -219,9 +219,9 @@ pub async fn oauth2_callback(
     tracing::debug!("OAuth2 token retrieved");
 
     let refresh_token = token.refresh_token().map(|t| t.secret().to_string());
-    let expires_at = token
-        .expires_in()
-        .map(|dur| time::OffsetDateTime::now_utc() + time::Duration::seconds(dur.as_secs() as i64));
+    let expires_at = token.expires_in().map(|dur| {
+        chrono::Utc::now().fixed_offset() + chrono::Duration::seconds(dur.as_secs() as i64)
+    });
 
     queries::connections::insert_oauth2_connection()
         .bind(

@@ -20,7 +20,7 @@ async fn single_user(driver: &WebDriver, config: &common::Config) -> WebDriverRe
     driver.set_implicit_wait_timeout(delay).await?;
 
     driver
-        .goto(format!("{}/auth/sign_up", &config.application_url))
+        .goto(format!("{}/auth/sign_up", config.application_url))
         .await?;
 
     println!("Testing : register_user");

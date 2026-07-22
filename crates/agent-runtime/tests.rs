@@ -1,10 +1,14 @@
+use chrono::DateTime;
 use db::{Chat, ChatRole, ChatStatus};
 use rig::message::{AssistantContent, Message, UserContent};
 use rig::OneOrMany;
-use time::OffsetDateTime;
 
 use crate::context_builder::{convert_chat_to_messages, generate_prompt};
 use crate::moderation::strip_tool_data;
+
+fn epoch() -> DateTime<chrono::FixedOffset> {
+    DateTime::UNIX_EPOCH.fixed_offset()
+}
 
 #[tokio::test]
 async fn test_convert_chat_to_messages_tool_calling_fallback() {
@@ -19,8 +23,8 @@ async fn test_convert_chat_to_messages_tool_calling_fallback() {
         model_name: "gpt-4".to_string(),
         attachments: None,
         status: ChatStatus::Pending,
-        created_at: OffsetDateTime::UNIX_EPOCH,
-        updated_at: OffsetDateTime::UNIX_EPOCH,
+        created_at: epoch(),
+        updated_at: epoch(),
     };
 
     let messages = convert_chat_to_messages(vec![chat]);
@@ -64,8 +68,8 @@ fn create_test_chat(
         model_name: "gpt-4".to_string(),
         attachments: None,
         status: ChatStatus::Success,
-        created_at: OffsetDateTime::UNIX_EPOCH,
-        updated_at: OffsetDateTime::UNIX_EPOCH,
+        created_at: epoch(),
+        updated_at: epoch(),
     }
 }
 

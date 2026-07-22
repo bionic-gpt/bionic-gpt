@@ -198,10 +198,6 @@ pub mod console {
     pub struct SetPrompt {}
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/set_tools")]
-    pub struct SetTools {}
-
-    #[derive(TypedPath, Deserialize)]
     #[typed_path("/o/{team_id}/console/{conversation_id}")]
     pub struct Conversation {
         pub team_id: String,
@@ -859,38 +855,6 @@ pub mod web_search {
 
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/o/{team_id}/web_search/spec/{id}/api_key/delete")]
-    pub struct DeleteApiKey {
-        pub team_id: String,
-        pub id: i32,
-    }
-}
-
-pub mod code_sandbox {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox/select/{id}")]
-    pub struct Select {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox/spec/{id}/api_key")]
-    pub struct ConfigureApiKey {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox/spec/{id}/api_key/delete")]
     pub struct DeleteApiKey {
         pub team_id: String,
         pub id: i32,

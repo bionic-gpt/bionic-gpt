@@ -41,11 +41,6 @@ pub use queries::teams::{Team, TeamOwner};
 pub use queries::users::User;
 pub use tokio_postgres::types::Json;
 pub use tokio_postgres::Error as TokioPostgresError;
-pub use types::public::{
-    AuditAccessType, AuditAction, ChatRole, ChatStatus, IntegrationType, ModelCapability,
-    ModelType, OpenapiSpecCategory, Permission, PromptFlagType, PromptType, Role, TokenUsageType,
-    Visibility,
-};
 pub use vector_search::{get_related_context, RelatedContext};
 
 pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {
@@ -55,4 +50,10 @@ pub fn create_pool(database_url: &str) -> deadpool_postgres::Pool {
     deadpool_postgres::Pool::builder(manager).build().unwrap()
 }
 
-include!(concat!(env!("OUT_DIR"), "/cornucopia.rs"));
+include!(concat!(env!("OUT_DIR"), "/cornucopia/src/lib.rs"));
+
+pub use types::{
+    AuditAccessType, AuditAction, ChatRole, ChatStatus, IntegrationType, ModelCapability,
+    ModelType, OpenapiSpecCategory, Permission, PromptFlagType, PromptType, Role, TokenUsageType,
+    Visibility,
+};

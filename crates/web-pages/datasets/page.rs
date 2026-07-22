@@ -8,7 +8,7 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{datasets::Dataset, models::Model};
-use db::types::public::ChunkingStrategy;
+use db::types::ChunkingStrategy;
 use dioxus::prelude::*;
 use std::convert::TryFrom;
 

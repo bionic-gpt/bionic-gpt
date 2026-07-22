@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserConfig {
     pub default_prompt: Option<i32>,
-    pub enabled_tools: Option<Vec<String>>, // Store tool names that are enabled
 }
 
 impl<S> FromRequestParts<S> for UserConfig
@@ -35,7 +34,6 @@ where
         // Fallback to default
         Ok(UserConfig {
             default_prompt: None,
-            enabled_tools: None,
         })
     }
 }

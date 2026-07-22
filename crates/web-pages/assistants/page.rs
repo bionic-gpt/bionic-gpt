@@ -13,6 +13,7 @@ use db::authz::Rbac;
 
 use db::{queries::prompts::Prompt, Category};
 use dioxus::prelude::*;
+use std::cmp::Reverse;
 use std::collections::HashMap;
 
 pub fn page(
@@ -188,7 +189,7 @@ fn get_categories_with_prompts(
         .collect();
 
     // Sort the result by the number of prompts in descending order
-    result.sort_by(|(_, prompts_a), (_, prompts_b)| prompts_b.len().cmp(&prompts_a.len()));
+    result.sort_by_key(|(_, prompts)| Reverse(prompts.len()));
 
     result
 }

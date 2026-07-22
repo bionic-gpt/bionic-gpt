@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+use crate::client::Params;
 use crate::queries::users::InsertParams;
 use crate::{queries, Dataset, Prompt};
 use crate::{types, Permission, Transaction};
-use cornucopia_async::Params;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
@@ -164,10 +164,7 @@ pub async fn setup_user_if_not_already_registered(
         .one()
         .await?;
 
-    let roles = vec![
-        types::public::Role::TeamManager,
-        types::public::Role::Collaborator,
-    ];
+    let roles = vec![types::Role::TeamManager, types::Role::Collaborator];
 
     queries::teams::add_user_to_team()
         .bind(transaction, &user_id, &inserted_org_id, &roles)

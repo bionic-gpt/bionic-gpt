@@ -5,8 +5,6 @@ use axum::response::Html;
 use db::queries;
 use db::Pool;
 use db::{authz, ModelType};
-use tool_runtime;
-use tool_runtime::ToolScope;
 use web_pages::{console, routes::console::Conversation};
 
 pub async fn conversation(
@@ -75,11 +73,6 @@ pub async fn conversation(
         .bind(&transaction, &prompt.model_id)
         .all()
         .await?;
-    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
-
-    let available_tools =
-        tool_runtime::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
-
     let html = console::conversation::page(
         team_id,
         rbac,
@@ -90,8 +83,6 @@ pub async fn conversation(
         conversation_id,
         is_tts_disabled,
         capabilities,
-        enabled_tools,
-        available_tools,
     );
 
     Ok(Html(html))

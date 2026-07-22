@@ -6,7 +6,7 @@ use axum::{
 };
 use db::authz;
 use db::queries;
-use db::types::public::ChunkingStrategy;
+use db::types::ChunkingStrategy;
 use db::{Pool, Visibility};
 use serde::Deserialize;
 use validator::Validate;

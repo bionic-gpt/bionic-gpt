@@ -24,7 +24,7 @@ pub(crate) async fn create_request(
     pool: &Pool,
     current_user: &Jwt,
     chat_id: i32,
-    user_config: &UserConfig,
+    _user_config: &UserConfig,
 ) -> Result<RigChatRequest, CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
@@ -87,11 +87,7 @@ pub(crate) async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use)
     {
-        let mut all_tools = get_chat_tools_user_selected_with_system_openapi(
-            pool,
-            user_config.enabled_tools.as_ref(),
-        )
-        .await;
+        let mut all_tools = get_chat_tools_user_selected_with_system_openapi(pool).await;
 
         if attachment_count > 0 {
             all_tools.extend(get_tools(ToolScope::DocumentIntelligence));

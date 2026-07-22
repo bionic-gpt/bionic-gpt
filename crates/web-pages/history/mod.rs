@@ -2,9 +2,9 @@ pub mod form;
 pub mod history_table;
 pub mod page;
 pub mod results;
+use chrono::{Datelike, Duration, Utc};
 use db::History;
 use std::collections::HashMap;
-use time::{Duration, OffsetDateTime};
 
 #[derive(PartialEq, Clone)]
 pub struct HistoryBucket {
@@ -13,9 +13,9 @@ pub struct HistoryBucket {
 }
 
 pub fn bucket_history(histories: Vec<History>) -> (Vec<HistoryBucket>, usize) {
-    let now = OffsetDateTime::now_utc();
-    let today_start = now.date();
-    let yesterday_start = today_start.previous_day().unwrap();
+    let now = Utc::now().fixed_offset();
+    let today_start = now.date_naive();
+    let yesterday_start = today_start.pred_opt().unwrap();
     let last_week_start = today_start - Duration::days(7);
     let last_month_start = today_start - Duration::days(30);
 
@@ -42,11 +42,11 @@ pub fn bucket_history(histories: Vec<History>) -> (Vec<HistoryBucket>, usize) {
             last_8_hours.push(history);
         } else if created_at >= twenty_four_hours_ago {
             last_24_hours.push(history);
-        } else if created_at.date() == yesterday_start {
+        } else if created_at.date_naive() == yesterday_start {
             yesterday.push(history);
-        } else if created_at.date() >= last_week_start {
+        } else if created_at.date_naive() >= last_week_start {
             last_week.push(history);
-        } else if created_at.date() >= last_month_start {
+        } else if created_at.date_naive() >= last_month_start {
             last_month.push(history);
         } else {
             // Group into monthly buckets

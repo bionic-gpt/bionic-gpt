@@ -11,6 +11,7 @@ use axum::{
     Json, Router,
 };
 use axum_extra::routing::{RouterExt, TypedPath};
+use chrono::{DateTime, FixedOffset, SecondsFormat};
 use db::Pool;
 use pgvector::Vector;
 use rig::client::EmbeddingsClient;
@@ -19,7 +20,6 @@ use rig::providers::{ollama, openai};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::cmp;
-use time::format_description::well_known::Rfc3339;
 use uuid::Uuid;
 
 #[derive(TypedPath, Deserialize)]
@@ -322,7 +322,7 @@ pub async fn handle_dataset_json_rpc(
                             let response = JsonRpcResponse::failure(
                                 request_id.clone(),
                                 -32602,
-                                format!("Invalid arguments for {}", &tool_names.get_documents),
+                                format!("Invalid arguments for {}", tool_names.get_documents),
                                 Some(json!({ "details": err })),
                             );
                             return Ok(json_response(response));
@@ -337,7 +337,7 @@ pub async fn handle_dataset_json_rpc(
                             let response = JsonRpcResponse::failure(
                                 request_id.clone(),
                                 -32602,
-                                format!("Invalid arguments for {}", &tool_names.get_document),
+                                format!("Invalid arguments for {}", tool_names.get_document),
                                 Some(json!({ "details": err })),
                             );
                             return Ok(json_response(response));
@@ -352,7 +352,7 @@ pub async fn handle_dataset_json_rpc(
                             let response = JsonRpcResponse::failure(
                                 request_id.clone(),
                                 -32602,
-                                format!("Invalid arguments for {}", &tool_names.search_context),
+                                format!("Invalid arguments for {}", tool_names.search_context),
                                 Some(json!({ "details": err })),
                             );
                             return Ok(json_response(response));
@@ -920,6 +920,6 @@ async fn apply_customer_key(transaction: &db::Transaction<'_>) -> Result<(), Dat
     Ok(())
 }
 
-fn format_timestamp(value: time::OffsetDateTime) -> String {
-    value.format(&Rfc3339).unwrap_or_else(|_| value.to_string())
+fn format_timestamp(value: DateTime<FixedOffset>) -> String {
+    value.to_rfc3339_opts(SecondsFormat::Secs, true)
 }

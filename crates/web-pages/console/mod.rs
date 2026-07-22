@@ -8,7 +8,6 @@ pub mod prompt_form;
 pub mod prompt_modal;
 pub mod response_timeline;
 pub mod tool_call_timeline;
-pub mod tools_modal;
 
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};
 use tool_runtime::ToolCall;

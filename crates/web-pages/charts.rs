@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+use chrono::{Datelike, NaiveDate};
 use daisy_rsx::*;
 use db::queries::token_usage_metrics::{DailyApiRequests, DailyTokenUsage};
 use dioxus::prelude::*;
@@ -7,7 +8,7 @@ use std::collections::HashMap;
 #[component]
 pub fn TokenUsageChart(data: Vec<DailyTokenUsage>) -> Element {
     // Process data to group by date and separate prompt/completion tokens
-    let mut daily_data: HashMap<time::Date, (i64, i64)> = HashMap::new();
+    let mut daily_data: HashMap<NaiveDate, (i64, i64)> = HashMap::new();
 
     for item in &data {
         let entry = daily_data.entry(item.usage_date).or_insert((0, 0));

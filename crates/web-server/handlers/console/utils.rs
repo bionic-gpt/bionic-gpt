@@ -99,14 +99,14 @@ pub async fn process_chats(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use time::{Duration, OffsetDateTime};
+    use chrono::{DateTime, Duration, FixedOffset, Utc};
 
     // Helper function to create a mock Chat for testing
     fn create_mock_chat(
         id: i32,
         status: ChatStatus,
         role: ChatRole,
-        created_at: OffsetDateTime,
+        created_at: DateTime<FixedOffset>,
     ) -> Chat {
         Chat {
             id,
@@ -127,7 +127,7 @@ mod tests {
     #[tokio::test]
     async fn test_process_chats_with_recent_pending_chats() {
         // Test with recent pending chats that should remain pending
-        let now = OffsetDateTime::now_utc();
+        let now = Utc::now().fixed_offset();
 
         let chats = vec![
             // Recent pending Tool chat (should remain pending)
