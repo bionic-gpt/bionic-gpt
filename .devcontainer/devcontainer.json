@@ -9,7 +9,10 @@
 
 	// So that host.docker.internal works. Without it, it doesn't.
 	"runArgs": [
-		"--add-host=host.docker.internal:host-gateway"
+		"--add-host=host.docker.internal:host-gateway",
+		"--security-opt", "seccomp=unconfined",
+		"--cap-add", "SYS_ADMIN",
+		"--privileged"
 	],
 
 	// Gives access to the ssh keys on the host for git operations.

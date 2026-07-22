@@ -21,8 +21,9 @@ dev-setup:
 ci:
     cargo run --bin dagger-pipeline -- pull-request
 
-codex: 
-    sudo apt update && sudo apt install bubblewrap
+codex:
+    sudo apt update && sudo apt install -y bubblewrap
+    sudo chmod u+s /usr/bin/bwrap
     sudo chown -R vscode:vscode /home/vscode/.codex
     sudo npm install -g @openai/codex
 
