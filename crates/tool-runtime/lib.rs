@@ -37,5 +37,7 @@ pub use tool_catalog::{
 };
 pub use tool_dispatcher::{execute_tool_call_with_tools, execute_tool_calls};
 pub use types::{
-    parse_tool_calls, ToolCall, ToolCallFunction, ToolDefinition, ToolResult, ToolResultContent,
+    parse_reasoning, parse_tool_calls, serialize_assistant_tool_state, Reasoning,
+    StoredAssistantToolState, ToolCall, ToolCallFunction, ToolDefinition, ToolResult,
+    ToolResultContent,
 };

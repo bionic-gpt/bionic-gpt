@@ -1,19 +1,23 @@
 use async_trait::async_trait;
 use db::{queries, ChatRole, ChatStatus, Pool};
 use rig::completion::Usage;
-use tool_runtime::{execute_tool_calls, ToolCall, ToolResultContent};
+use tool_runtime::{
+    execute_tool_calls, serialize_assistant_tool_state, Reasoning, ToolCall, ToolResultContent,
+};
+
+pub(crate) struct SaveRequest<'a> {
+    pub(crate) snapshot: &'a str,
+    pub(crate) tool_calls: Option<Vec<ToolCall>>,
+    pub(crate) reasoning: Option<Vec<Reasoning>>,
+    pub(crate) usage: Option<Usage>,
+    pub(crate) chat_id: i32,
+    pub(crate) sub: &'a str,
+    pub(crate) status: ChatStatus,
+}
 
 #[async_trait]
 pub(crate) trait ResultSink: Send + Sync {
-    async fn save(
-        &self,
-        snapshot: &str,
-        tool_calls: Option<Vec<ToolCall>>,
-        usage: Option<Usage>,
-        chat_id: i32,
-        sub: &str,
-        status: ChatStatus,
-    );
+    async fn save(&self, request: SaveRequest<'_>);
 }
 
 pub(crate) struct DbResultSink {
@@ -28,31 +32,22 @@ impl DbResultSink {
 
 #[async_trait]
 impl ResultSink for DbResultSink {
-    async fn save(
-        &self,
-        snapshot: &str,
-        tool_calls: Option<Vec<ToolCall>>,
-        usage: Option<Usage>,
-        chat_id: i32,
-        sub: &str,
-        status: ChatStatus,
-    ) {
-        save_results_db(
-            &self.pool, snapshot, tool_calls, usage, chat_id, sub, status,
-        )
-        .await;
+    async fn save(&self, request: SaveRequest<'_>) {
+        save_results_db(&self.pool, request).await;
     }
 }
 
-async fn save_results_db(
-    pool: &Pool,
-    snapshot: &str,
-    tool_calls: Option<Vec<ToolCall>>,
-    usage: Option<Usage>,
-    chat_id: i32,
-    sub: &str,
-    status: ChatStatus,
-) {
+async fn save_results_db(pool: &Pool, request: SaveRequest<'_>) {
+    let SaveRequest {
+        snapshot,
+        tool_calls,
+        reasoning,
+        usage,
+        chat_id,
+        sub,
+        status,
+    } = request;
+
     let mut db_client = match pool.get().await {
         Ok(client) => client,
         Err(e) => {
@@ -82,7 +77,8 @@ async fn save_results_db(
         return;
     }
 
-    let tool_calls_json = serde_json::to_string(&tool_calls).ok();
+    let tool_calls_json =
+        serialize_assistant_tool_state(tool_calls.as_deref(), reasoning.as_deref());
 
     if let Ok(chat) = queries::chats::chat()
         .bind(&transaction, &chat_id)
@@ -195,15 +191,6 @@ async fn save_results_db(
                             }
                         }
                     };
-                    let result_value = serde_json::from_str::<serde_json::Value>(&result_json)
-                        .unwrap_or_else(|_| serde_json::json!({ "content": result_json }));
-
-                    let tool_chat_status = if result_value.get("error").is_some() {
-                        ChatStatus::Error
-                    } else {
-                        ChatStatus::Pending
-                    };
-
                     if let Err(e) = queries::chats::new_chat()
                         .bind(
                             &transaction,
@@ -213,7 +200,7 @@ async fn save_results_db(
                             &None::<String>,
                             &result_json,
                             &ChatRole::Tool,
-                            &tool_chat_status,
+                            &ChatStatus::Pending,
                         )
                         .one()
                         .await

@@ -6,7 +6,8 @@ use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
 use tool_runtime::ToolDefinition;
 use tool_runtime::{
-    create_tools_from_integrations, get_tools, parse_tool_calls, ToolCall, ToolScope,
+    create_tools_from_integrations, get_tools, parse_reasoning, parse_tool_calls, ToolCall,
+    ToolScope,
 };
 
 /// Converts database chats into rig-native messages.
@@ -21,6 +22,10 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
         let message = match chat.role {
             ChatRole::Assistant => {
                 let mut items: Vec<AssistantContent> = Vec::new();
+                for reasoning in parse_reasoning(chat.tool_calls.as_deref()) {
+                    items.push(AssistantContent::Reasoning(reasoning));
+                }
+
                 if !content.trim().is_empty() {
                     items.push(AssistantContent::text(content));
                 }
