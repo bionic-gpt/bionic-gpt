@@ -112,6 +112,12 @@ pub async fn get_tools(
         Arc::new(builtin_tools::web::WebTool),
         Arc::new(builtin_tools::monty::MontyTool),
         Arc::new(builtin_tools::html_canvas::HtmlCanvasTool),
+        Arc::new(builtin_tools::bashkit::BashkitTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+            prompt_id,
+        )),
     ];
 
     debug!("Adding attachment tools with database pool");
@@ -127,22 +133,6 @@ pub async fn get_tools(
             pool.clone(),
             sub.clone(),
             conversation_id,
-        ),
-    ));
-
-    debug!("Adding dataset tools with database pool");
-    tools.push(Arc::new(
-        builtin_tools::list_datasets::ListDatasetsTool::new(pool.clone(), sub.clone(), prompt_id),
-    ));
-    tools.push(Arc::new(
-        builtin_tools::list_dataset_files::ListDatasetFilesTool::new(pool.clone(), sub.clone()),
-    ));
-    tools.push(Arc::new(
-        builtin_tools::search_context::SearchContextTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-            prompt_id,
         ),
     ));
 

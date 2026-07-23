@@ -5,10 +5,7 @@ use db::{Chat, ChatRole};
 use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
 use tool_runtime::ToolDefinition;
-use tool_runtime::{
-    create_tools_from_integrations, get_tools, parse_reasoning, parse_tool_calls, ToolCall,
-    ToolScope,
-};
+use tool_runtime::{create_tools_from_integrations, parse_reasoning, parse_tool_calls, ToolCall};
 
 /// Converts database chats into rig-native messages.
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
@@ -93,19 +90,6 @@ pub async fn get_prompt_integration_tools(
             description: tool.description(),
             parameters: tool.parameters(),
         });
-    }
-
-    let datasets = prompts::prompt_datasets()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to get datasets for prompt {}: {}", prompt_id, e);
-            CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
-        })?;
-
-    if !datasets.is_empty() {
-        filtered_tools.extend(get_tools(ToolScope::Rag));
     }
 
     tracing::info!(

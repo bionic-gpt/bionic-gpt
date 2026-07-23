@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 pub enum ToolScope {
     UserSelectable,
     DocumentIntelligence,
-    Rag,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
@@ -61,21 +60,17 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
             vec![builtin_tools::html_canvas::get_tool_definition()],
         ),
         integration_tool(
+            "Bash tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::bashkit::get_tool_definition()],
+        ),
+        integration_tool(
             "Tools to retrieve documents and read their contents.",
             ToolScope::DocumentIntelligence,
             vec![
                 builtin_tools::list_documents::get_tool_definition(),
                 builtin_tools::read_document::get_tool_definition(),
                 //builtin_tools::read_document_section::get_tool_definition(),
-            ],
-        ),
-        integration_tool(
-            "Tools to work with datasets",
-            ToolScope::Rag,
-            vec![
-                builtin_tools::list_datasets::get_tool_definition(),
-                builtin_tools::list_dataset_files::get_tool_definition(),
-                builtin_tools::search_context::get_tool_definition(),
             ],
         ),
     ];
@@ -134,6 +129,10 @@ mod tests {
         assert!(names.contains(&"open_url"));
         assert!(names.contains(&"run_python"));
         assert!(names.contains(&"render_html"));
+        assert!(names.contains(&"run_bash"));
+        assert!(!names.contains(&"list_datasets"));
+        assert!(!names.contains(&"list_dataset_files"));
+        assert!(!names.contains(&"search_context"));
     }
 
     #[test]
