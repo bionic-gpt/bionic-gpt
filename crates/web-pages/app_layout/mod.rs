@@ -66,9 +66,7 @@ pub struct LayoutProps {
 pub(super) struct SidebarLabels {
     pub ai_assistants: String,
     pub prompts: String,
-    pub integrations: String,
     pub history: String,
-    pub datasets: String,
 }
 
 #[derive(Clone)]
@@ -107,9 +105,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
 
     let ai_assistants_label = i18n::ai_assistants(&locale);
     let prompts_label = i18n::prompts(&locale);
-    let integrations_label = i18n::integrations(&locale);
     let history_label = i18n::histories(&locale);
-    let datasets_label = i18n::datasets(&locale);
 
     let app_logo_src = bionic_logo_svg.name.to_string();
     let app_name = "Bionic".to_string();
@@ -132,9 +128,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     let sidebar_labels = SidebarLabels {
         ai_assistants: ai_assistants_label.clone(),
         prompts: prompts_label.clone(),
-        integrations: integrations_label.clone(),
         history: history_label.clone(),
-        datasets: datasets_label.clone(),
     };
 
     let enable_projects = std::env::var("ENABLE_PROJECTS").is_ok();

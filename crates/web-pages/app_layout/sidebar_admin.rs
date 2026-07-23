@@ -3,33 +3,14 @@ use crate::menu::{NavGroup, NavItem};
 use assets::files::*;
 use dioxus::prelude::*;
 
-pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
+pub fn render(params: &SidebarParams, _labels: &SidebarLabels) -> Element {
     let selected_item = params.selected_item.to_string();
-    let ai_assistants_label = labels.ai_assistants.clone();
-    let datasets_label = labels.datasets.clone();
 
     let team_id = params.team_id.clone();
     let rbac = &params.rbac;
     let setup_required = params.setup_required;
 
     rsx!(
-        if rbac.can_manage_mcp_keys() || rbac.can_view_datasets() {
-            NavGroup {
-                heading: ai_assistants_label,
-                content: rsx!(
-                    if rbac.can_view_datasets() {
-                        NavItem {
-                            id: SideBar::Datasets.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::datasets::Index { team_id: team_id.clone() },
-                            icon: nav_ccsds_data_svg.name,
-                            title: datasets_label.clone(),
-                            disabled: setup_required
-                        }
-                    }
-                )
-            }
-        }
         if rbac.can_use_api_keys() {
             NavGroup {
                 heading: "Developers",
