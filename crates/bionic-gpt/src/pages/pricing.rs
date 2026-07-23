@@ -23,7 +23,7 @@ pub fn pricing() -> String {
                             class: "text-3xl font-bold tracking-tight sm:text-4xl", "Pricing" }
                         p {
                             class: "mt-6 text-lg leading-8",
-                            "Bionic is the all-in-one platform for agentic AI—assistants, automations, APIs, and observability in a single stack.\n          Pick the deployment option that fits your governance model and let us help you wire it into Operations, Compliance, and Security."
+                            "Bionic is the all-in-one platform for agentic AI-assistants, APIs, and observability in a single stack.\n          Pick the deployment option that fits your governance model and let us help you wire it into Operations, Compliance, and Security."
                         }
                     }
                 }
@@ -43,7 +43,7 @@ pub fn pricing() -> String {
                             }
                             h4 { class: "font-extrabold", "Included Platform" }
                             ul {
-                                li { "Assistants, automations, pipelines, and the full AI console." }
+                                li { "Assistants, pipelines, and the full AI console." }
                                 li { "Complete Agentic RAG toolkit with chunking, embeddings, and search." }
                                 li { "APIs compatible with OpenAI for existing tooling." }
                             }
@@ -58,7 +58,7 @@ pub fn pricing() -> String {
                             class: "mt-5 flex flex-col gap-2",
                             hr {}
                             h3 { class: "font-extrabold", "Free" }
-                            span { class: "text-sm opacity-70", "Open source, permissive licence." }
+                            span { class: "text-sm opacity-70", "Open source, permissive license." }
                             a {
                                 href: crate::routes::architect_course::Index {}.to_string(),
                                 class: "btn btn-secondary btn-outline",

@@ -1,65 +1,6 @@
 // All the routes of the application are mapped here and are typesafe
 // https://docs.rs/axum-extra/latest/axum_extra/routing/trait.TypedPath.html
 
-pub mod automations {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/new")]
-    pub struct New {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/edit/{prompt_id}")]
-    pub struct Edit {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/upsert")]
-    pub struct Upsert {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/delete/{id}")]
-    pub struct Delete {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/triggers")]
-    pub struct ManageTriggers {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/triggers/add")]
-    pub struct AddCronTrigger {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/triggers/remove/{trigger_id}")]
-    pub struct RemoveCronTrigger {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub trigger_id: i32,
-    }
-}
-
 pub mod history {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
@@ -812,16 +753,5 @@ pub mod web_search {
     pub struct DeleteApiKey {
         pub team_id: String,
         pub id: i32,
-    }
-}
-
-pub mod licence {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/licence")]
-    pub struct Index {
-        pub team_id: String,
     }
 }

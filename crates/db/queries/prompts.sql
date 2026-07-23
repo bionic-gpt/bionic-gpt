@@ -27,11 +27,6 @@ SELECT
     p.visibility,
     p.description,
     (SELECT count(*) FROM assistants.prompt_dataset WHERE prompt_id = id) AS dataset_count,
-    (
-        SELECT count(*) FROM automation.automation_cron_triggers WHERE prompt_id = id
-    ) + (
-        SELECT count(*) FROM automation.automation_webhook_triggers WHERE prompt_id = id
-    ) AS trigger_count,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,

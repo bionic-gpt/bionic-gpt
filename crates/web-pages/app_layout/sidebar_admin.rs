@@ -10,7 +10,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
 
     let team_id = params.team_id.clone();
     let rbac = &params.rbac;
-    let show_automations_menu = params.show_automations_menu;
     let setup_required = params.setup_required;
 
     rsx!(
@@ -42,16 +41,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         icon: nav_api_keys_svg.name,
                         title: "API Keys",
                         disabled: setup_required
-                    }
-                    if show_automations_menu {
-                        NavItem {
-                            id: SideBar::Automations.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::automations::Index { team_id: team_id.clone() },
-                            icon: nav_automations_svg.name,
-                            title: "Automations",
-                            disabled: setup_required
-                        }
                     }
                     if rbac.can_manage_document_pipelines() {
                         NavItem {
@@ -157,14 +146,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             href: crate::routes::categories::Index { team_id: team_id.clone() },
                             icon: nav_audit_svg.name,
                             title: "Categories",
-                            disabled: setup_required
-                        }
-                        NavItem {
-                            id: SideBar::Licence.to_string(),
-                            selected_item_id: selected_item,
-                            href: crate::routes::licence::Index { team_id: team_id.clone() },
-                            icon: nav_audit_svg.name,
-                            title: "System Info",
                             disabled: setup_required
                         }
                     }

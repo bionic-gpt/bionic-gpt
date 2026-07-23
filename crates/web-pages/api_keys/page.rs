@@ -155,15 +155,6 @@ pub fn PromptType(prompt_type: Option<DBPromptType>) -> Element {
                 "Assistant"
             }
         ),
-        Some(DBPromptType::Automation) => rsx!(
-            Badge {
-                class: "mr-2 truncate",
-                badge_color: BadgeColor::Accent,
-                badge_style: BadgeStyle::Outline,
-                badge_size: BadgeSize::Sm,
-                "Assistant"
-            }
-        ),
         None => rsx!(
             Badge {
                 class: "mr-2 truncate",

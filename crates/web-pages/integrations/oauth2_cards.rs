@@ -5,7 +5,7 @@ use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
 use assets::files::menu_delete_svg;
 use daisy_rsx::*;
-use db::{Licence, Oauth2Connection};
+use db::Oauth2Connection;
 use dioxus::prelude::*;
 
 pub fn Oauth2Cards(
@@ -14,8 +14,6 @@ pub fn Oauth2Cards(
     mcp_slug: Option<String>,
     connections: Vec<Oauth2Connection>,
 ) -> Element {
-    let licence = Licence::global();
-
     rsx! {
         div {
             class: "space-y-3",
@@ -51,14 +49,12 @@ pub fn Oauth2Cards(
                                 }
                                 div {
                                     class: "flex flex-col justify-center items-end gap-2",
-                                    if licence.features.mcp {
-                                        McpUrlModal {
-                                            id_prefix: "mcp-url-oauth2-".to_string(),
-                                            connection_id: connection.id,
-                                            external_id: connection.external_id,
-                                            mcp_slug: mcp_slug.clone(),
-                                            connection_label: "OAuth2 connection".to_string(),
-                                        }
+                                    McpUrlModal {
+                                        id_prefix: "mcp-url-oauth2-".to_string(),
+                                        connection_id: connection.id,
+                                        external_id: connection.external_id,
+                                        mcp_slug: mcp_slug.clone(),
+                                        connection_label: "OAuth2 connection".to_string(),
                                     }
                                     Button {
                                         prefix_image_src: "{menu_delete_svg.name}",

@@ -240,16 +240,6 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Licencing Bionic",
-                        description: "Licencing Bioni",
-                        folder: "docs/configuration/licencing/",
-                        markdown: include_str!("../content/docs/configuration/licencing/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    PageSummary {
-                        date: "",
                         title: "Runtime Encryption",
                         description: "Runtime Encryption",
                         folder: "docs/guides/encryption-at-rest/",

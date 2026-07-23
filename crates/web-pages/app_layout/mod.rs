@@ -3,8 +3,6 @@
 mod base;
 mod sidebar;
 mod sidebar_admin;
-mod sidebar_mcp;
-mod sidebar_mcp_admin;
 
 pub use base::{AppLayoutProps as BaseProps, BaseLayout};
 
@@ -15,7 +13,6 @@ use crate::snackbar::Snackbar;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
-use db::Licence;
 use dioxus::prelude::*;
 
 #[derive(PartialEq, Clone, Eq, Debug)]
@@ -23,7 +20,6 @@ pub enum SideBar {
     None,
     ApiKeys,
     AuditTrail,
-    Automations,
     Console,
     Datasets,
     DocumentPipelines,
@@ -31,7 +27,6 @@ pub enum SideBar {
     History,
     Integrations,
     McpApiKeys,
-    Licence,
     Models,
     Categories,
     OauthClients,
@@ -81,7 +76,6 @@ pub(super) struct SidebarParams {
     pub team_id: String,
     pub selected_item: SideBar,
     pub rbac: Rbac,
-    pub show_automations_menu: bool,
     pub can_view_chats: bool,
     pub can_view_chat_history: bool,
     pub setup_required: bool,
@@ -117,20 +111,8 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     let history_label = i18n::histories(&locale);
     let datasets_label = i18n::datasets(&locale);
 
-    let licence = Licence::global();
-    let show_automations_menu = licence.features.automations;
-    let use_mcp_sidebar = licence.features.mcp;
-    let app_logo_src: String = if licence.app_logo_svg.is_empty() {
-        bionic_logo_svg.name.to_string()
-    } else {
-        format!("data:image/svg+xml;base64,{}", licence.app_logo_svg)
-    };
-
-    let app_name = if licence.app_name.is_empty() {
-        "Bionic".to_string()
-    } else {
-        licence.app_name.clone()
-    };
+    let app_logo_src = bionic_logo_svg.name.to_string();
+    let app_name = "Bionic".to_string();
 
     let team_id = props.team_id.clone();
     let switch_teams_href = crate::routes::teams::Switch {
@@ -161,22 +143,19 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         team_id: team_id.clone(),
         selected_item: props.selected_item.clone(),
         rbac: props.rbac.clone(),
-        show_automations_menu,
         can_view_chats,
         can_view_chat_history,
         setup_required: props.setup_required,
         enable_projects,
     };
 
-    let sidebar_content = match (use_mcp_sidebar, mode) {
-        (true, LayoutMode::Main) => sidebar_mcp::render(&sidebar_params, &sidebar_labels),
-        (true, LayoutMode::Admin) => sidebar_mcp_admin::render(&sidebar_params, &sidebar_labels),
-        (false, LayoutMode::Main) => sidebar::render(&sidebar_params, &sidebar_labels),
-        (false, LayoutMode::Admin) => sidebar_admin::render(&sidebar_params, &sidebar_labels),
+    let sidebar_content = match mode {
+        LayoutMode::Main => sidebar::render(&sidebar_params, &sidebar_labels),
+        LayoutMode::Admin => sidebar_admin::render(&sidebar_params, &sidebar_labels),
     };
 
-    let admin_href = admin_home_href(&props.rbac, team_id.clone(), use_mcp_sidebar);
-    let main_href = main_home_href(&props.rbac, team_id.clone(), use_mcp_sidebar);
+    let admin_href = admin_home_href(&props.rbac, team_id.clone());
+    let main_href = main_home_href(&props.rbac, team_id.clone());
 
     let profile_section = if props.setup_required {
         rsx!(
@@ -196,7 +175,6 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
             first_name: props.rbac.first_name.clone().unwrap_or("".to_string()),
             last_name: props.rbac.last_name.clone().unwrap_or("".to_string()),
             team_id: team_id.clone(),
-            unlicensed: props.rbac.unlicensed,
         })
     };
 
@@ -292,57 +270,38 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     }
 }
 
-fn admin_home_href(rbac: &Rbac, team_id: String, use_mcp_sidebar: bool) -> Option<String> {
-    if use_mcp_sidebar {
-        if rbac.can_view_datasets() {
-            return Some(
-                crate::routes::datasets::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-        if rbac.can_manage_mcp_keys() {
-            return Some(
-                crate::routes::mcp_api_keys::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-    } else {
-        if rbac.can_view_datasets() {
-            return Some(
-                crate::routes::datasets::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-        if rbac.can_manage_mcp_keys() {
-            return Some(
-                crate::routes::mcp_api_keys::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-        if rbac.can_use_api_keys() {
-            return Some(
-                crate::routes::api_keys::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-        if rbac.can_use_api_keys() && rbac.can_manage_document_pipelines() {
-            return Some(
-                crate::routes::document_pipelines::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
+fn admin_home_href(rbac: &Rbac, team_id: String) -> Option<String> {
+    if rbac.can_view_datasets() {
+        return Some(
+            crate::routes::datasets::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
+    }
+    if rbac.can_manage_mcp_keys() {
+        return Some(
+            crate::routes::mcp_api_keys::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
+    }
+    if rbac.can_use_api_keys() {
+        return Some(
+            crate::routes::api_keys::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
+    }
+    if rbac.can_use_api_keys() && rbac.can_manage_document_pipelines() {
+        return Some(
+            crate::routes::document_pipelines::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
     }
 
     if rbac.can_view_teams() {
@@ -373,35 +332,7 @@ fn admin_home_href(rbac: &Rbac, team_id: String, use_mcp_sidebar: bool) -> Optio
     None
 }
 
-fn main_home_href(rbac: &Rbac, team_id: String, use_mcp_sidebar: bool) -> Option<String> {
-    if use_mcp_sidebar {
-        if rbac.can_view_integrations() {
-            return Some(
-                crate::routes::integrations::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-        if rbac.can_view_prompts() {
-            return Some(
-                crate::routes::prompts::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-        if rbac.can_view_chat_history() {
-            return Some(
-                crate::routes::history::Index {
-                    team_id: team_id.clone(),
-                }
-                .to_string(),
-            );
-        }
-        return None;
-    }
-
+fn main_home_href(rbac: &Rbac, team_id: String) -> Option<String> {
     if rbac.can_view_chats() {
         return Some(
             crate::routes::console::Index {

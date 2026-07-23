@@ -37,10 +37,6 @@ pub mod routes {
         pub struct Integrations {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/automations/")]
-        pub struct Automations {}
-
-        #[derive(TypedPath, Deserialize)]
         #[typed_path("/product/developers/")]
         pub struct Developers {}
     }

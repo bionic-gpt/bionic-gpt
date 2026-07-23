@@ -1,7 +1,6 @@
 pub mod authz;
 pub mod customer_keys;
 pub mod i18n;
-pub mod licence;
 pub mod team_public_id;
 pub mod vector_search;
 
@@ -10,10 +9,8 @@ use std::str::FromStr;
 pub use cornucopia_async::Params;
 pub use deadpool_postgres::{Pool, PoolError, Transaction};
 pub use i18n::{I18n, I18nKey};
-pub use licence::Licence;
 pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::AuditTrail;
-pub use queries::automation_triggers::CronTrigger;
 pub use queries::categories::Category;
 pub use queries::chats::Chat;
 pub use queries::connections::{

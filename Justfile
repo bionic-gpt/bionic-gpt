@@ -71,12 +71,6 @@ ws:
 wts:
     cd /workspace/crates/static-website && tailwind-extra -i ./input.css -o ./dist/tailwind.css --watch
 
-wds:
-    cd /workspace/crates/deploy-mcp && cargo watch --workdir /workspace/crates/deploy-mcp -w ./content -w ./src --no-gitignore -x "run --bin deploy-mcp"
-
-wdts:
-    cd /workspace/crates && tailwind-extra -i ./deploy-mcp/input.css -o ./deploy-mcp/dist/tailwind.css --watch
-
 spell:
     docker run --rm -ti -v $HOST_PROJECT_PATH/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
 

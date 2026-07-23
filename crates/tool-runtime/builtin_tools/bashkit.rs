@@ -11,7 +11,7 @@ use rig::tool::{ToolDyn, ToolError};
 use rig::wasm_compat::WasmBoxedFuture;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -24,6 +24,7 @@ const CHUNKS_PER_DOCUMENT_LIMIT: i64 = 1_000;
 const HOME_DIR: &str = "/home/user";
 const SKILLS_DIR: &str = "/home/user/skills";
 const DATASETS_DIR: &str = "/home/user/datasets";
+const ATTACHMENTS_DIR: &str = "/home/user/attachments";
 
 #[derive(Debug, Deserialize)]
 struct RunBashArgs {
@@ -70,6 +71,20 @@ struct FileMetadata {
     name: String,
     size: i32,
     chunks: i64,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct AttachmentManifest {
+    files: Vec<AttachmentEntry>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct AttachmentEntry {
+    file_id: i32,
+    name: String,
+    path: String,
+    mime_type: String,
+    size: i64,
 }
 
 #[derive(Debug, Clone)]
@@ -134,7 +149,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/skills to read built-in skill instructions and /home/user/datasets to inspect assistant datasets. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read built-in skill instructions, and /home/user/datasets to inspect assistant datasets. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call, network access is disabled, and host files are not mounted.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -200,6 +215,7 @@ async fn execute_run_bash(
         &bash,
     )
     .await?;
+    seed_attachments(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
 
     let result = tokio::time::timeout(
         Duration::from_millis(timeout),
@@ -375,6 +391,148 @@ async fn write_json<T: Serialize + ?Sized>(
     fs.write_file(Path::new(path), &bytes)
         .await
         .map_err(|e| json!({"error": "Failed to write Bashkit VFS file", "details": e.to_string()}))
+}
+
+async fn seed_attachments(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i64,
+    bash: &Bash,
+) -> Result<(), serde_json::Value> {
+    let mut client = pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let fs = bash.fs();
+    fs.mkdir(Path::new(ATTACHMENTS_DIR), true).await.map_err(
+        |e| json!({"error": "Failed to seed attachments directory", "details": e.to_string()}),
+    )?;
+
+    let attachments = queries::attachments::get_by_conversation()
+        .bind(&transaction, &conversation_id)
+        .all()
+        .await
+        .map_err(|e| json!({"error": "Failed to get attachments", "details": e.to_string()}))?;
+
+    let planned_paths = plan_attachment_paths(
+        attachments
+            .iter()
+            .map(|attachment| attachment.file_name.as_str()),
+    );
+    let mut entries = Vec::new();
+
+    for (attachment, path) in attachments.iter().zip(planned_paths) {
+        let data = queries::attachments::get_content()
+            .bind(&transaction, &attachment.id)
+            .one()
+            .await
+            .map_err(|e| {
+                json!({
+                    "error": "Failed to get attachment content",
+                    "details": e.to_string()
+                })
+            })?;
+
+        fs.write_file(Path::new(&path), &data.object_data)
+            .await
+            .map_err(
+                |e| json!({"error": "Failed to seed attachment file", "details": e.to_string()}),
+            )?;
+
+        entries.push(AttachmentEntry {
+            file_id: attachment.id,
+            name: attachment.file_name.clone(),
+            path,
+            mime_type: attachment.mime_type.clone(),
+            size: attachment.file_size,
+        });
+    }
+
+    write_json(
+        fs.as_ref(),
+        &format!("{ATTACHMENTS_DIR}/index.json"),
+        &AttachmentManifest { files: entries },
+    )
+    .await?;
+
+    transaction
+        .commit()
+        .await
+        .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
+
+    Ok(())
+}
+
+fn plan_attachment_paths<'a>(file_names: impl IntoIterator<Item = &'a str>) -> Vec<String> {
+    let mut used = HashSet::new();
+    file_names
+        .into_iter()
+        .map(|file_name| {
+            let safe_name = sanitize_attachment_file_name(file_name);
+            let unique_name = unique_attachment_file_name(&safe_name, &mut used);
+            format!("{ATTACHMENTS_DIR}/{unique_name}")
+        })
+        .collect()
+}
+
+fn sanitize_attachment_file_name(file_name: &str) -> String {
+    let leaf = file_name
+        .rsplit(['/', '\\'])
+        .find(|part| !part.is_empty())
+        .unwrap_or(file_name);
+    let sanitized = leaf
+        .chars()
+        .map(|ch| {
+            if ch.is_ascii_alphanumeric() || matches!(ch, '.' | '-' | '_' | ' ') {
+                ch
+            } else {
+                '_'
+            }
+        })
+        .collect::<String>()
+        .trim_matches(['.', ' '])
+        .to_string();
+
+    if sanitized.is_empty() {
+        "attachment".to_string()
+    } else {
+        sanitized
+    }
+}
+
+fn unique_attachment_file_name(file_name: &str, used: &mut HashSet<String>) -> String {
+    if used.insert(file_name.to_string()) {
+        return file_name.to_string();
+    }
+
+    let path = Path::new(file_name);
+    let stem = path
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .filter(|stem| !stem.is_empty())
+        .unwrap_or(file_name);
+    let extension = path.extension().and_then(|extension| extension.to_str());
+
+    for suffix in 2.. {
+        let candidate = match extension {
+            Some(extension) if !extension.is_empty() => format!("{stem}-{suffix}.{extension}"),
+            _ => format!("{stem}-{suffix}"),
+        };
+        if used.insert(candidate.clone()) {
+            return candidate;
+        }
+    }
+
+    unreachable!("unbounded suffix loop should always return")
 }
 
 async fn conversation_team_id(
@@ -793,6 +951,35 @@ mod tests {
     fn test_get_tool_definition() {
         let tool = get_tool_definition();
         assert_eq!(tool.name, "run_bash");
+        assert!(tool.description.contains("/home/user/attachments"));
+    }
+
+    #[test]
+    fn test_sanitize_attachment_file_name() {
+        assert_eq!(sanitize_attachment_file_name("report.txt"), "report.txt");
+        assert_eq!(
+            sanitize_attachment_file_name("../secrets/report?.txt"),
+            "report_.txt"
+        );
+        assert_eq!(
+            sanitize_attachment_file_name(r"..\windows\notes.md"),
+            "notes.md"
+        );
+        assert_eq!(sanitize_attachment_file_name("..."), "attachment");
+    }
+
+    #[test]
+    fn test_plan_attachment_paths_deduplicates_names() {
+        let paths = plan_attachment_paths(["report.txt", "report.txt", "report-2.txt", ""]);
+        assert_eq!(
+            paths,
+            vec![
+                "/home/user/attachments/report.txt",
+                "/home/user/attachments/report-2.txt",
+                "/home/user/attachments/report-2-2.txt",
+                "/home/user/attachments/attachment",
+            ]
+        );
     }
 
     #[test]

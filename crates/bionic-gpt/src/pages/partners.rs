@@ -27,7 +27,7 @@ pub fn partners_page() -> String {
                     title: "Partners",
                     subtitle: "Why Partner with Us?",
                     benefit1: "Revenue Growth",
-                    benefit1_desc: "Earn from licensing new users, support, and upgrades,
+                    benefit1_desc: "Earn from support, services, and upgrades,
                         while also providing AI consulting, training, and development services.",
                     benefit2: "In-Demand Solution",
                     benefit2_desc: "Our platform’s private, secure deployment model opens doors
