@@ -167,17 +167,6 @@ pub async fn edit_assistant_loader(
             .collect()
     };
 
-    // Parse selected integration IDs from comma-separated string
-    let _selected_integration_ids: Vec<i32> = if prompt.selected_integrations.is_empty() {
-        Vec::new()
-    } else {
-        prompt
-            .selected_integrations
-            .split(',')
-            .filter_map(|s| s.trim().parse().ok())
-            .collect()
-    };
-
     let form = web_pages::my_assistants::upsert::PromptForm {
         id: Some(prompt.id),
         name: prompt.name,

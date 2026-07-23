@@ -4,6 +4,7 @@
 --: McpConnectionContext(connection_type, connection_id, integration_id, user_id, user_openid_sub?, definition?)
 --: McpApiKeySecret(connection_id, integration_id, user_id, user_openid_sub?, api_key?, definition?)
 --: McpOauth2Secret(connection_id, integration_id, user_id, user_openid_sub?, access_token?, refresh_token?, expires_at?, definition?)
+--: ConnectedIntegration(api_connection_id?, oauth2_connection_id?, definition?, bearer_token?, refresh_token?, expires_at?)
 
 --! insert_oauth2_connection(refresh_token?, expires_at?)
 INSERT INTO integrations.oauth2_connections (
@@ -112,6 +113,106 @@ SELECT
     trim(both '"' from to_json(created_at)::text) as created_at
 FROM integrations.api_key_connections
 WHERE team_id = :team_id AND integration_id = :integration_id;
+
+--! connected_integrations : ConnectedIntegration
+WITH ranked_connections AS (
+    SELECT
+        i.id AS integration_id,
+        i.name AS integration_name,
+        i.definition,
+        akc.id AS api_connection_id,
+        NULL::INT AS oauth2_connection_id,
+        decrypt_text(akc.api_key) AS bearer_token,
+        NULL::TEXT AS refresh_token,
+        NULL::TIMESTAMPTZ AS expires_at,
+        akc.created_at,
+        akc.id AS connection_sort_id
+    FROM integrations.integrations i
+    JOIN integrations.api_key_connections akc ON akc.integration_id = i.id
+    WHERE i.team_id = :team_id
+      AND akc.team_id = :team_id
+
+    UNION ALL
+
+    SELECT
+        i.id AS integration_id,
+        i.name AS integration_name,
+        i.definition,
+        NULL::INT AS api_connection_id,
+        o2c.id AS oauth2_connection_id,
+        decrypt_text(o2c.access_token) AS bearer_token,
+        decrypt_text(o2c.refresh_token) AS refresh_token,
+        o2c.expires_at,
+        o2c.created_at,
+        o2c.id AS connection_sort_id
+    FROM integrations.integrations i
+    JOIN integrations.oauth2_connections o2c ON o2c.integration_id = i.id
+    WHERE i.team_id = :team_id
+      AND o2c.team_id = :team_id
+),
+authless_integrations AS (
+    SELECT
+        i.id AS integration_id,
+        i.name AS integration_name,
+        i.definition,
+        NULL::INT AS api_connection_id,
+        NULL::INT AS oauth2_connection_id,
+        NULL::TEXT AS bearer_token,
+        NULL::TEXT AS refresh_token,
+        NULL::TIMESTAMPTZ AS expires_at,
+        i.created_at,
+        0 AS connection_sort_id
+    FROM integrations.integrations i
+    WHERE i.team_id = :team_id
+      AND i.definition IS NOT NULL
+      AND NOT EXISTS (
+          SELECT 1
+          FROM jsonb_each(COALESCE(i.definition->'components'->'securitySchemes', '{}'::jsonb)) AS security_scheme(name, scheme)
+          WHERE scheme->>'type' IN ('apiKey', 'oauth2')
+      )
+)
+SELECT
+    integration_id,
+    integration_name,
+    definition,
+    api_connection_id,
+    oauth2_connection_id,
+    bearer_token,
+    refresh_token,
+    expires_at
+FROM (
+    SELECT
+        integration_id,
+        integration_name,
+        definition,
+        api_connection_id,
+        oauth2_connection_id,
+        bearer_token,
+        refresh_token,
+        expires_at
+    FROM (
+        SELECT
+            *,
+            ROW_NUMBER() OVER (
+                PARTITION BY integration_id
+                ORDER BY created_at DESC, connection_sort_id DESC
+            ) AS rank
+        FROM ranked_connections
+    ) ranked
+    WHERE rank = 1
+    UNION ALL
+    SELECT
+        integration_id,
+        integration_name,
+        definition,
+        api_connection_id,
+        oauth2_connection_id,
+        bearer_token,
+        refresh_token,
+        expires_at
+    FROM authless_integrations
+) connected
+ORDER BY integration_name, integration_id;
 
 --! get_team_oauth2_connections : Oauth2Connection
 SELECT

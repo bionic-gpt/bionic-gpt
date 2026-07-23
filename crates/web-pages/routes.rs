@@ -38,29 +38,6 @@ pub mod automations {
     }
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/integrations")]
-    pub struct ManageIntegrations {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/integrations/add/{integration_id}")]
-    pub struct AddIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/integrations/remove/{integration_id}")]
-    pub struct RemoveIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
     #[typed_path("/o/{team_id}/automation/{prompt_id}/triggers")]
     pub struct ManageTriggers {
         pub team_id: String,
@@ -308,29 +285,6 @@ pub mod prompts {
     pub struct UpdateDatasets {
         pub team_id: String,
         pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/integrations")]
-    pub struct ManageIntegrations {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/integrations/add/{integration_id}")]
-    pub struct AddIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/integrations/remove/{integration_id}")]
-    pub struct RemoveIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
     }
 }
 

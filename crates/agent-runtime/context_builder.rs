@@ -1,11 +1,10 @@
 use crate::errors::CustomError;
-use db::queries::{prompt_integrations, prompts};
+use db::queries::prompts;
 use db::Transaction;
 use db::{Chat, ChatRole};
 use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
-use tool_runtime::ToolDefinition;
-use tool_runtime::{create_tools_from_integrations, parse_reasoning, parse_tool_calls, ToolCall};
+use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
 
 /// Converts database chats into rig-native messages.
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
@@ -72,37 +71,6 @@ pub async fn execute_prompt(
         chat_history,
     )
     .await)
-}
-
-pub async fn get_prompt_integration_tools(
-    transaction: &Transaction<'_>,
-    prompt_id: i32,
-) -> Result<Vec<ToolDefinition>, CustomError> {
-    let prompt_integrations = prompt_integrations::get_prompt_integrations_with_connections()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to get integrations for prompt {}: {}", prompt_id, e);
-            CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
-        })?;
-
-    let external_tools = create_tools_from_integrations(prompt_integrations, None, None).await;
-    let mut filtered_tools: Vec<ToolDefinition> = Vec::new();
-    for tool in external_tools {
-        filtered_tools.push(ToolDefinition {
-            name: tool.name(),
-            description: tool.description(),
-            parameters: tool.parameters(),
-        });
-    }
-
-    tracing::info!(
-        "Retrieved {} integration tools for prompt {}",
-        filtered_tools.len(),
-        prompt_id
-    );
-    Ok(filtered_tools)
 }
 
 pub async fn generate_prompt(

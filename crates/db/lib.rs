@@ -18,7 +18,7 @@ pub use queries::categories::Category;
 pub use queries::chats::Chat;
 pub use queries::connections::{
     oauth2_connections_needing_refresh, update_oauth2_connection, ApiKeyConnection,
-    Oauth2Connection, Oauth2RefreshCandidate,
+    ConnectedIntegration, Oauth2Connection, Oauth2RefreshCandidate,
 };
 pub use queries::conversations::{Conversation, ConversationContextSize};
 pub use queries::datasets::Dataset;
@@ -32,7 +32,6 @@ pub use queries::object_storage::ObjectStorage;
 pub use queries::openapi_specs::OpenapiSpec;
 pub use queries::projects::{Project, ProjectSummary};
 pub use queries::prompt_flags::insert_prompt_flag;
-pub use queries::prompt_integrations::{PromptIntegration, PromptIntegrationWithConnection};
 pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};
 pub use queries::providers::Provider;
 pub use queries::rate_limits::RateLimit;

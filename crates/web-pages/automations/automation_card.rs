@@ -21,7 +21,6 @@ pub fn AutomationCard(team_id: String, prompt: MyPrompt) -> Element {
             description: if description.is_empty() { None } else { Some(rsx!( span { "{description}" } )) },
             footer: Some(rsx!( span { "Last updated " RelativeTime { format: RelativeTimeFormat::Relative, datetime: "{prompt.updated_at}" } } )),
             count_labels: vec![
-                CountLabel { count: prompt.integration_count as usize, label: "Integration".into() },
                 CountLabel { count: prompt.trigger_count as usize, label: "Trigger".into() },
             ],
             action: Some(rsx!(
@@ -29,7 +28,6 @@ pub fn AutomationCard(team_id: String, prompt: MyPrompt) -> Element {
                     direction: Direction::Bottom,
                     button_text: "...",
                     DropDownLink { href: crate::routes::automations::Edit{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Edit" }
-                    DropDownLink { href: crate::routes::automations::ManageIntegrations{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Manage Integrations" }
                     DropDownLink { href: crate::routes::automations::ManageTriggers{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Manage Triggers" }
                     DropDownLink { popover_target: format!("delete-trigger-{}-{}", prompt.id, team_id), href: "#", target: "_top", "Delete" }
                 }

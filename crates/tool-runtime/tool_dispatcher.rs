@@ -1,8 +1,7 @@
 use crate::builtin_tools;
-use crate::openapi_tool_factory::create_tools_from_integrations;
 use crate::system_tool_sources::get_system_openapi_tools;
 use crate::types::{ToolCall, ToolResult, ToolResultContent};
-use db::{queries::prompt_integrations, Pool};
+use db::Pool;
 use rig::tool::ToolDyn;
 use rig::OneOrMany;
 use serde_json::{json, Value};
@@ -28,42 +27,6 @@ fn merge_tools_by_name(
         base_tools.push(tool);
         existing_names.insert(name);
     }
-}
-
-/// Get external integration tools using direct database operations
-async fn get_external_integration_tools(
-    pool: &Pool,
-    sub: String,
-    prompt_id: i32,
-) -> Result<Vec<Arc<dyn ToolDyn>>, Box<dyn std::error::Error + Send + Sync>> {
-    debug!("Getting external integrations from database");
-
-    let mut client = pool.get().await?;
-    let transaction = client.transaction().await?;
-
-    // Set row-level security
-    debug!("Setting row-level security for user: {}", sub);
-    db::authz::set_row_level_security_user_id(&transaction, sub.clone()).await?;
-
-    let external_integrations = prompt_integrations::get_prompt_integrations_with_connections()
-        .bind(&transaction, &prompt_id)
-        .all()
-        .await?;
-
-    debug!(
-        "Found {} external integrations",
-        external_integrations.len()
-    );
-
-    let tools = create_tools_from_integrations(
-        external_integrations,
-        Some(pool.clone()),
-        Some(sub.clone()),
-    )
-    .await;
-    debug!("Created {} external integration tools", tools.len());
-
-    Ok(tools)
 }
 
 /// Execute a tool call and return a message with the result
@@ -110,7 +73,11 @@ pub async fn get_tools(
     let mut tools: Vec<Arc<dyn ToolDyn>> = vec![
         Arc::new(builtin_tools::time_date::TimeDateTool),
         Arc::new(builtin_tools::web::WebTool),
-        Arc::new(builtin_tools::monty::MontyTool),
+        Arc::new(builtin_tools::monty::MontyTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        )),
         Arc::new(builtin_tools::html_canvas::HtmlCanvasTool),
         Arc::new(builtin_tools::bashkit::BashkitTool::new(
             pool.clone(),
@@ -142,25 +109,6 @@ pub async fn get_tools(
         Err(err) => {
             warn!("Failed to load system OpenAPI tools: {}", err);
         }
-    }
-
-    // Get external integration tools
-    debug!("Getting external integration tools");
-    let external_tools = match get_external_integration_tools(pool, sub, prompt_id).await {
-        Ok(tools) => tools,
-        Err(e) => {
-            error!("Failed to get external integration tools: {}", e);
-            vec![]
-        }
-    };
-
-    if !external_tools.is_empty() {
-        debug!("Found {} external integration tools", external_tools.len());
-        merge_tools_by_name(&mut tools, external_tools);
-        debug!(
-            "Added external integration tools, total tools: {}",
-            tools.len()
-        );
     }
 
     info!("Returning {} tool instances", tools.len());

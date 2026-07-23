@@ -95,12 +95,6 @@ pub(crate) async fn create_request(
             all_tools.extend(get_tools(ToolScope::DocumentIntelligence));
         }
 
-        if let Ok(integration_tools) =
-            context_builder::get_prompt_integration_tools(&transaction, prompt.id).await
-        {
-            all_tools.extend(integration_tools);
-        }
-
         let tools = dedupe_tools_by_name(all_tools);
         tracing::debug!(
             "Sending {} tool definitions to model {}: {:?}",

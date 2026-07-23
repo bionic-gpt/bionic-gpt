@@ -23,11 +23,6 @@ pub async fn new_automation_loader(
         .all()
         .await?;
 
-    let _integrations = queries::integrations::integrations()
-        .bind(&transaction, &team_id_num)
-        .all()
-        .await?;
-
     let models = queries::prompts::prompts()
         .bind(&transaction, &team_id_num, &PromptType::Model)
         .all()
@@ -82,11 +77,6 @@ pub async fn edit_automation_loader(
         .all()
         .await?;
 
-    let _integrations = queries::integrations::integrations()
-        .bind(&transaction, &team_id_num)
-        .all()
-        .await?;
-
     let models = queries::prompts::prompts()
         .bind(&transaction, &team_id_num, &PromptType::Model)
         .all()
@@ -108,17 +98,6 @@ pub async fn edit_automation_loader(
     } else {
         prompt
             .selected_datasets
-            .split(',')
-            .filter_map(|s| s.trim().parse().ok())
-            .collect()
-    };
-
-    // Parse selected integration IDs from comma-separated string
-    let _selected_integration_ids: Vec<i32> = if prompt.selected_integrations.is_empty() {
-        Vec::new()
-    } else {
-        prompt
-            .selected_integrations
             .split(',')
             .filter_map(|s| s.trim().parse().ok())
             .collect()
