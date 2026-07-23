@@ -69,6 +69,15 @@ async fn test_generate_prompt_adds_available_skills() {
     assert!(system.contains("</available_skills>"));
 }
 
+#[test]
+fn test_tool_use_guidance_is_whitelabel_safe() {
+    let guidance = crate::context_builder::TOOL_USE_GUIDANCE;
+    assert!(guidance.contains("Use tools when the user asks for current"));
+    assert!(guidance.contains("search_tool_functions"));
+    assert!(!guidance.contains("Bionic"));
+    assert!(!guidance.contains("bionic"));
+}
+
 fn create_test_chat(
     id: i32,
     role: ChatRole,

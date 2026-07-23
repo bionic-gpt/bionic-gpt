@@ -73,6 +73,11 @@ pub async fn get_tools(
     let mut tools: Vec<Arc<dyn ToolDyn>> = vec![
         Arc::new(builtin_tools::time_date::TimeDateTool),
         Arc::new(builtin_tools::web::WebTool),
+        Arc::new(builtin_tools::monty::SearchToolFunctionsTool::new(
+            pool.clone(),
+            sub.clone(),
+            conversation_id,
+        )),
         Arc::new(builtin_tools::monty::MontyTool::new(
             pool.clone(),
             sub.clone(),

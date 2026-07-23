@@ -16,13 +16,18 @@ const DEFAULT_TIMEOUT_MS: u64 = 5_000;
 const MAX_TIMEOUT_MS: u64 = 30_000;
 const DEFAULT_MAX_MEMORY_BYTES: usize = 64 * 1024 * 1024;
 const DEFAULT_MAX_ALLOCATIONS: usize = 1_000_000;
-const BIONIC_INTEGRATIONS_CLASS: &str = "BionicIntegrations";
-const BIONIC_INTEGRATION_CLASS_PREFIX: &str = "BionicIntegration:";
+const TOOLBOX_INTEGRATIONS_CLASS: &str = "ToolboxIntegrations";
+const TOOLBOX_INTEGRATION_CLASS_PREFIX: &str = "ToolboxIntegration:";
 
 #[derive(Debug, Deserialize)]
 struct RunPythonArgs {
     code: String,
     timeout_ms: Option<u64>,
+}
+
+#[derive(Debug, Deserialize)]
+struct SearchToolFunctionsArgs {
+    query: String,
 }
 
 /// A tool that runs hermetic Python snippets in Monty.
@@ -90,10 +95,59 @@ impl ToolDyn for MontyTool {
     }
 }
 
+/// A tool that searches Python integration functions available to Monty.
+pub struct SearchToolFunctionsTool {
+    pool: db::Pool,
+    sub: String,
+    conversation_id: i64,
+}
+
+impl SearchToolFunctionsTool {
+    pub fn new(pool: db::Pool, sub: String, conversation_id: i64) -> Self {
+        Self {
+            pool,
+            sub,
+            conversation_id,
+        }
+    }
+}
+
+impl ToolDyn for SearchToolFunctionsTool {
+    fn name(&self) -> String {
+        get_search_tool_functions_definition().name
+    }
+
+    fn description(&self) -> String {
+        get_search_tool_functions_definition().description
+    }
+
+    fn parameters(&self) -> Value {
+        get_search_tool_functions_definition().parameters
+    }
+
+    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
+        Box::pin(async move {
+            let arguments: SearchToolFunctionsArgs =
+                serde_json::from_str(&args).map_err(ToolError::JsonError)?;
+
+            let registry = IntegrationRegistry::load_from_parts(
+                Some(&self.pool),
+                Some(&self.sub),
+                Some(self.conversation_id),
+            )
+            .await
+            .map_err(|err| ToolError::ToolCallError(Box::new(std::io::Error::other(err))))?;
+
+            let result = registry.search_json(&arguments.query);
+            serde_json::to_string(&result).map_err(ToolError::JsonError)
+        })
+    }
+}
+
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_python".to_string(),
-        description: "Run a short, hermetic Python snippet with Monty. Use this for calculations, data shaping, small programs, and configured Bionic integrations. Discover integrations with bionic.integrations.list() and call them as bionic.integrations.<integration>.<operation>(**kwargs). The sandbox has no access to the host filesystem, environment variables, network, or third-party Python packages. Return values and print output are captured.".to_string(),
+        description: "Run a short, hermetic Python snippet with Monty. Use this for calculations, data shaping, small programs, and configured integration functions. A preloaded global object named toolbox is available; do not import it. Discover integrations with toolbox.integrations.list() or toolbox.integrations.describe(...), and call functions as toolbox.integrations.<integration>.<operation>(**kwargs). The sandbox has no access to the host filesystem, environment variables, network, or third-party Python packages. Return values and print output are captured.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -109,6 +163,23 @@ pub fn get_tool_definition() -> ToolDefinition {
                 }
             },
             "required": ["code"]
+        }),
+    }
+}
+
+pub fn get_search_tool_functions_definition() -> ToolDefinition {
+    ToolDefinition {
+        name: "search_tool_functions".to_string(),
+        description: "Search available integration functions callable from run_python. Use this to discover functions for current, external, account-specific, or connected-system information before writing Python code.".to_string(),
+        parameters: json!({
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Search text describing the needed integration, function, data, or action."
+                }
+            },
+            "required": ["query"]
         }),
     }
 }
@@ -155,8 +226,8 @@ async fn execute_run_python(tool: &MontyTool, arguments: RunPythonArgs, timeout:
         progress = match progress {
             RunProgress::Complete(result) => break result,
             RunProgress::NameLookup(lookup) => {
-                let resolved = if lookup.name == "bionic" {
-                    NameLookupResult::Value(registry.bionic_object())
+                let resolved = if lookup.name == "toolbox" {
+                    NameLookupResult::Value(registry.toolbox_object())
                 } else {
                     NameLookupResult::Undefined
                 };
@@ -248,9 +319,15 @@ struct IntegrationRegistry {
 
 impl IntegrationRegistry {
     async fn load(tool: &MontyTool) -> Result<Self, String> {
-        let (Some(pool), Some(sub), Some(conversation_id)) =
-            (&tool.pool, &tool.sub, tool.conversation_id)
-        else {
+        Self::load_from_parts(tool.pool.as_ref(), tool.sub.as_ref(), tool.conversation_id).await
+    }
+
+    async fn load_from_parts(
+        pool: Option<&db::Pool>,
+        sub: Option<&String>,
+        conversation_id: Option<i64>,
+    ) -> Result<Self, String> {
+        let (Some(pool), Some(sub), Some(conversation_id)) = (pool, sub, conversation_id) else {
             return Ok(Self {
                 integrations: Vec::new(),
                 functions: HashMap::new(),
@@ -288,7 +365,7 @@ impl IntegrationRegistry {
             let Some(definition) = integration.definition.as_ref() else {
                 continue;
             };
-            let bionic_api = match crate::BionicOpenAPI::new(definition) {
+            let openapi = match crate::BionicOpenAPI::new(definition) {
                 Ok(api) => api,
                 Err(err) => {
                     tracing::warn!(
@@ -304,9 +381,9 @@ impl IntegrationRegistry {
                 pool.clone(),
                 sub.clone(),
                 &integration,
-                &bionic_api,
+                &openapi,
             );
-            let tools = match bionic_api.create_tools(token_provider) {
+            let tools = match openapi.create_tools(token_provider) {
                 Ok(tools) => tools,
                 Err(err) => {
                     tracing::warn!(
@@ -325,7 +402,7 @@ impl IntegrationRegistry {
 
             for tool in tools {
                 let operation_name = unique_identifier(&tool.name(), &mut used_operation_names);
-                let path = format!("bionic.integrations.{slug}.{operation_name}");
+                let path = format!("toolbox.integrations.{slug}.{operation_name}");
                 let operation = IntegrationOperation {
                     operation_name,
                     path,
@@ -353,9 +430,9 @@ impl IntegrationRegistry {
         })
     }
 
-    fn bionic_object(&self) -> MontyObject {
+    fn toolbox_object(&self) -> MontyObject {
         dataclass(
-            "Bionic",
+            "Toolbox",
             1,
             vec![("integrations", self.integrations_object())],
         )
@@ -368,14 +445,14 @@ impl IntegrationRegistry {
             attrs.push((
                 integration.slug.as_str(),
                 dataclass(
-                    &format!("{BIONIC_INTEGRATION_CLASS_PREFIX}{}", integration.slug),
+                    &format!("{TOOLBOX_INTEGRATION_CLASS_PREFIX}{}", integration.slug),
                     stable_type_id(&integration.slug),
                     vec![],
                 ),
             ));
         }
 
-        dataclass(BIONIC_INTEGRATIONS_CLASS, 2, attrs)
+        dataclass(TOOLBOX_INTEGRATIONS_CLASS, 2, attrs)
     }
 
     fn execute_function_call<T: monty_types::ResourceTracker>(
@@ -386,7 +463,7 @@ impl IntegrationRegistry {
             return ExtFunctionResult::NotFound(call.function_name.clone());
         };
 
-        if receiver_name == BIONIC_INTEGRATIONS_CLASS {
+        if receiver_name == TOOLBOX_INTEGRATIONS_CLASS {
             if call.function_name == "list" {
                 return ExtFunctionResult::Return(json_to_monty(&self.list_json()));
             }
@@ -401,7 +478,7 @@ impl IntegrationRegistry {
             return ExtFunctionResult::NotFound(call.function_name.clone());
         }
 
-        let Some(integration_slug) = receiver_name.strip_prefix(BIONIC_INTEGRATION_CLASS_PREFIX)
+        let Some(integration_slug) = receiver_name.strip_prefix(TOOLBOX_INTEGRATION_CLASS_PREFIX)
         else {
             return ExtFunctionResult::NotFound(call.function_name.clone());
         };
@@ -447,6 +524,28 @@ impl IntegrationRegistry {
                 })
                 .collect(),
         )
+    }
+
+    fn search_json(&self, query: &str) -> Value {
+        let query_terms = search_terms(query);
+        let mut matches = Vec::new();
+
+        for integration in &self.integrations {
+            for operation in &integration.operations {
+                if query_terms.is_empty() || operation_matches(integration, operation, &query_terms)
+                {
+                    matches.push(json!({
+                        "path": operation.path,
+                        "integration": integration.slug,
+                        "operation": operation.operation_name,
+                        "description": operation.description,
+                        "parameters": operation.parameters,
+                    }));
+                }
+            }
+        }
+
+        Value::Array(matches)
     }
 
     fn describe_json(
@@ -672,6 +771,32 @@ fn call_arguments_to_json(
     Ok(Value::Object(object))
 }
 
+fn search_terms(query: &str) -> Vec<String> {
+    query
+        .split(|ch: char| !ch.is_ascii_alphanumeric())
+        .filter(|term| !term.is_empty())
+        .map(|term| term.to_ascii_lowercase())
+        .collect()
+}
+
+fn operation_matches(
+    integration: &IntegrationInfo,
+    operation: &IntegrationOperation,
+    query_terms: &[String],
+) -> bool {
+    let haystack = format!(
+        "{} {} {} {} {}",
+        integration.name,
+        integration.slug,
+        operation.operation_name,
+        operation.description,
+        operation.parameters
+    )
+    .to_ascii_lowercase();
+
+    query_terms.iter().all(|term| haystack.contains(term))
+}
+
 fn monty_to_json(value: &MontyObject) -> Result<Value, String> {
     match value {
         MontyObject::None => Ok(Value::Null),
@@ -749,6 +874,18 @@ mod tests {
     fn test_get_tool_definition() {
         let tool = get_tool_definition();
         assert_eq!(tool.name, "run_python");
+        assert!(tool.description.contains("toolbox.integrations.list()"));
+        assert!(tool.description.contains("do not import it"));
+        assert!(!tool.description.contains("Bionic"));
+        assert!(!tool.description.contains("bionic"));
+    }
+
+    #[test]
+    fn test_get_search_tool_functions_definition() {
+        let tool = get_search_tool_functions_definition();
+        assert_eq!(tool.name, "search_tool_functions");
+        assert!(!tool.description.contains("Bionic"));
+        assert!(!tool.description.contains("bionic"));
     }
 
     #[test]
@@ -761,13 +898,44 @@ mod tests {
     }
 
     #[test]
-    fn test_bionic_integrations_list_without_integrations() {
+    fn test_toolbox_integrations_list_without_integrations() {
         let result = execute_run_python_without_integrations(RunPythonArgs {
-            code: "bionic.integrations.list()".to_string(),
+            code: "toolbox.integrations.list()".to_string(),
             timeout_ms: None,
         });
         assert_eq!(result["stdout"], "");
         assert_eq!(result["result"]["List"], json!([]));
+    }
+
+    #[test]
+    fn test_search_tool_functions_matches_keywords() {
+        let registry = IntegrationRegistry {
+            integrations: vec![IntegrationInfo {
+                name: "Coin Market".to_string(),
+                slug: "coin_market".to_string(),
+                operations: vec![IntegrationOperation {
+                    operation_name: "get_quote".to_string(),
+                    path: "toolbox.integrations.coin_market.get_quote".to_string(),
+                    description: "Get bitcoin price and crypto market quote".to_string(),
+                    parameters: json!({
+                        "type": "object",
+                        "properties": {
+                            "symbol": {"type": "string"}
+                        }
+                    }),
+                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
+                }],
+            }],
+            functions: HashMap::new(),
+        };
+
+        let result = registry.search_json("bitcoin price");
+        assert_eq!(
+            result[0]["path"],
+            "toolbox.integrations.coin_market.get_quote"
+        );
+        assert_eq!(result[0]["integration"], "coin_market");
+        assert_eq!(result[0]["operation"], "get_quote");
     }
 
     #[test]

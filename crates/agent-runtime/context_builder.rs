@@ -6,6 +6,8 @@ use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
 use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
 
+pub(crate) const TOOL_USE_GUIDANCE: &str = "Use tools when the user asks for current, live, external, account-specific, or connected-system information.\nFor prices, news, market data, web pages, search results, files, integrations, or connected data, do not answer from memory.\nUse search_tool_functions to find available callable functions, then use the appropriate runtime tool to execute them.";
+
 /// Converts database chats into rig-native messages.
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
     let mut messages: Vec<Message> = Vec::new();
@@ -58,16 +60,19 @@ pub async fn execute_prompt(
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
     let max_completion_tokens = prompt.max_completion_tokens.unwrap_or(0) as usize;
-    let available_skills = include_builtin_skills
-        .then(tool_runtime::builtin_skills::available_skills_prompt_section)
-        .flatten();
+    let tool_context = include_builtin_skills.then(|| {
+        combine_optional_sections(vec![
+            Some(TOOL_USE_GUIDANCE.to_string()),
+            tool_runtime::builtin_skills::available_skills_prompt_section(),
+        ])
+    });
 
     Ok(generate_prompt(
         prompt.model_context_size as usize,
         max_completion_tokens,
         trim_ratio,
         prompt.system_prompt,
-        available_skills,
+        tool_context,
         chat_history,
     )
     .await)
@@ -137,6 +142,15 @@ fn combine_system_prompt(
         (None, Some(available_skills)) => Some(available_skills),
         (None, None) => None,
     }
+}
+
+fn combine_optional_sections(sections: Vec<Option<String>>) -> String {
+    sections
+        .into_iter()
+        .flatten()
+        .filter(|section| !section.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n\n")
 }
 
 fn add_message(

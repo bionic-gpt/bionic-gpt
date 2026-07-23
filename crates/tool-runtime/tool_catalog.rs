@@ -52,7 +52,10 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
         integration_tool(
             "Python tools",
             ToolScope::UserSelectable,
-            vec![builtin_tools::monty::get_tool_definition()],
+            vec![
+                builtin_tools::monty::get_search_tool_functions_definition(),
+                builtin_tools::monty::get_tool_definition(),
+            ],
         ),
         integration_tool(
             "HTML canvas tools",
@@ -127,6 +130,7 @@ mod tests {
         let names: Vec<&str> = tools.iter().map(|tool| tool.name.as_str()).collect();
         assert!(names.contains(&"get_current_time_and_date"));
         assert!(names.contains(&"open_url"));
+        assert!(names.contains(&"search_tool_functions"));
         assert!(names.contains(&"run_python"));
         assert!(names.contains(&"render_html"));
         assert!(names.contains(&"run_bash"));
