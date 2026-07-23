@@ -38,6 +38,7 @@ async fn test_generate_prompt() {
         1024,
         1.0,
         Some("You are a helpful asistant".to_string()),
+        None,
         vec![Message::user("How are you today?")],
     )
     .await;
@@ -48,6 +49,24 @@ async fn test_generate_prompt() {
         Some("You are a helpful asistant")
     );
     assert_eq!(text_content(&messages[1]), Some("How are you today?"));
+}
+
+#[tokio::test]
+async fn test_generate_prompt_adds_available_skills() {
+    let messages = generate_prompt(
+        2048,
+        1024,
+        1.0,
+        Some("You are a helpful assistant".to_string()),
+        Some("<available_skills><skill></skill></available_skills>".to_string()),
+        vec![Message::user("How are you today?")],
+    )
+    .await;
+
+    assert_eq!(messages.len(), 2);
+    let system = text_content(&messages[0]).unwrap();
+    assert!(system.starts_with("You are a helpful assistant\n\n<available_skills>"));
+    assert!(system.contains("</available_skills>"));
 }
 
 fn create_test_chat(
@@ -296,7 +315,7 @@ async fn test_history_truncation_keeps_latest() {
         large_msg.clone(),
     ];
 
-    let messages = generate_prompt(context_size, 0, 1.0, None, history).await;
+    let messages = generate_prompt(context_size, 0, 1.0, None, None, history).await;
 
     let contents: Vec<_> = messages.iter().filter_map(text_content).collect();
     assert_eq!(messages.len(), 5);

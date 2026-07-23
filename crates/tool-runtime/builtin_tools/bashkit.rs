@@ -1,3 +1,4 @@
+use crate::builtin_skills;
 use crate::types::ToolDefinition;
 use bashkit::{
     async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem,
@@ -20,6 +21,9 @@ const MAX_COMMANDS: usize = 1_000;
 const MAX_STDOUT_BYTES: usize = 2 * 1024 * 1024;
 const MAX_STDERR_BYTES: usize = 512 * 1024;
 const CHUNKS_PER_DOCUMENT_LIMIT: i64 = 1_000;
+const HOME_DIR: &str = "/home/user";
+const SKILLS_DIR: &str = "/home/user/skills";
+const DATASETS_DIR: &str = "/home/user/datasets";
 
 #[derive(Debug, Deserialize)]
 struct RunBashArgs {
@@ -78,8 +82,8 @@ struct ChunkPath {
 impl ChunkPath {
     fn vfs_path(&self) -> String {
         format!(
-            "/datasets/{}/files/{}/chunks/{}.txt",
-            self.dataset_id, self.document_id, self.chunk_id
+            "{}/{}/files/{}/chunks/{}.txt",
+            DATASETS_DIR, self.dataset_id, self.document_id, self.chunk_id
         )
     }
 }
@@ -130,7 +134,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /datasets to inspect assistant datasets. Use rag-search 'query' to find relevant chunks and rag-read /datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/skills to read built-in skill instructions and /home/user/datasets to inspect assistant datasets. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call, network access is disabled, and host files are not mounted.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -165,8 +169,9 @@ async fn execute_run_bash(
 
     let started = Instant::now();
     let mut bash = Bash::builder()
-        .username("agent")
+        .username("user")
         .hostname("bashkit")
+        .cwd(HOME_DIR)
         .limits(
             ExecutionLimits::new()
                 .timeout(Duration::from_millis(timeout))
@@ -186,6 +191,7 @@ async fn execute_run_bash(
         .builtin("rag-read", Box::new(RagReadBuiltin))
         .build();
 
+    seed_builtin_skills(&bash).await?;
     seed_datasets(
         &tool.pool,
         &tool.sub,
@@ -213,6 +219,27 @@ async fn execute_run_bash(
     }))
 }
 
+async fn seed_builtin_skills(bash: &Bash) -> Result<(), serde_json::Value> {
+    let fs = bash.fs();
+    fs.mkdir(Path::new(SKILLS_DIR), true).await.map_err(
+        |e| json!({"error": "Failed to seed Bashkit skills directory", "details": e.to_string()}),
+    )?;
+
+    for file in builtin_skills::builtin_skill_files() {
+        let path = Path::new(&file.path);
+        if let Some(parent) = path.parent() {
+            fs.mkdir(parent, true)
+                .await
+                .map_err(|e| json!({"error": "Failed to seed Bashkit skill directory", "details": e.to_string()}))?;
+        }
+        fs.write_file(path, file.contents).await.map_err(
+            |e| json!({"error": "Failed to seed Bashkit skill file", "details": e.to_string()}),
+        )?;
+    }
+
+    Ok(())
+}
+
 async fn seed_datasets(
     pool: &Pool,
     sub: &str,
@@ -234,7 +261,7 @@ async fn seed_datasets(
         .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
 
     let fs = bash.fs();
-    fs.mkdir(Path::new("/datasets"), true)
+    fs.mkdir(Path::new(DATASETS_DIR), true)
         .await
         .map_err(|e| json!({"error": "Failed to seed Bashkit VFS", "details": e.to_string()}))?;
 
@@ -246,7 +273,7 @@ async fn seed_datasets(
 
     let mut dataset_entries = Vec::new();
     for dataset in datasets {
-        let dataset_path = format!("/datasets/{}", dataset.dataset_id);
+        let dataset_path = format!("{}/{}", DATASETS_DIR, dataset.dataset_id);
         fs.mkdir(Path::new(&dataset_path), true).await.map_err(
             |e| json!({"error": "Failed to seed dataset directory", "details": e.to_string()}),
         )?;
@@ -323,7 +350,7 @@ async fn seed_datasets(
 
     write_json(
         fs.as_ref(),
-        "/datasets/index.json",
+        &format!("{DATASETS_DIR}/index.json"),
         &DatasetManifest {
             datasets: dataset_entries,
         },
@@ -458,14 +485,14 @@ impl Builtin for RagReadBuiltin {
     async fn execute(&self, ctx: BuiltinContext<'_>) -> bashkit::Result<ExecResult> {
         let Some(path) = ctx.args.first() else {
             return Ok(ExecResult::err(
-                "usage: rag-read /datasets/.../chunks/<id>.txt\n",
+                "usage: rag-read /home/user/datasets/.../chunks/<id>.txt\n",
                 2,
             ));
         };
 
         if parse_chunk_path(path).is_none() {
             return Ok(ExecResult::err(
-                "rag-read only accepts /datasets/{dataset_id}/files/{document_id}/chunks/{chunk_id}.txt\n",
+                "rag-read only accepts /home/user/datasets/{dataset_id}/files/{document_id}/chunks/{chunk_id}.txt\n",
                 2,
             ));
         }
@@ -477,7 +504,7 @@ impl Builtin for RagReadBuiltin {
     }
 
     fn llm_hint(&self) -> Option<&'static str> {
-        Some("rag-read PATH: read a dataset chunk file from /datasets after rag-search returns paths.")
+        Some("rag-read PATH: read a dataset chunk file from /home/user/datasets after rag-search returns paths.")
     }
 }
 
@@ -674,18 +701,20 @@ fn parse_chunk_path(path: &str) -> Option<ChunkPath> {
         .map(|component| component.as_os_str().to_string_lossy().to_string())
         .collect();
 
-    if parts.len() != 7
+    if parts.len() != 9
         || parts[0] != "/"
-        || parts[1] != "datasets"
-        || parts[3] != "files"
-        || parts[5] != "chunks"
+        || parts[1] != "home"
+        || parts[2] != "user"
+        || parts[3] != "datasets"
+        || parts[5] != "files"
+        || parts[7] != "chunks"
     {
         return None;
     }
 
-    let dataset_id = parts[2].parse().ok()?;
-    let document_id = parts[4].parse().ok()?;
-    let chunk_id = parts[6].strip_suffix(".txt")?.parse().ok()?;
+    let dataset_id = parts[4].parse().ok()?;
+    let document_id = parts[6].parse().ok()?;
+    let chunk_id = parts[8].strip_suffix(".txt")?.parse().ok()?;
 
     Some(ChunkPath {
         dataset_id,
@@ -781,7 +810,7 @@ mod tests {
 
     #[test]
     fn test_parse_chunk_path() {
-        let path = parse_chunk_path("/datasets/1/files/2/chunks/3.txt").unwrap();
+        let path = parse_chunk_path("/home/user/datasets/1/files/2/chunks/3.txt").unwrap();
         assert_eq!(path.dataset_id, 1);
         assert_eq!(path.document_id, 2);
         assert_eq!(path.chunk_id, 3);
@@ -790,6 +819,26 @@ mod tests {
     #[test]
     fn test_parse_chunk_path_rejects_other_paths() {
         assert!(parse_chunk_path("/tmp/3.txt").is_none());
-        assert!(parse_chunk_path("/datasets/1/files/2/metadata.json").is_none());
+        assert!(parse_chunk_path("/datasets/1/files/2/chunks/3.txt").is_none());
+        assert!(parse_chunk_path("/home/user/datasets/1/files/2/metadata.json").is_none());
+    }
+
+    #[tokio::test]
+    async fn test_seed_builtin_skills_in_home() {
+        let mut bash = Bash::builder()
+            .username("user")
+            .hostname("bashkit")
+            .cwd(HOME_DIR)
+            .build();
+
+        seed_builtin_skills(&bash).await.unwrap();
+        let result = bash
+            .exec("whoami && pwd && cat /home/user/skills/dataset-analysis/SKILL.md")
+            .await
+            .unwrap();
+
+        assert_eq!(result.exit_code, 0);
+        assert!(result.stdout.starts_with("user\n/home/user\n"));
+        assert!(result.stdout.contains("# Dataset Analysis"));
     }
 }

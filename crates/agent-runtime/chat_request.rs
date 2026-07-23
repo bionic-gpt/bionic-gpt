@@ -71,10 +71,15 @@ pub(crate) async fn create_request(
 
     let chat_history = context_builder::convert_chat_to_messages(chat_history);
 
+    let supports_tool_use = capabilities
+        .iter()
+        .any(|c| c.capability == db::ModelCapability::tool_use);
+
     let messages = context_builder::execute_prompt(
         &transaction,
         prompt.clone(),
         Some(conversation.id),
+        supports_tool_use,
         chat_history,
     )
     .await?;
@@ -83,10 +88,7 @@ pub(crate) async fn create_request(
         .bind(&transaction, &ChatStatus::InProgress, &chat_id)
         .await?;
 
-    let tools = if capabilities
-        .iter()
-        .any(|c| c.capability == db::ModelCapability::tool_use)
-    {
+    let tools = if supports_tool_use {
         let mut all_tools = get_chat_tools_user_selected_with_system_openapi(pool).await;
 
         if attachment_count > 0 {

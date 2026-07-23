@@ -52,18 +52,23 @@ pub async fn execute_prompt(
     _transaction: &Transaction<'_>,
     prompt: prompts::SinglePrompt,
     _conversation_id: Option<i64>,
+    include_builtin_skills: bool,
     chat_history: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     tracing::info!("Retrieved {} history items", chat_history.len());
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
     let max_completion_tokens = prompt.max_completion_tokens.unwrap_or(0) as usize;
+    let available_skills = include_builtin_skills
+        .then(tool_runtime::builtin_skills::available_skills_prompt_section)
+        .flatten();
 
     Ok(generate_prompt(
         prompt.model_context_size as usize,
         max_completion_tokens,
         trim_ratio,
         prompt.system_prompt,
+        available_skills,
         chat_history,
     )
     .await)
@@ -105,6 +110,7 @@ pub async fn generate_prompt(
     max_completion_tokens: usize,
     trim_ratio: f32,
     system_prompt: Option<String>,
+    available_skills: Option<String>,
     history: Vec<Message>,
 ) -> Vec<Message> {
     let mut messages: Vec<Message> = Vec::new();
@@ -118,6 +124,8 @@ pub async fn generate_prompt(
     tracing::info!("Using context size of {}", size_allowed);
 
     let mut size_so_far = 0;
+
+    let system_prompt = combine_system_prompt(system_prompt, available_skills);
 
     if let Some(system_prompt) = &system_prompt {
         size_so_far = add_message(
@@ -147,6 +155,20 @@ pub async fn generate_prompt(
     tracing::debug!("{:?}", &messages);
 
     messages
+}
+
+fn combine_system_prompt(
+    system_prompt: Option<String>,
+    available_skills: Option<String>,
+) -> Option<String> {
+    match (system_prompt, available_skills) {
+        (Some(system_prompt), Some(available_skills)) => {
+            Some(format!("{system_prompt}\n\n{available_skills}"))
+        }
+        (Some(system_prompt), None) => Some(system_prompt),
+        (None, Some(available_skills)) => Some(available_skills),
+        (None, None) => None,
+    }
 }
 
 fn add_message(

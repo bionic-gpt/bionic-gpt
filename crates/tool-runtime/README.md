@@ -38,7 +38,8 @@ Use `get_tools`, `get_tools_with_system_openapi`, or
 
 - `time_date`: get current time and date.
 - `web`: open URL tool.
-- `run_bash`: Bashkit shell tool with `/datasets` VFS and `rag-search` / `rag-read`.
+- `run_bash`: Bashkit shell tool with `/home/user/skills`, `/home/user/datasets`,
+  and `rag-search` / `rag-read`.
 - `run_python`: Monty-backed Python snippets.
 - `render_html`: static HTML canvas artifacts.
 - `list_documents`, `read_document`: document tools.

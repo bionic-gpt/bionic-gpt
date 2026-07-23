@@ -3,6 +3,7 @@
 //! This crate defines tool interfaces, tool catalogs, tool dispatch,
 //! and OpenAPI-backed tool adapters used by the agent runtime.
 
+pub mod builtin_skills;
 pub mod builtin_tools;
 pub mod openapi_tool_factory;
 pub mod system_tool_sources;

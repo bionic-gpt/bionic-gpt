@@ -31,3 +31,4 @@ futures.workspace = true
 futures-util = "0.3"
 html2text = "0.16"
 bashkit = "0.14.3"
+include_dir = "0.7"
