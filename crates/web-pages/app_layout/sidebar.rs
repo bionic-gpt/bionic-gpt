@@ -42,10 +42,20 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                 )
             }
         }
-        if rbac.can_view_datasets() || rbac.can_view_integrations() {
+        if can_view_chats || rbac.can_view_datasets() || rbac.can_view_integrations() {
             NavGroup {
                 heading: "Context",
                 content:  rsx!(
+                    if can_view_chats {
+                        NavItem {
+                            id: SideBar::Skills.to_string(),
+                            selected_item_id: selected_item.clone(),
+                            href: crate::routes::skills::Index { team_id: team_id.clone() },
+                            icon: nav_automations_svg.name,
+                            title: "Skills",
+                            disabled: setup_required
+                        }
+                    }
                     if rbac.can_view_datasets() {
                         NavItem {
                             id: SideBar::Datasets.to_string(),

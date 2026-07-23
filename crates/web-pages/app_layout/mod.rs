@@ -38,6 +38,7 @@ pub enum SideBar {
     RateLimits,
     Switch,
     Security,
+    Skills,
     WebSearch,
 }
 

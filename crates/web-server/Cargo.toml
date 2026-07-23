@@ -55,6 +55,7 @@ chrono = { workspace = true, features = ["serde"] }
 time = { workspace = true, features = ["serde"] }
 url = "2.4"
 uuid = { workspace = true, features = ["serde", "v4"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
 
 [dev-dependencies]
 time.workspace = true

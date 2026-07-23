@@ -28,6 +28,7 @@ pub mod providers;
 pub mod rate_limits;
 pub mod shared;
 pub use components::section_introduction::SectionIntroduction;
+pub mod skills;
 pub mod snackbar;
 pub mod team;
 pub mod teams;

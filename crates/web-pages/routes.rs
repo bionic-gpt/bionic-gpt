@@ -508,6 +508,30 @@ pub mod datasets {
     }
 }
 
+pub mod skills {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills")]
+    pub struct Index {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills/upsert")]
+    pub struct Upsert {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills/delete/{id}")]
+    pub struct Delete {
+        pub team_id: String,
+        pub id: i32,
+    }
+}
+
 pub mod categories {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

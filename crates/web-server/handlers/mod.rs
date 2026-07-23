@@ -22,6 +22,7 @@ pub mod profile;
 pub mod projects;
 pub mod providers;
 pub mod rate_limits;
+pub mod skills;
 pub mod static_files;
 pub mod team;
 pub mod teams;

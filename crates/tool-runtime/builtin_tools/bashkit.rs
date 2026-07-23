@@ -149,7 +149,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read built-in skill instructions, and /home/user/datasets to inspect assistant datasets. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, and /home/user/datasets to inspect assistant datasets. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call, network access is disabled, and host files are not mounted.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -207,6 +207,7 @@ async fn execute_run_bash(
         .build();
 
     seed_builtin_skills(&bash).await?;
+    seed_custom_skills(&tool.pool, &tool.sub, &bash).await?;
     seed_datasets(
         &tool.pool,
         &tool.sub,
@@ -252,6 +253,47 @@ async fn seed_builtin_skills(bash: &Bash) -> Result<(), serde_json::Value> {
             |e| json!({"error": "Failed to seed Bashkit skill file", "details": e.to_string()}),
         )?;
     }
+
+    Ok(())
+}
+
+async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), serde_json::Value> {
+    let mut client = pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let files = queries::skills::visible_skill_files()
+        .bind(&transaction)
+        .all()
+        .await
+        .map_err(|e| json!({"error": "Failed to get skills", "details": e.to_string()}))?;
+
+    let fs = bash.fs();
+    for file in builtin_skills::runtime_skill_files(files) {
+        let path = Path::new(&file.path);
+        if let Some(parent) = path.parent() {
+            fs.mkdir(parent, true)
+                .await
+                .map_err(|e| json!({"error": "Failed to seed Bashkit skill directory", "details": e.to_string()}))?;
+        }
+        fs.write_file(path, &file.contents).await.map_err(
+            |e| json!({"error": "Failed to seed Bashkit skill file", "details": e.to_string()}),
+        )?;
+    }
+
+    transaction
+        .commit()
+        .await
+        .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
 
     Ok(())
 }
