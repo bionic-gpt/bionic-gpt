@@ -118,7 +118,7 @@ pub fn ToolCallTimeline(
                                 }
                             }
                             iframe {
-                                class: "w-full h-96 bg-white",
+                                class: "w-full h-[30vh] min-h-[640px] bg-white",
                                 title: canvas.title.as_deref().unwrap_or("HTML canvas"),
                                 "sandbox": "",
                                 srcdoc: "{canvas.html}"
