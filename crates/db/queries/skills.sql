@@ -1,10 +1,13 @@
---! skills : Skill()
+--: Skill(team_id?)
+
+--! skills : Skill
 SELECT
     s.id,
     s.team_id,
     s.name,
     s.description,
     s.visibility,
+    s.is_system,
     (SELECT COUNT(id) FROM context.skill_files WHERE skill_id = s.id) AS file_count,
     s.created_at,
     s.updated_at
@@ -26,13 +29,14 @@ WHERE
     )
 ORDER BY s.updated_at DESC;
 
---! skill : Skill()
+--! skill : Skill
 SELECT
     s.id,
     s.team_id,
     s.name,
     s.description,
     s.visibility,
+    s.is_system,
     (SELECT COUNT(id) FROM context.skill_files WHERE skill_id = s.id) AS file_count,
     s.created_at,
     s.updated_at
@@ -60,13 +64,14 @@ SELECT
     s.id AS skill_id,
     s.name AS skill_name,
     s.description,
+    s.is_system,
     sf.relative_path,
-    o.object_data
+    COALESCE(o.object_data, sf.contents) AS object_data
 FROM
     context.skills s
 JOIN
     context.skill_files sf ON sf.skill_id = s.id
-JOIN
+LEFT JOIN
     storage.objects o ON o.id = sf.object_id
 WHERE
     (
@@ -88,6 +93,7 @@ ORDER BY s.name, sf.relative_path;
 SELECT
     s.id AS skill_id,
     s.name AS skill_name,
+    s.is_system,
     s.description
 FROM
     context.skills s
@@ -128,12 +134,14 @@ RETURNING id;
 INSERT INTO context.skill_files (
     skill_id,
     object_id,
-    relative_path
+    relative_path,
+    contents
 )
 VALUES (
     :skill_id,
     :object_id,
-    :relative_path
+    :relative_path,
+    NULL::BYTEA
 );
 
 --! update_skill
@@ -146,6 +154,8 @@ SET
 WHERE
     id = :skill_id
 AND
+    is_system = false
+AND
     team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());
 
 --! delete_skill_files
@@ -156,7 +166,8 @@ WHERE
 AND
     skill_id IN (
         SELECT id FROM context.skills
-        WHERE team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
+        WHERE is_system = false
+        AND team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
     );
 
 --! delete_skill
@@ -164,5 +175,7 @@ DELETE FROM
     context.skills
 WHERE
     id = :skill_id
+AND
+    is_system = false
 AND
     team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());

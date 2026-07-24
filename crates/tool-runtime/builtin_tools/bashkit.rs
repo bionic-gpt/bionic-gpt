@@ -1,4 +1,4 @@
-use crate::builtin_skills;
+use crate::skills;
 use crate::types::ToolDefinition;
 use bashkit::{
     async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem,
@@ -206,7 +206,6 @@ async fn execute_run_bash(
         .builtin("rag-read", Box::new(RagReadBuiltin))
         .build();
 
-    seed_builtin_skills(&bash).await?;
     seed_custom_skills(&tool.pool, &tool.sub, &bash).await?;
     seed_datasets(
         &tool.pool,
@@ -236,27 +235,6 @@ async fn execute_run_bash(
     }))
 }
 
-async fn seed_builtin_skills(bash: &Bash) -> Result<(), serde_json::Value> {
-    let fs = bash.fs();
-    fs.mkdir(Path::new(SKILLS_DIR), true).await.map_err(
-        |e| json!({"error": "Failed to seed Bashkit skills directory", "details": e.to_string()}),
-    )?;
-
-    for file in builtin_skills::builtin_skill_files() {
-        let path = Path::new(&file.path);
-        if let Some(parent) = path.parent() {
-            fs.mkdir(parent, true)
-                .await
-                .map_err(|e| json!({"error": "Failed to seed Bashkit skill directory", "details": e.to_string()}))?;
-        }
-        fs.write_file(path, file.contents).await.map_err(
-            |e| json!({"error": "Failed to seed Bashkit skill file", "details": e.to_string()}),
-        )?;
-    }
-
-    Ok(())
-}
-
 async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), serde_json::Value> {
     let mut client = pool
         .get()
@@ -278,7 +256,11 @@ async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), s
         .map_err(|e| json!({"error": "Failed to get skills", "details": e.to_string()}))?;
 
     let fs = bash.fs();
-    for file in builtin_skills::runtime_skill_files(files) {
+    fs.mkdir(Path::new(SKILLS_DIR), true).await.map_err(
+        |e| json!({"error": "Failed to seed Bashkit skills directory", "details": e.to_string()}),
+    )?;
+
+    for file in skills::runtime_skill_files(files) {
         let path = Path::new(&file.path);
         if let Some(parent) = path.parent() {
             fs.mkdir(parent, true)
@@ -1050,24 +1032,5 @@ mod tests {
         assert!(parse_chunk_path("/tmp/3.txt").is_none());
         assert!(parse_chunk_path("/datasets/1/files/2/chunks/3.txt").is_none());
         assert!(parse_chunk_path("/home/user/datasets/1/files/2/metadata.json").is_none());
-    }
-
-    #[tokio::test]
-    async fn test_seed_builtin_skills_in_home() {
-        let mut bash = Bash::builder()
-            .username("user")
-            .hostname("bashkit")
-            .cwd(HOME_DIR)
-            .build();
-
-        seed_builtin_skills(&bash).await.unwrap();
-        let result = bash
-            .exec("whoami && pwd && cat /home/user/skills/dataset-analysis/SKILL.md")
-            .await
-            .unwrap();
-
-        assert_eq!(result.exit_code, 0);
-        assert!(result.stdout.starts_with("user\n/home/user\n"));
-        assert!(result.stdout.contains("# Dataset Analysis"));
     }
 }
