@@ -7,7 +7,6 @@ use web_pages::routes::openapi_specs::{Edit, Index, New};
 fn category_to_string(category: OpenapiSpecCategory) -> String {
     match category {
         OpenapiSpecCategory::WebSearch => "WebSearch".to_string(),
-        OpenapiSpecCategory::CodeSandbox => "CodeSandbox".to_string(),
         OpenapiSpecCategory::Application => "Application".to_string(),
     }
 }

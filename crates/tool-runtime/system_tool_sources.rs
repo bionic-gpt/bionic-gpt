@@ -63,10 +63,7 @@ async fn load_selected_helpers(
     let transaction = client.transaction().await.map_err(|e| e.to_string())?;
 
     let mut helpers = Vec::new();
-    for category in [
-        OpenapiSpecCategory::WebSearch,
-        OpenapiSpecCategory::CodeSandbox,
-    ] {
+    for category in [OpenapiSpecCategory::WebSearch] {
         if let Some(selected) = load_selected_spec(&transaction, category)
             .await
             .map_err(|e| e.to_string())?

@@ -1,5 +1,5 @@
 use crate::chunks::ChunkText;
-use db::types::public::ChunkingStrategy;
+use db::types::ChunkingStrategy;
 use reqwest::{multipart, Client};
 use serde::{Deserialize, Serialize};
 use std::error::Error;

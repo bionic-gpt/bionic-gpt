@@ -8,7 +8,7 @@ path = "lib.rs"
 
 [dependencies]
 rag-engine = { path = "../rag-engine" }
-rig-core = { version = "0.24", default-features = false, features = ["reqwest-rustls"] }
+rig = { package = "rig-core", version = "0.40", default-features = false, features = ["reqwest", "rustls"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 tiktoken-rs = "0.9.1"
@@ -22,9 +22,13 @@ oas3.workspace = true
 oauth2.workspace = true
 reqwest = { workspace = true, default-features = false, features = ["json", "rustls", "stream"] }
 time = { workspace = true, features = ["parsing", "formatting"] }
+monty = { git = "https://github.com/pydantic/monty.git", rev = "23b5ffedfa219b1cb56823555442b6489c4b3481", package = "monty" }
+monty-types = { git = "https://github.com/pydantic/monty.git", rev = "23b5ffedfa219b1cb56823555442b6489c4b3481", package = "monty-types" }
 # Used by tests
 futures.workspace = true
 
 # Used by the web tool to stream responses
 futures-util = "0.3"
 html2text = "0.16"
+bashkit = "0.14.3"
+include_dir = "0.7"

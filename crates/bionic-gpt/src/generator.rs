@@ -12,7 +12,6 @@ fn output_page(path: &str, html: String) -> SitePage {
 pub async fn generate_product() -> Vec<SitePage> {
     vec![
         output_page("product/assistants", pages::product::assistants::page()),
-        output_page("product/automations", pages::product::automations::page()),
         output_page("product/chat", pages::product::chat::page()),
         output_page("product/developers", pages::product::developers::page()),
         output_page("product/integrations", pages::product::integrations::page()),

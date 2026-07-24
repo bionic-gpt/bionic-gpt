@@ -9,10 +9,13 @@ edition = "2021"
 path = "lib.rs"
 
 [dependencies]
-tokio-postgres.workspace = true
+tokio-postgres = { workspace = true, features = ["with-chrono-0_4"] }
 cornucopia_async = { version = "0.6", features = ["with-serde_json-1"] }
 deadpool-postgres = { version = "0.12.1", features = ["serde"] }
+postgres = { version = "0.19", features = ["with-chrono-0_4", "with-uuid-1", "with-serde_json-1"] }
+postgres-protocol = "0.6"
 postgres-types = { version = "0.2", features = ["derive", "with-uuid-1"] }
+chrono = { workspace = true, features = ["serde"] }
 time = { version = "0.3", default-features = false,  features = ["formatting", "serde", "parsing"] }
 pgvector = { workspace = true, features = ["postgres"] }
 tracing.workspace = true
@@ -20,8 +23,11 @@ tracing.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["raw_value"] }
 futures.workspace = true
-base64.workspace = true
-ed25519-dalek = { version = "2.2.0", features = ["pkcs8", "pem"] }
 uuid = { workspace = true, features = ["serde"] }
 tokio = { workspace = true, features = ["sync"] }
 sqids = "0.4"
+
+[features]
+default = ["deadpool"]
+deadpool = []
+wasm-async = []

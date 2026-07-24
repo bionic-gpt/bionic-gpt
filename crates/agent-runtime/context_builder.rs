@@ -1,13 +1,12 @@
 use crate::errors::CustomError;
-use db::queries::{prompt_integrations, prompts};
+use db::queries::prompts;
 use db::Transaction;
 use db::{Chat, ChatRole};
 use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
-use tool_runtime::ToolDefinition;
-use tool_runtime::{
-    create_tools_from_integrations, get_tools, parse_tool_calls, ToolCall, ToolScope,
-};
+use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
+
+pub(crate) const TOOL_USE_GUIDANCE: &str = "Use tools when the user asks for current, live, external, account-specific, or connected-system information.\nFor prices, news, market data, web pages, search results, files, integrations, or connected data, do not answer from memory.\nUse search_tool_functions to find available callable functions, then use the appropriate runtime tool to execute them.";
 
 /// Converts database chats into rig-native messages.
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
@@ -21,6 +20,10 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
         let message = match chat.role {
             ChatRole::Assistant => {
                 let mut items: Vec<AssistantContent> = Vec::new();
+                for reasoning in parse_reasoning(chat.tool_calls.as_deref()) {
+                    items.push(AssistantContent::Reasoning(reasoning));
+                }
+
                 if !content.trim().is_empty() {
                     items.push(AssistantContent::text(content));
                 }
@@ -47,64 +50,40 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
 }
 
 pub async fn execute_prompt(
-    _transaction: &Transaction<'_>,
+    transaction: &Transaction<'_>,
     prompt: prompts::SinglePrompt,
     _conversation_id: Option<i64>,
+    include_builtin_skills: bool,
     chat_history: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     tracing::info!("Retrieved {} history items", chat_history.len());
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
     let max_completion_tokens = prompt.max_completion_tokens.unwrap_or(0) as usize;
+    let tool_context = if include_builtin_skills {
+        let skill_summaries = db::queries::skills::visible_skill_summaries()
+            .bind(transaction)
+            .all()
+            .await?;
+        Some(combine_optional_sections(vec![
+            Some(TOOL_USE_GUIDANCE.to_string()),
+            tool_runtime::builtin_skills::available_skills_prompt_section_with_custom(
+                skill_summaries,
+            ),
+        ]))
+    } else {
+        None
+    };
 
     Ok(generate_prompt(
         prompt.model_context_size as usize,
         max_completion_tokens,
         trim_ratio,
         prompt.system_prompt,
+        tool_context,
         chat_history,
     )
     .await)
-}
-
-pub async fn get_prompt_integration_tools(
-    transaction: &Transaction<'_>,
-    prompt_id: i32,
-) -> Result<Vec<ToolDefinition>, CustomError> {
-    let prompt_integrations = prompt_integrations::get_prompt_integrations_with_connections()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to get integrations for prompt {}: {}", prompt_id, e);
-            CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
-        })?;
-
-    let external_tools = create_tools_from_integrations(prompt_integrations, None, None).await;
-    let mut filtered_tools: Vec<ToolDefinition> = Vec::new();
-    for tool in external_tools {
-        filtered_tools.push(tool.definition(String::new()).await);
-    }
-
-    let datasets = prompts::prompt_datasets()
-        .bind(transaction, &prompt_id)
-        .all()
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to get datasets for prompt {}: {}", prompt_id, e);
-            CustomError::Database(e.to_string(), std::backtrace::Backtrace::capture())
-        })?;
-
-    if !datasets.is_empty() {
-        filtered_tools.extend(get_tools(ToolScope::Rag));
-    }
-
-    tracing::info!(
-        "Retrieved {} integration tools for prompt {}",
-        filtered_tools.len(),
-        prompt_id
-    );
-    Ok(filtered_tools)
 }
 
 pub async fn generate_prompt(
@@ -112,6 +91,7 @@ pub async fn generate_prompt(
     max_completion_tokens: usize,
     trim_ratio: f32,
     system_prompt: Option<String>,
+    available_skills: Option<String>,
     history: Vec<Message>,
 ) -> Vec<Message> {
     let mut messages: Vec<Message> = Vec::new();
@@ -125,6 +105,8 @@ pub async fn generate_prompt(
     tracing::info!("Using context size of {}", size_allowed);
 
     let mut size_so_far = 0;
+
+    let system_prompt = combine_system_prompt(system_prompt, available_skills);
 
     if let Some(system_prompt) = &system_prompt {
         size_so_far = add_message(
@@ -154,6 +136,29 @@ pub async fn generate_prompt(
     tracing::debug!("{:?}", &messages);
 
     messages
+}
+
+fn combine_system_prompt(
+    system_prompt: Option<String>,
+    available_skills: Option<String>,
+) -> Option<String> {
+    match (system_prompt, available_skills) {
+        (Some(system_prompt), Some(available_skills)) => {
+            Some(format!("{system_prompt}\n\n{available_skills}"))
+        }
+        (Some(system_prompt), None) => Some(system_prompt),
+        (None, Some(available_skills)) => Some(available_skills),
+        (None, None) => None,
+    }
+}
+
+fn combine_optional_sections(sections: Vec<Option<String>>) -> String {
+    sections
+        .into_iter()
+        .flatten()
+        .filter(|section| !section.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n\n")
 }
 
 fn add_message(

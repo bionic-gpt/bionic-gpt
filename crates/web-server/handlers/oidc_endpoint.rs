@@ -4,7 +4,7 @@ use axum::{
     Extension,
 };
 use axum_extra::routing::TypedPath;
-use db::{authz, queries, Licence, ModelType, Pool};
+use db::{authz, queries, ModelType, Pool};
 use http::StatusCode;
 use serde::Deserialize;
 
@@ -72,12 +72,7 @@ pub async fn setup_user(
         team_id: team_public_id.clone(),
     }
     .to_string();
-    let mut redirect_url = Licence::global()
-        .redirect_url
-        .as_ref()
-        .map(|template| template.replace("{team_id}", &team_public_id))
-        .filter(|url| !url.is_empty())
-        .unwrap_or(default_console_url);
+    let mut redirect_url = default_console_url;
 
     if setup_required {
         redirect_url = web_pages::routes::models::Index {

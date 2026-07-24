@@ -16,7 +16,7 @@ fn cornucopia() {
     // and include the generated file with a `include_str` statement in your project.
 
     let out_dir = env::var_os("OUT_DIR").unwrap();
-    let file_path = Path::new(&out_dir).join("cornucopia.rs");
+    let file_path = Path::new(&out_dir).join("cornucopia");
 
     let db_url = env::var_os("DATABASE_URL").unwrap();
 
@@ -25,11 +25,11 @@ fn cornucopia() {
 
     // Call cornucopia. Use whatever CLI command you need.
     let output = std::process::Command::new("cornucopia")
+        .arg("live")
         .arg("-q")
         .arg(queries_path)
         .arg("-d")
         .arg(&file_path)
-        .arg("live")
         .arg(db_url)
         .output()
         .unwrap();

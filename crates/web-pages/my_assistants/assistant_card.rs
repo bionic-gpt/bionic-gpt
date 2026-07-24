@@ -13,7 +13,6 @@ pub fn MyAssistantCard(team_id: String, prompt: MyPrompt, locale: String) -> Ele
         .chars()
         .filter(|&c| c != '\n' && c != '\t' && c != '\r')
         .collect();
-    let integration_label = i18n::integration(&locale);
     let dataset_label = i18n::dataset(&locale);
     let datasets_label = i18n::datasets(&locale);
 
@@ -25,7 +24,6 @@ pub fn MyAssistantCard(team_id: String, prompt: MyPrompt, locale: String) -> Ele
             description: if description.is_empty() { None } else { Some(rsx!( span { "{description}" } )) },
             footer: Some(rsx!( span { "Last updated " RelativeTime { format: RelativeTimeFormat::Relative, datetime: "{prompt.updated_at}" } } )),
             count_labels: vec![
-                CountLabel { count: prompt.integration_count as usize, label: integration_label.clone() },
                 CountLabel { count: prompt.dataset_count as usize, label: dataset_label.clone() },
             ],
             action: Some(rsx!(
@@ -33,7 +31,6 @@ pub fn MyAssistantCard(team_id: String, prompt: MyPrompt, locale: String) -> Ele
                     direction: Direction::Bottom,
                     button_text: "...",
                     DropDownLink { href: crate::routes::prompts::Edit{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Edit" }
-                    DropDownLink { href: crate::routes::prompts::ManageIntegrations{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), "Manage Integrations" }
                     DropDownLink { href: crate::routes::prompts::ManageDatasets{team_id: team_id.clone(), prompt_id: prompt.id}.to_string(), {format!("Manage {}", datasets_label)} }
                     DropDownLink { popover_target: format!("delete-trigger-{}-{}", prompt.id, team_id), href: "#", target: "_top", "Delete" }
                 }

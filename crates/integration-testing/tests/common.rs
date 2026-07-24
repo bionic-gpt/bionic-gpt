@@ -176,7 +176,7 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
     // Stop stale element error
     sleep(Duration::from_millis(1000)).await;
 
-    driver.goto(format!("{}/", &config.application_url)).await?;
+    driver.goto(format!("{}/", config.application_url)).await?;
 
     let email = register_random_user(driver, config).await?;
 
@@ -185,7 +185,7 @@ pub async fn register_user(driver: &WebDriver, config: &Config) -> WebDriverResu
 
 pub async fn sign_in_user(driver: &WebDriver, email: &str, config: &Config) -> WebDriverResult<()> {
     // Go to sign in page
-    driver.goto(format!("{}/", &config.application_url)).await?;
+    driver.goto(format!("{}/", config.application_url)).await?;
 
     driver
         .find(By::Id("username"))
@@ -279,7 +279,7 @@ pub async fn register_random_user(driver: &WebDriver, config: &Config) -> WebDri
 
     sleep(Duration::from_millis(1000)).await;
 
-    driver.goto(format!("{}/", &config.application_url)).await?;
+    driver.goto(format!("{}/", config.application_url)).await?;
 
     driver
         .find(By::Id("username"))

@@ -1,5 +1,4 @@
 use agent_runtime::user_config::UserConfig;
-use tool_runtime::ToolScope;
 
 use crate::{CustomError, Jwt};
 use axum::extract::Extension;
@@ -7,7 +6,6 @@ use axum::response::Html;
 use db::authz;
 use db::queries;
 use db::Pool;
-use tool_runtime;
 use web_pages::console;
 use web_pages::routes::console::Index;
 
@@ -53,21 +51,7 @@ pub async fn index(
         .bind(&transaction, &prompt.model_id)
         .all()
         .await?;
-    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
-
-    // Get available tools from the integrations crate
-    let available_tools =
-        tool_runtime::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
-
-    let html = console::page::new_conversation(
-        team_id,
-        prompts,
-        prompt,
-        rbac,
-        capabilities,
-        enabled_tools,
-        available_tools,
-    );
+    let html = console::page::new_conversation(team_id, prompts, prompt, rbac, capabilities);
 
     Ok(Html(html))
 }

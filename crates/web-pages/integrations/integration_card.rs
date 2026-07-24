@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 use crate::components::card_item::{CardItem, CountLabel};
 use daisy_rsx::*;
-use db::{IntegrationType, Licence};
+use db::IntegrationType;
 use dioxus::prelude::*;
 use tool_runtime::{BionicOpenAPI, OAuth2Config};
 
@@ -18,7 +18,6 @@ pub struct IntegrationSummary {
 
 #[component]
 pub fn IntegrationCard(integration: IntegrationSummary, team_id: String) -> Element {
-    let licence = Licence::global();
     let has_oauth2 = integration.openapi.get_oauth2_config().is_some();
     let has_api_key = integration.openapi.has_api_key_security();
     let count = if has_oauth2 {
@@ -32,11 +31,7 @@ pub fn IntegrationCard(integration: IntegrationSummary, team_id: String) -> Elem
     let description = integration.openapi.get_description().unwrap_or_default();
 
     let logo_url = integration.openapi.get_logo_url();
-    let timeline_label = if licence.features.mcp {
-        "Started"
-    } else {
-        "Created"
-    };
+    let timeline_label = "Created";
     rsx! {
         CardItem {
             class: Some("cursor-pointer hover:bg-base-200 w-full".into()),

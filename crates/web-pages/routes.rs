@@ -1,88 +1,6 @@
 // All the routes of the application are mapped here and are typesafe
 // https://docs.rs/axum-extra/latest/axum_extra/routing/trait.TypedPath.html
 
-pub mod automations {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/new")]
-    pub struct New {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/edit/{prompt_id}")]
-    pub struct Edit {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/upsert")]
-    pub struct Upsert {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automations/delete/{id}")]
-    pub struct Delete {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/integrations")]
-    pub struct ManageIntegrations {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/integrations/add/{integration_id}")]
-    pub struct AddIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/integrations/remove/{integration_id}")]
-    pub struct RemoveIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/triggers")]
-    pub struct ManageTriggers {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/triggers/add")]
-    pub struct AddCronTrigger {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/automation/{prompt_id}/triggers/remove/{trigger_id}")]
-    pub struct RemoveCronTrigger {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub trigger_id: i32,
-    }
-}
-
 pub mod history {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
@@ -198,10 +116,6 @@ pub mod console {
     pub struct SetPrompt {}
 
     #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/set_tools")]
-    pub struct SetTools {}
-
-    #[derive(TypedPath, Deserialize)]
     #[typed_path("/o/{team_id}/console/{conversation_id}")]
     pub struct Conversation {
         pub team_id: String,
@@ -312,29 +226,6 @@ pub mod prompts {
     pub struct UpdateDatasets {
         pub team_id: String,
         pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/integrations")]
-    pub struct ManageIntegrations {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/integrations/add/{integration_id}")]
-    pub struct AddIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/integrations/remove/{integration_id}")]
-    pub struct RemoveIntegration {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub integration_id: i32,
     }
 }
 
@@ -617,6 +508,30 @@ pub mod datasets {
     }
 }
 
+pub mod skills {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills")]
+    pub struct Index {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills/upsert")]
+    pub struct Upsert {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills/delete/{id}")]
+    pub struct Delete {
+        pub team_id: String,
+        pub id: i32,
+    }
+}
+
 pub mod categories {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
@@ -862,48 +777,5 @@ pub mod web_search {
     pub struct DeleteApiKey {
         pub team_id: String,
         pub id: i32,
-    }
-}
-
-pub mod code_sandbox {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox/select/{id}")]
-    pub struct Select {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox/spec/{id}/api_key")]
-    pub struct ConfigureApiKey {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/code_sandbox/spec/{id}/api_key/delete")]
-    pub struct DeleteApiKey {
-        pub team_id: String,
-        pub id: i32,
-    }
-}
-
-pub mod licence {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/licence")]
-    pub struct Index {
-        pub team_id: String,
     }
 }

@@ -8,11 +8,11 @@ use axum::{
     Json, Router,
 };
 use axum_extra::routing::{RouterExt, TypedPath};
+use chrono::{DateTime, FixedOffset};
 use db::Pool;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use std::{future::Future, pin::Pin, sync::Arc};
-use time::OffsetDateTime;
 use tool_runtime::{BionicOpenAPI, OAuth2TokenProvider, StaticTokenProvider};
 use tower_http::cors::{Any, CorsLayer};
 use uuid::Uuid;
@@ -167,7 +167,7 @@ enum ConnectionAuth {
         connection_id: i32,
         access_token: String,
         refresh_token: Option<String>,
-        expires_at: Option<OffsetDateTime>,
+        expires_at: Option<DateTime<FixedOffset>>,
     },
 }
 

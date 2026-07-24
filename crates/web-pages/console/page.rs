@@ -5,7 +5,6 @@ use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::{Prompt, SinglePrompt};
 use dioxus::prelude::*;
-use tool_runtime::ToolDefinition;
 
 pub fn new_conversation(
     team_id: String,
@@ -13,8 +12,6 @@ pub fn new_conversation(
     prompt: SinglePrompt,
     rbac: Rbac,
     capabilities: Vec<Capability>,
-    enabled_tools: Vec<String>,
-    available_tools: Vec<ToolDefinition>,
 ) -> String {
     // Rerverse it because that's how we display it.
     crate::render(rsx! {
@@ -28,8 +25,6 @@ pub fn new_conversation(
             pending_chat_state: super::PendingChatState::None,
             is_tts_disabled: true,
             capabilities,
-            enabled_tools,
-            available_tools,
             header: rsx!(
                 Head {
                     team_id: team_id.clone(),

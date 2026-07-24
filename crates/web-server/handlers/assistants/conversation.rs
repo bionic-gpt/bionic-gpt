@@ -1,13 +1,10 @@
 use super::super::console::process_chats;
 use crate::{CustomError, Jwt};
-use agent_runtime::UserConfig;
 use axum::extract::Extension;
 use axum::response::Html;
 use db::queries;
 use db::Pool;
 use db::{authz, ModelType};
-use tool_runtime::ToolDefinition;
-use tool_runtime::ToolScope;
 use web_pages::routes::prompts::Conversation;
 
 pub async fn conversation(
@@ -17,7 +14,6 @@ pub async fn conversation(
         prompt_id,
     }: Conversation,
     current_user: Jwt,
-    user_config: UserConfig,
     Extension(pool): Extension<Pool>,
 ) -> Result<Html<String>, CustomError> {
     let mut client = pool.get().await?;
@@ -60,11 +56,6 @@ pub async fn conversation(
         .bind(&transaction, &prompt.model_id)
         .all()
         .await?;
-    let enabled_tools = user_config.enabled_tools.unwrap_or_default();
-
-    let available_tools: Vec<ToolDefinition> =
-        tool_runtime::get_tools_with_system_openapi(&pool, ToolScope::UserSelectable).await;
-
     let html = web_pages::assistants::conversation::page(
         team_id,
         rbac,
@@ -74,8 +65,6 @@ pub async fn conversation(
         conversation_id,
         is_tts_disabled,
         capabilities,
-        enabled_tools,
-        available_tools,
     );
 
     Ok(Html(html))

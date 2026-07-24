@@ -133,12 +133,74 @@ fn build_tool_call_index(chat_history: &[ChatWithChunks]) -> HashMap<String, Too
 
         if let Some(tool_calls_json) = &chat_with_chunks.chat.tool_calls {
             for tool_call in parse_tool_calls(Some(tool_calls_json)) {
-                index.insert(tool_call.id.clone(), tool_call);
+                index.insert(tool_call.id.clone(), tool_call.clone());
+                if let Some(call_id) = tool_call.call_id.clone() {
+                    index.insert(call_id, tool_call);
+                }
             }
         }
     }
 
     index
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::DateTime;
+    use db::{Chat, ChatStatus};
+    use serde_json::json;
+    use tool_runtime::ToolCallFunction;
+
+    fn epoch() -> DateTime<chrono::FixedOffset> {
+        DateTime::UNIX_EPOCH.fixed_offset()
+    }
+
+    fn chat_with_tool_calls(tool_calls: Vec<ToolCall>) -> ChatWithChunks {
+        ChatWithChunks {
+            chat: Chat {
+                id: 1,
+                conversation_id: 1,
+                content: None,
+                role: ChatRole::Assistant,
+                tool_call_id: None,
+                tool_calls: serde_json::to_string(&tool_calls).ok(),
+                prompt_id: 1,
+                model_name: "test-model".to_string(),
+                attachments: None,
+                status: ChatStatus::Success,
+                created_at: epoch(),
+                updated_at: epoch(),
+            },
+            chunks: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn build_tool_call_index_indexes_id_and_call_id() {
+        let tool_call = ToolCall {
+            id: "provider_item_id".to_string(),
+            call_id: Some("provider_call_id".to_string()),
+            signature: None,
+            additional_params: None,
+            function: ToolCallFunction {
+                name: "search_tool_functions".to_string(),
+                arguments: json!({"query": "bitcoin price"}),
+            },
+        };
+        let history = vec![chat_with_tool_calls(vec![tool_call])];
+
+        let index = build_tool_call_index(&history);
+
+        assert_eq!(
+            index["provider_item_id"].function.arguments,
+            json!({"query": "bitcoin price"})
+        );
+        assert_eq!(
+            index["provider_call_id"].function.arguments,
+            json!({"query": "bitcoin price"})
+        );
+    }
 }
 
 // Processing Timeline Component

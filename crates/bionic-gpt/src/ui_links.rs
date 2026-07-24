@@ -14,7 +14,6 @@ pub struct NavigationLinks {
     pub product_chat: String,
     pub product_assistants: String,
     pub product_integrations: String,
-    pub product_automations: String,
     pub product_developers: String,
     pub sign_in_up: String,
 }
@@ -32,7 +31,6 @@ impl NavigationLinks {
             product_chat,
             product_assistants,
             product_integrations,
-            product_automations,
             product_developers,
             sign_in_up,
         } = self;
@@ -48,7 +46,6 @@ impl NavigationLinks {
                         NavigationLink::new("Chat", product_chat, Section::None),
                         NavigationLink::new("Assistants", product_assistants, Section::None),
                         NavigationLink::new("Integrations", product_integrations, Section::None),
-                        NavigationLink::new("Automations", product_automations, Section::None),
                         NavigationLink::new("Developers", product_developers, Section::None),
                     ],
                 )),
@@ -115,7 +112,6 @@ pub fn navigation_links() -> NavigationModel {
         product_chat: crate::routes::product::Chat {}.to_string(),
         product_assistants: crate::routes::product::Assistants {}.to_string(),
         product_integrations: crate::routes::product::Integrations {}.to_string(),
-        product_automations: crate::routes::product::Automations {}.to_string(),
         product_developers: crate::routes::product::Developers {}.to_string(),
         sign_in_up: crate::routes::SIGN_IN_UP.to_string(),
     }

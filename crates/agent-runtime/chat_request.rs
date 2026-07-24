@@ -24,7 +24,7 @@ pub(crate) async fn create_request(
     pool: &Pool,
     current_user: &Jwt,
     chat_id: i32,
-    user_config: &UserConfig,
+    _user_config: &UserConfig,
 ) -> Result<RigChatRequest, CustomError> {
     let mut db_client = pool.get().await?;
     let transaction = db_client.transaction().await?;
@@ -71,10 +71,15 @@ pub(crate) async fn create_request(
 
     let chat_history = context_builder::convert_chat_to_messages(chat_history);
 
+    let supports_tool_use = capabilities
+        .iter()
+        .any(|c| c.capability == db::ModelCapability::tool_use);
+
     let messages = context_builder::execute_prompt(
         &transaction,
         prompt.clone(),
         Some(conversation.id),
+        supports_tool_use,
         chat_history,
     )
     .await?;
@@ -83,28 +88,25 @@ pub(crate) async fn create_request(
         .bind(&transaction, &ChatStatus::InProgress, &chat_id)
         .await?;
 
-    let tools = if capabilities
-        .iter()
-        .any(|c| c.capability == db::ModelCapability::tool_use)
-    {
-        let mut all_tools = get_chat_tools_user_selected_with_system_openapi(
-            pool,
-            user_config.enabled_tools.as_ref(),
-        )
-        .await;
+    let tools = if supports_tool_use {
+        let mut all_tools = get_chat_tools_user_selected_with_system_openapi(pool).await;
 
         if attachment_count > 0 {
             all_tools.extend(get_tools(ToolScope::DocumentIntelligence));
         }
 
-        if let Ok(integration_tools) =
-            context_builder::get_prompt_integration_tools(&transaction, prompt.id).await
-        {
-            all_tools.extend(integration_tools);
-        }
+        let tools = dedupe_tools_by_name(all_tools);
+        tracing::debug!(
+            "Sending {} tool definitions to model {}: {:?}",
+            tools.len(),
+            model.name,
+            tools
+                .iter()
+                .map(|tool| tool.name.as_str())
+                .collect::<Vec<_>>()
+        );
 
-        Some(dedupe_tools_by_name(all_tools))
-            .filter(|tool_defs: &Vec<ToolDefinition>| !tool_defs.is_empty())
+        Some(tools).filter(|tool_defs: &Vec<ToolDefinition>| !tool_defs.is_empty())
     } else {
         None
     };
@@ -160,6 +162,7 @@ pub(crate) async fn create_request(
     transaction.commit().await?;
 
     let completion = CompletionRequest {
+        model: None,
         preamble: None,
         chat_history: OneOrMany::many(messages)
             .unwrap_or_else(|_| OneOrMany::one(RigMessage::user(""))),
@@ -169,6 +172,7 @@ pub(crate) async fn create_request(
         max_tokens: prompt.max_completion_tokens.map(|t| t as u64),
         tool_choice: None,
         additional_params: None,
+        output_schema: None,
     };
 
     Ok(RigChatRequest {

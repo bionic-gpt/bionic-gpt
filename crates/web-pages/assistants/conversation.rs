@@ -10,7 +10,6 @@ use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
-use tool_runtime::ToolDefinition;
 
 pub fn page(
     team_id: String,
@@ -21,8 +20,6 @@ pub fn page(
     conversation_id: i64,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
-    enabled_tools: Vec<String>,
-    available_tools: Vec<ToolDefinition>,
 ) -> String {
     // Rerverse it because that's how we display it.
     let chat_history: Vec<ChatWithChunks> = chat_history.into_iter().rev().collect();
@@ -38,8 +35,6 @@ pub fn page(
             conversation_id,
             is_tts_disabled,
             capabilities,
-            enabled_tools,
-            available_tools,
             header: rsx!(
                 Breadcrumb {
                     items: vec![BreadcrumbItem {

@@ -102,12 +102,9 @@ pub async fn create(
     let invitation_verifier_base64 = URL_SAFE_NO_PAD.encode(invitation_verifier);
 
     let roles = if new_invite.admin.is_some() {
-        vec![
-            types::public::Role::TeamManager,
-            types::public::Role::Collaborator,
-        ]
+        vec![types::Role::TeamManager, types::Role::Collaborator]
     } else {
-        vec![types::public::Role::Collaborator]
+        vec![types::Role::Collaborator]
     };
 
     queries::invitations::insert_invitation()

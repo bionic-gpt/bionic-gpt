@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+use crate::client::Params;
 use crate::queries::users::InsertParams;
 use crate::{queries, Dataset, Prompt};
 use crate::{types, Permission, Transaction};
-use cornucopia_async::Params;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Authentication {
@@ -58,13 +58,6 @@ pub async fn get_permissions(
         .len()
         > 1;
 
-    let user_count: i64 = queries::users::count_users()
-        .bind(transaction)
-        .one()
-        .await?;
-    let licence = crate::Licence::global();
-    let unlicensed = user_count as usize > licence.user_count;
-
     let rbac = Rbac {
         permissions,
         user_id,
@@ -72,7 +65,6 @@ pub async fn get_permissions(
         first_name,
         last_name,
         is_sys_admin: system_admin,
-        unlicensed,
         has_multiple_teams,
         current_team_name: team.name,
     };
@@ -164,10 +156,7 @@ pub async fn setup_user_if_not_already_registered(
         .one()
         .await?;
 
-    let roles = vec![
-        types::public::Role::TeamManager,
-        types::public::Role::Collaborator,
-    ];
+    let roles = vec![types::Role::TeamManager, types::Role::Collaborator];
 
     queries::teams::add_user_to_team()
         .bind(transaction, &user_id, &inserted_org_id, &roles)
@@ -195,7 +184,6 @@ pub struct Rbac {
     pub is_sys_admin: bool,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub unlicensed: bool,
     pub has_multiple_teams: bool,
     pub current_team_name: Option<String>,
 }

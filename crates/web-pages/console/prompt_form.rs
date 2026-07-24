@@ -1,13 +1,11 @@
 #![allow(non_snake_case)]
-use crate::console::tools_modal::ToolsModal;
 use crate::routes;
 
 use assets::files::*;
 use daisy_rsx::*;
 use db::queries::capabilities::Capability;
-use db::types::public::ModelCapability;
+use db::types::ModelCapability;
 use dioxus::prelude::*;
-use tool_runtime::ToolDefinition;
 
 #[component]
 pub fn Form(
@@ -17,8 +15,6 @@ pub fn Form(
     lock_console: bool,
     disclaimer: String,
     capabilities: Vec<Capability>,
-    enabled_tools: Vec<String>,
-    available_tools: Vec<ToolDefinition>,
 ) -> Element {
     // Check if tool_use capability is present
     let has_tool_use = capabilities
@@ -73,11 +69,6 @@ pub fn Form(
                                     id: "attach-button"
                                 }
                             }
-                            if has_tool_use {
-                                ToolsButton {
-                                    lock_console
-                                }
-                            }
                         }
 
                         div {
@@ -99,24 +90,6 @@ pub fn Form(
             }
         }
 
-        // Pass both enabled_tools and available_tools to ToolsModal
-        ToolsModal {
-            enabled_tools,
-            available_tools
-        }
-    }
-}
-
-#[component]
-fn ToolsButton(lock_console: bool) -> Element {
-    rsx! {
-        Button {
-            button_style: ButtonStyle::Outline,
-            disabled: lock_console, // Enable if tool_use capability is present
-            prefix_image_src: tools_svg.name,
-            popover_target: "tool-modal",
-            "Tools"
-        }
     }
 }
 

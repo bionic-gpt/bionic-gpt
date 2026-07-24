@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 pub enum ToolScope {
     UserSelectable,
     DocumentIntelligence,
-    Rag,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
@@ -51,21 +50,30 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
             vec![builtin_tools::web::get_open_url_tool()],
         ),
         integration_tool(
+            "Python tools",
+            ToolScope::UserSelectable,
+            vec![
+                builtin_tools::monty::get_search_tool_functions_definition(),
+                builtin_tools::monty::get_tool_definition(),
+            ],
+        ),
+        integration_tool(
+            "HTML canvas tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::html_canvas::get_tool_definition()],
+        ),
+        integration_tool(
+            "Bash tools",
+            ToolScope::UserSelectable,
+            vec![builtin_tools::bashkit::get_tool_definition()],
+        ),
+        integration_tool(
             "Tools to retrieve documents and read their contents.",
             ToolScope::DocumentIntelligence,
             vec![
                 builtin_tools::list_documents::get_tool_definition(),
                 builtin_tools::read_document::get_tool_definition(),
                 //builtin_tools::read_document_section::get_tool_definition(),
-            ],
-        ),
-        integration_tool(
-            "Tools to work with datasets",
-            ToolScope::Rag,
-            vec![
-                builtin_tools::list_datasets::get_tool_definition(),
-                builtin_tools::list_dataset_files::get_tool_definition(),
-                builtin_tools::search_context::get_tool_definition(),
             ],
         ),
     ];
@@ -102,101 +110,33 @@ pub async fn get_tools_with_system_openapi(pool: &Pool, scope: ToolScope) -> Vec
     definitions
 }
 
-/// Returns a list of available OpenAI tool definitions
-/// This is for backward compatibility
-///
-/// If enabled_tools is provided, only returns tools with names in that list
-pub fn get_chat_tools_user_selected(enabled_tools: Option<&Vec<String>>) -> Vec<ToolDefinition> {
-    let all_tool_definitions = get_tools(ToolScope::UserSelectable);
-
-    match enabled_tools {
-        Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
-            .into_iter()
-            .filter(|tool_def| tool_names.contains(&tool_def.name))
-            .collect(),
-        _ => vec![],
-    }
+/// Returns all built-in user-selectable tool definitions.
+pub fn get_chat_tools_user_selected() -> Vec<ToolDefinition> {
+    get_tools(ToolScope::UserSelectable)
 }
 
-pub async fn get_chat_tools_user_selected_with_system_openapi(
-    pool: &Pool,
-    enabled_tools: Option<&Vec<String>>,
-) -> Vec<ToolDefinition> {
-    let all_tool_definitions = get_tools_with_system_openapi(pool, ToolScope::UserSelectable).await;
-    match enabled_tools {
-        Some(tool_names) if !tool_names.is_empty() => all_tool_definitions
-            .into_iter()
-            .filter(|tool_def| tool_names.contains(&tool_def.name))
-            .collect(),
-        _ => vec![],
-    }
+pub async fn get_chat_tools_user_selected_with_system_openapi(pool: &Pool) -> Vec<ToolDefinition> {
+    get_tools_with_system_openapi(pool, ToolScope::UserSelectable).await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::builtin_tools::time_date::get_time_date_tool;
     use serde_json;
 
     #[test]
-    fn test_get_openai_tools_none() {
-        // When enabled_tools is None, it should return no tools
-        let tools = get_chat_tools_user_selected(None);
-        assert!(
-            tools.is_empty(),
-            "Expected empty tools list when enabled_tools is None"
-        );
-    }
-
-    #[test]
-    fn test_get_openai_tools_empty() {
-        // When enabled_tools is Some but empty, it should return no tools
-        let empty_vec = vec![];
-        let tools = get_chat_tools_user_selected(Some(&empty_vec));
-        assert!(
-            tools.is_empty(),
-            "Expected empty tools list when enabled_tools is empty"
-        );
-    }
-
-    #[test]
-    fn test_get_openai_tools_with_valid_names() {
-        // Override the get_tools function for this test
-        let time_date_tool = get_time_date_tool();
-        let time_date_tool_name = time_date_tool.name.clone();
-
-        // When enabled_tools contains valid tool names, it should return only those tools
-        let valid_names = vec![time_date_tool_name];
-        let tools = get_chat_tools_user_selected(Some(&valid_names));
-
-        assert_eq!(tools.len(), 1, "Expected exactly one tool");
-        assert_eq!(tools[0].name, "get_current_time_and_date");
-    }
-
-    #[test]
-    fn test_get_openai_tools_with_invalid_names() {
-        // When enabled_tools contains non-existent tool names, it should return no tools
-        let invalid_names = vec!["non_existent_tool".to_string()];
-        let tools = get_chat_tools_user_selected(Some(&invalid_names));
-        assert!(
-            tools.is_empty(),
-            "Expected empty tools list for non-existent tool names"
-        );
-    }
-
-    #[test]
-    fn test_get_openai_tools_with_mixed_names() {
-        // Get the actual tool name from the implementation
-        let time_date_tool = get_time_date_tool();
-        let time_date_tool_name = time_date_tool.name.clone();
-
-        // When enabled_tools contains both valid and invalid tool names,
-        // it should return only the valid ones
-        let mixed_names = vec![time_date_tool_name, "non_existent_tool".to_string()];
-        let tools = get_chat_tools_user_selected(Some(&mixed_names));
-
-        assert_eq!(tools.len(), 1, "Expected exactly one tool");
-        assert_eq!(tools[0].name, "get_current_time_and_date");
+    fn test_get_openai_tools_always_returns_builtins() {
+        let tools = get_chat_tools_user_selected();
+        let names: Vec<&str> = tools.iter().map(|tool| tool.name.as_str()).collect();
+        assert!(names.contains(&"get_current_time_and_date"));
+        assert!(names.contains(&"open_url"));
+        assert!(names.contains(&"search_tool_functions"));
+        assert!(names.contains(&"run_python"));
+        assert!(names.contains(&"render_html"));
+        assert!(names.contains(&"run_bash"));
+        assert!(!names.contains(&"list_datasets"));
+        assert!(!names.contains(&"list_dataset_files"));
+        assert!(!names.contains(&"search_context"));
     }
 
     #[test]

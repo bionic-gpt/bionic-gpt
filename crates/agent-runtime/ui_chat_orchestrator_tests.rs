@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
+use crate::result_sink::SaveRequest;
 use crate::ui_chat_orchestrator::{build_event_stream, GenerationEvent, ResultSink};
 use async_trait::async_trait;
 use db::ChatStatus;
-use rig::completion::Usage;
 use serde_json::json;
 use std::sync::{Arc, Mutex};
 use tokio::pin;
@@ -22,19 +22,11 @@ struct FakeResultSink {
 
 #[async_trait]
 impl ResultSink for FakeResultSink {
-    async fn save(
-        &self,
-        snapshot: &str,
-        tool_calls: Option<Vec<ToolCall>>,
-        _usage: Option<Usage>,
-        _chat_id: i32,
-        _sub: &str,
-        status: ChatStatus,
-    ) {
+    async fn save(&self, request: SaveRequest<'_>) {
         self.calls.lock().unwrap().push(SaveCall {
-            snapshot: snapshot.to_string(),
-            tool_calls_len: tool_calls.as_ref().map(|calls| calls.len()),
-            status,
+            snapshot: request.snapshot.to_string(),
+            tool_calls_len: request.tool_calls.as_ref().map(|calls| calls.len()),
+            status: request.status,
         });
     }
 }
@@ -50,6 +42,8 @@ async fn event_stream_saves_on_end_with_tool_calls() {
     let tool_calls = vec![ToolCall {
         id: "call_1".to_string(),
         call_id: None,
+        signature: None,
+        additional_params: None,
         function: ToolCallFunction {
             name: "do_thing".to_string(),
             arguments: json!({}),
@@ -63,6 +57,7 @@ async fn event_stream_saves_on_end_with_tool_calls() {
         Ok(GenerationEvent::End {
             snapshot: "final".to_string(),
             tool_calls: Some(tool_calls),
+            reasoning: None,
             usage: None,
         }),
     ]);

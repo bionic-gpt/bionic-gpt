@@ -6,10 +6,10 @@ use crate::components::confirm_modal::ConfirmModal;
 use crate::routes;
 use crate::SectionIntroduction;
 use assets::files::*;
+use chrono::{DateTime, FixedOffset, SecondsFormat};
 use daisy_rsx::*;
 use db::{authz::Rbac, ApiKey};
 use dioxus::prelude::*;
-use time::format_description::well_known::Rfc3339;
 
 #[derive(Default, Clone)]
 pub struct NewKeyForm {
@@ -31,10 +31,8 @@ struct ApiKeyDisplay {
     hash_suffix: String,
 }
 
-fn format_created_at(datetime: time::OffsetDateTime) -> String {
-    datetime
-        .format(&Rfc3339)
-        .unwrap_or_else(|_| datetime.to_string())
+fn format_created_at(datetime: DateTime<FixedOffset>) -> String {
+    datetime.to_rfc3339_opts(SecondsFormat::Secs, true)
 }
 
 fn mask_hash(hash: &str) -> String {

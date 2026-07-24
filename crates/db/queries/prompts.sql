@@ -27,12 +27,6 @@ SELECT
     p.visibility,
     p.description,
     (SELECT count(*) FROM assistants.prompt_dataset WHERE prompt_id = id) AS dataset_count,
-    (SELECT count(*) FROM integrations.prompt_integration WHERE prompt_id = id) AS integration_count,
-    (
-        SELECT count(*) FROM automation.automation_cron_triggers WHERE prompt_id = id
-    ) + (
-        SELECT count(*) FROM automation.automation_webhook_triggers WHERE prompt_id = id
-    ) AS trigger_count,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(p.created_at)::text) as created_at,
     trim(both '"' from to_json(p.updated_at)::text) as updated_at,
@@ -81,21 +75,6 @@ SELECT
             SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
-    -- Create a string showing the integrations.integrations connected to this prompt
-    (
-        SELECT
-            COALESCE(STRING_AGG(pi.integration_id::text, ','), '')
-        FROM
-            integrations.prompt_integration pi
-        WHERE
-            pi.prompt_id = p.id
-    )
-    as selected_integrations,
-    (
-        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM integrations.integrations i WHERE i.id IN (
-            SELECT integration_id FROM integrations.prompt_integration WHERE prompt_id = p.id
-        )
-    ) AS integrations,
     p.system_prompt,
     p.max_history_items,
     p.max_chunks,
@@ -179,21 +158,6 @@ SELECT
             SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
-    -- Create a string showing the integrations.integrations connected to this prompt
-    (
-        SELECT
-            COALESCE(STRING_AGG(pi.integration_id::text, ','), '')
-        FROM
-            integrations.prompt_integration pi
-        WHERE
-            pi.prompt_id = p.id
-    )
-    as selected_integrations,
-    (
-        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM integrations.integrations i WHERE i.id IN (
-            SELECT integration_id FROM integrations.prompt_integration WHERE prompt_id = p.id
-        )
-    ) AS integrations,
     p.system_prompt,
     p.max_history_items,
     p.max_chunks,
@@ -260,21 +224,6 @@ SELECT
             SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = p.id
         )
     ) AS datasets,
-    -- Create a string showing the integrations.integrations connected to this prompt
-    (
-        SELECT
-            COALESCE(STRING_AGG(pi.integration_id::text, ','), '')
-        FROM
-            integrations.prompt_integration pi
-        WHERE
-            pi.prompt_id = p.id
-    )
-    as selected_integrations,
-    (
-        SELECT COALESCE(STRING_AGG(name, ', '), '') FROM integrations.integrations i WHERE i.id IN (
-            SELECT integration_id FROM integrations.prompt_integration WHERE prompt_id = p.id
-        )
-    ) AS integrations,
     p.system_prompt,
     p.max_history_items,
     p.max_chunks,

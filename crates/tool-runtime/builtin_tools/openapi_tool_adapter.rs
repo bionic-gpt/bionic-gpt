@@ -333,8 +333,12 @@ impl ToolDyn for OpenApiTool {
         self.definition.name.clone()
     }
 
-    fn definition(&self, _prompt: String) -> WasmBoxedFuture<'_, ToolDefinition> {
-        Box::pin(async move { self.definition.clone() })
+    fn description(&self) -> String {
+        self.definition.description.clone()
+    }
+
+    fn parameters(&self) -> Value {
+        self.definition.parameters.clone()
     }
 
     fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {

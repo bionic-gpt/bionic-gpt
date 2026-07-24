@@ -1,10 +1,14 @@
+use chrono::DateTime;
 use db::{Chat, ChatRole, ChatStatus};
 use rig::message::{AssistantContent, Message, UserContent};
 use rig::OneOrMany;
-use time::OffsetDateTime;
 
 use crate::context_builder::{convert_chat_to_messages, generate_prompt};
 use crate::moderation::strip_tool_data;
+
+fn epoch() -> DateTime<chrono::FixedOffset> {
+    DateTime::UNIX_EPOCH.fixed_offset()
+}
 
 #[tokio::test]
 async fn test_convert_chat_to_messages_tool_calling_fallback() {
@@ -19,8 +23,8 @@ async fn test_convert_chat_to_messages_tool_calling_fallback() {
         model_name: "gpt-4".to_string(),
         attachments: None,
         status: ChatStatus::Pending,
-        created_at: OffsetDateTime::UNIX_EPOCH,
-        updated_at: OffsetDateTime::UNIX_EPOCH,
+        created_at: epoch(),
+        updated_at: epoch(),
     };
 
     let messages = convert_chat_to_messages(vec![chat]);
@@ -34,6 +38,7 @@ async fn test_generate_prompt() {
         1024,
         1.0,
         Some("You are a helpful asistant".to_string()),
+        None,
         vec![Message::user("How are you today?")],
     )
     .await;
@@ -44,6 +49,33 @@ async fn test_generate_prompt() {
         Some("You are a helpful asistant")
     );
     assert_eq!(text_content(&messages[1]), Some("How are you today?"));
+}
+
+#[tokio::test]
+async fn test_generate_prompt_adds_available_skills() {
+    let messages = generate_prompt(
+        2048,
+        1024,
+        1.0,
+        Some("You are a helpful assistant".to_string()),
+        Some("<available_skills><skill></skill></available_skills>".to_string()),
+        vec![Message::user("How are you today?")],
+    )
+    .await;
+
+    assert_eq!(messages.len(), 2);
+    let system = text_content(&messages[0]).unwrap();
+    assert!(system.starts_with("You are a helpful assistant\n\n<available_skills>"));
+    assert!(system.contains("</available_skills>"));
+}
+
+#[test]
+fn test_tool_use_guidance_is_whitelabel_safe() {
+    let guidance = crate::context_builder::TOOL_USE_GUIDANCE;
+    assert!(guidance.contains("Use tools when the user asks for current"));
+    assert!(guidance.contains("search_tool_functions"));
+    assert!(!guidance.contains("Bionic"));
+    assert!(!guidance.contains("bionic"));
 }
 
 fn create_test_chat(
@@ -64,8 +96,8 @@ fn create_test_chat(
         model_name: "gpt-4".to_string(),
         attachments: None,
         status: ChatStatus::Success,
-        created_at: OffsetDateTime::UNIX_EPOCH,
-        updated_at: OffsetDateTime::UNIX_EPOCH,
+        created_at: epoch(),
+        updated_at: epoch(),
     }
 }
 
@@ -99,6 +131,7 @@ fn text_content(msg: &Message) -> Option<&str> {
             AssistantContent::Text(text) => Some(text.text.as_str()),
             _ => None,
         }),
+        Message::System { .. } => None,
     }
 }
 
@@ -291,7 +324,7 @@ async fn test_history_truncation_keeps_latest() {
         large_msg.clone(),
     ];
 
-    let messages = generate_prompt(context_size, 0, 1.0, None, history).await;
+    let messages = generate_prompt(context_size, 0, 1.0, None, None, history).await;
 
     let contents: Vec<_> = messages.iter().filter_map(text_content).collect();
     assert_eq!(messages.len(), 5);
@@ -311,6 +344,8 @@ fn test_strip_tool_data_removes_tool_messages() {
             content: OneOrMany::many(vec![AssistantContent::ToolCall(rig::message::ToolCall {
                 id: "call1".to_string(),
                 call_id: None,
+                signature: None,
+                additional_params: None,
                 function: rig::message::ToolFunction {
                     name: "do_it".to_string(),
                     arguments: serde_json::json!({}),

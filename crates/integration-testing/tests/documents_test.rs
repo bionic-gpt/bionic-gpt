@@ -11,7 +11,7 @@ async fn run_documents() -> WebDriverResult<()> {
     common::run_with_driver(&config, |driver| {
         let config = config.clone();
         Box::pin(async move {
-            driver.goto(format!("{}/", &config.application_url)).await?;
+            driver.goto(format!("{}/", config.application_url)).await?;
 
             println!("Testing : register_user");
 

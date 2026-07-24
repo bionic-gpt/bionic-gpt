@@ -3,6 +3,7 @@
 //! This crate defines tool interfaces, tool catalogs, tool dispatch,
 //! and OpenAPI-backed tool adapters used by the agent runtime.
 
+pub mod builtin_skills;
 pub mod builtin_tools;
 pub mod openapi_tool_factory;
 pub mod system_tool_sources;
@@ -25,10 +26,7 @@ pub fn json_error(kind: &str, err: impl ToString) -> serde_json::Value {
 
 // Re-export key types for convenience
 pub use builtin_tools::openapi_tool_adapter::OpenApiTool;
-pub use openapi_tool_factory::{
-    create_tools_from_integration, create_tools_from_integrations, BionicOpenAPI, IntegrationTools,
-    OAuth2Config,
-};
+pub use openapi_tool_factory::{BionicOpenAPI, IntegrationTools, OAuth2Config};
 pub use system_tool_sources::{get_system_openapi_tool_definitions, get_system_openapi_tools};
 pub use tool_auth::{OAuth2TokenProvider, StaticTokenProvider, TokenProvider};
 pub use tool_catalog::{
@@ -37,5 +35,7 @@ pub use tool_catalog::{
 };
 pub use tool_dispatcher::{execute_tool_call_with_tools, execute_tool_calls};
 pub use types::{
-    parse_tool_calls, ToolCall, ToolCallFunction, ToolDefinition, ToolResult, ToolResultContent,
+    parse_reasoning, parse_tool_calls, serialize_assistant_tool_state, Reasoning,
+    StoredAssistantToolState, ToolCall, ToolCallFunction, ToolDefinition, ToolResult,
+    ToolResultContent,
 };

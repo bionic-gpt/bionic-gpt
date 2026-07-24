@@ -4,6 +4,7 @@ use axum::{
 };
 use indexmap::IndexMap;
 use serde_json::json;
+use std::cmp::Reverse;
 use std::collections::{HashMap, HashSet};
 use tokio_postgres::Client;
 
@@ -62,7 +63,7 @@ pub async fn analyze_workload_indexes(
     }
 
     let mut ranked: Vec<_> = aggregated.into_values().collect();
-    ranked.sort_by(|a, b| b.total_frequency.cmp(&a.total_frequency));
+    ranked.sort_by_key(|item| Reverse(item.total_frequency));
 
     let mut recommendations = Vec::new();
     for mut item in ranked.into_iter().take(max) {

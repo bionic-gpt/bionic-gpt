@@ -4,7 +4,6 @@
 //! extracting tool definitions and handling parameter parsing.
 
 use crate::types::ToolDefinition;
-use db::queries::prompt_integrations::PromptIntegrationWithConnection;
 use oas3::{
     self,
     spec::{Operation, RequestBody, SecurityScheme},
@@ -418,84 +417,6 @@ impl BionicOpenAPI {
 
         Ok(tools)
     }
-}
-
-/// Create tools from a single integration
-pub fn create_tools_from_integration(
-    integration: &PromptIntegrationWithConnection,
-    pool: Option<db::Pool>,
-    sub: Option<String>,
-) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
-    if let Some(definition) = &integration.definition {
-        let oas3 = oas3::from_json(definition.to_string())
-            .map_err(|e| format!("Failed to parse OpenAPI spec: {}", e))?;
-
-        let bionic_api = BionicOpenAPI::from_spec(oas3);
-        let token_provider: Option<Arc<dyn crate::tool_auth::TokenProvider>> =
-            if let Some(conn_id) = integration.oauth2_connection_id {
-                if let Some(token) = &integration.bearer_token {
-                    if let (Some(pool), Some(sub)) = (pool, sub) {
-                        if let Some(config) = bionic_api.get_oauth2_config() {
-                            Some(Arc::new(crate::tool_auth::OAuth2TokenProvider::new(
-                                pool,
-                                sub,
-                                conn_id,
-                                Some(token.clone()),
-                                integration.refresh_token.clone(),
-                                integration.expires_at,
-                                config,
-                            ))
-                                as Arc<dyn crate::tool_auth::TokenProvider>)
-                        } else {
-                            Some(
-                                Arc::new(crate::tool_auth::StaticTokenProvider::new(token.clone()))
-                                    as Arc<_>,
-                            )
-                        }
-                    } else {
-                        Some(
-                            Arc::new(crate::tool_auth::StaticTokenProvider::new(token.clone()))
-                                as Arc<_>,
-                        )
-                    }
-                } else {
-                    None
-                }
-            } else {
-                integration.bearer_token.as_ref().map(|token| {
-                    Arc::new(crate::tool_auth::StaticTokenProvider::new(token.clone())) as Arc<_>
-                })
-            };
-        bionic_api.create_tools(token_provider)
-    } else {
-        Err("Integration doesn't have a definition".to_string())
-    }
-}
-
-/// Create tools from integrations
-pub async fn create_tools_from_integrations(
-    integrations: Vec<PromptIntegrationWithConnection>,
-    pool: Option<db::Pool>,
-    sub: Option<String>,
-) -> Vec<Arc<dyn ToolDyn>> {
-    let mut tools: Vec<Arc<dyn ToolDyn>> = Vec::new();
-
-    for integration in integrations {
-        match create_tools_from_integration(&integration, pool.clone(), sub.clone()) {
-            Ok(integration_tools) => {
-                tools.extend(integration_tools);
-            }
-            Err(error) => {
-                tracing::error!(
-                    "Failed to create tools for integration {}: {}",
-                    integration.integration_name,
-                    error
-                );
-            }
-        }
-    }
-
-    tools
 }
 
 #[cfg(test)]

@@ -1,11 +1,11 @@
 use crate::openapi_tool_factory::OAuth2Config;
 use async_trait::async_trait;
+use chrono::{DateTime, Duration, FixedOffset, Utc};
 use db::{self, Pool};
 use oauth2::reqwest::Client;
 use oauth2::{
     basic::BasicClient, AuthUrl, ClientId, ClientSecret, RefreshToken, TokenResponse, TokenUrl,
 };
-use time::{Duration, OffsetDateTime};
 
 #[cfg(test)]
 use oauth2::{basic::BasicTokenType, EmptyExtraTokenFields, StandardTokenResponse};
@@ -53,7 +53,7 @@ pub struct OAuth2TokenProvider {
     client: Client,
     token: tokio::sync::Mutex<Option<String>>,
     refresh_token: tokio::sync::Mutex<Option<String>>,
-    expires_at: tokio::sync::Mutex<Option<OffsetDateTime>>,
+    expires_at: tokio::sync::Mutex<Option<DateTime<FixedOffset>>>,
     config: OAuth2Config,
 }
 
@@ -65,7 +65,7 @@ impl OAuth2TokenProvider {
         connection_id: i32,
         token: Option<String>,
         refresh_token: Option<String>,
-        expires_at: Option<OffsetDateTime>,
+        expires_at: Option<DateTime<FixedOffset>>,
         config: OAuth2Config,
     ) -> Self {
         Self {
@@ -150,7 +150,7 @@ impl OAuth2TokenProvider {
         let new_refresh = token.refresh_token().map(|t| t.secret().to_string());
         let new_expiry = token
             .expires_in()
-            .map(|dur| OffsetDateTime::now_utc() + Duration::seconds(dur.as_secs() as i64));
+            .map(|dur| Utc::now().fixed_offset() + Duration::seconds(dur.as_secs() as i64));
 
         if let Err(e) = db::queries::connections::update_oauth2_connection()
             .bind(
@@ -185,7 +185,7 @@ impl OAuth2TokenProvider {
         let expiry_guard = self.expires_at.lock().await;
         if expiry_guard
             .as_ref()
-            .is_some_and(|e| *e > OffsetDateTime::now_utc())
+            .is_some_and(|e| *e > Utc::now().fixed_offset())
         {
             return;
         }
@@ -208,7 +208,7 @@ impl TokenProvider for OAuth2TokenProvider {
             let new_refresh = token.refresh_token().map(|t| t.secret().to_string());
             let new_expiry = token
                 .expires_in()
-                .map(|dur| OffsetDateTime::now_utc() + Duration::seconds(dur.as_secs() as i64));
+                .map(|dur| Utc::now().fixed_offset() + Duration::seconds(dur.as_secs() as i64));
 
             let mut token_guard = self.token.lock().await;
             let mut refresh_guard = self.refresh_token.lock().await;

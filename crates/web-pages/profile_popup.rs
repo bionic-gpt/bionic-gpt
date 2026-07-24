@@ -9,7 +9,6 @@ pub fn ProfilePopup(
     first_name: String,
     last_name: String,
     team_id: String,
-    unlicensed: bool,
 ) -> Element {
     let user_name_or_email = if !first_name.is_empty() || !last_name.is_empty() {
         format!("{} {}", first_name, last_name)
@@ -18,13 +17,6 @@ pub fn ProfilePopup(
     };
 
     rsx! {
-        if unlicensed {
-            Alert {
-                alert_color: AlertColor::Error,
-                class: "mb-2 border",
-                "You are running Bionic - https://bionic-gpt.com"
-            }
-        }
         DropDown {
             direction: Direction::Top,
             button_text: "{user_name_or_email}",

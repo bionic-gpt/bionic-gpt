@@ -13,14 +13,12 @@ pub struct IdForm {
 
 pub async fn set_default_prompt(
     SetPrompt {}: SetPrompt,
-    config: UserConfig,
     jar: CookieJar,
     headers: HeaderMap,
     Form(form): Form<IdForm>,
 ) -> (CookieJar, Redirect) {
     let updated_config = UserConfig {
         default_prompt: Some(form.id),
-        enabled_tools: config.enabled_tools,
     };
 
     // Create a cookie with root path so it's accessible from any path

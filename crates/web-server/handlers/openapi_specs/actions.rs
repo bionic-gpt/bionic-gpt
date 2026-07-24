@@ -11,7 +11,6 @@ use web_pages::routes::openapi_specs::{Delete, Upsert};
 fn parse_category(category: &str) -> OpenapiSpecCategory {
     match category {
         "WebSearch" => OpenapiSpecCategory::WebSearch,
-        "CodeSandbox" => OpenapiSpecCategory::CodeSandbox,
         _ => OpenapiSpecCategory::Application,
     }
 }

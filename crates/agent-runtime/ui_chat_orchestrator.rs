@@ -1,14 +1,15 @@
 use crate::chat_request::{create_request, RigChatRequest};
 use crate::errors::CustomError;
 use crate::jwt::Jwt;
-use crate::result_sink::DbResultSink;
 pub(crate) use crate::result_sink::ResultSink;
+use crate::result_sink::{DbResultSink, SaveRequest};
 use crate::user_config::UserConfig;
 use axum::response::{sse::Event, Sse};
 use axum::Extension;
 use db::{ChatStatus, Pool};
 use rig::client::CompletionClient;
 use rig::completion::{CompletionModel as _, GetTokenUsage, Usage};
+use rig::message::ReasoningContent;
 use rig::providers::openai;
 use rig::streaming::StreamedAssistantContent;
 use serde_json::json;
@@ -16,7 +17,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
-use tool_runtime::ToolCall;
+use tool_runtime::{Reasoning, ToolCall};
 
 use super::{limits, UICompletions};
 
@@ -61,6 +62,7 @@ pub enum GenerationEvent {
     End {
         snapshot: String,
         tool_calls: Option<Vec<ToolCall>>,
+        reasoning: Option<Vec<Reasoning>>,
         usage: Option<Usage>,
     },
 }
@@ -71,6 +73,7 @@ enum StreamOutcome {
     ClientDisconnected {
         snapshot: String,
         tool_calls: Option<Vec<ToolCall>>,
+        reasoning: Option<Vec<Reasoning>>,
         usage: Option<Usage>,
     },
 }
@@ -97,17 +100,19 @@ where
                     GenerationEvent::End {
                         snapshot,
                         tool_calls,
+                        reasoning,
                         usage,
                     } => {
                         result_sink
-                            .save(
-                                &snapshot,
+                            .save(SaveRequest {
+                                snapshot: &snapshot,
                                 tool_calls,
+                                reasoning,
                                 usage,
                                 chat_id,
-                                &sub,
-                                ChatStatus::Success,
-                            )
+                                sub: &sub,
+                                status: ChatStatus::Success,
+                            })
                             .await;
                         Ok(Event::default().data(event_data_for_done()))
                     }
@@ -115,7 +120,15 @@ where
                 Err(e) => {
                     let message = e.to_string();
                     result_sink
-                        .save(&message, None, None, chat_id, &sub, ChatStatus::Error)
+                        .save(SaveRequest {
+                            snapshot: &message,
+                            tool_calls: None,
+                            reasoning: None,
+                            usage: None,
+                            chat_id,
+                            sub: &sub,
+                            status: ChatStatus::Error,
+                        })
                         .await;
                     Ok(event_data_for_error(message))
                 }
@@ -146,53 +159,68 @@ pub async fn chat_generate(
             tokio::spawn(async move {
                 if is_limit_breached {
                     let limit_message = "You have exceeded your token limit for this model";
-                    let _ = sender
+                    if sender
                         .send(Err(axum::Error::new(std::io::Error::other(limit_message))))
-                        .await;
-                    result_sink_clone
-                        .save(
-                            limit_message,
-                            None,
-                            None,
-                            chat_id,
-                            &sub_for_save,
-                            ChatStatus::Error,
-                        )
-                        .await;
+                        .await
+                        .is_err()
+                    {
+                        result_sink_clone
+                            .save(SaveRequest {
+                                snapshot: limit_message,
+                                tool_calls: None,
+                                reasoning: None,
+                                usage: None,
+                                chat_id,
+                                sub: &sub_for_save,
+                                status: ChatStatus::Error,
+                            })
+                            .await;
+                    }
                     return;
                 }
 
-                match stream_chat_with_rig(request, sender).await {
+                match stream_chat_with_rig(request, sender.clone()).await {
                     Ok(StreamOutcome::Completed) => {}
                     Ok(StreamOutcome::ClientDisconnected {
                         snapshot,
                         tool_calls,
+                        reasoning,
                         usage,
                     }) => {
                         result_sink_clone
-                            .save(
-                                &snapshot,
+                            .save(SaveRequest {
+                                snapshot: &snapshot,
                                 tool_calls,
+                                reasoning,
                                 usage,
                                 chat_id,
-                                &sub_for_save,
-                                ChatStatus::Error,
-                            )
+                                sub: &sub_for_save,
+                                status: ChatStatus::Error,
+                            })
                             .await;
                     }
                     Err(err) => {
                         let err_msg = err.to_string();
                         tracing::error!("Error generating SSE stream: {}", err_msg);
-                        result_sink_clone
-                            .save(
-                                &err_msg,
-                                None,
-                                None,
-                                chat_id,
-                                &sub_for_save,
-                                ChatStatus::Error,
-                            )
-                            .await;
+                        if sender
+                            .send(Err(axum::Error::new(std::io::Error::other(
+                                err_msg.clone(),
+                            ))))
+                            .await
+                            .is_err()
+                        {
+                            result_sink_clone
+                                .save(SaveRequest {
+                                    snapshot: &err_msg,
+                                    tool_calls: None,
+                                    reasoning: None,
+                                    usage: None,
+                                    chat_id,
+                                    sub: &sub_for_save,
+                                    status: ChatStatus::Error,
+                                })
+                                .await;
+                        }
                     }
                 }
             });
@@ -205,14 +233,15 @@ pub async fn chat_generate(
         }
         Err(err) => {
             result_sink
-                .save(
-                    &err.to_string(),
-                    None,
-                    None,
+                .save(SaveRequest {
+                    snapshot: &err.to_string(),
+                    tool_calls: None,
+                    reasoning: None,
+                    usage: None,
                     chat_id,
-                    &current_user.sub,
-                    ChatStatus::Error,
-                )
+                    sub: &current_user.sub,
+                    status: ChatStatus::Error,
+                })
                 .await;
             Err(CustomError::FaultySetup(err.to_string()))
         }
@@ -225,14 +254,16 @@ async fn stream_chat_with_rig(
     sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
 ) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>> {
     let api_key = request.api_key.as_deref().unwrap_or("");
-    let client = openai::Client::builder(api_key)
+    let client = openai::Client::builder()
+        .api_key(api_key)
         .base_url(&request.base_url)
-        .build();
+        .build()?;
     let model = client.completion_model(&request.model_name);
     let mut stream = model.stream(request.completion).await?;
 
     let mut snapshot = String::new();
     let mut tool_calls: Vec<ToolCall> = Vec::new();
+    let mut reasoning: Vec<Reasoning> = Vec::new();
     let mut usage: Option<Usage> = None;
 
     while let Some(item) = stream.next().await {
@@ -253,17 +284,31 @@ async fn stream_chat_with_rig(
                         } else {
                             Some(tool_calls)
                         },
+                        reasoning: if reasoning.is_empty() {
+                            None
+                        } else {
+                            Some(reasoning)
+                        },
                         usage,
                     });
                 }
             }
-            Ok(StreamedAssistantContent::ToolCall(tool_call)) => {
+            Ok(StreamedAssistantContent::ToolCall { tool_call, .. }) => {
                 tool_calls.push(tool_call);
             }
             Ok(StreamedAssistantContent::ToolCallDelta { .. }) => {}
-            Ok(StreamedAssistantContent::Reasoning(_)) => {}
+            Ok(StreamedAssistantContent::Reasoning(reasoning_item)) => {
+                push_reasoning(&mut reasoning, reasoning_item);
+            }
+            Ok(StreamedAssistantContent::ReasoningDelta {
+                id,
+                reasoning: delta,
+            }) => {
+                push_reasoning_delta(&mut reasoning, id, delta);
+            }
+            Ok(StreamedAssistantContent::Unknown(_)) => {}
             Ok(StreamedAssistantContent::Final(final_response)) => {
-                usage = final_response.token_usage();
+                usage = Some(final_response.token_usage());
             }
             Err(err) => return Err(Box::new(err)),
         }
@@ -274,11 +319,23 @@ async fn stream_chat_with_rig(
     } else {
         Some(tool_calls.clone())
     };
+    let reasoning_for_end = if reasoning.is_empty() {
+        None
+    } else {
+        Some(reasoning.clone())
+    };
+
+    if snapshot.trim().is_empty() && tool_calls_for_end.is_none() {
+        return Err(Box::new(std::io::Error::other(
+            "Model returned an empty response",
+        )));
+    }
 
     if sender
         .send(Ok(GenerationEvent::End {
             snapshot: snapshot.clone(),
             tool_calls: tool_calls_for_end,
+            reasoning: reasoning_for_end,
             usage,
         }))
         .await
@@ -291,9 +348,42 @@ async fn stream_chat_with_rig(
             } else {
                 Some(tool_calls)
             },
+            reasoning: if reasoning.is_empty() {
+                None
+            } else {
+                Some(reasoning)
+            },
             usage,
         });
     }
 
     Ok(StreamOutcome::Completed)
+}
+
+fn push_reasoning(reasoning: &mut Vec<Reasoning>, reasoning_item: Reasoning) {
+    if let Some(id) = reasoning_item.id.as_deref() {
+        reasoning.retain(|existing| existing.id.as_deref() != Some(id));
+    }
+    reasoning.push(reasoning_item);
+}
+
+fn push_reasoning_delta(reasoning: &mut Vec<Reasoning>, id: Option<String>, delta: String) {
+    if let Some(existing) = reasoning
+        .iter_mut()
+        .find(|item| item.id == id && reasoning_ends_with_text(item))
+    {
+        if let Some(ReasoningContent::Text { text, .. }) = existing.content.last_mut() {
+            text.push_str(&delta);
+            return;
+        }
+    }
+
+    reasoning.push(Reasoning::new(&delta).optional_id(id));
+}
+
+fn reasoning_ends_with_text(reasoning: &Reasoning) -> bool {
+    matches!(
+        reasoning.content.last(),
+        Some(ReasoningContent::Text { .. })
+    )
 }

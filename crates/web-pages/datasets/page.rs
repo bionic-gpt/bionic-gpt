@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::AdminLayout;
+use crate::app_layout::Layout;
 use crate::app_layout::SideBar;
 use crate::components::card_item::{CardItem, CountLabel};
 use crate::i18n;
@@ -8,7 +8,7 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{datasets::Dataset, models::Model};
-use db::types::public::ChunkingStrategy;
+use db::types::ChunkingStrategy;
 use dioxus::prelude::*;
 use std::convert::TryFrom;
 
@@ -23,7 +23,7 @@ pub fn page(
     let datasets_label = i18n::datasets(locale);
     let dataset_label = i18n::dataset(locale);
     let page = rsx! {
-        AdminLayout {
+        Layout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
             team_id: team_id.clone(),

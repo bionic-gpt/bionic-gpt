@@ -4,7 +4,6 @@ use db::authz::Rbac;
 use db::queries::capabilities::Capability;
 use db::queries::prompts::SinglePrompt;
 use dioxus::prelude::*;
-use tool_runtime::ToolDefinition;
 
 use super::{ChatWithChunks, PendingChatState};
 
@@ -21,8 +20,6 @@ pub fn ConsoleLayout(
     header: Element,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
-    enabled_tools: Vec<String>,
-    available_tools: Vec<ToolDefinition>,
 ) -> Element {
     let has_pending_chat = pending_chat_state.shall_we_call_the_model();
 
@@ -53,8 +50,6 @@ pub fn ConsoleLayout(
                             conversation_id,
                             disclaimer: prompt.disclaimer,
                             capabilities: capabilities.clone(),
-                            enabled_tools,
-                            available_tools: available_tools.clone(),
                         },
                     }
                 } else {
@@ -72,8 +67,6 @@ pub fn ConsoleLayout(
                                 conversation_id,
                                 disclaimer: prompt.disclaimer,
                                 capabilities,
-                                enabled_tools,
-                                available_tools,
                             },
                         }
                     }

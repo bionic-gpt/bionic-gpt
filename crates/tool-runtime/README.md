@@ -7,7 +7,7 @@ supports both built-in tools and OpenAPI-based external integrations.
 ## What it does
 
 - Uses rig's `ToolDyn` trait for all executable tools.
-- Registers built-in tools (time, web, datasets, documents, RAG search).
+- Registers built-in tools (time, web, Bashkit, documents, HTML canvas).
 - Loads system-level OpenAPI specs (web search / code sandbox) and converts them
   into tools.
 - Loads external integrations connected to prompts and converts their OpenAPI
@@ -30,7 +30,6 @@ supports both built-in tools and OpenAPI-based external integrations.
 
 - `UserSelectable`: tools users can enable in chat.
 - `DocumentIntelligence`: tools enabled when a conversation has attachments.
-- `Rag`: dataset tools (list/search datasets and files).
 
 Use `get_tools`, `get_tools_with_system_openapi`, or
 `get_chat_tools_user_selected_with_system_openapi` depending on the context.
@@ -39,8 +38,11 @@ Use `get_tools`, `get_tools_with_system_openapi`, or
 
 - `time_date`: get current time and date.
 - `web`: open URL tool.
+- `run_bash`: Bashkit shell tool with `/home/user/skills`, `/home/user/datasets`,
+  and `rag-search` / `rag-read`.
+- `run_python`: Monty-backed Python snippets.
+- `render_html`: static HTML canvas artifacts.
 - `list_documents`, `read_document`: document tools.
-- `list_datasets`, `list_dataset_files`, `search_context`: dataset/RAG tools.
 
 ## System OpenAPI tools
 

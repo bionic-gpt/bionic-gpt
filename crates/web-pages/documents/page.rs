@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::app_layout::{AdminLayout, SideBar};
+use crate::app_layout::{Layout, SideBar};
 use crate::components::card_item::{CardItem, CountLabel};
 use crate::components::confirm_modal::ConfirmModal;
 use crate::integrations::mcp_url_modal::McpUrlModal;
@@ -8,7 +8,6 @@ use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
 use db::queries::{datasets::Dataset, documents::Document, models::Model};
-use db::Licence;
 use dioxus::prelude::*;
 use std::convert::TryFrom;
 
@@ -26,11 +25,9 @@ pub fn page(
     let delete_trigger_id = format!("delete-dataset-trigger-{}-{}", dataset.id, team_id);
     let dataset_name = dataset.name.clone();
     let dataset_external_id = dataset.external_id.to_string();
-    let licence = Licence::global();
-    let show_mcp_modal = licence.features.mcp;
 
     let page = rsx! {
-        AdminLayout {
+        Layout {
             section_class: "p-4",
             selected_item: SideBar::Datasets,
             team_id: team_id.clone(),
@@ -53,14 +50,12 @@ pub fn page(
                 div {
                     class: "flex items-center gap-2",
 
-                    if show_mcp_modal {
-                        McpUrlModal {
-                            id_prefix: "dataset-mcp-".to_string(),
-                            connection_id: dataset.id,
-                            external_id: dataset_external_id.clone(),
-                            mcp_slug: Some("datasets".to_string()),
-                            connection_label: format!("{dataset_name} dataset"),
-                        }
+                    McpUrlModal {
+                        id_prefix: "dataset-mcp-".to_string(),
+                        connection_id: dataset.id,
+                        external_id: dataset_external_id.clone(),
+                        mcp_slug: Some("datasets".to_string()),
+                        connection_label: format!("{dataset_name} dataset"),
                     }
 
                     if can_edit_dataset {

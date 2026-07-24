@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 use daisy_rsx::*;
-use db::Licence;
 use dioxus::prelude::*;
 
 #[derive(Props, Clone, PartialEq)]
@@ -27,12 +26,16 @@ pub fn McpUrlModal(props: McpUrlModalProps) -> Element {
     };
 
     let modal_id = format!("{}{}", id_prefix, connection_id);
-    let hostname_root = Licence::global().hostname_url.trim_end_matches('/');
     let path = format!("/v1/mcp/{}/{}", slug, external_id);
-    let mcp_url = if hostname_root.is_empty() {
-        path.clone()
+    let mcp_url = if let Ok(base_url) = std::env::var("APP_BASE_URL") {
+        let base_url = base_url.trim_end_matches('/');
+        if base_url.is_empty() {
+            path.clone()
+        } else {
+            format!("{}{}", base_url, path)
+        }
     } else {
-        format!("{}{}", hostname_root, path)
+        path.clone()
     };
 
     let claude_config = format!(

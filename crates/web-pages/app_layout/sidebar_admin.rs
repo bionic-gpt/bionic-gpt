@@ -3,34 +3,14 @@ use crate::menu::{NavGroup, NavItem};
 use assets::files::*;
 use dioxus::prelude::*;
 
-pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
+pub fn render(params: &SidebarParams, _labels: &SidebarLabels) -> Element {
     let selected_item = params.selected_item.to_string();
-    let ai_assistants_label = labels.ai_assistants.clone();
-    let datasets_label = labels.datasets.clone();
 
     let team_id = params.team_id.clone();
     let rbac = &params.rbac;
-    let show_automations_menu = params.show_automations_menu;
     let setup_required = params.setup_required;
 
     rsx!(
-        if rbac.can_manage_mcp_keys() || rbac.can_view_datasets() {
-            NavGroup {
-                heading: ai_assistants_label,
-                content: rsx!(
-                    if rbac.can_view_datasets() {
-                        NavItem {
-                            id: SideBar::Datasets.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::datasets::Index { team_id: team_id.clone() },
-                            icon: nav_ccsds_data_svg.name,
-                            title: datasets_label.clone(),
-                            disabled: setup_required
-                        }
-                    }
-                )
-            }
-        }
         if rbac.can_use_api_keys() {
             NavGroup {
                 heading: "Developers",
@@ -42,16 +22,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         icon: nav_api_keys_svg.name,
                         title: "API Keys",
                         disabled: setup_required
-                    }
-                    if show_automations_menu {
-                        NavItem {
-                            id: SideBar::Automations.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::automations::Index { team_id: team_id.clone() },
-                            icon: nav_automations_svg.name,
-                            title: "Automations",
-                            disabled: setup_required
-                        }
                     }
                     if rbac.can_manage_document_pipelines() {
                         NavItem {
@@ -152,27 +122,11 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             disabled: setup_required
                         }
                         NavItem {
-                            id: SideBar::CodeSandbox.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::code_sandbox::Index { team_id: team_id.clone() },
-                            icon: nav_audit_svg.name,
-                            title: "Code Sandbox",
-                            disabled: setup_required
-                        }
-                        NavItem {
                             id: SideBar::Categories.to_string(),
                             selected_item_id: selected_item.clone(),
                             href: crate::routes::categories::Index { team_id: team_id.clone() },
                             icon: nav_audit_svg.name,
                             title: "Categories",
-                            disabled: setup_required
-                        }
-                        NavItem {
-                            id: SideBar::Licence.to_string(),
-                            selected_item_id: selected_item,
-                            href: crate::routes::licence::Index { team_id: team_id.clone() },
-                            icon: nav_audit_svg.name,
-                            title: "System Info",
                             disabled: setup_required
                         }
                     }
