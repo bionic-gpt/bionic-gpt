@@ -1,9 +1,10 @@
 use crate::skills;
 use crate::types::ToolDefinition;
 use bashkit::{
-    async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem,
+    async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem, FileType,
 };
 use db::{queries, Pool, Transaction};
+use object_storage::StorageConfig;
 use rig::client::EmbeddingsClient;
 use rig::embeddings::EmbeddingModel;
 use rig::providers::{ollama, openai};
@@ -25,6 +26,9 @@ const HOME_DIR: &str = "/home/user";
 const SKILLS_DIR: &str = "/home/user/skills";
 const DATASETS_DIR: &str = "/home/user/datasets";
 const ATTACHMENTS_DIR: &str = "/home/user/attachments";
+const OUTPUT_DIR: &str = "/home/user/output";
+const MAX_OUTPUT_FILES: usize = 50;
+const MAX_OUTPUT_FILE_BYTES: u64 = 5 * 1024 * 1024;
 
 #[derive(Debug, Deserialize)]
 struct RunBashArgs {
@@ -83,6 +87,15 @@ struct AttachmentEntry {
     file_id: i32,
     name: String,
     path: String,
+    mime_type: String,
+    size: i64,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct OutputEntry {
+    id: i32,
+    path: String,
+    file_name: String,
     mime_type: String,
     size: i64,
 }
@@ -149,7 +162,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, and /home/user/datasets to inspect assistant datasets. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, and /home/user/datasets to inspect assistant datasets. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -216,6 +229,7 @@ async fn execute_run_bash(
     )
     .await?;
     seed_attachments(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
+    seed_outputs(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
 
     let result = tokio::time::timeout(
         Duration::from_millis(timeout),
@@ -225,14 +239,24 @@ async fn execute_run_bash(
     .map_err(|_| json!({"error": "bash execution timed out"}))?
     .map_err(|err| json!({"error": "bash execution failed", "details": err.to_string()}))?;
 
-    Ok(json!({
+    let output_sync_result =
+        persist_outputs(&tool.pool, &tool.sub, tool.conversation_id, &bash).await;
+
+    let mut response = json!({
         "stdout": result.stdout,
         "stderr": result.stderr,
         "exit_code": result.exit_code,
         "duration_ms": started.elapsed().as_millis(),
         "stdout_truncated": result.stdout_truncated,
         "stderr_truncated": result.stderr_truncated
-    }))
+    });
+
+    match output_sync_result {
+        Ok(outputs) => response["outputs"] = json!(outputs),
+        Err(err) => response["output_error"] = err,
+    }
+
+    Ok(response)
 }
 
 async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), serde_json::Value> {
@@ -494,6 +518,335 @@ async fn seed_attachments(
         .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
 
     Ok(())
+}
+
+async fn seed_outputs(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i64,
+    bash: &Bash,
+) -> Result<(), serde_json::Value> {
+    let conversation_id = db_conversation_id(conversation_id)?;
+    let mut client = pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let fs = bash.fs();
+    fs.mkdir(Path::new(OUTPUT_DIR), true).await.map_err(
+        |e| json!({"error": "Failed to seed output directory", "details": e.to_string()}),
+    )?;
+
+    let outputs = queries::generated_outputs::list_by_conversation()
+        .bind(&transaction, &conversation_id)
+        .all()
+        .await
+        .map_err(
+            |e| json!({"error": "Failed to get generated outputs", "details": e.to_string()}),
+        )?;
+
+    for output in outputs {
+        if !is_output_path(&output.path) {
+            continue;
+        }
+
+        let data = queries::generated_outputs::get_content()
+            .bind(&transaction, &output.id)
+            .one()
+            .await
+            .map_err(|e| {
+                json!({
+                    "error": "Failed to get generated output content",
+                    "details": e.to_string()
+                })
+            })?;
+
+        write_vfs_file(fs.as_ref(), &output.path, &data.object_data).await?;
+    }
+
+    transaction
+        .commit()
+        .await
+        .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
+
+    Ok(())
+}
+
+async fn persist_outputs(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i64,
+    bash: &Bash,
+) -> Result<Vec<OutputEntry>, serde_json::Value> {
+    let conversation_id_i32 = db_conversation_id(conversation_id)?;
+    let fs = bash.fs();
+    fs.mkdir(Path::new(OUTPUT_DIR), true).await.map_err(
+        |e| json!({"error": "Failed to inspect output directory", "details": e.to_string()}),
+    )?;
+
+    let files = collect_output_files(fs.as_ref(), Path::new(OUTPUT_DIR)).await?;
+    let mut client = pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let (user_id, team_id) = conversation_owner_and_team_id(&transaction, conversation_id).await?;
+    transaction
+        .commit()
+        .await
+        .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
+
+    let storage_config = StorageConfig::database(pool.clone());
+    let mut persisted = Vec::new();
+
+    for file in files {
+        let bytes = fs.read_file(Path::new(&file)).await.map_err(
+            |e| json!({"error": "Failed to read output file", "path": file, "details": e.to_string()}),
+        )?;
+        if bytes.is_empty() {
+            continue;
+        }
+        let hash = format!("{:x}", md5::compute(&bytes));
+        let file_name = output_file_name(&file);
+        let mime_type = output_mime_type(&file_name);
+        let file_size = bytes.len() as i64;
+
+        let existing = existing_output(pool, sub, conversation_id, &file).await?;
+        if existing
+            .as_ref()
+            .is_some_and(|existing| existing.file_hash == hash)
+        {
+            continue;
+        }
+
+        let object_id =
+            object_storage::upload(&storage_config, user_id, team_id, &file_name, &bytes)
+                .await
+                .map_err(|e| {
+                    json!({
+                        "error": "Failed to store output file",
+                        "path": file,
+                        "details": e.to_string()
+                    })
+                })?;
+
+        let id = upsert_output(
+            pool,
+            sub,
+            conversation_id_i32,
+            object_id,
+            &file,
+            &file_name,
+            &mime_type,
+            file_size,
+            &hash,
+        )
+        .await?;
+
+        persisted.push(OutputEntry {
+            id,
+            path: file,
+            file_name,
+            mime_type,
+            size: file_size,
+        });
+    }
+
+    Ok(persisted)
+}
+
+async fn collect_output_files(
+    fs: &dyn FileSystem,
+    root: &Path,
+) -> Result<Vec<String>, serde_json::Value> {
+    let mut pending = vec![root.to_path_buf()];
+    let mut files = Vec::new();
+
+    while let Some(dir) = pending.pop() {
+        for entry in fs.read_dir(&dir).await.map_err(
+            |e| json!({"error": "Failed to read output directory", "path": dir.display().to_string(), "details": e.to_string()}),
+        )? {
+            let path = dir.join(&entry.name);
+            if entry.metadata.file_type == FileType::Directory {
+                pending.push(path);
+            } else if entry.metadata.file_type == FileType::File
+                && entry.metadata.size <= MAX_OUTPUT_FILE_BYTES
+            {
+                let path = path.to_string_lossy().to_string();
+                if is_output_path(&path) {
+                    files.push(path);
+                    if files.len() >= MAX_OUTPUT_FILES {
+                        files.sort();
+                        return Ok(files);
+                    }
+                }
+            }
+        }
+    }
+
+    files.sort();
+    Ok(files)
+}
+
+async fn existing_output(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i64,
+    path: &str,
+) -> Result<Option<db::GeneratedOutput>, serde_json::Value> {
+    let conversation_id = db_conversation_id(conversation_id)?;
+    let mut client = pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let output = queries::generated_outputs::find_by_path()
+        .bind(&transaction, &conversation_id, &path)
+        .opt()
+        .await
+        .map_err(
+            |e| json!({"error": "Failed to inspect output metadata", "details": e.to_string()}),
+        )?;
+
+    transaction
+        .commit()
+        .await
+        .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
+
+    Ok(output)
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn upsert_output(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i32,
+    object_id: i32,
+    path: &str,
+    file_name: &str,
+    mime_type: &str,
+    file_size: i64,
+    file_hash: &str,
+) -> Result<i32, serde_json::Value> {
+    let mut client = pool
+        .get()
+        .await
+        .map_err(|e| json!({"error": "Failed to get DB client", "details": e.to_string()}))?;
+    let transaction = client
+        .transaction()
+        .await
+        .map_err(|e| json!({"error": "Failed to start transaction", "details": e.to_string()}))?;
+
+    db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+        .await
+        .map_err(|e| json!({"error": "Failed to set RLS", "details": e.to_string()}))?;
+
+    let id = queries::generated_outputs::upsert()
+        .bind(
+            &transaction,
+            &conversation_id,
+            &object_id,
+            &path,
+            &file_name,
+            &mime_type,
+            &file_size,
+            &file_hash,
+        )
+        .one()
+        .await
+        .map_err(
+            |e| json!({"error": "Failed to persist output metadata", "details": e.to_string()}),
+        )?;
+
+    transaction
+        .commit()
+        .await
+        .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
+
+    Ok(id)
+}
+
+async fn conversation_owner_and_team_id(
+    transaction: &Transaction<'_>,
+    conversation_id: i64,
+) -> Result<(i32, i32), serde_json::Value> {
+    let row = transaction
+        .query_one(
+            "SELECT user_id, team_id FROM llm.conversations WHERE id = $1 AND user_id = current_app_user()",
+            &[&conversation_id],
+        )
+        .await
+        .map_err(|e| json!({"error": "Failed to get conversation", "details": e.to_string()}))?;
+    Ok((row.get(0), row.get(1)))
+}
+
+async fn write_vfs_file(
+    fs: &dyn FileSystem,
+    path: &str,
+    contents: &[u8],
+) -> Result<(), serde_json::Value> {
+    let path = Path::new(path);
+    if let Some(parent) = path.parent() {
+        fs.mkdir(parent, true).await.map_err(
+            |e| json!({"error": "Failed to create VFS directory", "details": e.to_string()}),
+        )?;
+    }
+    fs.write_file(path, contents)
+        .await
+        .map_err(|e| json!({"error": "Failed to write VFS file", "details": e.to_string()}))
+}
+
+fn is_output_path(path: &str) -> bool {
+    path == OUTPUT_DIR || path.starts_with(&format!("{OUTPUT_DIR}/"))
+}
+
+fn output_file_name(path: &str) -> String {
+    Path::new(path)
+        .file_name()
+        .and_then(|name| name.to_str())
+        .filter(|name| !name.is_empty())
+        .unwrap_or("output")
+        .chars()
+        .take(255)
+        .collect()
+}
+
+fn output_mime_type(file_name: &str) -> String {
+    mime_guess::from_path(file_name)
+        .first_or_octet_stream()
+        .to_string()
+        .chars()
+        .take(50)
+        .collect()
+}
+
+fn db_conversation_id(conversation_id: i64) -> Result<i32, serde_json::Value> {
+    i32::try_from(conversation_id)
+        .map_err(|_| json!({"error": "conversation_id is outside the supported range"}))
 }
 
 fn plan_attachment_paths<'a>(file_names: impl IntoIterator<Item = &'a str>) -> Vec<String> {

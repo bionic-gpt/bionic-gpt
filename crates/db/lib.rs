@@ -20,6 +20,7 @@ pub use queries::connections::{
 pub use queries::conversations::{Conversation, ConversationContextSize};
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
+pub use queries::generated_outputs::{GeneratedOutput, GeneratedOutputData};
 pub use queries::history::History;
 pub use queries::integrations::Integration;
 pub use queries::invitations::{Invitation, InviteSummary};

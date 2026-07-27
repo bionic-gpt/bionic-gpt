@@ -16,6 +16,19 @@ struct HtmlCanvasPayload {
     html: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct ToolOutputPayload {
+    outputs: Option<Vec<GeneratedOutputPayload>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct GeneratedOutputPayload {
+    path: String,
+    file_name: String,
+    mime_type: String,
+    size: i64,
+}
+
 fn format_json_string(raw: &str) -> String {
     if let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) {
         serde_json::to_string_pretty(&value).unwrap_or_else(|_| raw.to_string())
@@ -49,6 +62,16 @@ fn parse_html_canvas(raw: Option<&str>) -> Option<HtmlCanvasPayload> {
     }
 }
 
+fn parse_generated_outputs(raw: Option<&str>) -> Vec<GeneratedOutputPayload> {
+    serde_json::from_str::<ToolOutputPayload>(raw.unwrap_or_default())
+        .ok()
+        .and_then(|payload| payload.outputs)
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|output| !output.path.trim().is_empty())
+        .collect()
+}
+
 #[component]
 pub fn ToolCallTimeline(
     chat_id: i64,
@@ -72,6 +95,7 @@ pub fn ToolCallTimeline(
         .map(|body| format_json_string(body))
         .filter(|body| !body.trim().is_empty());
     let html_canvas = parse_html_canvas(response.as_deref());
+    let generated_outputs = parse_generated_outputs(response.as_deref());
 
     rsx! {
         TimeLine {
@@ -122,6 +146,36 @@ pub fn ToolCallTimeline(
                                 title: canvas.title.as_deref().unwrap_or("HTML canvas"),
                                 "sandbox": "",
                                 srcdoc: "{canvas.html}"
+                            }
+                        }
+                    }
+                    if !generated_outputs.is_empty() {
+                        div {
+                            class: "rounded-lg border border-base-300 bg-base-100 p-3",
+                            div {
+                                class: "text-sm font-semibold",
+                                "Generated files"
+                            }
+                            ul {
+                                class: "mt-2 space-y-2",
+                                for output in generated_outputs.iter() {
+                                    li {
+                                        class: "flex flex-wrap items-center gap-2 text-sm",
+                                        Badge {
+                                            badge_style: BadgeStyle::Outline,
+                                            badge_size: BadgeSize::Sm,
+                                            "{output.file_name}"
+                                        }
+                                        span {
+                                            class: "font-mono text-xs text-base-content/70 break-all",
+                                            "{output.path}"
+                                        }
+                                        span {
+                                            class: "text-xs text-base-content/60",
+                                            "{output.mime_type} - {output.size} bytes"
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -227,5 +281,15 @@ mod tests {
         assert!(
             parse_html_canvas(Some(r#"{"type":"html_canvas","version":1,"html":"   "}"#)).is_none()
         );
+    }
+
+    #[test]
+    fn test_parse_generated_outputs() {
+        let payload = r#"{"stdout":"","outputs":[{"id":1,"path":"/home/user/output/report.html","file_name":"report.html","mime_type":"text/html","size":42}]}"#;
+        let outputs = parse_generated_outputs(Some(payload));
+
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].path, "/home/user/output/report.html");
+        assert_eq!(outputs[0].file_name, "report.html");
     }
 }
