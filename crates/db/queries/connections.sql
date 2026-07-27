@@ -16,16 +16,44 @@ INSERT INTO integrations.oauth2_connections (
     refresh_token,
     expires_at,
     scopes
-) VALUES (
-    :integration_id,
-    current_app_user(),
-    :team_id,
-    :visibility,
-    encrypt_text(:access_token),
-    encrypt_text(:refresh_token),
-    :expires_at,
-    :scopes
-) RETURNING id;
+)
+SELECT
+    connection.integration_id,
+    connection.user_id,
+    connection.team_id,
+    connection.visibility,
+    connection.access_token,
+    connection.refresh_token,
+    connection.expires_at,
+    connection.scopes
+FROM (
+    VALUES (
+        :integration_id::INT,
+        current_app_user(),
+        :team_id::INT,
+        :visibility::visibility,
+        encrypt_text(:access_token::TEXT),
+        encrypt_text(:refresh_token::TEXT),
+        :expires_at::TIMESTAMPTZ,
+        :scopes::JSONB
+    )
+) AS connection (
+    integration_id,
+    user_id,
+    team_id,
+    visibility,
+    access_token,
+    refresh_token,
+    expires_at,
+    scopes
+)
+WHERE EXISTS (
+    SELECT 1
+    FROM integrations.integrations i
+    WHERE i.id = connection.integration_id
+    AND i.team_id = connection.team_id
+)
+RETURNING id;
 
 --! update_oauth2_connection(refresh_token?, expires_at?)
 UPDATE integrations.oauth2_connections
@@ -57,13 +85,35 @@ INSERT INTO integrations.api_key_connections (
     team_id,
     visibility,
     api_key
-) VALUES (
-    :integration_id,
-    current_app_user(),
-    :team_id,
-    :visibility,
-    encrypt_text(:api_key)
-) RETURNING id;
+)
+SELECT
+    connection.integration_id,
+    connection.user_id,
+    connection.team_id,
+    connection.visibility,
+    connection.api_key
+FROM (
+    VALUES (
+        :integration_id::INT,
+        current_app_user(),
+        :team_id::INT,
+        :visibility::visibility,
+        encrypt_text(:api_key::TEXT)
+    )
+) AS connection (
+    integration_id,
+    user_id,
+    team_id,
+    visibility,
+    api_key
+)
+WHERE EXISTS (
+    SELECT 1
+    FROM integrations.integrations i
+    WHERE i.id = connection.integration_id
+    AND i.team_id = connection.team_id
+)
+RETURNING id;
 
 --! get_api_key_connections_for_integration : ApiKeyConnection
 SELECT

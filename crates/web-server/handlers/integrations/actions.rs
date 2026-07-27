@@ -18,11 +18,15 @@ pub async fn delete_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let (_permissions, _team_id_num) =
+    let (permissions, team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
+    if !permissions.can_manage_integrations() {
+        return Err(CustomError::Authorization);
+    }
+
     queries::integrations::delete()
-        .bind(&transaction, &id)
+        .bind(&transaction, &id, &team_id_num)
         .await?;
 
     transaction.commit().await?;
@@ -43,8 +47,12 @@ pub async fn edit_action(
     // Create a transaction and setup RLS
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let (permissions, _team_id_num) =
+    let (permissions, team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
+
+    if !permissions.can_manage_integrations() {
+        return Err(CustomError::Authorization);
+    }
 
     let integration_type = db::IntegrationType::OpenAPI;
 
@@ -85,6 +93,7 @@ pub async fn edit_action(
                     &integration_type,
                     &visibility,
                     &id,
+                    &team_id_num,
                 )
                 .await?;
 
@@ -116,6 +125,10 @@ pub async fn new_action(
     let transaction = client.transaction().await?;
     let (permissions, team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
+
+    if !permissions.can_manage_integrations() {
+        return Err(CustomError::Authorization);
+    }
 
     let integration_type = db::IntegrationType::OpenAPI;
 

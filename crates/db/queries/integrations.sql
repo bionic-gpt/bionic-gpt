@@ -86,10 +86,26 @@ SET
     integration_type = :integration_type,
     visibility = :visibility
 WHERE
-    id = :id;
+    id = :id
+AND
+    team_id = :team_id
+AND
+    team_id IN (
+        SELECT team_id
+        FROM iam.team_users
+        WHERE user_id = current_app_user()
+    );
 
 --! delete
 DELETE FROM
     integrations.integrations
 WHERE
-    id = :id;
+    id = :id
+AND
+    team_id = :team_id
+AND
+    team_id IN (
+        SELECT team_id
+        FROM iam.team_users
+        WHERE user_id = current_app_user()
+    );
