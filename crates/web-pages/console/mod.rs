@@ -1,3 +1,4 @@
+pub mod canvas;
 pub mod console_stream;
 pub mod conversation;
 pub mod empty_stream;

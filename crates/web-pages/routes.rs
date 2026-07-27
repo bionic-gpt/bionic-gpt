@@ -140,6 +140,13 @@ pub mod console {
         pub team_id: String,
         pub id: i64,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/generated_outputs/{id}/canvas")]
+    pub struct GeneratedOutputCanvas {
+        pub team_id: String,
+        pub id: i32,
+    }
 }
 
 pub mod prompts {

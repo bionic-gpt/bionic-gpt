@@ -31,4 +31,6 @@ futures.workspace = true
 futures-util = "0.3"
 html2text = "0.16"
 bashkit = "0.14.3"
-include_dir = "0.7"
+md5 = "0.7.0"
+mime_guess = "2.0.5"
+object-storage = { path = "../object-storage" }

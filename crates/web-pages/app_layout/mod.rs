@@ -266,33 +266,9 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
 }
 
 fn admin_home_href(rbac: &Rbac, team_id: String) -> Option<String> {
-    if rbac.can_view_datasets() {
-        return Some(
-            crate::routes::datasets::Index {
-                team_id: team_id.clone(),
-            }
-            .to_string(),
-        );
-    }
-    if rbac.can_manage_mcp_keys() {
-        return Some(
-            crate::routes::mcp_api_keys::Index {
-                team_id: team_id.clone(),
-            }
-            .to_string(),
-        );
-    }
     if rbac.can_use_api_keys() {
         return Some(
             crate::routes::api_keys::Index {
-                team_id: team_id.clone(),
-            }
-            .to_string(),
-        );
-    }
-    if rbac.can_use_api_keys() && rbac.can_manage_document_pipelines() {
-        return Some(
-            crate::routes::document_pipelines::Index {
                 team_id: team_id.clone(),
             }
             .to_string(),
@@ -307,9 +283,17 @@ fn admin_home_href(rbac: &Rbac, team_id: String) -> Option<String> {
             .to_string(),
         );
     }
-    if rbac.can_view_audit_trail() || rbac.can_setup_models() {
+    if rbac.can_setup_models() || rbac.is_sys_admin {
         return Some(
             crate::routes::models::Index {
+                team_id: team_id.clone(),
+            }
+            .to_string(),
+        );
+    }
+    if rbac.can_view_audit_trail() {
+        return Some(
+            crate::routes::audit_trail::Index {
                 team_id: team_id.clone(),
             }
             .to_string(),

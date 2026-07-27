@@ -58,11 +58,6 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
             ],
         ),
         integration_tool(
-            "HTML canvas tools",
-            ToolScope::UserSelectable,
-            vec![builtin_tools::html_canvas::get_tool_definition()],
-        ),
-        integration_tool(
             "Bash tools",
             ToolScope::UserSelectable,
             vec![builtin_tools::bashkit::get_tool_definition()],
@@ -132,8 +127,8 @@ mod tests {
         assert!(names.contains(&"open_url"));
         assert!(names.contains(&"search_tool_functions"));
         assert!(names.contains(&"run_python"));
-        assert!(names.contains(&"render_html"));
         assert!(names.contains(&"run_bash"));
+        assert!(!names.contains(&"render_html"));
         assert!(!names.contains(&"list_datasets"));
         assert!(!names.contains(&"list_dataset_files"));
         assert!(!names.contains(&"search_context"));

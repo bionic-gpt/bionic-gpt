@@ -53,23 +53,21 @@ pub async fn execute_prompt(
     transaction: &Transaction<'_>,
     prompt: prompts::SinglePrompt,
     _conversation_id: Option<i64>,
-    include_builtin_skills: bool,
+    include_skills: bool,
     chat_history: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     tracing::info!("Retrieved {} history items", chat_history.len());
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
     let max_completion_tokens = prompt.max_completion_tokens.unwrap_or(0) as usize;
-    let tool_context = if include_builtin_skills {
+    let tool_context = if include_skills {
         let skill_summaries = db::queries::skills::visible_skill_summaries()
             .bind(transaction)
             .all()
             .await?;
         Some(combine_optional_sections(vec![
             Some(TOOL_USE_GUIDANCE.to_string()),
-            tool_runtime::builtin_skills::available_skills_prompt_section_with_custom(
-                skill_summaries,
-            ),
+            tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries),
         ]))
     } else {
         None

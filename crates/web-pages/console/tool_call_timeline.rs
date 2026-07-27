@@ -3,18 +3,10 @@
 use assets::files::*;
 use daisy_rsx::*;
 use dioxus::prelude::*;
-use serde::Deserialize;
 use serde_json::Value;
 use tool_runtime::ToolCall;
 
-#[derive(Debug, Deserialize)]
-struct HtmlCanvasPayload {
-    #[serde(rename = "type")]
-    artifact_type: String,
-    version: u32,
-    title: Option<String>,
-    html: String,
-}
+use super::canvas::{is_canvas_output, parse_generated_outputs, CanvasOutput, GeneratedFiles};
 
 fn format_json_string(raw: &str) -> String {
     if let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) {
@@ -37,20 +29,9 @@ fn display_tool_name(tool_call_id: &Option<String>, tool_call: Option<&ToolCall>
     format!("Tool Call {}", tool_call_id.as_deref().unwrap_or("Unknown"))
 }
 
-fn parse_html_canvas(raw: Option<&str>) -> Option<HtmlCanvasPayload> {
-    let payload = serde_json::from_str::<HtmlCanvasPayload>(raw?).ok()?;
-    if payload.artifact_type == "html_canvas"
-        && payload.version == 1
-        && !payload.html.trim().is_empty()
-    {
-        Some(payload)
-    } else {
-        None
-    }
-}
-
 #[component]
 pub fn ToolCallTimeline(
+    team_id: String,
     chat_id: i64,
     pending: bool,
     tool_call_id: Option<String>,
@@ -71,7 +52,12 @@ pub fn ToolCallTimeline(
         .as_ref()
         .map(|body| format_json_string(body))
         .filter(|body| !body.trim().is_empty());
-    let html_canvas = parse_html_canvas(response.as_deref());
+    let generated_outputs = parse_generated_outputs(response.as_deref());
+    let canvas_outputs = generated_outputs
+        .iter()
+        .filter(|output| is_canvas_output(output))
+        .cloned()
+        .collect::<Vec<_>>();
 
     rsx! {
         TimeLine {
@@ -108,22 +94,14 @@ pub fn ToolCallTimeline(
                             }
                         }
                     }
-                    if let Some(canvas) = html_canvas.as_ref() {
-                        div {
-                            class: "border border-base-300 bg-base-100 rounded-lg overflow-hidden",
-                            if let Some(title) = canvas.title.as_ref() {
-                                div {
-                                    class: "px-3 py-2 border-b border-base-300 text-sm font-semibold",
-                                    "{title}"
-                                }
-                            }
-                            iframe {
-                                class: "w-full h-96 bg-white",
-                                title: canvas.title.as_deref().unwrap_or("HTML canvas"),
-                                "sandbox": "",
-                                srcdoc: "{canvas.html}"
-                            }
+                    for output in canvas_outputs {
+                        CanvasOutput {
+                            team_id: team_id.clone(),
+                            output
                         }
+                    }
+                    GeneratedFiles {
+                        outputs: generated_outputs
                     }
                 }
             }
@@ -205,27 +183,15 @@ pub fn ToolCallTimeline(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::parse_generated_outputs;
 
     #[test]
-    fn test_parse_html_canvas() {
-        let payload =
-            r#"{"type":"html_canvas","version":1,"title":"Preview","html":"<h1>Hello</h1>"}"#;
-        let canvas = parse_html_canvas(Some(payload)).expect("expected html canvas");
+    fn test_parse_generated_outputs() {
+        let payload = r#"{"stdout":"","outputs":[{"id":1,"path":"/home/user/output/report.html","file_name":"report.html","mime_type":"text/html","size":42}]}"#;
+        let outputs = parse_generated_outputs(Some(payload));
 
-        assert_eq!(canvas.title.as_deref(), Some("Preview"));
-        assert_eq!(canvas.html, "<h1>Hello</h1>");
-    }
-
-    #[test]
-    fn test_parse_html_canvas_rejects_normal_json() {
-        assert!(parse_html_canvas(Some(r#"{"result":"ok"}"#)).is_none());
-    }
-
-    #[test]
-    fn test_parse_html_canvas_rejects_empty_html() {
-        assert!(
-            parse_html_canvas(Some(r#"{"type":"html_canvas","version":1,"html":"   "}"#)).is_none()
-        );
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].path, "/home/user/output/report.html");
+        assert_eq!(outputs[0].file_name, "report.html");
     }
 }

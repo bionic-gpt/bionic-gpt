@@ -99,6 +99,14 @@ fn SkillCard(skill: Skill, team_id: String, can_set_visibility_to_company: bool)
                         crate::assistants::visibility::VisLabel {
                             visibility: skill.visibility
                         }
+                        if skill.is_system {
+                            Badge {
+                                badge_color: BadgeColor::Info,
+                                badge_style: BadgeStyle::Outline,
+                                badge_size: BadgeSize::Sm,
+                                "System"
+                            }
+                        }
                         if !skill.description.is_empty() {
                             span { "{skill.description}" }
                         }
@@ -108,44 +116,46 @@ fn SkillCard(skill: Skill, team_id: String, can_set_visibility_to_company: bool)
                     count: file_count,
                     label: "File".to_string()
                 }],
-                action: Some(rsx!(
-                    div {
-                        class: "flex gap-2",
-                        Button {
-                            button_scheme: ButtonScheme::Neutral,
-                            popover_target: "{edit_trigger_id}",
-                            "Edit"
+                action: (!skill.is_system).then(|| rsx!(
+                        div {
+                            class: "flex gap-2",
+                            Button {
+                                button_scheme: ButtonScheme::Neutral,
+                                popover_target: "{edit_trigger_id}",
+                                "Edit"
+                            }
+                            Button {
+                                button_scheme: ButtonScheme::Error,
+                                popover_target: "{delete_trigger_id}",
+                                "Delete"
+                            }
                         }
-                        Button {
-                            button_scheme: ButtonScheme::Error,
-                            popover_target: "{delete_trigger_id}",
-                            "Delete"
-                        }
-                    }
-                )),
+                    )),
             }
 
-            super::upsert::Upsert {
-                trigger_id: edit_trigger_id.clone(),
-                id: Some(skill.id),
-                name: skill.name.clone(),
-                description: skill.description.clone(),
-                team_id: team_id.clone(),
-                visibility: skill.visibility,
-                can_set_visibility_to_company,
-                requires_file: false,
-            }
+            if !skill.is_system {
+                super::upsert::Upsert {
+                    trigger_id: edit_trigger_id.clone(),
+                    id: Some(skill.id),
+                    name: skill.name.clone(),
+                    description: skill.description.clone(),
+                    team_id: team_id.clone(),
+                    visibility: skill.visibility,
+                    can_set_visibility_to_company,
+                    requires_file: false,
+                }
 
-            ConfirmModal {
-                action: crate::routes::skills::Delete {
-                    team_id,
-                    id: skill.id,
-                }.to_string(),
-                trigger_id: delete_trigger_id,
-                submit_label: "Delete Skill".to_string(),
-                heading: "Delete skill".to_string(),
-                warning: format!("Delete {}? This removes it from future sandbox runs.", skill.name),
-                hidden_fields: vec![],
+                ConfirmModal {
+                    action: crate::routes::skills::Delete {
+                        team_id,
+                        id: skill.id,
+                    }.to_string(),
+                    trigger_id: delete_trigger_id,
+                    submit_label: "Delete Skill".to_string(),
+                    heading: "Delete skill".to_string(),
+                    warning: format!("Delete {}? This removes it from future sandbox runs.", skill.name),
+                    hidden_fields: vec![],
+                }
             }
         }
     )
