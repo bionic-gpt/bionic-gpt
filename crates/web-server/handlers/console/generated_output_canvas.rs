@@ -6,7 +6,7 @@ use axum::response::{IntoResponse, Response};
 use db::{authz, queries, Pool};
 use web_pages::routes::console::GeneratedOutputCanvas;
 
-const CANVAS_CSP: &str = "default-src 'none'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; frame-ancestors 'self'; base-uri 'none'; form-action 'none'";
+const CANVAS_CSP: &str = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'none'; media-src data: blob:; frame-ancestors 'self'; base-uri 'none'; form-action 'none'";
 
 #[derive(Debug, PartialEq, Eq)]
 struct CanvasDocument {
@@ -117,5 +117,11 @@ mod tests {
     #[test]
     fn parse_canvas_document_rejects_empty_body() {
         assert!(parse_canvas_document("---\ntype: text/html\n---\n   ").is_err());
+    }
+
+    #[test]
+    fn canvas_csp_allows_inline_scripts_without_network() {
+        assert!(CANVAS_CSP.contains("script-src 'unsafe-inline'"));
+        assert!(CANVAS_CSP.contains("connect-src 'none'"));
     }
 }

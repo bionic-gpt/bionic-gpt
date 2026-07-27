@@ -59,7 +59,7 @@ pub fn CanvasOutput(team_id: String, output: GeneratedOutputPayload) -> Element 
             iframe {
                 class: "w-full h-[45vh] min-h-[720px] bg-white",
                 title: "{title}",
-                "sandbox": "",
+                "sandbox": "allow-scripts",
                 src: "{src}"
             }
         }
