@@ -35,6 +35,7 @@ pub fn ConsoleStream(
                         // Show each pending tool chat
                         for tool_chat in tool_chats {
                             ToolCallTimeline {
+                                team_id: team_id.clone(),
                                 chat_id: tool_chat.id as i64,
                                 pending: true,
                                 tool_call_id: tool_chat.tool_call_id.clone(),
@@ -99,6 +100,7 @@ pub fn ConsoleStream(
                         ChatRole::Tool => {
                             rsx! {
                                 ToolCallTimeline {
+                                    team_id: team_id.clone(),
                                     chat_id: chat_with_chunks.chat.id as i64,
                                     pending: false,
                                     tool_call_id: chat_with_chunks.chat.tool_call_id.clone(),

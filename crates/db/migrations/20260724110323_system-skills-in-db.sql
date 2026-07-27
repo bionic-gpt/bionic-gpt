@@ -88,7 +88,7 @@ WITH skill AS (
     )
     VALUES (
         'presentation-builder',
-        'Create slide decks and presentation-style visual artifacts with the HTML canvas tool.',
+        'Create slide decks and presentation-style visual artifacts as generated HTML canvas files.',
         'Company',
         true
     )
@@ -104,18 +104,29 @@ SELECT
     'SKILL.md',
     convert_to($$# Presentation Builder
 
-Use this skill when the user asks for slides, a deck, a presentation, a pitch deck, a briefing, or a visual walkthrough.
+Use this skill when the user asks for slides, a deck, a presentation, a pitch deck, a briefing, a visual walkthrough, or an HTML canvas.
 
-Create the presentation with the `render_html` tool as one complete static HTML artifact.
+Create the artifact as a generated output file at `/home/user/output/<canvas-name>/CANVAS.md`.
 
-1. Build a single HTML document with inline CSS.
-2. Use multiple `<section class="slide">...</section>` blocks for the slides.
-3. Keep each slide focused, readable, and visually balanced.
-4. Use clear titles, strong hierarchy, generous spacing, and consistent layout.
-5. Make the deck print-friendly with `@media print` rules when useful.
-6. Include speaker notes only when the user asks for them.
+The file must contain frontmatter followed by one complete static HTML document:
 
-Do not use JavaScript, external scripts, external stylesheets, or multiple canvas calls for one deck.
+```markdown
+---
+name: canvas-name
+title: Human readable title
+type: text/html
+---
+<!doctype html>
+<html>...</html>
+```
+
+1. Use a short lowercase folder name for `<canvas-name>`.
+2. Build a single self-contained HTML document with inline CSS.
+3. Use multiple `<section class="slide">...</section>` blocks for slide decks.
+4. Keep the canvas readable, visually balanced, and sized for iframe display.
+5. Do not use external scripts, external stylesheets, network calls, or multiple canvas files for one artifact.
+
+After creating or editing the canvas, mention the generated path.
 $$, 'UTF8')
 FROM skill;
 

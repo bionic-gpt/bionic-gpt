@@ -83,7 +83,6 @@ pub async fn get_tools(
             sub.clone(),
             conversation_id,
         )),
-        Arc::new(builtin_tools::html_canvas::HtmlCanvasTool),
         Arc::new(builtin_tools::bashkit::BashkitTool::new(
             pool.clone(),
             sub.clone(),
