@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Use case evaluation ladder</title>
+  <desc id="desc">A four step progression from Chat to Projects to Named Agents to Build.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eef2ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="18" markerHeight="18" refX="14" refY="9" orient="auto">
+      <path d="M2 2 L16 9 L2 16 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1350" cy="120" r="210" fill="#dbeafe" opacity="0.55"/>
+  <circle cx="170" cy="800" r="260" fill="#fef3c7" opacity="0.55"/>
+
+  <text x="80" y="105" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="58" font-weight="800" fill="#0f172a">
+    Use what you have before you build
+  </text>
+  <text x="82" y="154" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="26" fill="#475569">
+    Move right only when the current option cannot satisfy the use case.
+  </text>
+
+  <g transform="translate(70 235)">
+    <rect width="320" height="455" rx="26" fill="#ffffff" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="320" height="12" rx="6" fill="#2563eb"/>
+    <circle cx="62" cy="72" r="28" fill="#dbeafe"/>
+    <path d="M48 68 h28 a12 12 0 0 1 0 24 h-12 l-16 14 v-14 a12 12 0 0 1 0-24z" fill="#2563eb"/>
+    <text x="34" y="150" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="40" font-weight="800" fill="#0f172a">Chat</text>
+    <text x="34" y="205" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#334155">Best for</text>
+    <text x="34" y="238" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">One-off work, research,</text>
+    <text x="34" y="266" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">analysis, writing, and</text>
+    <text x="34" y="294" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">small scripts.</text>
+    <text x="34" y="350" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#334155">Use when</text>
+    <text x="34" y="383" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">A person can stay in</text>
+    <text x="34" y="411" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">the loop and steer.</text>
+  </g>
+
+  <line x1="415" y1="462" x2="475" y2="462" stroke="#64748b" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g transform="translate(500 235)">
+    <rect width="320" height="455" rx="26" fill="#ffffff" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="320" height="12" rx="6" fill="#7c3aed"/>
+    <rect x="36" y="48" width="62" height="78" rx="10" fill="#ede9fe"/>
+    <path d="M50 70 h34 M50 90 h34 M50 110 h22" stroke="#7c3aed" stroke-width="8" stroke-linecap="round"/>
+    <text x="34" y="150" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="40" font-weight="800" fill="#0f172a">Projects</text>
+    <text x="34" y="205" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#334155">Best for</text>
+    <text x="34" y="238" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">Recurring work with files,</text>
+    <text x="34" y="266" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">context, instructions, and</text>
+    <text x="34" y="294" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">shared knowledge.</text>
+    <text x="34" y="350" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#334155">Move here when</text>
+    <text x="34" y="383" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">Plain chat needs a stable</text>
+    <text x="34" y="411" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">workspace and memory.</text>
+  </g>
+
+  <line x1="845" y1="462" x2="905" y2="462" stroke="#64748b" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g transform="translate(930 235)">
+    <rect width="320" height="455" rx="26" fill="#ffffff" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="320" height="12" rx="6" fill="#0891b2"/>
+    <circle cx="68" cy="76" r="34" fill="#cffafe"/>
+    <path d="M51 76 h34 M68 59 v34" stroke="#0891b2" stroke-width="8" stroke-linecap="round"/>
+    <text x="34" y="150" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="40" font-weight="800" fill="#0f172a">Named Agents</text>
+    <text x="34" y="205" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#334155">Best for</text>
+    <text x="34" y="238" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">Repeatable roles with a</text>
+    <text x="34" y="266" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">clear job, tone, tools,</text>
+    <text x="34" y="294" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">and constraints.</text>
+    <text x="34" y="350" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700" fill="#334155">Move here when</text>
+    <text x="34" y="383" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">The same project workflow</text>
+    <text x="34" y="411" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="21" fill="#475569">repeats often.</text>
+  </g>
+
+  <line x1="1275" y1="462" x2="1335" y2="462" stroke="#64748b" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g transform="translate(1360 235)">
+    <rect width="170" height="455" rx="26" fill="#111827" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="170" height="12" rx="6" fill="#f97316"/>
+    <path d="M46 72 h78 M46 96 h56 M46 120 h70" stroke="#fed7aa" stroke-width="9" stroke-linecap="round"/>
+    <text x="26" y="172" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="38" font-weight="800" fill="#ffffff">Build</text>
+    <text x="26" y="224" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" fill="#fed7aa">Last resort</text>
+    <text x="26" y="260" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" fill="#e5e7eb">Complex,</text>
+    <text x="26" y="286" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" fill="#e5e7eb">integrated,</text>
+    <text x="26" y="312" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" fill="#e5e7eb">audited, or</text>
+    <text x="26" y="338" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" fill="#e5e7eb">high-volume</text>
+    <text x="26" y="364" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" fill="#e5e7eb">systems.</text>
+  </g>
+
+  <rect x="80" y="760" width="1440" height="64" rx="32" fill="#0f172a" opacity="0.92"/>
+  <text x="800" y="802" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="700" fill="#ffffff">
+    Start with chat. Move right only when the use case demands it.
+  </text>
+</svg>

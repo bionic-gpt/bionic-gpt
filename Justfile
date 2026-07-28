@@ -66,13 +66,13 @@ wt:
     cd /workspace/crates/web-assets && tailwind-extra -i ./input.css -o ./dist/output.css --watch
 
 ws:
-    cd /workspace/crates/static-website && cargo watch --workdir /workspace/crates/static-website -w ./content -w ./src --no-gitignore -x "run --bin static-website"
+    cd /workspace/crates/bionic-gpt && cargo watch --workdir /workspace/crates/bionic-gpt -w ./content -w ./src --no-gitignore -x "run --bin bionic-gpt"
 
 wts:
-    cd /workspace/crates/static-website && tailwind-extra -i ./input.css -o ./dist/tailwind.css --watch
+    cd /workspace/crates/bionic-gpt && tailwind-extra -i ./input.css -o ./dist/tailwind.css --watch
 
 spell:
-    docker run --rm -ti -v $HOST_PROJECT_PATH/crates/static-website/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
+    docker run --rm -ti -v $HOST_PROJECT_PATH/crates/bionic-gpt/content:/workdir tmaier/markdown-spellcheck:latest "**/*.md"
 
 md:
     mirrord exec target/debug/web-server --steal -n bionic-gpt --target deployment/bionic-gpt
