@@ -33,7 +33,11 @@ async fn main() {
         site_meta: bionic_gpt::ui_links::site_meta(),
         site_header: Some(site_header),
         site_assets: SiteAssets {
-            stylesheets: vec![tailwind_stylesheet, "https://cdn.jsdelivr.net/npm/daisyui@5".into()],
+            stylesheets: vec![
+                tailwind_stylesheet,
+                "/content-lightbox.css".into(),
+                "https://cdn.jsdelivr.net/npm/daisyui@5".into(),
+            ],
             head_scripts: vec![
                 ScriptAsset {
                     src: "/goat-counter.js".to_string(),
@@ -46,6 +50,13 @@ async fn main() {
                 },
                 ScriptAsset {
                     src: "/copy-paste.js".to_string(),
+                    script_type: None,
+                    async_load: true,
+                    integrity: None,
+                    data_goatcounter: None,
+                },
+                ScriptAsset {
+                    src: "/content-lightbox.js".to_string(),
                     script_type: None,
                     async_load: true,
                     integrity: None,
