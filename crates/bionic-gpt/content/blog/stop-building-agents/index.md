@@ -185,11 +185,15 @@ The risk is that organizations create a zoo of named agents when what they reall
 
 ## The complete Agent
 
-A complete agent is what you build when the workflow has crossed out of chat and into product.
+A complete agent is not just a named prompt with a few tools attached. It is the runtime underneath the chat experience.
 
-That usually means the system needs its own state machine, permissions model, audit trail, retries, human approvals, background execution, structured outputs, monitoring, and integration ownership. At that point, the chat UI is no longer the product. It may still be an interface, but the agent is now part of an application.
+The diagram below is a simplified version of what is increasingly happening behind the scenes. The model is not only receiving text. It is working against a virtual file system, reading uploaded files, writing generated outputs, discovering available tools, and switching into code execution when the task needs computation rather than prose.
 
-That is the moment where building makes sense. Not because the task involves AI, but because the workflow has become operational software.
+That matters because these are the same primitives people often rebuild when they decide to create an agent platform. They add a workspace, tool definitions, tool routing, file persistence, code execution, generated artifacts, and a UI for inspecting what happened. Modern chat products are already converging on that shape.
+
+The useful question is whether your workflow needs a new product around those primitives, or whether the existing chat runtime is already enough. If you only need files, tools, discovery, and code execution, you may already have the core agent loop.
+
+For reference, tool discovery is formalized in protocols such as [MCP tools/list](https://modelcontextprotocol.io/specification/2025-06-18/server/tools), where clients can discover available tool schemas before calling them. Code execution is also becoming a built-in platform primitive, for example in [Mistral's Code Interpreter](https://docs.mistral.ai/studio-api/agents/agent-tools/code_interpreter), which runs code in an isolated container.
 
 ![Sandbox](the-sandbox.png "Sandbox")
 
