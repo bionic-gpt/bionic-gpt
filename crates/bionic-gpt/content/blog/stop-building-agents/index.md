@@ -130,7 +130,35 @@ tree
 ![Sandbox](the-sandbox.png "Sandbox")
 
 ## Scheduled Tasks
+
+<div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tasks-chat-gpt.png" alt="ChatGPT Tasks screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Tasks</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tasks-mistral-vibe.png" alt="Mistral Vibe Tasks screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Tasks</figcaption>
+  </figure>
+</div>
+
 ## Responses i.e. Graphs, Gen UI, Maps?
+
+<div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="canvas-chat-gpt.png" alt="ChatGPT Canvas screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Canvas</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="canvas-mistral-vibe.png" alt="Mistral Vibe Canvas screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Canvas</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="canvas-bionic-gpt.png" alt="Bionic GPT Canvas screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Bionic GPT Canvas</figcaption>
+  </figure>
+</div>
+
 ## Multi use case. People trigger multiple use cases in 1 chat.
 
 ## Use case evelauation
