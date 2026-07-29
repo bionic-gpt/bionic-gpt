@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 @source "./src/**/*.{rs,html}";
+@source "./content/**/*.{md,html}";
 
 /** On chrome based browser fade between pages for a smoother look and feel **/
 @view-transition {
