@@ -12,9 +12,7 @@ So before building, ask a simpler question: can this be done with the chat inter
 
 The models have gotten better but most importantly agentic sandboxes have been integrated into most of the chat user interfaces.
 
-A few years ago, a chat UI was mostly prompt in, text out. That made it reasonable to think that anything involving files, code, tools, or multi-step work needed a separate agent runtime.
-
-That has changed. The mainstream chat products now increasingly run code, inspect files, generate artifacts, call tools, remember context, and work inside named project spaces. In practice, the chat UI has become an agentic workspace.
+The mainstream chat products now increasingly run code, inspect files, generate artifacts, call tools, remember context, and work inside named project spaces. In practice, the chat UI has become an agentic workspace.
 
 The important shift is the sandbox. Once the model can run commands, read and write files, transform data, and produce outputs, many "agent" use cases become ordinary chat workflows with a working directory attached.
 
