@@ -8,7 +8,7 @@ Most modern AI chat products are no longer just a text box wrapped around a mode
 
 So before building, ask a simpler question: can this be done with the chat interface we already pay for?
 
-## Chat UI Capabilities have accelerated lately
+## Chat Is No Longer Just Chat
 
 The models have gotten better but most importantly agentic sandboxes have been integrated into most of the chat user interfaces.
 
@@ -43,7 +43,7 @@ The screenshots show this prompt running in each of the main stream chat UI's.
 
 <div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-3">
   <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
-    <img class="aspect-[16/10] w-full object-cover object-top" src="sandbox-chat-gpt.jpeg" alt="ChatGPT sandbox interface screenshot" />
+    <img class="aspect-[16/10] w-full object-cover object-top" src="sandbox-chat-gpt.png" alt="ChatGPT sandbox interface screenshot" />
     <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT: chat plus sandbox</figcaption>
   </figure>
   <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
@@ -56,7 +56,7 @@ The screenshots show this prompt running in each of the main stream chat UI's.
   </figure>
 </div>
 
-## Memory 
+## Memory: Lightweight Personalization
 
 Memory handles the lightweight personalization layer that many teams accidentally over-engineer.
 
@@ -68,7 +68,7 @@ Memory is useful when the information is durable and broadly helpful. It is not 
 What do you know about me?
 ```
 
-## Projects - screenshots - bigger uptake
+## Projects: Persistent Workspaces
 
 Projects are probably the most underappreciated middle ground.
 
@@ -91,7 +91,7 @@ This is enough for many repeatable workflows: research folders, proposal draftin
   </figure>
 </div>
 
-## Tools - Integrations/etc
+## Tools: From Assistant To Operator
 
 Tools are where chat UIs start to cross from "assistant" into "operator."
 
@@ -114,7 +114,7 @@ The key question is not "can we build an agent around this API?" It is "can the 
   </figure>
 </div>
 
-## Skills
+## Skills: Packaged Know-How
 
 Skills are packaged know-how.
 
@@ -137,7 +137,7 @@ This is different from tools. Tools give the model capabilities. Skills tell the
   </figure>
 </div>
 
-## Datasets - RAG
+## Datasets: Bring Your Knowledge
 
 Datasets and libraries cover the knowledge side of the problem.
 
@@ -160,7 +160,7 @@ The test is simple: upload or connect the material, ask representative questions
   </figure>
 </div>
 
-## Named Agents - Deprecated?
+## Named Agents: Useful, But Often Overused
 
 Named agents still have a place, but I think they are often less important than they look.
 
@@ -183,7 +183,7 @@ The risk is that organizations create a zoo of named agents when what they reall
   </figure>
 </div>
 
-## The complete Agent
+## The Runtime Underneath
 
 A complete agent is not just a named prompt with a few tools attached. It is the runtime underneath the chat experience.
 
@@ -197,7 +197,7 @@ For reference, tool discovery is formalized in protocols such as [MCP tools/list
 
 ![Sandbox](the-sandbox.png "Sandbox")
 
-## Scheduled Tasks
+## Scheduled Tasks: Automation Without A New App
 
 Scheduled tasks are another feature that removes a common reason to build.
 
@@ -216,7 +216,7 @@ The build threshold rises when schedules need complex orchestration, strict deli
   </figure>
 </div>
 
-## Responses i.e. Graphs, Gen UI, Maps?
+## Rich Responses: Artifacts, Canvases, And UI
 
 The response surface is becoming richer too.
 
@@ -239,7 +239,7 @@ If the chat UI can render the artifact directly, you may not need to build a sep
   </figure>
 </div>
 
-## Multi use case. 
+## Real Work Crosses Boundaries
 
 People trigger multiple use cases in 1 chat.
 
@@ -249,7 +249,7 @@ They will ask one chat to research a topic, inspect files, summarize a document,
 
 A narrowly built agent may be excellent at one workflow, but users often need the messy combination. If the work is exploratory or crosses domains, the chat UI may be better than a purpose-built agent.
 
-## Use case evaluation
+## The Use Case Ladder
 
 The path should usually be:
 
