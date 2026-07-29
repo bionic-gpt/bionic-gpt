@@ -1,9 +1,5 @@
 ## Let's start with use cases
 
-## Use case evelauation
-
-![Use case evaluation ladder](use-case-evaluation.svg "Use case evaluation ladder")
-
 ## Capabilities have accelerated lately
 
 The models have gotten better but most importantly agentic sandboxes have been integrated into most of the chat user interfaces.
@@ -94,14 +90,51 @@ tree
 </div>
 
 ## Skills
+
+<div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="skills-chat-gpt.png" alt="ChatGPT Skills screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Skills</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="skills-mistral-vibe.png" alt="Mistral Vibe Skills screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Skills</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="skills-bionic-gpt.png" alt="Bionic GPT Skills screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Bionic GPT Skills</figcaption>
+  </figure>
+</div>
+
 ## Memory 
 ## Datasets - RAG
+
+<div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="library-chat-gpt.jpeg" alt="ChatGPT Library screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Library</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="library-mistral-vibe.png" alt="Mistral Vibe Library screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Library</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="library-bionic-gpt.png" alt="Bionic GPT Library screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Bionic GPT Library</figcaption>
+  </figure>
+</div>
+
 ## The complete Agent
 
-- Folder screenshot
+
+![Sandbox](the-sandbox.png "Sandbox")
 
 ## Scheduled Tasks
 ## Responses i.e. Graphs, Gen UI, Maps?
-## Use case path -> chat, projects, named assistant, coded.
 ## Multi use case. People trigger multiple use cases in 1 chat.
-## The Exceptions
+
+## Use case evelauation
+
+![Use case evaluation ladder](use-case-evaluation.svg "Use case evaluation ladder")
+
+## Conclusion
