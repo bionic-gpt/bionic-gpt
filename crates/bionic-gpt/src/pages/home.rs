@@ -26,9 +26,9 @@ pub fn home_page() -> String {
                 class: "px-4 md:px-0 w-full lg:max-w-5xl mt-16 md:mt-36 mx-auto grid gap-y-36",
                 VideoHero {
                     video_id: "slRiOOM17tM",
-                    title: "The all-in-one platform for private and secure AI",
-                    subtitle: "Deploy anywhere — on-prem, private cloud, or fully managed by us",
-                    claim: "Join hundreds of teams already powering AI with Bionic",
+                    title: "Build sovereign AI without rebuilding the whole stack",
+                    subtitle: "Bionic is the open-source foundation for internal AI teams. Deploy on-prem, private cloud or air-gapped, then build your own integrations, workflows and use cases on top.",
+                    claim: "Talk to us about the Accelerator",
                     cta_label: "Book a Call",
                     cta_href: crate::routes::marketing::Contact {}.to_string()
                 }
