@@ -8,7 +8,7 @@ spec:
     db:
       expose_db_port: 30005
       danger_override_password: testpassword
-    auth:
+    oidc:
       hostname-url: http://nginx
     ingress:
       port: 30006
