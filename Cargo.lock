@@ -4510,7 +4510,7 @@ dependencies = [
  "once_cell",
  "socket2 0.6.5",
  "tracing",
- "windows-sys 0.52.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -5708,9 +5708,9 @@ dependencies = [
 
 [[package]]
 name = "ssg_whiz"
-version = "0.1.10"
+version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cef501a88ee9fde16aeddcfaf0abb3b2c9b3918edd9af31e23c032d3677a8071"
+checksum = "4ac8018285bb7c300233f1d4849de22203d8ea9837e3e02f22f8c14ee508dc5a"
 dependencies = [
  "axum 0.7.9",
  "dioxus",
@@ -5987,7 +5987,7 @@ dependencies = [
  "getrandom 0.3.4",
  "once_cell",
  "rustix",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
