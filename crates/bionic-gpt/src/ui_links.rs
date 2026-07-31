@@ -126,7 +126,6 @@ pub fn footer_links() -> FooterLinks {
         terms: crate::routes::marketing::Terms {}.to_string(),
         privacy: crate::routes::marketing::Privacy {}.to_string(),
         about: None,
-        variant: None,
     }
 }
 

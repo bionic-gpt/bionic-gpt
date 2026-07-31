@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use ssg_whiz::{ScriptAsset, Section, SiteAssets, SiteBuilder, SiteConfig};
+use ssg_whiz::{ExtraFooterConfig, ScriptAsset, Section, SiteAssets, SiteBuilder, SiteConfig};
 
 use bionic_gpt::{
     architect_course_summary, blog_summary, docs_summary, generator, pages_summary,
@@ -84,6 +84,14 @@ async fn main() {
             head_inline_scripts: vec![],
             body_inline_scripts: vec![],
         },
+        extra_footer: Some(ExtraFooterConfig {
+            title: "The open-source foundation for internal AI teams building sovereign AI."
+                .to_string(),
+            image: "/landing-page/bionic-console.png".to_string(),
+            image_alt: "Bionic console screenshot".to_string(),
+            cta_label: "Find out More".to_string(),
+            cta_url: "/".to_string(),
+        }),
     };
 
     SiteBuilder::new(config)
