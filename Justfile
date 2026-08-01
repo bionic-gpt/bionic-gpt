@@ -38,19 +38,7 @@ get-config:
     echo "✅ kubeconfig updated and TLS verification disabled"
 
 # If you're testing document processing run `just chunking-engine-setup` and `just expose-chunking-engine`
-wa env_file=".env":
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    if [ ! -f "{{env_file}}" ]; then
-        echo "Missing env file: {{env_file}}  run just dot-env" >&2
-        exit 1
-    fi
-
-    set -a
-    . "{{env_file}}"
-    set +a
-
+wa:
     mold -run cargo watch --workdir /workspace/ \
         -w crates/web-pages -w crates/agent-runtime -w crates/tool-runtime \
         -w crates/web-server -w crates/db -w crates/web-assets/dist \
@@ -115,9 +103,16 @@ opt-images:
         find . -type f -name '*.png' \
             -print -exec sh -c 'for f; do pngquant --force --quality 70-85 --ext .png "$f"; done' _ {} +
 
-bionic:
+dev:
     cargo binstall --no-confirm zellij
     zellij -l .devcontainer/layout.kdl
+
+website:
+    cargo binstall --no-confirm zellij
+    zellij -l .devcontainer/layout-site.kdl
+
+stop:
+    zellij kill-all-sessions
 
 dot-env:
 	#!/usr/bin/env bash

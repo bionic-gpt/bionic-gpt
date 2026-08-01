@@ -1,0 +1,25 @@
+on_force_close "quit"
+
+layout {
+    tab {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane split_direction="vertical" {
+            pane
+            pane split_direction="horizontal" {
+                pane {
+                    command "just"
+                    args "ws"
+                }
+                pane {
+                    command "just"
+                    args "wts"
+                }
+            }
+        }
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+}
