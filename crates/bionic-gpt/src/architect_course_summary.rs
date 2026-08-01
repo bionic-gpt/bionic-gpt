@@ -202,6 +202,23 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
+                name: "Human in the Loop".to_string(),
+                pages: vec![PageSummary {
+                    date: "",
+                    title: "Presenting Results",
+                    description:
+                        "Presenting generated artifacts for human review, correction, and approval.",
+                    folder:
+                        "architect-course/027-human-in-the-loop/010-presenting-results/",
+                    markdown: include_str!(
+                        "../content/architect-course/027-human-in-the-loop/010-presenting-results/index.md"
+                    ),
+                    image: None,
+                    author_image: None,
+                    author: None,
+                }],
+            },
+            Category {
                 name: "Connecting to the Enterprise".to_string(),
                 pages: vec![
                     PageSummary {
