@@ -24,13 +24,12 @@ fi
 
 tmux new-session -d -s "$session" -n website -c "$workspace"
 
-left_pane=$(tmux display-message -p -t "$session:website" '#{pane_id}')
-right_top=$(tmux split-window -h -t "$left_pane" -c "$workspace" -P -F '#{pane_id}')
-right_bottom=$(tmux split-window -v -p 50 -t "$right_top" -c "$workspace" -P -F '#{pane_id}')
+top_pane=$(tmux display-message -p -t "$session:website" '#{pane_id}')
+bottom_pane=$(tmux split-window -v -p 50 -t "$top_pane" -c "$workspace" -P -F '#{pane_id}')
 
-tmux send-keys -t "$right_top" "just ws" Enter
-tmux send-keys -t "$right_bottom" "just wts" Enter
+tmux send-keys -t "$top_pane" "just ws" Enter
+tmux send-keys -t "$bottom_pane" "just wts" Enter
 
-tmux select-pane -t "$left_pane"
+tmux select-pane -t "$top_pane"
 
 attach
