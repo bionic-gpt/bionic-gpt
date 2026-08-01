@@ -1,4 +1,4 @@
-# Documents and Attachments
+# Files and Attachments
 
 ```js
 # Search indexed documents

@@ -1,5 +1,9 @@
 # OpenAPI Toolsets
 
+OpenAPI toolsets connect the AI computer to HTTP APIs used by enterprise systems. An OpenAPI document describes the available operations and parameters so the runtime can present them to the model as typed tools.
+
+The integration layer remains responsible for authentication, network policy, timeouts, and deciding which operations an assistant may use.
+
 ```js
 # Register an OpenAPI spec as a toolset
 openapi_register(spec_url: string, name: string): string

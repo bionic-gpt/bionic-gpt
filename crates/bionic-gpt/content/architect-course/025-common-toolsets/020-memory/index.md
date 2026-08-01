@@ -1,4 +1,4 @@
-# Memory
+# Memory and Context
 
 Memory tools let an agent store and retrieve user context across turns and sessions.
 

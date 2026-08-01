@@ -1,4 +1,4 @@
-# Connecting an Assistant to Our Integrations
+# Connecting an Assistant to Integrations
 
 From the side menu click on `Assistants` and then `New Asisstant`. Fill in the following details.
 

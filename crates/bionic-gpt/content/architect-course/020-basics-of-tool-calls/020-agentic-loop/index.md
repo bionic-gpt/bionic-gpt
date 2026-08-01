@@ -1,4 +1,4 @@
-# Agentic Loop
+# The Agentic Loop
 
 Agentic AI is just **tool calling in a loop** until the model is finished. You are the dispatcher that **runs tools**, returns **results**, and lets the model keep going.
 

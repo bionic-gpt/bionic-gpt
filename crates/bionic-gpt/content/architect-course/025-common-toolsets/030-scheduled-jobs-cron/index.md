@@ -1,4 +1,4 @@
-# Scheduled Jobs (Cron)
+# Scheduled Tasks
 
 Scheduled jobs let an agent trigger tool calls in the future without waiting for the user to ask again.
 

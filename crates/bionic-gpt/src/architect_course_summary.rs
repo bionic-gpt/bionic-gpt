@@ -69,7 +69,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Basics of Tool Calls".to_string(),
+                name: "How Agentic AI Works".to_string(),
                 pages: vec![
                     PageSummary {
                         date: "",
@@ -85,7 +85,7 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Agentic Loop",
+                        title: "The Agentic Loop",
                         description: "Why agentic AI is just tool calling in a loop.",
                         folder: "architect-course/020-basics-of-tool-calls/020-agentic-loop/",
                         markdown: include_str!(
@@ -109,7 +109,7 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Open Claw Runtime Tools",
+                        title: "Runtime Tools",
                         description: "Runtime capabilities available in Open Claw.",
                         folder: "architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/",
                         markdown: include_str!(
@@ -122,12 +122,13 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Common Toolsets".to_string(),
+                name: "The AI Computer".to_string(),
                 pages: vec![
                     PageSummary {
                         date: "",
-                        title: "Common Toolsets",
-                        description: "Runtime capabilities for operating autonomous agents.",
+                        title: "From Chatbot to AI Computer",
+                        description:
+                            "How conversational systems become complete working environments.",
                         folder: "architect-course/025-common-toolsets/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/index.md"
@@ -138,20 +139,9 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Memory",
-                        description: "Placeholder page.",
-                        folder: "architect-course/025-common-toolsets/020-memory/",
-                        markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/020-memory/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    PageSummary {
-                        date: "",
-                        title: "Documents and Attachments",
-                        description: "Placeholder page.",
+                        title: "Files and Attachments",
+                        description:
+                            "Working storage and user-provided files in an agentic environment.",
                         folder: "architect-course/025-common-toolsets/060-documents-and-attachments/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/060-documents-and-attachments/index.md"
@@ -163,7 +153,8 @@ pub fn summary() -> Summary {
                     PageSummary {
                         date: "",
                         title: "Sandboxes",
-                        description: "Placeholder page.",
+                        description:
+                            "Isolated filesystems and command execution for model-driven work.",
                         folder: "architect-course/025-common-toolsets/010-sandboxes/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/010-sandboxes/index.md"
@@ -174,20 +165,8 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Scheduled Jobs (Cron)",
-                        description: "Placeholder page.",
-                        folder: "architect-course/025-common-toolsets/030-scheduled-jobs-cron/",
-                        markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/030-scheduled-jobs-cron/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    PageSummary {
-                        date: "",
                         title: "Skills",
-                        description: "Placeholder page.",
+                        description: "Packaged instructions for repeatable workflows.",
                         folder: "architect-course/025-common-toolsets/040-skills/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/040-skills/index.md"
@@ -198,11 +177,23 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "OpenAPI Toolsets",
-                        description: "Placeholder page.",
-                        folder: "architect-course/025-common-toolsets/050-openapi-toolsets/",
+                        title: "Memory and Context",
+                        description: "Persistent context across turns and sessions.",
+                        folder: "architect-course/025-common-toolsets/020-memory/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/050-openapi-toolsets/index.md"
+                            "../content/architect-course/025-common-toolsets/020-memory/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Scheduled Tasks",
+                        description: "Future and recurring work initiated by the runtime.",
+                        folder: "architect-course/025-common-toolsets/030-scheduled-jobs-cron/",
+                        markdown: include_str!(
+                            "../content/architect-course/025-common-toolsets/030-scheduled-jobs-cron/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -211,7 +202,7 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Agentic Integrations".to_string(),
+                name: "Connecting to the Enterprise".to_string(),
                 pages: vec![
                     PageSummary {
                         date: "",
@@ -227,7 +218,19 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Connecting an Assistant to Our Integrations",
+                        title: "OpenAPI Toolsets",
+                        description: "Expose typed enterprise APIs as tools a model can call.",
+                        folder: "architect-course/025-common-toolsets/050-openapi-toolsets/",
+                        markdown: include_str!(
+                            "../content/architect-course/025-common-toolsets/050-openapi-toolsets/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Connecting an Assistant to Integrations",
                         description: "Enable built-in integrations and wire them to an assistant from the console.",
                         folder: "architect-course/030-agentic-integrations/040-connecting-the-integration/",
                         markdown: include_str!(
@@ -239,7 +242,7 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Using Our Integration",
+                        title: "Using an Integration",
                         description: "Hands-on walkthrough with the generic integration connector.",
                         folder: "architect-course/030-agentic-integrations/045-using-our-integration/",
                         markdown: include_str!(
@@ -292,7 +295,7 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Running Kubernetes Lab",
+                        title: "Running the Kubernetes Lab",
                         description: "Install a local K3s cluster that mirrors production topologies.",
                         folder: "architect-course/050-ai-ops/install-linux/",
                         markdown: include_str!("../content/architect-course/050-ai-ops/install-linux/index.md"),

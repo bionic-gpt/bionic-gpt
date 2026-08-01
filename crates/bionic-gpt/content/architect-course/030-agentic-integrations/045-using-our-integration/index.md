@@ -1,4 +1,4 @@
-# Using Our Integrations
+# Using an Integration
 
 Now you have a chat wired to the Postgres integration—let's talk to it.
 
