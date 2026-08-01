@@ -139,6 +139,19 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
+                        title: "Sandboxes",
+                        description:
+                            "Isolated filesystems and command execution for model-driven work.",
+                        folder: "architect-course/025-common-toolsets/010-sandboxes/",
+                        markdown: include_str!(
+                            "../content/architect-course/025-common-toolsets/010-sandboxes/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
                         title: "Virtual File System",
                         description:
                             "Shared working storage for uploads, datasets, skills, and generated artifacts.",
@@ -158,19 +171,6 @@ pub fn summary() -> Summary {
                         folder: "architect-course/025-common-toolsets/070-datasets/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/070-datasets/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    PageSummary {
-                        date: "",
-                        title: "Sandboxes",
-                        description:
-                            "Isolated filesystems and command execution for model-driven work.",
-                        folder: "architect-course/025-common-toolsets/010-sandboxes/",
-                        markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/010-sandboxes/index.md"
                         ),
                         image: None,
                         author_image: None,

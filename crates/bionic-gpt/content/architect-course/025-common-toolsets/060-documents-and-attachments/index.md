@@ -1,8 +1,8 @@
 # Virtual File System
 
-An AI computer needs a place where the model and its tools can work with the same files.
+Inside the sandbox boundary, an AI computer needs a place where the model and its tools can work with the same files.
 
-A **virtual file system** (VFS) presents uploads, datasets, skills, temporary files, and generated outputs through a common directory structure. The model does not need to know whether a file is backed by local disk, object storage, a database, or another service. It works with paths while the runtime controls storage and access.
+A **virtual file system** (VFS) provides that shared workspace. It presents uploads, datasets, skills, temporary files, and generated outputs through a common directory structure. The model does not need to know whether a file is backed by local disk, object storage, a database, or another service. It works with paths while the runtime controls storage and access.
 
 ## The Runtime Underneath
 

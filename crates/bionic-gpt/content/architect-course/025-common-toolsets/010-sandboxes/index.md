@@ -111,6 +111,8 @@ If the product has a real sandbox, the model should be able to run the commands 
 
 Without a controlled execution environment, a model cannot safely run local code or manipulate working files.
 
+The next lesson examines the virtual filesystem exposed inside this boundary so the model and its tools can work with uploads, temporary files, skills, datasets, and generated outputs.
+
 ## Further Reading
 
 - [OpenClaw Sandbox](https://docs.openclaw.ai/gateway/sandboxing)
