@@ -21,5 +21,5 @@ dioxus.workspace = true
 serde.workspace = true
 tower-http = { workspace = true, features = ["fs", "trace"] }
 
-ssg_whiz = "0.1.13"
+ssg_whiz = "0.1.14"
 tower-livereload.workspace = true
