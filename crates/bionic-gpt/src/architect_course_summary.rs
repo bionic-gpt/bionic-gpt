@@ -107,18 +107,6 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
-                    PageSummary {
-                        date: "",
-                        title: "Runtime Tools",
-                        description: "Runtime capabilities available in Open Claw.",
-                        folder: "architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/",
-                        markdown: include_str!(
-                            "../content/architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
                 ],
             },
             Category {
@@ -158,6 +146,19 @@ pub fn summary() -> Summary {
                         folder: "architect-course/025-common-toolsets/060-documents-and-attachments/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/060-documents-and-attachments/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Runtime Tools",
+                        description:
+                            "How code execution and tool discovery expand an AI computer.",
+                        folder: "architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/",
+                        markdown: include_str!(
+                            "../content/architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/index.md"
                         ),
                         image: None,
                         author_image: None,

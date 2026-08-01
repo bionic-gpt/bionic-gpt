@@ -88,8 +88,8 @@ The runtime should make those boundaries explicit:
 
 The virtual filesystem is therefore both a convenience and a security boundary. It gives the model a consistent way to work while the platform decides what can be seen, changed, retained, or shared.
 
-## From Files to Datasets
+## From Files to Runtime Tools
 
-An attachment usually provides ad hoc context for the current conversation or task. When the same collection of files needs to support many conversations, users, or assistants, it is better represented as a dataset.
+The virtual filesystem gives an AI computer somewhere to keep inputs, intermediate work, and outputs. Runtime tools give the model ways to act on that workspace: it can inspect files, execute code, discover connected capabilities, and combine the results.
 
-The next lesson examines that reusable knowledge layer.
+The next lesson examines how those runtime capabilities turn a collection of files into a programmable working environment.

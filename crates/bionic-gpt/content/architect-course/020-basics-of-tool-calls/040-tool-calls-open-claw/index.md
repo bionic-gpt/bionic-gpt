@@ -1,81 +1,146 @@
 # Runtime Tools
 
-Tools are where a chat interface starts to cross from **assistant** into **operator**.
+A virtual filesystem gives an AI computer working storage. **Runtime tools** give the model software it can use to inspect that storage, transform information, call connected systems, and produce finished outputs.
 
-Once the model can call tools, it can fetch current data, inspect files, run code, trigger actions, and work with APIs instead of only reasoning from the text in its context.
+This is a broader capability than adding one function for one task. A runtime can expose a small set of general tools for discovering capabilities and executing code. The model can then decide how to combine them for the request in front of it.
 
-That covers many requests that used to justify a custom agent:
-
-* check a system and summarise its status;
-* query a database;
-* create a ticket;
-* update a CRM;
-* transform a file;
-* search the web;
-* generate and publish an artifact.
-
-The important question is not only “can we build an agent around this capability?” It is “can the existing chat runtime expose the capability safely enough for the workflow?”
+That pattern is often called **code mode**. The user describes an outcome, the model writes a short program, and a constrained runtime executes it. The program can use intermediate values, loops, conditions, and several authorised operations without requiring a separately coded agent workflow for every variation of the task.
 
 <div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-3">
   <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
-    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-chat-gpt.png" alt="ChatGPT Tools screenshot" />
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-chat-gpt.png" alt="ChatGPT tools interface" />
     <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Tools</figcaption>
   </figure>
   <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
-    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-mistral-vibe.png" alt="Mistral Vibe Tools screenshot" />
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-mistral-vibe.png" alt="Mistral Vibe tools interface" />
     <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Tools</figcaption>
   </figure>
   <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
-    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-bionic-gpt.png" alt="Bionic GPT Tools screenshot" />
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-bionic-gpt.png" alt="Bionic GPT tools interface" />
     <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Bionic GPT Tools</figcaption>
   </figure>
 </div>
 
-## Built-in Tools and Integrations
+## From Individual Tools to Code Mode
 
-Runtime tools provide general capabilities such as filesystem access, execution, memory, web access, and artifact generation. Integrations expose operations from an external business system.
+An application can send every available tool definition to the model. That works well when there are only a few tools. It becomes less practical when an organisation connects many APIs, each with many operations and large input schemas.
 
-Both appear to the model as callable tool definitions, but their trust boundaries differ. A file-read tool acts inside the workspace. A CRM tool might read or change enterprise data. Tools with side effects need clear permissions, argument validation, audit history, and human approval where the consequence warrants it.
+Code mode provides a smaller interface:
 
-The following diagram uses [OpenClaw](https://openclaw.ai) as a concrete example. It combines the runtime tools, [system prompt](https://gist.github.com/242816/db0e828914b4d8c99de44e69aaec6042), and [tool definitions](https://gist.github.com/242816/9affbf5f3198e4e4677dd3afaf38e90d).
+| Runtime capability | Purpose |
+| --- | --- |
+| Tool discovery | Find operations relevant to the current task |
+| Code execution | Compose operations with calculations, branching, loops, and intermediate state |
+| Virtual filesystem | Share inputs and outputs between the model and runtime |
+| Integration dispatcher | Execute authorised calls against external systems |
+| Artifact publishing | Return selected files and results to the user |
 
-![Alt text](./open-claw.svg "Runtime Tools")
+The model does not need every operation in its context before it starts. It can search for the capability it needs, inspect the relevant definition, and use that operation from code.
 
-## Runtime Capabilities
+This produces a progressive loop:
 
-- **Memory**: recall prior facts and context.
-- **Sandbox**: safely read, write, edit, and execute code.
-- **Cron**: run jobs on a schedule.
-- **Skills**: packaged workflows and constraints.
-- **Toolsets (OpenAPI, web, etc.)**: connect external systems.
+1. The user describes the outcome.
+2. The model searches or lists the available runtime functions.
+3. The model writes a small program using the functions it found.
+4. A sandboxed interpreter executes the program.
+5. The host runtime intercepts external function calls and dispatches them with the user's permissions.
+6. Results return to the program, where they can be filtered, combined, or written to a file.
+7. The model checks the result and presents the answer or publishes an artifact.
 
-Without a runtime, you have a chat model.
-With a runtime, you have an **agent** that can act reliably over time.
+The code is not the agent application. It is a temporary plan expressed in an executable form.
 
-The runtime does not make every action safe by default. It supplies the place where access controls, isolation, timeouts, approvals, and observability can be enforced.
+## A Generic Example
 
-## Tool Summary
+Suppose a user asks:
 
-| Tool name          | Category              | Required params                     | Key enums / notes                                                                     |
-| ------------------ | --------------------- | ----------------------------------- | ------------------------------------------------------------------------------------- |
-| `read`             | Filesystem            | `path \| file_path`                 | Read text or images, supports `offset`, `limit`                                       |
-| `write`            | Filesystem            | `content`, `path \| file_path`      | Overwrites file                                                                       |
-| `edit`             | Filesystem            | `path \| file_path`, `old*`, `new*` | Exact string replace; multiple alias params (`oldText`, `old_string`)                 |
-| `exec`             | Shell                 | `cmd`                               | Long-running allowed; `timeout`, `pty`, `background`, `elevated`, `host`, `security`  |
-| `process`          | Shell                 | `action`                            | `logs`, `write`, `keys`, `kill`, `status` (exec session control)                      |
-| `browser`          | Browser automation    | `action`                            | Large dispatcher: `start`, `stop`, `open`, `navigate`, `act`, `snapshot`, `pdf`, etc. |
-| `canvas`           | UI / A2UI             | `action`                            | `present`, `hide`, `eval`, `snapshot`, `push`, `reset`                                |
-| `nodes`            | Device / node control | `action`                            | Pairing, notify, camera/screen/location, `run`, `invoke`                              |
-| `message`          | Messaging             | `action`, `content`                 | Only `send` despite description mentioning broadcast                                  |
-| `tts`              | Audio                 | `text`                              | Text-to-speech                                                                        |
-| `agents_list`      | Agent mgmt            | —                                   | Lists available agents                                                                |
-| `sessions_list`    | Session mgmt          | —                                   | List sessions                                                                         |
-| `sessions_history` | Session mgmt          | `session_id`                        | Fetch conversation history                                                            |
-| `sessions_send`    | Session mgmt          | `session_id`, `content`             | Send message to session                                                               |
-| `sessions_spawn`   | Session mgmt          | `content`                           | Spawn sub-agent (one-shot or persistent)                                              |
-| `subagents`        | Agent mgmt            | `action`                            | `list`, `kill`, `send`                                                                |
-| `session_status`   | Session mgmt          | `session_id`                        | Inspect session; optional model override                                              |
-| `web_search`       | Web                   | `query`                             | Brave Search wrapper; locale options                                                  |
-| `web_fetch`        | Web                   | `url`                               | Fetch + readable extraction                                                           |
-| `memory_search`    | Memory                | `query`                             | Semantic search over memory                                                           |
-| `memory_get`       | Memory                | `id`                                | Retrieve memory entry                                                                 |
+> Find our open support cases for this customer, group them by priority, and create a short report.
+
+The model may not initially know which connected system provides support cases. It first searches the available functions:
+
+```text
+search_tool_functions("find support cases for a customer")
+```
+
+The result describes the matching integration, operation, arguments, and return value. The model can then write a short program using the discovered function:
+
+```python
+cases = toolbox.integrations.support.list_cases(
+    customer_id="customer-123",
+    status="open",
+)
+
+counts = {}
+for case in cases:
+    priority = case["priority"]
+    counts[priority] = counts.get(priority, 0) + 1
+
+print(counts)
+```
+
+The names are illustrative. They come from the integrations connected to the current workspace rather than from a universal tool standard.
+
+This approach adds many use cases without adding a new hard-coded workflow for each one. The same executor can analyse a file, compare records from two systems, calculate totals, validate data, or prepare an artifact. What changes is the program the model writes and the authorised functions available to it.
+
+## One Implementation: Monty
+
+Bionic GPT uses [Monty](https://github.com/pydantic/monty) as a lightweight Python runtime for code mode. The model receives two important capabilities:
+
+* `search_tool_functions` searches the functions provided by connected integrations.
+* `run_python` runs a short Python program with a preloaded `toolbox` object.
+
+Connected OpenAPI operations are represented as Python functions under:
+
+```python
+toolbox.integrations.<integration>.<operation>(**arguments)
+```
+
+The model can also inspect the available operations from Python:
+
+```python
+toolbox.integrations.list()
+toolbox.integrations.describe("support", "list_cases")
+```
+
+Monty pauses when the program calls an external function. The Rust host checks the function against the available integration registry, invokes the underlying authorised tool, converts its response back into a Python value, and resumes the program.
+
+The interpreter itself is hermetic. It has execution time, memory, and allocation limits and does not receive implicit access to the host filesystem, environment variables, network, or third-party Python packages. External access happens through the host dispatcher, where authentication and policy can be applied.
+
+This separation is important:
+
+```text
+Model-written program
+        ↓
+Constrained interpreter
+        ↓
+Authorised function boundary
+        ↓
+Host integration dispatcher
+        ↓
+Enterprise system
+```
+
+The model controls the program, but the platform controls what that program is allowed to reach.
+
+## The Same Broad Pattern Elsewhere
+
+The implementation details vary between products, but sandboxed code execution is becoming a common part of conversational AI.
+
+[ChatGPT data analysis](https://help.openai.com/en/articles/8437071-data-analysis-with-chatgpt/) can write and execute Python in a code-execution environment and work with files attached to the conversation. [Mistral Code Interpreter](https://docs.mistral.ai/studio-api/agents/agent-tools/code_interpreter) similarly lets an agent execute code in an isolated container.
+
+These examples demonstrate the broad pattern, not identical internal architectures. Their tool-discovery, isolation, permission, and integration mechanisms may differ from Bionic GPT's Monty-based runtime.
+
+## Runtime Boundaries
+
+Code mode makes tools more composable. It does not make them safe automatically. A production runtime still needs to enforce:
+
+* which integrations are visible to the current user and conversation;
+* which operations are read-only and which have side effects;
+* argument validation and output limits;
+* execution time, memory, and storage limits;
+* isolation from host files, credentials, and unrestricted network access;
+* approval for consequential actions;
+* audit records for external calls and generated outputs.
+
+A sandbox contains execution. A virtual filesystem supplies working storage. Runtime tools supply software, and integrations supply controlled access to systems beyond the sandbox. Together, these components let the conversational environment perform useful multi-step work.
+
+The next lesson examines datasets: reusable knowledge collections that the runtime can search and use across conversations.
