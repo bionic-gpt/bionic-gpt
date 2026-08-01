@@ -1,6 +1,43 @@
 # Runtime Tools
 
-Diagram of the [Open Claw](https://openclaw.ai) runtime tools, the [System Prompt](https://gist.github.com/242816/db0e828914b4d8c99de44e69aaec6042) and the Open Claw [Tool Defintions](https://gist.github.com/242816/9affbf5f3198e4e4677dd3afaf38e90d)
+Tools are where a chat interface starts to cross from **assistant** into **operator**.
+
+Once the model can call tools, it can fetch current data, inspect files, run code, trigger actions, and work with APIs instead of only reasoning from the text in its context.
+
+That covers many requests that used to justify a custom agent:
+
+* check a system and summarise its status;
+* query a database;
+* create a ticket;
+* update a CRM;
+* transform a file;
+* search the web;
+* generate and publish an artifact.
+
+The important question is not only “can we build an agent around this capability?” It is “can the existing chat runtime expose the capability safely enough for the workflow?”
+
+<div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-chat-gpt.png" alt="ChatGPT Tools screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Tools</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-mistral-vibe.png" alt="Mistral Vibe Tools screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Tools</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tools-bionic-gpt.png" alt="Bionic GPT Tools screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Bionic GPT Tools</figcaption>
+  </figure>
+</div>
+
+## Built-in Tools and Integrations
+
+Runtime tools provide general capabilities such as filesystem access, execution, memory, web access, and artifact generation. Integrations expose operations from an external business system.
+
+Both appear to the model as callable tool definitions, but their trust boundaries differ. A file-read tool acts inside the workspace. A CRM tool might read or change enterprise data. Tools with side effects need clear permissions, argument validation, audit history, and human approval where the consequence warrants it.
+
+The following diagram uses [OpenClaw](https://openclaw.ai) as a concrete example. It combines the runtime tools, [system prompt](https://gist.github.com/242816/db0e828914b4d8c99de44e69aaec6042), and [tool definitions](https://gist.github.com/242816/9affbf5f3198e4e4677dd3afaf38e90d).
 
 ![Alt text](./open-claw.svg "Runtime Tools")
 
@@ -14,6 +51,8 @@ Diagram of the [Open Claw](https://openclaw.ai) runtime tools, the [System Promp
 
 Without a runtime, you have a chat model.
 With a runtime, you have an **agent** that can act reliably over time.
+
+The runtime does not make every action safe by default. It supplies the place where access controls, isolation, timeouts, approvals, and observability can be enforced.
 
 ## Tool Summary
 

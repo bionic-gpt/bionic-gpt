@@ -1,6 +1,29 @@
 # Scheduled Tasks
 
-Scheduled jobs let an agent trigger tool calls in the future without waiting for the user to ask again.
+Scheduled tasks let an AI computer resume work in the future without waiting for the user to ask again.
+
+They cover requests such as:
+
+* check this every morning;
+* send me a weekly summary;
+* watch for changes;
+* run this report on a schedule;
+* remind me at a specific time.
+
+If the chat runtime already has scheduling, the assistant does not need to become a separate application merely to wake up with the right context.
+
+<div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tasks-chat-gpt.png" alt="ChatGPT Tasks screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Tasks</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="tasks-mistral-vibe.png" alt="Mistral Vibe Tasks screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Tasks</figcaption>
+  </figure>
+</div>
+
+Scheduled jobs trigger tool calls in the future without waiting for another message.
 
 ```js
 # Create a scheduled job
@@ -128,3 +151,11 @@ curl http://localhost:11434/api/chat \
 2. Is this one-time or recurring?
 3. Which delivery channel should be used (in-app, email, Slack)?
 4. Should missed runs be retried?
+
+## When a Scheduler Is Not Enough
+
+A built-in scheduled task is appropriate when one assistant can resume with known context and perform a bounded action.
+
+Dedicated orchestration becomes valuable when the workflow needs complex dependencies, transactional side effects, strict delivery guarantees, escalation paths, concurrency controls, durable queues, or detailed operational recovery.
+
+Scheduling answers **when to start**. It does not automatically provide all the guarantees required by a business process.

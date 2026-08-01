@@ -1,6 +1,16 @@
 # Memory and Context
 
-Memory tools let an agent store and retrieve user context across turns and sessions.
+Memory and projects solve two different forms of continuity.
+
+**Memory** stores durable facts and preferences that may be useful across conversations. **Projects** provide a bounded workspace where instructions, files, decisions, conversations, and outputs remain together.
+
+## Memory: Lightweight Personalisation
+
+Memory handles facts such as a user's role, stable preferences, recurring context, team conventions, or writing style. It can prevent the user from having to repeat the same information in every conversation.
+
+Memory is not a replacement for source-of-truth data, permissions, or workflow state. A remembered customer tier should not override the CRM, and a remembered approval should not replace an auditable transaction.
+
+Memory tools let an agent store and retrieve appropriate user context across turns and sessions.
 
 ```js
 # Search memory by semantic query
@@ -126,6 +136,48 @@ And the result...
 ```
 Your birthday reminder has been successfully stored! I've saved that it's your birthday on **January 20th**. Let me know if there are any other preferences or details you'd like to add.
 ```
+
+## Projects: Persistent Workspaces
+
+A project keeps related work together. Its instructions, reference files, prior decisions, and generated outputs establish persistent context for an ongoing body of work.
+
+This is useful for:
+
+* research folders;
+* proposal drafting;
+* customer analysis;
+* compliance reviews;
+* report generation;
+* code exploration;
+* other workflows that continue across conversations.
+
+Before creating a named agent, consider whether a project is the better container. A project preserves the context while allowing the user to perform different kinds of work inside it.
+
+<div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="projects-chat-gpt.png" alt="ChatGPT Projects screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">ChatGPT Projects</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="projects-mistral-vibe.png" alt="Mistral Vibe Projects screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Mistral Vibe Projects</figcaption>
+  </figure>
+  <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+    <img class="aspect-[16/10] w-full object-cover object-top" src="projects-bionic-gpt.png" alt="Bionic GPT Projects screenshot" />
+    <figcaption class="px-3 py-2 text-sm font-semibold text-slate-600">Bionic GPT Projects</figcaption>
+  </figure>
+</div>
+
+## Choose the Right Kind of Context
+
+| Context | Use it for |
+| --- | --- |
+| Conversation history | The immediate exchange and current task |
+| Memory | Small, durable facts useful across conversations |
+| Project | Files, instructions, decisions, and outputs for ongoing work |
+| Dataset | Reusable source knowledge that can be searched and cited |
+
+Keeping these roles separate reduces accidental data leakage and makes retention, correction, and deletion easier to reason about.
 
 ## Questions to Ask Before Saving Memory
 

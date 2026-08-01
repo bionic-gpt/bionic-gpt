@@ -139,12 +139,25 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Files and Attachments",
+                        title: "Virtual File System",
                         description:
-                            "Working storage and user-provided files in an agentic environment.",
+                            "Shared working storage for uploads, datasets, skills, and generated artifacts.",
                         folder: "architect-course/025-common-toolsets/060-documents-and-attachments/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/060-documents-and-attachments/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Datasets",
+                        description:
+                            "Reusable, searchable knowledge collections for grounded model responses.",
+                        folder: "architect-course/025-common-toolsets/070-datasets/",
+                        markdown: include_str!(
+                            "../content/architect-course/025-common-toolsets/070-datasets/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -194,6 +207,20 @@ pub fn summary() -> Summary {
                         folder: "architect-course/025-common-toolsets/030-scheduled-jobs-cron/",
                         markdown: include_str!(
                             "../content/architect-course/025-common-toolsets/030-scheduled-jobs-cron/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "When to Build an Agent",
+                        description:
+                            "A decision framework for moving from chat to projects, named agents, and custom applications.",
+                        folder:
+                            "architect-course/025-common-toolsets/080-when-to-build-an-agent/",
+                        markdown: include_str!(
+                            "../content/architect-course/025-common-toolsets/080-when-to-build-an-agent/index.md"
                         ),
                         image: None,
                         author_image: None,

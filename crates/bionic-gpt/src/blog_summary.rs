@@ -7,16 +7,6 @@ pub fn summary() -> Summary {
             name: "TOFU".to_string(),
             pages: vec![
                 PageSummary {
-                    date: "2026-07-28",
-                    title: "Stop Building Agents",
-                    description: "",
-                    folder: "blog/stop-building-agents/",
-                    markdown: include_str!("../content/blog/stop-building-agents/index.md"),
-                    image: Some("/blog/stop-building-agents/hero.png"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
-                },
-                PageSummary {
                     date: "2026-01-16",
                     title: "Evaluating Self-Hosted LLM Platforms: From Front Ends to Enterprise GenAI",
                     description: "A practical framework for comparing self-hosted LLM platforms across UI, orchestration, security, and enterprise readiness.",
