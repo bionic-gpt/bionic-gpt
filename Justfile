@@ -107,46 +107,16 @@ opt-images:
 
 dev:
     @if [ ! -f .env ]; then just dot-env; fi
-    cargo binstall --no-confirm zellij
-    zellij -l .devcontainer/layout.kdl
+    .devcontainer/dev-tmux.sh
 
 website:
-    cargo binstall --no-confirm zellij
-    zellij -l .devcontainer/layout-site.kdl
+    .devcontainer/website-tmux.sh
 
 stop:
-    #!/usr/bin/env bash
-    set -euo pipefail
+    @command -v tmux >/dev/null 2>&1 && tmux has-session -t bionic-dev 2>/dev/null && tmux kill-session -t bionic-dev || true
 
-    zellij delete-all-sessions --force --yes || true
-
-    project_dir="{{ justfile_directory() }}"
-    process_groups=()
-
-    while read -r pid; do
-        [ -n "$pid" ] || continue
-        process_dir=$(readlink "/proc/$pid/cwd" 2>/dev/null || true)
-        if [ "$process_dir" = "$project_dir" ]; then
-            process_groups+=("$pid")
-            kill -TERM -- "-$pid" 2>/dev/null || true
-        fi
-    done < <(pgrep -f '^just (wa|wp|wt|ws|wts)$' || true)
-
-    for _ in {1..20}; do
-        any_running=false
-        for process_group in "${process_groups[@]}"; do
-            if kill -0 -- "-$process_group" 2>/dev/null; then
-                any_running=true
-                break
-            fi
-        done
-        [ "$any_running" = true ] || break
-        sleep 0.25
-    done
-
-    for process_group in "${process_groups[@]}"; do
-        kill -KILL -- "-$process_group" 2>/dev/null || true
-    done
+stop-website:
+    @command -v tmux >/dev/null 2>&1 && tmux has-session -t bionic-website 2>/dev/null && tmux kill-session -t bionic-website || true
 
 dot-env:
 	#!/usr/bin/env bash
