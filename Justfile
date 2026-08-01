@@ -1,3 +1,5 @@
+set dotenv-load := true
+
 list:
     just --list
 
@@ -104,6 +106,7 @@ opt-images:
             -print -exec sh -c 'for f; do pngquant --force --quality 70-85 --ext .png "$f"; done' _ {} +
 
 dev:
+    @if [ ! -f .env ]; then just dot-env; fi
     cargo binstall --no-confirm zellij
     zellij -l .devcontainer/layout.kdl
 
@@ -112,7 +115,38 @@ website:
     zellij -l .devcontainer/layout-site.kdl
 
 stop:
-    zellij kill-all-sessions
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    zellij delete-all-sessions --force --yes || true
+
+    project_dir="{{ justfile_directory() }}"
+    process_groups=()
+
+    while read -r pid; do
+        [ -n "$pid" ] || continue
+        process_dir=$(readlink "/proc/$pid/cwd" 2>/dev/null || true)
+        if [ "$process_dir" = "$project_dir" ]; then
+            process_groups+=("$pid")
+            kill -TERM -- "-$pid" 2>/dev/null || true
+        fi
+    done < <(pgrep -f '^just (wa|wp|wt|ws|wts)$' || true)
+
+    for _ in {1..20}; do
+        any_running=false
+        for process_group in "${process_groups[@]}"; do
+            if kill -0 -- "-$process_group" 2>/dev/null; then
+                any_running=true
+                break
+            fi
+        done
+        [ "$any_running" = true ] || break
+        sleep 0.25
+    done
+
+    for process_group in "${process_groups[@]}"; do
+        kill -KILL -- "-$process_group" 2>/dev/null || true
+    done
 
 dot-env:
 	#!/usr/bin/env bash
@@ -121,7 +155,4 @@ dot-env:
 	cat > .env <<'EOF'
 	CHUNKING_ENGINE=http://localhost:8000
 	DANGER_JWT_OVERRIDE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc"
-	AUTOMATIONS_FEATURE=1
-	ENABLE_PROJECTS=1
-	LICENCE='{"end_date": "2028-12-31T00:00:00Z", "hostname_url": "http://localhost:7703", "signature": "lMWJJdsUGKepbp7SNCI3Zldl9l0kLOXGbgziBDHk3Q0Jm/ilI4ueDFLx1x/gVmm3xBWHJVCg21OuAm/UlTE5BQ==", "user_count": 2, "app_name": "Bionic", "app_logo_svg": "PHN2ZyB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDE0NCAxNDQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPCEtLSBSYWRpYWwgZ3JhZGllbnQgYmFja2dyb3VuZCAtLT4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0iYmdHcmFkaWVudCIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzRlN2VmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxZjNjY2YiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CgogICAgPCEtLSBEcm9wIHNoYWRvdyBmaWx0ZXIgLS0+CiAgICA8ZmlsdGVyIGlkPSJkcm9wU2hhZG93IiB4PSItNTAlIiB5PSItNTAlIiB3aWR0aD0iMjAwJSIgaGVpZ2h0PSIyMDAlIj4KICAgICAgPGZlRHJvcFNoYWRvdyBkeD0iMCIgZHk9IjIiIHN0ZERldmlhdGlvbj0iMiIgZmxvb2QtY29sb3I9ImJsYWNrIiBmbG9vZC1vcGFjaXR5PSIwLjciLz4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KCiAgPCEtLSBSb3VuZGVkIGJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjE0NCIgaGVpZ2h0PSIxNDQiIHJ4PSIyNCIgcnk9IjI0IiBmaWxsPSJ1cmwoI2JnR3JhZGllbnQpIiAvPgogIDxzdHlsZT4KICAgIC5zbWFsbCB7IAogICAgICAgIGZvbnQ6IG5vcm1hbCAxMjBweCBzYW5zLXNlcmlmOyAKICAgICAgICBmaWxsOiB3aGl0ZTsKICAgIH0KICA8L3N0eWxlPgogIDwhLS0gQmlnZ2VyLCBib2xkZXIgQiB3aXRoIGRyb3Agc2hhZG93IC0tPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgY2xhc3M9InNtYWxsIiBmaWxsPSJ3aGl0ZSIKICAgICAgICBmaWx0ZXI9InVybCgjZHJvcFNoYWRvdykiPgogICAgQgogIDwvdGV4dD4KPC9zdmc+"}'
 	EOF
