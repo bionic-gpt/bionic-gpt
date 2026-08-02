@@ -5,11 +5,12 @@ pub fn summary() -> Summary {
         source_folder: "architect-course",
         categories: vec![
             Category {
-                name: "Zero to Agentic AI Hero".to_string(),
+                name: "Agentic AI Architecture Course".to_string(),
                 pages: vec![PageSummary {
                     date: "",
-                    title: "Course Overview",
-                    description: "Introduction to the architect curriculum.",
+                    title: "Course Introduction",
+                    description:
+                        "A practical course for AI leads and enterprise architects. Learn how models, tools, integrations, sandboxes, skills, memory and governance combine into a modern agentic AI platform.",
                     folder: "architect-course/",
                     markdown: include_str!("../content/architect-course/index.md"),
                     image: None,
