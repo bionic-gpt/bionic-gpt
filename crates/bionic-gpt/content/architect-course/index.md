@@ -1,8 +1,7 @@
 # Course Introduction
 
 By the end of this course, you will understand how agentic AI can complete the
-following fictional enterprise use case—and how to decide whether it requires
-a bespoke agent application.
+following fictional enterprise use case.
 
 ## A Fictional Use Case
 
@@ -38,7 +37,7 @@ Maya
 You could then ask your AI workspace:
 
 ```text
-I just got an email from the CEO. Can you do what he says?
+got email from ceo, you do it
 ```
 
 To complete the request, the AI workspace must:
