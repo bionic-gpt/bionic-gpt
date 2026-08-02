@@ -4,7 +4,7 @@
 
 After this course you'll understand:
 
-- **Standing up the lab** – Choosing Granite 4 Tiny, serving it through Ollama, launching Bionic with Docker Compose, and validating the model hookup.
+- **Standing up the lab** – Launching Bionic with Docker Compose, then connecting a hosted API provider or running Granite locally with Ollama.
 - **Tool-call fundamentals** – How assistants request deterministic tools, how the UI mediates the workflow, and how to debug payloads end-to-end.
 - **The AI computer** – Combining files, sandboxes, skills, memory, scheduled tasks, and artifacts, then deciding when a separate agent application is justified.
 - **Human in the loop** – Presenting generated artifacts so people can inspect, correct, and approve the results.

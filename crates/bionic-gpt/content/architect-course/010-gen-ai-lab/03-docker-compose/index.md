@@ -29,3 +29,12 @@ You can then access the front end from `http://localhost:3000`.
 ## Screenshot
 
 ![Alt text](./bionic-console.png "Start Screen")
+
+## Choose How to Run Your Model
+
+With Bionic running, choose one of the next two paths:
+
+1. Connect Bionic to a hosted API provider.
+2. Run a model locally with Ollama.
+
+Both paths lead to a model that you can test from the Bionic chat console.

@@ -1,34 +1,24 @@
-# Testing the Model
+# Test the Platform
 
-Go to `Models > New Model` and enter the following details
+Whether you connected an API provider or configured Ollama, you can now test
+the complete Bionic environment.
 
-```
-Display Name: Granite 4 Tiny
-Model Name: granite4:tiny-h
-Description: IBM Granite 4.0-H-Tiny is a hyper-efficient, 7-billion total parameter hybrid mixture-of-experts (MoE) language model. 
-Base URL: http://host.docker.internal:11434/v1
-```
+Open the Bionic chat console, select the model you configured, and enter this
+prompt:
 
-![Alt text](./adding-the-model.png "Start Screen")
+```text
+Use your tools to complete this test:
 
-
-## Enable Tool Use
-
-
-![Alt text](./tool-use.png "Start Screen")
-
-## Final Result
-
-![Alt text](./models-view.png "Start Screen")
-
-## Try it out
-
-Enter the following prompt at the console.
-
-```
-Write a small hello world program in Rust.
+1. Get the current date and time in UTC.
+2. Read https://example.com and summarize it in one sentence.
+3. Create /home/user/output/model-test.md with both results.
+4. Tell me which tools you used and link to the finished report.
 ```
 
-## The Result
+This checks that the model can select tools, retrieve current information,
+read a URL, create a file in its sandbox, and return a finished artifact.
 
-![alt text](hello-world.png)
+The screenshot below shows a simpler code-generation check in the same chat
+console. It can be replaced with the result of the full test later.
+
+![An example response from Bionic](./test-results.png "Example platform response")

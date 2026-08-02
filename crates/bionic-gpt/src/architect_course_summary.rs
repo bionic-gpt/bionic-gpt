@@ -22,28 +22,6 @@ pub fn summary() -> Summary {
                 pages: vec![
                     PageSummary {
                         date: "",
-                        title: "Choosing a Model",
-                        description: "Pick the Granite baseline used throughout the lab.",
-                        folder: "architect-course/010-gen-ai-lab/01-choosing-a-model/",
-                        markdown: include_str!(
-                            "../content/architect-course/010-gen-ai-lab/01-choosing-a-model/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    PageSummary {
-                        date: "",
-                        title: "Running an Inference Engine (Ollama)",
-                        description: "Connecting to Ollam",
-                        folder: "architect-course/010-gen-ai-lab/02-ollama/",
-                        markdown: include_str!("../content/architect-course/010-gen-ai-lab/02-ollama/index.md"),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
-                    PageSummary {
-                        date: "",
                         title: "Running the Bionic Agentic AI Platform",
                         description: "Try it on a Laptop",
                         folder: "architect-course/010-gen-ai-lab/03-docker-compose/",
@@ -56,8 +34,32 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Testing Your Model",
-                        description: "Run sanity checks to validate prompts and responses.",
+                        title: "Option 1: Use an API Provider",
+                        description: "Connect Bionic to a hosted model provider.",
+                        folder: "architect-course/010-gen-ai-lab/035-api-provider/",
+                        markdown: include_str!(
+                            "../content/architect-course/010-gen-ai-lab/035-api-provider/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Option 2: Run Locally with Ollama",
+                        description: "Run and configure a local model with Ollama.",
+                        folder: "architect-course/010-gen-ai-lab/02-ollama/",
+                        markdown: include_str!(
+                            "../content/architect-course/010-gen-ai-lab/02-ollama/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Test the Platform",
+                        description: "Validate tools, files, and artifacts in Bionic.",
                         folder: "architect-course/010-gen-ai-lab/04-testing-model/",
                         markdown: include_str!(
                             "../content/architect-course/010-gen-ai-lab/04-testing-model/index.md"
