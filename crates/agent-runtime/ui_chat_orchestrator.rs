@@ -68,7 +68,7 @@ pub enum GenerationEvent {
 }
 
 #[derive(Debug)]
-enum StreamOutcome {
+pub(crate) enum StreamOutcome {
     Completed,
     ClientDisconnected {
         snapshot: String,
@@ -249,7 +249,7 @@ pub async fn chat_generate(
 }
 
 /// Executes a streaming rig completion and publishes intermediate events.
-async fn stream_chat_with_rig(
+pub(crate) async fn stream_chat_with_rig(
     request: RigChatRequest,
     sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
 ) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>> {
@@ -258,7 +258,9 @@ async fn stream_chat_with_rig(
         .api_key(api_key)
         .base_url(&request.base_url)
         .build()?;
-    let model = client.completion_model(&request.model_name);
+    let model = client
+        .completion_model(&request.model_name)
+        .completions_api();
     let mut stream = model.stream(request.completion).await?;
 
     let mut snapshot = String::new();
