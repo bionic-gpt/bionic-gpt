@@ -98,18 +98,6 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
-                    PageSummary {
-                        date: "",
-                        title: "Tool Calls in the UI",
-                        description: "Follow tool invocation state transitions inside the console.",
-                        folder: "architect-course/020-basics-of-tool-calls/030-tool-calls-in-the-ui/",
-                        markdown: include_str!(
-                            "../content/architect-course/020-basics-of-tool-calls/030-tool-calls-in-the-ui/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
                 ],
             },
             Category {
