@@ -94,64 +94,50 @@ Bitcoin is currently trading at approximately $64,251.42 USD.
 
 The agentic loop is the same as before: the model requests a tool, the application executes it, and the result is returned to the model. What changed is the breadth of the tool.
 
-## From One Capability to Many
+## Minimum Tools
 
-`get_bitcoin_price_usd` encodes one operation chosen by a developer. `exec_bash` exposes a controlled environment containing existing software. The model can compose that software to perform tasks that were not each implemented as separate tools.
+Mistral Vibe exposes a small set of general tools that the model can combine
+around the request in front of it.
 
-| Purpose-built tool | AI computer |
-| --- | --- |
-| The developer defines the operation | The model selects and combines permitted operations |
-| `get_bitcoin_price_usd` retrieves one price | `curl` can call many permitted HTTP endpoints |
-| The result is returned directly | Results can be inspected, transformed, saved, and reused |
-| A new use case often needs a new tool | Existing software can support many related use cases |
+<section class="not-prose my-8 rounded-xl border border-slate-200 bg-slate-50 p-6 shadow-sm" aria-label="Mistral Vibe minimum toolset">
+  <p class="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">Mistral Vibe</p>
+  <h3 class="mb-6 text-2xl font-bold text-slate-900">A minimum toolset</h3>
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">exec_bash</code>
+      <p class="mt-1 text-sm text-slate-600">Run shell commands</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">exec_python</code>
+      <p class="mt-1 text-sm text-slate-600">Execute Python</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">search_tool</code>
+      <p class="mt-1 text-sm text-slate-600">Discover available capabilities</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">read_file</code>
+      <p class="mt-1 text-sm text-slate-600">Inspect workspace files</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">write_file</code>
+      <p class="mt-1 text-sm text-slate-600">Create or update files</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <code class="font-semibold text-slate-900">search_replace</code>
+      <p class="mt-1 text-sm text-slate-600">Make targeted edits</p>
+    </div>
+  </div>
+</section>
 
-For example, the same environment could let the model:
+In the following sections, we will show how this small toolset can cover a
+large range of the work users ask the model to perform.
 
-1. Retrieve prices for several currencies with `curl`.
-2. Save the responses as working files.
-3. Use a script to compare the values.
-4. Generate a chart or report.
-5. Return the finished file as an artifact.
+## The Architecture We Will Explore
 
-The user asks for an outcome. The model decides which permitted software to use, checks intermediate results, and continues until it has produced that outcome. Many workflows therefore no longer require a separately coded agent application to coordinate every step. The conversational environment can provide much of that orchestration.
+The following lessons explore how the runtime, files, tools, skills, memory,
+integrations, and outputs fit together around the model.
 
-This does not mean that one Bash tool provides unlimited access or makes every task reliable. Its capabilities depend on the commands, files, credentials, network destinations, and other resources made available by the surrounding environment.
-
-## The Parts of an AI Computer
-
-The model provides reasoning and control, while the environment provides somewhere for that reasoning to act.
-
-| Component | Role |
-| --- | --- |
-| Chat interface | User interface |
-| Model | Reasoning and control |
-| Sandbox/runtime | Compute environment |
-| Files | Working storage |
-| Skills and tools | Software |
-| Integrations | Network and enterprise access |
-| Memory/projects | Persistent context |
-| Scheduled tasks | Scheduler |
-| Artifacts | Outputs |
-
-Together, these components let the model inspect uploaded files, create intermediate results, run tools, preserve useful context, connect to other systems, and return a document, spreadsheet, image, or other finished artifact.
-
-## A Computer Needs Boundaries
-
-A general execution tool is more powerful than a purpose-built price tool, so it also creates a larger security boundary. Commands and model-generated code should be treated as untrusted.
-
-A production environment needs controls around:
-
-* filesystem access;
-* permitted network destinations;
-* installed commands and system calls;
-* CPU, memory, process count, and execution time;
-* credentials and access to host services;
-* logging, approvals, and audit history.
-
-The model should receive enough access to complete the task, but no more.
-
-## The Sandbox Is One Component
-
-A sandbox gives the model an isolated place to execute commands and manipulate files. In the Bitcoin example, it is where the application safely runs `curl`.
-
-The sandbox is the compute environment inside the AI computer, not the whole computer. The complete working environment also includes files, skills, memory, integrations, scheduling, and artifacts. The following lessons examine those parts and the boundaries between them.
+<figure class="not-prose my-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+  <img class="w-full" src="agentic-ai-architecture.png" alt="Agentic AI architecture explored in the following lessons" />
+</figure>
