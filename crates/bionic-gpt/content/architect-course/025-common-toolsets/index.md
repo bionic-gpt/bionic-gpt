@@ -99,7 +99,7 @@ The agentic loop is the same as before: the model requests a tool, the applicati
 Mistral Vibe exposes a small set of general tools that the model can combine
 around the request in front of it.
 
-<section class="not-prose my-8 rounded-xl border border-slate-200 bg-slate-50 p-6 shadow-sm" aria-label="Mistral Vibe minimum toolset">
+<section class="not-prose my-8 rounded-xl border border-slate-200 bg-slate-50 p-6 shadow-sm" data-content-lightbox tabindex="0" role="button" aria-haspopup="dialog" aria-label="Expand Mistral Vibe minimum toolset">
   <p class="mb-1 text-sm font-semibold uppercase tracking-wide text-slate-500">Mistral Vibe</p>
   <h3 class="mb-6 text-2xl font-bold text-slate-900">A minimum toolset</h3>
   <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
