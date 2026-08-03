@@ -14,6 +14,14 @@ An AI computer is a conversational workspace in which a model can inspect and cr
 
 Here, “AI computer” describes the software environment around the model. It does not mean AI-specific hardware, a GPU workstation, or a consumer “AI PC.”
 
+[OpenClaw](https://docs.openclaw.ai/agent) made this shift easy to see. It
+connected the model to a workspace and tools on your computer, allowing it to
+read and change files, run commands, and use existing software. The model could
+then handle many kinds of work without a separate tool or agent being designed
+for every request.
+
+![OpenClaw giving a model access to a computer workspace](./openclaw-feature-image.jpg "OpenClaw computer workspace")
+
 ## Give the Model a Computer
 
 Let us ask the Bitcoin question again. This time we will not provide a Bitcoin-specific tool. We will provide one general tool that can execute a Bash command inside an isolated environment:
