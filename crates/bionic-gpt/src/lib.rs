@@ -33,6 +33,14 @@ pub mod routes {
         pub struct Assistants {}
 
         #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/datasets/")]
+        pub struct Datasets {}
+
+        #[derive(TypedPath, Deserialize)]
+        #[typed_path("/product/skills/")]
+        pub struct Skills {}
+
+        #[derive(TypedPath, Deserialize)]
         #[typed_path("/product/integrations/")]
         pub struct Integrations {}
 
