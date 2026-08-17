@@ -1,12 +1,11 @@
-import { renderMarkdownSafe } from "./markdown"
-
 // SSE event contract for `/completions/{chatId}`:
 // - { type: "text_delta", data: { delta: string } }
 // - { type: "done", data: {} }
 // - { type: "error", data: { message: string } }
 //
-// The stream endpoint is backend-owned for persistence; this client only renders and
-// submits the post-stream form to reset/redirect UI state.
+// The stream endpoint is backend-owned for persistence. This client only shows a
+// temporary plain-text draft and submits the post-stream form so the backend can
+// render the final markdown, tool calls, generated files, and reasoning state.
 export const streamingChat = () => {
     const chat = document.getElementById('streaming-chat')
 
@@ -60,10 +59,14 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let snapshot = '';
+    let hasStarted = false;
 
-    const renderNow = () => {
-        element.innerHTML = renderMarkdownSafe(snapshot);
+    const appendText = (text: string) => {
+        if (!hasStarted) {
+            element.replaceChildren();
+            hasStarted = true;
+        }
+        element.appendChild(document.createTextNode(text));
     };
 
     const parseEvent = (chunk: string) => {
@@ -87,22 +90,19 @@ async function streamResult(chatId: string, element: HTMLElement) {
             if (json.type === 'text_delta') {
                 const delta = json?.data?.delta;
                 if (typeof delta === 'string' && delta.length > 0) {
-                    snapshot += delta;
-                    renderNow();
+                    appendText(delta);
                 }
                 return false;
             }
 
             if (json.type === 'done') {
-                renderNow();
                 finalizeUiState();
                 return true;
             }
 
             if (json.type === 'error') {
                 const message = String(json?.data?.message ?? 'Unknown streaming error');
-                snapshot = `${snapshot}\n\n${message}`;
-                renderNow();
+                appendText(`\n\n${message}`);
                 finalizeUiState();
                 return true;
             }
@@ -133,12 +133,10 @@ async function streamResult(chatId: string, element: HTMLElement) {
                 }
             }
         }
-        renderNow();
         finalizeUiState();
     } catch (err) {
         console.error('Streaming failed', err);
-        snapshot = `${snapshot}\n\n${String(err)}`;
-        renderNow();
+        appendText(`\n\n${String(err)}`);
         finalizeUiState();
     }
 
