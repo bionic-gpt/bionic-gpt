@@ -1,28 +1,28 @@
-<svg width="144" height="144" viewBox="0 0 144 144" xmlns="http://www.w3.org/2000/svg">
-  <!-- Radial gradient background -->
-  <defs>
-    <radialGradient id="bgGradient" cx="50%" cy="50%" r="75%">
-      <stop offset="0%" stop-color="#4e7eff"/>
-      <stop offset="100%" stop-color="#1f3ccf"/>
-    </radialGradient>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="Bionic logo">
+  <rect x="1" y="1" width="22" height="22" rx="3" fill="none" stroke="#000" stroke-width="1"/>
 
-    <!-- Drop shadow filter -->
-    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="black" flood-opacity="0.7"/>
-    </filter>
-  </defs>
+  <path fill="#000" d="
+    M7 5
+    H12.1
+    C14.9 5 16.5 6.2 16.5 8.5
+    C16.5 10 15.7 11 14.3 11.4
+    C16 11.8 17 13 17 14.8
+    C17 17.3 15.2 18.8 12.1 18.8
+    H7
+    Z
 
-  <!-- Rounded background -->
-  <rect width="144" height="144" rx="24" ry="24" fill="url(#bgGradient)" />
-  <style>
-    .small { 
-        font: normal 120px sans-serif; 
-        fill: white;
-    }
-  </style>
-  <!-- Bigger, bolder B with drop shadow -->
-  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" class="small" fill="white"
-        filter="url(#dropShadow)">
-    B
-  </text>
+    M9.2 7
+    V10.5
+    H11.8
+    C13.3 10.5 14.2 9.9 14.2 8.8
+    C14.2 7.7 13.4 7 11.8 7
+    Z
+
+    M9.2 12.4
+    V16.8
+    H12
+    C13.8 16.8 14.8 16 14.8 14.6
+    C14.8 13.2 13.8 12.4 12 12.4
+    Z
+  " fill-rule="evenodd"/>
 </svg>

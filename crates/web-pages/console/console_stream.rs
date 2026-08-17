@@ -6,11 +6,15 @@ use daisy_rsx::*;
 use db::{authz::Rbac, ChatRole};
 use dioxus::prelude::*;
 use std::collections::HashMap;
-use tool_runtime::{parse_tool_calls, ToolCall};
+use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
 
+use super::reasoning_timeline::ReasoningTimeline;
 use super::response_timeline::ResponseTimeline;
 use super::tool_call_timeline::ToolCallTimeline;
 use super::{ChatWithChunks, PendingChatState};
+
+const CONSOLE_CONTENT_WIDTH: &str =
+    "mx-auto pl-2 pr-2 md:max-w-3xl lg:max-w-160 xl:max-w-3xl w-full";
 
 // Main ConsoleStream Component
 #[component]
@@ -31,7 +35,7 @@ pub fn ConsoleStream(
             match pending_chat_state {
                 PendingChatState::PendingToolChats(tool_chats, last_chat_id) => rsx! {
                     div {
-                        class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
+                        class: "flex flex-col {CONSOLE_CONTENT_WIDTH}",
                         // Show each pending tool chat
                         for tool_chat in tool_chats {
                             ToolCallTimeline {
@@ -57,7 +61,7 @@ pub fn ConsoleStream(
                 },
                 PendingChatState::PendingUserChat(pending_chat) => rsx! {
                     div {
-                        class: "flex flex-col pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
+                        class: "flex flex-col {CONSOLE_CONTENT_WIDTH}",
                         // Show user request and processing
                         UserRequestTimeline {
                             user_request: pending_chat.chat.content.clone().unwrap_or_default()
@@ -84,10 +88,22 @@ pub fn ConsoleStream(
                     }
                 }
                 div {
-                    class: "flex flex-col-reverse pl-2 pr-2 md:pr-0 md:pl-0 md:min-w-[65ch] max-w-prose mx-auto",
+                    class: "flex flex-col-reverse {CONSOLE_CONTENT_WIDTH}",
 
                     match chat_with_chunks.chat.role {
                         ChatRole::Assistant => rsx! {
+                            {
+                                let reasoning = parse_reasoning(chat_with_chunks.chat.tool_calls.as_deref());
+                                if !reasoning.is_empty() {
+                                    rsx! {
+                                        ReasoningTimeline {
+                                            reasoning
+                                        }
+                                    }
+                                } else {
+                                    rsx! {}
+                                }
+                            }
                             if let Some(content) = chat_with_chunks.chat.content.clone() {
                                 if !content.is_empty() {
                                     ResponseTimeline {
@@ -217,6 +233,7 @@ fn ProcessingTimeline(chat_id: i64, team_id: String) -> Element {
                 class: "prose",
                 div {
                     id: "streaming-chat",
+                    class: "whitespace-pre-wrap break-words",
                     "data-chatid": "{chat_id}",
                     span {
                         "Processing prompt"

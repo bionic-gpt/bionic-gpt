@@ -7,6 +7,7 @@ pub mod model_popup;
 pub mod page;
 pub mod prompt_form;
 pub mod prompt_modal;
+pub mod reasoning_timeline;
 pub mod response_timeline;
 pub mod tool_call_timeline;
 
