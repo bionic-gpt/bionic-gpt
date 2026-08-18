@@ -15,10 +15,7 @@
 
 <div align="center">
   <a href="https://github.com/bionic-gpt/bionic-gpt#license">
-    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT license">
-  </a>
-  <a href="https://github.com/bionic-gpt/bionic-gpt#license">
-    <img src="https://img.shields.io/badge/License-Apache-green.svg" alt="Apache license">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="Apache 2.0 license">
   </a>
 </div>
 
@@ -144,4 +141,4 @@ Contributions are welcome. Start with [CONTRIBUTING.md](https://github.com/bioni
 
 ## License
 
-Bionic is licensed under the MIT and Apache licenses.
+Bionic is licensed under the Apache License 2.0.
