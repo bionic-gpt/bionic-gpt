@@ -207,6 +207,23 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
+                name: "Testing Our Use Case".to_string(),
+                pages: vec![PageSummary {
+                    date: "",
+                    title: "Simulated Email Integration",
+                    description:
+                        "Use Mockoon to create a repeatable enterprise email API for evaluating agentic workflows.",
+                    folder:
+                        "architect-course/026-testing-our-use-case/010-simulated-email-integration/",
+                    markdown: include_str!(
+                        "../content/architect-course/026-testing-our-use-case/010-simulated-email-integration/index.md"
+                    ),
+                    image: None,
+                    author_image: None,
+                    author: None,
+                }],
+            },
+            Category {
                 name: "Human in the Loop".to_string(),
                 pages: vec![PageSummary {
                     date: "",

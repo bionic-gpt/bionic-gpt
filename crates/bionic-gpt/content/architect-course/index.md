@@ -73,6 +73,9 @@ To complete the request, the AI workspace must:
   [memory](/architect-course/025-common-toolsets/020-memory/), and
   [scheduled tasks](
   /architect-course/025-common-toolsets/030-scheduled-jobs-cron/).
+- **Test the use case:** create a [simulated email integration](
+  /architect-course/026-testing-our-use-case/010-simulated-email-integration/)
+  with Mockoon.
 - **Connect enterprise systems:** use [integrations](
   /architect-course/030-agentic-integrations/030-understanding-integrations/)
   and [OpenAPI toolsets](

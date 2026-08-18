@@ -27,6 +27,12 @@ services:
   doc-engine:
     image: ghcr.io/kreuzberg-dev/kreuzberg:4.1.2
 
+  # Use by the Zero to Hero course to simulate enterprise APIs.
+  eval-mocks:
+    image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.13
+    ports:
+      - "3100:3100"
+
   # Sets up our database tables
   migrations:
     image: ghcr.io/bionic-gpt/bionicgpt-db-migrations:1.12.13

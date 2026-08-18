@@ -21,6 +21,7 @@ pub(crate) const MIGRATIONS_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-db-
 pub(crate) const RAG_ENGINE_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-rag-engine";
 pub(crate) const AIRBYTE_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-airbyte-connector";
 pub(crate) const POSTGRES_MCP_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-postgres-mcp";
+pub(crate) const EVAL_MOCKS_IMAGE_REPO: &str = "ghcr.io/bionic-gpt/bionicgpt-eval-mocks";
 
 pub(crate) const SUMMARY_PATH: &str = "/build/SUMMARY.md";
 
