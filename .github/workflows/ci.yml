@@ -6,7 +6,6 @@ on:
       - main
     paths-ignore:
       - 'crates/dioxus-poc/**'
-      - 'infra-as-code/**'
       - '*.md'
       - '.github/workflows/integration*.yml'
       - '.github/workflows/embeddings-docker.yml'
@@ -19,7 +18,6 @@ on:
       - main
     paths-ignore:
       - 'crates/dioxus-poc/**'
-      - 'infra-as-code/**'
       - '*.md'
       - '.github/workflows/integration*.yml'
       - '.github/workflows/embeddings-docker.yml'

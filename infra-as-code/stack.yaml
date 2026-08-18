@@ -45,5 +45,5 @@ spec:
       database_url: APP_DATABASE_URL
 
     doc-engine:
-      image: ghcr.io/kreuzberg-dev/kreuzberg:4.1.2
+      image: ghcr.io/xberg-io/xberg:1.0.14
       port: 8000

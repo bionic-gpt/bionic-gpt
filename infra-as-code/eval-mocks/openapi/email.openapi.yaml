@@ -1,0 +1,159 @@
+openapi: 3.0.3
+info:
+  title: Enterprise Email API
+  version: "1.0"
+  description: Simulated enterprise email API for the Bionic architect course.
+servers:
+  - url: http://eval-mocks:3100
+    description: Docker Compose network URL used by Bionic containers
+  - url: http://localhost:3100
+    description: Host URL for manual testing
+paths:
+  /email/emails:
+    get:
+      operationId: listEmails
+      summary: List recent email messages
+      responses:
+        "200":
+          description: Recent email messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmailSummary"
+  /email/emails/{id}:
+    get:
+      operationId: getEmail
+      summary: Read an email message
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Email message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Email"
+  /email/drafts:
+    post:
+      operationId: createDraft
+      summary: Create an email draft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DraftRequest"
+      responses:
+        "201":
+          description: Draft created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DraftResponse"
+  /email/send:
+    post:
+      operationId: sendDraft
+      summary: Queue a draft email for sending
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendRequest"
+      responses:
+        "202":
+          description: Draft queued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendResponse"
+components:
+  schemas:
+    Attachment:
+      type: object
+      properties:
+        file_name:
+          type: string
+        content_type:
+          type: string
+        description:
+          type: string
+    EmailSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        from:
+          type: string
+        to:
+          type: string
+        subject:
+          type: string
+        received_at:
+          type: string
+          format: date-time
+        summary:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attachment"
+    Email:
+      allOf:
+        - $ref: "#/components/schemas/EmailSummary"
+        - type: object
+          properties:
+            body:
+              type: string
+    DraftRequest:
+      type: object
+      required:
+        - to
+        - subject
+        - body
+      properties:
+        to:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+        source_email_id:
+          type: string
+    DraftResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+            - drafted
+        to:
+          type: string
+        subject:
+          type: string
+        source_email_id:
+          type: string
+    SendRequest:
+      type: object
+      required:
+        - draft_id
+      properties:
+        draft_id:
+          type: string
+    SendResponse:
+      type: object
+      properties:
+        draft_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - queued

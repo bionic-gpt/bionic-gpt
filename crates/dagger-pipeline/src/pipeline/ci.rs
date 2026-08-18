@@ -5,9 +5,9 @@ use eyre::{Result, WrapErr, eyre};
 
 use super::{
     AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE, DATABASE_URL,
-    DB_FOLDER, DB_PASSWORD, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER, POSTGRES_IMAGE,
-    POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO,
-    SUMMARY_PATH, TARGET_TRIPLE,
+    DB_FOLDER, DB_PASSWORD, EVAL_MOCKS_IMAGE_REPO, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER,
+    POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME,
+    RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH, TARGET_TRIPLE,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -311,6 +311,40 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         credentials.as_ref(),
         registry,
         "postgres mcp image",
+        &tags,
+    )
+    .await?;
+
+    let eval_mocks_data = outputs
+        .container
+        .file("/workspace/infra-as-code/eval-mocks/mockoon/eval-mocks.mockoon.json");
+    let eval_mocks_container = client
+        .container()
+        .from("mockoon/cli:latest")
+        .with_file(
+            "/home/mockoon/data/eval-mocks.mockoon.json",
+            eval_mocks_data,
+        )
+        .with_exposed_port(3100)
+        .with_entrypoint(vec![
+            "mockoon-cli",
+            "start",
+            "--data",
+            "/home/mockoon/data/eval-mocks.mockoon.json",
+            "--port",
+            "3100",
+            "--hostname",
+            "0.0.0.0",
+        ]);
+
+    ensure_built(&eval_mocks_container, "eval mocks image").await?;
+    maybe_publish(
+        client,
+        &eval_mocks_container,
+        EVAL_MOCKS_IMAGE_REPO,
+        credentials.as_ref(),
+        registry,
+        "eval mocks image",
         &tags,
     )
     .await?;

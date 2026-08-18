@@ -73,6 +73,9 @@ To complete the request, the AI workspace must:
   [memory](/architect-course/025-common-toolsets/020-memory/), and
   [scheduled tasks](
   /architect-course/025-common-toolsets/030-scheduled-jobs-cron/).
+- **Test the use case:** create a [simulated email integration](
+  /architect-course/026-testing-our-use-case/010-simulated-email-integration/)
+  with Mockoon.
 - **Connect enterprise systems:** use [integrations](
   /architect-course/030-agentic-integrations/030-understanding-integrations/)
   and [OpenAPI toolsets](
@@ -83,5 +86,3 @@ To complete the request, the AI workspace must:
   /architect-course/050-ai-ops/why-kubernetes/) and
   [run the Kubernetes lab](
   /architect-course/050-ai-ops/install-linux/).
-- **Decide what to build:** evaluate [when a bespoke agent is justified](
-  /architect-course/025-common-toolsets/080-when-to-build-an-agent/).
