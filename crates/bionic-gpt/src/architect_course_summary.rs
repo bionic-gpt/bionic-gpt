@@ -204,20 +204,6 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
-                    PageSummary {
-                        date: "",
-                        title: "When to Build an Agent",
-                        description:
-                            "A decision framework for moving from chat to projects, named agents, and custom applications.",
-                        folder:
-                            "architect-course/025-common-toolsets/080-when-to-build-an-agent/",
-                        markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/080-when-to-build-an-agent/index.md"
-                        ),
-                        image: None,
-                        author_image: None,
-                        author: None,
-                    },
                 ],
             },
             Category {

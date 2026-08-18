@@ -83,5 +83,3 @@ To complete the request, the AI workspace must:
   /architect-course/050-ai-ops/why-kubernetes/) and
   [run the Kubernetes lab](
   /architect-course/050-ai-ops/install-linux/).
-- **Decide what to build:** evaluate [when a bespoke agent is justified](
-  /architect-course/025-common-toolsets/080-when-to-build-an-agent/).
