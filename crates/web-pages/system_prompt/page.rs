@@ -104,7 +104,7 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
                     runtime_additions,
                     token_estimate: prompt_size_preview.runtime_additions_tokens
                 }
-                DiscoverableIntegrations {
+                DiscoverableFunctions {
                     integration_context,
                     token_estimate: prompt_size_preview.integration_context_tokens
                 }
@@ -210,23 +210,23 @@ fn DiscoverableSkills(runtime_additions: Option<String>, token_estimate: i32) ->
 }
 
 #[component]
-fn DiscoverableIntegrations(integration_context: Option<String>, token_estimate: i32) -> Element {
+fn DiscoverableFunctions(integration_context: Option<String>, token_estimate: i32) -> Element {
     rsx!(
         Card {
             CardHeaderWithEstimate {
-                title: "Discoverable integrations".to_string(),
+                title: "Discoverable functions".to_string(),
                 token_estimate
             }
             CardBody {
                 class: "text-sm text-base-content/80",
-                p { "Connected integrations are summarized as a compact catalogue in the prompt so the model has a heads up when email, CRM, and other systems are available. The model should use run_python to inspect and call integrations, using toolbox.integrations.list()/describe() or search_tool_functions when it needs callable details." }
+                p { "Connected integrations are exposed through function catalogue files in /home/user/functions. The model can use run_bash to list and cat those markdown files, then use run_python to call functions through toolbox.integrations." }
                 if let Some(integration_context) = integration_context.as_ref() {
                     pre {
                         class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
                         "{integration_context}"
                     }
                 } else {
-                    EmptyPreview { message: "No discoverable integrations are currently connected.".to_string() }
+                    EmptyPreview { message: "No discoverable functions are currently connected.".to_string() }
                 }
             }
         }

@@ -40,11 +40,6 @@ fn integration_tool(
 pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
     let mut internal_integrations = vec![
         integration_tool(
-            "Date and time tools",
-            ToolScope::UserSelectable,
-            vec![builtin_tools::time_date::get_time_date_tool()],
-        ),
-        integration_tool(
             "Web tools",
             ToolScope::UserSelectable,
             vec![builtin_tools::web::get_open_url_tool()],
@@ -52,10 +47,7 @@ pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
         integration_tool(
             "Python tools",
             ToolScope::UserSelectable,
-            vec![
-                builtin_tools::monty::get_search_tool_functions_definition(),
-                builtin_tools::monty::get_tool_definition(),
-            ],
+            vec![builtin_tools::monty::get_tool_definition()],
         ),
         integration_tool(
             "Bash tools",
@@ -123,11 +115,11 @@ mod tests {
     fn test_get_openai_tools_always_returns_builtins() {
         let tools = get_chat_tools_user_selected();
         let names: Vec<&str> = tools.iter().map(|tool| tool.name.as_str()).collect();
-        assert!(names.contains(&"get_current_time_and_date"));
         assert!(names.contains(&"open_url"));
-        assert!(names.contains(&"search_tool_functions"));
         assert!(names.contains(&"run_python"));
         assert!(names.contains(&"run_bash"));
+        assert!(!names.contains(&"get_current_time_and_date"));
+        assert!(!names.contains(&"search_tool_functions"));
         assert!(!names.contains(&"render_html"));
         assert!(!names.contains(&"list_datasets"));
         assert!(!names.contains(&"list_dataset_files"));

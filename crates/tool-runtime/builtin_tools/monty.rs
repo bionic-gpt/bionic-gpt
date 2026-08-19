@@ -18,6 +18,7 @@ const DEFAULT_MAX_MEMORY_BYTES: usize = 64 * 1024 * 1024;
 const DEFAULT_MAX_ALLOCATIONS: usize = 1_000_000;
 const TOOLBOX_INTEGRATIONS_CLASS: &str = "ToolboxIntegrations";
 const TOOLBOX_INTEGRATION_CLASS_PREFIX: &str = "ToolboxIntegration:";
+const FUNCTIONS_DIR: &str = "/home/user/functions";
 
 #[derive(Debug, Deserialize)]
 struct RunPythonArgs {
@@ -25,16 +26,23 @@ struct RunPythonArgs {
     timeout_ms: Option<u64>,
 }
 
-#[derive(Debug, Deserialize)]
-struct SearchToolFunctionsArgs {
-    query: String,
-}
-
 /// A tool that runs hermetic Python snippets in Monty.
 pub struct MontyTool {
     pool: Option<db::Pool>,
     sub: Option<String>,
     conversation_id: Option<i64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeFunctionFile {
+    pub path: String,
+    pub contents: Vec<u8>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct FunctionCatalogue {
+    pub prompt_section: Option<String>,
+    pub files: Vec<RuntimeFunctionFile>,
 }
 
 impl MontyTool {
@@ -95,71 +103,34 @@ impl ToolDyn for MontyTool {
     }
 }
 
-/// A tool that searches Python integration functions available to Monty.
-pub struct SearchToolFunctionsTool {
-    pool: db::Pool,
-    sub: String,
-    conversation_id: i64,
-}
-
-impl SearchToolFunctionsTool {
-    pub fn new(pool: db::Pool, sub: String, conversation_id: i64) -> Self {
-        Self {
-            pool,
-            sub,
-            conversation_id,
-        }
-    }
-}
-
-pub async fn preview_integration_functions(
-    pool: &db::Pool,
-    sub: &str,
-    team_id: i32,
-) -> Result<Value, String> {
-    let registry = IntegrationRegistry::load_for_team(pool, sub, team_id).await?;
-    Ok(registry.search_json(""))
-}
-
-pub async fn available_integrations_prompt_section(
+pub async fn available_function_catalogue_prompt_section(
     pool: &db::Pool,
     sub: &str,
     team_id: i32,
 ) -> Result<Option<String>, String> {
-    let registry = IntegrationRegistry::load_for_team(pool, sub, team_id).await?;
-    Ok(registry.prompt_section())
+    Ok(function_catalogue_for_team(pool, sub, team_id)
+        .await?
+        .prompt_section)
 }
 
-impl ToolDyn for SearchToolFunctionsTool {
-    fn name(&self) -> String {
-        get_search_tool_functions_definition().name
-    }
+pub async fn function_catalogue_for_team(
+    pool: &db::Pool,
+    sub: &str,
+    team_id: i32,
+) -> Result<FunctionCatalogue, String> {
+    let registry = IntegrationRegistry::load_for_team(pool, sub, team_id).await?;
+    Ok(registry.function_catalogue())
+}
 
-    fn description(&self) -> String {
-        get_search_tool_functions_definition().description
-    }
-
-    fn parameters(&self) -> Value {
-        get_search_tool_functions_definition().parameters
-    }
-
-    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
-        Box::pin(async move {
-            let arguments: SearchToolFunctionsArgs =
-                serde_json::from_str(&args).map_err(ToolError::JsonError)?;
-
-            let registry = IntegrationRegistry::load_from_parts(
-                Some(&self.pool),
-                Some(&self.sub),
-                Some(self.conversation_id),
-            )
-            .await
-            .map_err(|err| ToolError::ToolCallError(Box::new(std::io::Error::other(err))))?;
-
-            let result = registry.search_json(&arguments.query);
-            serde_json::to_string(&result).map_err(ToolError::JsonError)
-        })
-    }
+pub async fn function_catalogue_for_conversation(
+    pool: &db::Pool,
+    sub: &str,
+    conversation_id: i64,
+) -> Result<FunctionCatalogue, String> {
+    let sub = sub.to_string();
+    let registry =
+        IntegrationRegistry::load_from_parts(Some(pool), Some(&sub), Some(conversation_id)).await?;
+    Ok(registry.function_catalogue())
 }
 
 pub fn get_tool_definition() -> ToolDefinition {
@@ -181,23 +152,6 @@ pub fn get_tool_definition() -> ToolDefinition {
                 }
             },
             "required": ["code"]
-        }),
-    }
-}
-
-pub fn get_search_tool_functions_definition() -> ToolDefinition {
-    ToolDefinition {
-        name: "search_tool_functions".to_string(),
-        description: "Search available integration functions callable from run_python. Use this to discover functions for current, external, account-specific, or connected-system information before writing Python code.".to_string(),
-        parameters: json!({
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "Search text describing the needed integration, function, data, or action."
-                }
-            },
-            "required": ["query"]
         }),
     }
 }
@@ -556,37 +510,16 @@ impl IntegrationRegistry {
         )
     }
 
-    fn search_json(&self, query: &str) -> Value {
-        let query_terms = search_terms(query);
-        let mut matches = Vec::new();
-
-        for integration in &self.integrations {
-            for operation in &integration.operations {
-                if query_terms.is_empty() || operation_matches(integration, operation, &query_terms)
-                {
-                    matches.push(json!({
-                        "path": operation.path,
-                        "integration": integration.slug,
-                        "operation": operation.operation_name,
-                        "description": operation.description,
-                        "parameters": operation.parameters,
-                    }));
-                }
-            }
-        }
-
-        Value::Array(matches)
-    }
-
-    fn prompt_section(&self) -> Option<String> {
+    fn function_catalogue(&self) -> FunctionCatalogue {
         if self.integrations.is_empty() {
-            return None;
+            return FunctionCatalogue::default();
         }
 
         let mut prompt = String::from(
-            "Available integrations:\n\
-Use run_python to inspect and call integrations. Inside Python, use toolbox.integrations.list()/describe() or search_tool_functions to inspect callable functions.\n",
+            "Available function catalogues:\n\
+Use run_bash to list /home/user/functions and cat the relevant <integration>.md file. Use run_python to call functions through toolbox.integrations.\n",
         );
+        let mut files = Vec::new();
 
         for integration in &self.integrations {
             let operations = integration
@@ -597,13 +530,20 @@ Use run_python to inspect and call integrations. Inside Python, use toolbox.inte
                 .join(", ");
 
             prompt.push_str(&format!(
-                "- {} ({}): {}\n",
-                integration.name, integration.slug, operations
+                "- {}: {FUNCTIONS_DIR}/{}.md\n",
+                integration.name, integration.slug
             ));
+            files.push(RuntimeFunctionFile {
+                path: format!("{FUNCTIONS_DIR}/{}.md", integration.slug),
+                contents: function_markdown(integration, &operations).into_bytes(),
+            });
         }
 
         prompt.truncate(prompt.trim_end().len());
-        Some(prompt)
+        FunctionCatalogue {
+            prompt_section: Some(prompt),
+            files,
+        }
     }
 
     fn describe_json(
@@ -667,6 +607,23 @@ fn method_receiver(args: &[MontyObject]) -> Option<(&str, &[MontyObject])> {
         return None;
     };
     Some((name.as_str(), &args[1..]))
+}
+
+fn function_markdown(integration: &IntegrationInfo, operations: &str) -> String {
+    let mut markdown = format!(
+        "# {}\n\nSlug: {}\n\nCall these functions from run_python as toolbox.integrations.{}.<function>(**kwargs).\n\nFunctions:\n",
+        integration.name, integration.slug, integration.slug
+    );
+
+    if operations.is_empty() {
+        markdown.push_str("- <no functions>\n");
+    } else {
+        for operation in operations.split(", ") {
+            markdown.push_str(&format!("- {operation}\n"));
+        }
+    }
+
+    markdown
 }
 
 fn block_on_tool_call(tool: Arc<dyn ToolDyn>, args: String) -> Result<String, ToolError> {
@@ -829,75 +786,6 @@ fn call_arguments_to_json(
     Ok(Value::Object(object))
 }
 
-fn search_terms(query: &str) -> Vec<String> {
-    query
-        .split(|ch: char| !ch.is_ascii_alphanumeric())
-        .filter(|term| !term.is_empty())
-        .map(|term| term.to_ascii_lowercase())
-        .filter(|term| !is_stop_word(term))
-        .collect()
-}
-
-fn is_stop_word(term: &str) -> bool {
-    matches!(
-        term,
-        "a" | "an"
-            | "and"
-            | "are"
-            | "for"
-            | "from"
-            | "i"
-            | "me"
-            | "my"
-            | "of"
-            | "please"
-            | "show"
-            | "summarize"
-            | "summary"
-            | "the"
-            | "to"
-            | "with"
-    )
-}
-
-fn operation_matches(
-    integration: &IntegrationInfo,
-    operation: &IntegrationOperation,
-    query_terms: &[String],
-) -> bool {
-    let haystack = format!(
-        "{} {} {} {} {}",
-        integration.name,
-        integration.slug,
-        operation.operation_name,
-        operation.description,
-        operation.parameters
-    )
-    .to_ascii_lowercase();
-
-    query_terms.iter().any(|term| {
-        equivalent_terms(term)
-            .iter()
-            .any(|candidate| haystack.contains(candidate))
-    })
-}
-
-fn equivalent_terms(term: &str) -> Vec<&str> {
-    match term {
-        "inbox" | "mailbox" | "mail" | "email" | "emails" | "message" | "messages" => {
-            vec!["inbox", "mailbox", "mail", "email", "message", "messages"]
-        }
-        "calendar" | "calendars" | "meeting" | "meetings" | "event" | "events" => {
-            vec!["calendar", "meeting", "event"]
-        }
-        "crm" | "customer" | "customers" | "account" | "accounts" => {
-            vec!["crm", "customer", "account"]
-        }
-        "ticket" | "tickets" | "issue" | "issues" => vec!["ticket", "issue"],
-        _ => vec![term],
-    }
-}
-
 fn monty_to_json(value: &MontyObject) -> Result<Value, String> {
     match value {
         MontyObject::None => Ok(Value::Null),
@@ -982,14 +870,6 @@ mod tests {
     }
 
     #[test]
-    fn test_get_search_tool_functions_definition() {
-        let tool = get_search_tool_functions_definition();
-        assert_eq!(tool.name, "search_tool_functions");
-        assert!(!tool.description.contains("Bionic"));
-        assert!(!tool.description.contains("bionic"));
-    }
-
-    #[test]
     fn test_rejects_empty_code() {
         let result = execute_run_python_without_integrations(RunPythonArgs {
             code: "   ".to_string(),
@@ -1009,85 +889,7 @@ mod tests {
     }
 
     #[test]
-    fn test_search_tool_functions_matches_keywords() {
-        let registry = IntegrationRegistry {
-            integrations: vec![IntegrationInfo {
-                name: "Coin Market".to_string(),
-                slug: "coin_market".to_string(),
-                operations: vec![IntegrationOperation {
-                    operation_name: "get_quote".to_string(),
-                    path: "toolbox.integrations.coin_market.get_quote".to_string(),
-                    description: "Get bitcoin price and crypto market quote".to_string(),
-                    parameters: json!({
-                        "type": "object",
-                        "properties": {
-                            "symbol": {"type": "string"}
-                        }
-                    }),
-                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
-                }],
-            }],
-            functions: HashMap::new(),
-        };
-
-        let result = registry.search_json("bitcoin price");
-        assert_eq!(
-            result[0]["path"],
-            "toolbox.integrations.coin_market.get_quote"
-        );
-        assert_eq!(result[0]["integration"], "coin_market");
-        assert_eq!(result[0]["operation"], "get_quote");
-    }
-
-    #[test]
-    fn test_search_tool_functions_matches_inbox_synonym() {
-        let registry = IntegrationRegistry {
-            integrations: vec![IntegrationInfo {
-                name: "Enterprise Email API".to_string(),
-                slug: "enterprise_email_api".to_string(),
-                operations: vec![IntegrationOperation {
-                    operation_name: "listEmails".to_string(),
-                    path: "toolbox.integrations.enterprise_email_api.listEmails".to_string(),
-                    description: "List recent enterprise email messages".to_string(),
-                    parameters: json!({"type": "object"}),
-                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
-                }],
-            }],
-            functions: HashMap::new(),
-        };
-
-        let result = registry.search_json("summarize my inbox");
-        assert_eq!(
-            result[0]["path"],
-            "toolbox.integrations.enterprise_email_api.listEmails"
-        );
-        assert_eq!(result[0]["integration"], "enterprise_email_api");
-        assert_eq!(result[0]["operation"], "listEmails");
-    }
-
-    #[test]
-    fn test_search_tool_functions_no_match_returns_empty_list() {
-        let registry = IntegrationRegistry {
-            integrations: vec![IntegrationInfo {
-                name: "Enterprise Email API".to_string(),
-                slug: "enterprise_email_api".to_string(),
-                operations: vec![IntegrationOperation {
-                    operation_name: "listEmails".to_string(),
-                    path: "toolbox.integrations.enterprise_email_api.listEmails".to_string(),
-                    description: "List recent enterprise email messages".to_string(),
-                    parameters: json!({"type": "object"}),
-                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
-                }],
-            }],
-            functions: HashMap::new(),
-        };
-
-        let result = registry.search_json("weather forecast");
-        assert_eq!(result, json!([]));
-    }
-
-    #[test]
-    fn test_prompt_section_summarizes_integrations_without_schemas_or_paths() {
+    fn test_function_catalogue_summarizes_integrations_without_schemas_or_paths() {
         let registry = IntegrationRegistry {
             integrations: vec![IntegrationInfo {
                 name: "Enterprise Email API".to_string(),
@@ -1108,25 +910,38 @@ mod tests {
             functions: HashMap::new(),
         };
 
-        let prompt = registry.prompt_section().unwrap();
-        assert!(prompt.contains("Available integrations:"));
-        assert!(prompt.contains("- Enterprise Email API (enterprise_email_api): listEmails"));
+        let catalogue = registry.function_catalogue();
+        let prompt = catalogue.prompt_section.unwrap();
+        assert!(prompt.contains("Available function catalogues:"));
+        assert!(
+            prompt.contains("- Enterprise Email API: /home/user/functions/enterprise_email_api.md")
+        );
+        assert!(prompt.contains("run_bash"));
         assert!(prompt.contains("run_python"));
-        assert!(prompt.contains("search_tool_functions"));
+        assert_eq!(catalogue.files.len(), 1);
+        assert_eq!(
+            catalogue.files[0].path,
+            "/home/user/functions/enterprise_email_api.md"
+        );
+        let markdown = String::from_utf8(catalogue.files[0].contents.clone()).unwrap();
+        assert!(markdown.contains("# Enterprise Email API"));
+        assert!(markdown.contains("Slug: enterprise_email_api"));
+        assert!(markdown.contains("- listEmails"));
         assert!(!prompt.contains("List recent enterprise email messages"));
+        assert!(!markdown.contains("List recent enterprise email messages"));
         assert!(!prompt.contains("toolbox.integrations.enterprise_email_api.listEmails"));
+        assert!(!markdown.contains("toolbox.integrations.enterprise_email_api.listEmails"));
         assert!(!prompt.contains("properties"));
-        assert!(!prompt.contains("limit"));
+        assert!(!markdown.contains("properties"));
     }
 
     #[test]
-    fn test_preview_integration_functions_without_context_returns_empty_list() {
+    fn test_function_catalogue_without_context_returns_empty() {
         let registry = IntegrationRegistry {
             integrations: Vec::new(),
             functions: HashMap::new(),
         };
-        assert_eq!(registry.search_json(""), json!([]));
-        assert_eq!(registry.prompt_section(), None);
+        assert_eq!(registry.function_catalogue(), FunctionCatalogue::default());
     }
 
     #[test]

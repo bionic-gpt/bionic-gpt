@@ -82,10 +82,7 @@ async fn test_generate_prompt_adds_integration_context() {
         1.0,
         Some("Runtime default prompt".to_string()),
         Some("You are a helpful assistant".to_string()),
-        Some(
-            "Available integrations:\n- Email (email): listEmails - List recent email messages"
-                .to_string(),
-        ),
+        Some("Available function catalogues:\n- Email: /home/user/functions/email.md".to_string()),
         vec![Message::user("Summarize my inbox")],
     )
     .await;
@@ -93,8 +90,8 @@ async fn test_generate_prompt_adds_integration_context() {
     assert_eq!(messages.len(), 2);
     assert!(matches!(messages[0], Message::System { .. }));
     let system = text_content(&messages[0]).unwrap();
-    assert!(system.contains("Available integrations:"));
-    assert!(system.contains("- Email (email): listEmails - List recent email messages"));
+    assert!(system.contains("Available function catalogues:"));
+    assert!(system.contains("- Email: /home/user/functions/email.md"));
 }
 
 fn create_test_chat(

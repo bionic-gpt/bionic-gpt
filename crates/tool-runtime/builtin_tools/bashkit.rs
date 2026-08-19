@@ -24,6 +24,7 @@ const MAX_STDERR_BYTES: usize = 512 * 1024;
 const CHUNKS_PER_DOCUMENT_LIMIT: i64 = 1_000;
 const HOME_DIR: &str = "/home/user";
 const SKILLS_DIR: &str = "/home/user/skills";
+const FUNCTIONS_DIR: &str = "/home/user/functions";
 const DATASETS_DIR: &str = "/home/user/datasets";
 const ATTACHMENTS_DIR: &str = "/home/user/attachments";
 const OUTPUT_DIR: &str = "/home/user/output";
@@ -162,7 +163,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, and /home/user/datasets to inspect assistant datasets. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, /home/user/functions to discover callable integration functions, and /home/user/datasets to inspect assistant datasets. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -182,12 +183,25 @@ pub fn get_tool_definition() -> ToolDefinition {
     }
 }
 
-pub fn preview_vfs_tree(skill_summaries: &[db::queries::skills::SkillSummary]) -> String {
+pub fn preview_vfs_tree(
+    skill_summaries: &[db::queries::skills::SkillSummary],
+    function_files: &[crate::builtin_tools::monty::RuntimeFunctionFile],
+) -> String {
     let skill_dirs = skill_summaries
         .iter()
         .map(|skill| {
             skills::skill_vfs_directory(skill.skill_id, &skill.skill_name, skill.is_system)
                 .trim_start_matches("/home/user/skills/")
+                .to_string()
+        })
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let function_files = function_files
+        .iter()
+        .map(|file| {
+            file.path
+                .trim_start_matches("/home/user/functions/")
                 .to_string()
         })
         .collect::<BTreeSet<_>>()
@@ -210,8 +224,23 @@ pub fn preview_vfs_tree(skill_summaries: &[db::queries::skills::SkillSummary]) -
 |                   `-- <chunk_id>.txt\n\
 |-- output                      # persists for this conversation\n\
 |   `-- <generated_file_or_directory>\n\
-`-- skills                      # current visible skills\n",
+|-- functions                   # connected integration catalogues\n",
     );
+
+    if function_files.is_empty() {
+        tree.push_str("|   `-- <no connected integrations>\n");
+    } else {
+        for (index, file) in function_files.iter().enumerate() {
+            let branch = if index + 1 == function_files.len() {
+                "`--"
+            } else {
+                "|--"
+            };
+            tree.push_str(&format!("|   {branch} {file}\n"));
+        }
+    }
+
+    tree.push_str("`-- skills                      # current visible skills\n");
 
     if skill_dirs.is_empty() {
         tree.push_str("    `-- <no visible skills>\n");
@@ -270,6 +299,7 @@ async fn execute_run_bash(
         .build();
 
     seed_custom_skills(&tool.pool, &tool.sub, &bash).await?;
+    seed_function_catalogue(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
     seed_datasets(
         &tool.pool,
         &tool.sub,
@@ -350,6 +380,32 @@ async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), s
         .commit()
         .await
         .map_err(|e| json!({"error": "Failed to commit transaction", "details": e.to_string()}))?;
+
+    Ok(())
+}
+
+async fn seed_function_catalogue(
+    pool: &Pool,
+    sub: &str,
+    conversation_id: i64,
+    bash: &Bash,
+) -> Result<(), serde_json::Value> {
+    let catalogue = crate::builtin_tools::monty::function_catalogue_for_conversation(
+        pool,
+        sub,
+        conversation_id,
+    )
+    .await
+    .map_err(|e| json!({"error": "Failed to get function catalogue", "details": e}))?;
+
+    let fs = bash.fs();
+    fs.mkdir(Path::new(FUNCTIONS_DIR), true).await.map_err(
+        |e| json!({"error": "Failed to seed Bashkit functions directory", "details": e.to_string()}),
+    )?;
+
+    for file in catalogue.files {
+        write_vfs_file(fs.as_ref(), &file.path, &file.contents).await?;
+    }
 
     Ok(())
 }
@@ -1379,19 +1435,28 @@ mod tests {
         let tool = get_tool_definition();
         assert_eq!(tool.name, "run_bash");
         assert!(tool.description.contains("/home/user/attachments"));
+        assert!(tool.description.contains("/home/user/functions"));
     }
 
     #[test]
     fn test_preview_vfs_tree_includes_visible_skill_paths() {
-        let preview = preview_vfs_tree(&[db::queries::skills::SkillSummary {
-            skill_id: 42,
-            skill_name: "Presentation Builder".to_string(),
-            description: "Build slides".to_string(),
-            is_system: true,
-        }]);
+        let preview = preview_vfs_tree(
+            &[db::queries::skills::SkillSummary {
+                skill_id: 42,
+                skill_name: "Presentation Builder".to_string(),
+                description: "Build slides".to_string(),
+                is_system: true,
+            }],
+            &[crate::builtin_tools::monty::RuntimeFunctionFile {
+                path: "/home/user/functions/email.md".to_string(),
+                contents: b"# Email".to_vec(),
+            }],
+        );
 
         assert!(preview.contains("/home/user"));
         assert!(preview.contains("`-- skills"));
+        assert!(preview.contains("|-- functions"));
+        assert!(preview.contains("email.md"));
         assert!(preview.contains("presentation-builder"));
         assert!(preview.contains("SKILL.md"));
         assert!(preview.contains("<uploaded_file_name>"));

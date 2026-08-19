@@ -40,22 +40,26 @@ pub async fn loader(
         .bind(&transaction)
         .all()
         .await?;
-    let vfs_preview = tool_runtime::builtin_tools::bashkit::preview_vfs_tree(&skill_summaries);
     let runtime_additions =
-        tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries);
-    let integration_context =
-        match tool_runtime::builtin_tools::monty::available_integrations_prompt_section(
-            &pool,
-            &sub,
-            team_id_num,
-        )
-        .await
-        {
-            Ok(context) => context,
-            Err(err) => Some(format!(
-                "Failed to preview discoverable integrations: {err}"
-            )),
-        };
+        tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries.clone());
+    let function_catalogue = match tool_runtime::builtin_tools::monty::function_catalogue_for_team(
+        &pool,
+        &sub,
+        team_id_num,
+    )
+    .await
+    {
+        Ok(catalogue) => catalogue,
+        Err(err) => tool_runtime::builtin_tools::monty::FunctionCatalogue {
+            prompt_section: Some(format!("Failed to preview discoverable functions: {err}")),
+            files: Vec::new(),
+        },
+    };
+    let integration_context = function_catalogue.prompt_section.clone();
+    let vfs_preview = tool_runtime::builtin_tools::bashkit::preview_vfs_tree(
+        &skill_summaries,
+        &function_catalogue.files,
+    );
 
     let tool_definitions =
         tool_runtime::get_chat_tools_user_selected_with_system_openapi(&pool).await;
@@ -188,7 +192,7 @@ mod tests {
         let preview = build_prompt_size_preview(
             "You are helpful.",
             Some("Use available skills when relevant."),
-            Some("Available integrations:\n- Email (email): listEmails - List recent email"),
+            Some("Available function catalogues:\n- Email: /home/user/functions/email.md"),
             &tools,
         );
 

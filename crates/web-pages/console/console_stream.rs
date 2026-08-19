@@ -202,7 +202,7 @@ mod tests {
             signature: None,
             additional_params: None,
             function: ToolCallFunction {
-                name: "search_tool_functions".to_string(),
+                name: "run_python".to_string(),
                 arguments: json!({"query": "bitcoin price"}),
             },
         };
