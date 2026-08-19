@@ -76,10 +76,6 @@ To complete the request, the AI workspace must:
 - **Test the use case:** create a [simulated email integration](
   /architect-course/026-testing-our-use-case/010-simulated-email-integration/)
   with Mockoon.
-- **Connect enterprise systems:** use [integrations](
-  /architect-course/030-agentic-integrations/030-understanding-integrations/)
-  and [OpenAPI toolsets](
-  /architect-course/025-common-toolsets/050-openapi-toolsets/).
 - **Keep people in control:** [present results for review](
   /architect-course/027-human-in-the-loop/010-presenting-results/).
 - **Operate safely:** understand [why Kubernetes](
