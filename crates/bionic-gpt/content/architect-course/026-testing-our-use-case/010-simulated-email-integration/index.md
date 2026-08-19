@@ -37,7 +37,7 @@ The course Docker Compose file includes the Bionic eval mocks image:
 
 ```yaml
 eval-mocks:
-  image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.14
+  image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.15
   ports:
     - "3100:3100"
 ```

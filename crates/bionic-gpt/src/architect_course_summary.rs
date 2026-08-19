@@ -208,20 +208,36 @@ pub fn summary() -> Summary {
             },
             Category {
                 name: "Testing Our Use Case".to_string(),
-                pages: vec![PageSummary {
-                    date: "",
-                    title: "Simulated Email Integration",
-                    description:
-                        "Use Mockoon to create a repeatable enterprise email API for evaluating agentic workflows.",
-                    folder:
-                        "architect-course/026-testing-our-use-case/010-simulated-email-integration/",
-                    markdown: include_str!(
-                        "../content/architect-course/026-testing-our-use-case/010-simulated-email-integration/index.md"
-                    ),
-                    image: None,
-                    author_image: None,
-                    author: None,
-                }],
+                pages: vec![
+                    PageSummary {
+                        date: "",
+                        title: "Simulated Email Integration",
+                        description:
+                            "Use Mockoon to create a repeatable enterprise email API for evaluating agentic workflows.",
+                        folder:
+                            "architect-course/026-testing-our-use-case/010-simulated-email-integration/",
+                        markdown: include_str!(
+                            "../content/architect-course/026-testing-our-use-case/010-simulated-email-integration/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                    PageSummary {
+                        date: "",
+                        title: "Simulated Web Search",
+                        description:
+                            "Use deterministic web search results to evaluate research and briefing workflows.",
+                        folder:
+                            "architect-course/026-testing-our-use-case/020-simulated-web-search/",
+                        markdown: include_str!(
+                            "../content/architect-course/026-testing-our-use-case/020-simulated-web-search/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
+                ],
             },
             Category {
                 name: "Human in the Loop".to_string(),

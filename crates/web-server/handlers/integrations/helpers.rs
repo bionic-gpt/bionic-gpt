@@ -122,4 +122,33 @@ paths:
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("operationId"));
     }
+
+    #[test]
+    fn test_parse_eval_web_search_openapi_spec() {
+        let spec_yaml =
+            include_str!("../../../../infra-as-code/eval-mocks/openapi/web-search.openapi.yaml");
+
+        let Json(parsed) = parse_openapi_spec(spec_yaml).unwrap();
+        let operation_ids = parsed
+            .operations()
+            .filter_map(|(_, _, operation)| operation.operation_id.as_deref())
+            .collect::<Vec<_>>();
+
+        assert_eq!(operation_ids, vec!["searchWeb"]);
+    }
+
+    #[test]
+    fn test_parse_combined_eval_mocks_openapi_spec() {
+        let spec_yaml =
+            include_str!("../../../../infra-as-code/eval-mocks/openapi/eval-mocks.openapi.yaml");
+
+        let Json(parsed) = parse_openapi_spec(spec_yaml).unwrap();
+        let operation_ids = parsed
+            .operations()
+            .filter_map(|(_, _, operation)| operation.operation_id.as_deref())
+            .collect::<Vec<_>>();
+
+        assert!(operation_ids.contains(&"listEmails"));
+        assert!(operation_ids.contains(&"searchWeb"));
+    }
 }

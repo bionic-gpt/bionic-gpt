@@ -317,22 +317,22 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
 
     let eval_mocks_data = outputs
         .container
-        .file("/workspace/infra-as-code/eval-mocks/openapi/email.openapi.yaml");
+        .file("/workspace/infra-as-code/eval-mocks/openapi/eval-mocks.openapi.yaml");
     let eval_mocks_container = client
         .container()
         .from("mockoon/cli:9.7.0")
-        .with_file("/home/mockoon/data/email.openapi.yaml", eval_mocks_data)
+        .with_file("/home/mockoon/data/eval-mocks.openapi.yaml", eval_mocks_data)
         .with_exec(vec![
             "sh",
             "-c",
-            "mockoon-cli start --data /home/mockoon/data/email.openapi.yaml --port 3100 --hostname 0.0.0.0 & pid=$!; sleep 2; kill -0 \"$pid\"; status=$?; kill \"$pid\"; exit \"$status\"",
+            "mockoon-cli start --data /home/mockoon/data/eval-mocks.openapi.yaml --port 3100 --hostname 0.0.0.0 & pid=$!; sleep 2; kill -0 \"$pid\"; status=$?; kill \"$pid\"; exit \"$status\"",
         ])
         .with_exposed_port(3100)
         .with_entrypoint(vec![
             "mockoon-cli",
             "start",
             "--data",
-            "/home/mockoon/data/email.openapi.yaml",
+            "/home/mockoon/data/eval-mocks.openapi.yaml",
             "--port",
             "3100",
             "--hostname",
