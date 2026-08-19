@@ -1,12 +1,10 @@
 use crate::errors::CustomError;
-use db::queries::prompts;
+use db::queries::{prompts, runtime_settings};
 use db::Transaction;
 use db::{Chat, ChatRole};
 use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
 use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
-
-pub(crate) const TOOL_USE_GUIDANCE: &str = "Use tools when the user asks for current, live, external, account-specific, or connected-system information.\nFor prices, news, market data, web pages, search results, files, integrations, or connected data, do not answer from memory.\nUse search_tool_functions to find available callable functions, then use the appropriate runtime tool to execute them.";
 
 /// Converts database chats into rig-native messages.
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
@@ -40,7 +38,8 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 let tool_call_id = chat.tool_call_id.unwrap_or_else(|| "tool_call".to_string());
                 Message::tool_result_with_call_id(tool_call_id.clone(), Some(tool_call_id), content)
             }
-            ChatRole::User | ChatRole::System | ChatRole::Developer => Message::user(content),
+            ChatRole::System | ChatRole::Developer => Message::system(content),
+            ChatRole::User => Message::user(content),
         };
 
         messages.push(message);
@@ -54,31 +53,41 @@ pub async fn execute_prompt(
     prompt: prompts::SinglePrompt,
     _conversation_id: Option<i64>,
     include_skills: bool,
+    integration_context: Option<String>,
     chat_history: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     tracing::info!("Retrieved {} history items", chat_history.len());
 
     let trim_ratio = (prompt.trim_ratio as f32) / 100.0;
     let max_completion_tokens = prompt.max_completion_tokens.unwrap_or(0) as usize;
-    let tool_context = if include_skills {
+    let runtime_system_prompt = runtime_settings::default_system_prompt()
+        .bind(transaction)
+        .one()
+        .await?
+        .value;
+    let skills_context = if include_skills {
         let skill_summaries = db::queries::skills::visible_skill_summaries()
             .bind(transaction)
             .all()
             .await?;
-        Some(combine_optional_sections(vec![
-            Some(TOOL_USE_GUIDANCE.to_string()),
-            tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries),
-        ]))
+        tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries)
     } else {
         None
+    };
+    let runtime_context = combine_optional_sections(vec![skills_context, integration_context]);
+    let runtime_context = if runtime_context.is_empty() {
+        None
+    } else {
+        Some(runtime_context)
     };
 
     Ok(generate_prompt(
         prompt.model_context_size as usize,
         max_completion_tokens,
         trim_ratio,
+        Some(runtime_system_prompt),
         prompt.system_prompt,
-        tool_context,
+        runtime_context,
         chat_history,
     )
     .await)
@@ -88,8 +97,9 @@ pub async fn generate_prompt(
     model_context_size: usize,
     max_completion_tokens: usize,
     trim_ratio: f32,
+    runtime_system_prompt: Option<String>,
     system_prompt: Option<String>,
-    available_skills: Option<String>,
+    runtime_context: Option<String>,
     history: Vec<Message>,
 ) -> Vec<Message> {
     let mut messages: Vec<Message> = Vec::new();
@@ -104,12 +114,13 @@ pub async fn generate_prompt(
 
     let mut size_so_far = 0;
 
-    let system_prompt = combine_system_prompt(system_prompt, available_skills);
+    let system_prompt =
+        combine_system_prompt(runtime_system_prompt, system_prompt, runtime_context);
 
     if let Some(system_prompt) = &system_prompt {
         size_so_far = add_message(
             &mut messages,
-            Message::user(system_prompt.clone()),
+            Message::system(system_prompt.clone()),
             size_so_far,
             size_allowed,
         );
@@ -137,16 +148,16 @@ pub async fn generate_prompt(
 }
 
 fn combine_system_prompt(
+    runtime_system_prompt: Option<String>,
     system_prompt: Option<String>,
-    available_skills: Option<String>,
+    runtime_context: Option<String>,
 ) -> Option<String> {
-    match (system_prompt, available_skills) {
-        (Some(system_prompt), Some(available_skills)) => {
-            Some(format!("{system_prompt}\n\n{available_skills}"))
-        }
-        (Some(system_prompt), None) => Some(system_prompt),
-        (None, Some(available_skills)) => Some(available_skills),
-        (None, None) => None,
+    let prompt =
+        combine_optional_sections(vec![runtime_system_prompt, system_prompt, runtime_context]);
+    if prompt.is_empty() {
+        None
+    } else {
+        Some(prompt)
     }
 }
 

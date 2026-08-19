@@ -77,6 +77,23 @@ pub mod audit_trail {
     }
 }
 
+pub mod system_prompt {
+    use axum_extra::routing::TypedPath;
+    use serde::Deserialize;
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/system_prompt")]
+    pub struct Index {
+        pub team_id: String,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/system_prompt/update")]
+    pub struct Update {
+        pub team_id: String,
+    }
+}
+
 pub mod document_pipelines {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;

@@ -39,6 +39,7 @@ pub enum SideBar {
     Switch,
     Security,
     Skills,
+    SystemPrompt,
     WebSearch,
 }
 

@@ -66,7 +66,7 @@ pub fn page(team_id: String, rbac: Rbac, integration: IntegrationForm, locale: &
                             class: "mt-4",
                             label {
                                 class: "block text-sm font-medium text-gray-700 mb-1",
-                                "OpenAPI Specification (JSON)"
+                                "OpenAPI Specification (JSON or YAML)"
                             }
                             TextArea {
                                 class: "format-json mt-1 block w-full px-3 py-2 sm:text-sm font-mono leading-tight overflow-y-auto",
@@ -77,7 +77,7 @@ pub fn page(team_id: String, rbac: Rbac, integration: IntegrationForm, locale: &
                             }
                             p {
                                 class: "mt-1 text-sm text-gray-500",
-                                "Paste your complete OpenAPI 3.0+ specification in JSON format"
+                                "Paste your complete OpenAPI 3.0+ specification in JSON or YAML format"
                             }
                         }
 

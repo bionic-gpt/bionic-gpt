@@ -70,26 +70,13 @@ pub async fn get_tools(
     trace!("Getting available tool instances");
 
     // Start with internal tools
-    let mut tools: Vec<Arc<dyn ToolDyn>> = vec![
-        Arc::new(builtin_tools::time_date::TimeDateTool),
-        Arc::new(builtin_tools::web::WebTool),
-        Arc::new(builtin_tools::monty::SearchToolFunctionsTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-        )),
-        Arc::new(builtin_tools::monty::MontyTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-        )),
-        Arc::new(builtin_tools::bashkit::BashkitTool::new(
+    let mut tools: Vec<Arc<dyn ToolDyn>> =
+        vec![Arc::new(builtin_tools::bashkit::BashkitTool::new(
             pool.clone(),
             sub.clone(),
             conversation_id,
             prompt_id,
-        )),
-    ];
+        ))];
 
     debug!("Adding attachment tools with database pool");
     tools.push(Arc::new(

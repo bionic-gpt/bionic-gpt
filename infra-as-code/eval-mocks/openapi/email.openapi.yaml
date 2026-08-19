@@ -22,6 +22,40 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/EmailSummary"
+                example:
+                  - id: eml_1001
+                    from: maya.chen@example.com
+                    to: ai-strategy@example.com
+                    subject: Sovereign AI platform recommendation
+                    received_at: "2026-08-18T09:00:00Z"
+                    summary: CEO request to evaluate sovereign AI platform vendors and prepare executive artifacts.
+                    attachments:
+                      - file_name: sovereign-ai-requirements.pdf
+                        content_type: application/pdf
+                  - id: eml_1002
+                    from: security@example.com
+                    to: ai-strategy@example.com
+                    subject: Security review requirements
+                    received_at: "2026-08-18T09:15:00Z"
+                    summary: Security team asks for data residency, audit logging, and model isolation evidence.
+                    attachments: []
+              example:
+                - id: eml_1001
+                  from: maya.chen@example.com
+                  to: ai-strategy@example.com
+                  subject: Sovereign AI platform recommendation
+                  received_at: "2026-08-18T09:00:00Z"
+                  summary: CEO request to evaluate sovereign AI platform vendors and prepare executive artifacts.
+                  attachments:
+                    - file_name: sovereign-ai-requirements.pdf
+                      content_type: application/pdf
+                - id: eml_1002
+                  from: security@example.com
+                  to: ai-strategy@example.com
+                  subject: Security review requirements
+                  received_at: "2026-08-18T09:15:00Z"
+                  summary: Security team asks for data residency, audit logging, and model isolation evidence.
+                  attachments: []
   /email/emails/{id}:
     get:
       operationId: getEmail
@@ -38,7 +72,32 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Email"
+                allOf:
+                  - $ref: "#/components/schemas/Email"
+                example:
+                  id: eml_1001
+                  from: maya.chen@example.com
+                  to: ai-strategy@example.com
+                  subject: Sovereign AI platform recommendation
+                  received_at: "2026-08-18T09:00:00Z"
+                  summary: CEO request to evaluate sovereign AI platform vendors and prepare executive artifacts.
+                  body: Team, please evaluate the leading sovereign AI platform vendors against the attached requirements. Verify their capabilities using official sources and recommend a shortlist. I need an executive recommendation, a vendor comparison spreadsheet, a target architecture, and a steering committee presentation. Please also draft my reply to the executive team. Thanks, Maya
+                  attachments:
+                    - file_name: sovereign-ai-requirements.pdf
+                      content_type: application/pdf
+                      description: Requirements covering data residency, on-premise deployment, integrations, audit, support, and governance.
+              example:
+                id: eml_1001
+                from: maya.chen@example.com
+                to: ai-strategy@example.com
+                subject: Sovereign AI platform recommendation
+                received_at: "2026-08-18T09:00:00Z"
+                summary: CEO request to evaluate sovereign AI platform vendors and prepare executive artifacts.
+                body: Team, please evaluate the leading sovereign AI platform vendors against the attached requirements. Verify their capabilities using official sources and recommend a shortlist. I need an executive recommendation, a vendor comparison spreadsheet, a target architecture, and a steering committee presentation. Please also draft my reply to the executive team. Thanks, Maya
+                attachments:
+                  - file_name: sovereign-ai-requirements.pdf
+                    content_type: application/pdf
+                    description: Requirements covering data residency, on-premise deployment, integrations, audit, support, and governance.
   /email/drafts:
     post:
       operationId: createDraft
@@ -49,13 +108,31 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/DraftRequest"
+            example:
+              to: maya.chen@example.com
+              subject: "Re: Sovereign AI platform recommendation"
+              body: I will review the requirements and come back with a shortlist, comparison, target architecture, and steering committee presentation.
+              source_email_id: eml_1001
       responses:
         "201":
           description: Draft created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DraftResponse"
+                allOf:
+                  - $ref: "#/components/schemas/DraftResponse"
+                example:
+                  id: draft_1001
+                  status: drafted
+                  to: maya.chen@example.com
+                  subject: "Re: Sovereign AI platform recommendation"
+                  source_email_id: eml_1001
+              example:
+                id: draft_1001
+                status: drafted
+                to: maya.chen@example.com
+                subject: "Re: Sovereign AI platform recommendation"
+                source_email_id: eml_1001
   /email/send:
     post:
       operationId: sendDraft
@@ -66,13 +143,22 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/SendRequest"
+            example:
+              draft_id: draft_1001
       responses:
         "202":
           description: Draft queued
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SendResponse"
+                allOf:
+                  - $ref: "#/components/schemas/SendResponse"
+                example:
+                  draft_id: draft_1001
+                  status: queued
+              example:
+                draft_id: draft_1001
+                status: queued
 components:
   schemas:
     Attachment:

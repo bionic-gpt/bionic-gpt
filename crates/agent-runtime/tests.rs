@@ -37,6 +37,7 @@ async fn test_generate_prompt() {
         2048,
         1024,
         1.0,
+        Some("Runtime default prompt".to_string()),
         Some("You are a helpful asistant".to_string()),
         None,
         vec![Message::user("How are you today?")],
@@ -44,9 +45,10 @@ async fn test_generate_prompt() {
     .await;
 
     assert_eq!(messages.len(), 2);
+    assert!(matches!(messages[0], Message::System { .. }));
     assert_eq!(
         text_content(&messages[0]),
-        Some("You are a helpful asistant")
+        Some("Runtime default prompt\n\nYou are a helpful asistant")
     );
     assert_eq!(text_content(&messages[1]), Some("How are you today?"));
 }
@@ -57,25 +59,40 @@ async fn test_generate_prompt_adds_available_skills() {
         2048,
         1024,
         1.0,
+        Some("Runtime default prompt".to_string()),
         Some("You are a helpful assistant".to_string()),
-        Some("<available_skills><skill></skill></available_skills>".to_string()),
+        Some("Available skills:\n- presentation-builder: Create slide decks.".to_string()),
         vec![Message::user("How are you today?")],
     )
     .await;
 
     assert_eq!(messages.len(), 2);
+    assert!(matches!(messages[0], Message::System { .. }));
     let system = text_content(&messages[0]).unwrap();
-    assert!(system.starts_with("You are a helpful assistant\n\n<available_skills>"));
-    assert!(system.contains("</available_skills>"));
+    assert!(system
+        .starts_with("Runtime default prompt\n\nYou are a helpful assistant\n\nAvailable skills:"));
+    assert!(system.contains("- presentation-builder: Create slide decks."));
 }
 
-#[test]
-fn test_tool_use_guidance_is_whitelabel_safe() {
-    let guidance = crate::context_builder::TOOL_USE_GUIDANCE;
-    assert!(guidance.contains("Use tools when the user asks for current"));
-    assert!(guidance.contains("search_tool_functions"));
-    assert!(!guidance.contains("Bionic"));
-    assert!(!guidance.contains("bionic"));
+#[tokio::test]
+async fn test_generate_prompt_adds_integration_context() {
+    let messages = generate_prompt(
+        2048,
+        1024,
+        1.0,
+        Some("Runtime default prompt".to_string()),
+        Some("You are a helpful assistant".to_string()),
+        Some("Available function catalogues:\n- Email: /home/user/functions/email.md\n- Web: /home/user/functions/web.md".to_string()),
+        vec![Message::user("Summarize my inbox")],
+    )
+    .await;
+
+    assert_eq!(messages.len(), 2);
+    assert!(matches!(messages[0], Message::System { .. }));
+    let system = text_content(&messages[0]).unwrap();
+    assert!(system.contains("Available function catalogues:"));
+    assert!(system.contains("- Email: /home/user/functions/email.md"));
+    assert!(system.contains("- Web: /home/user/functions/web.md"));
 }
 
 fn create_test_chat(
@@ -131,7 +148,7 @@ fn text_content(msg: &Message) -> Option<&str> {
             AssistantContent::Text(text) => Some(text.text.as_str()),
             _ => None,
         }),
-        Message::System { .. } => None,
+        Message::System { content } => Some(content.as_str()),
     }
 }
 
@@ -324,7 +341,7 @@ async fn test_history_truncation_keeps_latest() {
         large_msg.clone(),
     ];
 
-    let messages = generate_prompt(context_size, 0, 1.0, None, None, history).await;
+    let messages = generate_prompt(context_size, 0, 1.0, None, None, None, history).await;
 
     let contents: Vec<_> = messages.iter().filter_map(text_content).collect();
     assert_eq!(messages.len(), 5);

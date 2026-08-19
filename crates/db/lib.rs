@@ -33,6 +33,7 @@ pub use queries::prompt_flags::insert_prompt_flag;
 pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};
 pub use queries::providers::Provider;
 pub use queries::rate_limits::RateLimit;
+pub use queries::runtime_settings::RuntimeSetting;
 pub use queries::skills::{Skill, SkillFile};
 pub use queries::teams::GetUsers as Member;
 pub use queries::teams::{Team, TeamOwner};

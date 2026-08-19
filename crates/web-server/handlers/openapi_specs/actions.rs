@@ -8,6 +8,8 @@ use validator::Validate;
 use web_pages::openapi_specs::upsert::OpenapiSpecForm;
 use web_pages::routes::openapi_specs::{Delete, Upsert};
 
+use super::super::integrations::helpers::parse_openapi_spec_json_value;
+
 fn parse_category(category: &str) -> OpenapiSpecCategory {
     match category {
         "WebSearch" => OpenapiSpecCategory::WebSearch,
@@ -44,10 +46,10 @@ pub async fn action_upsert(
         return Ok(Html(html).into_response());
     }
 
-    let parsed_spec = match serde_json::from_str::<serde_json::Value>(&form.spec) {
+    let parsed_spec = match parse_openapi_spec_json_value(&form.spec) {
         Ok(value) => value,
         Err(error) => {
-            form.error = Some(format!("Invalid JSON: {}", error));
+            form.error = Some(error);
             let html = web_pages::openapi_specs::upsert::page(team_id, rbac, form);
             return Ok(Html(html).into_response());
         }

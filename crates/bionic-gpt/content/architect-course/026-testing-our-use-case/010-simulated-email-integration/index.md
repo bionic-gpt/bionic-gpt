@@ -6,17 +6,15 @@ integration is an email API.
 
 [Mockoon](https://mockoon.com/) lets us create a realistic mock REST API without
 connecting to a real mailbox. Bionic's Docker Compose lab includes a dedicated
-`eval-mocks` container that runs the same Mockoon environment every time.
+`eval-mocks` container that runs the OpenAPI spec as a mock API.
 
-## Download the Files
+## Download the Spec
 
-- [Download the Mockoon environment](/architect-course/testing-our-use-case/email-integration.mockoon.json)
 - [Download the OpenAPI spec](/architect-course/testing-our-use-case/email-integration.openapi.yaml)
 
-The Mockoon environment defines the fake email service. The OpenAPI spec is what
-Bionic uses to turn that service into callable tools. The downloads are useful
-for inspection or local customization; the default lab already includes the mock
-API container.
+The OpenAPI spec defines the fake email service, provides deterministic example
+responses for Mockoon, and is what Bionic uses to turn that service into
+callable tools. The default lab already includes the mock API container.
 
 ## What the Simulated API Provides
 
@@ -39,7 +37,7 @@ The course Docker Compose file includes the Bionic eval mocks image:
 
 ```yaml
 eval-mocks:
-  image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.13
+  image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.14
   ports:
     - "3100:3100"
 ```
@@ -98,13 +96,7 @@ and the same expected behaviour every time we test the platform.
 ## Adding More Mock Integrations
 
 The eval mocks image is intended to grow with the course. Add future simulated
-systems under their own path prefix in:
-
-```text
-infra-as-code/eval-mocks/mockoon/eval-mocks.mockoon.json
-```
-
-Then add the matching OpenAPI spec under:
+systems under their own path prefix and OpenAPI spec under:
 
 ```text
 infra-as-code/eval-mocks/openapi/

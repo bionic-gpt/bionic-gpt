@@ -140,14 +140,14 @@ fn tool_enabled_request(base_url: String) -> RigChatRequest {
             chat_history: OneOrMany::one(Message::user("Say hi")),
             documents: vec![],
             tools: vec![ToolDefinition {
-                name: "open_url".to_string(),
-                description: "Fetch and read a URL.".to_string(),
+                name: "run_bash".to_string(),
+                description: "Run shell commands in Bashkit.".to_string(),
                 parameters: json!({
                     "type": "object",
                     "properties": {
-                        "url": {"type": "string"}
+                        "commands": {"type": "string"}
                     },
-                    "required": ["url"]
+                    "required": ["commands"]
                 }),
             }],
             temperature: None,
