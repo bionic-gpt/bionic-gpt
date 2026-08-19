@@ -5,7 +5,12 @@ use db::authz::Rbac;
 use db::RuntimeSetting;
 use dioxus::prelude::*;
 
-pub fn page(team_id: String, rbac: Rbac, setting: RuntimeSetting) -> String {
+pub fn page(
+    team_id: String,
+    rbac: Rbac,
+    setting: RuntimeSetting,
+    runtime_additions: Option<String>,
+) -> String {
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
@@ -42,7 +47,18 @@ pub fn page(team_id: String, rbac: Rbac, setting: RuntimeSetting) -> String {
                             div {
                                 class: "rounded border border-base-300 bg-base-200 p-4 text-sm text-base-content/80",
                                 p { class: "font-semibold", "Runtime additions" }
-                                p { class: "mt-1", "Available skills and tool discovery instructions are generated from the current runtime state and appended after this prompt." }
+                                p { class: "mt-1", "This preview is generated from the current runtime state and appended after the default prompt." }
+                                if let Some(runtime_additions) = runtime_additions.as_ref() {
+                                    pre {
+                                        class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
+                                        "{runtime_additions}"
+                                    }
+                                } else {
+                                    div {
+                                        class: "mt-3 rounded border border-dashed border-base-300 bg-base-100 p-4 text-base-content/60",
+                                        "No runtime skill context is currently appended."
+                                    }
+                                }
                             }
                             div {
                                 class: "text-xs text-base-content/60",

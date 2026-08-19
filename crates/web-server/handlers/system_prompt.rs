@@ -33,8 +33,14 @@ pub async fn loader(
         .bind(&transaction)
         .one()
         .await?;
+    let skill_summaries = queries::skills::visible_skill_summaries()
+        .bind(&transaction)
+        .all()
+        .await?;
+    let runtime_additions =
+        tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries);
 
-    let html = web_pages::system_prompt::page::page(team_id, rbac, setting);
+    let html = web_pages::system_prompt::page::page(team_id, rbac, setting, runtime_additions);
 
     Ok(Html(html))
 }
