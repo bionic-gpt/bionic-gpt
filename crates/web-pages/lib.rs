@@ -30,6 +30,7 @@ pub mod shared;
 pub use components::section_introduction::SectionIntroduction;
 pub mod skills;
 pub mod snackbar;
+pub mod system_prompt;
 pub mod team;
 pub mod teams;
 pub mod web_search;

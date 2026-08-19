@@ -110,6 +110,7 @@ async fn main() {
         .merge(handlers::my_assistants::routes())
         .merge(handlers::rate_limits::routes())
         .merge(handlers::skills::routes())
+        .merge(handlers::system_prompt::routes())
         .merge(handlers::team::routes())
         .merge(handlers::web_search::routes())
         .merge(handlers::teams::routes())

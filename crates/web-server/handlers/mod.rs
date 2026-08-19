@@ -24,6 +24,7 @@ pub mod providers;
 pub mod rate_limits;
 pub mod skills;
 pub mod static_files;
+pub mod system_prompt;
 pub mod team;
 pub mod teams;
 pub mod web_search;
