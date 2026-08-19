@@ -61,7 +61,7 @@ async fn test_generate_prompt_adds_available_skills() {
         1.0,
         Some("Runtime default prompt".to_string()),
         Some("You are a helpful assistant".to_string()),
-        Some("<available_skills><skill></skill></available_skills>".to_string()),
+        Some("Available skills:\n- presentation-builder: Create slide decks.".to_string()),
         vec![Message::user("How are you today?")],
     )
     .await;
@@ -69,10 +69,9 @@ async fn test_generate_prompt_adds_available_skills() {
     assert_eq!(messages.len(), 2);
     assert!(matches!(messages[0], Message::System { .. }));
     let system = text_content(&messages[0]).unwrap();
-    assert!(system.starts_with(
-        "Runtime default prompt\n\nYou are a helpful assistant\n\n<available_skills>"
-    ));
-    assert!(system.contains("</available_skills>"));
+    assert!(system
+        .starts_with("Runtime default prompt\n\nYou are a helpful assistant\n\nAvailable skills:"));
+    assert!(system.contains("- presentation-builder: Create slide decks."));
 }
 
 fn create_test_chat(

@@ -21,15 +21,36 @@ pub struct IntegrationFunctionPreview {
     pub parameters: Vec<String>,
 }
 
-pub fn page(
-    team_id: String,
-    rbac: Rbac,
-    setting: RuntimeSetting,
-    runtime_additions: Option<String>,
-    tools_preview: Vec<ToolPreview>,
-    integration_functions_preview: Vec<IntegrationFunctionPreview>,
-    vfs_preview: String,
-) -> String {
+#[derive(Clone, Debug, PartialEq)]
+pub struct PromptSizePreview {
+    pub default_prompt_tokens: i32,
+    pub runtime_additions_tokens: i32,
+    pub combined_system_message_tokens: i32,
+    pub tool_metadata_tokens: i32,
+    pub total_foundation_tokens: i32,
+    pub tool_count: usize,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SystemPromptPageData {
+    pub setting: RuntimeSetting,
+    pub runtime_additions: Option<String>,
+    pub prompt_size_preview: PromptSizePreview,
+    pub tools_preview: Vec<ToolPreview>,
+    pub integration_functions_preview: Vec<IntegrationFunctionPreview>,
+    pub vfs_preview: String,
+}
+
+pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
+    let SystemPromptPageData {
+        setting,
+        runtime_additions,
+        prompt_size_preview,
+        tools_preview,
+        integration_functions_preview,
+        vfs_preview,
+    } = data;
+
     let page = rsx! {
         AdminLayout {
             section_class: "p-4",
@@ -78,23 +99,26 @@ pub fn page(
                         }
                     }
                 }
-                RuntimeAdditions {
-                    runtime_additions
+                PromptSizeCard {
+                    preview: prompt_size_preview
                 }
-                DebugPreview {
-                    title: "Virtual filesystem".to_string(),
-                    description: "This is the Bashkit VFS layout. Datasets are prompt scoped; attachments and outputs are conversation scoped.".to_string(),
-                    body: vfs_preview
+                ToolDefinitionCards {
+                    title: "Tools".to_string(),
+                    description: "These tool definitions are sent as model tool metadata. They are not appended to the system prompt.".to_string(),
+                    tools: tools_preview
+                }
+                DiscoverableSkills {
+                    runtime_additions
                 }
                 ToolCards {
                     title: "Integration functions".to_string(),
                     description: "These functions are discoverable through search_tool_functions and callable from run_python through toolbox.integrations.".to_string(),
                     functions: integration_functions_preview
                 }
-                ToolDefinitionCards {
-                    title: "Tools".to_string(),
-                    description: "These tool definitions are sent as model tool metadata. They are not appended to the system prompt.".to_string(),
-                    tools: tools_preview
+                DebugPreview {
+                    title: "Virtual filesystem".to_string(),
+                    description: "This is the Bashkit VFS layout. Datasets are prompt scoped; attachments and outputs are conversation scoped.".to_string(),
+                    body: vfs_preview
                 }
             }
         }
@@ -103,20 +127,98 @@ pub fn page(
 }
 
 #[component]
-fn RuntimeAdditions(runtime_additions: Option<String>) -> Element {
+fn PromptSizeCard(preview: PromptSizePreview) -> Element {
     rsx!(
         Card {
-            CardHeader { title: "Runtime additions" }
+            CardHeader { title: "Prompt size" }
             CardBody {
                 class: "text-sm text-base-content/80",
-                p { "This preview is generated from the current runtime state and appended after the default prompt." }
+                p {
+                    "Estimated token usage for the stable request foundation before conversation history, uploaded file contents, generated outputs, or retrieved document chunks."
+                }
+                div {
+                    class: "mt-4 grid grid-cols-1 gap-3 md:grid-cols-2",
+                    PromptSizeMetric {
+                        label: "Default prompt".to_string(),
+                        value: preview.default_prompt_tokens,
+                        help: "The editable default runtime system prompt.".to_string()
+                    }
+                    PromptSizeMetric {
+                        label: "Discoverable skills".to_string(),
+                        value: preview.runtime_additions_tokens,
+                        help: "A compact skills catalogue appended after the default prompt.".to_string()
+                    }
+                    PromptSizeMetric {
+                        label: "Combined system message".to_string(),
+                        value: preview.combined_system_message_tokens,
+                        help: "The text sent as the system message.".to_string()
+                    }
+                    PromptSizeMetric {
+                        label: "Tool metadata".to_string(),
+                        value: preview.tool_metadata_tokens,
+                        help: format!("{} tool definitions sent separately from the system message.", preview.tool_count)
+                    }
+                }
+                div {
+                    class: "mt-4 rounded border border-base-300 bg-base-100 p-4",
+                    div {
+                        class: "flex flex-wrap items-center justify-between gap-3",
+                        div {
+                            p { class: "font-semibold text-base-content", "Total request foundation" }
+                            p { class: "text-xs text-base-content/60", "Combined system message plus model tool metadata." }
+                        }
+                        div {
+                            class: "text-right",
+                            p { class: "text-2xl font-semibold text-base-content", "{preview.total_foundation_tokens}" }
+                            p { class: "text-xs text-base-content/60", "estimated tokens" }
+                        }
+                    }
+                }
+                p {
+                    class: "mt-3 text-xs text-base-content/60",
+                    "Tools, integrations, and skills are discoverable without dumping every instruction or integration function into the system prompt, so the foundation stays relatively stable as capabilities grow."
+                }
+            }
+        }
+    )
+}
+
+#[component]
+fn PromptSizeMetric(label: String, value: i32, help: String) -> Element {
+    rsx!(
+        div {
+            class: "rounded border border-base-300 bg-base-100 p-4",
+            div {
+                class: "flex items-start justify-between gap-3",
+                div {
+                    p { class: "font-semibold text-base-content", "{label}" }
+                    p { class: "mt-1 text-xs text-base-content/60", "{help}" }
+                }
+                div {
+                    class: "shrink-0 text-right",
+                    p { class: "font-mono text-lg font-semibold text-base-content", "{value}" }
+                    p { class: "text-xs text-base-content/60", "tokens" }
+                }
+            }
+        }
+    )
+}
+
+#[component]
+fn DiscoverableSkills(runtime_additions: Option<String>) -> Element {
+    rsx!(
+        Card {
+            CardHeader { title: "Discoverable skills" }
+            CardBody {
+                class: "text-sm text-base-content/80",
+                p { "Bionic takes the currently visible skills and appends a compact name: description catalogue to the prompt. The model can use this catalogue to discover relevant skills, then read the full SKILL.md instructions from /home/user/skills when needed." }
                 if let Some(runtime_additions) = runtime_additions.as_ref() {
                     pre {
                         class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
                         "{runtime_additions}"
                     }
                 } else {
-                    EmptyPreview { message: "No runtime skill context is currently appended.".to_string() }
+                    EmptyPreview { message: "No discoverable skills are currently visible.".to_string() }
                 }
             }
         }

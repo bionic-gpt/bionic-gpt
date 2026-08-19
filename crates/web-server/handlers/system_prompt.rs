@@ -10,7 +10,9 @@ use serde::Deserialize;
 use serde_json::Value;
 use validator::Validate;
 use web_pages::routes::system_prompt::{Index, Update};
-use web_pages::system_prompt::page::{IntegrationFunctionPreview, ToolPreview};
+use web_pages::system_prompt::page::{
+    IntegrationFunctionPreview, PromptSizePreview, SystemPromptPageData, ToolPreview,
+};
 
 pub fn routes() -> Router {
     Router::new().typed_get(loader).typed_post(update_action)
@@ -44,9 +46,14 @@ pub async fn loader(
     let runtime_additions =
         tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries);
 
-    let tools_preview = build_tool_previews(
-        tool_runtime::get_chat_tools_user_selected_with_system_openapi(&pool).await,
+    let tool_definitions =
+        tool_runtime::get_chat_tools_user_selected_with_system_openapi(&pool).await;
+    let prompt_size_preview = build_prompt_size_preview(
+        &setting.value,
+        runtime_additions.as_deref(),
+        &tool_definitions,
     );
+    let tools_preview = build_tool_previews(tool_definitions);
     let integration_functions_preview =
         match tool_runtime::builtin_tools::monty::preview_integration_functions(
             &pool,
@@ -68,14 +75,57 @@ pub async fn loader(
     let html = web_pages::system_prompt::page::page(
         team_id,
         rbac,
-        setting,
-        runtime_additions,
-        tools_preview,
-        integration_functions_preview,
-        vfs_preview,
+        SystemPromptPageData {
+            setting,
+            runtime_additions,
+            prompt_size_preview,
+            tools_preview,
+            integration_functions_preview,
+            vfs_preview,
+        },
     );
 
     Ok(Html(html))
+}
+
+fn build_prompt_size_preview(
+    default_prompt: &str,
+    runtime_additions: Option<&str>,
+    tools: &[tool_runtime::ToolDefinition],
+) -> PromptSizePreview {
+    let runtime_additions = runtime_additions.unwrap_or_default();
+    let combined_system_message =
+        combine_non_empty_sections([default_prompt, runtime_additions].into_iter());
+    let tool_metadata = serde_json::to_string(tools).unwrap_or_default();
+
+    let default_prompt_tokens = estimate_text_tokens(default_prompt);
+    let runtime_additions_tokens = estimate_text_tokens(runtime_additions);
+    let combined_system_message_tokens = estimate_text_tokens(&combined_system_message);
+    let tool_metadata_tokens = estimate_text_tokens(&tool_metadata);
+
+    PromptSizePreview {
+        default_prompt_tokens,
+        runtime_additions_tokens,
+        combined_system_message_tokens,
+        tool_metadata_tokens,
+        total_foundation_tokens: combined_system_message_tokens + tool_metadata_tokens,
+        tool_count: tools.len(),
+    }
+}
+
+fn estimate_text_tokens(text: &str) -> i32 {
+    if text.trim().is_empty() {
+        return 0;
+    }
+
+    tool_runtime::token_count::token_count_from_string(text)
+}
+
+fn combine_non_empty_sections<'a>(sections: impl Iterator<Item = &'a str>) -> String {
+    sections
+        .filter(|section| !section.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n\n")
 }
 
 fn build_tool_previews(tools: Vec<tool_runtime::ToolDefinition>) -> Vec<ToolPreview> {
@@ -177,6 +227,49 @@ mod tests {
         assert_eq!(previews.len(), 1);
         assert_eq!(previews[0].operation, "listemails");
         assert_eq!(previews[0].parameters, vec!["limit".to_string()]);
+    }
+
+    #[test]
+    fn prompt_size_preview_includes_prompt_runtime_and_tools() {
+        let tools = vec![tool_runtime::ToolDefinition {
+            name: "open_url".to_string(),
+            description: "Fetch a URL".to_string(),
+            parameters: serde_json::json!({
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string"}
+                }
+            }),
+        }];
+
+        let preview = build_prompt_size_preview(
+            "You are helpful.",
+            Some("Use available skills when relevant."),
+            &tools,
+        );
+
+        assert!(preview.default_prompt_tokens > 0);
+        assert!(preview.runtime_additions_tokens > 0);
+        assert!(preview.combined_system_message_tokens >= preview.default_prompt_tokens);
+        assert!(preview.tool_metadata_tokens > 0);
+        assert_eq!(preview.tool_count, 1);
+        assert_eq!(
+            preview.total_foundation_tokens,
+            preview.combined_system_message_tokens + preview.tool_metadata_tokens
+        );
+    }
+
+    #[test]
+    fn prompt_size_preview_handles_empty_runtime_additions() {
+        let preview = build_prompt_size_preview("System prompt", None, &[]);
+
+        assert!(preview.default_prompt_tokens > 0);
+        assert_eq!(preview.runtime_additions_tokens, 0);
+        assert_eq!(
+            preview.combined_system_message_tokens,
+            preview.default_prompt_tokens
+        );
+        assert_eq!(preview.tool_count, 0);
     }
 }
 
