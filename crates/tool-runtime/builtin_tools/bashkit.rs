@@ -2,6 +2,7 @@ use crate::skills;
 use crate::types::ToolDefinition;
 use bashkit::{
     async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem, FileType,
+    PythonLimits,
 };
 use db::{queries, Pool, Transaction};
 use object_storage::StorageConfig;
@@ -163,7 +164,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, /home/user/functions to discover callable integration functions, and /home/user/datasets to inspect assistant datasets. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, /home/user/functions to discover callable functions, and /home/user/datasets to inspect assistant datasets. Use python3 for dependency-free Python through Monty inside Bashkit. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -224,11 +225,11 @@ pub fn preview_vfs_tree(
 |                   `-- <chunk_id>.txt\n\
 |-- output                      # persists for this conversation\n\
 |   `-- <generated_file_or_directory>\n\
-|-- functions                   # connected integration catalogues\n",
+|-- functions                   # callable function catalogues\n",
     );
 
     if function_files.is_empty() {
-        tree.push_str("|   `-- <no connected integrations>\n");
+        tree.push_str("|   `-- <no callable functions>\n");
     } else {
         for (index, file) in function_files.iter().enumerate() {
             let branch = if index + 1 == function_files.len() {
@@ -274,11 +275,25 @@ async fn execute_run_bash(
         .unwrap_or(DEFAULT_TIMEOUT_MS)
         .clamp(100, MAX_TIMEOUT_MS);
 
+    let function_registry = std::sync::Arc::new(
+        crate::builtin_tools::monty::RuntimeFunctionRegistry::load_for_conversation(
+            &tool.pool,
+            &tool.sub,
+            tool.conversation_id,
+        )
+        .await
+        .map_err(|e| json!({"error": "Failed to get function registry", "details": e}))?,
+    );
+    let function_catalogue = function_registry.function_catalogue();
+    let external_function_names = function_registry.external_function_names();
+    let external_function_handler = function_registry.python_external_handler();
+
     let started = Instant::now();
     let mut bash = Bash::builder()
         .username("user")
         .hostname("bashkit")
         .cwd(HOME_DIR)
+        .env("BASHKIT_ALLOW_INPROCESS_PYTHON", "1")
         .limits(
             ExecutionLimits::new()
                 .timeout(Duration::from_millis(timeout))
@@ -296,10 +311,15 @@ async fn execute_run_bash(
             }),
         )
         .builtin("rag-read", Box::new(RagReadBuiltin))
+        .python_with_external_handler(
+            PythonLimits::default().max_duration(Duration::from_millis(timeout)),
+            external_function_names,
+            external_function_handler,
+        )
         .build();
 
     seed_custom_skills(&tool.pool, &tool.sub, &bash).await?;
-    seed_function_catalogue(&tool.pool, &tool.sub, tool.conversation_id, &bash).await?;
+    seed_function_catalogue(&bash, function_catalogue).await?;
     seed_datasets(
         &tool.pool,
         &tool.sub,
@@ -385,19 +405,9 @@ async fn seed_custom_skills(pool: &Pool, sub: &str, bash: &Bash) -> Result<(), s
 }
 
 async fn seed_function_catalogue(
-    pool: &Pool,
-    sub: &str,
-    conversation_id: i64,
     bash: &Bash,
+    catalogue: crate::builtin_tools::monty::FunctionCatalogue,
 ) -> Result<(), serde_json::Value> {
-    let catalogue = crate::builtin_tools::monty::function_catalogue_for_conversation(
-        pool,
-        sub,
-        conversation_id,
-    )
-    .await
-    .map_err(|e| json!({"error": "Failed to get function catalogue", "details": e}))?;
-
     let fs = bash.fs();
     fs.mkdir(Path::new(FUNCTIONS_DIR), true).await.map_err(
         |e| json!({"error": "Failed to seed Bashkit functions directory", "details": e.to_string()}),
@@ -1462,6 +1472,19 @@ mod tests {
         assert!(preview.contains("<uploaded_file_name>"));
         assert!(preview.contains("<chunk_id>.txt"));
         assert!(preview.contains("Omitted from this preview"));
+    }
+
+    #[tokio::test]
+    async fn test_bashkit_python_builtin_is_available() {
+        let mut bash = Bash::builder()
+            .python_with_limits(PythonLimits::default())
+            .env("BASHKIT_ALLOW_INPROCESS_PYTHON", "1")
+            .build();
+
+        let result = bash.exec("python3 -c \"print(2 + 2)\"").await.unwrap();
+
+        assert_eq!(result.exit_code, 0);
+        assert_eq!(result.stdout, "4\n");
     }
 
     #[test]

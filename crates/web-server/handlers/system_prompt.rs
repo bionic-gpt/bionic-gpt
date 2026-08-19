@@ -179,12 +179,12 @@ mod tests {
     #[test]
     fn prompt_size_preview_includes_prompt_runtime_integrations_and_tools() {
         let tools = vec![tool_runtime::ToolDefinition {
-            name: "open_url".to_string(),
-            description: "Fetch a URL".to_string(),
+            name: "run_bash".to_string(),
+            description: "Run Bashkit commands".to_string(),
             parameters: serde_json::json!({
                 "type": "object",
                 "properties": {
-                    "url": {"type": "string"}
+                    "commands": {"type": "string"}
                 }
             }),
         }];
@@ -192,7 +192,7 @@ mod tests {
         let preview = build_prompt_size_preview(
             "You are helpful.",
             Some("Use available skills when relevant."),
-            Some("Available function catalogues:\n- Email: /home/user/functions/email.md"),
+            Some("Available function catalogues:\n- Email: /home/user/functions/email.md\n- Web: /home/user/functions/web.md"),
             &tools,
         );
 

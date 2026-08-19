@@ -1,37 +1,11 @@
-use crate::types::ToolDefinition;
-use monty::{MontyRun, RunProgress};
-use monty_types::{
-    CompileOptions, DictPairs, ExcType, ExtFunctionResult, LimitedTracker, MontyException,
-    MontyObject, NameLookupResult, PrintWriter, ResourceLimits,
-};
+use bashkit::{ExcType, ExtFunctionResult, MontyException, MontyObject, PythonExternalFnHandler};
 use rig::tool::{ToolDyn, ToolError};
-use rig::wasm_compat::WasmBoxedFuture;
-use serde::Deserialize;
 use serde_json::{json, Map, Value};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
 
-const DEFAULT_TIMEOUT_MS: u64 = 5_000;
-const MAX_TIMEOUT_MS: u64 = 30_000;
-const DEFAULT_MAX_MEMORY_BYTES: usize = 64 * 1024 * 1024;
-const DEFAULT_MAX_ALLOCATIONS: usize = 1_000_000;
-const TOOLBOX_INTEGRATIONS_CLASS: &str = "ToolboxIntegrations";
-const TOOLBOX_INTEGRATION_CLASS_PREFIX: &str = "ToolboxIntegration:";
 const FUNCTIONS_DIR: &str = "/home/user/functions";
-
-#[derive(Debug, Deserialize)]
-struct RunPythonArgs {
-    code: String,
-    timeout_ms: Option<u64>,
-}
-
-/// A tool that runs hermetic Python snippets in Monty.
-pub struct MontyTool {
-    pool: Option<db::Pool>,
-    sub: Option<String>,
-    conversation_id: Option<i64>,
-}
+const WEB_FUNCTION_NAME: &str = "web_open_url";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RuntimeFunctionFile {
@@ -45,270 +19,54 @@ pub struct FunctionCatalogue {
     pub files: Vec<RuntimeFunctionFile>,
 }
 
-impl MontyTool {
-    pub fn new(pool: db::Pool, sub: String, conversation_id: i64) -> Self {
-        Self {
-            pool: Some(pool),
-            sub: Some(sub),
-            conversation_id: Some(conversation_id),
-        }
-    }
-
-    #[cfg(test)]
-    fn without_integrations() -> Self {
-        Self {
-            pool: None,
-            sub: None,
-            conversation_id: None,
-        }
-    }
-}
-
-impl ToolDyn for MontyTool {
-    fn name(&self) -> String {
-        get_tool_definition().name
-    }
-
-    fn description(&self) -> String {
-        get_tool_definition().description
-    }
-
-    fn parameters(&self) -> Value {
-        get_tool_definition().parameters
-    }
-
-    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
-        Box::pin(async move {
-            let arguments: RunPythonArgs =
-                serde_json::from_str(&args).map_err(ToolError::JsonError)?;
-
-            let timeout = arguments
-                .timeout_ms
-                .unwrap_or(DEFAULT_TIMEOUT_MS)
-                .clamp(100, MAX_TIMEOUT_MS);
-
-            let result = tokio::time::timeout(
-                Duration::from_millis(timeout),
-                execute_run_python(self, arguments, timeout),
-            )
-            .await
-            .map_err(|_| {
-                ToolError::ToolCallError(Box::new(std::io::Error::other(
-                    "python execution timed out",
-                )))
-            })?;
-
-            serde_json::to_string(&result).map_err(ToolError::JsonError)
-        })
-    }
-}
-
-pub async fn available_function_catalogue_prompt_section(
-    pool: &db::Pool,
-    sub: &str,
-    team_id: i32,
-) -> Result<Option<String>, String> {
-    Ok(function_catalogue_for_team(pool, sub, team_id)
-        .await?
-        .prompt_section)
-}
-
-pub async fn function_catalogue_for_team(
-    pool: &db::Pool,
-    sub: &str,
-    team_id: i32,
-) -> Result<FunctionCatalogue, String> {
-    let registry = IntegrationRegistry::load_for_team(pool, sub, team_id).await?;
-    Ok(registry.function_catalogue())
-}
-
-pub async fn function_catalogue_for_conversation(
-    pool: &db::Pool,
-    sub: &str,
-    conversation_id: i64,
-) -> Result<FunctionCatalogue, String> {
-    let sub = sub.to_string();
-    let registry =
-        IntegrationRegistry::load_from_parts(Some(pool), Some(&sub), Some(conversation_id)).await?;
-    Ok(registry.function_catalogue())
-}
-
-pub fn get_tool_definition() -> ToolDefinition {
-    ToolDefinition {
-        name: "run_python".to_string(),
-        description: "Run a short, hermetic Python snippet with Monty. Use this for calculations, data shaping, small programs, and configured integration functions. A preloaded global object named toolbox is available; do not import it. Discover integrations with toolbox.integrations.list() or toolbox.integrations.describe(...), and call functions as toolbox.integrations.<integration>.<operation>(**kwargs). The sandbox has no access to the host filesystem, environment variables, network, or third-party Python packages. Return values and print output are captured.".to_string(),
-        parameters: json!({
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "description": "Python source code to execute."
-                },
-                "timeout_ms": {
-                    "type": "integer",
-                    "minimum": 100,
-                    "maximum": MAX_TIMEOUT_MS,
-                    "description": "Optional execution timeout in milliseconds. Defaults to 5000."
-                }
-            },
-            "required": ["code"]
-        }),
-    }
-}
-
-async fn execute_run_python(tool: &MontyTool, arguments: RunPythonArgs, timeout: u64) -> Value {
-    if arguments.code.trim().is_empty() {
-        return json!({"error": "code is required"});
-    }
-
-    let runner = match MontyRun::new(arguments.code, "tool.py", vec![], CompileOptions::default()) {
-        Ok(runner) => runner,
-        Err(err) => return json!({"error": err.to_string()}),
-    };
-
-    let started = Instant::now();
-    let mut stdout = String::new();
-    let registry = match IntegrationRegistry::load(tool).await {
-        Ok(registry) => registry,
-        Err(err) => return json!({"error": err}),
-    };
-
-    let limits = ResourceLimits::new()
-        .max_duration(Duration::from_millis(timeout))
-        .max_memory(DEFAULT_MAX_MEMORY_BYTES)
-        .max_allocations(DEFAULT_MAX_ALLOCATIONS);
-
-    let mut progress = match runner.start(
-        vec![],
-        LimitedTracker::new(limits),
-        PrintWriter::collect_string(&mut stdout),
-    ) {
-        Ok(progress) => progress,
-        Err(err) => {
-            return json!({
-                "stdout": stdout,
-                "stderr": "",
-                "error": err.to_string(),
-                "duration_ms": started.elapsed().as_millis()
-            });
-        }
-    };
-
-    let result = loop {
-        progress = match progress {
-            RunProgress::Complete(result) => break result,
-            RunProgress::NameLookup(lookup) => {
-                let resolved = if lookup.name == "toolbox" {
-                    NameLookupResult::Value(registry.toolbox_object())
-                } else {
-                    NameLookupResult::Undefined
-                };
-                match lookup.resume(resolved, PrintWriter::collect_string(&mut stdout)) {
-                    Ok(progress) => progress,
-                    Err(err) => {
-                        return monty_error(stdout, started, err);
-                    }
-                }
-            }
-            RunProgress::FunctionCall(call) => {
-                let result = registry.execute_function_call(&call);
-                match call.resume(result, PrintWriter::collect_string(&mut stdout)) {
-                    Ok(progress) => progress,
-                    Err(err) => {
-                        return monty_error(stdout, started, err);
-                    }
-                }
-            }
-            RunProgress::OsCall(call) => {
-                let err = MontyException::new(
-                    ExcType::RuntimeError,
-                    Some("OS access is disabled in this Python sandbox".to_string()),
-                );
-                match call.resume(err, PrintWriter::collect_string(&mut stdout)) {
-                    Ok(progress) => progress,
-                    Err(err) => {
-                        return monty_error(stdout, started, err);
-                    }
-                }
-            }
-            RunProgress::ResolveFutures(futures) => {
-                let err = MontyException::new(
-                    ExcType::RuntimeError,
-                    Some("async external futures are not supported by this tool".to_string()),
-                );
-                let pending_results = futures
-                    .pending_call_ids()
-                    .iter()
-                    .map(|id| (*id, ExtFunctionResult::Error(err.clone())))
-                    .collect();
-                match futures.resume(pending_results, PrintWriter::collect_string(&mut stdout)) {
-                    Ok(progress) => progress,
-                    Err(err) => {
-                        return monty_error(stdout, started, err);
-                    }
-                }
-            }
-        };
-    };
-
-    json!({
-        "stdout": stdout,
-        "stderr": "",
-        "result": serde_json::to_value(&result).unwrap_or_else(|_| json!({"repr": result.to_string()})),
-        "repr": result.to_string(),
-        "duration_ms": started.elapsed().as_millis()
-    })
-}
-
-fn monty_error(stdout: String, started: Instant, err: MontyException) -> Value {
-    json!({
-        "stdout": stdout,
-        "stderr": "",
-        "error": err.to_string(),
-        "duration_ms": started.elapsed().as_millis()
-    })
+#[derive(Clone)]
+struct RuntimeOperation {
+    function_name: String,
+    description: String,
+    parameters: Value,
+    executor: OperationExecutor,
 }
 
 #[derive(Clone)]
-struct IntegrationOperation {
-    operation_name: String,
-    path: String,
-    description: String,
-    parameters: Value,
-    tool: Arc<dyn ToolDyn>,
+enum OperationExecutor {
+    OpenApiTool(Arc<dyn ToolDyn>),
+    OpenUrl,
 }
 
+#[derive(Clone)]
 struct IntegrationInfo {
     name: String,
     slug: String,
-    operations: Vec<IntegrationOperation>,
+    operations: Vec<RuntimeOperation>,
 }
 
-struct IntegrationRegistry {
+#[derive(Clone)]
+pub struct RuntimeFunctionRegistry {
     integrations: Vec<IntegrationInfo>,
-    functions: HashMap<String, IntegrationOperation>,
+    functions: HashMap<String, RuntimeOperation>,
 }
 
-impl IntegrationRegistry {
-    async fn load(tool: &MontyTool) -> Result<Self, String> {
-        Self::load_from_parts(tool.pool.as_ref(), tool.sub.as_ref(), tool.conversation_id).await
+impl RuntimeFunctionRegistry {
+    pub async fn load_for_conversation(
+        pool: &db::Pool,
+        sub: &str,
+        conversation_id: i64,
+    ) -> Result<Self, String> {
+        Self::load_from_parts(Some(pool), Some(sub), Some(conversation_id)).await
     }
 
     async fn load_from_parts(
         pool: Option<&db::Pool>,
-        sub: Option<&String>,
+        sub: Option<&str>,
         conversation_id: Option<i64>,
     ) -> Result<Self, String> {
         let (Some(pool), Some(sub), Some(conversation_id)) = (pool, sub, conversation_id) else {
-            return Ok(Self {
-                integrations: Vec::new(),
-                functions: HashMap::new(),
-            });
+            return Ok(Self::with_builtin_functions(Vec::new(), HashMap::new()));
         };
 
         let mut client = pool.get().await.map_err(|err| err.to_string())?;
         let transaction = client.transaction().await.map_err(|err| err.to_string())?;
-        db::authz::set_row_level_security_user_id(&transaction, sub.clone())
+        db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
             .await
             .map_err(|err| err.to_string())?;
 
@@ -326,7 +84,7 @@ impl IntegrationRegistry {
         Self::load_for_team(pool, sub, team_id).await
     }
 
-    async fn load_for_team(pool: &db::Pool, sub: &str, team_id: i32) -> Result<Self, String> {
+    pub async fn load_for_team(pool: &db::Pool, sub: &str, team_id: i32) -> Result<Self, String> {
         let mut client = pool.get().await.map_err(|err| err.to_string())?;
         let transaction = client.transaction().await.map_err(|err| err.to_string())?;
         db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
@@ -336,6 +94,7 @@ impl IntegrationRegistry {
         let mut integrations = Vec::new();
         let mut functions = HashMap::new();
         let mut used_integration_slugs = HashSet::new();
+        let mut used_function_names = HashSet::new();
 
         let connected = db::queries::connections::connected_integrations()
             .bind(&transaction, &team_id)
@@ -381,23 +140,20 @@ impl IntegrationRegistry {
 
             let slug =
                 unique_identifier(&integration.integration_name, &mut used_integration_slugs);
-            let mut used_operation_names = HashSet::new();
             let mut operations = Vec::new();
 
             for tool in tools {
-                let operation_name = unique_identifier(&tool.name(), &mut used_operation_names);
-                let path = format!("toolbox.integrations.{slug}.{operation_name}");
-                let operation = IntegrationOperation {
-                    operation_name,
-                    path,
+                let operation_name = unique_identifier(
+                    &format!("{}_{}", slug, tool.name()),
+                    &mut used_function_names,
+                );
+                let operation = RuntimeOperation {
+                    function_name: operation_name.clone(),
                     description: tool.description(),
                     parameters: tool.parameters(),
-                    tool,
+                    executor: OperationExecutor::OpenApiTool(tool),
                 };
-                functions.insert(
-                    format!("{}.{}", slug, operation.operation_name),
-                    operation.clone(),
-                );
+                functions.insert(operation_name, operation.clone());
                 operations.push(operation);
             }
 
@@ -408,134 +164,71 @@ impl IntegrationRegistry {
             });
         }
 
-        Ok(Self {
+        Ok(Self::with_builtin_functions(integrations, functions))
+    }
+
+    fn with_builtin_functions(
+        mut integrations: Vec<IntegrationInfo>,
+        mut functions: HashMap<String, RuntimeOperation>,
+    ) -> Self {
+        let web_operation = RuntimeOperation {
+            function_name: WEB_FUNCTION_NAME.to_string(),
+            description: "Fetch and read text content from a URL supplied by the user.".to_string(),
+            parameters: json!({
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "The URL to fetch"}
+                },
+                "required": ["url"]
+            }),
+            executor: OperationExecutor::OpenUrl,
+        };
+
+        functions.insert(WEB_FUNCTION_NAME.to_string(), web_operation.clone());
+        integrations.push(IntegrationInfo {
+            name: "Web".to_string(),
+            slug: "web".to_string(),
+            operations: vec![web_operation],
+        });
+
+        Self {
             integrations,
             functions,
+        }
+    }
+
+    pub fn external_function_names(&self) -> Vec<String> {
+        let mut names = self.functions.keys().cloned().collect::<Vec<_>>();
+        names.sort();
+        names
+    }
+
+    pub fn python_external_handler(self: Arc<Self>) -> PythonExternalFnHandler {
+        Arc::new(move |name, args, kwargs| {
+            let registry = Arc::clone(&self);
+            Box::pin(async move {
+                registry
+                    .execute_external_function(&name, &args, &kwargs)
+                    .await
+            })
         })
     }
 
-    fn toolbox_object(&self) -> MontyObject {
-        dataclass(
-            "Toolbox",
-            1,
-            vec![("integrations", self.integrations_object())],
-        )
-    }
-
-    fn integrations_object(&self) -> MontyObject {
-        let mut attrs = Vec::new();
-
-        for integration in &self.integrations {
-            attrs.push((
-                integration.slug.as_str(),
-                dataclass(
-                    &format!("{TOOLBOX_INTEGRATION_CLASS_PREFIX}{}", integration.slug),
-                    stable_type_id(&integration.slug),
-                    vec![],
-                ),
-            ));
-        }
-
-        dataclass(TOOLBOX_INTEGRATIONS_CLASS, 2, attrs)
-    }
-
-    fn execute_function_call<T: monty_types::ResourceTracker>(
-        &self,
-        call: &monty::FunctionCall<T>,
-    ) -> ExtFunctionResult {
-        let Some((receiver_name, receiver_args)) = method_receiver(&call.args) else {
-            return ExtFunctionResult::NotFound(call.function_name.clone());
-        };
-
-        if receiver_name == TOOLBOX_INTEGRATIONS_CLASS {
-            if call.function_name == "list" {
-                return ExtFunctionResult::Return(json_to_monty(&self.list_json()));
-            }
-
-            if call.function_name == "describe" {
-                return match self.describe_json(receiver_args, &call.kwargs) {
-                    Ok(value) => ExtFunctionResult::Return(json_to_monty(&value)),
-                    Err(err) => ExtFunctionResult::Error(value_error(err)),
-                };
-            }
-
-            return ExtFunctionResult::NotFound(call.function_name.clone());
-        }
-
-        let Some(integration_slug) = receiver_name.strip_prefix(TOOLBOX_INTEGRATION_CLASS_PREFIX)
-        else {
-            return ExtFunctionResult::NotFound(call.function_name.clone());
-        };
-
-        let Some(operation) = self
-            .functions
-            .get(&format!("{integration_slug}.{}", call.function_name))
-        else {
-            return ExtFunctionResult::NotFound(call.function_name.clone());
-        };
-
-        let args = match call_arguments_to_json(receiver_args, &call.kwargs) {
-            Ok(args) => args,
-            Err(err) => return ExtFunctionResult::Error(value_error(err)),
-        };
-
-        match block_on_tool_call(operation.tool.clone(), args.to_string()) {
-            Ok(result) => match serde_json::from_str::<Value>(&result) {
-                Ok(value) => ExtFunctionResult::Return(json_to_monty(&value)),
-                Err(_) => ExtFunctionResult::Return(MontyObject::String(result)),
-            },
-            Err(err) => ExtFunctionResult::Error(value_error(err.to_string())),
-        }
-    }
-
-    fn list_json(&self) -> Value {
-        Value::Array(
-            self.integrations
-                .iter()
-                .map(|integration| {
-                    json!({
-                        "name": integration.name,
-                        "slug": integration.slug,
-                        "operations": integration.operations.iter().map(|operation| {
-                            json!({
-                                "name": operation.operation_name,
-                                "path": operation.path,
-                                "description": operation.description,
-                                "parameters": operation.parameters,
-                            })
-                        }).collect::<Vec<_>>()
-                    })
-                })
-                .collect(),
-        )
-    }
-
-    fn function_catalogue(&self) -> FunctionCatalogue {
-        if self.integrations.is_empty() {
-            return FunctionCatalogue::default();
-        }
-
+    pub fn function_catalogue(&self) -> FunctionCatalogue {
         let mut prompt = String::from(
             "Available function catalogues:\n\
-Use run_bash to list /home/user/functions and cat the relevant <integration>.md file. Use run_python to call functions through toolbox.integrations.\n",
+Use run_bash to list /home/user/functions and cat the relevant <integration>.md file. Call functions from Python with python3 inside run_bash.\n",
         );
         let mut files = Vec::new();
 
         for integration in &self.integrations {
-            let operations = integration
-                .operations
-                .iter()
-                .map(|operation| operation.operation_name.clone())
-                .collect::<Vec<_>>()
-                .join(", ");
-
             prompt.push_str(&format!(
                 "- {}: {FUNCTIONS_DIR}/{}.md\n",
                 integration.name, integration.slug
             ));
             files.push(RuntimeFunctionFile {
                 path: format!("{FUNCTIONS_DIR}/{}.md", integration.slug),
-                contents: function_markdown(integration, &operations).into_bytes(),
+                contents: function_markdown(integration).into_bytes(),
             });
         }
 
@@ -546,92 +239,112 @@ Use run_bash to list /home/user/functions and cat the relevant <integration>.md 
         }
     }
 
-    fn describe_json(
+    async fn execute_external_function(
         &self,
+        name: &str,
         args: &[MontyObject],
         kwargs: &[(MontyObject, MontyObject)],
-    ) -> Result<Value, String> {
-        let input = call_arguments_to_json(args, kwargs)?;
-        let integration = input.get("integration").and_then(Value::as_str);
-        let operation = input.get("operation").and_then(Value::as_str);
-
-        let Some(integration_slug) = integration else {
-            return Ok(self.list_json());
+    ) -> ExtFunctionResult {
+        let Some(operation) = self.functions.get(name) else {
+            return ExtFunctionResult::Error(value_error(format!("Unknown function: {name}")));
         };
 
-        let Some(info) = self
-            .integrations
-            .iter()
-            .find(|info| info.slug == integration_slug || info.name == integration_slug)
-        else {
-            return Err(format!("Unknown integration: {integration_slug}"));
+        let arguments = match call_arguments_to_json(args, kwargs) {
+            Ok(arguments) => arguments,
+            Err(err) => return ExtFunctionResult::Error(value_error(err)),
         };
 
-        if let Some(operation_name) = operation {
-            let Some(op) = info
-                .operations
-                .iter()
-                .find(|op| op.operation_name == operation_name)
-            else {
-                return Err(format!(
-                    "Unknown operation for integration {integration_slug}: {operation_name}"
-                ));
-            };
+        match &operation.executor {
+            OperationExecutor::OpenApiTool(tool) => match tool.call(arguments.to_string()).await {
+                Ok(result) => match serde_json::from_str::<Value>(&result) {
+                    Ok(value) => ExtFunctionResult::Return(json_to_monty(&value)),
+                    Err(_) => ExtFunctionResult::Return(MontyObject::String(result)),
+                },
+                Err(err) => ExtFunctionResult::Error(value_error(tool_error_to_string(err))),
+            },
+            OperationExecutor::OpenUrl => {
+                let Some(url) = arguments.get("url").and_then(Value::as_str) else {
+                    return ExtFunctionResult::Error(value_error(
+                        "web_open_url requires a string url argument".to_string(),
+                    ));
+                };
 
-            return Ok(json!({
-                "integration": info.slug,
-                "operation": op.operation_name,
-                "path": op.path,
-                "description": op.description,
-                "parameters": op.parameters,
-            }));
+                match crate::builtin_tools::web::open_url(url.to_string()).await {
+                    Ok(content) => ExtFunctionResult::Return(json_to_monty(&json!({
+                        "content": content
+                    }))),
+                    Err(err) => ExtFunctionResult::Error(value_error(err.to_string())),
+                }
+            }
         }
-
-        Ok(json!({
-            "name": info.name,
-            "slug": info.slug,
-            "operations": info.operations.iter().map(|operation| {
-                json!({
-                    "name": operation.operation_name,
-                    "path": operation.path,
-                    "description": operation.description,
-                    "parameters": operation.parameters,
-                })
-            }).collect::<Vec<_>>()
-        }))
     }
 }
 
-fn method_receiver(args: &[MontyObject]) -> Option<(&str, &[MontyObject])> {
-    let Some(MontyObject::Dataclass { name, .. }) = args.first() else {
-        return None;
-    };
-    Some((name.as_str(), &args[1..]))
+pub async fn available_function_catalogue_prompt_section(
+    pool: &db::Pool,
+    sub: &str,
+    team_id: i32,
+) -> Result<Option<String>, String> {
+    Ok(function_catalogue_for_team(pool, sub, team_id)
+        .await?
+        .prompt_section)
 }
 
-fn function_markdown(integration: &IntegrationInfo, operations: &str) -> String {
+pub async fn function_catalogue_for_team(
+    pool: &db::Pool,
+    sub: &str,
+    team_id: i32,
+) -> Result<FunctionCatalogue, String> {
+    let registry = RuntimeFunctionRegistry::load_for_team(pool, sub, team_id).await?;
+    Ok(registry.function_catalogue())
+}
+
+pub async fn function_catalogue_for_conversation(
+    pool: &db::Pool,
+    sub: &str,
+    conversation_id: i64,
+) -> Result<FunctionCatalogue, String> {
+    let registry =
+        RuntimeFunctionRegistry::load_for_conversation(pool, sub, conversation_id).await?;
+    Ok(registry.function_catalogue())
+}
+
+fn function_markdown(integration: &IntegrationInfo) -> String {
     let mut markdown = format!(
-        "# {}\n\nSlug: {}\n\nCall these functions from run_python as toolbox.integrations.{}.<function>(**kwargs).\n\nFunctions:\n",
-        integration.name, integration.slug, integration.slug
+        "# {}\n\nSlug: {}\n\nCall these functions with python3 inside run_bash. Example:\n\n```bash\npython3 -c \"print({}())\"\n```\n\nFunctions:\n",
+        integration.name,
+        integration.slug,
+        integration
+            .operations
+            .first()
+            .map(|operation| operation.function_name.as_str())
+            .unwrap_or("<function_name>")
     );
 
-    if operations.is_empty() {
-        markdown.push_str("- <no functions>\n");
-    } else {
-        for operation in operations.split(", ") {
-            markdown.push_str(&format!("- {operation}\n"));
-        }
+    for operation in &integration.operations {
+        let parameters = parameter_names(&operation.parameters);
+        let parameter_hint = if parameters.is_empty() {
+            "no parameters".to_string()
+        } else {
+            format!("parameters: {}", parameters.join(", "))
+        };
+        markdown.push_str(&format!(
+            "- {} ({parameter_hint}): {}\n",
+            operation.function_name, operation.description
+        ));
     }
 
     markdown
 }
 
-fn block_on_tool_call(tool: Arc<dyn ToolDyn>, args: String) -> Result<String, ToolError> {
-    if let Ok(handle) = tokio::runtime::Handle::try_current() {
-        tokio::task::block_in_place(|| handle.block_on(tool.call(args)))
-    } else {
-        futures::executor::block_on(tool.call(args))
-    }
+fn parameter_names(parameters: &Value) -> Vec<String> {
+    let mut names = parameters
+        .get("properties")
+        .and_then(Value::as_object)
+        .map(|properties| properties.keys().cloned().collect::<Vec<_>>())
+        .unwrap_or_default();
+    names.sort();
+    names
 }
 
 fn token_provider_for_connected_integration(
@@ -662,25 +375,6 @@ fn token_provider_for_connected_integration(
         .map(|token| Arc::new(crate::StaticTokenProvider::new(token)) as Arc<_>)
 }
 
-fn dataclass(name: &str, type_id: u64, attrs: Vec<(&str, MontyObject)>) -> MontyObject {
-    MontyObject::Dataclass {
-        name: name.to_string(),
-        type_id,
-        field_names: attrs.iter().map(|(name, _)| (*name).to_string()).collect(),
-        attrs: attrs
-            .into_iter()
-            .map(|(key, value)| (MontyObject::String(key.to_string()), value))
-            .collect::<DictPairs>(),
-        frozen: true,
-    }
-}
-
-fn stable_type_id(value: &str) -> u64 {
-    value.bytes().fold(10_000_u64, |acc, byte| {
-        acc.wrapping_mul(31).wrapping_add(byte as u64)
-    })
-}
-
 fn unique_identifier(value: &str, used: &mut HashSet<String>) -> String {
     let base = sanitize_identifier(value);
     let mut candidate = base.clone();
@@ -707,7 +401,7 @@ fn sanitize_identifier(value: &str) -> String {
     }
     let out = out.trim_matches('_').to_string();
     let mut out = if out.is_empty() {
-        "integration".to_string()
+        "function".to_string()
     } else {
         out
     };
@@ -767,12 +461,12 @@ fn call_arguments_to_json(
     if let Some(first) = args.first() {
         match monty_to_json(first)? {
             Value::Object(map) => object.extend(map),
-            _ => return Err("positional integration arguments must be a dict".to_string()),
+            _ => return Err("positional function arguments must be a dict".to_string()),
         }
     }
 
     if args.len() > 1 {
-        return Err("integration functions accept at most one positional dict".to_string());
+        return Err("functions accept at most one positional dict".to_string());
     }
 
     for (key, value) in kwargs {
@@ -805,14 +499,14 @@ fn monty_to_json(value: &MontyObject) -> Result<Value, String> {
             for (key, value) in pairs {
                 let key = match key {
                     MontyObject::String(key) => key.clone(),
-                    _ => return Err("dict keys passed to integrations must be strings".to_string()),
+                    _ => return Err("dict keys passed to functions must be strings".to_string()),
                 };
                 object.insert(key, monty_to_json(value)?);
             }
             Ok(Value::Object(object))
         }
         _ => Err(format!(
-            "unsupported argument type for integration call: {}",
+            "unsupported argument type for function call: {}",
             value.type_name()
         )),
     }
@@ -846,13 +540,11 @@ fn value_error(error: String) -> MontyException {
     MontyException::new(ExcType::ValueError, Some(error))
 }
 
-#[cfg(test)]
-fn execute_run_python_without_integrations(arguments: RunPythonArgs) -> Value {
-    futures::executor::block_on(execute_run_python(
-        &MontyTool::without_integrations(),
-        arguments,
-        DEFAULT_TIMEOUT_MS,
-    ))
+fn tool_error_to_string(error: ToolError) -> String {
+    match error {
+        ToolError::JsonError(err) => err.to_string(),
+        ToolError::ToolCallError(err) => err.to_string(),
+    }
 }
 
 #[cfg(test)]
@@ -860,95 +552,76 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_tool_definition() {
-        let tool = get_tool_definition();
-        assert_eq!(tool.name, "run_python");
-        assert!(tool.description.contains("toolbox.integrations.list()"));
-        assert!(tool.description.contains("do not import it"));
-        assert!(!tool.description.contains("Bionic"));
-        assert!(!tool.description.contains("bionic"));
+    fn function_catalogue_includes_web_by_default() {
+        let registry = RuntimeFunctionRegistry::with_builtin_functions(Vec::new(), HashMap::new());
+        let catalogue = registry.function_catalogue();
+
+        let prompt = catalogue.prompt_section.expect("expected prompt section");
+        assert!(prompt.contains("- Web: /home/user/functions/web.md"));
+        assert!(prompt.contains("python3"));
+        assert!(!prompt.contains("run_python"));
+
+        let web_file = catalogue
+            .files
+            .iter()
+            .find(|file| file.path == "/home/user/functions/web.md")
+            .expect("expected web catalogue file");
+        let markdown = String::from_utf8(web_file.contents.clone()).unwrap();
+        assert!(markdown.contains("web_open_url"));
+        assert!(markdown.contains("parameters: url"));
     }
 
     #[test]
-    fn test_rejects_empty_code() {
-        let result = execute_run_python_without_integrations(RunPythonArgs {
-            code: "   ".to_string(),
-            timeout_ms: None,
-        });
-        assert_eq!(result["error"], "code is required");
-    }
-
-    #[test]
-    fn test_toolbox_integrations_list_without_integrations() {
-        let result = execute_run_python_without_integrations(RunPythonArgs {
-            code: "toolbox.integrations.list()".to_string(),
-            timeout_ms: None,
-        });
-        assert_eq!(result["stdout"], "");
-        assert_eq!(result["result"]["List"], json!([]));
-    }
-
-    #[test]
-    fn test_function_catalogue_summarizes_integrations_without_schemas_or_paths() {
-        let registry = IntegrationRegistry {
-            integrations: vec![IntegrationInfo {
+    fn function_catalogue_summarizes_integrations_without_schemas() {
+        let operation = RuntimeOperation {
+            function_name: "enterprise_email_api_listemails".to_string(),
+            description: "List recent enterprise email messages".to_string(),
+            parameters: json!({"type": "object"}),
+            executor: OperationExecutor::OpenUrl,
+        };
+        let registry = RuntimeFunctionRegistry::with_builtin_functions(
+            vec![IntegrationInfo {
                 name: "Enterprise Email API".to_string(),
                 slug: "enterprise_email_api".to_string(),
-                operations: vec![IntegrationOperation {
-                    operation_name: "listEmails".to_string(),
-                    path: "toolbox.integrations.enterprise_email_api.listEmails".to_string(),
-                    description: "List recent enterprise email messages".to_string(),
-                    parameters: json!({
-                        "type": "object",
-                        "properties": {
-                            "limit": {"type": "integer"}
-                        }
-                    }),
-                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
-                }],
+                operations: vec![operation],
             }],
-            functions: HashMap::new(),
-        };
+            HashMap::new(),
+        );
 
         let catalogue = registry.function_catalogue();
-        let prompt = catalogue.prompt_section.unwrap();
-        assert!(prompt.contains("Available function catalogues:"));
+        let prompt = catalogue.prompt_section.expect("expected prompt");
+
         assert!(
             prompt.contains("- Enterprise Email API: /home/user/functions/enterprise_email_api.md")
         );
-        assert!(prompt.contains("run_bash"));
-        assert!(prompt.contains("run_python"));
-        assert_eq!(catalogue.files.len(), 1);
-        assert_eq!(
-            catalogue.files[0].path,
-            "/home/user/functions/enterprise_email_api.md"
-        );
-        let markdown = String::from_utf8(catalogue.files[0].contents.clone()).unwrap();
-        assert!(markdown.contains("# Enterprise Email API"));
-        assert!(markdown.contains("Slug: enterprise_email_api"));
-        assert!(markdown.contains("- listEmails"));
-        assert!(!prompt.contains("List recent enterprise email messages"));
-        assert!(!markdown.contains("List recent enterprise email messages"));
-        assert!(!prompt.contains("toolbox.integrations.enterprise_email_api.listEmails"));
-        assert!(!markdown.contains("toolbox.integrations.enterprise_email_api.listEmails"));
-        assert!(!prompt.contains("properties"));
-        assert!(!markdown.contains("properties"));
+        assert!(prompt.contains("- Web: /home/user/functions/web.md"));
+        assert!(!prompt.contains("parameters"));
+
+        let markdown = String::from_utf8(
+            catalogue
+                .files
+                .iter()
+                .find(|file| file.path == "/home/user/functions/enterprise_email_api.md")
+                .expect("expected integration catalogue")
+                .contents
+                .clone(),
+        )
+        .unwrap();
+        assert!(markdown.contains("enterprise_email_api_listemails"));
+        assert!(!markdown.contains("\"type\""));
     }
 
     #[test]
-    fn test_function_catalogue_without_context_returns_empty() {
-        let registry = IntegrationRegistry {
-            integrations: Vec::new(),
-            functions: HashMap::new(),
-        };
-        assert_eq!(registry.function_catalogue(), FunctionCatalogue::default());
-    }
+    fn call_arguments_accept_keyword_args() {
+        let args = call_arguments_to_json(
+            &[],
+            &[(
+                MontyObject::String("url".to_string()),
+                MontyObject::String("https://example.com".to_string()),
+            )],
+        )
+        .unwrap();
 
-    #[test]
-    fn test_sanitize_identifier() {
-        let mut used = HashSet::new();
-        assert_eq!(unique_identifier("My API", &mut used), "my_api");
-        assert_eq!(unique_identifier("My API", &mut used), "my_api_2");
-        assert_eq!(unique_identifier("123", &mut used), "_123");
+        assert_eq!(args["url"], "https://example.com");
     }
 }

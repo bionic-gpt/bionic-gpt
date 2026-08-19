@@ -219,7 +219,7 @@ fn DiscoverableFunctions(integration_context: Option<String>, token_estimate: i3
             }
             CardBody {
                 class: "text-sm text-base-content/80",
-                p { "Connected integrations are exposed through function catalogue files in /home/user/functions. The model can use run_bash to list and cat those markdown files, then use run_python to call functions through toolbox.integrations." }
+                p { "Connected integrations and built-in web functions are exposed through catalogue files in /home/user/functions. The model can use run_bash to list and cat those markdown files, then call the documented functions with python3 inside Bashkit." }
                 if let Some(integration_context) = integration_context.as_ref() {
                     pre {
                         class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",

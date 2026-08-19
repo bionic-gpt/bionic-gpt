@@ -1,10 +1,6 @@
-use crate::types::ToolDefinition;
 use futures_util::StreamExt;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::Url;
-use rig::tool::{ToolDyn, ToolError};
-use rig::wasm_compat::WasmBoxedFuture;
-use serde_json::{json, Value};
 use std::fmt;
 
 const MAX_CONTENT_BYTES: usize = 1000; // final output limit
@@ -91,62 +87,6 @@ fn truncate_bytes(mut text: String, max_bytes: usize) -> String {
         text.pop();
     }
     text
-}
-
-/// A tool that fetches a URL and returns the page text
-pub struct WebTool;
-
-async fn execute_web(arguments: &Value) -> Result<serde_json::Value, serde_json::Value> {
-    let url = arguments["url"]
-        .as_str()
-        .ok_or_else(|| json!({"error": "Missing url"}))?;
-
-    match open_url(url.to_string()).await {
-        Ok(content) => Ok(json!({"content": content})),
-        Err(e) => Err(json!({"error": e.to_string()})),
-    }
-}
-
-impl ToolDyn for WebTool {
-    fn name(&self) -> String {
-        get_open_url_tool().name
-    }
-
-    fn description(&self) -> String {
-        get_open_url_tool().description
-    }
-
-    fn parameters(&self) -> Value {
-        get_open_url_tool().parameters
-    }
-
-    fn call(&self, args: String) -> WasmBoxedFuture<'_, Result<String, ToolError>> {
-        Box::pin(async move {
-            let arguments: Value = serde_json::from_str(&args).map_err(ToolError::JsonError)?;
-            let result = execute_web(&arguments).await.map_err(|err| {
-                ToolError::ToolCallError(Box::new(std::io::Error::other(err.to_string())))
-            })?;
-            serde_json::to_string(&result).map_err(ToolError::JsonError)
-        })
-    }
-}
-
-/// Returns the tool definition for the Open URL tool
-pub fn get_open_url_tool() -> ToolDefinition {
-    ToolDefinition {
-        name: "open_url".to_string(),
-        description: "The Open URL tool lets me fetch and read the content of a webpage when you provide a specific link (URL).\n\nHow it works: You give me a URL, and I retrieve the text content from that page. I can then summarize, analyze, or pull out specific info for you.\n\nWhat it’s useful for:\n* Summarizing articles, blog posts, or reports.\n* Extracting important details from a specific webpage.\n* Checking the content of a document or page you want to discuss.\n\nWhat it can’t do:\n* It won’t interact with web forms, download files, or access content behind logins/paywalls.\n* It’s not meant for browsing the web in real time—just for fetching and reading the content of links you provide.".to_string(),
-        parameters: json!({
-                "type": "object",
-                "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "The URL of the webpage to fetch"
-                    }
-                },
-                "required": ["url"]
-            }),
-    }
 }
 
 #[cfg(test)]
