@@ -776,7 +776,30 @@ fn search_terms(query: &str) -> Vec<String> {
         .split(|ch: char| !ch.is_ascii_alphanumeric())
         .filter(|term| !term.is_empty())
         .map(|term| term.to_ascii_lowercase())
+        .filter(|term| !is_stop_word(term))
         .collect()
+}
+
+fn is_stop_word(term: &str) -> bool {
+    matches!(
+        term,
+        "a" | "an"
+            | "and"
+            | "are"
+            | "for"
+            | "from"
+            | "i"
+            | "me"
+            | "my"
+            | "of"
+            | "please"
+            | "show"
+            | "summarize"
+            | "summary"
+            | "the"
+            | "to"
+            | "with"
+    )
 }
 
 fn operation_matches(
@@ -794,7 +817,27 @@ fn operation_matches(
     )
     .to_ascii_lowercase();
 
-    query_terms.iter().all(|term| haystack.contains(term))
+    query_terms.iter().any(|term| {
+        equivalent_terms(term)
+            .iter()
+            .any(|candidate| haystack.contains(candidate))
+    })
+}
+
+fn equivalent_terms(term: &str) -> Vec<&str> {
+    match term {
+        "inbox" | "mailbox" | "mail" | "email" | "emails" | "message" | "messages" => {
+            vec!["inbox", "mailbox", "mail", "email", "message", "messages"]
+        }
+        "calendar" | "calendars" | "meeting" | "meetings" | "event" | "events" => {
+            vec!["calendar", "meeting", "event"]
+        }
+        "crm" | "customer" | "customers" | "account" | "accounts" => {
+            vec!["crm", "customer", "account"]
+        }
+        "ticket" | "tickets" | "issue" | "issues" => vec!["ticket", "issue"],
+        _ => vec![term],
+    }
 }
 
 fn monty_to_json(value: &MontyObject) -> Result<Value, String> {
@@ -936,6 +979,53 @@ mod tests {
         );
         assert_eq!(result[0]["integration"], "coin_market");
         assert_eq!(result[0]["operation"], "get_quote");
+    }
+
+    #[test]
+    fn test_search_tool_functions_matches_inbox_synonym() {
+        let registry = IntegrationRegistry {
+            integrations: vec![IntegrationInfo {
+                name: "Enterprise Email API".to_string(),
+                slug: "enterprise_email_api".to_string(),
+                operations: vec![IntegrationOperation {
+                    operation_name: "listEmails".to_string(),
+                    path: "toolbox.integrations.enterprise_email_api.listEmails".to_string(),
+                    description: "List recent enterprise email messages".to_string(),
+                    parameters: json!({"type": "object"}),
+                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
+                }],
+            }],
+            functions: HashMap::new(),
+        };
+
+        let result = registry.search_json("summarize my inbox");
+        assert_eq!(
+            result[0]["path"],
+            "toolbox.integrations.enterprise_email_api.listEmails"
+        );
+        assert_eq!(result[0]["integration"], "enterprise_email_api");
+        assert_eq!(result[0]["operation"], "listEmails");
+    }
+
+    #[test]
+    fn test_search_tool_functions_no_match_returns_empty_list() {
+        let registry = IntegrationRegistry {
+            integrations: vec![IntegrationInfo {
+                name: "Enterprise Email API".to_string(),
+                slug: "enterprise_email_api".to_string(),
+                operations: vec![IntegrationOperation {
+                    operation_name: "listEmails".to_string(),
+                    path: "toolbox.integrations.enterprise_email_api.listEmails".to_string(),
+                    description: "List recent enterprise email messages".to_string(),
+                    parameters: json!({"type": "object"}),
+                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
+                }],
+            }],
+            functions: HashMap::new(),
+        };
+
+        let result = registry.search_json("weather forecast");
+        assert_eq!(result, json!([]));
     }
 
     #[test]

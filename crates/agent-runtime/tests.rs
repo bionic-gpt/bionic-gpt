@@ -44,6 +44,7 @@ async fn test_generate_prompt() {
     .await;
 
     assert_eq!(messages.len(), 2);
+    assert!(matches!(messages[0], Message::System { .. }));
     assert_eq!(
         text_content(&messages[0]),
         Some("You are a helpful asistant")
@@ -64,6 +65,7 @@ async fn test_generate_prompt_adds_available_skills() {
     .await;
 
     assert_eq!(messages.len(), 2);
+    assert!(matches!(messages[0], Message::System { .. }));
     let system = text_content(&messages[0]).unwrap();
     assert!(system.starts_with("You are a helpful assistant\n\n<available_skills>"));
     assert!(system.contains("</available_skills>"));
@@ -74,6 +76,9 @@ fn test_tool_use_guidance_is_whitelabel_safe() {
     let guidance = crate::context_builder::TOOL_USE_GUIDANCE;
     assert!(guidance.contains("Use tools when the user asks for current"));
     assert!(guidance.contains("search_tool_functions"));
+    assert!(guidance.contains("inboxes"));
+    assert!(guidance.contains("email"));
+    assert!(guidance.contains("before saying you do not have access"));
     assert!(!guidance.contains("Bionic"));
     assert!(!guidance.contains("bionic"));
 }
@@ -131,7 +136,7 @@ fn text_content(msg: &Message) -> Option<&str> {
             AssistantContent::Text(text) => Some(text.text.as_str()),
             _ => None,
         }),
-        Message::System { .. } => None,
+        Message::System { content } => Some(content.as_str()),
     }
 }
 

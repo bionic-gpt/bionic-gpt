@@ -6,7 +6,7 @@ use rig::message::{AssistantContent, Message};
 use rig::OneOrMany;
 use tool_runtime::{parse_reasoning, parse_tool_calls, ToolCall};
 
-pub(crate) const TOOL_USE_GUIDANCE: &str = "Use tools when the user asks for current, live, external, account-specific, or connected-system information.\nFor prices, news, market data, web pages, search results, files, integrations, or connected data, do not answer from memory.\nUse search_tool_functions to find available callable functions, then use the appropriate runtime tool to execute them.";
+pub(crate) const TOOL_USE_GUIDANCE: &str = "Use tools when the user asks for current, live, external, account-specific, or connected-system information.\nFor prices, news, market data, web pages, search results, files, integrations, connected data, inboxes, email, calendar, CRM, tickets, or account data, do not answer from memory.\nWhen a request might be answered by a connected system, call search_tool_functions before saying you do not have access.\nUse search_tool_functions to find available callable functions, inspect or describe the function if needed, then use the appropriate runtime tool to execute it.";
 
 /// Converts database chats into rig-native messages.
 pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
@@ -40,7 +40,8 @@ pub fn convert_chat_to_messages(conversation: Vec<Chat>) -> Vec<Message> {
                 let tool_call_id = chat.tool_call_id.unwrap_or_else(|| "tool_call".to_string());
                 Message::tool_result_with_call_id(tool_call_id.clone(), Some(tool_call_id), content)
             }
-            ChatRole::User | ChatRole::System | ChatRole::Developer => Message::user(content),
+            ChatRole::System | ChatRole::Developer => Message::system(content),
+            ChatRole::User => Message::user(content),
         };
 
         messages.push(message);
@@ -109,7 +110,7 @@ pub async fn generate_prompt(
     if let Some(system_prompt) = &system_prompt {
         size_so_far = add_message(
             &mut messages,
-            Message::user(system_prompt.clone()),
+            Message::system(system_prompt.clone()),
             size_so_far,
             size_allowed,
         );
