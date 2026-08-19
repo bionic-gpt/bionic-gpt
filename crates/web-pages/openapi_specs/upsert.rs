@@ -176,8 +176,8 @@ pub fn page(team_id: String, rbac: Rbac, form: OpenapiSpecForm) -> String {
                         }
 
                         Fieldset {
-                            legend: "OpenAPI Spec (JSON)",
-                            help_text: "Provide the full OpenAPI 3.x specification in JSON format.",
+                            legend: "OpenAPI Spec (JSON or YAML)",
+                            help_text: "Provide the full OpenAPI 3.x specification in JSON or YAML format.",
                             TextArea {
                                 class: "format-json font-mono text-sm leading-tight",
                                 name: "spec",
