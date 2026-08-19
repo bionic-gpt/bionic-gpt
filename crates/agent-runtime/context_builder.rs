@@ -53,6 +53,7 @@ pub async fn execute_prompt(
     prompt: prompts::SinglePrompt,
     _conversation_id: Option<i64>,
     include_skills: bool,
+    integration_context: Option<String>,
     chat_history: Vec<Message>,
 ) -> Result<Vec<Message>, CustomError> {
     tracing::info!("Retrieved {} history items", chat_history.len());
@@ -64,7 +65,7 @@ pub async fn execute_prompt(
         .one()
         .await?
         .value;
-    let tool_context = if include_skills {
+    let skills_context = if include_skills {
         let skill_summaries = db::queries::skills::visible_skill_summaries()
             .bind(transaction)
             .all()
@@ -73,6 +74,12 @@ pub async fn execute_prompt(
     } else {
         None
     };
+    let runtime_context = combine_optional_sections(vec![skills_context, integration_context]);
+    let runtime_context = if runtime_context.is_empty() {
+        None
+    } else {
+        Some(runtime_context)
+    };
 
     Ok(generate_prompt(
         prompt.model_context_size as usize,
@@ -80,7 +87,7 @@ pub async fn execute_prompt(
         trim_ratio,
         Some(runtime_system_prompt),
         prompt.system_prompt,
-        tool_context,
+        runtime_context,
         chat_history,
     )
     .await)

@@ -13,18 +13,10 @@ pub struct ToolPreview {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct IntegrationFunctionPreview {
-    pub path: String,
-    pub integration: String,
-    pub operation: String,
-    pub description: String,
-    pub parameters: Vec<String>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
 pub struct PromptSizePreview {
     pub default_prompt_tokens: i32,
     pub runtime_additions_tokens: i32,
+    pub integration_context_tokens: i32,
     pub combined_system_message_tokens: i32,
     pub tool_metadata_tokens: i32,
     pub total_foundation_tokens: i32,
@@ -35,9 +27,9 @@ pub struct PromptSizePreview {
 pub struct SystemPromptPageData {
     pub setting: RuntimeSetting,
     pub runtime_additions: Option<String>,
+    pub integration_context: Option<String>,
     pub prompt_size_preview: PromptSizePreview,
     pub tools_preview: Vec<ToolPreview>,
-    pub integration_functions_preview: Vec<IntegrationFunctionPreview>,
     pub vfs_preview: String,
 }
 
@@ -45,9 +37,9 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
     let SystemPromptPageData {
         setting,
         runtime_additions,
+        integration_context,
         prompt_size_preview,
         tools_preview,
-        integration_functions_preview,
         vfs_preview,
     } = data;
 
@@ -70,7 +62,10 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
                     method: "post",
                     class: "space-y-6",
                     Card {
-                        CardHeader { title: "Default runtime system prompt" }
+                        CardHeaderWithEstimate {
+                            title: "Default runtime system prompt".to_string(),
+                            token_estimate: prompt_size_preview.default_prompt_tokens
+                        }
                         CardBody {
                             class: "flex flex-col gap-4",
                             Fieldset {
@@ -99,26 +94,27 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
                         }
                     }
                 }
-                PromptSizeCard {
-                    preview: prompt_size_preview
-                }
                 ToolDefinitionCards {
                     title: "Tools".to_string(),
                     description: "These tool definitions are sent as model tool metadata. They are not appended to the system prompt.".to_string(),
-                    tools: tools_preview
+                    tools: tools_preview,
+                    token_estimate: prompt_size_preview.tool_metadata_tokens
                 }
                 DiscoverableSkills {
-                    runtime_additions
+                    runtime_additions,
+                    token_estimate: prompt_size_preview.runtime_additions_tokens
                 }
-                ToolCards {
-                    title: "Integration functions".to_string(),
-                    description: "These functions are discoverable through search_tool_functions and callable from run_python through toolbox.integrations.".to_string(),
-                    functions: integration_functions_preview
+                DiscoverableIntegrations {
+                    integration_context,
+                    token_estimate: prompt_size_preview.integration_context_tokens
                 }
                 DebugPreview {
                     title: "Virtual filesystem".to_string(),
                     description: "This is the Bashkit VFS layout. Datasets are prompt scoped; attachments and outputs are conversation scoped.".to_string(),
                     body: vfs_preview
+                }
+                TotalPromptSizeCard {
+                    preview: prompt_size_preview
                 }
             }
         }
@@ -127,77 +123,62 @@ pub fn page(team_id: String, rbac: Rbac, data: SystemPromptPageData) -> String {
 }
 
 #[component]
-fn PromptSizeCard(preview: PromptSizePreview) -> Element {
-    rsx!(
-        Card {
-            CardHeader { title: "Prompt size" }
-            CardBody {
-                class: "text-sm text-base-content/80",
-                p {
-                    "Estimated token usage for the stable request foundation before conversation history, uploaded file contents, generated outputs, or retrieved document chunks."
-                }
-                div {
-                    class: "mt-4 grid grid-cols-1 gap-3 md:grid-cols-2",
-                    PromptSizeMetric {
-                        label: "Default prompt".to_string(),
-                        value: preview.default_prompt_tokens,
-                        help: "The editable default runtime system prompt.".to_string()
-                    }
-                    PromptSizeMetric {
-                        label: "Discoverable skills".to_string(),
-                        value: preview.runtime_additions_tokens,
-                        help: "A compact skills catalogue appended after the default prompt.".to_string()
-                    }
-                    PromptSizeMetric {
-                        label: "Combined system message".to_string(),
-                        value: preview.combined_system_message_tokens,
-                        help: "The text sent as the system message.".to_string()
-                    }
-                    PromptSizeMetric {
-                        label: "Tool metadata".to_string(),
-                        value: preview.tool_metadata_tokens,
-                        help: format!("{} tool definitions sent separately from the system message.", preview.tool_count)
-                    }
-                }
-                div {
-                    class: "mt-4 rounded border border-base-300 bg-base-100 p-4",
-                    div {
-                        class: "flex flex-wrap items-center justify-between gap-3",
-                        div {
-                            p { class: "font-semibold text-base-content", "Total request foundation" }
-                            p { class: "text-xs text-base-content/60", "Combined system message plus model tool metadata." }
-                        }
-                        div {
-                            class: "text-right",
-                            p { class: "text-2xl font-semibold text-base-content", "{preview.total_foundation_tokens}" }
-                            p { class: "text-xs text-base-content/60", "estimated tokens" }
-                        }
-                    }
-                }
-                p {
-                    class: "mt-3 text-xs text-base-content/60",
-                    "Tools, integrations, and skills are discoverable without dumping every instruction or integration function into the system prompt, so the foundation stays relatively stable as capabilities grow."
-                }
-            }
-        }
-    )
-}
-
-#[component]
-fn PromptSizeMetric(label: String, value: i32, help: String) -> Element {
+fn CardHeaderWithEstimate(title: String, token_estimate: i32) -> Element {
     rsx!(
         div {
-            class: "rounded border border-base-300 bg-base-100 p-4",
-            div {
-                class: "flex items-start justify-between gap-3",
+            class: "flex flex-wrap items-center justify-between gap-3 border-b border-base-300 px-6 py-4",
+            h2 { class: "card-title text-base", "{title}" }
+            TokenEstimate {
+                value: token_estimate,
+                label: "estimated tokens".to_string()
+            }
+        }
+    )
+}
+
+#[component]
+fn TokenEstimate(value: i32, label: String) -> Element {
+    rsx!(
+        Badge {
+            badge_style: BadgeStyle::Outline,
+            "{value} {label}"
+        }
+    )
+}
+
+#[component]
+fn TotalPromptSizeCard(preview: PromptSizePreview) -> Element {
+    rsx!(
+        Card {
+            CardHeader { title: "Total request foundation" }
+            CardBody {
+                class: "text-sm text-base-content/80",
                 div {
-                    p { class: "font-semibold text-base-content", "{label}" }
-                    p { class: "mt-1 text-xs text-base-content/60", "{help}" }
+                    class: "flex flex-wrap items-center justify-between gap-3",
+                    div {
+                        p { class: "text-xs text-base-content/60", "Combined system message plus model tool metadata." }
+                        p { class: "mt-1 text-xs text-base-content/60", "Estimated before conversation history, uploaded file contents, generated outputs, or retrieved document chunks." }
+                    }
+                    div {
+                        class: "text-right",
+                        p { class: "text-2xl font-semibold text-base-content", "{preview.total_foundation_tokens}" }
+                        p { class: "text-xs text-base-content/60", "estimated tokens" }
+                    }
                 }
                 div {
-                    class: "shrink-0 text-right",
-                    p { class: "font-mono text-lg font-semibold text-base-content", "{value}" }
-                    p { class: "text-xs text-base-content/60", "tokens" }
+                    class: "mt-4 flex flex-wrap gap-2 text-xs text-base-content/60",
+                    Badge {
+                        badge_style: BadgeStyle::Outline,
+                        "system message {preview.combined_system_message_tokens}"
+                    }
+                    Badge {
+                        badge_style: BadgeStyle::Outline,
+                        "tool metadata {preview.tool_metadata_tokens}"
+                    }
+                    Badge {
+                        badge_style: BadgeStyle::Outline,
+                        "{preview.tool_count} tools"
+                    }
                 }
             }
         }
@@ -205,10 +186,13 @@ fn PromptSizeMetric(label: String, value: i32, help: String) -> Element {
 }
 
 #[component]
-fn DiscoverableSkills(runtime_additions: Option<String>) -> Element {
+fn DiscoverableSkills(runtime_additions: Option<String>, token_estimate: i32) -> Element {
     rsx!(
         Card {
-            CardHeader { title: "Discoverable skills" }
+            CardHeaderWithEstimate {
+                title: "Discoverable skills".to_string(),
+                token_estimate
+            }
             CardBody {
                 class: "text-sm text-base-content/80",
                 p { "Bionic takes the currently visible skills and appends a compact name: description catalogue to the prompt. The model can use this catalogue to discover relevant skills, then read the full SKILL.md instructions from /home/user/skills when needed." }
@@ -226,10 +210,42 @@ fn DiscoverableSkills(runtime_additions: Option<String>) -> Element {
 }
 
 #[component]
-fn ToolDefinitionCards(title: String, description: String, tools: Vec<ToolPreview>) -> Element {
+fn DiscoverableIntegrations(integration_context: Option<String>, token_estimate: i32) -> Element {
     rsx!(
         Card {
-            CardHeader { title: "{title}" }
+            CardHeaderWithEstimate {
+                title: "Discoverable integrations".to_string(),
+                token_estimate
+            }
+            CardBody {
+                class: "text-sm text-base-content/80",
+                p { "Connected integrations are summarized as a compact catalogue in the prompt so the model has a heads up when email, CRM, and other systems are available. The model should use run_python to inspect and call integrations, using toolbox.integrations.list()/describe() or search_tool_functions when it needs callable details." }
+                if let Some(integration_context) = integration_context.as_ref() {
+                    pre {
+                        class: "mt-3 max-h-80 overflow-auto whitespace-pre-wrap rounded border border-base-300 bg-base-100 p-4 font-mono text-xs text-base-content",
+                        "{integration_context}"
+                    }
+                } else {
+                    EmptyPreview { message: "No discoverable integrations are currently connected.".to_string() }
+                }
+            }
+        }
+    )
+}
+
+#[component]
+fn ToolDefinitionCards(
+    title: String,
+    description: String,
+    tools: Vec<ToolPreview>,
+    token_estimate: i32,
+) -> Element {
+    rsx!(
+        Card {
+            CardHeaderWithEstimate {
+                title,
+                token_estimate
+            }
             CardBody {
                 class: "text-sm text-base-content/80",
                 p { "{description}" }
@@ -245,39 +261,6 @@ fn ToolDefinitionCards(title: String, description: String, tools: Vec<ToolPrevie
                                 description: tool.description,
                                 path: None,
                                 parameters: tool.parameters,
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    )
-}
-
-#[component]
-fn ToolCards(
-    title: String,
-    description: String,
-    functions: Vec<IntegrationFunctionPreview>,
-) -> Element {
-    rsx!(
-        Card {
-            CardHeader { title: "{title}" }
-            CardBody {
-                class: "text-sm text-base-content/80",
-                p { "{description}" }
-                if functions.is_empty() {
-                    EmptyPreview { message: "No integration functions are currently available.".to_string() }
-                } else {
-                    div {
-                        class: "mt-3 grid grid-cols-1 gap-3",
-                        for function in functions {
-                            RuntimeCard {
-                                title: function.operation,
-                                subtitle: function.integration,
-                                description: function.description,
-                                path: Some(function.path),
-                                parameters: function.parameters,
                             }
                         }
                     }

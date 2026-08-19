@@ -75,11 +75,30 @@ pub(crate) async fn create_request(
         .iter()
         .any(|c| c.capability == db::ModelCapability::tool_use);
 
+    let integration_context = if supports_tool_use {
+        match tool_runtime::builtin_tools::monty::available_integrations_prompt_section(
+            pool,
+            &current_user.sub,
+            conversation.team_id,
+        )
+        .await
+        {
+            Ok(context) => context,
+            Err(err) => {
+                tracing::warn!("Failed to build integration prompt summary: {}", err);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
     let messages = context_builder::execute_prompt(
         &transaction,
         prompt.clone(),
         Some(conversation.id),
         supports_tool_use,
+        integration_context,
         chat_history,
     )
     .await?;

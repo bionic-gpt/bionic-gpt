@@ -121,6 +121,15 @@ pub async fn preview_integration_functions(
     Ok(registry.search_json(""))
 }
 
+pub async fn available_integrations_prompt_section(
+    pool: &db::Pool,
+    sub: &str,
+    team_id: i32,
+) -> Result<Option<String>, String> {
+    let registry = IntegrationRegistry::load_for_team(pool, sub, team_id).await?;
+    Ok(registry.prompt_section())
+}
+
 impl ToolDyn for SearchToolFunctionsTool {
     fn name(&self) -> String {
         get_search_tool_functions_definition().name
@@ -567,6 +576,34 @@ impl IntegrationRegistry {
         }
 
         Value::Array(matches)
+    }
+
+    fn prompt_section(&self) -> Option<String> {
+        if self.integrations.is_empty() {
+            return None;
+        }
+
+        let mut prompt = String::from(
+            "Available integrations:\n\
+Use run_python to inspect and call integrations. Inside Python, use toolbox.integrations.list()/describe() or search_tool_functions to inspect callable functions.\n",
+        );
+
+        for integration in &self.integrations {
+            let operations = integration
+                .operations
+                .iter()
+                .map(|operation| operation.operation_name.clone())
+                .collect::<Vec<_>>()
+                .join(", ");
+
+            prompt.push_str(&format!(
+                "- {} ({}): {}\n",
+                integration.name, integration.slug, operations
+            ));
+        }
+
+        prompt.truncate(prompt.trim_end().len());
+        Some(prompt)
     }
 
     fn describe_json(
@@ -1050,12 +1087,46 @@ mod tests {
     }
 
     #[test]
+    fn test_prompt_section_summarizes_integrations_without_schemas_or_paths() {
+        let registry = IntegrationRegistry {
+            integrations: vec![IntegrationInfo {
+                name: "Enterprise Email API".to_string(),
+                slug: "enterprise_email_api".to_string(),
+                operations: vec![IntegrationOperation {
+                    operation_name: "listEmails".to_string(),
+                    path: "toolbox.integrations.enterprise_email_api.listEmails".to_string(),
+                    description: "List recent enterprise email messages".to_string(),
+                    parameters: json!({
+                        "type": "object",
+                        "properties": {
+                            "limit": {"type": "integer"}
+                        }
+                    }),
+                    tool: Arc::new(crate::builtin_tools::time_date::TimeDateTool),
+                }],
+            }],
+            functions: HashMap::new(),
+        };
+
+        let prompt = registry.prompt_section().unwrap();
+        assert!(prompt.contains("Available integrations:"));
+        assert!(prompt.contains("- Enterprise Email API (enterprise_email_api): listEmails"));
+        assert!(prompt.contains("run_python"));
+        assert!(prompt.contains("search_tool_functions"));
+        assert!(!prompt.contains("List recent enterprise email messages"));
+        assert!(!prompt.contains("toolbox.integrations.enterprise_email_api.listEmails"));
+        assert!(!prompt.contains("properties"));
+        assert!(!prompt.contains("limit"));
+    }
+
+    #[test]
     fn test_preview_integration_functions_without_context_returns_empty_list() {
         let registry = IntegrationRegistry {
             integrations: Vec::new(),
             functions: HashMap::new(),
         };
         assert_eq!(registry.search_json(""), json!([]));
+        assert_eq!(registry.prompt_section(), None);
     }
 
     #[test]

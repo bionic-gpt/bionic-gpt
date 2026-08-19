@@ -10,9 +10,7 @@ use serde::Deserialize;
 use serde_json::Value;
 use validator::Validate;
 use web_pages::routes::system_prompt::{Index, Update};
-use web_pages::system_prompt::page::{
-    IntegrationFunctionPreview, PromptSizePreview, SystemPromptPageData, ToolPreview,
-};
+use web_pages::system_prompt::page::{PromptSizePreview, SystemPromptPageData, ToolPreview};
 
 pub fn routes() -> Router {
     Router::new().typed_get(loader).typed_post(update_action)
@@ -45,32 +43,29 @@ pub async fn loader(
     let vfs_preview = tool_runtime::builtin_tools::bashkit::preview_vfs_tree(&skill_summaries);
     let runtime_additions =
         tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries);
-
-    let tool_definitions =
-        tool_runtime::get_chat_tools_user_selected_with_system_openapi(&pool).await;
-    let prompt_size_preview = build_prompt_size_preview(
-        &setting.value,
-        runtime_additions.as_deref(),
-        &tool_definitions,
-    );
-    let tools_preview = build_tool_previews(tool_definitions);
-    let integration_functions_preview =
-        match tool_runtime::builtin_tools::monty::preview_integration_functions(
+    let integration_context =
+        match tool_runtime::builtin_tools::monty::available_integrations_prompt_section(
             &pool,
             &sub,
             team_id_num,
         )
         .await
         {
-            Ok(value) => build_integration_function_previews(value),
-            Err(err) => vec![IntegrationFunctionPreview {
-                path: "".to_string(),
-                integration: "preview_error".to_string(),
-                operation: "Failed to preview integration functions".to_string(),
-                description: err,
-                parameters: Vec::new(),
-            }],
+            Ok(context) => context,
+            Err(err) => Some(format!(
+                "Failed to preview discoverable integrations: {err}"
+            )),
         };
+
+    let tool_definitions =
+        tool_runtime::get_chat_tools_user_selected_with_system_openapi(&pool).await;
+    let prompt_size_preview = build_prompt_size_preview(
+        &setting.value,
+        runtime_additions.as_deref(),
+        integration_context.as_deref(),
+        &tool_definitions,
+    );
+    let tools_preview = build_tool_previews(tool_definitions);
 
     let html = web_pages::system_prompt::page::page(
         team_id,
@@ -78,9 +73,9 @@ pub async fn loader(
         SystemPromptPageData {
             setting,
             runtime_additions,
+            integration_context,
             prompt_size_preview,
             tools_preview,
-            integration_functions_preview,
             vfs_preview,
         },
     );
@@ -91,21 +86,26 @@ pub async fn loader(
 fn build_prompt_size_preview(
     default_prompt: &str,
     runtime_additions: Option<&str>,
+    integration_context: Option<&str>,
     tools: &[tool_runtime::ToolDefinition],
 ) -> PromptSizePreview {
     let runtime_additions = runtime_additions.unwrap_or_default();
-    let combined_system_message =
-        combine_non_empty_sections([default_prompt, runtime_additions].into_iter());
+    let integration_context = integration_context.unwrap_or_default();
+    let combined_system_message = combine_non_empty_sections(
+        [default_prompt, runtime_additions, integration_context].into_iter(),
+    );
     let tool_metadata = serde_json::to_string(tools).unwrap_or_default();
 
     let default_prompt_tokens = estimate_text_tokens(default_prompt);
     let runtime_additions_tokens = estimate_text_tokens(runtime_additions);
+    let integration_context_tokens = estimate_text_tokens(integration_context);
     let combined_system_message_tokens = estimate_text_tokens(&combined_system_message);
     let tool_metadata_tokens = estimate_text_tokens(&tool_metadata);
 
     PromptSizePreview {
         default_prompt_tokens,
         runtime_additions_tokens,
+        integration_context_tokens,
         combined_system_message_tokens,
         tool_metadata_tokens,
         total_foundation_tokens: combined_system_message_tokens + tool_metadata_tokens,
@@ -141,41 +141,6 @@ fn build_tool_previews(tools: Vec<tool_runtime::ToolDefinition>) -> Vec<ToolPrev
     previews
 }
 
-fn build_integration_function_previews(value: Value) -> Vec<IntegrationFunctionPreview> {
-    let Some(items) = value.as_array() else {
-        return Vec::new();
-    };
-
-    let mut previews = items
-        .iter()
-        .map(|item| IntegrationFunctionPreview {
-            path: item
-                .get("path")
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_string(),
-            integration: item
-                .get("integration")
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_string(),
-            operation: item
-                .get("operation")
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_string(),
-            description: item
-                .get("description")
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_string(),
-            parameters: parameter_names(item.get("parameters").unwrap_or(&Value::Null)),
-        })
-        .collect::<Vec<_>>();
-    previews.sort_by(|left, right| left.path.cmp(&right.path));
-    previews
-}
-
 fn parameter_names(parameters: &Value) -> Vec<String> {
     let mut names = parameters
         .get("properties")
@@ -208,29 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn integration_function_preview_extracts_display_fields() {
-        let previews = build_integration_function_previews(serde_json::json!([
-            {
-                "path": "toolbox.integrations.email.listemails",
-                "integration": "email",
-                "operation": "listemails",
-                "description": "List recent email messages",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "limit": {"type": "integer"}
-                    }
-                }
-            }
-        ]));
-
-        assert_eq!(previews.len(), 1);
-        assert_eq!(previews[0].operation, "listemails");
-        assert_eq!(previews[0].parameters, vec!["limit".to_string()]);
-    }
-
-    #[test]
-    fn prompt_size_preview_includes_prompt_runtime_and_tools() {
+    fn prompt_size_preview_includes_prompt_runtime_integrations_and_tools() {
         let tools = vec![tool_runtime::ToolDefinition {
             name: "open_url".to_string(),
             description: "Fetch a URL".to_string(),
@@ -245,11 +188,13 @@ mod tests {
         let preview = build_prompt_size_preview(
             "You are helpful.",
             Some("Use available skills when relevant."),
+            Some("Available integrations:\n- Email (email): listEmails - List recent email"),
             &tools,
         );
 
         assert!(preview.default_prompt_tokens > 0);
         assert!(preview.runtime_additions_tokens > 0);
+        assert!(preview.integration_context_tokens > 0);
         assert!(preview.combined_system_message_tokens >= preview.default_prompt_tokens);
         assert!(preview.tool_metadata_tokens > 0);
         assert_eq!(preview.tool_count, 1);
@@ -261,10 +206,11 @@ mod tests {
 
     #[test]
     fn prompt_size_preview_handles_empty_runtime_additions() {
-        let preview = build_prompt_size_preview("System prompt", None, &[]);
+        let preview = build_prompt_size_preview("System prompt", None, None, &[]);
 
         assert!(preview.default_prompt_tokens > 0);
         assert_eq!(preview.runtime_additions_tokens, 0);
+        assert_eq!(preview.integration_context_tokens, 0);
         assert_eq!(
             preview.combined_system_message_tokens,
             preview.default_prompt_tokens
