@@ -112,6 +112,15 @@ impl SearchToolFunctionsTool {
     }
 }
 
+pub async fn preview_integration_functions(
+    pool: &db::Pool,
+    sub: &str,
+    team_id: i32,
+) -> Result<Value, String> {
+    let registry = IntegrationRegistry::load_for_team(pool, sub, team_id).await?;
+    Ok(registry.search_json(""))
+}
+
 impl ToolDyn for SearchToolFunctionsTool {
     fn name(&self) -> String {
         get_search_tool_functions_definition().name
@@ -349,6 +358,22 @@ impl IntegrationRegistry {
             .map_err(|err| err.to_string())?;
         let team_id: i32 = row.get(0);
 
+        transaction.commit().await.map_err(|err| err.to_string())?;
+
+        Self::load_for_team(pool, sub, team_id).await
+    }
+
+    async fn load_for_team(pool: &db::Pool, sub: &str, team_id: i32) -> Result<Self, String> {
+        let mut client = pool.get().await.map_err(|err| err.to_string())?;
+        let transaction = client.transaction().await.map_err(|err| err.to_string())?;
+        db::authz::set_row_level_security_user_id(&transaction, sub.to_string())
+            .await
+            .map_err(|err| err.to_string())?;
+
+        let mut integrations = Vec::new();
+        let mut functions = HashMap::new();
+        let mut used_integration_slugs = HashSet::new();
+
         let connected = db::queries::connections::connected_integrations()
             .bind(&transaction, &team_id)
             .all()
@@ -356,10 +381,6 @@ impl IntegrationRegistry {
             .map_err(|err| err.to_string())?;
 
         transaction.commit().await.map_err(|err| err.to_string())?;
-
-        let mut integrations = Vec::new();
-        let mut functions = HashMap::new();
-        let mut used_integration_slugs = HashSet::new();
 
         for integration in connected {
             let Some(definition) = integration.definition.as_ref() else {
@@ -379,7 +400,7 @@ impl IntegrationRegistry {
 
             let token_provider = token_provider_for_connected_integration(
                 pool.clone(),
-                sub.clone(),
+                sub.to_string(),
                 &integration,
                 &openapi,
             );
@@ -1026,6 +1047,15 @@ mod tests {
 
         let result = registry.search_json("weather forecast");
         assert_eq!(result, json!([]));
+    }
+
+    #[test]
+    fn test_preview_integration_functions_without_context_returns_empty_list() {
+        let registry = IntegrationRegistry {
+            integrations: Vec::new(),
+            functions: HashMap::new(),
+        };
+        assert_eq!(registry.search_json(""), json!([]));
     }
 
     #[test]

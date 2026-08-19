@@ -12,7 +12,7 @@ use rig::tool::{ToolDyn, ToolError};
 use rig::wasm_compat::WasmBoxedFuture;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -180,6 +180,56 @@ pub fn get_tool_definition() -> ToolDefinition {
             "required": ["commands"]
         }),
     }
+}
+
+pub fn preview_vfs_tree(skill_summaries: &[db::queries::skills::SkillSummary]) -> String {
+    let skill_dirs = skill_summaries
+        .iter()
+        .map(|skill| {
+            skills::skill_vfs_directory(skill.skill_id, &skill.skill_name, skill.is_system)
+                .trim_start_matches("/home/user/skills/")
+                .to_string()
+        })
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+
+    let mut tree = String::from(
+        "/home/user\n\
+|-- attachments                 # conversation scoped\n\
+|   |-- index.json\n\
+|   `-- <uploaded_file_name>\n\
+|-- datasets                    # prompt/assistant scoped\n\
+|   |-- index.json\n\
+|   `-- <dataset_id>\n\
+|       |-- metadata.json\n\
+|       `-- files\n\
+|           `-- <document_id>\n\
+|               |-- metadata.json\n\
+|               `-- chunks\n\
+|                   `-- <chunk_id>.txt\n\
+|-- output                      # persists for this conversation\n\
+|   `-- <generated_file_or_directory>\n\
+`-- skills                      # current visible skills\n",
+    );
+
+    if skill_dirs.is_empty() {
+        tree.push_str("    `-- <no visible skills>\n");
+    } else {
+        for (index, dir) in skill_dirs.iter().enumerate() {
+            let is_last = index + 1 == skill_dirs.len();
+            let branch = if is_last { "`--" } else { "|--" };
+            let child_prefix = if is_last { "   " } else { "|  " };
+            tree.push_str(&format!("    {branch} {dir}\n"));
+            tree.push_str(&format!("    {child_prefix} `-- SKILL.md\n"));
+        }
+    }
+
+    tree.push_str(
+        "\nOmitted from this preview: uploaded file contents, dataset chunk text, generated output contents, secrets, and tokens.",
+    );
+
+    tree
 }
 
 async fn execute_run_bash(
@@ -1329,6 +1379,24 @@ mod tests {
         let tool = get_tool_definition();
         assert_eq!(tool.name, "run_bash");
         assert!(tool.description.contains("/home/user/attachments"));
+    }
+
+    #[test]
+    fn test_preview_vfs_tree_includes_visible_skill_paths() {
+        let preview = preview_vfs_tree(&[db::queries::skills::SkillSummary {
+            skill_id: 42,
+            skill_name: "Presentation Builder".to_string(),
+            description: "Build slides".to_string(),
+            is_system: true,
+        }]);
+
+        assert!(preview.contains("/home/user"));
+        assert!(preview.contains("`-- skills"));
+        assert!(preview.contains("presentation-builder"));
+        assert!(preview.contains("SKILL.md"));
+        assert!(preview.contains("<uploaded_file_name>"));
+        assert!(preview.contains("<chunk_id>.txt"));
+        assert!(preview.contains("Omitted from this preview"));
     }
 
     #[test]
