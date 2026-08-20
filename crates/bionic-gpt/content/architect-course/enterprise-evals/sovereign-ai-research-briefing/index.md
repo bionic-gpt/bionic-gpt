@@ -1,22 +1,24 @@
-# Simulated Web Search
+# Sovereign AI Research Briefing
 
-The email integration gives the model a business request. A research workflow
-also needs a repeatable way to discover external sources without depending on
-live search results changing between evaluations.
+This eval tests whether the model can discover a research integration, use
+curated source results, separate bank examples from policy and regulator
+context, and produce a concise executive briefing.
 
-This simulated web search API returns ten curated, real-world URLs about how
-European banks, supervisors, and policy makers are approaching sovereign
-generative AI.
+A research workflow needs a repeatable way to discover external sources without
+depending on live search results changing between evaluations.
+
+The research API returns ten curated, real-world URLs about how European banks,
+supervisors, and policy makers are approaching sovereign generative AI.
 
 ## Download the Spec
 
-- [Download the OpenAPI spec](/architect-course/testing-our-use-case/web-search.openapi.yaml)
+- [Download the OpenAPI spec](/architect-course/enterprise-evals/web-search.openapi.yaml)
 
 The OpenAPI spec defines one deterministic search endpoint. Bionic uses this
 spec to expose the search API as a callable integration, while the mock API
 returns the same ten source URLs every time.
 
-## What the Simulated API Provides
+## What the Eval API Provides
 
 | Operation | Method | Path | Purpose |
 | --- | --- | --- | --- |
@@ -46,7 +48,7 @@ Start the lab as usual:
 docker compose up
 ```
 
-From your host machine, the simulated search API is available at:
+From your host machine, the research API is available at:
 
 ```text
 http://localhost:3100
@@ -67,9 +69,9 @@ For the Docker Compose lab, keep the first server URL as:
 http://eval-mocks:3100
 ```
 
-This simulated integration does not require authentication. It is designed to
-test whether the model can discover a research tool, collect credible sources,
-and produce an executive artifact from structured results.
+This eval integration does not require authentication. It is designed to test
+whether the model can discover a research tool, collect credible sources, and
+produce an executive artifact from structured results.
 
 ## Test Prompt
 
@@ -77,12 +79,12 @@ Once the integration is available, try:
 
 ```text
 Research how European banks are approaching sovereign generative AI and prepare
-a 5-slide briefing for the CEO.
+a 5-slide executive briefing.
 ```
 
 A good result should:
 
-1. Discover and call the simulated web search integration.
+1. Discover and call the research integration.
 2. Use the ten returned URLs as source material.
 3. Group findings into a small number of executive themes.
 4. Distinguish bank examples from regulator and policy context.

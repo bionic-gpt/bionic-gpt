@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Simulated Web Search API
+  title: Sovereign AI Research API
   version: "1.0"
   description: Deterministic web search results for the Bionic architect course.
 servers:

@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Enterprise Email API
   version: "1.0"
-  description: Simulated enterprise email API for the Bionic architect course.
+  description: Enterprise inbox eval API for the Bionic architect course.
 servers:
   - url: http://eval-mocks:3100
     description: Docker Compose network URL used by Bionic containers

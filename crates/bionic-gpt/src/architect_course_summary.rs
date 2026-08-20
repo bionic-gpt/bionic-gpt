@@ -25,9 +25,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Running the Bionic Agentic AI Platform",
                         description: "Try it on a Laptop",
-                        folder: "architect-course/010-gen-ai-lab/03-docker-compose/",
+                        folder: "architect-course/lab/docker-compose/",
                         markdown: include_str!(
-                            "../content/architect-course/010-gen-ai-lab/03-docker-compose/index.md"
+                            "../content/architect-course/lab/docker-compose/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -37,9 +37,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Option 1: Use an API Provider",
                         description: "Connect Bionic to a hosted model provider.",
-                        folder: "architect-course/010-gen-ai-lab/035-api-provider/",
+                        folder: "architect-course/lab/api-provider/",
                         markdown: include_str!(
-                            "../content/architect-course/010-gen-ai-lab/035-api-provider/index.md"
+                            "../content/architect-course/lab/api-provider/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -49,9 +49,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Option 2: Run Locally with Ollama",
                         description: "Run and configure a local model with Ollama.",
-                        folder: "architect-course/010-gen-ai-lab/02-ollama/",
+                        folder: "architect-course/lab/ollama/",
                         markdown: include_str!(
-                            "../content/architect-course/010-gen-ai-lab/02-ollama/index.md"
+                            "../content/architect-course/lab/ollama/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -61,9 +61,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Test the Platform",
                         description: "Validate tools, files, and artifacts in Bionic.",
-                        folder: "architect-course/010-gen-ai-lab/04-testing-model/",
+                        folder: "architect-course/lab/test-platform/",
                         markdown: include_str!(
-                            "../content/architect-course/010-gen-ai-lab/04-testing-model/index.md"
+                            "../content/architect-course/lab/test-platform/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -78,9 +78,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Understanding Tool Calls",
                         description: "When and how to wire structured tool executions.",
-                        folder: "architect-course/020-basics-of-tool-calls/010-understanding-tool-calls/",
+                        folder: "architect-course/how-agentic-ai-works/understanding-tool-calls/",
                         markdown: include_str!(
-                            "../content/architect-course/020-basics-of-tool-calls/010-understanding-tool-calls/index.md"
+                            "../content/architect-course/how-agentic-ai-works/understanding-tool-calls/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -90,9 +90,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "The Agentic Loop",
                         description: "Why agentic AI is just tool calling in a loop.",
-                        folder: "architect-course/020-basics-of-tool-calls/020-agentic-loop/",
+                        folder: "architect-course/how-agentic-ai-works/agentic-loop/",
                         markdown: include_str!(
-                            "../content/architect-course/020-basics-of-tool-calls/020-agentic-loop/index.md"
+                            "../content/architect-course/how-agentic-ai-works/agentic-loop/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -108,9 +108,9 @@ pub fn summary() -> Summary {
                         title: "From Chatbot to AI Computer",
                         description:
                             "How conversational systems become complete working environments.",
-                        folder: "architect-course/025-common-toolsets/",
+                        folder: "architect-course/ai-computer/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/index.md"
+                            "../content/architect-course/ai-computer/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -121,9 +121,9 @@ pub fn summary() -> Summary {
                         title: "Sandboxes",
                         description:
                             "Isolated filesystems and command execution for model-driven work.",
-                        folder: "architect-course/025-common-toolsets/010-sandboxes/",
+                        folder: "architect-course/ai-computer/sandboxes/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/010-sandboxes/index.md"
+                            "../content/architect-course/ai-computer/sandboxes/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -134,9 +134,9 @@ pub fn summary() -> Summary {
                         title: "Virtual File System",
                         description:
                             "Shared working storage for uploads, datasets, skills, and generated artifacts.",
-                        folder: "architect-course/025-common-toolsets/060-documents-and-attachments/",
+                        folder: "architect-course/ai-computer/virtual-file-system/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/060-documents-and-attachments/index.md"
+                            "../content/architect-course/ai-computer/virtual-file-system/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -147,9 +147,9 @@ pub fn summary() -> Summary {
                         title: "Runtime Tools",
                         description:
                             "How code execution and tool discovery expand an AI computer.",
-                        folder: "architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/",
+                        folder: "architect-course/how-agentic-ai-works/runtime-tools/",
                         markdown: include_str!(
-                            "../content/architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/index.md"
+                            "../content/architect-course/how-agentic-ai-works/runtime-tools/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -160,9 +160,9 @@ pub fn summary() -> Summary {
                         title: "Datasets",
                         description:
                             "Reusable, searchable knowledge collections for grounded model responses.",
-                        folder: "architect-course/025-common-toolsets/070-datasets/",
+                        folder: "architect-course/ai-computer/datasets/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/070-datasets/index.md"
+                            "../content/architect-course/ai-computer/datasets/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -172,9 +172,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Skills",
                         description: "Packaged instructions for repeatable workflows.",
-                        folder: "architect-course/025-common-toolsets/040-skills/",
+                        folder: "architect-course/ai-computer/skills/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/040-skills/index.md"
+                            "../content/architect-course/ai-computer/skills/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -184,9 +184,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Memory and Context",
                         description: "Persistent context across turns and sessions.",
-                        folder: "architect-course/025-common-toolsets/020-memory/",
+                        folder: "architect-course/ai-computer/memory/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/020-memory/index.md"
+                            "../content/architect-course/ai-computer/memory/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -196,9 +196,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Scheduled Tasks",
                         description: "Future and recurring work initiated by the runtime.",
-                        folder: "architect-course/025-common-toolsets/030-scheduled-jobs-cron/",
+                        folder: "architect-course/ai-computer/scheduled-tasks/",
                         markdown: include_str!(
-                            "../content/architect-course/025-common-toolsets/030-scheduled-jobs-cron/index.md"
+                            "../content/architect-course/ai-computer/scheduled-tasks/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -207,17 +207,17 @@ pub fn summary() -> Summary {
                 ],
             },
             Category {
-                name: "Testing Our Use Case".to_string(),
+                name: "Enterprise Evals".to_string(),
                 pages: vec![
                     PageSummary {
                         date: "",
-                        title: "Simulated Email Integration",
+                        title: "Inbox Summarization",
                         description:
-                            "Use Mockoon to create a repeatable enterprise email API for evaluating agentic workflows.",
+                            "Evaluate whether the model can inspect an inbox, identify the latest request and follow-up, and draft the right response.",
                         folder:
-                            "architect-course/026-testing-our-use-case/010-simulated-email-integration/",
+                            "architect-course/enterprise-evals/inbox-summarization/",
                         markdown: include_str!(
-                            "../content/architect-course/026-testing-our-use-case/010-simulated-email-integration/index.md"
+                            "../content/architect-course/enterprise-evals/inbox-summarization/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -225,13 +225,13 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Simulated Web Search",
+                        title: "Sovereign AI Research Briefing",
                         description:
-                            "Use deterministic web search results to evaluate research and briefing workflows.",
+                            "Evaluate whether the model can research sovereign AI in European banking and produce an executive briefing.",
                         folder:
-                            "architect-course/026-testing-our-use-case/020-simulated-web-search/",
+                            "architect-course/enterprise-evals/sovereign-ai-research-briefing/",
                         markdown: include_str!(
-                            "../content/architect-course/026-testing-our-use-case/020-simulated-web-search/index.md"
+                            "../content/architect-course/enterprise-evals/sovereign-ai-research-briefing/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -247,9 +247,9 @@ pub fn summary() -> Summary {
                     description:
                         "Presenting generated artifacts for human review, correction, and approval.",
                     folder:
-                        "architect-course/027-human-in-the-loop/010-presenting-results/",
+                        "architect-course/human-in-the-loop/presenting-results/",
                     markdown: include_str!(
-                        "../content/architect-course/027-human-in-the-loop/010-presenting-results/index.md"
+                        "../content/architect-course/human-in-the-loop/presenting-results/index.md"
                     ),
                     image: None,
                     author_image: None,
@@ -263,9 +263,9 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Why Kubernetes",
                         description: "Why the platform relies on Kubernetes instead of standalone Docker setups.",
-                        folder: "architect-course/050-ai-ops/why-kubernetes/",
+                        folder: "architect-course/deployment-and-operations/why-kubernetes/",
                         markdown: include_str!(
-                            "../content/architect-course/050-ai-ops/why-kubernetes/index.md"
+                            "../content/architect-course/deployment-and-operations/why-kubernetes/index.md"
                         ),
                         image: None,
                         author_image: None,
@@ -275,8 +275,8 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Running the Kubernetes Lab",
                         description: "Install a local K3s cluster that mirrors production topologies.",
-                        folder: "architect-course/050-ai-ops/install-linux/",
-                        markdown: include_str!("../content/architect-course/050-ai-ops/install-linux/index.md"),
+                        folder: "architect-course/deployment-and-operations/install-linux/",
+                        markdown: include_str!("../content/architect-course/deployment-and-operations/install-linux/index.md"),
                         image: None,
                         author_image: None,
                         author: None,

@@ -1,6 +1,6 @@
 # From Chatbot to AI Computer
 
-In [Understanding Tool Calls](/architect-course/020-basics-of-tool-calls/010-understanding-tool-calls/), we asked a model:
+In [Understanding Tool Calls](/architect-course/how-agentic-ai-works/understanding-tool-calls/), we asked a model:
 
 > What is the price of Bitcoin today in USD?
 
