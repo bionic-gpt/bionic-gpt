@@ -73,10 +73,10 @@ The eval mocks image is intended to grow with the course. Add future mock
 systems under their own path prefix and OpenAPI spec under:
 
 ```text
-infra-as-code/eval-mocks/openapi/
+infra-as-code/eval-mocks/openapi/specs/
 ```
 
-If the file should be downloadable from this lesson, also add a copy under the
-course assets directory. Keeping the mock routes and OpenAPI specs in the repo
-makes the enterprise evaluation repeatable in CI, local development, and shared
-demos.
+The course site copies those specs into the download path during the static site
+build, and the eval-mocks image merges the same specs into its Mockoon API. Keep
+the mock routes and OpenAPI specs in this one folder so the enterprise
+evaluation stays repeatable in CI, local development, and shared demos.

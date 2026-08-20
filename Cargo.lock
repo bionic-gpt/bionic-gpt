@@ -1253,6 +1253,7 @@ dependencies = [
  "clap",
  "dagger-sdk",
  "eyre",
+ "serde_yaml",
  "tokio",
 ]
 

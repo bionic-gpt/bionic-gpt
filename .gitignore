@@ -6,3 +6,4 @@ tmp
 .env
 .DS_Store
 SUMMARY.md
+infra-as-code/eval-mocks/openapi/generated/

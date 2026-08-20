@@ -13,4 +13,6 @@ pub enum Command {
     PullRequest,
     /// Build for main branch and publish all artifacts.
     All,
+    /// Generate the combined eval mocks OpenAPI spec for local Mockoon testing.
+    GenerateEvalMocksSpec,
 }

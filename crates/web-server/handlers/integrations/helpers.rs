@@ -125,8 +125,9 @@ paths:
 
     #[test]
     fn test_parse_eval_web_search_openapi_spec() {
-        let spec_yaml =
-            include_str!("../../../../infra-as-code/eval-mocks/openapi/web-search.openapi.yaml");
+        let spec_yaml = include_str!(
+            "../../../../infra-as-code/eval-mocks/openapi/specs/web-search.openapi.yaml"
+        );
 
         let Json(parsed) = parse_openapi_spec(spec_yaml).unwrap();
         let operation_ids = parsed
@@ -138,9 +139,10 @@ paths:
     }
 
     #[test]
-    fn test_parse_combined_eval_mocks_openapi_spec() {
-        let spec_yaml =
-            include_str!("../../../../infra-as-code/eval-mocks/openapi/eval-mocks.openapi.yaml");
+    fn test_parse_eval_email_openapi_spec() {
+        let spec_yaml = include_str!(
+            "../../../../infra-as-code/eval-mocks/openapi/specs/email-integration.openapi.yaml"
+        );
 
         let Json(parsed) = parse_openapi_spec(spec_yaml).unwrap();
         let operation_ids = parsed
@@ -149,6 +151,8 @@ paths:
             .collect::<Vec<_>>();
 
         assert!(operation_ids.contains(&"listEmails"));
-        assert!(operation_ids.contains(&"searchWeb"));
+        assert!(operation_ids.contains(&"getEmail"));
+        assert!(operation_ids.contains(&"createDraft"));
+        assert!(operation_ids.contains(&"sendDraft"));
     }
 }

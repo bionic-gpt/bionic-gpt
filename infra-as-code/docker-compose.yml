@@ -32,10 +32,11 @@ services:
     image: ghcr.io/bionic-gpt/bionicgpt-eval-mocks:1.12.15
     ports:
       - "3100:3100"
-    # For local eval mock development, uncomment to use the OpenAPI specs from
-    # this checkout instead of the spec baked into the image.
+    # For local eval mock development, run `just eval-mocks-spec`, then
+    # uncomment this volume to use the generated OpenAPI spec from this checkout
+    # instead of the spec baked into the image.
     # volumes:
-    #   - ./eval-mocks/openapi:/home/mockoon/data:ro
+    #   - ./eval-mocks/openapi/generated:/home/mockoon/data:ro
 
   # Sets up our database tables
   migrations:

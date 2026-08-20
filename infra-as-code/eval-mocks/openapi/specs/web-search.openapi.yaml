@@ -1,20 +1,18 @@
 openapi: 3.0.3
 info:
-  title: Sovereign AI Research API
+  title: Web Search API
   version: "1.0"
-  description: Deterministic web search results for the Bionic architect course.
+  description: Search the web for relevant sources.
   x-bionic-slug: websearch
 servers:
   - url: http://eval-mocks:3100
-    description: Docker Compose network URL used by Bionic containers
   - url: http://localhost:3100
-    description: Host URL for manual testing
 paths:
   /web/search:
     get:
       operationId: searchWeb
-      summary: Search curated web resources
-      description: Returns ten deterministic source URLs for evaluating research workflows.
+      summary: Search the web
+      description: Returns relevant web search results for a query.
       parameters:
         - name: query
           in: query
@@ -24,7 +22,7 @@ paths:
           description: Search query text.
       responses:
         "200":
-          description: Curated search results
+          description: Search results
           content:
             application/json:
               schema:

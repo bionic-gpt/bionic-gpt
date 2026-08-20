@@ -1,4 +1,4 @@
-# Sovereign AI Research Briefing
+# Deep Research
 
 This eval tests whether the model can discover a research integration, use
 curated source results, separate bank examples from policy and regulator

@@ -1,7 +1,10 @@
-use std::env;
+use std::collections::HashSet;
+use std::path::Path;
+use std::{env, fs};
 
 use dagger_sdk::{Container, Directory, File, Query, Service};
 use eyre::{Result, WrapErr, eyre};
+use serde_yaml::{Mapping, Value};
 
 use super::{
     AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE, DATABASE_URL,
@@ -67,6 +70,15 @@ struct PublishCredentials {
 fn release_binary_path(exe: &str) -> String {
     format!("target/{TARGET_TRIPLE}/release/{exe}")
 }
+
+const EVAL_MOCKS_SPEC_DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../infra-as-code/eval-mocks/openapi/specs"
+);
+const EVAL_MOCKS_GENERATED_SPEC: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../infra-as-code/eval-mocks/openapi/generated/eval-mocks.openapi.yaml"
+);
 
 fn summary_markdown() -> String {
     format!(
@@ -315,13 +327,11 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     )
     .await?;
 
-    let eval_mocks_data = outputs
-        .container
-        .file("/workspace/infra-as-code/eval-mocks/openapi/eval-mocks.openapi.yaml");
+    let eval_mocks_data = combined_eval_mocks_openapi()?;
     let eval_mocks_container = client
         .container()
         .from("mockoon/cli:9.7.0")
-        .with_file("/home/mockoon/data/eval-mocks.openapi.yaml", eval_mocks_data)
+        .with_new_file("/home/mockoon/data/eval-mocks.openapi.yaml", eval_mocks_data)
         .with_exec(vec![
             "sh",
             "-c",
@@ -392,6 +402,186 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
     Ok(())
 }
 
+fn combined_eval_mocks_openapi() -> Result<String> {
+    let mut spec_paths = fs::read_dir(EVAL_MOCKS_SPEC_DIR)
+        .wrap_err_with(|| format!("failed to read {EVAL_MOCKS_SPEC_DIR}"))?
+        .map(|entry| entry.map(|entry| entry.path()))
+        .collect::<std::io::Result<Vec<_>>>()
+        .wrap_err_with(|| format!("failed to list {EVAL_MOCKS_SPEC_DIR}"))?;
+
+    spec_paths.retain(|path| {
+        path.file_name()
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| name.ends_with(".openapi.yaml"))
+    });
+    spec_paths.sort();
+
+    if spec_paths.is_empty() {
+        return Err(eyre!(
+            "no eval mock OpenAPI specs found in {EVAL_MOCKS_SPEC_DIR}"
+        ));
+    }
+
+    let mut paths = Mapping::new();
+    let mut schemas = Mapping::new();
+    let mut operation_ids = HashSet::new();
+
+    for spec_path in spec_paths {
+        let spec_text = fs::read_to_string(&spec_path)
+            .wrap_err_with(|| format!("failed to read {}", spec_path.display()))?;
+        let spec: Value = serde_yaml::from_str(&spec_text)
+            .wrap_err_with(|| format!("failed to parse {}", spec_path.display()))?;
+
+        let source_name = spec_path.display().to_string();
+        let spec_paths = get_required_mapping(&spec, "paths", &source_name)?;
+        collect_operation_ids(spec_paths, &mut operation_ids, &source_name)?;
+        merge_mapping(&mut paths, spec_paths, "path", &source_name)?;
+
+        if let Some(components) = get_mapping(&spec, "components")
+            && let Some(spec_schemas) = get_mapping_from_mapping(components, "schemas")
+        {
+            merge_mapping(&mut schemas, spec_schemas, "schema", &source_name)?;
+        }
+    }
+
+    let mut root = Mapping::new();
+    root.insert(string_value("openapi"), string_value("3.0.3"));
+    root.insert(string_value("info"), combined_info());
+    root.insert(string_value("servers"), combined_servers());
+    root.insert(string_value("paths"), Value::Mapping(paths));
+
+    let mut components = Mapping::new();
+    components.insert(string_value("schemas"), Value::Mapping(schemas));
+    root.insert(string_value("components"), Value::Mapping(components));
+
+    serde_yaml::to_string(&Value::Mapping(root)).wrap_err("failed to serialize combined eval spec")
+}
+
+pub(super) fn write_combined_eval_mocks_openapi() -> Result<()> {
+    let combined = combined_eval_mocks_openapi()?;
+    let output_path = Path::new(EVAL_MOCKS_GENERATED_SPEC);
+    if let Some(parent) = output_path.parent() {
+        fs::create_dir_all(parent).wrap_err_with(|| {
+            format!(
+                "failed to create eval mocks generated spec directory {}",
+                parent.display()
+            )
+        })?;
+    }
+    fs::write(output_path, combined).wrap_err_with(|| {
+        format!(
+            "failed to write eval mocks generated spec {}",
+            output_path.display()
+        )
+    })?;
+    println!("Generated {}", output_path.display());
+    Ok(())
+}
+
+fn collect_operation_ids(
+    paths: &Mapping,
+    operation_ids: &mut HashSet<String>,
+    source: &str,
+) -> Result<()> {
+    for (path_name, path_value) in paths {
+        let Some(path_item) = path_value.as_mapping() else {
+            continue;
+        };
+        for (method_name, operation_value) in path_item {
+            let Some(operation) = operation_value.as_mapping() else {
+                continue;
+            };
+            let Some(operation_id) = get_string_from_mapping(operation, "operationId") else {
+                continue;
+            };
+            if !operation_ids.insert(operation_id.to_string()) {
+                return Err(eyre!(
+                    "duplicate operationId `{operation_id}` in {source} at {} {}",
+                    display_yaml_key(method_name),
+                    display_yaml_key(path_name)
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
+fn merge_mapping(
+    destination: &mut Mapping,
+    source: &Mapping,
+    label: &str,
+    source_name: &str,
+) -> Result<()> {
+    for (key, value) in source {
+        if let Some(existing) = destination.get(key) {
+            if existing != value {
+                return Err(eyre!(
+                    "conflicting {label} `{}` while merging {source_name}",
+                    display_yaml_key(key)
+                ));
+            }
+            continue;
+        }
+        destination.insert(key.clone(), value.clone());
+    }
+    Ok(())
+}
+
+fn get_required_mapping<'a>(value: &'a Value, key: &str, source: &str) -> Result<&'a Mapping> {
+    get_mapping(value, key).ok_or_else(|| eyre!("missing `{key}` mapping in {source}"))
+}
+
+fn get_mapping<'a>(value: &'a Value, key: &str) -> Option<&'a Mapping> {
+    let lookup = string_value(key);
+    value.as_mapping()?.get(&lookup)?.as_mapping()
+}
+
+fn get_mapping_from_mapping<'a>(mapping: &'a Mapping, key: &str) -> Option<&'a Mapping> {
+    let lookup = string_value(key);
+    mapping.get(&lookup)?.as_mapping()
+}
+
+fn get_string_from_mapping<'a>(mapping: &'a Mapping, key: &str) -> Option<&'a str> {
+    let lookup = string_value(key);
+    mapping.get(&lookup)?.as_str()
+}
+
+fn display_yaml_key(value: &Value) -> String {
+    value.as_str().unwrap_or("<non-string>").to_string()
+}
+
+fn combined_info() -> Value {
+    let mut info = Mapping::new();
+    info.insert(string_value("title"), string_value("Bionic Eval Mock APIs"));
+    info.insert(string_value("version"), string_value("1.0"));
+    info.insert(
+        string_value("description"),
+        string_value("Combined deterministic mock APIs for the Bionic architect course."),
+    );
+    Value::Mapping(info)
+}
+
+fn combined_servers() -> Value {
+    Value::Sequence(vec![
+        server_value(
+            "http://eval-mocks:3100",
+            "Docker Compose network URL used by Bionic containers",
+        ),
+        server_value("http://localhost:3100", "Host URL for manual testing"),
+    ])
+}
+
+fn server_value(url: &str, description: &str) -> Value {
+    let mut server = Mapping::new();
+    server.insert(string_value("url"), string_value(url));
+    server.insert(string_value("description"), string_value(description));
+    Value::Mapping(server)
+}
+
+fn string_value(value: &str) -> Value {
+    Value::String(value.to_string())
+}
+
 async fn ensure_built(container: &Container, label: &str) -> Result<()> {
     println!("Building {label}");
     container
@@ -432,4 +622,35 @@ async fn maybe_publish(
         println!("Skipping publish of {label}");
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn combined_eval_mocks_openapi_includes_all_eval_paths() {
+        let combined = combined_eval_mocks_openapi().expect("combined spec should be generated");
+        let parsed: Value =
+            serde_yaml::from_str(&combined).expect("combined spec should be valid YAML");
+        let paths = get_required_mapping(&parsed, "paths", "combined spec").unwrap();
+
+        assert!(paths.contains_key(string_value("/email/emails")));
+        assert!(paths.contains_key(string_value("/email/emails/{id}")));
+        assert!(paths.contains_key(string_value("/email/drafts")));
+        assert!(paths.contains_key(string_value("/email/send")));
+        assert!(paths.contains_key(string_value("/web/search")));
+    }
+
+    #[test]
+    fn combined_eval_mocks_openapi_includes_shared_schemas() {
+        let combined = combined_eval_mocks_openapi().expect("combined spec should be generated");
+        let parsed: Value =
+            serde_yaml::from_str(&combined).expect("combined spec should be valid YAML");
+        let components = get_required_mapping(&parsed, "components", "combined spec").unwrap();
+        let schemas = get_mapping_from_mapping(components, "schemas").unwrap();
+
+        assert!(schemas.contains_key(string_value("EmailSummary")));
+        assert!(schemas.contains_key(string_value("SearchResult")));
+    }
 }

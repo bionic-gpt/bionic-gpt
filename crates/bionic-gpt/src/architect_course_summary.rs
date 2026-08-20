@@ -225,9 +225,9 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Sovereign AI Research Briefing",
+                        title: "Deep Research",
                         description:
-                            "Evaluate whether the model can research sovereign AI in European banking and produce an executive briefing.",
+                            "Evaluate whether the model can use a search integration, inspect source results, and produce an executive briefing.",
                         folder:
                             "architect-course/enterprise-evals/sovereign-ai-research-briefing/",
                         markdown: include_str!(
