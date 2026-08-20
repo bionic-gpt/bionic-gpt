@@ -29,10 +29,33 @@ async fn load_selected_spec(
         .one()
         .await?;
 
-    if !spec.is_active {
+    if !is_usable_selected_spec(&spec, category) {
         return Ok(None);
     }
 
+    load_spec_with_api_key(transaction, spec).await
+}
+
+async fn load_single_active_spec(
+    transaction: &db::Transaction<'_>,
+    category: OpenapiSpecCategory,
+) -> Result<Option<SelectedSpec>, db::TokioPostgresError> {
+    let specs = queries::openapi_specs::by_category()
+        .bind(transaction, &category)
+        .all()
+        .await?;
+
+    let Some(spec) = single_active_spec(specs) else {
+        return Ok(None);
+    };
+
+    load_spec_with_api_key(transaction, spec).await
+}
+
+async fn load_spec_with_api_key(
+    transaction: &db::Transaction<'_>,
+    spec: OpenapiSpec,
+) -> Result<Option<SelectedSpec>, db::TokioPostgresError> {
     let api_key = queries::openapi_spec_api_keys::api_key()
         .bind(transaction, &spec.id)
         .opt()
@@ -56,6 +79,21 @@ fn build_openapi_helpers(
     Ok((openapi, selected.api_key))
 }
 
+fn is_usable_selected_spec(spec: &OpenapiSpec, category: OpenapiSpecCategory) -> bool {
+    spec.category == category && spec.is_active
+}
+
+fn single_active_spec(specs: Vec<OpenapiSpec>) -> Option<OpenapiSpec> {
+    let mut active_specs = specs.into_iter().filter(|spec| spec.is_active);
+    let spec = active_specs.next()?;
+
+    if active_specs.next().is_some() {
+        return None;
+    }
+
+    Some(spec)
+}
+
 async fn load_selected_helpers(
     pool: &Pool,
 ) -> Result<Vec<(BionicOpenAPI, Option<String>)>, String> {
@@ -64,10 +102,17 @@ async fn load_selected_helpers(
 
     let mut helpers = Vec::new();
     for category in [OpenapiSpecCategory::WebSearch] {
-        if let Some(selected) = load_selected_spec(&transaction, category)
+        let selected = match load_selected_spec(&transaction, category)
             .await
             .map_err(|e| e.to_string())?
         {
+            Some(selected) => Some(selected),
+            None => load_single_active_spec(&transaction, category)
+                .await
+                .map_err(|e| e.to_string())?,
+        };
+
+        if let Some(selected) = selected {
             if let Ok(helper) = build_openapi_helpers(selected) {
                 helpers.push(helper);
             }
@@ -98,4 +143,75 @@ pub async fn get_system_openapi_tools(pool: &Pool) -> Result<Vec<Arc<dyn ToolDyn
     }
 
     Ok(tools)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn spec(id: i32, category: OpenapiSpecCategory, is_active: bool) -> OpenapiSpec {
+        OpenapiSpec {
+            id,
+            slug: format!("spec-{id}"),
+            title: format!("Spec {id}"),
+            description: None,
+            spec: json!({
+                "openapi": "3.0.0",
+                "info": {"title": format!("Spec {id}"), "version": "1.0.0"},
+                "paths": {}
+            }),
+            logo_url: None,
+            category,
+            is_active,
+            created_at: "2026-08-20T00:00:00Z".to_string(),
+            updated_at: "2026-08-20T00:00:00Z".to_string(),
+        }
+    }
+
+    #[test]
+    fn selected_spec_must_match_category_and_be_active() {
+        assert!(is_usable_selected_spec(
+            &spec(1, OpenapiSpecCategory::WebSearch, true),
+            OpenapiSpecCategory::WebSearch
+        ));
+        assert!(!is_usable_selected_spec(
+            &spec(1, OpenapiSpecCategory::Application, true),
+            OpenapiSpecCategory::WebSearch
+        ));
+        assert!(!is_usable_selected_spec(
+            &spec(1, OpenapiSpecCategory::WebSearch, false),
+            OpenapiSpecCategory::WebSearch
+        ));
+    }
+
+    #[test]
+    fn single_active_spec_returns_only_active_spec() {
+        let selected = single_active_spec(vec![
+            spec(1, OpenapiSpecCategory::WebSearch, false),
+            spec(2, OpenapiSpecCategory::WebSearch, true),
+        ]);
+
+        assert_eq!(selected.map(|spec| spec.id), Some(2));
+    }
+
+    #[test]
+    fn single_active_spec_returns_none_for_no_active_specs() {
+        let selected = single_active_spec(vec![
+            spec(1, OpenapiSpecCategory::WebSearch, false),
+            spec(2, OpenapiSpecCategory::WebSearch, false),
+        ]);
+
+        assert!(selected.is_none());
+    }
+
+    #[test]
+    fn single_active_spec_returns_none_for_multiple_active_specs() {
+        let selected = single_active_spec(vec![
+            spec(1, OpenapiSpecCategory::WebSearch, true),
+            spec(2, OpenapiSpecCategory::WebSearch, true),
+        ]);
+
+        assert!(selected.is_none());
+    }
 }

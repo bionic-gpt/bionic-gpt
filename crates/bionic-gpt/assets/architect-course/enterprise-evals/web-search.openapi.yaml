@@ -3,6 +3,7 @@ info:
   title: Sovereign AI Research API
   version: "1.0"
   description: Deterministic web search results for the Bionic architect course.
+  x-bionic-slug: websearch
 servers:
   - url: http://eval-mocks:3100
     description: Docker Compose network URL used by Bionic containers
