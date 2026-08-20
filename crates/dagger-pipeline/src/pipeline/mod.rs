@@ -28,6 +28,11 @@ pub(crate) const SUMMARY_PATH: &str = "/build/SUMMARY.md";
 pub async fn run(args: Args) -> Result<()> {
     let Args { command } = args;
 
+    if matches!(command, Command::GenerateEvalMocksSpec) {
+        ci::write_combined_eval_mocks_openapi()?;
+        return Ok(());
+    }
+
     connect(|client| async move { dispatch(client, command).await })
         .await
         .wrap_err("failed to run dagger pipeline")
@@ -45,6 +50,7 @@ async fn dispatch(client: Query, command: Command) -> Result<()> {
     match command {
         Command::PullRequest => ci::run(&client, &repo, ci::PublishMode::PullRequest).await?,
         Command::All => ci::run(&client, &repo, ci::PublishMode::All).await?,
+        Command::GenerateEvalMocksSpec => unreachable!("handled before Dagger connection"),
     }
 
     Ok(())

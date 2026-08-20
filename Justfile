@@ -23,6 +23,9 @@ dev-setup:
 ci:
     cargo run --bin dagger-pipeline -- pull-request
 
+eval-mocks-spec:
+    cargo run --bin dagger-pipeline -- generate-eval-mocks-spec
+
 codex:
     sudo apt update && sudo apt install -y bubblewrap
     sudo chmod u+s /usr/bin/bwrap

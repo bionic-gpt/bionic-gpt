@@ -192,7 +192,7 @@ mod tests {
         let preview = build_prompt_size_preview(
             "You are helpful.",
             Some("Use available skills when relevant."),
-            Some("Available function catalogues:\n- Email: /home/user/functions/email.md\n- Web: /home/user/functions/web.md"),
+            Some("Available function catalogues:\n- Email: /home/user/functions/email.md\n- Web Fetch: /home/user/functions/web-fetch.md"),
             &tools,
         );
 

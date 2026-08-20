@@ -31,18 +31,21 @@ pub struct OAuth2Config {
 #[derive(Clone, PartialEq, Debug)]
 pub struct BionicOpenAPI {
     spec: oas3::OpenApiV3Spec,
+    raw_spec: Value,
 }
 
 impl BionicOpenAPI {
     /// Create a new BionicOpenAPI instance from an OpenAPI v3 specification JSON string
     pub fn new(spec: &Value) -> Result<Self, serde_json::Error> {
+        let raw_spec = spec.clone();
         let spec = oas3::from_json(spec.to_string())?;
-        Ok(Self { spec })
+        Ok(Self { spec, raw_spec })
     }
 
     /// Create a new BionicOpenAPI instance from an already parsed OpenAPI v3 specification
     pub fn from_spec(spec: oas3::OpenApiV3Spec) -> Self {
-        Self { spec }
+        let raw_spec = serde_json::to_value(&spec).unwrap_or_default();
+        Self { spec, raw_spec }
     }
 
     /// Extract the base URL from the first server in the OpenAPI specification
@@ -61,26 +64,32 @@ impl BionicOpenAPI {
         self.spec.info.description.clone()
     }
 
+    fn raw_info_url(&self, key: &str) -> Option<String> {
+        self.raw_spec
+            .get("info")
+            .and_then(|info| info.get(key))
+            .and_then(|value| value.get("url"))
+            .and_then(Value::as_str)
+            .filter(|url| !url.trim().is_empty())
+            .map(|url| url.to_string())
+    }
+
     /// Safely extracts the logo URL from integration extensions
     pub fn get_logo_url(&self) -> Option<String> {
-        self.spec
-            .info
-            .extensions
-            .get("logo")
-            .and_then(|logo| logo.as_object())
-            .and_then(|logo_obj| logo_obj.get("url"))
-            .and_then(|url| url.as_str())
-            .filter(|url| !url.is_empty())
-            .map(|url| url.to_string())
+        self.raw_info_url("x-logo")
+            .or_else(|| self.raw_info_url("logo"))
     }
 
     /// Retrieve the MCP slug from the OpenAPI specification extensions.
     pub fn get_mcp_slug(&self) -> Option<String> {
-        self.spec
+        let slug = self
+            .spec
             .info
             .extensions
-            .get("bionic-slug")
-            .and_then(|slug| slug.as_str())
+            .get("x-bionic-slug")
+            .or_else(|| self.spec.info.extensions.get("bionic-slug"))?;
+
+        slug.as_str()
             .filter(|slug| !slug.trim().is_empty())
             .map(|slug| slug.to_string())
     }
@@ -539,6 +548,65 @@ mod tests {
         let bionic_api = BionicOpenAPI::new(&spec).unwrap();
         let base_url = bionic_api.extract_base_url();
         assert_eq!(base_url, Some("https://api.example.com".to_string()));
+    }
+
+    #[test]
+    fn test_get_logo_url_prefers_x_logo() {
+        let spec = json!({
+            "openapi": "3.0.0",
+            "info": {
+                "title": "Logo API",
+                "version": "1.0.0",
+                "x-logo": {"url": "https://example.com/x-logo.svg"},
+                "logo": {"url": "https://example.com/logo.svg"}
+            },
+            "paths": {}
+        });
+
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
+
+        assert_eq!(
+            bionic_api.get_logo_url(),
+            Some("https://example.com/x-logo.svg".to_string())
+        );
+    }
+
+    #[test]
+    fn test_get_logo_url_falls_back_to_logo() {
+        let spec = json!({
+            "openapi": "3.0.0",
+            "info": {
+                "title": "Logo API",
+                "version": "1.0.0",
+                "logo": {"url": "https://example.com/logo.svg"}
+            },
+            "paths": {}
+        });
+
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
+
+        assert_eq!(
+            bionic_api.get_logo_url(),
+            Some("https://example.com/logo.svg".to_string())
+        );
+    }
+
+    #[test]
+    fn test_get_mcp_slug_prefers_x_bionic_slug() {
+        let spec = json!({
+            "openapi": "3.0.0",
+            "info": {
+                "title": "Slug API",
+                "version": "1.0.0",
+                "x-bionic-slug": "websearch",
+                "bionic-slug": "legacy-websearch"
+            },
+            "paths": {}
+        });
+
+        let bionic_api = BionicOpenAPI::new(&spec).unwrap();
+
+        assert_eq!(bionic_api.get_mcp_slug(), Some("websearch".to_string()));
     }
 
     #[test]

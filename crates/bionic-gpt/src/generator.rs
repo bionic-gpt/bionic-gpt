@@ -1,6 +1,16 @@
+use std::fs;
+use std::path::Path;
+
 use ssg_whiz::SitePage;
 
 use crate::pages;
+
+const EVAL_SPEC_SOURCE_DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../infra-as-code/eval-mocks/openapi/specs"
+);
+const EVAL_SPEC_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals";
+const EVAL_SPEC_FILES: [&str; 2] = ["email-integration.openapi.yaml", "web-search.openapi.yaml"];
 
 fn output_page(path: &str, html: String) -> SitePage {
     SitePage {
@@ -37,9 +47,28 @@ pub async fn generate_marketing() -> Vec<SitePage> {
 }
 
 pub async fn generate_static_pages() -> Vec<SitePage> {
+    copy_enterprise_eval_specs();
+
     let mut pages = Vec::new();
     pages.extend(generate_marketing().await);
     pages.extend(generate_product().await);
     pages.extend(generate_solutions().await);
     pages
+}
+
+fn copy_enterprise_eval_specs() {
+    let output_dir = Path::new(EVAL_SPEC_OUTPUT_DIR);
+    fs::create_dir_all(output_dir).expect("failed to create enterprise eval spec output directory");
+
+    for file_name in EVAL_SPEC_FILES {
+        let source = Path::new(EVAL_SPEC_SOURCE_DIR).join(file_name);
+        let destination = output_dir.join(file_name);
+        fs::copy(&source, &destination).unwrap_or_else(|error| {
+            panic!(
+                "failed to copy enterprise eval spec from {} to {}: {error}",
+                source.display(),
+                destination.display()
+            )
+        });
+    }
 }

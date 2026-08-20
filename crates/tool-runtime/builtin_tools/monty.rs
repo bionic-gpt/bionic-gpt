@@ -186,8 +186,8 @@ impl RuntimeFunctionRegistry {
 
         functions.insert(WEB_FUNCTION_NAME.to_string(), web_operation.clone());
         integrations.push(IntegrationInfo {
-            name: "Web".to_string(),
-            slug: "web".to_string(),
+            name: "Web Fetch".to_string(),
+            slug: "web-fetch".to_string(),
             operations: vec![web_operation],
         });
 
@@ -557,14 +557,14 @@ mod tests {
         let catalogue = registry.function_catalogue();
 
         let prompt = catalogue.prompt_section.expect("expected prompt section");
-        assert!(prompt.contains("- Web: /home/user/functions/web.md"));
+        assert!(prompt.contains("- Web Fetch: /home/user/functions/web-fetch.md"));
         assert!(prompt.contains("python3"));
         assert!(!prompt.contains("run_python"));
 
         let web_file = catalogue
             .files
             .iter()
-            .find(|file| file.path == "/home/user/functions/web.md")
+            .find(|file| file.path == "/home/user/functions/web-fetch.md")
             .expect("expected web catalogue file");
         let markdown = String::from_utf8(web_file.contents.clone()).unwrap();
         assert!(markdown.contains("web_open_url"));
@@ -594,7 +594,7 @@ mod tests {
         assert!(
             prompt.contains("- Enterprise Email API: /home/user/functions/enterprise_email_api.md")
         );
-        assert!(prompt.contains("- Web: /home/user/functions/web.md"));
+        assert!(prompt.contains("- Web Fetch: /home/user/functions/web-fetch.md"));
         assert!(!prompt.contains("parameters"));
 
         let markdown = String::from_utf8(

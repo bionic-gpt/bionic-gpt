@@ -1,84 +1,53 @@
 # Course Introduction
 
-By the end of this course, you will understand how agentic AI can complete the
-following fictional enterprise use case.
+By the end of this course, you will understand how agentic AI systems combine
+models, tools, integrations, sandboxes, skills, memory, retrieval, and human
+review into a working enterprise AI platform.
 
-## A Fictional Use Case
+The evals are designed to help teams compare models, prompts, tools, and
+deployment patterns before committing to a production design. They can support
+decisions about which models are suitable for on-premise, private-cloud, or
+approved hosted environments, while also teaching the practical details of
+agentic AI that are easy to miss in abstract architecture discussions.
 
-Imagine you received the following email from your CEO:
+## Enterprise Evals
 
-```text
-From: Maya Chen, Chief Executive Officer
-To: AI Strategy Team
-Subject: Sovereign AI platform recommendation
-Attachment: sovereign-ai-requirements.pdf
+Enterprise evals use controlled mock services, fixed source data, and known
+expected outcomes. That lets you test tool use, reasoning, retrieval,
+permissions, and artifact generation without relying on live enterprise systems.
 
-Team,
-
-Please evaluate the leading sovereign AI platform vendors against the
-attached requirements.
-
-Verify their capabilities using official sources and recommend a
-shortlist. I need an executive recommendation, a vendor comparison
-spreadsheet, a target architecture, and a steering committee
-presentation.
-
-Please also draft my reply to the executive team.
-
-Thanks,
-Maya
-```
-
-### Sample files
-
-- `ceo-request.eml` — Download sample
-- `sovereign-ai-requirements.pdf` — Download sample
-
-You could then ask your AI workspace:
-
-```text
-got email from ceo, you do it
-```
-
-To complete the request, the AI workspace must:
-
-1. Retrieve the email.
-2. Read the attachment.
-3. Extract the requirements.
-4. Research current vendors.
-5. Verify claims against official sources.
-6. Analyse deployment, security, integrations, and cost.
-7. Generate the recommendation, spreadsheet, architecture, and presentation.
-8. Draft a response to the CEO.
+As the course grows, each eval can stand on its own with its own prompt, tools,
+data, and success criteria.
 
 ## Course outline
 
 - **Set up the workspace:** [run the platform](
-  /architect-course/010-gen-ai-lab/03-docker-compose/), connect an
-  [API provider](/architect-course/010-gen-ai-lab/035-api-provider/) or
-  [Ollama](/architect-course/010-gen-ai-lab/02-ollama/), and
-  [test the platform](/architect-course/010-gen-ai-lab/04-testing-model/).
+  /architect-course/lab/docker-compose/), connect an
+  [API provider](/architect-course/lab/api-provider/) or
+  [Ollama](/architect-course/lab/ollama/), and
+  [test the platform](/architect-course/lab/test-platform/).
 - **Understand actions:** learn about [tool calls](
-  /architect-course/020-basics-of-tool-calls/010-understanding-tool-calls/)
+  /architect-course/how-agentic-ai-works/understanding-tool-calls/)
   and [the agentic loop](
-  /architect-course/020-basics-of-tool-calls/020-agentic-loop/).
+  /architect-course/how-agentic-ai-works/agentic-loop/).
 - **Create a working environment:** combine [sandboxes](
-  /architect-course/025-common-toolsets/010-sandboxes/), a
+  /architect-course/ai-computer/sandboxes/), a
   [virtual file system](
-  /architect-course/025-common-toolsets/060-documents-and-attachments/), and
+  /architect-course/ai-computer/virtual-file-system/), and
   [runtime tools](
-  /architect-course/020-basics-of-tool-calls/040-tool-calls-open-claw/).
+  /architect-course/how-agentic-ai-works/runtime-tools/).
 - **Make work reusable:** add [skills](
-  /architect-course/025-common-toolsets/040-skills/),
-  [memory](/architect-course/025-common-toolsets/020-memory/), and
+  /architect-course/ai-computer/skills/),
+  [memory](/architect-course/ai-computer/memory/), and
   [scheduled tasks](
-  /architect-course/025-common-toolsets/030-scheduled-jobs-cron/).
-- **Test the use case:** create a [simulated email integration](
-  /architect-course/026-testing-our-use-case/010-simulated-email-integration/)
-  with Mockoon.
+  /architect-course/ai-computer/scheduled-tasks/).
+- **Run enterprise evals:** test [inbox summarization](
+  /architect-course/enterprise-evals/inbox-summarization/) and a
+  [deep research](
+  /architect-course/enterprise-evals/research/).
 - **Keep people in control:** [present results for review](
-  /architect-course/027-human-in-the-loop/010-presenting-results/).
+  /architect-course/human-in-the-loop/presenting-results/).
 - **Operate safely:** understand [why Kubernetes](
-  /architect-course/050-ai-ops/why-kubernetes/) and
+  /architect-course/deployment-and-operations/why-kubernetes/) and
   [run the Kubernetes lab](
-  /architect-course/050-ai-ops/install-linux/).
+  /architect-course/deployment-and-operations/install-linux/).

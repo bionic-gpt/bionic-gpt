@@ -10,12 +10,15 @@ use validator::Validate;
 #[derive(Deserialize, Validate, Debug, Clone)]
 pub struct OpenapiSpecForm {
     pub id: Option<i32>,
-    #[validate(length(min = 1, message = "Slug is required"))]
+    #[serde(default)]
     pub slug: String,
-    #[validate(length(min = 1, message = "Title is required"))]
+    #[serde(default)]
     pub title: String,
+    #[serde(default)]
     pub description: String,
+    #[serde(default)]
     pub logo_url: String,
+    #[serde(default)]
     pub category: String,
     #[validate(length(min = 1, message = "OpenAPI specification is required"))]
     pub spec: String,
@@ -46,7 +49,7 @@ pub fn page(team_id: String, rbac: Rbac, form: OpenapiSpecForm) -> String {
     let header_text = if is_edit {
         "Edit OpenAPI Spec"
     } else {
-        "New OpenAPI Spec"
+        "Import OpenAPI Spec"
     };
 
     let page = rsx! {
@@ -71,138 +74,119 @@ pub fn page(team_id: String, rbac: Rbac, form: OpenapiSpecForm) -> String {
                 }
             ),
 
-            Card {
-                CardHeader { title: header_text }
-                CardBody {
-                    form {
-                        method: "post",
-                        action: routes::openapi_specs::Upsert { team_id: team_id.clone() }.to_string(),
-                        class: "flex flex-col space-y-6",
+            div {
+                class: "p-4 max-w-4xl w-full mx-auto",
+                form {
+                    method: "post",
+                    action: routes::openapi_specs::Upsert { team_id: team_id.clone() }.to_string(),
+                    class: "space-y-6",
 
-                        if let Some(id) = form.id {
-                            input {
-                                r#type: "hidden",
-                                name: "id",
-                                value: "{id}",
-                            }
+                    if let Some(id) = form.id {
+                        input {
+                            r#type: "hidden",
+                            name: "id",
+                            value: "{id}",
                         }
+                    }
 
-                        if let Some(error) = &form.error {
-                            Alert {
-                                alert_color: AlertColor::Error,
-                                class: "mb-2",
-                                "{error}"
-                            }
+                    if let Some(error) = &form.error {
+                        Alert {
+                            alert_color: AlertColor::Error,
+                            class: "mb-2",
+                            "{error}"
                         }
+                    }
 
-                        Fieldset {
-                            legend: "Slug",
-                            help_text: "A unique identifier for this spec. Lowercase letters, numbers, and hyphens recommended.",
-                            Input {
-                                input_type: InputType::Text,
-                                name: "slug",
-                                placeholder: "e.g., google-calendar",
-                                value: "{form.slug}",
-                                required: true
+                    Card {
+                        CardHeader { title: "Import Settings" }
+                        CardBody {
+                            class: "flex flex-col gap-6",
+                            p {
+                                class: "text-sm opacity-70",
+                                "Title, description, logo, slug, and API URL are read from the OpenAPI spec."
                             }
-                        }
-
-                        Fieldset {
-                            legend: "Title",
-                            help_text: "Displayed name for teams selecting this spec.",
-                            Input {
-                                input_type: InputType::Text,
-                                name: "title",
-                                placeholder: "Google Calendar",
-                                value: "{form.title}",
-                                required: true
-                            }
-                        }
-
-                        Fieldset {
-                            legend: "Description",
-                            help_text: "Optional summary shown in the catalog.",
-                            TextArea {
-                                name: "description",
-                                rows: "3",
-                                placeholder: "Briefly describe what this integration does.",
-                                "{form.description}"
-                            }
-                        }
-
-                        Fieldset {
-                            legend: "Logo URL",
-                            help_text: "Optional data URL or HTTPS URL for the logo shown in the catalog.",
-                            Input {
-                                input_type: InputType::Text,
-                                name: "logo_url",
-                                placeholder: "data:image/svg+xml;base64,...",
-                                value: "{form.logo_url}"
-                            }
-                        }
-                        Fieldset {
-                            legend: "Category",
-                            help_text: "Controls where this spec appears in the admin UI.",
-                            Select {
-                                name: "category",
-                                value: "{form.category}",
-                                SelectOption {
-                                    value: "Application",
-                                    selected_value: "{form.category}",
-                                    "Application"
-                                },
-                                SelectOption {
-                                    value: "WebSearch",
-                                    selected_value: "{form.category}",
-                                    "Web Search"
-                                },
-                            }
-                        }
-
-                        Fieldset {
-                            legend: "Status",
-                            help_text: "Inactive specs are hidden from the team catalog.",
-                            label {
-                                class: "flex items-center gap-2",
-                                input {
-                                    r#type: "checkbox",
-                                    class: "checkbox",
-                                    name: "is_active",
-                                    value: "true",
-                                    checked: form.is_active,
+                            div {
+                                class: "grid grid-cols-1 md:grid-cols-2 gap-6",
+                                div {
+                                    class: "flex flex-col",
+                                    Fieldset {
+                                        legend: "Category",
+                                        legend_class: "mt-4",
+                                        help_text: "Controls where this spec appears in the admin UI.",
+                                        select {
+                                            name: "category",
+                                            class: "select select-bordered w-full",
+                                            value: "{form.category}",
+                                            SelectOption {
+                                                value: "Application",
+                                                selected_value: "{form.category}",
+                                                "Application"
+                                            },
+                                            SelectOption {
+                                                value: "WebSearch",
+                                                selected_value: "{form.category}",
+                                                "Web Search"
+                                            },
+                                        }
+                                    }
                                 }
-                                span { "Active" }
-                            }
-                        }
-
-                        Fieldset {
-                            legend: "OpenAPI Spec (JSON or YAML)",
-                            help_text: "Provide the full OpenAPI 3.x specification in JSON or YAML format.",
-                            TextArea {
-                                class: "format-json font-mono text-sm leading-tight",
-                                name: "spec",
-                                rows: "20",
-                                placeholder: "{{\n  \"openapi\": \"3.1.0\",\n  \"info\": {{ \"title\": \"Sample\" }}\n}}",
-                                "{form.spec}"
-                            }
-                        }
-
-                        div {
-                            class: "flex justify-between",
-                            Button {
-                                button_type: ButtonType::Link,
-                                href: routes::openapi_specs::Index { team_id: team_id.clone() }.to_string(),
-                                button_scheme: ButtonScheme::Error,
-                                "Cancel"
-                            }
-                            Button {
-                                button_type: ButtonType::Submit,
-                                button_scheme: ButtonScheme::Primary,
-                                if is_edit {
-                                    "Save Changes"
-                                } else {
-                                    "Create Spec"
+                                div {
+                                    class: "flex flex-col",
+                                    Fieldset {
+                                        legend: "Status",
+                                        legend_class: "mt-4",
+                                        help_text: "Inactive specs are hidden from the team catalog.",
+                                        label {
+                                            class: "flex items-center gap-2 min-h-12",
+                                            input {
+                                                r#type: "checkbox",
+                                                class: "checkbox",
+                                                name: "is_active",
+                                                value: "true",
+                                                checked: form.is_active,
+                                            }
+                                            span { "Active" }
+                                        }
+                                    }
                                 }
+                            }
+                        }
+                    }
+
+                    Card {
+                        CardHeader { title: "OpenAPI Spec" }
+                        CardBody {
+                            Fieldset {
+                                legend: "OpenAPI Spec (JSON or YAML) *",
+                                legend_class: "mt-4",
+                                help_text: "Provide the full OpenAPI 3.x specification. The slug is derived from info.x-bionic-slug, info.bionic-slug, or info.title.",
+                                TextArea {
+                                    class: "format-json font-mono text-sm leading-tight w-full",
+                                    name: "spec",
+                                    rows: "20",
+                                    placeholder: "{{\n  \"openapi\": \"3.1.0\",\n  \"info\": {{ \"title\": \"Sample\" }}\n}}",
+                                    required: true,
+                                    "{form.spec}"
+                                }
+                            }
+                        }
+                    }
+
+                    div {
+                        class: "flex justify-between",
+                        Button {
+                            button_type: ButtonType::Link,
+                            href: routes::openapi_specs::Index { team_id: team_id.clone() }.to_string(),
+                            button_scheme: ButtonScheme::Error,
+                            "Cancel"
+                        }
+                        Button {
+                            button_type: ButtonType::Submit,
+                            button_scheme: ButtonScheme::Primary,
+                            if is_edit {
+                                "Save Changes"
+                            } else {
+                                "Create Spec"
                             }
                         }
                     }
