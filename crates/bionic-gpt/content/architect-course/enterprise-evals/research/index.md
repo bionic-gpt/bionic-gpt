@@ -56,6 +56,9 @@ A good result should:
 4. Distinguish bank examples from regulator and policy context.
 5. Produce a concise five-slide briefing, ideally as a generated artifact.
 
+
+![Research on Bionic](bionic-results.png)
+
 ## What the Eval API Provides
 
 | Operation | Method | Path | Purpose |
