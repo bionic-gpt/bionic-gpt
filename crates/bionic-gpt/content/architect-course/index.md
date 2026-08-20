@@ -43,8 +43,8 @@ data, and success criteria.
   /architect-course/ai-computer/scheduled-tasks/).
 - **Run enterprise evals:** test [inbox summarization](
   /architect-course/enterprise-evals/inbox-summarization/) and a
-  [sovereign AI research briefing](
-  /architect-course/enterprise-evals/sovereign-ai-research-briefing/).
+  [deep research](
+  /architect-course/enterprise-evals/research/).
 - **Keep people in control:** [present results for review](
   /architect-course/human-in-the-loop/presenting-results/).
 - **Operate safely:** understand [why Kubernetes](

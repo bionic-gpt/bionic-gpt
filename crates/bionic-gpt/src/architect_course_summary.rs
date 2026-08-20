@@ -228,10 +228,9 @@ pub fn summary() -> Summary {
                         title: "Deep Research",
                         description:
                             "Evaluate whether the model can use a search integration, inspect source results, and produce an executive briefing.",
-                        folder:
-                            "architect-course/enterprise-evals/sovereign-ai-research-briefing/",
+                        folder: "architect-course/enterprise-evals/research/",
                         markdown: include_str!(
-                            "../content/architect-course/enterprise-evals/sovereign-ai-research-briefing/index.md"
+                            "../content/architect-course/enterprise-evals/research/index.md"
                         ),
                         image: None,
                         author_image: None,
