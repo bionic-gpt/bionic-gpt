@@ -255,9 +255,10 @@ pub fn summary() -> Summary {
                         description:
                             "Evaluate whether the model can analyse structured data and produce a focused dashboard artifact.",
                         folder: "architect-course/enterprise-evals/dashboard-builder/",
-                        markdown: include_str!(
-                            "../content/architect-course/enterprise-evals/dashboard-builder/index.md"
-                        ),
+                        markdown: include_str!(concat!(
+                            env!("OUT_DIR"),
+                            "/dashboard-builder-page.md"
+                        )),
                         image: None,
                         author_image: None,
                         author: None,

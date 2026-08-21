@@ -49,6 +49,14 @@ The renderer validates the JSON and creates:
 The JSON remains available as the editable source, while `CANVAS.md` is the
 self-contained HTML artifact that Bionic displays in the conversation.
 
+## Source files
+
+The downloadable package is backed by these two source files:
+
+<!-- DASHBOARD_SKILL_SOURCE -->
+
+<!-- DASHBOARD_RENDERER_SOURCE -->
+
 ## Choosing widgets
 
 Use the smallest useful set of widgets:
