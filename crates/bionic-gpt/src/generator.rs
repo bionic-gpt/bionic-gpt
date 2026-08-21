@@ -1,7 +1,10 @@
 use std::fs;
+use std::io::{Cursor, Write};
 use std::path::Path;
 
 use ssg_whiz::SitePage;
+use zip::write::SimpleFileOptions;
+use zip::ZipWriter;
 
 use crate::pages;
 
@@ -14,6 +17,13 @@ const EVAL_SPEC_FILES: [&str; 2] = ["email-integration.openapi.yaml", "web-searc
 const POSTGRES_MCP_SPEC_SOURCE: &str =
     concat!(env!("CARGO_MANIFEST_DIR"), "/../postgres-mcp/postgres.json");
 const POSTGRES_MCP_SPEC_OUTPUT: &str = "postgres.openapi.json";
+const DASHBOARD_SKILL_SOURCE_DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/content/architect-course/enterprise-evals/dashboard-builder/package"
+);
+const DASHBOARD_SKILL_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals/dashboard-builder";
+const DASHBOARD_SKILL_ZIP: &str =
+    "dist/architect-course/enterprise-evals/dashboard-builder/dashboard-builder.zip";
 
 fn output_page(path: &str, html: String) -> SitePage {
     SitePage {
@@ -51,12 +61,58 @@ pub async fn generate_marketing() -> Vec<SitePage> {
 
 pub async fn generate_static_pages() -> Vec<SitePage> {
     copy_enterprise_eval_specs();
+    copy_dashboard_skill_package();
 
     let mut pages = Vec::new();
     pages.extend(generate_marketing().await);
     pages.extend(generate_product().await);
     pages.extend(generate_solutions().await);
     pages
+}
+
+fn copy_dashboard_skill_package() {
+    let source_dir = Path::new(DASHBOARD_SKILL_SOURCE_DIR);
+    let output_dir = Path::new(DASHBOARD_SKILL_OUTPUT_DIR);
+    fs::create_dir_all(output_dir.join("bin"))
+        .expect("failed to create dashboard skill output directory");
+
+    let files = [
+        ("SKILL.md", "SKILL.md"),
+        ("bin/render_dashboard.py", "bin/render_dashboard.py"),
+    ];
+    let mut archive = ZipWriter::new(Cursor::new(Vec::new()));
+    let options = SimpleFileOptions::default();
+
+    for (source_name, archive_name) in files {
+        let source = source_dir.join(source_name);
+        let contents = fs::read(&source).unwrap_or_else(|error| {
+            panic!(
+                "failed to read dashboard skill file {}: {error}",
+                source.display()
+            )
+        });
+        fs::write(output_dir.join(source_name), &contents).unwrap_or_else(|error| {
+            panic!(
+                "failed to copy dashboard skill file {}: {error}",
+                source.display()
+            )
+        });
+        archive
+            .start_file(format!("dashboard-builder/{archive_name}"), options)
+            .expect("failed to add dashboard skill file to archive");
+        archive
+            .write_all(&contents)
+            .expect("failed to write dashboard skill file to archive");
+    }
+
+    let archive = archive
+        .finish()
+        .expect("failed to finish dashboard skill archive")
+        .into_inner();
+    if let Some(parent) = Path::new(DASHBOARD_SKILL_ZIP).parent() {
+        fs::create_dir_all(parent).expect("failed to create dashboard skill archive directory");
+    }
+    fs::write(DASHBOARD_SKILL_ZIP, archive).expect("failed to write dashboard skill archive");
 }
 
 fn copy_enterprise_eval_specs() {

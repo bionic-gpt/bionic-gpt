@@ -647,6 +647,7 @@ dependencies = [
  "tower-livereload 0.10.2",
  "tracing",
  "tracing-subscriber",
+ "zip",
 ]
 
 [[package]]
