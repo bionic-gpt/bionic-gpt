@@ -225,7 +225,7 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, form: ModelForm) 
                             Fieldset {
                                 legend: "Set the maximum tokens per minute for each user.",
                                 legend_class: "mt-4",
-                                help_text: "If users exceed this limit there access to the model will be limited.",
+                                help_text: "If users exceed this limit their access to the model will be limited.",
                                 Input {
                                     input_type: InputType::Number,
                                     name: "tpm_limit",
@@ -236,7 +236,7 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, form: ModelForm) 
                             Fieldset {
                                 legend: "Set the maximum requests per minute for each user.",
                                 legend_class: "mt-4",
-                                help_text: "If users exceed this limit there access to the model will be limited.",
+                                help_text: "If users exceed this limit their access to the model will be limited.",
                                 Input {
                                     input_type: InputType::Number,
                                     name: "rpm_limit",

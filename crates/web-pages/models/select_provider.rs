@@ -9,6 +9,8 @@ use db::Visibility;
 use dioxus::prelude::*;
 
 const DEFAULT_DISCLAIMER: &str = "AI can make mistakes. Check important information.";
+const DEFAULT_TPM_LIMIT: i32 = 1_000_000;
+const DEFAULT_RPM_LIMIT: i32 = 10_000;
 
 pub fn page(team_id: String, rbac: Rbac, setup_required: bool, providers: Vec<Provider>) -> String {
     let default_visibility = if rbac.is_sys_admin {
@@ -129,8 +131,8 @@ fn provider_modal(
                 input { "type": "hidden", name: "display_name", value: "{default_display_name}" }
                 input { "type": "hidden", name: "model_type", value: "LLM" }
                 input { "type": "hidden", name: "base_url", value: "{provider.base_url}" }
-                input { "type": "hidden", name: "tpm_limit", value: "10000" }
-                input { "type": "hidden", name: "rpm_limit", value: "10000" }
+                input { "type": "hidden", name: "tpm_limit", value: "{DEFAULT_TPM_LIMIT}" }
+                input { "type": "hidden", name: "rpm_limit", value: "{DEFAULT_RPM_LIMIT}" }
                 input { "type": "hidden", name: "context_size", value: "{provider.default_model_context_size}" }
                 input { "type": "hidden", name: "description", value: "{provider.default_model_description}" }
                 input { "type": "hidden", name: "disclaimer", value: "{DEFAULT_DISCLAIMER}" }
