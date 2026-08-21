@@ -68,9 +68,18 @@ conclusions rather than reproduce every row in the source data.
 ## Example prompt
 
 ```text
-Analyse the attached quarterly sales data. Create a focused dashboard showing
-total revenue, the monthly trend, revenue by region, the largest customers, and
-any material margin risk. Use only values derived from the data.
+Use the attached quarterly sales data to build a focused dashboard.
+
+Include:
+- metric cards for total revenue and average margin;
+- a line chart showing monthly revenue;
+- a bar chart comparing revenue by region;
+- a pie chart showing revenue mix by product category;
+- a table of the five largest customers;
+- an alert if the data shows a material margin risk.
+
+Use only values derived from the data. Omit any visualization the data cannot
+support, and keep the dashboard between 3 and 7 widgets.
 ```
 
 The resulting dashboard should make the evidence visible and explain important
