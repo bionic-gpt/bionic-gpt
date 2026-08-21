@@ -249,6 +249,19 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    PageSummary {
+                        date: "",
+                        title: "Dashboard Generation",
+                        description:
+                            "Evaluate whether the model can analyse structured data and produce a focused dashboard artifact.",
+                        folder: "architect-course/enterprise-evals/dashboard-builder/",
+                        markdown: include_str!(
+                            "../content/architect-course/enterprise-evals/dashboard-builder/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
