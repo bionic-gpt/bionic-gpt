@@ -47,6 +47,12 @@ The default lab includes the Postgres MCP container at:
 http://postgres-mcp:8080/v1
 ```
 
+External clients on the host, such as another local eval project, can use:
+
+```text
+http://localhost:3080/v1
+```
+
 ## Add the Integration to Bionic
 
 Download the OpenAPI spec, then go to the admin area in Bionic. Open

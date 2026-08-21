@@ -10,9 +10,9 @@ use crate::state::AppState;
 pub fn v1_router() -> Router<AppState> {
     Router::new()
         .route("/schemas", get(schemas::list_schemas))
-        .route("/schemas/:schema/objects", get(schemas::list_objects))
+        .route("/schemas/{schema}/objects", get(schemas::list_objects))
         .route(
-            "/schemas/:schema/objects/:object",
+            "/schemas/{schema}/objects/{object}",
             get(schemas::get_object_details),
         )
         .route("/sql/execute", post(sql::execute_sql))
