@@ -22,6 +22,8 @@ services:
   # Use by the Zero to Hero course.
   postgres-mcp:
     image: ghcr.io/bionic-gpt/bionicgpt-postgres-mcp:1.12.16
+    ports:
+      - "3080:8080"
 
   # Use by the Zero to Hero course.
   doc-engine:

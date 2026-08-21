@@ -236,6 +236,19 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    PageSummary {
+                        date: "",
+                        title: "Enterprise Database Access",
+                        description:
+                            "Evaluate whether the model can inspect a live database, discover schemas, run readonly SQL, and produce a grounded operational report.",
+                        folder: "architect-course/enterprise-evals/database/",
+                        markdown: include_str!(
+                            "../content/architect-course/enterprise-evals/database/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {

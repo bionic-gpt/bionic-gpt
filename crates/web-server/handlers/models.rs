@@ -22,6 +22,9 @@ use web_pages::models::upsert as model_page;
 use web_pages::routes::models::{Delete, Edit, Index, New, SelectProvider, Upsert};
 use web_pages::{string_to_visibility, visibility_to_string};
 
+const DEFAULT_TPM_LIMIT: i32 = 1_000_000;
+const DEFAULT_RPM_LIMIT: i32 = 10_000;
+
 #[derive(Deserialize, Default)]
 pub struct ProviderQuery {
     pub provider_id: Option<i32>,
@@ -150,8 +153,8 @@ pub async fn new_loader(
         model_type: "LLM".to_string(),
         base_url: "".to_string(),
         api_key: "".to_string(),
-        tpm_limit: 10_000,
-        rpm_limit: 10_000,
+        tpm_limit: DEFAULT_TPM_LIMIT,
+        rpm_limit: DEFAULT_RPM_LIMIT,
         context_size_bytes: 2048,
         visibility: visibility_to_string(if rbac.is_sys_admin {
             Visibility::Company

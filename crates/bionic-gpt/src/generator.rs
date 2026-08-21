@@ -11,6 +11,9 @@ const EVAL_SPEC_SOURCE_DIR: &str = concat!(
 );
 const EVAL_SPEC_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals";
 const EVAL_SPEC_FILES: [&str; 2] = ["email-integration.openapi.yaml", "web-search.openapi.yaml"];
+const POSTGRES_MCP_SPEC_SOURCE: &str =
+    concat!(env!("CARGO_MANIFEST_DIR"), "/../postgres-mcp/postgres.json");
+const POSTGRES_MCP_SPEC_OUTPUT: &str = "postgres.openapi.json";
 
 fn output_page(path: &str, html: String) -> SitePage {
     SitePage {
@@ -71,4 +74,13 @@ fn copy_enterprise_eval_specs() {
             )
         });
     }
+
+    let postgres_destination = output_dir.join(POSTGRES_MCP_SPEC_OUTPUT);
+    fs::copy(POSTGRES_MCP_SPEC_SOURCE, &postgres_destination).unwrap_or_else(|error| {
+        panic!(
+            "failed to copy Postgres MCP spec from {} to {}: {error}",
+            POSTGRES_MCP_SPEC_SOURCE,
+            postgres_destination.display()
+        )
+    });
 }
