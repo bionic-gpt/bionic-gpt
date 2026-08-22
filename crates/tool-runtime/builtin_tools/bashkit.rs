@@ -1552,6 +1552,15 @@ mod tests {
         assert_eq!(result.stdout, "4\n");
     }
 
+    #[tokio::test]
+    async fn test_bashkit_base64_builtin_is_available() {
+        let mut bash = Bash::new();
+        let result = bash.exec("printf 'hello' | base64").await.unwrap();
+
+        assert_eq!(result.exit_code, 0);
+        assert_eq!(result.stdout.trim(), "aGVsbG8=");
+    }
+
     #[test]
     fn test_sanitize_attachment_file_name() {
         assert_eq!(sanitize_attachment_file_name("report.txt"), "report.txt");

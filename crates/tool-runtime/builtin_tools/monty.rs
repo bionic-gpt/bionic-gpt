@@ -367,15 +367,16 @@ pub async fn function_catalogue_for_conversation(
 }
 
 fn function_markdown(integration: &IntegrationInfo) -> String {
+    let example = integration
+        .operations
+        .first()
+        .map(operation_example)
+        .unwrap_or_else(|| "python3 -c \"print(<function_name>())\"".to_string());
     let mut markdown = format!(
-        "# {}\n\nSlug: {}\n\nCall these functions with python3 inside run_bash. Example:\n\n```bash\npython3 -c \"print({}())\"\n```\n\nFunctions:\n",
+        "# {}\n\nSlug: {}\n\nCall these functions directly by name with python3 inside run_bash. These markdown files are documentation, not Python modules; do not use `from functions import ...`. Example:\n\n```bash\n{}\n```\n\nFunctions:\n",
         integration.name,
         integration.slug,
-        integration
-            .operations
-            .first()
-            .map(|operation| operation.function_name.as_str())
-            .unwrap_or("<function_name>")
+        example
     );
 
     for operation in &integration.operations {
@@ -392,6 +393,29 @@ fn function_markdown(integration: &IntegrationInfo) -> String {
     }
 
     markdown
+}
+
+fn operation_example(operation: &RuntimeOperation) -> String {
+    if let Some(parameter) = byte_parameter_name(&operation.parameters) {
+        return format!(
+            "encoded=$(base64 /home/user/attachments/<document>)\npython3 -c \"print({}(**{{'{}': '$encoded'}}))\"",
+            operation.function_name, parameter
+        );
+    }
+
+    format!("python3 -c \"print({}())\"", operation.function_name)
+}
+
+fn byte_parameter_name(parameters: &Value) -> Option<&str> {
+    parameters
+        .get("properties")
+        .and_then(Value::as_object)
+        .and_then(|properties| {
+            properties.iter().find_map(|(name, schema)| {
+                (schema.get("format").and_then(Value::as_str) == Some("byte"))
+                    .then_some(name.as_str())
+            })
+        })
 }
 
 fn parameter_names(parameters: &Value) -> Vec<String> {
@@ -626,6 +650,7 @@ mod tests {
         let markdown = String::from_utf8(web_file.contents.clone()).unwrap();
         assert!(markdown.contains("web_open_url"));
         assert!(markdown.contains("parameters: url"));
+        assert!(markdown.contains("do not use `from functions import ...`"));
     }
 
     #[test]
@@ -666,6 +691,40 @@ mod tests {
         .unwrap();
         assert!(markdown.contains("enterprise_email_api_listemails"));
         assert!(!markdown.contains("\"type\""));
+    }
+
+    #[test]
+    fn function_catalogue_documents_base64_file_calls() {
+        let operation = RuntimeOperation {
+            function_name: "document_conversion_api_extractdocument".to_string(),
+            description: "Convert a document".to_string(),
+            parameters: json!({
+                "type": "object",
+                "properties": {
+                    "files": {"type": "string", "format": "byte"}
+                }
+            }),
+            executor: OperationExecutor::OpenUrl,
+        };
+        let registry = RuntimeFunctionRegistry::with_builtin_functions(
+            vec![IntegrationInfo {
+                name: "Document Conversion API".to_string(),
+                slug: "document_conversion_api".to_string(),
+                operations: vec![operation],
+            }],
+            HashMap::new(),
+        );
+
+        let file = registry
+            .function_catalogue()
+            .files
+            .into_iter()
+            .find(|file| file.path.ends_with("document_conversion_api.md"))
+            .expect("expected document conversion catalogue");
+        let markdown = String::from_utf8(file.contents).unwrap();
+        assert!(markdown.contains("base64 /home/user/attachments/<document>"));
+        assert!(markdown.contains("document_conversion_api_extractdocument"));
+        assert!(markdown.contains("'files': '$encoded'"));
     }
 
     #[test]
