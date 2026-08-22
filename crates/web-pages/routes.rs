@@ -554,6 +554,20 @@ pub mod skills {
         pub team_id: String,
         pub id: i32,
     }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills/{id}")]
+    pub struct View {
+        pub team_id: String,
+        pub id: i32,
+    }
+
+    #[derive(TypedPath, Deserialize)]
+    #[typed_path("/o/{team_id}/skills/{id}/file")]
+    pub struct UpdateFile {
+        pub team_id: String,
+        pub id: i32,
+    }
 }
 
 pub mod categories {

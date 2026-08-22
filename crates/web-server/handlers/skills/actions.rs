@@ -11,7 +11,7 @@ use std::collections::BTreeSet;
 use std::io::{Cursor, Read};
 use std::path::{Component, Path, PathBuf};
 use web_pages::{
-    routes::skills::{Delete, Index, Upsert},
+    routes::skills::{Delete, Index, UpdateFile, Upsert, View},
     string_to_visibility,
 };
 use zip::ZipArchive;
@@ -58,6 +58,74 @@ pub async fn action_delete(
         &web_pages::routes::skills::Index { team_id }.to_string(),
         "Skill Deleted",
     )
+}
+
+pub async fn action_update_file(
+    UpdateFile { team_id, id }: UpdateFile,
+    Extension(pool): Extension<Pool>,
+    Extension(storage_config): Extension<object_storage::StorageConfig>,
+    current_user: Jwt,
+    mut multipart: Multipart,
+) -> Result<impl IntoResponse, CustomError> {
+    let mut relative_path = None;
+    let mut content = None;
+    while let Some(field) = multipart.next_field().await? {
+        match field.name().unwrap_or_default() {
+            "relative_path" => relative_path = Some(field.text().await?),
+            "content" => content = Some(field.bytes().await?.to_vec()),
+            _ => {}
+        }
+    }
+    let relative_path = relative_path.unwrap_or_default();
+    let content = content.unwrap_or_default();
+    if relative_path.is_empty() || content.len() > 1024 * 1024 {
+        return crate::layout::redirect_and_snackbar(
+            &View { team_id, id }.to_string(),
+            "File path is required and text files must be 1 MiB or smaller",
+        );
+    }
+    if std::str::from_utf8(&content).is_err() {
+        return crate::layout::redirect_and_snackbar(
+            &View { team_id, id }.to_string(),
+            "Only UTF-8 text files can be edited",
+        );
+    }
+
+    let mut client = pool.get().await?;
+    let transaction = client.transaction().await?;
+    let (permissions, team_id_num) =
+        authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
+    let file = queries::skills::visible_skill_files()
+        .bind(&transaction)
+        .all()
+        .await?
+        .into_iter()
+        .find(|file| file.skill_id == id && file.relative_path == relative_path);
+    let Some(file) = file else {
+        return crate::layout::redirect_and_snackbar(
+            &View { team_id, id }.to_string(),
+            "File not found",
+        );
+    };
+    if file.is_system {
+        return crate::layout::redirect_and_snackbar(
+            &View { team_id, id }.to_string(),
+            "System skill files cannot be edited",
+        );
+    }
+    let object_id = object_storage::upload(
+        &storage_config,
+        permissions.user_id,
+        team_id_num,
+        &relative_path,
+        &content,
+    )
+    .await?;
+    queries::skills::update_skill_file()
+        .bind(&transaction, &object_id, &id, &relative_path)
+        .await?;
+    transaction.commit().await?;
+    crate::layout::redirect_and_snackbar(&View { team_id, id }.to_string(), "File saved")
 }
 
 pub async fn action_upsert(

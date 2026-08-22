@@ -170,6 +170,16 @@ AND
         AND team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
     );
 
+--! update_skill_file
+UPDATE context.skill_files sf
+SET object_id = :object_id
+FROM context.skills s
+WHERE sf.skill_id = :skill_id
+AND sf.relative_path = :relative_path
+AND s.id = sf.skill_id
+AND s.is_system = false
+AND s.team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user());
+
 --! delete_skill
 DELETE FROM
     context.skills
