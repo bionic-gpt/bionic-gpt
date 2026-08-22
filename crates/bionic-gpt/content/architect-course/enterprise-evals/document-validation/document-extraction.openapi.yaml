@@ -1,0 +1,57 @@
+openapi: 3.0.3
+info:
+  title: Document Conversion API
+  version: 1.0.14
+  description: >-
+    Internal document extraction service for business documents. Provide the
+    file as base64 encoded bytes and use the response as the source for facts.
+  x-bionic-slug: document-conversion-api
+servers:
+  - url: http://doc-engine:8000
+paths:
+  /extract:
+    post:
+      operationId: extractDocument
+      summary: Extract a business document
+      description: >-
+        Extract text, tables, and metadata from a supplied document. Read the
+        selected file from the conversation VFS, base64 encode its bytes, and
+        pass them as `files`. Do not invent content that is not present in the
+        response.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: string
+                  format: byte
+                  description: Base64-encoded document bytes.
+                chunking_strategy:
+                  type: string
+                  default: by_title
+                combine_under_n_chars:
+                  type: integer
+                  default: 500
+                new_after_n_chars:
+                  type: integer
+                  default: 1500
+                multipage_sections:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Extracted document content
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '400': { description: Invalid document or request }
+        '415': { description: Unsupported document type }
+        '500': { description: Document extraction failed }

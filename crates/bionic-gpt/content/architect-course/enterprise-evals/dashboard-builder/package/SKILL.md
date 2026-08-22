@@ -1,3 +1,8 @@
+---
+name: Dashboard Builder
+description: Creates interactive dashboards using Bionic's dashboard DSL.
+---
+
 # Dashboard Skill
 
 You create interactive dashboards using Bionic's dashboard DSL.

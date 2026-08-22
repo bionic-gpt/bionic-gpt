@@ -56,6 +56,7 @@ pub fn Upsert(
                                     ),
                                     Input {
                                         input_type: InputType::Text,
+                                        class: "w-full",
                                         placeholder: format!("{} Name", dataset_label),
                                         required: true,
                                         value: name,
@@ -74,6 +75,7 @@ pub fn Upsert(
                                         dataset_lower
                                     ),
                                     Select {
+                                        class: "w-full",
                                         name: "visibility",
                                         value: "Private",
                                         SelectOption {
@@ -110,6 +112,7 @@ pub fn Upsert(
                                 legend_class: "mt-4",
                                 help_text: "Embeddings are vector stored in the database",
                                 Select {
+                                    class: "w-full",
                                     name: "embeddings_model_id",
                                     for model in &models {
                                         option {
@@ -125,6 +128,7 @@ pub fn Upsert(
                                 legend_class: "mt-4",
                                 help_text: "These are the chunking strategies supported by unstructured.",
                                 Select {
+                                    class: "w-full",
                                     name: "chunking_strategy",
                                     value: "By Title",
                                     option {
@@ -140,6 +144,7 @@ pub fn Upsert(
                                 help_text: "Sections will be combined if they do not exceed the specified threshold",
                                 Input {
                                     input_type: InputType::Text,
+                                    class: "w-full",
                                     value: "{combine_under_n_chars}",
                                     required: true,
                                     name: "combine_under_n_chars"
@@ -151,6 +156,7 @@ pub fn Upsert(
                                 help_text: "Start a new section if the length of a section exceeds this value",
                                 Input {
                                     input_type: InputType::Text,
+                                    class: "w-full",
                                     value: "{new_after_n_chars}",
                                     required: true,
                                     name: "new_after_n_chars"
@@ -162,6 +168,7 @@ pub fn Upsert(
                                 legend_class: "mt-4",
                                 help_text: "Allow for sections that span between pages?",
                                 Select {
+                                    class: "w-full",
                                     name: "multipage_sections",
                                     option {
                                         value: "true",

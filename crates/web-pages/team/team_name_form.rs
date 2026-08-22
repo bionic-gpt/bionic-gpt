@@ -22,6 +22,7 @@ pub fn TeamNameForm(submit_action: String) -> Element {
                             help_text: "Give your new team a name",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 placeholder: "Team Name",
                                 required: true,
                                 name: "name"

@@ -14,12 +14,22 @@ const EVAL_SPEC_SOURCE_DIR: &str = concat!(
 );
 const EVAL_SPEC_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals";
 const EVAL_SPEC_FILES: [&str; 2] = ["email-integration.openapi.yaml", "web-search.openapi.yaml"];
+const DOCUMENT_VALIDATION_DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/content/architect-course/enterprise-evals/document-validation"
+);
+const DOCUMENT_VALIDATION_OUTPUT_DIR: &str =
+    "dist/architect-course/enterprise-evals/document-validation";
 const POSTGRES_MCP_SPEC_SOURCE: &str =
     concat!(env!("CARGO_MANIFEST_DIR"), "/../postgres-mcp/postgres.json");
 const POSTGRES_MCP_SPEC_OUTPUT: &str = "postgres.openapi.json";
 const DASHBOARD_SKILL_SOURCE_DIR: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/content/architect-course/enterprise-evals/dashboard-builder/package"
+);
+const DASHBOARD_SALES_CSV_SOURCE: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/content/architect-course/enterprise-evals/dashboard-builder/quarterly-sales.csv"
 );
 const DASHBOARD_SKILL_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals/dashboard-builder";
 const DASHBOARD_SKILL_ZIP: &str =
@@ -61,6 +71,7 @@ pub async fn generate_marketing() -> Vec<SitePage> {
 
 pub async fn generate_static_pages() -> Vec<SitePage> {
     copy_enterprise_eval_specs();
+    copy_document_validation_assets();
     copy_dashboard_skill_package();
 
     let mut pages = Vec::new();
@@ -70,11 +81,65 @@ pub async fn generate_static_pages() -> Vec<SitePage> {
     pages
 }
 
+fn copy_document_validation_assets() {
+    let source_dir = Path::new(DOCUMENT_VALIDATION_DIR);
+    let output_dir = Path::new(DOCUMENT_VALIDATION_OUTPUT_DIR);
+    fs::create_dir_all(output_dir).expect("failed to create document validation output directory");
+    for file_name in [
+        "document-extraction.openapi.yaml",
+        "vendor-agreement.docx",
+        "vendor-service-schedule.xlsx",
+        "procurement-security-rubric.pdf",
+    ] {
+        let source = source_dir.join(file_name);
+        let destination = output_dir.join(file_name);
+        fs::copy(&source, &destination).unwrap_or_else(|error| {
+            panic!(
+                "failed to copy document validation asset from {} to {}: {error}",
+                source.display(),
+                destination.display()
+            )
+        });
+    }
+
+    let skill_source = source_dir.join("document-validation-skill");
+    let skill_output = output_dir.join("document-validation-skill");
+    fs::create_dir_all(&skill_output).expect("failed to create validation skill output directory");
+    for file_name in ["SKILL.md", "rubric.md"] {
+        fs::copy(skill_source.join(file_name), skill_output.join(file_name))
+            .expect("failed to copy validation skill file");
+    }
+
+    let mut archive = ZipWriter::new(Cursor::new(Vec::new()));
+    let options = SimpleFileOptions::default();
+    for file_name in ["SKILL.md", "rubric.md"] {
+        let contents =
+            fs::read(skill_source.join(file_name)).expect("failed to read validation skill file");
+        archive
+            .start_file(format!("document-validation/{file_name}"), options)
+            .expect("failed to add validation skill file to archive");
+        archive
+            .write_all(&contents)
+            .expect("failed to write validation skill file to archive");
+    }
+    let archive = archive
+        .finish()
+        .expect("failed to finish validation skill archive")
+        .into_inner();
+    fs::write(output_dir.join("document-validation.zip"), archive)
+        .expect("failed to write validation skill archive");
+}
+
 fn copy_dashboard_skill_package() {
     let source_dir = Path::new(DASHBOARD_SKILL_SOURCE_DIR);
     let output_dir = Path::new(DASHBOARD_SKILL_OUTPUT_DIR);
     fs::create_dir_all(output_dir.join("bin"))
         .expect("failed to create dashboard skill output directory");
+    fs::copy(
+        DASHBOARD_SALES_CSV_SOURCE,
+        output_dir.join("quarterly-sales.csv"),
+    )
+    .expect("failed to copy quarterly sales CSV");
 
     let files = [
         ("SKILL.md", "SKILL.md"),

@@ -10,6 +10,7 @@ SELECT
     logo_url,
     category,
     is_active,
+    is_system,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at
@@ -28,6 +29,7 @@ SELECT
     logo_url,
     category,
     is_active,
+    is_system,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at
@@ -37,6 +39,30 @@ WHERE
     is_active = TRUE
 AND
     category = 'Application'
+AND
+    is_system = FALSE
+ORDER BY
+    title;
+
+--! active_system : OpenapiSpec
+SELECT
+    id,
+    slug,
+    title,
+    description,
+    spec,
+    logo_url,
+    category,
+    is_active,
+    is_system,
+    trim(both '"' from to_json(created_at)::text) as created_at,
+    trim(both '"' from to_json(updated_at)::text) as updated_at
+FROM
+    integrations.openapi_specs
+WHERE
+    is_active = TRUE
+AND
+    is_system = TRUE
 ORDER BY
     title;
 
@@ -50,6 +76,7 @@ SELECT
     logo_url,
     category,
     is_active,
+    is_system,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at
@@ -103,6 +130,7 @@ SELECT
     logo_url,
     category,
     is_active,
+    is_system,
     -- Convert times to ISO 8601 string.
     trim(both '"' from to_json(created_at)::text) as created_at,
     trim(both '"' from to_json(updated_at)::text) as updated_at

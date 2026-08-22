@@ -1,33 +1,11 @@
 use crate::builtin_tools;
-use crate::system_tool_sources::get_system_openapi_tools;
 use crate::types::{ToolCall, ToolResult, ToolResultContent};
 use db::Pool;
 use rig::tool::ToolDyn;
 use rig::OneOrMany;
 use serde_json::{json, Value};
-use std::collections::HashSet;
 use std::sync::Arc;
 use tracing::{debug, error, info, trace, warn};
-
-fn merge_tools_by_name(
-    base_tools: &mut Vec<Arc<dyn ToolDyn>>,
-    incoming_tools: Vec<Arc<dyn ToolDyn>>,
-) {
-    if incoming_tools.is_empty() {
-        return;
-    }
-
-    let mut existing_names: HashSet<String> = base_tools.iter().map(|tool| tool.name()).collect();
-
-    for tool in incoming_tools {
-        let name = tool.name();
-        if existing_names.contains(&name) {
-            base_tools.retain(|existing| existing.name() != name);
-        }
-        base_tools.push(tool);
-        existing_names.insert(name);
-    }
-}
 
 /// Execute a tool call and return a message with the result
 pub async fn execute_tool_calls(
@@ -70,37 +48,12 @@ pub async fn get_tools(
     trace!("Getting available tool instances");
 
     // Start with internal tools
-    let mut tools: Vec<Arc<dyn ToolDyn>> =
-        vec![Arc::new(builtin_tools::bashkit::BashkitTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-            prompt_id,
-        ))];
-
-    debug!("Adding attachment tools with database pool");
-    tools.push(Arc::new(
-        builtin_tools::list_documents::ListDocumentsTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-        ),
-    ));
-    tools.push(Arc::new(
-        builtin_tools::read_document::ReadDocumentTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-        ),
-    ));
-
-    // Get system OpenAPI tools (Web Search)
-    match get_system_openapi_tools(pool).await {
-        Ok(system_tools) => merge_tools_by_name(&mut tools, system_tools),
-        Err(err) => {
-            warn!("Failed to load system OpenAPI tools: {}", err);
-        }
-    }
+    let tools: Vec<Arc<dyn ToolDyn>> = vec![Arc::new(builtin_tools::bashkit::BashkitTool::new(
+        pool.clone(),
+        sub.clone(),
+        conversation_id,
+        prompt_id,
+    ))];
 
     info!("Returning {} tool instances", tools.len());
     tools

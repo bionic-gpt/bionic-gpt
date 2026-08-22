@@ -226,8 +226,11 @@ impl BionicOpenAPI {
 
     /// Extract schema from a request body JSON value
     fn extract_schema_from_request_body_value(&self, request_body: &RequestBody) -> Option<Value> {
-        let json_content = request_body.content.get("application/json")?;
-        let schema_ref = json_content.schema.as_ref()?;
+        let content = request_body
+            .content
+            .get("application/json")
+            .or_else(|| request_body.content.get("multipart/form-data"))?;
+        let schema_ref = content.schema.as_ref()?;
         let schema = schema_ref.resolve(&self.spec).ok()?;
         serde_json::to_value(schema).ok()
     }
@@ -540,6 +543,47 @@ mod tests {
         assert!(tool_names.contains(&"getUsers".to_string()));
         assert!(tool_names.contains(&"createUser".to_string()));
         assert!(tool_names.contains(&"getUserById".to_string()));
+    }
+
+    #[test]
+    fn test_create_tool_definitions_supports_multipart_bodies() {
+        let spec = json!({
+            "openapi": "3.0.3",
+            "info": {"title": "Upload API", "version": "1.0.0"},
+            "servers": [{"url": "http://doc-engine:8000"}],
+            "paths": {
+                "/extract": {
+                    "post": {
+                        "operationId": "extractDocument",
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "multipart/form-data": {
+                                    "schema": {
+                                        "type": "object",
+                                        "required": ["files"],
+                                        "properties": {
+                                            "files": {"type": "string", "format": "byte"}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        let tool = BionicOpenAPI::new(&spec)
+            .unwrap()
+            .create_tool_definitions()
+            .tool_definitions
+            .into_iter()
+            .next()
+            .unwrap();
+
+        assert_eq!(tool.name, "extractDocument");
+        assert_eq!(tool.parameters["properties"]["files"]["format"], "byte");
+        assert_eq!(tool.parameters["required"], json!(["files"]));
     }
 
     #[test]

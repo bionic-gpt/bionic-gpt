@@ -18,6 +18,7 @@ pub fn Upload(upload_action: String) -> Element {
                     }
 
                     FileInput {
+                        class: "w-full",
                         name: "payload",
                         required: true,
                         multiple: true

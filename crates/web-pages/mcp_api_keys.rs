@@ -130,6 +130,7 @@ pub fn page(
                         div { class: "text-sm opacity-90", "Copy and store the API key for {created.name}. This is the only time it will be shown." }
                         Input {
                             input_type: InputType::Text,
+                            class: "w-full",
                             value: created.value.clone(),
                             readonly: true,
                             name: "generated-api-key",
@@ -160,6 +161,7 @@ pub fn page(
                                     legend: "Key Name",
                                     help_text: "Give this key a descriptive name so you know where it is used.",
                                     Input {
+                                        class: "w-full",
                                         name: "name",
                                         value: form.name.clone(),
                                         required: true,

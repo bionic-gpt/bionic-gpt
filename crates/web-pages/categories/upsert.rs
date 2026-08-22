@@ -24,6 +24,7 @@ pub fn Upsert(
                     legend: "Name",
                     Input {
                         input_type: InputType::Text,
+                        class: "w-full",
                         name: "name",
                         value: name,
                         required: true,
@@ -31,7 +32,7 @@ pub fn Upsert(
                 }
                 Fieldset {
                     legend: "Description",
-                    TextArea { name: "description", rows: "4", "{description}" }
+                    TextArea { class: "w-full", name: "description", rows: "4", "{description}" }
                 }
                 ModalAction {
                     Button { class: "cancel-modal", button_scheme: ButtonScheme::Warning, "Cancel" }

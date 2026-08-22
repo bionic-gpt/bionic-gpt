@@ -8,67 +8,52 @@ supports both built-in tools and OpenAPI-based external integrations.
 
 - Uses rig's `ToolDyn` trait for all executable tools.
 - Registers built-in tools (time, web, Bashkit, documents, HTML canvas).
-- Loads system-level OpenAPI specs (web search / code sandbox) and converts them
-  into tools.
-- Loads external integrations connected to prompts and converts their OpenAPI
-  specs into tools.
+- Loads system-level and team-connected OpenAPI specs into the Bashkit function
+  catalogue.
 - Executes tool calls and returns JSON results.
 
 ## Key modules
 
 - `builtin_tools/` and OpenAPI adapters implement rig `ToolDyn`.
-- `tool_catalog.rs`: catalog of built-in tools and tool scopes.
+- `tool_catalog.rs`: fixed model-facing built-in tool definitions.
 - `tool_dispatcher.rs`: resolve tool instances and execute tool calls.
 - `openapi_tool_factory.rs`: OpenAPI v3 parsing and tool definition generation.
 - `system_tool_sources.rs`: system-selected OpenAPI specs (per category).
 - `builtin_tools/`: built-in tool implementations.
 - `tool_auth.rs`: auth token providers for OpenAPI tools.
 
-## Tool scopes
+## Model-facing tools
 
-`ToolScope` controls where tools are exposed:
-
-- `UserSelectable`: tools users can enable in chat.
-- `DocumentIntelligence`: tools enabled when a conversation has attachments.
-
-Use `get_tools`, `get_tools_with_system_openapi`, or
-`get_chat_tools_user_selected_with_system_openapi` depending on the context.
+The model receives the fixed `run_bash` definition. OpenAPI integrations are
+discoverable as markdown files under `/home/user/functions` and are invoked
+from Python inside Bashkit; they are not exposed as direct model tools.
 
 ## Built-in tools
 
 - `time_date`: get current time and date.
 - `web`: open URL tool.
 - `run_bash`: Bashkit shell tool with `/home/user/skills`, `/home/user/datasets`,
-  and `rag-search` / `rag-read`.
+  `/home/user/attachments`, and `rag-search` / `rag-read`.
 - `run_python`: Monty-backed Python snippets.
 - `render_html`: static HTML canvas artifacts.
-- `list_documents`, `read_document`: document tools.
 
-## System OpenAPI tools
-
-System OpenAPI tools are loaded from DB-configured specs and used for
-site-wide integrations like Web Search or Code Sandbox:
-
-- `get_system_openapi_tool_definitions` returns tool definitions only.
-- `get_system_openapi_tools` returns executable tool instances.
-
-## External integrations
+## OpenAPI integrations
 
 Prompt integrations are stored in the DB. The flow is:
 
 1. Load prompt integrations and their connections.
-2. Parse OpenAPI v3 spec into tool definitions.
-3. Build executable tools (with auth via token providers).
-4. Merge with built-ins, resolving name conflicts by overriding built-ins.
+2. Parse OpenAPI v3 specs into executable function entries.
+3. Build function markdown files and seed them into the Bashkit VFS.
+4. Invoke functions through the registry with the appropriate token provider.
 
 ## Executing tool calls
 
-`execute_tool_calls` accepts a list of OpenAI-style tool calls and returns
-rig-native `ToolResult` values. It resolves tool instances (built-in, system OpenAPI,
-external OpenAPI) and dispatches each call via `ToolDyn::call`.
+`execute_tool_calls` accepts a list of OpenAI-style tool calls and dispatches
+the fixed built-in tool instances. OpenAPI calls are dispatched by the Bashkit
+function registry.
 
 ## Testing
 
-- `tool_catalog.rs` includes basic tests for tool selection.
+- `tool_catalog.rs` verifies the fixed model-facing tool definition.
 - `tool_dispatcher.rs` includes a tool execution test for the time/date tool.
 - `builtin_tools/openapi_tool_adapter.rs` supports HTTP client overrides for tests.

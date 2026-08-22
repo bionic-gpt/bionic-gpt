@@ -263,6 +263,19 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    PageSummary {
+                        date: "",
+                        title: "Document Validation",
+                        description:
+                            "Evaluate a multi-format vendor package against a procurement rubric.",
+                        folder: "architect-course/enterprise-evals/document-validation/",
+                        markdown: include_str!(
+                            "../content/architect-course/enterprise-evals/document-validation/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
