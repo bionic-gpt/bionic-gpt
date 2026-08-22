@@ -6418,7 +6418,6 @@ dependencies = [
  "oas3",
  "oauth2",
  "object-storage",
- "rag-engine",
  "reqwest 0.13.1",
  "rig-core",
  "serde",

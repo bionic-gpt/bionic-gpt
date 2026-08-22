@@ -78,22 +78,6 @@ pub async fn get_tools(
             prompt_id,
         ))];
 
-    debug!("Adding attachment tools with database pool");
-    tools.push(Arc::new(
-        builtin_tools::list_documents::ListDocumentsTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-        ),
-    ));
-    tools.push(Arc::new(
-        builtin_tools::read_document::ReadDocumentTool::new(
-            pool.clone(),
-            sub.clone(),
-            conversation_id,
-        ),
-    ));
-
     // Get system OpenAPI tools (Web Search)
     match get_system_openapi_tools(pool).await {
         Ok(system_tools) => merge_tools_by_name(&mut tools, system_tools),

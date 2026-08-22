@@ -7,7 +7,6 @@ edition = "2021"
 path = "lib.rs"
 
 [dependencies]
-rag-engine = { path = "../rag-engine" }
 rig = { package = "rig-core", version = "0.40", default-features = false, features = ["reqwest", "rustls"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true

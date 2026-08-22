@@ -38,22 +38,11 @@ fn integration_tool(
 }
 
 pub fn get_integrations(scope: Option<ToolScope>) -> Vec<IntegrationTool> {
-    let mut internal_integrations = vec![
-        integration_tool(
-            "Bash tools",
-            ToolScope::UserSelectable,
-            vec![builtin_tools::bashkit::get_tool_definition()],
-        ),
-        integration_tool(
-            "Tools to retrieve documents and read their contents.",
-            ToolScope::DocumentIntelligence,
-            vec![
-                builtin_tools::list_documents::get_tool_definition(),
-                builtin_tools::read_document::get_tool_definition(),
-                //builtin_tools::read_document_section::get_tool_definition(),
-            ],
-        ),
-    ];
+    let mut internal_integrations = vec![integration_tool(
+        "Bash tools",
+        ToolScope::UserSelectable,
+        vec![builtin_tools::bashkit::get_tool_definition()],
+    )];
 
     // Filter by scope if provided
     if let Some(filter_scope) = scope {
@@ -158,14 +147,8 @@ mod tests {
             assert_eq!(integration.scope, ToolScope::UserSelectable);
         }
 
-        // Test filtering by DocumentIntelligence scope
+        // No attachment-specific tools remain; attachments are exposed through VFS.
         let doc_intelligence = get_integrations(Some(ToolScope::DocumentIntelligence));
-        assert!(
-            !doc_intelligence.is_empty(),
-            "Expected at least one DocumentIntelligence integration"
-        );
-        for integration in &doc_intelligence {
-            assert_eq!(integration.scope, ToolScope::DocumentIntelligence);
-        }
+        assert!(doc_intelligence.is_empty());
     }
 }
