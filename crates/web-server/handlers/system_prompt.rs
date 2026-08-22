@@ -40,6 +40,10 @@ pub async fn loader(
         .bind(&transaction)
         .all()
         .await?;
+    let skill_files = queries::skills::visible_skill_files()
+        .bind(&transaction)
+        .all()
+        .await?;
     let runtime_additions =
         tool_runtime::skills::available_skills_prompt_section_with_custom(skill_summaries.clone());
     let function_catalogue = match tool_runtime::builtin_tools::monty::function_catalogue_for_team(
@@ -58,6 +62,7 @@ pub async fn loader(
     let integration_context = function_catalogue.prompt_section.clone();
     let vfs_preview = tool_runtime::builtin_tools::bashkit::preview_vfs_tree(
         &skill_summaries,
+        &skill_files,
         &function_catalogue.files,
     );
 
