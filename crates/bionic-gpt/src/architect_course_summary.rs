@@ -265,13 +265,12 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Vendor Contract Risk Review",
+                        title: "Document Validation",
                         description:
-                            "Evaluate whether the model can extract a vendor document and produce a grounded procurement risk memo.",
-                        folder:
-                            "architect-course/enterprise-evals/xberg-doc-engine/",
+                            "Evaluate a multi-format vendor package against a procurement rubric.",
+                        folder: "architect-course/enterprise-evals/document-validation/",
                         markdown: include_str!(
-                            "../content/architect-course/enterprise-evals/xberg-doc-engine/index.md"
+                            "../content/architect-course/enterprise-evals/document-validation/index.md"
                         ),
                         image: None,
                         author_image: None,

@@ -157,9 +157,9 @@ paths:
     }
 
     #[test]
-    fn test_parse_xberg_doc_engine_openapi_spec() {
+    fn test_parse_document_extraction_openapi_spec() {
         let spec_yaml = include_str!(
-            "../../../../crates/bionic-gpt/content/architect-course/enterprise-evals/xberg-doc-engine/xberg-doc-engine.openapi.yaml"
+            "../../../../crates/bionic-gpt/content/architect-course/enterprise-evals/document-validation/document-extraction.openapi.yaml"
         );
 
         let Json(parsed) = parse_openapi_spec(spec_yaml).unwrap();
