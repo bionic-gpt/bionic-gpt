@@ -12,6 +12,14 @@ For externally hosted model, one that's not running in your Kubernetes cluster. 
 
 Great news. Add the URL for your provider and any API keys directly into the models section of the user interface.
 
+For example, to use **[OrcaRouter](https://www.orcarouter.ai)** as your gateway provider:
+
+1. In **Models**, choose **Select Provider** → **OrcaRouter**.
+2. The default model is `orcarouter/auto`, which routes each request to the best model for the job.
+3. Paste your OrcaRouter API key (`sk-orca-...`). OrcaRouter exposes an OpenAI-compatible endpoint at `https://api.orcarouter.ai/v1`.
+
+OrcaRouter is a gateway that also runs gateway-level, zero-trust security for AI agents on the same endpoint — screening every prompt/response and governing every tool call on a default-deny basis, with no application code changes.
+
 ![Alt text](bionic-setup.png "Adding Models")
 
 ## For providers that don't support the Open AI `chat/completions` API (Work in Progress)
