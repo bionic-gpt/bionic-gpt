@@ -21,6 +21,10 @@ const DASHBOARD_SKILL_SOURCE_DIR: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/content/architect-course/enterprise-evals/dashboard-builder/package"
 );
+const DASHBOARD_SALES_CSV_SOURCE: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/content/architect-course/enterprise-evals/dashboard-builder/quarterly-sales.csv"
+);
 const DASHBOARD_SKILL_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals/dashboard-builder";
 const DASHBOARD_SKILL_ZIP: &str =
     "dist/architect-course/enterprise-evals/dashboard-builder/dashboard-builder.zip";
@@ -75,6 +79,11 @@ fn copy_dashboard_skill_package() {
     let output_dir = Path::new(DASHBOARD_SKILL_OUTPUT_DIR);
     fs::create_dir_all(output_dir.join("bin"))
         .expect("failed to create dashboard skill output directory");
+    fs::copy(
+        DASHBOARD_SALES_CSV_SOURCE,
+        output_dir.join("quarterly-sales.csv"),
+    )
+    .expect("failed to copy quarterly sales CSV");
 
     let files = [
         ("SKILL.md", "SKILL.md"),
