@@ -1,4 +1,7 @@
-use bashkit::{ExcType, ExtFunctionResult, MontyException, MontyObject, PythonExternalFnHandler};
+use base64::Engine;
+use bashkit::{
+    ExcType, ExtFunctionResult, FileSystem, MontyException, MontyObject, PythonExternalFnHandler,
+};
 use rig::tool::{ToolDyn, ToolError};
 use serde_json::{json, Map, Value};
 use std::collections::{HashMap, HashSet};
@@ -24,6 +27,7 @@ struct RuntimeOperation {
     function_name: String,
     description: String,
     parameters: Value,
+    byte_parameters: Vec<(String, String)>,
     executor: OperationExecutor,
 }
 
@@ -145,12 +149,7 @@ impl RuntimeFunctionRegistry {
                     &format!("{}_{}", slug, tool.name()),
                     &mut used_function_names,
                 );
-                let operation = RuntimeOperation {
-                    function_name: operation_name.clone(),
-                    description: tool.description(),
-                    parameters: tool.parameters(),
-                    executor: OperationExecutor::OpenApiTool(tool),
-                };
+                let operation = runtime_operation(operation_name.clone(), tool);
                 functions.insert(operation_name, operation.clone());
                 operations.push(operation);
             }
@@ -204,12 +203,7 @@ impl RuntimeFunctionRegistry {
                     &format!("{}_{}", slug, tool.name()),
                     &mut used_function_names,
                 );
-                let operation = RuntimeOperation {
-                    function_name: operation_name.clone(),
-                    description: tool.description(),
-                    parameters: tool.parameters(),
-                    executor: OperationExecutor::OpenApiTool(tool),
-                };
+                let operation = runtime_operation(operation_name.clone(), tool);
                 functions.insert(operation_name, operation.clone());
                 operations.push(operation);
             }
@@ -238,6 +232,7 @@ impl RuntimeFunctionRegistry {
                 },
                 "required": ["url"]
             }),
+            byte_parameters: Vec::new(),
             executor: OperationExecutor::OpenUrl,
         };
 
@@ -261,11 +256,26 @@ impl RuntimeFunctionRegistry {
     }
 
     pub fn python_external_handler(self: Arc<Self>) -> PythonExternalFnHandler {
+        self.python_external_handler_with_optional_fs(None)
+    }
+
+    pub fn python_external_handler_with_fs(
+        self: Arc<Self>,
+        fs: Arc<dyn FileSystem>,
+    ) -> PythonExternalFnHandler {
+        self.python_external_handler_with_optional_fs(Some(fs))
+    }
+
+    fn python_external_handler_with_optional_fs(
+        self: Arc<Self>,
+        fs: Option<Arc<dyn FileSystem>>,
+    ) -> PythonExternalFnHandler {
         Arc::new(move |name, args, kwargs| {
             let registry = Arc::clone(&self);
+            let fs = fs.clone();
             Box::pin(async move {
                 registry
-                    .execute_external_function(&name, &args, &kwargs)
+                    .execute_external_function(&name, &args, &kwargs, fs)
                     .await
             })
         })
@@ -274,7 +284,7 @@ impl RuntimeFunctionRegistry {
     pub fn function_catalogue(&self) -> FunctionCatalogue {
         let mut prompt = String::from(
             "Available function catalogues:\n\
-Use run_bash to list /home/user/functions and cat the relevant <integration>.md file. Call functions from Python with python3 inside run_bash.\n",
+Use run_bash to list `/home/user/functions`, then cat the relevant `.md` file before calling an integration. The file contains the exact function names, parameters, and usage examples.\n",
         );
         let mut files = Vec::new();
 
@@ -301,15 +311,47 @@ Use run_bash to list /home/user/functions and cat the relevant <integration>.md 
         name: &str,
         args: &[MontyObject],
         kwargs: &[(MontyObject, MontyObject)],
+        fs: Option<Arc<dyn FileSystem>>,
     ) -> ExtFunctionResult {
         let Some(operation) = self.functions.get(name) else {
             return ExtFunctionResult::Error(value_error(format!("Unknown function: {name}")));
         };
 
-        let arguments = match call_arguments_to_json(args, kwargs) {
+        let mut arguments = match call_arguments_to_json(args, kwargs) {
             Ok(arguments) => arguments,
             Err(err) => return ExtFunctionResult::Error(value_error(err)),
         };
+
+        if !operation.byte_parameters.is_empty() {
+            let Some(fs) = fs else {
+                return ExtFunctionResult::Error(value_error(
+                    "file-backed functions require a Bashkit filesystem".to_string(),
+                ));
+            };
+            for (api_parameter, path_parameter) in &operation.byte_parameters {
+                let Some(path) = arguments.get(path_parameter).and_then(Value::as_str) else {
+                    return ExtFunctionResult::Error(value_error(format!(
+                        "{path_parameter} must be a VFS attachment path"
+                    )));
+                };
+                if !path.starts_with("/home/user/attachments/") {
+                    return ExtFunctionResult::Error(value_error(format!(
+                        "{path_parameter} must refer to /home/user/attachments"
+                    )));
+                }
+                let bytes = match fs.read_file(std::path::Path::new(path)).await {
+                    Ok(bytes) => bytes,
+                    Err(err) => {
+                        return ExtFunctionResult::Error(value_error(format!(
+                            "failed to read {path}: {err}"
+                        )))
+                    }
+                };
+                let encoded = base64::engine::general_purpose::STANDARD.encode(bytes);
+                arguments[api_parameter] = Value::String(encoded);
+                arguments.as_object_mut().unwrap().remove(path_parameter);
+            }
+        }
 
         match &operation.executor {
             OperationExecutor::OpenApiTool(tool) => match tool.call(arguments.to_string()).await {
@@ -395,10 +437,64 @@ fn function_markdown(integration: &IntegrationInfo) -> String {
     markdown
 }
 
+fn runtime_operation(function_name: String, tool: Arc<dyn ToolDyn>) -> RuntimeOperation {
+    let original_parameters = tool.parameters();
+    let (parameters, byte_parameters) = expose_file_parameters(original_parameters);
+    RuntimeOperation {
+        function_name,
+        description: tool.description(),
+        parameters,
+        byte_parameters,
+        executor: OperationExecutor::OpenApiTool(tool),
+    }
+}
+
+fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<(String, String)>) {
+    let mut mappings = Vec::new();
+    let Some(properties) = parameters
+        .get_mut("properties")
+        .and_then(Value::as_object_mut)
+    else {
+        return (parameters, mappings);
+    };
+    let byte_names = properties
+        .iter()
+        .filter_map(|(name, schema)| {
+            (schema.get("format").and_then(Value::as_str) == Some("byte")).then_some(name.clone())
+        })
+        .collect::<Vec<_>>();
+    for (index, api_name) in byte_names.into_iter().enumerate() {
+        let path_name = if index == 0 {
+            "file_path".to_string()
+        } else {
+            format!("{api_name}_file_path")
+        };
+        properties.remove(&api_name);
+        properties.insert(
+            path_name.clone(),
+            json!({
+                "type": "string",
+                "description": "Path to the document in /home/user/attachments."
+            }),
+        );
+        mappings.push((api_name, path_name));
+    }
+    if let Some(required) = parameters.get_mut("required").and_then(Value::as_array_mut) {
+        for value in required {
+            if let Some(name) = value.as_str() {
+                if let Some((_, path_name)) = mappings.iter().find(|(api, _)| api == name) {
+                    *value = Value::String(path_name.clone());
+                }
+            }
+        }
+    }
+    (parameters, mappings)
+}
+
 fn operation_example(operation: &RuntimeOperation) -> String {
-    if let Some(parameter) = byte_parameter_name(&operation.parameters) {
+    if let Some(parameter) = file_path_parameter_name(&operation.parameters) {
         return format!(
-            "encoded=$(base64 /home/user/attachments/<document>)\npython3 -c \"print({}(**{{'{}': '$encoded'}}))\"",
+            "python3 -c \"print({}(**{{'{}': '/home/user/attachments/<document>'}}))\"",
             operation.function_name, parameter
         );
     }
@@ -406,16 +502,11 @@ fn operation_example(operation: &RuntimeOperation) -> String {
     format!("python3 -c \"print({}())\"", operation.function_name)
 }
 
-fn byte_parameter_name(parameters: &Value) -> Option<&str> {
+fn file_path_parameter_name(parameters: &Value) -> Option<&str> {
     parameters
         .get("properties")
         .and_then(Value::as_object)
-        .and_then(|properties| {
-            properties.iter().find_map(|(name, schema)| {
-                (schema.get("format").and_then(Value::as_str) == Some("byte"))
-                    .then_some(name.as_str())
-            })
-        })
+        .and_then(|properties| properties.contains_key("file_path").then_some("file_path"))
 }
 
 fn parameter_names(parameters: &Value) -> Vec<String> {
@@ -639,7 +730,7 @@ mod tests {
 
         let prompt = catalogue.prompt_section.expect("expected prompt section");
         assert!(prompt.contains("- Web Fetch: /home/user/functions/web-fetch.md"));
-        assert!(prompt.contains("python3"));
+        assert!(prompt.contains("cat the relevant `.md` file before calling an integration"));
         assert!(!prompt.contains("run_python"));
 
         let web_file = catalogue
@@ -659,6 +750,7 @@ mod tests {
             function_name: "enterprise_email_api_listemails".to_string(),
             description: "List recent enterprise email messages".to_string(),
             parameters: json!({"type": "object"}),
+            byte_parameters: Vec::new(),
             executor: OperationExecutor::OpenUrl,
         };
         let registry = RuntimeFunctionRegistry::with_builtin_functions(
@@ -677,7 +769,6 @@ mod tests {
             prompt.contains("- Enterprise Email API: /home/user/functions/enterprise_email_api.md")
         );
         assert!(prompt.contains("- Web Fetch: /home/user/functions/web-fetch.md"));
-        assert!(!prompt.contains("parameters"));
 
         let markdown = String::from_utf8(
             catalogue
@@ -701,9 +792,10 @@ mod tests {
             parameters: json!({
                 "type": "object",
                 "properties": {
-                    "files": {"type": "string", "format": "byte"}
+                    "file_path": {"type": "string"}
                 }
             }),
+            byte_parameters: vec![("files".to_string(), "file_path".to_string())],
             executor: OperationExecutor::OpenUrl,
         };
         let registry = RuntimeFunctionRegistry::with_builtin_functions(
@@ -722,9 +814,28 @@ mod tests {
             .find(|file| file.path.ends_with("document_conversion_api.md"))
             .expect("expected document conversion catalogue");
         let markdown = String::from_utf8(file.contents).unwrap();
-        assert!(markdown.contains("base64 /home/user/attachments/<document>"));
         assert!(markdown.contains("document_conversion_api_extractdocument"));
-        assert!(markdown.contains("'files': '$encoded'"));
+        assert!(markdown.contains("file_path': '/home/user/attachments/<document>'"));
+    }
+
+    #[test]
+    fn byte_parameters_are_exposed_as_vfs_paths() {
+        let (parameters, mappings) = expose_file_parameters(json!({
+            "type": "object",
+            "properties": {
+                "files": {"type": "string", "format": "byte"},
+                "mode": {"type": "string"}
+            },
+            "required": ["files"]
+        }));
+
+        assert_eq!(
+            mappings,
+            vec![("files".to_string(), "file_path".to_string())]
+        );
+        assert!(parameters["properties"].get("files").is_none());
+        assert!(parameters["properties"].get("file_path").is_some());
+        assert_eq!(parameters["required"], json!(["file_path"]));
     }
 
     #[test]
