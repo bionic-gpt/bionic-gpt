@@ -72,6 +72,10 @@ pub async fn edit_loader(
         .one()
         .await?;
 
+    if spec.is_system {
+        return Err(CustomError::Authorization);
+    }
+
     let spec_json =
         serde_json::to_string_pretty(&spec.spec).unwrap_or_else(|_| spec.spec.to_string());
 

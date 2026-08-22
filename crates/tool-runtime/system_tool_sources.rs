@@ -3,6 +3,7 @@ use crate::tool_auth::StaticTokenProvider;
 use crate::types::ToolDefinition;
 use db::{queries, OpenapiSpec, OpenapiSpecCategory, Pool};
 use rig::tool::ToolDyn;
+use std::collections::HashSet;
 use std::sync::Arc;
 
 #[derive(Clone, Debug)]
@@ -101,6 +102,24 @@ async fn load_selected_helpers(
     let transaction = client.transaction().await.map_err(|e| e.to_string())?;
 
     let mut helpers = Vec::new();
+
+    // System integrations are enabled globally for every conversation.
+    let system_specs = queries::openapi_specs::active_system()
+        .bind(&transaction)
+        .all()
+        .await
+        .map_err(|e| e.to_string())?;
+    for spec in system_specs {
+        if let Some(selected) = load_spec_with_api_key(&transaction, spec)
+            .await
+            .map_err(|e| e.to_string())?
+        {
+            if let Ok(helper) = build_openapi_helpers(selected) {
+                helpers.push(helper);
+            }
+        }
+    }
+
     for category in [OpenapiSpecCategory::WebSearch] {
         let selected = match load_selected_spec(&transaction, category)
             .await
@@ -131,6 +150,8 @@ pub async fn get_system_openapi_tool_definitions(
         definitions.append(&mut tools);
     }
 
+    let mut names = HashSet::new();
+    definitions.retain(|definition| names.insert(definition.name.clone()));
     Ok(definitions)
 }
 
@@ -142,6 +163,8 @@ pub async fn get_system_openapi_tools(pool: &Pool) -> Result<Vec<Arc<dyn ToolDyn
         tools.append(&mut openapi_tools);
     }
 
+    let mut names = HashSet::new();
+    tools.retain(|tool| names.insert(tool.name()));
     Ok(tools)
 }
 
@@ -164,6 +187,7 @@ mod tests {
             logo_url: None,
             category,
             is_active,
+            is_system: false,
             created_at: "2026-08-20T00:00:00Z".to_string(),
             updated_at: "2026-08-20T00:00:00Z".to_string(),
         }

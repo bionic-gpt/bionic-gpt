@@ -43,6 +43,11 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                     empty_text: "No OpenAPI specs available yet. Add one to get started.".to_string(),
                 }
 
+                p {
+                    class: "text-sm text-base-content/70",
+                    "System integrations are enabled automatically for every team and cannot be selected as team integrations."
+                }
+
                 if !specs.is_empty() {
                     Card {
                         class: "has-data-table",
@@ -89,19 +94,27 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                                             }
                                             td {
                                                 class: "text-right",
-                                                DropDown {
-                                                    direction: Direction::Left,
-                                                    button_text: "...",
-                                                    DropDownLink {
-                                                        href: routes::openapi_specs::Edit { team_id: team_id.clone(), id: spec.id }.to_string(),
-                                                        target: "_top",
-                                                        "Edit"
+                                                if spec.is_system {
+                                                    span {
+                                                        class: "badge badge-info badge-outline",
+                                                        title: "Enabled automatically for every team",
+                                                        "System"
                                                     }
-                                                    DropDownLink {
-                                                        popover_target: format!("delete-openapi-spec-{}-{}", team_id, spec.id),
-                                                        href: "#",
-                                                        target: "_top",
-                                                        "Delete"
+                                                } else {
+                                                    DropDown {
+                                                        direction: Direction::Left,
+                                                        button_text: "...",
+                                                        DropDownLink {
+                                                            href: routes::openapi_specs::Edit { team_id: team_id.clone(), id: spec.id }.to_string(),
+                                                            target: "_top",
+                                                            "Edit"
+                                                        }
+                                                        DropDownLink {
+                                                            popover_target: format!("delete-openapi-spec-{}-{}", team_id, spec.id),
+                                                            href: "#",
+                                                            target: "_top",
+                                                            "Delete"
+                                                        }
                                                     }
                                                 }
                                             }
@@ -112,16 +125,18 @@ pub fn page(team_id: String, rbac: Rbac, specs: Vec<OpenapiSpec>) -> String {
                         }
 
                         for spec in specs {
-                            ConfirmModal {
-                                action: routes::openapi_specs::Delete { team_id: team_id.clone(), id: spec.id }.to_string(),
-                                trigger_id: format!("delete-openapi-spec-{}-{}", team_id, spec.id),
-                                submit_label: "Delete".to_string(),
-                                heading: "Delete this OpenAPI Spec?".to_string(),
-                                warning: format!("Are you sure you want to delete '{}' ({})?", spec.title, spec.slug),
-                                hidden_fields: vec![
-                                    ("team_id".into(), team_id.to_string()),
-                                    ("id".into(), spec.id.to_string()),
-                                ],
+                            if !spec.is_system {
+                                ConfirmModal {
+                                    action: routes::openapi_specs::Delete { team_id: team_id.clone(), id: spec.id }.to_string(),
+                                    trigger_id: format!("delete-openapi-spec-{}-{}", team_id, spec.id),
+                                    submit_label: "Delete".to_string(),
+                                    heading: "Delete this OpenAPI Spec?".to_string(),
+                                    warning: format!("Are you sure you want to delete '{}' ({})?", spec.title, spec.slug),
+                                    hidden_fields: vec![
+                                        ("team_id".into(), team_id.to_string()),
+                                        ("id".into(), spec.id.to_string()),
+                                    ],
+                                }
                             }
                         }
                     }

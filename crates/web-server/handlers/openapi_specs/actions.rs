@@ -161,6 +161,16 @@ pub async fn action_upsert(
     let category = parse_category(&form.category);
     let spec_json = Json(parsed_spec);
 
+    if let Some(id) = form.id {
+        let existing = queries::openapi_specs::by_id()
+            .bind(&transaction, &id)
+            .one()
+            .await?;
+        if existing.is_system {
+            return Err(CustomError::Authorization);
+        }
+    }
+
     let result: Result<i32, db::TokioPostgresError> = if let Some(id) = form.id {
         queries::openapi_specs::update()
             .bind(
@@ -238,6 +248,14 @@ pub async fn action_delete(
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     if !rbac.is_sys_admin {
+        return Err(CustomError::Authorization);
+    }
+
+    let spec = queries::openapi_specs::by_id()
+        .bind(&transaction, &id)
+        .one()
+        .await?;
+    if spec.is_system {
         return Err(CustomError::Authorization);
     }
 
