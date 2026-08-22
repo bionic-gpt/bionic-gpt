@@ -18,10 +18,14 @@ use zip::ZipArchive;
 
 struct SkillForm {
     id: Option<i32>,
-    name: String,
-    description: String,
     visibility: String,
     upload: Option<UploadedSkill>,
+}
+
+#[derive(Default)]
+struct SkillMetadata {
+    name: Option<String>,
+    description: Option<String>,
 }
 
 struct UploadedSkill {
@@ -70,10 +74,6 @@ pub async fn action_upsert(
     .to_string();
     let form = parse_skill_form(multipart).await?;
 
-    if form.name.trim().is_empty() {
-        return redirect_to_index(&index, "Skill name is required");
-    }
-
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (permissions, team_id_num) =
@@ -84,39 +84,64 @@ pub async fn action_upsert(
         visibility = Visibility::Team;
     }
 
-    let extracted_files = match form.upload {
-        Some(upload) => match extract_skill_files(upload) {
-            Ok(files) => Some(files),
-            Err(message) => return redirect_to_index(&index, message),
-        },
-        None if form.id.is_none() => {
-            return redirect_to_index(&index, "Upload a SKILL.md file or .zip folder");
+    let (extracted_files, uploaded_metadata, fallback_name) = match form.upload {
+        Some(upload) => {
+            let fallback_name = fallback_skill_name(&upload.file_name);
+            match extract_skill_files(upload) {
+                Ok(files) => {
+                    let metadata = match skill_metadata(&files) {
+                        Ok(metadata) => metadata,
+                        Err(message) => return redirect_to_index(&index, message),
+                    };
+                    (Some(files), metadata, fallback_name)
+                }
+                Err(message) => return redirect_to_index(&index, message),
+            }
         }
+        None => (None, SkillMetadata::default(), None),
+    };
+
+    if form.id.is_none() && extracted_files.is_none() {
+        return redirect_to_index(&index, "Upload a SKILL.md file or .zip folder");
+    }
+
+    let existing_skill = match form.id {
+        Some(id) => Some(
+            queries::skills::skill()
+                .bind(&transaction, &id)
+                .one()
+                .await?,
+        ),
         None => None,
     };
+    let name = uploaded_metadata
+        .name
+        .or_else(|| existing_skill.as_ref().map(|skill| skill.name.clone()))
+        .or(fallback_name)
+        .unwrap_or_else(|| "Skill".to_string());
+    let description = uploaded_metadata
+        .description
+        .or_else(|| {
+            existing_skill
+                .as_ref()
+                .map(|skill| skill.description.clone())
+        })
+        .unwrap_or_default();
+
+    if name.trim().is_empty() {
+        return redirect_to_index(&index, "The skill name cannot be empty");
+    }
 
     let skill_id = match form.id {
         Some(id) => {
             queries::skills::update_skill()
-                .bind(
-                    &transaction,
-                    &form.name,
-                    &form.description,
-                    &visibility,
-                    &id,
-                )
+                .bind(&transaction, &name, &description, &visibility, &id)
                 .await?;
             id
         }
         None => {
             queries::skills::insert_skill()
-                .bind(
-                    &transaction,
-                    &team_id_num,
-                    &form.name,
-                    &form.description,
-                    &visibility,
-                )
+                .bind(&transaction, &team_id_num, &name, &description, &visibility)
                 .one()
                 .await?
         }
@@ -160,8 +185,6 @@ fn redirect_to_index(index: &str, message: impl Into<String>) -> Result<Response
 async fn parse_skill_form(mut multipart: Multipart) -> Result<SkillForm, CustomError> {
     let mut form = SkillForm {
         id: None,
-        name: String::new(),
-        description: String::new(),
         visibility: "Private".to_string(),
         upload: None,
     };
@@ -171,12 +194,6 @@ async fn parse_skill_form(mut multipart: Multipart) -> Result<SkillForm, CustomE
         match name.as_str() {
             "id" => {
                 form.id = field.text().await?.trim().parse::<i32>().ok();
-            }
-            "name" => {
-                form.name = field.text().await?.trim().to_string();
-            }
-            "description" => {
-                form.description = field.text().await?.trim().to_string();
             }
             "visibility" => {
                 form.visibility = field.text().await?;
@@ -193,6 +210,56 @@ async fn parse_skill_form(mut multipart: Multipart) -> Result<SkillForm, CustomE
     }
 
     Ok(form)
+}
+
+fn fallback_skill_name(file_name: &str) -> Option<String> {
+    Path::new(file_name)
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .map(str::trim)
+        .filter(|name| !name.is_empty() && !name.eq_ignore_ascii_case("skill"))
+        .map(ToOwned::to_owned)
+}
+
+fn skill_metadata(files: &[SkillFileUpload]) -> Result<SkillMetadata, String> {
+    let Some(skill_file) = files.iter().find(|file| file.relative_path == "SKILL.md") else {
+        return Err("The skill folder must contain SKILL.md at its root".to_string());
+    };
+
+    parse_skill_frontmatter(&skill_file.bytes)
+}
+
+fn parse_skill_frontmatter(bytes: &[u8]) -> Result<SkillMetadata, String> {
+    let text = std::str::from_utf8(bytes)
+        .map_err(|_| "SKILL.md must be valid UTF-8 to read its metadata".to_string())?;
+    let text = text.strip_prefix('\u{feff}').unwrap_or(text);
+    let Some(rest) = text.strip_prefix("---\n") else {
+        return Ok(SkillMetadata::default());
+    };
+    let Some((frontmatter, _body)) = rest.split_once("\n---\n") else {
+        return Err("SKILL.md frontmatter is not closed".to_string());
+    };
+
+    let mut metadata = SkillMetadata::default();
+    for line in frontmatter.lines() {
+        let Some((key, value)) = line.split_once(':') else {
+            return Err("SKILL.md frontmatter contains an invalid line".to_string());
+        };
+        let value = value.trim().trim_matches(['"', '\'']).trim().to_string();
+        if value.is_empty() && matches!(key.trim(), "name" | "description") {
+            return Err(format!(
+                "SKILL.md frontmatter field `{}` cannot be empty",
+                key.trim()
+            ));
+        }
+        match key.trim() {
+            "name" => metadata.name = Some(value),
+            "description" => metadata.description = Some(value),
+            _ => {}
+        }
+    }
+
+    Ok(metadata)
 }
 
 fn extract_skill_files(upload: UploadedSkill) -> Result<Vec<SkillFileUpload>, String> {
@@ -304,4 +371,42 @@ fn strip_common_root(files: Vec<(String, Vec<u8>)>) -> Vec<(String, Vec<u8>)> {
                 .map(|path| (path.to_string(), bytes))
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_skill_frontmatter() {
+        let metadata = parse_skill_frontmatter(
+            b"---\nname: Dashboard Builder\ndescription: Creates dashboards\n---\n# Instructions",
+        )
+        .expect("frontmatter should parse");
+
+        assert_eq!(metadata.name.as_deref(), Some("Dashboard Builder"));
+        assert_eq!(metadata.description.as_deref(), Some("Creates dashboards"));
+    }
+
+    #[test]
+    fn accepts_skill_without_frontmatter() {
+        let metadata = parse_skill_frontmatter(b"# Legacy skill").expect("legacy skill is valid");
+
+        assert!(metadata.name.is_none());
+        assert!(metadata.description.is_none());
+    }
+
+    #[test]
+    fn rejects_unclosed_frontmatter() {
+        assert!(parse_skill_frontmatter(b"---\nname: Broken\n# Instructions").is_err());
+    }
+
+    #[test]
+    fn derives_fallback_name_from_zip_filename() {
+        assert_eq!(
+            fallback_skill_name("dashboard-builder.zip").as_deref(),
+            Some("dashboard-builder")
+        );
+        assert_eq!(fallback_skill_name("SKILL.md"), None);
+    }
 }

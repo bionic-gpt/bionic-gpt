@@ -7,8 +7,6 @@ use dioxus::prelude::*;
 pub fn Upsert(
     id: Option<i32>,
     trigger_id: String,
-    name: String,
-    description: String,
     team_id: String,
     visibility: Visibility,
     can_set_visibility_to_company: bool,
@@ -33,31 +31,6 @@ pub fn Upsert(
                                 "type": "hidden",
                                 value: "{id}",
                                 name: "id"
-                            }
-                        }
-                        Fieldset {
-                            legend: "Name",
-                            legend_class: "mt-4",
-                            help_text: "Use a short name for the skill folder.",
-                            Input {
-                                input_type: InputType::Text,
-                                class: "w-full",
-                                placeholder: "Skill name",
-                                required: true,
-                                value: name,
-                                name: "name"
-                            }
-                        }
-                        Fieldset {
-                            legend: "Description",
-                            legend_class: "mt-4",
-                            help_text: "Tell the model when this skill should be used.",
-                            TextArea {
-                                class: "w-full",
-                                name: "description",
-                                rows: "4",
-                                placeholder: "What this skill helps with",
-                                "{description}"
                             }
                         }
                         Fieldset {
@@ -88,14 +61,18 @@ pub fn Upsert(
                             }
                         }
                         Fieldset {
+                            class: "min-w-0",
                             legend: "Files",
                             legend_class: "mt-4",
-                            help_text: "Upload a SKILL.md file or a .zip folder containing SKILL.md.",
                             FileInput {
-                                class: "w-full",
+                                class: "min-w-0 max-w-full",
                                 name: "payload",
                                 required: requires_file,
                                 multiple: false
+                            }
+                            p {
+                                class: "label block w-full min-w-0 whitespace-normal break-words",
+                                "Upload a SKILL.md file or a .zip folder containing SKILL.md."
                             }
                         }
                     }

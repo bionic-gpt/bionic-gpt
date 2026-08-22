@@ -65,8 +65,6 @@ pub fn page(
                 super::upsert::Upsert {
                     trigger_id: "new-skill-form",
                     id: None,
-                    name: "".to_string(),
-                    description: "".to_string(),
                     team_id: team_id.clone(),
                     visibility: db::Visibility::Private,
                     can_set_visibility_to_company,
@@ -137,8 +135,6 @@ fn SkillCard(skill: Skill, team_id: String, can_set_visibility_to_company: bool)
                 super::upsert::Upsert {
                     trigger_id: edit_trigger_id.clone(),
                     id: Some(skill.id),
-                    name: skill.name.clone(),
-                    description: skill.description.clone(),
                     team_id: team_id.clone(),
                     visibility: skill.visibility,
                     can_set_visibility_to_company,
