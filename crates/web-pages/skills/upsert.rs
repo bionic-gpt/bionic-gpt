@@ -41,6 +41,7 @@ pub fn Upsert(
                             help_text: "Use a short name for the skill folder.",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 placeholder: "Skill name",
                                 required: true,
                                 value: name,
@@ -52,6 +53,7 @@ pub fn Upsert(
                             legend_class: "mt-4",
                             help_text: "Tell the model when this skill should be used.",
                             TextArea {
+                                class: "w-full",
                                 name: "description",
                                 rows: "4",
                                 placeholder: "What this skill helps with",
@@ -63,6 +65,7 @@ pub fn Upsert(
                             legend_class: "mt-4",
                             help_text: "Choose who can use this skill in chat.",
                             Select {
+                                class: "w-full",
                                 name: "visibility",
                                 value: "Private",
                                 SelectOption {
@@ -89,6 +92,7 @@ pub fn Upsert(
                             legend_class: "mt-4",
                             help_text: "Upload a SKILL.md file or a .zip folder containing SKILL.md.",
                             FileInput {
+                                class: "w-full",
                                 name: "payload",
                                 required: requires_file,
                                 multiple: false
