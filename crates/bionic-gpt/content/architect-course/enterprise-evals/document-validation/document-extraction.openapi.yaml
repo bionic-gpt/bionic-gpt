@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
-  title: Document Extraction
+  title: Document Conversion API
   version: 1.0.14
   description: >-
     Internal document extraction service for business documents. Provide the
     file as base64 encoded bytes and use the response as the source for facts.
-  x-bionic-slug: xberg-doc-engine
+  x-bionic-slug: document-conversion-api
 servers:
   - url: http://doc-engine:8000
 paths:

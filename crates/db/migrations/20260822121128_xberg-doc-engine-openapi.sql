@@ -10,17 +10,17 @@ INSERT INTO integrations.openapi_specs (
     is_active
 )
 VALUES (
-    'xberg-doc-engine',
-    'Xberg Document Engine',
-    'Extract text and structured content from a supplied document using the internal Xberg document engine.',
+    'document-conversion-api',
+    'Document Conversion API',
+    'Convert business documents into extracted text, tables, and metadata for downstream validation and analysis.',
     $spec$
     {
       "openapi": "3.0.3",
       "info": {
-        "title": "Xberg Document Engine",
+        "title": "Document Conversion API",
         "version": "1.0.14",
         "description": "Internal document extraction service for business documents. Provide the file as base64 encoded bytes. The service returns extracted content and metadata.",
-        "x-bionic-slug": "xberg-doc-engine"
+        "x-bionic-slug": "document-conversion-api"
       },
       "servers": [{"url": "http://doc-engine:8000"}],
       "paths": {
@@ -74,4 +74,4 @@ ON CONFLICT (slug) DO UPDATE SET
     updated_at = NOW();
 
 -- migrate:down
-DELETE FROM integrations.openapi_specs WHERE slug = 'xberg-doc-engine';
+DELETE FROM integrations.openapi_specs WHERE slug = 'document-conversion-api';

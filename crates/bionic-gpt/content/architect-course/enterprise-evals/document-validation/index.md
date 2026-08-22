@@ -4,7 +4,7 @@ This eval tests whether the model can validate a real vendor package against a
 procurement rubric. It must extract and reconcile a Word agreement, an Excel
 service schedule, and a PDF rubric before making a recommendation.
 
-The document-extraction integration is an implementation detail. The user's
+The document-conversion integration is an implementation detail. The user's
 goal is to decide whether the vendor package is acceptable, not to learn which
 conversion engine processed the files.
 
@@ -45,7 +45,7 @@ documents.
 
 ## Add the integration
 
-Download the [Document Extraction OpenAPI specification](document-extraction.openapi.yaml),
+Download the [Document Conversion API OpenAPI specification](document-extraction.openapi.yaml),
 add it under **OpenAPI Specs**, and select it for the integration. The default
 development stack includes the internal document extraction service.
 

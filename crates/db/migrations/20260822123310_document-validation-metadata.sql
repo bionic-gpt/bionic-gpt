@@ -6,16 +6,16 @@
 
 UPDATE integrations.openapi_specs
 SET
-    title = 'Document Extraction',
-    description = 'Extract text, tables, and metadata from supplied business documents for downstream validation and analysis.',
+    title = 'Document Conversion API',
+    description = 'Convert business documents into extracted text, tables, and metadata for downstream validation and analysis.',
     updated_at = NOW()
-WHERE slug = 'xberg-doc-engine';
+WHERE slug = 'document-conversion-api';
 
 -- migrate:down
 
 UPDATE integrations.openapi_specs
 SET
-    title = 'Xberg Document Engine',
+    title = 'Document Conversion API',
     description = 'Extract text and structured content from a supplied document using the internal Xberg document engine.',
     updated_at = NOW()
-WHERE slug = 'xberg-doc-engine';
+WHERE slug = 'document-conversion-api';

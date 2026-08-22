@@ -15,7 +15,7 @@ policy, checklist, standard, contract rubric, or acceptance criteria.
 2. Read `/home/user/skills/document-validation/rubric.md` when the packaged
    rubric is the applicable reference. If the user supplied a different rubric,
    use that instead.
-3. Use the configured document-extraction integration when conversion is
+3. Use the configured Document Conversion API integration when conversion is
    needed. Extract each source separately and preserve document names, pages,
    headings, sheet names, and cell/range locations where available.
 4. Build a requirement matrix before writing conclusions. For each requirement,

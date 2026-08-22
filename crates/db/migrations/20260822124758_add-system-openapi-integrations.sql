@@ -5,7 +5,7 @@ ADD COLUMN is_system BOOLEAN NOT NULL DEFAULT FALSE;
 
 UPDATE integrations.openapi_specs
 SET is_system = TRUE
-WHERE slug = 'xberg-doc-engine';
+WHERE slug = 'document-conversion-api';
 
 -- migrate:down
 
