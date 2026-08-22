@@ -155,4 +155,19 @@ paths:
         assert!(operation_ids.contains(&"createDraft"));
         assert!(operation_ids.contains(&"sendDraft"));
     }
+
+    #[test]
+    fn test_parse_xberg_doc_engine_openapi_spec() {
+        let spec_yaml = include_str!(
+            "../../../../crates/bionic-gpt/content/architect-course/enterprise-evals/xberg-doc-engine/xberg-doc-engine.openapi.yaml"
+        );
+
+        let Json(parsed) = parse_openapi_spec(spec_yaml).unwrap();
+        let operation_ids = parsed
+            .operations()
+            .filter_map(|(_, _, operation)| operation.operation_id.as_deref())
+            .collect::<Vec<_>>();
+
+        assert_eq!(operation_ids, vec!["extractDocument"]);
+    }
 }

@@ -5,6 +5,7 @@
 
 use crate::tool_auth::TokenProvider;
 use async_trait::async_trait;
+use base64::Engine;
 use oas3::{
     self,
     spec::{ObjectOrReference, Operation, Parameter, ParameterIn},
@@ -18,6 +19,15 @@ use serde_json::Value;
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, OnceLock};
 
+#[derive(Clone, Debug)]
+pub enum HttpRequestBody {
+    Json(Value),
+    Multipart {
+        fields: Vec<(String, String)>,
+        files: Vec<(String, Vec<u8>)>,
+    },
+}
+
 #[async_trait]
 pub trait HttpClient: Send + Sync + 'static {
     async fn send(
@@ -25,7 +35,7 @@ pub trait HttpClient: Send + Sync + 'static {
         method: Method,
         url: Url,
         headers: Vec<(String, String)>,
-        body: Option<Value>,
+        body: Option<HttpRequestBody>,
     ) -> Result<HttpResponse, String>;
 }
 
@@ -58,14 +68,29 @@ impl HttpClient for ReqwestHttpClient {
         method: Method,
         url: Url,
         headers: Vec<(String, String)>,
-        body: Option<Value>,
+        body: Option<HttpRequestBody>,
     ) -> Result<HttpResponse, String> {
         let mut request = self.client.request(method, url);
         for (name, value) in headers {
             request = request.header(name, value);
         }
         if let Some(body) = body {
-            request = request.json(&body);
+            match body {
+                HttpRequestBody::Json(body) => request = request.json(&body),
+                HttpRequestBody::Multipart { fields, files } => {
+                    let mut form = reqwest::multipart::Form::new();
+                    for (name, value) in fields {
+                        form = form.text(name, value);
+                    }
+                    for (name, bytes) in files {
+                        form = form.part(
+                            name,
+                            reqwest::multipart::Part::bytes(bytes).file_name("document.bin"),
+                        );
+                    }
+                    request = request.multipart(form);
+                }
+            }
         }
         let response = request.send().await.map_err(|e| e.to_string())?;
         let status = response.status();
@@ -278,8 +303,36 @@ async fn execute_openapi_tool(
         .parse()
         .map_err(|e| crate::json_error("Unsupported HTTP method", e))?;
 
-    let body = if has_request_body {
-        Some(request_body_params.clone())
+    let is_multipart = operation
+        .request_body
+        .as_ref()
+        .and_then(|request_body| request_body.resolve(&tool.spec).ok())
+        .is_some_and(|request_body| request_body.content.contains_key("multipart/form-data"));
+
+    let body = if has_request_body && is_multipart {
+        let mut fields = Vec::new();
+        let mut files = Vec::new();
+        if let Some(values) = request_body_params.as_object() {
+            for (name, value) in values {
+                if value
+                    .as_str()
+                    .is_some_and(|_| name == "files" || name == "file")
+                {
+                    let encoded = value.as_str().unwrap();
+                    let bytes = base64::engine::general_purpose::STANDARD
+                        .decode(encoded)
+                        .map_err(|e| crate::json_error("Invalid base64 file", e))?;
+                    files.push((name.clone(), bytes));
+                } else if let Some(value) = value.as_str() {
+                    fields.push((name.clone(), value.to_string()));
+                } else {
+                    fields.push((name.clone(), value.to_string()));
+                }
+            }
+        }
+        Some(HttpRequestBody::Multipart { fields, files })
+    } else if has_request_body {
+        Some(HttpRequestBody::Json(request_body_params.clone()))
     } else {
         None
     };
@@ -747,7 +800,7 @@ mod tests {
             _method: Method,
             _url: Url,
             headers: Vec<(String, String)>,
-            _body: Option<Value>,
+            _body: Option<HttpRequestBody>,
         ) -> Result<HttpResponse, String> {
             let auth_header = headers.iter().find_map(|(name, value)| {
                 if name.eq_ignore_ascii_case("authorization") {

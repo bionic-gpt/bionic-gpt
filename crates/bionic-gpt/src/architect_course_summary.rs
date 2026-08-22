@@ -263,6 +263,20 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    PageSummary {
+                        date: "",
+                        title: "Vendor Contract Risk Review",
+                        description:
+                            "Evaluate whether the model can extract a vendor document and produce a grounded procurement risk memo.",
+                        folder:
+                            "architect-course/enterprise-evals/xberg-doc-engine/",
+                        markdown: include_str!(
+                            "../content/architect-course/enterprise-evals/xberg-doc-engine/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {

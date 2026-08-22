@@ -6407,6 +6407,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "axum 0.8.8",
+ "base64 0.22.1",
  "bashkit",
  "chrono",
  "db",

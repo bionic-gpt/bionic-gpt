@@ -14,6 +14,11 @@ const EVAL_SPEC_SOURCE_DIR: &str = concat!(
 );
 const EVAL_SPEC_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals";
 const EVAL_SPEC_FILES: [&str; 2] = ["email-integration.openapi.yaml", "web-search.openapi.yaml"];
+const XBERG_EVAL_DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/content/architect-course/enterprise-evals/xberg-doc-engine"
+);
+const XBERG_EVAL_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals/xberg-doc-engine";
 const POSTGRES_MCP_SPEC_SOURCE: &str =
     concat!(env!("CARGO_MANIFEST_DIR"), "/../postgres-mcp/postgres.json");
 const POSTGRES_MCP_SPEC_OUTPUT: &str = "postgres.openapi.json";
@@ -65,6 +70,7 @@ pub async fn generate_marketing() -> Vec<SitePage> {
 
 pub async fn generate_static_pages() -> Vec<SitePage> {
     copy_enterprise_eval_specs();
+    copy_xberg_eval_assets();
     copy_dashboard_skill_package();
 
     let mut pages = Vec::new();
@@ -72,6 +78,25 @@ pub async fn generate_static_pages() -> Vec<SitePage> {
     pages.extend(generate_product().await);
     pages.extend(generate_solutions().await);
     pages
+}
+
+fn copy_xberg_eval_assets() {
+    let output_dir = Path::new(XBERG_EVAL_OUTPUT_DIR);
+    fs::create_dir_all(output_dir).expect("failed to create Xberg eval output directory");
+    for file_name in [
+        "xberg-doc-engine.openapi.yaml",
+        "vendor-security-addendum.md",
+    ] {
+        let source = Path::new(XBERG_EVAL_DIR).join(file_name);
+        let destination = output_dir.join(file_name);
+        fs::copy(&source, &destination).unwrap_or_else(|error| {
+            panic!(
+                "failed to copy Xberg eval asset from {} to {}: {error}",
+                source.display(),
+                destination.display()
+            )
+        });
+    }
 }
 
 fn copy_dashboard_skill_package() {

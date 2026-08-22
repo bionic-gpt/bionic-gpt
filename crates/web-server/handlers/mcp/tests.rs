@@ -665,7 +665,7 @@ async fn tools_call_executes_tool() {
             _method: reqwest::Method,
             _url: reqwest::Url,
             _headers: Vec<(String, String)>,
-            _body: Option<serde_json::Value>,
+            _body: Option<tool_runtime::builtin_tools::openapi_tool_adapter::HttpRequestBody>,
         ) -> Result<tool_runtime::builtin_tools::openapi_tool_adapter::HttpResponse, String>
         {
             Ok(
