@@ -66,8 +66,7 @@ pub async fn loader(
         &function_catalogue.files,
     );
 
-    let tool_definitions =
-        tool_runtime::get_chat_tools_user_selected_with_system_openapi(&pool).await;
+    let tool_definitions = tool_runtime::get_chat_tool_definitions();
     let prompt_size_preview = build_prompt_size_preview(
         &setting.value,
         runtime_additions.as_deref(),

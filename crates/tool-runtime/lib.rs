@@ -27,12 +27,8 @@ pub fn json_error(kind: &str, err: impl ToString) -> serde_json::Value {
 // Re-export key types for convenience
 pub use builtin_tools::openapi_tool_adapter::OpenApiTool;
 pub use openapi_tool_factory::{BionicOpenAPI, IntegrationTools, OAuth2Config};
-pub use system_tool_sources::{get_system_openapi_tool_definitions, get_system_openapi_tools};
 pub use tool_auth::{OAuth2TokenProvider, StaticTokenProvider, TokenProvider};
-pub use tool_catalog::{
-    get_chat_tools_user_selected, get_chat_tools_user_selected_with_system_openapi,
-    get_integrations, get_tools, get_tools_with_system_openapi, IntegrationTool, ToolScope,
-};
+pub use tool_catalog::get_chat_tool_definitions;
 pub use tool_dispatcher::{execute_tool_call_with_tools, execute_tool_calls};
 pub use types::{
     parse_reasoning, parse_tool_calls, serialize_assistant_tool_state, Reasoning,

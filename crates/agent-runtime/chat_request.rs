@@ -6,9 +6,7 @@ use crate::user_config::UserConfig;
 use db::{queries, ChatRole, ChatStatus, Pool};
 use rig::completion::{CompletionRequest, Message as RigMessage};
 use rig::OneOrMany;
-use tool_runtime::{
-    get_chat_tools_user_selected_with_system_openapi, get_tools, ToolDefinition, ToolScope,
-};
+use tool_runtime::{get_chat_tool_definitions, ToolDefinition};
 
 pub(crate) struct RigChatRequest {
     pub(crate) model_name: String,
@@ -47,11 +45,6 @@ pub(crate) async fn create_request(
 
     let conversation = queries::conversations::get_conversation_from_chat()
         .bind(&transaction, &chat_id)
-        .one()
-        .await?;
-
-    let attachment_count = queries::conversations::count_attachments()
-        .bind(&transaction, &conversation.id)
         .one()
         .await?;
 
@@ -108,13 +101,7 @@ pub(crate) async fn create_request(
         .await?;
 
     let tools = if supports_tool_use {
-        let mut all_tools = get_chat_tools_user_selected_with_system_openapi(pool).await;
-
-        if attachment_count > 0 {
-            all_tools.extend(get_tools(ToolScope::DocumentIntelligence));
-        }
-
-        let tools = dedupe_tools_by_name(all_tools);
+        let tools = get_chat_tool_definitions();
         tracing::debug!(
             "Sending {} tool definitions to model {}: {:?}",
             tools.len(),
@@ -202,16 +189,4 @@ pub(crate) async fn create_request(
         model_id: model.id,
         user_id: conversation.user_id,
     })
-}
-
-fn dedupe_tools_by_name(tools: Vec<ToolDefinition>) -> Vec<ToolDefinition> {
-    let mut deduped = Vec::new();
-    let mut names = std::collections::HashSet::new();
-    for tool in tools.into_iter().rev() {
-        if names.insert(tool.name.clone()) {
-            deduped.push(tool);
-        }
-    }
-    deduped.reverse();
-    deduped
 }

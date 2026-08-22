@@ -104,6 +104,63 @@ impl RuntimeFunctionRegistry {
 
         transaction.commit().await.map_err(|err| err.to_string())?;
 
+        let system_specs = crate::system_tool_sources::load_system_openapi_specs(pool).await?;
+        for system_spec in system_specs {
+            let openapi = match crate::BionicOpenAPI::new(&system_spec.spec.spec) {
+                Ok(api) => api,
+                Err(err) => {
+                    tracing::warn!(
+                        "Skipping system integration {} with invalid OpenAPI spec: {}",
+                        system_spec.spec.slug,
+                        err
+                    );
+                    continue;
+                }
+            };
+            if openapi.has_api_key_security() && system_spec.api_key.is_none() {
+                tracing::warn!(
+                    "Skipping system integration {} because its API key is not configured",
+                    system_spec.spec.slug
+                );
+                continue;
+            }
+            let token_provider = system_spec
+                .api_key
+                .map(|key| Arc::new(crate::StaticTokenProvider::new(key)) as Arc<_>);
+            let tools = match openapi.create_tools(token_provider) {
+                Ok(tools) => tools,
+                Err(err) => {
+                    tracing::warn!(
+                        "Skipping system integration {} because tools could not be created: {}",
+                        system_spec.spec.slug,
+                        err
+                    );
+                    continue;
+                }
+            };
+            let slug = unique_identifier(&system_spec.spec.slug, &mut used_integration_slugs);
+            let mut operations = Vec::new();
+            for tool in tools {
+                let operation_name = unique_identifier(
+                    &format!("{}_{}", slug, tool.name()),
+                    &mut used_function_names,
+                );
+                let operation = RuntimeOperation {
+                    function_name: operation_name.clone(),
+                    description: tool.description(),
+                    parameters: tool.parameters(),
+                    executor: OperationExecutor::OpenApiTool(tool),
+                };
+                functions.insert(operation_name, operation.clone());
+                operations.push(operation);
+            }
+            integrations.push(IntegrationInfo {
+                name: system_spec.spec.title,
+                slug,
+                operations,
+            });
+        }
+
         for integration in connected {
             let Some(definition) = integration.definition.as_ref() else {
                 continue;

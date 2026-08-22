@@ -1,15 +1,15 @@
-use crate::openapi_tool_factory::BionicOpenAPI;
-use crate::tool_auth::StaticTokenProvider;
-use crate::types::ToolDefinition;
 use db::{queries, OpenapiSpec, OpenapiSpecCategory, Pool};
-use rig::tool::ToolDyn;
-use std::collections::HashSet;
-use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 struct SelectedSpec {
     spec: OpenapiSpec,
     api_key: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+pub struct SystemOpenapiSpec {
+    pub spec: OpenapiSpec,
+    pub api_key: Option<String>,
 }
 
 async fn load_selected_spec(
@@ -66,18 +66,50 @@ async fn load_spec_with_api_key(
     Ok(Some(SelectedSpec { spec, api_key }))
 }
 
-fn build_openapi_helpers(
-    selected: SelectedSpec,
-) -> Result<(BionicOpenAPI, Option<String>), String> {
-    let openapi =
-        BionicOpenAPI::new(&selected.spec.spec).map_err(|e| format!("Spec parse failed: {e}"))?;
+pub async fn load_system_openapi_specs(pool: &Pool) -> Result<Vec<SystemOpenapiSpec>, String> {
+    let mut client = pool.get().await.map_err(|e| e.to_string())?;
+    let transaction = client.transaction().await.map_err(|e| e.to_string())?;
+    let mut specs = Vec::new();
 
-    let requires_api_key = openapi.has_api_key_security();
-    if requires_api_key && selected.api_key.is_none() {
-        return Err("API key not configured".to_string());
+    for spec in queries::openapi_specs::active_system()
+        .bind(&transaction)
+        .all()
+        .await
+        .map_err(|e| e.to_string())?
+    {
+        if let Some(selected) = load_spec_with_api_key(&transaction, spec)
+            .await
+            .map_err(|e| e.to_string())?
+        {
+            specs.push(SystemOpenapiSpec {
+                spec: selected.spec,
+                api_key: selected.api_key,
+            });
+        }
     }
 
-    Ok((openapi, selected.api_key))
+    let web_search = match load_selected_spec(&transaction, OpenapiSpecCategory::WebSearch)
+        .await
+        .map_err(|e| e.to_string())?
+    {
+        Some(selected) => Some(selected),
+        None => load_single_active_spec(&transaction, OpenapiSpecCategory::WebSearch)
+            .await
+            .map_err(|e| e.to_string())?,
+    };
+    if let Some(selected) = web_search {
+        if !specs
+            .iter()
+            .any(|existing| existing.spec.id == selected.spec.id)
+        {
+            specs.push(SystemOpenapiSpec {
+                spec: selected.spec,
+                api_key: selected.api_key,
+            });
+        }
+    }
+
+    Ok(specs)
 }
 
 fn is_usable_selected_spec(spec: &OpenapiSpec, category: OpenapiSpecCategory) -> bool {
@@ -93,79 +125,6 @@ fn single_active_spec(specs: Vec<OpenapiSpec>) -> Option<OpenapiSpec> {
     }
 
     Some(spec)
-}
-
-async fn load_selected_helpers(
-    pool: &Pool,
-) -> Result<Vec<(BionicOpenAPI, Option<String>)>, String> {
-    let mut client = pool.get().await.map_err(|e| e.to_string())?;
-    let transaction = client.transaction().await.map_err(|e| e.to_string())?;
-
-    let mut helpers = Vec::new();
-
-    // System integrations are enabled globally for every conversation.
-    let system_specs = queries::openapi_specs::active_system()
-        .bind(&transaction)
-        .all()
-        .await
-        .map_err(|e| e.to_string())?;
-    for spec in system_specs {
-        if let Some(selected) = load_spec_with_api_key(&transaction, spec)
-            .await
-            .map_err(|e| e.to_string())?
-        {
-            if let Ok(helper) = build_openapi_helpers(selected) {
-                helpers.push(helper);
-            }
-        }
-    }
-
-    for category in [OpenapiSpecCategory::WebSearch] {
-        let selected = match load_selected_spec(&transaction, category)
-            .await
-            .map_err(|e| e.to_string())?
-        {
-            Some(selected) => Some(selected),
-            None => load_single_active_spec(&transaction, category)
-                .await
-                .map_err(|e| e.to_string())?,
-        };
-
-        if let Some(selected) = selected {
-            if let Ok(helper) = build_openapi_helpers(selected) {
-                helpers.push(helper);
-            }
-        }
-    }
-
-    Ok(helpers)
-}
-
-pub async fn get_system_openapi_tool_definitions(
-    pool: &Pool,
-) -> Result<Vec<ToolDefinition>, String> {
-    let mut definitions = Vec::new();
-    for (openapi, _) in load_selected_helpers(pool).await? {
-        let mut tools = openapi.create_tool_definitions().tool_definitions;
-        definitions.append(&mut tools);
-    }
-
-    let mut names = HashSet::new();
-    definitions.retain(|definition| names.insert(definition.name.clone()));
-    Ok(definitions)
-}
-
-pub async fn get_system_openapi_tools(pool: &Pool) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
-    let mut tools = Vec::new();
-    for (openapi, api_key) in load_selected_helpers(pool).await? {
-        let token_provider = api_key.map(|key| Arc::new(StaticTokenProvider::new(key)) as Arc<_>);
-        let mut openapi_tools = openapi.create_tools(token_provider)?;
-        tools.append(&mut openapi_tools);
-    }
-
-    let mut names = HashSet::new();
-    tools.retain(|tool| names.insert(tool.name()));
-    Ok(tools)
 }
 
 #[cfg(test)]
