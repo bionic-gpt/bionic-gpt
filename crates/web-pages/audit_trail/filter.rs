@@ -30,6 +30,7 @@ pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: 
                             legend: "User",
                             help_text: "For which user do you want to search",
                             Select {
+                                class: "w-full",
                                 name: "user",
                                 option {
                                     value: "0",
@@ -48,6 +49,7 @@ pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: 
                             legend: "Access Type",
                             help_text: "Split between user interface and CLI usage.",
                             Select {
+                                class: "w-full",
                                 name: "access_type",
                                 {super::AUDIT_ACCESS.iter().enumerate().map(|(index, access_type)| {
                                     rsx! {
@@ -64,6 +66,7 @@ pub fn FilterDrawer(team_users: Vec<Member>, reset_search: bool, submit_action: 
                             legend: "Action",
                             help_text: "What action did the user perform",
                             Select {
+                                class: "w-full",
                                 name: "action",
                                 {super::AUDIT_ACTION.iter().enumerate().map(|(index, action_type)| {
                                     rsx! {

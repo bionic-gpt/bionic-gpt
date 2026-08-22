@@ -24,6 +24,7 @@ pub fn ApiKeyForm(team_id: String, integration_id: i32, integration_name: String
                             help_text: "This API key will be used to authenticate requests to the integration",
                             Input {
                                 input_type: InputType::Password,
+                                class: "w-full",
                                 placeholder: "Enter your API key",
                                 required: true,
                                 name: "api_key"
@@ -34,6 +35,7 @@ pub fn ApiKeyForm(team_id: String, integration_id: i32, integration_name: String
                             legend_class: "mt-4",
                             help_text: "Who can use this API key connection",
                             Select {
+                                class: "w-full",
                                 name: "visibility",
                                 SelectOption {
                                     value: "Private",

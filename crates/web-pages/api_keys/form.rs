@@ -23,6 +23,7 @@ pub fn AssistantForm(team_id: String, prompts: Vec<Prompt>) -> Element {
                             help_text: "Give your new key a name",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 placeholder: "Production API Key",
                                 required: true,
                                 name: "name"
@@ -33,6 +34,7 @@ pub fn AssistantForm(team_id: String, prompts: Vec<Prompt>) -> Element {
                             legend_class: "mt-4",
                             help_text: "All access via this API key will use the above assistant",
                             Select {
+                                class: "w-full",
                                 name: "prompt_id",
                                 {prompts.iter().map(|prompt| rsx!(
                                     SelectOption {
@@ -81,6 +83,7 @@ pub fn ModelForm(team_id: String, prompts: Vec<Prompt>) -> Element {
                             help_text: "Give your new key a name",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 placeholder: "Production API Key",
                                 required: true,
                                 name: "name"
@@ -91,6 +94,7 @@ pub fn ModelForm(team_id: String, prompts: Vec<Prompt>) -> Element {
                             legend_class: "mt-4",
                             help_text: "All access via this API key will use the above model",
                             Select {
+                                class: "w-full",
                                 name: "prompt_id",
                                 {prompts.iter().map(|prompt| rsx!(
                                     SelectOption {

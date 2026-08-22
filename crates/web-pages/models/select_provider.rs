@@ -148,6 +148,7 @@ fn provider_modal(
                     help_text: "{api_key_help}",
                     Input {
                         input_type: InputType::Text,
+                        class: "w-full",
                         name: "api_key",
                         required: !provider.api_key_optional
                     }
@@ -156,6 +157,7 @@ fn provider_modal(
                     legend: "Visibility",
                     help_text: "Who can use this model",
                     Select {
+                        class: "w-full",
                         name: "visibility",
                         value: "{crate::visibility_to_string(default_visibility)}",
                         SelectOption {

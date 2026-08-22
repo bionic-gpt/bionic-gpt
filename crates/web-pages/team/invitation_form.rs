@@ -24,6 +24,7 @@ pub fn InvitationForm(submit_action: String) -> Element {
                             help_text: "The email address of the person you wish to invite",
                             Input {
                                 input_type: InputType::Email,
+                                class: "w-full",
                                 required: true,
                                 name: "email"
                             }
@@ -34,6 +35,7 @@ pub fn InvitationForm(submit_action: String) -> Element {
                             help_text: "The first name of the person you wish to invite",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 required: true,
                                 name: "first_name"
                             }
@@ -44,6 +46,7 @@ pub fn InvitationForm(submit_action: String) -> Element {
                             help_text: "The last name of the person you wish to invite",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 required: true,
                                 name: "last_name"
                             }

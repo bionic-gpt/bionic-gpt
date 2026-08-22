@@ -39,6 +39,7 @@ pub fn Upsert(
                     help_text: "Give your project a short, descriptive name".to_string(),
                     Input {
                         input_type: InputType::Text,
+                        class: "w-full",
                         placeholder: "Project name".to_string(),
                         required: true,
                         value: name,
@@ -61,6 +62,7 @@ pub fn Upsert(
                     legend_class: "mt-4",
                     help_text: "Private projects are only visible to you".to_string(),
                     Select {
+                        class: "w-full",
                         name: "visibility",
                         value: "Private",
                         SelectOption {

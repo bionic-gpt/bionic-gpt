@@ -30,6 +30,7 @@ pub fn OpenapiSpecApiKeyForm(trigger_id: String, action: String, spec_title: Str
                             help_text: "This overwrites the current key used for this spec.",
                             Input {
                                 input_type: InputType::Password,
+                                class: "w-full",
                                 placeholder: "Enter the API key",
                                 required: true,
                                 name: "api_key"

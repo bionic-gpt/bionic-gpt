@@ -76,6 +76,7 @@ pub fn page(
                         }
                         Input {
                             input_type: InputType::Text,
+                            class: "w-full",
                             value: created.value.clone(),
                             readonly: true,
                             name: "generated-api-key",

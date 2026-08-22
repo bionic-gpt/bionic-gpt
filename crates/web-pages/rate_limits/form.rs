@@ -25,6 +25,7 @@ pub fn Form(team_id: String, models: Vec<Model>) -> Element {
                             help_text: "We need the ID of the Api Key from the ID field",
                             Input {
                                 input_type: InputType::Number,
+                                class: "w-full",
                                 placeholder: "Api Key Id i.e. 1234",
                                 required: true,
                                 name: "api_key_id"
@@ -37,6 +38,7 @@ pub fn Form(team_id: String, models: Vec<Model>) -> Element {
                             help_text: "Tokens Per minute",
                             Input {
                                 input_type: InputType::Number,
+                                class: "w-full",
                                 placeholder: "Tokens per Minute e.g. 1000",
                                 required: true,
                                 name: "tpm_limit"
@@ -49,6 +51,7 @@ pub fn Form(team_id: String, models: Vec<Model>) -> Element {
                             help_text: "Requests Per minute",
                             Input {
                                 input_type: InputType::Number,
+                                class: "w-full",
                                 placeholder: "Requests per Minute e.g. 1000",
                                 required: true,
                                 name: "rpm_limit"

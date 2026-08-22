@@ -22,6 +22,7 @@ pub fn Form(team_id: String) -> Element {
                             help_text: "What do you want to look for?",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 placeholder: "Your Search",
                                 required: true,
                                 name: "search"

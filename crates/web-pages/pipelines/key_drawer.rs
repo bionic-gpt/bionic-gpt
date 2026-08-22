@@ -23,6 +23,7 @@ pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: String) -> Element {
                             help_text: "Give your new piepline a name",
                             Input {
                                 input_type: InputType::Text,
+                                class: "w-full",
                                 placeholder: "My Document Pipeline",
                                 required: true,
                                 name: "name"
@@ -33,6 +34,7 @@ pub fn KeyDrawer(datasets: Vec<Dataset>, team_id: String) -> Element {
                             legend_class: "mt-4",
                             help_text: "All access via this API key will use the above dataset",
                             Select {
+                                class: "w-full",
                                 name: "dataset_id",
                                 required: true,
                                 for dataset in datasets {
