@@ -265,7 +265,7 @@ pub fn summary() -> Summary {
                     },
                     PageSummary {
                         date: "",
-                        title: "Document Validation",
+                        title: "Document Comparison",
                         description:
                             "Evaluate a multi-format vendor package against a procurement rubric.",
                         folder: "architect-course/enterprise-evals/document-validation/",

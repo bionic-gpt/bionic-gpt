@@ -1,4 +1,4 @@
-# Vendor Package Validation Against a Procurement Rubric
+# Document Comparison Against a Procurement Rubric
 
 This eval tests whether the model can validate a real vendor package against a
 procurement rubric. It must extract and reconcile a Word agreement, an Excel
@@ -43,14 +43,8 @@ documents.
 7. Produce an approve, approve-with-conditions, or do-not-approve
    recommendation supported by the matrix.
 
-## Add the integration
+## Document conversion
 
-Download the [Document Conversion API OpenAPI specification](document-extraction.openapi.yaml),
-add it under **OpenAPI Specs**, and select it for the integration. The default
-development stack includes the internal document extraction service.
-
-## Optional reusable skill
-
-The [document-validation skill](document-validation.zip) packages the repeatable
-workflow and rubric reference. It can be uploaded from the **Skills** screen
-when this validation method should be reusable across conversations.
+The Document Conversion API is provided as a system integration. It is already
+available to the assistant, so no OpenAPI download, installation, or manual
+selection is required for this eval.
