@@ -34,6 +34,8 @@ services:
   # Use by the Zero to Hero course.
   doc-engine:
     image: ghcr.io/xberg-io/xberg:1.0.14
+    ports:
+      - "3300:8000"
 
   # Use by the Zero to Hero course to simulate enterprise APIs.
   eval-mocks:

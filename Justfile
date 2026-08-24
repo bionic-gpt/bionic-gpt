@@ -127,6 +127,6 @@ dot-env:
 
 	cat > .env <<'EOF'
 	CHUNKING_ENGINE=http://localhost:8000
-	BIONIC_OPENAPI_SERVER_OVERRIDES='{"typst":"http://localhost:3200"}'
+	BIONIC_OPENAPI_SERVER_OVERRIDES='{"typst":"http://localhost:3200","document-conversion-api":"http://localhost:3300"}'
 	DANGER_JWT_OVERRIDE="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJlbWFpbCI6ImpvaG5AYWNtZS5vcmcifQ.daYgeWqnpmtorlFKjb0sdRFDcPPWfow68KRZh3uUDhc"
 	EOF
