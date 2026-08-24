@@ -289,6 +289,19 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    PageSummary {
+                        date: "",
+                        title: "Vision Analysis",
+                        description:
+                            "Evaluate image analysis, evidence handling, uncertainty, and domain-oriented interpretation.",
+                        folder: "architect-course/enterprise-evals/vision-analysis/",
+                        markdown: include_str!(
+                            "../content/architect-course/enterprise-evals/vision-analysis/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {

@@ -47,7 +47,8 @@ data, and success criteria.
   /architect-course/enterprise-evals/inbox-summarization/) and a
   [deep research](
   /architect-course/enterprise-evals/research/), then try
-  [document co-authoring](/architect-course/enterprise-evals/document-coauthoring/).
+  [document co-authoring](/architect-course/enterprise-evals/document-coauthoring/)
+  and [vision analysis](/architect-course/enterprise-evals/vision-analysis/).
 - **Operate safely:** understand [why Kubernetes](
   /architect-course/deployment-and-operations/why-kubernetes/) and
   [run the Kubernetes lab](

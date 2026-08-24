@@ -723,6 +723,8 @@ mod tests {
         assert!(paths.contains_key(string_value("/email/drafts")));
         assert!(paths.contains_key(string_value("/email/send")));
         assert!(paths.contains_key(string_value("/web/search")));
+        assert!(paths.contains_key(string_value("/vision/analyse")));
+        assert!(combined.contains("operationId: analyseImage"));
     }
 
     #[test]

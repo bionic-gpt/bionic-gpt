@@ -13,7 +13,11 @@ const EVAL_SPEC_SOURCE_DIR: &str = concat!(
     "/../../infra-as-code/eval-mocks/openapi/specs"
 );
 const EVAL_SPEC_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals";
-const EVAL_SPEC_FILES: [&str; 2] = ["email-integration.openapi.yaml", "web-search.openapi.yaml"];
+const EVAL_SPEC_FILES: [&str; 3] = [
+    "email-integration.openapi.yaml",
+    "web-search.openapi.yaml",
+    "vision-analysis.openapi.yaml",
+];
 const DOCUMENT_VALIDATION_DIR: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/content/architect-course/enterprise-evals/document-validation"
