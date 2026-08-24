@@ -954,6 +954,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
+name = "cli-gateway"
+version = "0.1.0"
+dependencies = [
+ "axum 0.8.8",
+ "futures-util",
+ "http 1.4.0",
+ "mime_guess",
+ "multer",
+ "reqwest 0.13.1",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "tempfile",
+ "tokio",
+ "tower",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "cmake"
 version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1254,6 +1274,7 @@ dependencies = [
  "clap",
  "dagger-sdk",
  "eyre",
+ "serde",
  "serde_yaml",
  "tokio",
 ]

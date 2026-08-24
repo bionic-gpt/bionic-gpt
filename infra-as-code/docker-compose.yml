@@ -25,6 +25,12 @@ services:
     ports:
       - "3080:8080"
 
+  # Use by the Zero to Hero course for CLI-backed workflows.
+  cli-gateway:
+    image: ghcr.io/bionic-gpt/bionicgpt-cli-gateway:1.12.18
+    ports:
+      - "3200:8080"
+
   # Use by the Zero to Hero course.
   doc-engine:
     image: ghcr.io/xberg-io/xberg:1.0.14
