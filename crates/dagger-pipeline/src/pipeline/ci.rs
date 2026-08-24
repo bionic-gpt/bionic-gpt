@@ -85,6 +85,8 @@ const CLI_GATEWAY_SPEC: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/../../crates/cli-gateway/specs/typst.openapi.yaml"
 );
+const CLI_GATEWAY_SPEC_CONTAINER_PATH: &str =
+    "/workspace/crates/cli-gateway/specs/typst.openapi.yaml";
 
 #[derive(serde::Deserialize)]
 struct CliBuildSpec {
@@ -393,7 +395,7 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         .with_file("/cli-gateway", outputs.cli_gateway_binary.clone())
         .with_file(
             "/etc/cli-gateway/openapi.yaml",
-            outputs.container.file(CLI_GATEWAY_SPEC),
+            outputs.container.file(CLI_GATEWAY_SPEC_CONTAINER_PATH),
         )
         .with_exposed_port(8080)
         .with_entrypoint(vec!["/cli-gateway"]);
@@ -710,6 +712,14 @@ async fn maybe_publish(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cli_gateway_spec_container_path_uses_workspace_mount() {
+        assert_eq!(
+            CLI_GATEWAY_SPEC_CONTAINER_PATH,
+            "/workspace/crates/cli-gateway/specs/typst.openapi.yaml"
+        );
+    }
 
     #[test]
     fn combined_eval_mocks_openapi_includes_all_eval_paths() {
