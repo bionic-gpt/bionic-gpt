@@ -671,7 +671,8 @@ async fn tools_call_executes_tool() {
             Ok(
                 tool_runtime::builtin_tools::openapi_tool_adapter::HttpResponse {
                     status: StatusCode::OK,
-                    body: "{\"ok\":true}".to_string(),
+                    body: b"{\"ok\":true}".to_vec(),
+                    content_type: Some("application/json".to_string()),
                 },
             )
         }

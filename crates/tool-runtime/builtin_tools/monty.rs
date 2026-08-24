@@ -328,7 +328,7 @@ Use run_bash to list `/home/user/functions`, then cat the relevant `.md` file be
         };
 
         if !operation.byte_parameters.is_empty() {
-            let Some(fs) = fs else {
+            let Some(ref fs) = fs else {
                 return ExtFunctionResult::Error(value_error(
                     "file-backed functions require a Bashkit filesystem".to_string(),
                 ));
@@ -336,12 +336,12 @@ Use run_bash to list `/home/user/functions`, then cat the relevant `.md` file be
             for (api_parameter, path_parameter) in &operation.byte_parameters {
                 let Some(path) = arguments.get(path_parameter).and_then(Value::as_str) else {
                     return ExtFunctionResult::Error(value_error(format!(
-                        "{path_parameter} must be a VFS attachment path"
+                        "{path_parameter} must be a VFS attachment or output path"
                     )));
                 };
-                if !path.starts_with("/home/user/attachments/") {
+                if !is_allowed_file_path(path) {
                     return ExtFunctionResult::Error(value_error(format!(
-                        "{path_parameter} must refer to /home/user/attachments"
+                        "{path_parameter} must refer to /home/user/attachments or /home/user/output"
                     )));
                 }
                 let bytes = match fs.read_file(std::path::Path::new(path)).await {
@@ -361,7 +361,27 @@ Use run_bash to list `/home/user/functions`, then cat the relevant `.md` file be
         match &operation.executor {
             OperationExecutor::OpenApiTool(tool) => match tool.call(arguments.to_string()).await {
                 Ok(result) => match serde_json::from_str::<Value>(&result) {
-                    Ok(value) => ExtFunctionResult::Return(json_to_monty(&value)),
+                    Ok(mut value) => {
+                        if let Some(fs) = fs.as_ref() {
+                            match persist_binary_result(
+                                fs,
+                                &value,
+                                &arguments,
+                                &operation.function_name,
+                            )
+                            .await
+                            {
+                                Ok(Some(path)) => {
+                                    if let Some(object) = value.as_object_mut() {
+                                        object.insert("path".to_string(), Value::String(path));
+                                    }
+                                }
+                                Ok(None) => {}
+                                Err(error) => return ExtFunctionResult::Error(value_error(error)),
+                            }
+                        }
+                        ExtFunctionResult::Return(json_to_monty(&value))
+                    }
                     Err(_) => ExtFunctionResult::Return(MontyObject::String(result)),
                 },
                 Err(err) => ExtFunctionResult::Error(value_error(tool_error_to_string(err))),
@@ -465,7 +485,14 @@ fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<(String, String)
     let byte_names = properties
         .iter()
         .filter_map(|(name, schema)| {
-            (schema.get("format").and_then(Value::as_str) == Some("byte")).then_some(name.clone())
+            (schema.get("format").and_then(Value::as_str) == Some("byte")
+                || schema.get("type").and_then(Value::as_str) == Some("array")
+                    && schema
+                        .get("items")
+                        .and_then(|items| items.get("format"))
+                        .and_then(Value::as_str)
+                        == Some("byte"))
+            .then_some(name.clone())
         })
         .collect::<Vec<_>>();
     for (index, api_name) in byte_names.into_iter().enumerate() {
@@ -479,7 +506,7 @@ fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<(String, String)
             path_name.clone(),
             json!({
                 "type": "string",
-                "description": "Path to the document in /home/user/attachments."
+                "description": "Path to the document in /home/user/attachments or /home/user/output."
             }),
         );
         mappings.push((api_name, path_name));
@@ -496,10 +523,54 @@ fn expose_file_parameters(mut parameters: Value) -> (Value, Vec<(String, String)
     (parameters, mappings)
 }
 
+fn is_allowed_file_path(path: &str) -> bool {
+    path.starts_with("/home/user/attachments/") || path.starts_with("/home/user/output/")
+}
+
+async fn persist_binary_result(
+    fs: &Arc<dyn FileSystem>,
+    value: &Value,
+    arguments: &Value,
+    function_name: &str,
+) -> Result<Option<String>, String> {
+    if value.get("__bionic_binary") != Some(&Value::Bool(true)) {
+        return Ok(None);
+    }
+
+    let encoded = value
+        .get("content_base64")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "binary tool response did not include content_base64".to_string())?;
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(encoded)
+        .map_err(|error| format!("invalid binary tool response: {error}"))?;
+    let content_type = value
+        .get("content_type")
+        .and_then(Value::as_str)
+        .unwrap_or("application/octet-stream");
+    let filename = if content_type == "application/pdf" {
+        "document.pdf"
+    } else {
+        "output.bin"
+    };
+    let output_dir = arguments
+        .as_object()
+        .and_then(|arguments| arguments.values().find_map(Value::as_str))
+        .filter(|path| path.starts_with("/home/user/output/"))
+        .and_then(|path| std::path::Path::new(path).parent())
+        .map(|path| path.to_string_lossy().to_string())
+        .unwrap_or_else(|| format!("/home/user/output/{function_name}"));
+    let output_path = format!("{output_dir}/{filename}");
+    fs.write_file(std::path::Path::new(&output_path), &bytes)
+        .await
+        .map_err(|error| format!("failed to persist binary tool response: {error}"))?;
+    Ok(Some(output_path))
+}
+
 fn operation_example(operation: &RuntimeOperation) -> String {
     if let Some(parameter) = file_path_parameter_name(&operation.parameters) {
         return format!(
-            "python3 -c \"print({}(**{{'{}': '/home/user/attachments/<document>'}}))\"",
+            "python3 -c \"print({}(**{{'{}': '/home/user/attachments/<document>'}}))\"  # use /home/user/output for generated files",
             operation.function_name, parameter
         );
     }
@@ -841,6 +912,35 @@ mod tests {
         assert!(parameters["properties"].get("files").is_none());
         assert!(parameters["properties"].get("file_path").is_some());
         assert_eq!(parameters["required"], json!(["file_path"]));
+    }
+
+    #[test]
+    fn array_byte_parameters_are_exposed_as_vfs_paths() {
+        let (parameters, mappings) = expose_file_parameters(json!({
+            "type": "object",
+            "properties": {
+                "files": {
+                    "type": "array",
+                    "items": {"type": "string", "format": "byte"}
+                }
+            },
+            "required": ["files"]
+        }));
+
+        assert_eq!(
+            mappings,
+            vec![("files".to_string(), "file_path".to_string())]
+        );
+        assert!(parameters["properties"].get("files").is_none());
+        assert_eq!(parameters["required"], json!(["file_path"]));
+    }
+
+    #[test]
+    fn file_backed_functions_accept_only_attachment_and_output_paths() {
+        assert!(is_allowed_file_path("/home/user/attachments/main.typ"));
+        assert!(is_allowed_file_path("/home/user/output/draft/main.typ"));
+        assert!(!is_allowed_file_path("/home/user/skills/main.typ"));
+        assert!(!is_allowed_file_path("/tmp/main.typ"));
     }
 
     #[test]
