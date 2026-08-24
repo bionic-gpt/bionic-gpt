@@ -59,32 +59,7 @@ Bionic provides that foundation. Your team keeps control of the models, infrastr
 
 Bionic is not just a chat surface. Each conversation can become a controlled working environment where the model can discover available tools, read relevant skills, operate over files, execute sandboxed code, and return durable outputs.
 
-```mermaid
-flowchart LR
-    User["User"]
-    Experience["Chat / Workflows / Artifacts"]
-    Runtime["Bionic Runtime"]
-    VFS["Virtual Filesystem"]
-    Tools["Tools"]
-    Skills["Skills"]
-    Datasets["Datasets"]
-    Integrations["Integrations"]
-    Models["Approved Hosted Models / Private Endpoints / Local Models"]
-    Systems["Enterprise Systems"]
-    Storage["Postgres / Object Storage"]
-
-    User --> Experience
-    Experience --> Runtime
-    Runtime --> VFS
-    Runtime --> Tools
-    Runtime --> Skills
-    Runtime --> Datasets
-    Runtime --> Integrations
-    Runtime --> Models
-    Integrations --> Systems
-    VFS --> Storage
-    Datasets --> Storage
-```
+![Bionic architecture](crates/bionic-gpt/content/architect-course/bionic-architecture.png "Bionic architecture")
 
 ## Run Bionic
 

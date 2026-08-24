@@ -10,6 +10,8 @@ decisions about which models are suitable for on-premise, private-cloud, or
 approved hosted environments, while also teaching the practical details of
 agentic AI that are easy to miss in abstract architecture discussions.
 
+![Bionic architecture](bionic-architecture.png "Bionic architecture")
+
 ## Enterprise Evals
 
 Enterprise evals use controlled mock services, fixed source data, and known

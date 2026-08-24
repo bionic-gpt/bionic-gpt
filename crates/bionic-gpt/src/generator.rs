@@ -34,6 +34,11 @@ const DASHBOARD_SALES_CSV_SOURCE: &str = concat!(
 const DASHBOARD_SKILL_OUTPUT_DIR: &str = "dist/architect-course/enterprise-evals/dashboard-builder";
 const DASHBOARD_SKILL_ZIP: &str =
     "dist/architect-course/enterprise-evals/dashboard-builder/dashboard-builder.zip";
+const ARCHITECTURE_IMAGE_SOURCE: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/content/architect-course/bionic-architecture.png"
+);
+const ARCHITECTURE_IMAGE_OUTPUT: &str = "dist/architect-course/bionic-architecture.png";
 
 fn output_page(path: &str, html: String) -> SitePage {
     SitePage {
@@ -73,12 +78,25 @@ pub async fn generate_static_pages() -> Vec<SitePage> {
     copy_enterprise_eval_specs();
     copy_document_validation_assets();
     copy_dashboard_skill_package();
+    copy_course_assets();
 
     let mut pages = Vec::new();
     pages.extend(generate_marketing().await);
     pages.extend(generate_product().await);
     pages.extend(generate_solutions().await);
     pages
+}
+
+fn copy_course_assets() {
+    if let Some(parent) = Path::new(ARCHITECTURE_IMAGE_OUTPUT).parent() {
+        fs::create_dir_all(parent).expect("failed to create course asset directory");
+    }
+    fs::copy(ARCHITECTURE_IMAGE_SOURCE, ARCHITECTURE_IMAGE_OUTPUT).unwrap_or_else(|error| {
+        panic!(
+            "failed to copy course image from {} to {}: {error}",
+            ARCHITECTURE_IMAGE_SOURCE, ARCHITECTURE_IMAGE_OUTPUT
+        )
+    });
 }
 
 fn copy_document_validation_assets() {
