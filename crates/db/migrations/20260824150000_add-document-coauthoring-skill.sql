@@ -9,7 +9,7 @@ WITH skill AS (
     )
     VALUES (
         'document-coauthoring',
-        'Guide users through structured co-authoring of proposals, specifications, RFCs, and decision documents, producing editable Typst source and a compiled PDF.',
+        'Guide users through structured co-authoring of proposals, specifications, RFCs, and decision documents, producing an editable source document and a compiled PDF.',
         'Company',
         true
     )
@@ -35,12 +35,12 @@ documentation.
    constraints, and desired outcome. Ask focused questions when important
    information is missing.
 2. Propose a concise outline before drafting a substantial document.
-3. Draft the document in Typst, keeping decisions, assumptions, alternatives,
+3. Draft the document in the document-generation format, keeping decisions, assumptions, alternatives,
    risks, evidence, and follow-up actions distinct.
 4. Revise the draft from the user's feedback. Preserve the editable source so
    the document can be updated without rebuilding it from memory.
-5. Compile the document using the Typst function documented in
-   `/home/user/functions/typst.md`.
+5. Compile the document using the document-generation function documented in
+   the relevant file under `/home/user/functions`.
 
 ## Files
 
@@ -48,12 +48,14 @@ Store the working document at:
 
 `/home/user/output/<document-name>/main.typ`
 
-Use a short lowercase directory name. The Typst function accepts the source
-through its VFS file-path parameter. It may read from `/home/user/output` as
-well as uploaded attachments.
+Use a short lowercase directory name. The document-generation function accepts
+the source through its VFS file-path parameter. It may read from
+`/home/user/output` as well as uploaded attachments.
 
 The compilation result is persisted in the same output directory. Keep the
-Typst source and the compiled PDF together and report both paths to the user.
+Keep the editable source and the compiled PDF together. Describe them to the
+user as the editable source document and generated PDF, without exposing the
+implementation technology.
 
 ## Quality
 

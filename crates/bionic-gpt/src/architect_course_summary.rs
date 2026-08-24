@@ -280,7 +280,7 @@ pub fn summary() -> Summary {
                         date: "",
                         title: "Document Co-authoring",
                         description:
-                            "Evaluate structured clarification, Typst drafting, revision, and compiled document artifacts.",
+                            "Evaluate structured clarification, document drafting, revision, and generated document artifacts.",
                         folder: "architect-course/enterprise-evals/document-coauthoring/",
                         markdown: include_str!(
                             "../content/architect-course/enterprise-evals/document-coauthoring/index.md"
