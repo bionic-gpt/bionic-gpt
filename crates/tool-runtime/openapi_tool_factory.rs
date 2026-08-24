@@ -405,10 +405,19 @@ impl BionicOpenAPI {
         &self,
         token_provider: Option<Arc<dyn crate::tool_auth::TokenProvider>>,
     ) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
+        self.create_tools_with_base_url(token_provider, None)
+    }
+
+    pub fn create_tools_with_base_url(
+        &self,
+        token_provider: Option<Arc<dyn crate::tool_auth::TokenProvider>>,
+        base_url_override: Option<&str>,
+    ) -> Result<Vec<Arc<dyn ToolDyn>>, String> {
         let mut tools: Vec<Arc<dyn ToolDyn>> = Vec::new();
         let integration_tools = self.create_tool_definitions();
-        let base_url = integration_tools
-            .base_url
+        let base_url = base_url_override
+            .map(str::to_string)
+            .or(integration_tools.base_url)
             .unwrap_or_else(|| "http://localhost".to_string());
         let auth_header_name = self.get_auth_header_name();
 

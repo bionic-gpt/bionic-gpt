@@ -109,6 +109,7 @@ impl RuntimeFunctionRegistry {
         transaction.commit().await.map_err(|err| err.to_string())?;
 
         let system_specs = crate::system_tool_sources::load_system_openapi_specs(pool).await?;
+        let server_overrides = crate::system_tool_sources::openapi_server_overrides();
         for system_spec in system_specs {
             let openapi = match crate::BionicOpenAPI::new(&system_spec.spec.spec) {
                 Ok(api) => api,
@@ -131,7 +132,11 @@ impl RuntimeFunctionRegistry {
             let token_provider = system_spec
                 .api_key
                 .map(|key| Arc::new(crate::StaticTokenProvider::new(key)) as Arc<_>);
-            let tools = match openapi.create_tools(token_provider) {
+            let base_url_override = server_overrides
+                .get(&system_spec.spec.slug)
+                .map(String::as_str);
+            let tools = match openapi.create_tools_with_base_url(token_provider, base_url_override)
+            {
                 Ok(tools) => tools,
                 Err(err) => {
                     tracing::warn!(

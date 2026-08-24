@@ -1,4 +1,39 @@
 use db::{queries, OpenapiSpec, OpenapiSpecCategory, Pool};
+use serde_json::Value;
+use std::collections::HashMap;
+
+const SERVER_OVERRIDES_ENV: &str = "BIONIC_OPENAPI_SERVER_OVERRIDES";
+
+pub fn openapi_server_overrides() -> HashMap<String, String> {
+    let Ok(raw) = std::env::var(SERVER_OVERRIDES_ENV) else {
+        return HashMap::new();
+    };
+
+    match parse_server_overrides(&raw) {
+        Ok(overrides) => overrides,
+        Err(error) => {
+            tracing::warn!(%error, "ignoring invalid OpenAPI server overrides");
+            HashMap::new()
+        }
+    }
+}
+
+fn parse_server_overrides(raw: &str) -> Result<HashMap<String, String>, String> {
+    let values: HashMap<String, Value> = serde_json::from_str(raw)
+        .map_err(|error| format!("{SERVER_OVERRIDES_ENV} must be a JSON object: {error}"))?;
+    let mut overrides = HashMap::new();
+
+    for (slug, value) in values {
+        let url = value
+            .as_str()
+            .map(str::trim)
+            .filter(|url| !url.is_empty())
+            .ok_or_else(|| format!("server override for {slug} must be a non-empty string"))?;
+        overrides.insert(slug, url.to_string());
+    }
+
+    Ok(overrides)
+}
 
 #[derive(Clone, Debug)]
 struct SelectedSpec {
@@ -166,6 +201,22 @@ mod tests {
             &spec(1, OpenapiSpecCategory::WebSearch, false),
             OpenapiSpecCategory::WebSearch
         ));
+    }
+
+    #[test]
+    fn parses_server_overrides() {
+        let overrides = parse_server_overrides(r#"{"typst":"http://localhost:3200"}"#).unwrap();
+        assert_eq!(
+            overrides.get("typst"),
+            Some(&"http://localhost:3200".to_string())
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_server_overrides() {
+        assert!(parse_server_overrides("[]").is_err());
+        assert!(parse_server_overrides(r#"{"typst":123}"#).is_err());
+        assert!(parse_server_overrides(r#"{"typst":"  "}"#).is_err());
     }
 
     #[test]

@@ -5,7 +5,6 @@ info:
   description: Compile Typst documents in an isolated workspace.
 servers:
   - url: http://cli-gateway:8080
-  - url: http://localhost:3200
 x-cli-build:
   source:
     type: container
