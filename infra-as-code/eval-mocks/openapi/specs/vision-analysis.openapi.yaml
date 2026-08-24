@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: Image Analysis API
+  version: "1.0"
+  description: Analyse an uploaded image and return structured visual observations.
+  x-bionic-slug: vision-analysis
+servers:
+  - url: http://eval-mocks:3100
+  - url: http://localhost:3100
+paths:
+  /vision/analyse:
+    post:
+      operationId: analyseImage
+      summary: Analyse an image
+      description: Return structured observations and uncertainty for an uploaded image.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+                - task
+              properties:
+                image:
+                  type: string
+                  format: byte
+                  description: Uploaded image to analyse.
+                task:
+                  type: string
+                  description: What should be identified or assessed in the image.
+      responses:
+        "200":
+          description: Structured image analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageAnalysis"
+              example:
+                scene: Industrial electrical/control panel
+                confidence: 0.96
+                observations:
+                  - type: component
+                    label: Analog pressure gauge
+                    location: upper left
+                    confidence: 0.92
+                  - type: component
+                    label: Digital controller or HMI
+                    location: upper centre
+                    confidence: 0.89
+                  - type: component
+                    label: Push buttons and indicator lights
+                    location: front panel
+                    confidence: 0.94
+                  - type: state
+                    label: At least one indicator appears illuminated
+                    confidence: 0.82
+                uncertain_observations:
+                  - label: Exact gauge reading cannot be determined reliably
+                    confidence: 0.55
+                  - label: The precise process controlled by the panel cannot be determined from the image alone
+                    confidence: 0.91
+                inspection_flags:
+                  - label: Verify indicator/alarm state against operating documentation
+                    severity: informational
+                  - label: Inspect wiring and terminal condition more closely if maintenance is being performed
+                    severity: informational
+components:
+  schemas:
+    ImageAnalysis:
+      type: object
+      required:
+        - scene
+        - confidence
+        - observations
+        - uncertain_observations
+        - inspection_flags
+      properties:
+        scene:
+          type: string
+        confidence:
+          type: number
+          format: float
+        observations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Observation"
+        uncertain_observations:
+          type: array
+          items:
+            $ref: "#/components/schemas/UncertainObservation"
+        inspection_flags:
+          type: array
+          items:
+            $ref: "#/components/schemas/InspectionFlag"
+    Observation:
+      type: object
+      required:
+        - type
+        - label
+        - location
+        - confidence
+      properties:
+        type:
+          type: string
+        label:
+          type: string
+        location:
+          type: string
+        confidence:
+          type: number
+          format: float
+    UncertainObservation:
+      type: object
+      required:
+        - label
+        - confidence
+      properties:
+        label:
+          type: string
+        confidence:
+          type: number
+          format: float
+    InspectionFlag:
+      type: object
+      required:
+        - label
+        - severity
+      properties:
+        label:
+          type: string
+        severity:
+          type: string
+          enum:
+            - informational
+            - warning
+            - critical

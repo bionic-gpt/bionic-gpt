@@ -42,7 +42,8 @@ pub trait HttpClient: Send + Sync + 'static {
 #[derive(Clone, Debug)]
 pub struct HttpResponse {
     pub status: StatusCode,
-    pub body: String,
+    pub body: Vec<u8>,
+    pub content_type: Option<String>,
 }
 
 #[derive(Clone)]
@@ -94,8 +95,17 @@ impl HttpClient for ReqwestHttpClient {
         }
         let response = request.send().await.map_err(|e| e.to_string())?;
         let status = response.status();
-        let text = response.text().await.map_err(|e| e.to_string())?;
-        Ok(HttpResponse { status, body: text })
+        let content_type = response
+            .headers()
+            .get(reqwest::header::CONTENT_TYPE)
+            .and_then(|value| value.to_str().ok())
+            .map(str::to_string);
+        let body = response.bytes().await.map_err(|e| e.to_string())?.to_vec();
+        Ok(HttpResponse {
+            status,
+            body,
+            content_type,
+        })
     }
 }
 
@@ -368,17 +378,32 @@ async fn execute_openapi_tool(
         }));
     }
 
-    // Parse the response
-    let response_text = response.body;
+    parse_http_response(response)
+}
 
-    // Try to parse as JSON, fallback to text if it fails
-    match serde_json::from_str::<serde_json::Value>(&response_text) {
-        Ok(json_value) => Ok(json_value),
-        Err(_) => Ok(serde_json::json!({
-            "content": response_text,
-            "content_type": "text"
-        })),
+fn parse_http_response(response: HttpResponse) -> Result<Value, Value> {
+    let content_type = response.content_type.unwrap_or_default();
+    if content_type.starts_with("application/json") {
+        return serde_json::from_slice(&response.body)
+            .map_err(|e| crate::json_error("Invalid JSON response", e));
     }
+
+    if content_type.starts_with("text/") || content_type.is_empty() {
+        let response_text = String::from_utf8_lossy(&response.body).to_string();
+        if let Ok(json_value) = serde_json::from_str::<serde_json::Value>(&response_text) {
+            return Ok(json_value);
+        }
+        return Ok(serde_json::json!({
+            "content": response_text,
+            "content_type": if content_type.is_empty() { "text" } else { &content_type }
+        }));
+    }
+
+    Ok(serde_json::json!({
+        "__bionic_binary": true,
+        "content_base64": base64::engine::general_purpose::STANDARD.encode(response.body),
+        "content_type": content_type,
+    }))
 }
 
 impl ToolDyn for OpenApiTool {
@@ -503,6 +528,32 @@ mod tests {
     use serde_json::json;
     use std::collections::VecDeque;
     use std::sync::Arc;
+
+    #[test]
+    fn preserves_binary_responses_as_base64_metadata() {
+        let value = parse_http_response(HttpResponse {
+            status: StatusCode::OK,
+            body: b"pdf bytes".to_vec(),
+            content_type: Some("application/pdf".to_string()),
+        })
+        .unwrap();
+
+        assert_eq!(value["__bionic_binary"], true);
+        assert_eq!(value["content_type"], "application/pdf");
+        assert_eq!(value["content_base64"], "cGRmIGJ5dGVz");
+    }
+
+    #[test]
+    fn keeps_json_responses_as_json() {
+        let value = parse_http_response(HttpResponse {
+            status: StatusCode::OK,
+            body: br#"{"ok":true}"#.to_vec(),
+            content_type: Some("application/json".to_string()),
+        })
+        .unwrap();
+
+        assert_eq!(value, json!({"ok": true}));
+    }
 
     fn create_test_openapi_spec() -> oas3::OpenApiV3Spec {
         let spec_json = json!({
@@ -870,11 +921,13 @@ mod tests {
         let client = Arc::new(MockHttpClient::new(vec![
             HttpResponse {
                 status: StatusCode::UNAUTHORIZED,
-                body: String::new(),
+                body: Vec::new(),
+                content_type: None,
             },
             HttpResponse {
                 status: StatusCode::OK,
-                body: "{\"ok\":true}".to_string(),
+                body: b"{\"ok\":true}".to_vec(),
+                content_type: Some("application/json".to_string()),
             },
         ]));
 

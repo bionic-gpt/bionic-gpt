@@ -7,10 +7,11 @@ use eyre::{Result, WrapErr, eyre};
 use serde_yaml::{Mapping, Value};
 
 use super::{
-    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE, DATABASE_URL,
-    DB_FOLDER, DB_PASSWORD, EVAL_MOCKS_IMAGE_REPO, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER,
-    POSTGRES_IMAGE, POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME,
-    RAG_ENGINE_IMAGE_REPO, SUMMARY_PATH, TARGET_TRIPLE,
+    AIRBYTE_EXE_NAME, AIRBYTE_IMAGE_REPO, APP_EXE_NAME, APP_IMAGE_REPO, BASE_IMAGE,
+    CLI_GATEWAY_EXE_NAME, CLI_GATEWAY_IMAGE_REPO, DATABASE_URL, DB_FOLDER, DB_PASSWORD,
+    EVAL_MOCKS_IMAGE_REPO, MIGRATIONS_IMAGE_REPO, PIPELINE_FOLDER, POSTGRES_IMAGE,
+    POSTGRES_MCP_EXE_NAME, POSTGRES_MCP_IMAGE_REPO, RAG_ENGINE_EXE_NAME, RAG_ENGINE_IMAGE_REPO,
+    SUMMARY_PATH, TARGET_TRIPLE,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -60,6 +61,7 @@ struct BuildOutputs {
     rag_engine_binary: File,
     airbyte_binary: File,
     postgres_mcp_binary: File,
+    cli_gateway_binary: File,
 }
 
 struct PublishCredentials {
@@ -79,6 +81,56 @@ const EVAL_MOCKS_GENERATED_SPEC: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
     "/../../infra-as-code/eval-mocks/openapi/generated/eval-mocks.openapi.yaml"
 );
+const CLI_GATEWAY_SPEC: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../crates/cli-gateway/specs/typst.openapi.yaml"
+);
+
+#[derive(serde::Deserialize)]
+struct CliBuildSpec {
+    source: CliBuildSource,
+    binary: CliBuildBinary,
+}
+
+#[derive(serde::Deserialize)]
+struct CliBuildSource {
+    #[serde(rename = "type")]
+    source_type: String,
+    image: Option<String>,
+}
+
+#[derive(serde::Deserialize)]
+struct CliBuildBinary {
+    from: String,
+    to: String,
+}
+
+fn cli_gateway_build_spec() -> Result<CliBuildSpec> {
+    let source = fs::read_to_string(CLI_GATEWAY_SPEC)
+        .wrap_err_with(|| format!("failed to read {CLI_GATEWAY_SPEC}"))?;
+    let document: serde_yaml::Value =
+        serde_yaml::from_str(&source).wrap_err("failed to parse cli-gateway OpenAPI spec")?;
+    let build = document
+        .get("x-cli-build")
+        .ok_or_else(|| eyre!("cli-gateway spec is missing x-cli-build"))?;
+    let build: CliBuildSpec = serde_yaml::from_value(build.clone())
+        .wrap_err("invalid cli-gateway x-cli-build extension")?;
+    if build.source.source_type != "container" {
+        return Err(eyre!(
+            "unsupported cli-gateway build source type `{}`",
+            build.source.source_type
+        ));
+    }
+    if build.source.image.as_deref().unwrap_or("").is_empty()
+        || build.binary.from.is_empty()
+        || build.binary.to.is_empty()
+    {
+        return Err(eyre!(
+            "cli-gateway x-cli-build has incomplete source or binary fields"
+        ));
+    }
+    Ok(build)
+}
 
 fn summary_markdown() -> String {
     format!(
@@ -152,6 +204,7 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
     let rag_engine_binary = summary_container.file(release_binary_path(RAG_ENGINE_EXE_NAME));
     let airbyte_binary = summary_container.file(release_binary_path(AIRBYTE_EXE_NAME));
     let postgres_mcp_binary = summary_container.file(release_binary_path(POSTGRES_MCP_EXE_NAME));
+    let cli_gateway_binary = summary_container.file(release_binary_path(CLI_GATEWAY_EXE_NAME));
 
     Ok(BuildOutputs {
         container: summary_container,
@@ -160,6 +213,7 @@ async fn build_workspace(client: &Query, repo: &Directory) -> Result<BuildOutput
         rag_engine_binary,
         airbyte_binary,
         postgres_mcp_binary,
+        cli_gateway_binary,
     })
 }
 
@@ -323,6 +377,35 @@ async fn publish_images(client: &Query, outputs: &BuildOutputs) -> Result<()> {
         credentials.as_ref(),
         registry,
         "postgres mcp image",
+        &tags,
+    )
+    .await?;
+
+    let cli_build = cli_gateway_build_spec()?;
+    let cli_source = client
+        .container()
+        .from(cli_build.source.image.as_deref().unwrap());
+    let cli_gateway_container = cli_source
+        .with_file(
+            &cli_build.binary.to,
+            cli_source.file(&cli_build.binary.from),
+        )
+        .with_file("/cli-gateway", outputs.cli_gateway_binary.clone())
+        .with_file(
+            "/etc/cli-gateway/openapi.yaml",
+            outputs.container.file(CLI_GATEWAY_SPEC),
+        )
+        .with_exposed_port(8080)
+        .with_entrypoint(vec!["/cli-gateway"]);
+
+    ensure_built(&cli_gateway_container, "cli gateway image").await?;
+    maybe_publish(
+        client,
+        &cli_gateway_container,
+        CLI_GATEWAY_IMAGE_REPO,
+        credentials.as_ref(),
+        registry,
+        "cli gateway image",
         &tags,
     )
     .await?;
@@ -640,6 +723,8 @@ mod tests {
         assert!(paths.contains_key(string_value("/email/drafts")));
         assert!(paths.contains_key(string_value("/email/send")));
         assert!(paths.contains_key(string_value("/web/search")));
+        assert!(paths.contains_key(string_value("/vision/analyse")));
+        assert!(combined.contains("operationId: analyseImage"));
     }
 
     #[test]

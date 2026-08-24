@@ -8,4 +8,5 @@ clap = { version = "4", features = ["derive"] }
 dagger-sdk = "0.20"
 eyre = "0.6"
 serde_yaml = "0.9"
+serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
