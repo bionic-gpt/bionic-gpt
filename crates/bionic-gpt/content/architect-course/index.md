@@ -45,8 +45,6 @@ data, and success criteria.
   /architect-course/enterprise-evals/inbox-summarization/) and a
   [deep research](
   /architect-course/enterprise-evals/research/).
-- **Keep people in control:** [present results for review](
-  /architect-course/human-in-the-loop/presenting-results/).
 - **Operate safely:** understand [why Kubernetes](
   /architect-course/deployment-and-operations/why-kubernetes/) and
   [run the Kubernetes lab](
