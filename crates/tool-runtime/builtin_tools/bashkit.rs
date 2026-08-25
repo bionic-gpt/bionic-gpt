@@ -2,7 +2,7 @@ use crate::skills;
 use crate::types::ToolDefinition;
 use bashkit::{
     async_trait, Bash, Builtin, BuiltinContext, ExecResult, ExecutionLimits, FileSystem, FileType,
-    InMemoryFs, PythonLimits,
+    InMemoryFs, PythonLimits, SqliteLimits,
 };
 use db::{queries, Pool, Transaction};
 use object_storage::StorageConfig;
@@ -341,6 +341,7 @@ async fn execute_run_bash(
         .hostname("bashkit")
         .cwd(HOME_DIR)
         .env("BASHKIT_ALLOW_INPROCESS_PYTHON", "1")
+        .env("BASHKIT_ALLOW_INPROCESS_SQLITE", "1")
         .limits(
             ExecutionLimits::new()
                 .timeout(Duration::from_millis(timeout))
@@ -363,6 +364,7 @@ async fn execute_run_bash(
             external_function_names,
             external_function_handler,
         )
+        .sqlite_with_limits(SqliteLimits::default().max_duration(Duration::from_millis(timeout)))
         .build();
 
     seed_custom_skills(&tool.pool, &tool.sub, &bash).await?;
@@ -1556,6 +1558,30 @@ mod tests {
 
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.stdout, "4\n");
+    }
+
+    #[tokio::test]
+    async fn test_bashkit_sqlite_builtin_is_available() {
+        let mut bash = Bash::builder()
+            .sqlite_with_limits(SqliteLimits::default())
+            .env("BASHKIT_ALLOW_INPROCESS_SQLITE", "1")
+            .build();
+
+        let create = bash
+            .exec(
+                "sqlite /tmp/notes.sqlite 'CREATE TABLE notes(body TEXT); INSERT INTO notes VALUES (\"hello\")'",
+            )
+            .await
+            .unwrap();
+        assert_eq!(create.exit_code, 0, "{}", create.stderr);
+
+        let query = bash
+            .exec("sqlite /tmp/notes.sqlite 'SELECT body FROM notes'")
+            .await
+            .unwrap();
+
+        assert_eq!(query.exit_code, 0, "{}", query.stderr);
+        assert_eq!(query.stdout, "hello\n");
     }
 
     #[tokio::test]

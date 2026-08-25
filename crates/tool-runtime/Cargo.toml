@@ -28,7 +28,7 @@ futures.workspace = true
 # Used by the web tool to stream responses
 futures-util = "0.3"
 html2text = "0.16"
-bashkit = { version = "0.14.5", features = ["python"] }
+bashkit = { version = "0.14.5", features = ["python", "sqlite"] }
 md5 = "0.7.0"
 mime_guess = "2.0.5"
 object-storage = { path = "../object-storage" }
