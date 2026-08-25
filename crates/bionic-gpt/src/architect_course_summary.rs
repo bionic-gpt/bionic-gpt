@@ -302,6 +302,19 @@ pub fn summary() -> Summary {
                         author_image: None,
                         author: None,
                     },
+                    PageSummary {
+                        date: "",
+                        title: "Persistent State",
+                        description:
+                            "Evaluate whether the model can create structured state, persist it across tool calls and turns, and query it again later.",
+                        folder: "architect-course/enterprise-evals/persistent-state/",
+                        markdown: include_str!(
+                            "../content/architect-course/enterprise-evals/persistent-state/index.md"
+                        ),
+                        image: None,
+                        author_image: None,
+                        author: None,
+                    },
                 ],
             },
             Category {
