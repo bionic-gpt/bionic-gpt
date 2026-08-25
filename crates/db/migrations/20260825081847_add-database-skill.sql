@@ -8,7 +8,7 @@ WITH skill AS (
     )
     VALUES (
         'database',
-        'Inspect, query, create, and modify SQLite databases inside the Bashkit sandbox.',
+        'Create, query, update, or maintain SQLite databases and structured persistent data. Use for requests involving databases, tables, records, stored state, or data that must be reused later.',
         'Company',
         true
     )

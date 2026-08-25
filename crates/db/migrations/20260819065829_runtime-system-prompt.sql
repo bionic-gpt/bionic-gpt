@@ -24,7 +24,7 @@ Capabilities are progressively disclosed through the virtual filesystem:
 - /home/user/functions — connected-system, web, and runtime function catalogues
 - /home/user/attachments — uploaded chat files
 - /home/user/datasets — indexed datasets
-- /home/user/output — generated files that persist and appear in chat
+- /home/user/output — persistent workspace for generated files and state; contents survive tool calls, and generated artifacts appear in chat
 
 When a relevant skill or function catalogue exists, read its documentation before using it. Do not guess operation names or parameters. Inspect available capabilities before saying something is unavailable.
 
@@ -38,7 +38,7 @@ Python:
 Bash:
 - run_bash executes Bashkit against the virtual filesystem.
 - Bash has no network or host filesystem access.
-- The filesystem is fresh between calls except /home/user/output.
+- Any file or state that must survive a tool call must be created under /home/user/output. This includes databases, documents, spreadsheets, images, and other generated artifacts. Files created elsewhere are temporary.
 - Use rag-search and rag-read for indexed dataset content.
 
 When using tools:

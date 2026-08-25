@@ -56,3 +56,40 @@ pub use types::{
     ModelType, OpenapiSpecCategory, Permission, PromptFlagType, PromptType, Role, TokenUsageType,
     Visibility,
 };
+
+#[cfg(test)]
+mod migration_tests {
+    const RUNTIME_SYSTEM_PROMPT_MIGRATION: &str =
+        include_str!("migrations/20260819065829_runtime-system-prompt.sql");
+    const DATABASE_SKILL_MIGRATION: &str =
+        include_str!("migrations/20260825081847_add-database-skill.sql");
+
+    #[test]
+    fn runtime_prompt_defines_the_persistent_output_contract() {
+        assert!(RUNTIME_SYSTEM_PROMPT_MIGRATION
+            .contains("/home/user/output — persistent workspace for generated files and state"));
+        assert!(RUNTIME_SYSTEM_PROMPT_MIGRATION.contains("contents survive tool calls"));
+        assert!(RUNTIME_SYSTEM_PROMPT_MIGRATION.contains(
+            "Any file or state that must survive a tool call must be created under /home/user/output"
+        ));
+        assert!(RUNTIME_SYSTEM_PROMPT_MIGRATION.contains(
+            "This includes databases, documents, spreadsheets, images, and other generated artifacts"
+        ));
+        assert!(RUNTIME_SYSTEM_PROMPT_MIGRATION.contains("Files created elsewhere are temporary"));
+    }
+
+    #[test]
+    fn database_skill_description_matches_database_requests() {
+        let expected_description = "Create, query, update, or maintain SQLite databases and structured persistent data. Use for requests involving databases, tables, records, stored state, or data that must be reused later.";
+
+        assert!(DATABASE_SKILL_MIGRATION.contains(expected_description));
+        for discovery_term in [
+            "databases",
+            "tables",
+            "records",
+            "structured persistent data",
+        ] {
+            assert!(expected_description.contains(discovery_term));
+        }
+    }
+}
