@@ -53,11 +53,11 @@ fn output_page(path: &str, html: String) -> SitePage {
 
 pub async fn generate_product() -> Vec<SitePage> {
     vec![
-        output_page("product/assistants", pages::product::assistants::page()),
         output_page("product/chat", pages::product::chat::page()),
         output_page("product/datasets", pages::product::datasets::page()),
         output_page("product/developers", pages::product::developers::page()),
         output_page("product/integrations", pages::product::integrations::page()),
+        output_page("product/projects", pages::product::projects::page()),
         output_page("product/skills", pages::product::skills::page()),
     ]
 }

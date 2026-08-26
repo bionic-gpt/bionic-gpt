@@ -151,6 +151,7 @@ pub async fn new_loader(
         name: "".to_string(),
         display_name: "".to_string(),
         model_type: "LLM".to_string(),
+        provider_type: "OpenAICompatible".to_string(),
         base_url: "".to_string(),
         api_key: "".to_string(),
         tpm_limit: DEFAULT_TPM_LIMIT,
@@ -188,6 +189,7 @@ pub async fn new_loader(
 
             form.name = provider.default_model_name.unwrap_or_default();
             form.display_name = default_display;
+            form.provider_type = provider.provider_type.to_string();
             form.base_url = provider.base_url;
             form.context_size_bytes = provider.default_model_context_size;
             form.description = provider.default_model_description;
@@ -264,6 +266,7 @@ pub async fn edit_loader(
         // Preserve existing form values when editing
         display_name: model.display_name.clone(),
         model_type,
+        provider_type: model.provider_type.to_string(),
         base_url: model.base_url,
         api_key: model.api_key.unwrap_or_default(),
         tpm_limit: model.tpm_limit,
@@ -338,6 +341,7 @@ pub struct ModelForm {
     pub display_name: String,
     #[validate(length(min = 1, message = "The prompt is mandatory"))]
     pub base_url: String,
+    pub provider_type: String,
     pub model_type: String,
     #[serde(deserialize_with = "empty_string_is_none")]
     pub api_key: Option<String>,
@@ -381,6 +385,10 @@ pub async fn upsert_action(
         "Guard" => ModelType::Guard,
         _ => ModelType::Embeddings,
     };
+    let provider_type = model_form
+        .provider_type
+        .parse::<db::ModelProvider>()
+        .map_err(CustomError::FaultySetup)?;
 
     let mut visibility = string_to_visibility(&model_form.visibility);
     if visibility == Visibility::Company && !rbac.is_sys_admin {
@@ -395,6 +403,7 @@ pub async fn upsert_action(
                     &transaction,
                     &model_form.name,
                     &model_type,
+                    &provider_type,
                     &model_form.base_url,
                     &model_form.api_key,
                     &model_form.tpm_limit,
@@ -413,12 +422,10 @@ pub async fn upsert_action(
                     .bind(
                         &transaction,
                         &model_id,
-                        &0, // Set category to uncategorized
                         &model_form.display_name,
                         &visibility,
                         &system_prompt,
                         &99,
-                        &10,
                         &max_completion_tokens,
                         &80,
                         &temperature,
@@ -428,7 +435,6 @@ pub async fn upsert_action(
                         &Some(&model_form.example2),
                         &Some(&model_form.example3),
                         &Some(&model_form.example4),
-                        &db::PromptType::Model,
                         &prompt_id,
                     )
                     .await?;
@@ -481,6 +487,7 @@ pub async fn upsert_action(
                     &transaction,
                     &model_form.name,
                     &model_type,
+                    &provider_type,
                     &model_form.base_url,
                     &model_form.api_key,
                     &model_form.tpm_limit,
@@ -491,7 +498,6 @@ pub async fn upsert_action(
                 .await?;
 
             let system_prompt: Option<String> = None;
-            let image_icon: Option<i32> = None;
             let max_completion_tokens: Option<i32> = None;
 
             if model_type == ModelType::LLM {
@@ -501,13 +507,10 @@ pub async fn upsert_action(
                         &transaction,
                         &team_id_num,
                         &model_id,
-                        &0, // Set category to uncategorized
                         &model_form.display_name,
-                        &image_icon,
                         &visibility,
                         &system_prompt,
                         &99,
-                        &10,
                         &max_completion_tokens,
                         &80,
                         &temperature,
@@ -517,7 +520,6 @@ pub async fn upsert_action(
                         &Some(&model_form.example2),
                         &Some(&model_form.example3),
                         &Some(&model_form.example4),
-                        &db::PromptType::Model,
                     )
                     .one()
                     .await?;
@@ -574,6 +576,7 @@ pub async fn upsert_action(
                                         &transaction,
                                         &embeddings_name,
                                         &ModelType::Embeddings,
+                                        &provider.provider_type,
                                         &provider.base_url,
                                         &model_form.api_key,
                                         &model_form.tpm_limit,

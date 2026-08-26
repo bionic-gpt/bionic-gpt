@@ -61,8 +61,10 @@ pub fn Features(
 pub fn BionicFeatures(class: Option<String>) -> Element {
     let features = vec![
         Feature {
-            title: String::from("Agentic Assistants"),
-            description: String::from("Connect assistants to your systems and your data."),
+            title: String::from("Persistent Projects"),
+            description: String::from(
+                "Organize related chats, instructions, attachments, and history.",
+            ),
             icon: "/features/systems.svg".to_string(),
         },
         Feature {

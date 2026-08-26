@@ -10,7 +10,7 @@ They cover requests such as:
 * run this report on a schedule;
 * remind me at a specific time.
 
-If the chat runtime already has scheduling, the assistant does not need to become a separate application merely to wake up with the right context.
+If the chat runtime already has scheduling, the agent does not need to become a separate application merely to wake up with the right context.
 
 <div class="not-prose my-8 grid grid-cols-1 gap-4 md:grid-cols-2">
   <figure class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
@@ -118,7 +118,7 @@ curl http://localhost:11434/api/chat \
     "messages": [
       {
         "role": "system",
-        "content": "You are a careful assistant. When users request recurring actions, use the cron tool and confirm timezone and delivery channel."
+        "content": "You are a careful AI agent. When users request recurring actions, use the cron tool and confirm timezone and delivery channel."
       },
       {
         "role": "user",
@@ -154,7 +154,7 @@ curl http://localhost:11434/api/chat \
 
 ## When a Scheduler Is Not Enough
 
-A built-in scheduled task is appropriate when one assistant can resume with known context and perform a bounded action.
+A built-in scheduled task is appropriate when one agent can resume with known context and perform a bounded action.
 
 Dedicated orchestration becomes valuable when the workflow needs complex dependencies, transactional side effects, strict delivery guarantees, escalation paths, concurrency controls, durable queues, or detailed operational recovery.
 

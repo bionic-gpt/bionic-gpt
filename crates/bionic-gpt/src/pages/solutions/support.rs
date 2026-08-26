@@ -24,7 +24,7 @@ pub fn page() -> String {
                 class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-24",
 
                 ImageHero {
-                    title: "The fastest way to build an AI assistant on your technical content.".to_string(),
+                    title: "The fastest way to add AI support to your technical content.".to_string(),
                     image: "/solutions/chat-bot.png",
                     subtitle: "Add AI to your docs, product, and support flows to answer technical questions—in days, not months. ".to_string(),
                     cta_label: "Book a Call",
@@ -36,15 +36,15 @@ pub fn page() -> String {
 
                 SmallImageFeature {
                     title: "Agentic AI",
-                    sub_title: "It's not easy to build AI assistants on your data",
-                    text: "We manage all the complexity of Agentic RAG pipelines and you build no code assistants.",
-                    image: "/river/assistants.png",
+                    sub_title: "Ground AI support in your data",
+                    text: "We manage the complexity of Agentic RAG pipelines so teams can build useful support experiences without code.",
+                    image: "/product/chat.png",
                     flip: false
                 }
 
                 SmallImageFeature {
                     title: "Integrations",
-                    sub_title: "Connect assistants to anything",
+                    sub_title: "Connect AI workflows to anything",
                     text: "We are not just an Agentic RAG pipeline—we also support integrating with your support systems.",
                     image: "/river/integrations.png",
                     flip: true

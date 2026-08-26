@@ -1,8 +1,6 @@
 pub mod api_keys;
 pub mod api_pipeline;
-pub mod assistants;
 pub mod audit_trail;
-pub mod categories;
 pub mod console;
 pub mod datasets;
 pub mod documents;
@@ -12,7 +10,6 @@ pub mod mcp;
 pub mod mcp_api_keys;
 pub mod metrics;
 pub mod models;
-pub mod my_assistants;
 pub mod oauth2;
 pub mod oauth_clients;
 pub mod oidc_endpoint;

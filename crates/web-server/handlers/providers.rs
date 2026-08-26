@@ -72,6 +72,7 @@ pub async fn new_loader(
         default_model_context_size: 0,
         default_model_description: "".to_string(),
         base_url: "".to_string(),
+        provider_type: "OpenAICompatible".to_string(),
         api_key_optional: false,
         default_embeddings_model_name: "".to_string(),
         default_embeddings_model_display_name: "".to_string(),
@@ -114,6 +115,7 @@ pub async fn edit_loader(
         default_model_context_size: provider.default_model_context_size,
         default_model_description: provider.default_model_description,
         base_url: provider.base_url,
+        provider_type: provider.provider_type.to_string(),
         api_key_optional: provider.api_key_optional,
         default_embeddings_model_name: provider.default_embeddings_model_name.unwrap_or_default(),
         default_embeddings_model_display_name: provider
@@ -149,6 +151,7 @@ pub struct ProviderForm {
     pub default_model_description: String,
     #[validate(length(min = 1, message = "The base URL is mandatory"))]
     pub base_url: String,
+    pub provider_type: String,
     #[serde(default, deserialize_with = "checkbox_bool")]
     pub api_key_optional: bool,
     #[serde(deserialize_with = "empty_string_is_none")]
@@ -187,6 +190,11 @@ pub async fn upsert_action(
         return Err(CustomError::Authorization);
     }
 
+    let provider_type = form
+        .provider_type
+        .parse::<db::ModelProvider>()
+        .map_err(CustomError::FaultySetup)?;
+
     match (form.validate(), form.id) {
         (Ok(_), Some(id)) => {
             queries::providers::update()
@@ -199,6 +207,7 @@ pub async fn upsert_action(
                     &form.default_model_context_size,
                     &form.default_model_description,
                     &form.base_url,
+                    &provider_type,
                     &form.api_key_optional,
                     &form.default_embeddings_model_name,
                     &form.default_embeddings_model_display_name,
@@ -227,6 +236,7 @@ pub async fn upsert_action(
                     &form.default_model_context_size,
                     &form.default_model_description,
                     &form.base_url,
+                    &provider_type,
                     &form.api_key_optional,
                     &form.default_embeddings_model_name,
                     &form.default_embeddings_model_display_name,

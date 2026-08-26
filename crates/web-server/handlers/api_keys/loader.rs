@@ -25,13 +25,8 @@ pub async fn loader(
         .all()
         .await?;
 
-    let assistants = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Assistant)
-        .all()
-        .await?;
-
     let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Model)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
@@ -50,7 +45,6 @@ pub async fn loader(
         rbac,
         team_id,
         api_keys,
-        assistants,
         models,
         token_usage_data,
         api_request_data,

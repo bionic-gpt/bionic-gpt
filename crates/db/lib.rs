@@ -11,7 +11,6 @@ pub use deadpool_postgres::{Pool, PoolError, Transaction};
 pub use i18n::{I18n, I18nKey};
 pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::AuditTrail;
-pub use queries::categories::Category;
 pub use queries::chats::Chat;
 pub use queries::connections::{
     oauth2_connections_needing_refresh, update_oauth2_connection, ApiKeyConnection,
@@ -53,9 +52,36 @@ include!(concat!(env!("OUT_DIR"), "/cornucopia/src/lib.rs"));
 
 pub use types::{
     AuditAccessType, AuditAction, ChatRole, ChatStatus, IntegrationType, ModelCapability,
-    ModelType, OpenapiSpecCategory, Permission, PromptFlagType, PromptType, Role, TokenUsageType,
-    Visibility,
+    ModelProvider, ModelType, OpenapiSpecCategory, Permission, PromptFlagType, Role,
+    TokenUsageType, Visibility,
 };
+
+impl std::fmt::Display for ModelProvider {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(match self {
+            ModelProvider::OpenAI => "OpenAI",
+            ModelProvider::Groq => "Groq",
+            ModelProvider::OpenRouter => "OpenRouter",
+            ModelProvider::Ollama => "Ollama",
+            ModelProvider::OpenAICompatible => "OpenAICompatible",
+        })
+    }
+}
+
+impl FromStr for ModelProvider {
+    type Err = String;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "OpenAI" => Ok(Self::OpenAI),
+            "Groq" => Ok(Self::Groq),
+            "OpenRouter" => Ok(Self::OpenRouter),
+            "Ollama" => Ok(Self::Ollama),
+            "OpenAICompatible" => Ok(Self::OpenAICompatible),
+            _ => Err(format!("Unsupported model provider adapter: {value}")),
+        }
+    }
+}
 
 #[cfg(test)]
 mod migration_tests {
@@ -63,6 +89,10 @@ mod migration_tests {
         include_str!("migrations/20260819065829_runtime-system-prompt.sql");
     const DATABASE_SKILL_MIGRATION: &str =
         include_str!("migrations/20260825081847_add-database-skill.sql");
+    const MODEL_PROVIDER_MIGRATION: &str =
+        include_str!("migrations/20260826060507_add-model-provider-adapters.sql");
+    const REMOVE_ASSISTANTS_MIGRATION: &str =
+        include_str!("migrations/20260826063015_remove-assistants.sql");
 
     #[test]
     fn runtime_prompt_defines_the_persistent_output_contract() {
@@ -91,5 +121,31 @@ mod migration_tests {
         ] {
             assert!(expected_description.contains(discovery_term));
         }
+    }
+
+    #[test]
+    fn model_provider_migration_maps_seeded_providers() {
+        for mapping in [
+            "WHEN 'OpenAI' THEN 'OpenAI'::model_provider",
+            "WHEN 'Groq' THEN 'Groq'::model_provider",
+            "WHEN 'OpenRouter' THEN 'OpenRouter'::model_provider",
+            "WHEN 'Ollama (Local)' THEN 'Ollama'::model_provider",
+            "ELSE 'OpenAICompatible'::model_provider",
+        ] {
+            assert!(MODEL_PROVIDER_MIGRATION.contains(mapping));
+        }
+        assert!(MODEL_PROVIDER_MIGRATION.contains("SET provider_type = provider.provider_type"));
+    }
+
+    #[test]
+    fn assistant_removal_preserves_models_and_projects_in_neutral_schemas() {
+        assert!(REMOVE_ASSISTANTS_MIGRATION
+            .contains("DELETE FROM assistants.prompts WHERE prompt_type = 'Assistant'"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION
+            .contains("ALTER TABLE assistants.prompts SET SCHEMA model_registry"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION
+            .contains("ALTER TABLE assistants.projects SET SCHEMA projects"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION.contains("DROP SCHEMA assistants"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION.contains("'SetCompanyVisibility'"));
     }
 }

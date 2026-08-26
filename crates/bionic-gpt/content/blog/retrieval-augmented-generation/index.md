@@ -71,7 +71,7 @@ A typical prompt template consists of several elements that help define the cont
 
 ```plaintext
 Context: 
-You are a virtual assistant helping with travel information.
+You are an AI travel guide helping with travel information.
 User Request: 
 Provide me with flight 
 options from New York to Los Angeles.
@@ -81,7 +81,7 @@ generate a concise response with at least three flight options.
 Include departure times, airlines, and prices.
 ```
 
-1. **Context**: This element sets the stage for the conversation or the scenario in which the user's request is made. It provides important context that helps the model understand the context and generate relevant responses. In this example, the context informs the model that it's acting as a virtual assistant providing travel information.
+1. **Context**: This element sets the stage for the conversation or the scenario in which the user's request is made. It provides important context that helps the model understand the context and generate relevant responses. In this example, the context tells the model to act as an AI travel guide.
 
 2. **User Request**: This part of the template represents the user's input or query. It specifies what the user is asking or requesting from the model. In this case, the user is asking for flight options from New York to Los Angeles.
 

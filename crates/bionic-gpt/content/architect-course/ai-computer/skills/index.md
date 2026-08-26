@@ -89,7 +89,7 @@ The complete instructions remain in the virtual filesystem until the model needs
 
 The flow is:
 
-1. The runtime determines which skills are available to the user and assistant.
+1. The runtime determines which skills are available to the user and model.
 2. It adds their summaries to `<available_skills>`.
 3. The model selects a skill when its description matches the request.
 4. The model reads the referenced `SKILL.md`.

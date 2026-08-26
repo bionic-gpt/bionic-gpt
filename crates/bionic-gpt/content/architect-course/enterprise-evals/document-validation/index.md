@@ -46,5 +46,5 @@ documents.
 ## Document conversion
 
 The Document Conversion API is provided as a system integration. It is already
-available to the assistant, so no OpenAPI download, installation, or manual
+available to the model, so no OpenAPI download, installation, or manual
 selection is required for this eval.

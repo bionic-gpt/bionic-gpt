@@ -28,10 +28,8 @@ pub enum SideBar {
     Integrations,
     McpApiKeys,
     Models,
-    Categories,
     OauthClients,
     OpenapiSpecs,
-    Prompts,
     Projects,
     Providers,
     Profile,
@@ -66,8 +64,6 @@ pub struct LayoutProps {
 
 #[derive(Clone)]
 pub(super) struct SidebarLabels {
-    pub ai_assistants: String,
-    pub prompts: String,
     pub history: String,
 }
 
@@ -79,7 +75,6 @@ pub(super) struct SidebarParams {
     pub can_view_chats: bool,
     pub can_view_chat_history: bool,
     pub setup_required: bool,
-    pub enable_projects: bool,
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
@@ -105,8 +100,6 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| "en".to_string());
 
-    let ai_assistants_label = i18n::ai_assistants(&locale);
-    let prompts_label = i18n::prompts(&locale);
     let history_label = i18n::histories(&locale);
 
     let app_logo_src = bionic_logo_svg.name.to_string();
@@ -128,12 +121,8 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
     let can_view_chat_history = props.rbac.can_view_chat_history();
 
     let sidebar_labels = SidebarLabels {
-        ai_assistants: ai_assistants_label.clone(),
-        prompts: prompts_label.clone(),
         history: history_label.clone(),
     };
-
-    let enable_projects = std::env::var("ENABLE_PROJECTS").is_ok();
 
     let sidebar_params = SidebarParams {
         team_id: team_id.clone(),
@@ -142,7 +131,6 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         can_view_chats,
         can_view_chat_history,
         setup_required: props.setup_required,
-        enable_projects,
     };
 
     let sidebar_content = match mode {
@@ -329,9 +317,9 @@ fn main_home_href(rbac: &Rbac, team_id: String) -> Option<String> {
             .to_string(),
         );
     }
-    if rbac.can_view_prompts() {
+    if rbac.can_manage_projects() {
         return Some(
-            crate::routes::prompts::Index {
+            crate::routes::projects::Index {
                 team_id: team_id.clone(),
             }
             .to_string(),
@@ -340,14 +328,6 @@ fn main_home_href(rbac: &Rbac, team_id: String) -> Option<String> {
     if rbac.can_view_integrations() {
         return Some(
             crate::routes::integrations::Index {
-                team_id: team_id.clone(),
-            }
-            .to_string(),
-        );
-    }
-    if rbac.can_manage_projects() {
-        return Some(
-            crate::routes::projects::Index {
                 team_id: team_id.clone(),
             }
             .to_string(),

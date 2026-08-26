@@ -3,9 +3,7 @@ use dioxus::prelude::Element;
 
 pub mod api_keys;
 pub mod app_layout;
-pub mod assistants;
 pub mod audit_trail;
-pub mod categories;
 pub mod charts;
 pub mod components;
 pub mod console;
@@ -17,7 +15,6 @@ pub mod integrations;
 pub mod mcp_api_keys;
 pub mod menu;
 pub mod models;
-pub mod my_assistants;
 pub mod oauth_clients;
 pub mod openapi_specs;
 pub mod pipelines;

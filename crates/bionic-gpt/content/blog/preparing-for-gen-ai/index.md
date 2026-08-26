@@ -30,7 +30,7 @@ However, for enterprises using third-party AI software or pre-built models, the 
 In both scenarios, enterprises must also consider the costs associated with integrating AI into their existing workflows. This includes adapting current processes, training employees to work with AI tools, and potentially upgrading IT infrastructure to support AI-driven operations. Whether building in-house or leveraging third-party solutions, these integration efforts are essential to maximising the value of AI.
 
 #### Long-Term Benefits
-Despite the costs, the long-term benefits of adopting Generative AI can far outweigh the initial and ongoing investments. AI has the potential to drive significant cost savings by automating routine tasks, reducing errors, and improving overall operational efficiency. For example, AI can streamline content creation, customer support, and data analysis, freeing up human resources for more strategic tasks. In customer service, AI-driven chatbots and virtual assistants can handle a large volume of inquiries, reducing the need for extensive human intervention and lowering operational costs.
+Despite the costs, the long-term benefits of adopting Generative AI can far outweigh the initial and ongoing investments. AI has the potential to drive significant cost savings by automating routine tasks, reducing errors, and improving overall operational efficiency. For example, AI can streamline content creation, customer support, and data analysis, freeing up human resources for more strategic tasks. In customer service, AI-driven chatbots and automated agents can handle a large volume of inquiries, reducing the need for extensive human intervention and lowering operational costs.
 
 Moreover, Generative AI can unlock new revenue streams by enabling the creation of innovative products and services. Enterprises that leverage AI to generate unique content, design custom products, or offer personalised experiences can differentiate themselves in the market and command premium pricing. AI-driven insights also allow companies to optimise pricing strategies, improve customer retention, and make data-driven decisions that enhance profitability.
 
@@ -169,4 +169,3 @@ In conclusion, Generative AI is not just a technological trend—it's a strategi
 A strong example of an organization not only utilizing AI but also leveraging this fact as a marketing tool can be found here.
 It also serves as a good example of how the organization is addressing some of the risks mentioned earlier.
 [Nat West](https://www.natwestgroup.com/news-and-insights/latest-stories/ai-and-data/2024/aug/harnessing-the-potential-of-ai-in-banking.html)
-

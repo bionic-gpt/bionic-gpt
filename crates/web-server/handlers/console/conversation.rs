@@ -38,7 +38,7 @@ pub async fn conversation(
         super::utils::process_chats(&transaction, chats).await?;
 
     let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Model)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 

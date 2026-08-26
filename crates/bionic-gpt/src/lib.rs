@@ -29,8 +29,8 @@ pub mod routes {
         pub struct Chat {}
 
         #[derive(TypedPath, Deserialize)]
-        #[typed_path("/product/assistants/")]
-        pub struct Assistants {}
+        #[typed_path("/product/projects/")]
+        pub struct Projects {}
 
         #[derive(TypedPath, Deserialize)]
         #[typed_path("/product/datasets/")]

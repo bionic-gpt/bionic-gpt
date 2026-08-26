@@ -104,7 +104,7 @@ curl http://localhost:11434/api/chat \
     "messages": [
       {
         "role": "system",
-        "content": "You are a careful assistant. Store durable user preferences with tools and ask clarifying questions when fields are ambiguous."
+        "content": "You are a careful AI agent. Store durable user preferences with tools and ask clarifying questions when fields are ambiguous."
       },
       {
         "role": "user",
@@ -184,7 +184,7 @@ Keeping these roles separate reduces accidental data leakage and makes retention
 1. Is this personal data the user actually wants stored?
 2. Is the value complete (for example, date without year)?
 3. Should this memory expire or stay permanent?
-4. Should the assistant create reminder behavior from this memory?
+4. Should the agent create reminder behavior from this memory?
 
 ## Implementations
 

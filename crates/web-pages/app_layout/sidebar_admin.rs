@@ -129,14 +129,6 @@ pub fn render(params: &SidebarParams, _labels: &SidebarLabels) -> Element {
                             title: "System Prompt",
                             disabled: setup_required
                         }
-                        NavItem {
-                            id: SideBar::Categories.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::categories::Index { team_id: team_id.clone() },
-                            icon: nav_audit_svg.name,
-                            title: "Categories",
-                            disabled: setup_required
-                        }
                     }
                 )
             }

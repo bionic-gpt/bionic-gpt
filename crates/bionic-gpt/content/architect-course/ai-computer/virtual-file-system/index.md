@@ -21,7 +21,7 @@ Each part of the filesystem has a different lifecycle and trust boundary:
 | Path | Role |
 | --- | --- |
 | `/uploads` | Files attached by a user or supplied to the current task |
-| `/datasets` | Reusable knowledge collections available to the user or assistant |
+| `/datasets` | Reusable knowledge collections available to the user and model |
 | `/skills` | Packaged instructions, scripts, templates, and supporting resources |
 | `/tmp` | Ephemeral downloads, experiments, and intermediate files |
 | `/outputs` | Generated documents, presentations, charts, databases, and other artifacts |

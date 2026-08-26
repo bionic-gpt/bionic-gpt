@@ -6,6 +6,7 @@ SELECT
     id,
     name,
     model_type,
+    provider_type,
     base_url,
     api_key,
     tpm_limit,
@@ -23,6 +24,7 @@ SELECT DISTINCT
     m.id,
     m.name,
     m.model_type,
+    m.provider_type,
     m.base_url,
     m.api_key,
     m.tpm_limit,
@@ -41,7 +43,7 @@ SELECT DISTINCT
 FROM 
     model_registry.models m
 LEFT JOIN 
-    assistants.prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
+    model_registry.prompts p ON m.id = p.model_id
 ORDER BY 
     m.updated_at;
 
@@ -50,6 +52,7 @@ SELECT DISTINCT
     m.id,
     m.name,
     m.model_type,
+    m.provider_type,
     m.base_url,
     m.api_key,
     m.tpm_limit,
@@ -68,7 +71,7 @@ SELECT DISTINCT
 FROM 
     model_registry.models m
 LEFT JOIN 
-    assistants.prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
+    model_registry.prompts p ON m.id = p.model_id
 WHERE
     m.id = :id
 ORDER BY 
@@ -81,6 +84,7 @@ SELECT
     id,
     name,
     model_type,
+    provider_type,
     base_url,
     api_key,
     tpm_limit,
@@ -100,6 +104,7 @@ SELECT
     id,
     name,
     model_type,
+    provider_type,
     base_url,
     api_key,
     tpm_limit,
@@ -120,6 +125,7 @@ SELECT
     id,
     name,
     model_type,
+    provider_type,
     base_url,
     api_key,
     tpm_limit,
@@ -138,6 +144,7 @@ SELECT
     id,
     name,
     model_type,
+    provider_type,
     base_url,
     api_key,
     tpm_limit,
@@ -148,7 +155,7 @@ SELECT
 FROM 
     model_registry.models
 WHERE
-    id IN (SELECT model_id FROM assistants.prompts p WHERE p.id IN (
+    id IN (SELECT model_id FROM model_registry.prompts p WHERE p.id IN (
         SELECT prompt_id FROM llm.chats WHERE id = :chat_id
     ))
 ORDER BY updated_at;
@@ -158,6 +165,7 @@ ORDER BY updated_at;
 INSERT INTO model_registry.models (
     name,
     model_type,
+    provider_type,
     base_url,
     api_key,
     tpm_limit,
@@ -167,6 +175,7 @@ INSERT INTO model_registry.models (
 VALUES(
     :name, 
     :model_type,
+    :provider_type,
     :base_url, 
     :api_key, 
     :tpm_limit,
@@ -181,6 +190,7 @@ UPDATE
 SET 
     name = :name,
     model_type = :model_type,
+    provider_type = :provider_type,
     base_url = :base_url,
     api_key = :api_key,
     tpm_limit = :tpm_limit,

@@ -1,4 +1,4 @@
-As artificial intelligence (AI) continues to evolve, it’s reshaping various industries, including software development and autonomous driving. Both fields share a common journey—from AI as an assistant to AI as a fully autonomous agent. Just as the Society of Automotive Engineers (SAE) [defined levels of autonomy](https://www.sae.org/news/2019/01/sae-updates-j3016-automated-driving-graphic#:~:text=The%20J3016%20standard%20defines%20six,%2Dvehicle%20(AV)%20capabilities.) for self-driving cars, we can imagine similar levels for **AI in software development**. Let’s explore this analogy and see how the path to AI-driven coding parallels the evolution of autonomous vehicles, along with the *impact on software development jobs* at each stage and the probability of each becoming a reality.
+As artificial intelligence (AI) continues to evolve, it’s reshaping various industries, including software development and autonomous driving. Both fields share a common journey—from AI as a developer tool to AI as a fully autonomous agent. Just as the Society of Automotive Engineers (SAE) [defined levels of autonomy](https://www.sae.org/news/2019/01/sae-updates-j3016-automated-driving-graphic#:~:text=The%20J3016%20standard%20defines%20six,%2Dvehicle%20(AV)%20capabilities.) for self-driving cars, we can imagine similar levels for **AI in software development**. Let’s explore this analogy and see how the path to AI-driven coding parallels the evolution of autonomous vehicles, along with the *impact on software development jobs* at each stage and the probability of each becoming a reality.
 
 ---
 
@@ -13,10 +13,10 @@ As artificial intelligence (AI) continues to evolve, it’s reshaping various in
 
 ---
 
-### **Level 1: Driver Assistance (AI as a Coding Assistant)**
+### **Level 1: Driver Support (AI as a Coding Tool)**
 **Autonomous Driving**: At Level 1, the car can assist the driver with a single task, like adaptive cruise control or lane keeping. The driver remains in control but receives help with specific actions.
 
-**AI in Development**: Today’s coding assistants, such as [GitHub Copilot](https://github.com/features/copilot), fall into this category. They can autocomplete code, suggest snippets, and provide recommendations, speeding up the process but still requiring the developer to lead the way.
+**AI in Development**: Today’s coding tools, such as [GitHub Copilot](https://github.com/features/copilot), fall into this category. They can autocomplete code, suggest snippets, and provide recommendations, speeding up the process but still requiring the developer to lead the way.
 
 **Impact on Jobs**: AI enhances productivity, allowing developers to complete tasks faster. **This makes experienced developers more valuable**, as they can now achieve more in less time. However, the demand for entry-level roles may decline slightly as the easier tasks become automated, making it more challenging for new developers to break into the field.
 

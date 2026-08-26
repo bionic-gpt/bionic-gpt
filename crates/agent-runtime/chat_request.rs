@@ -10,6 +10,7 @@ use tool_runtime::{get_chat_tool_definitions, ToolDefinition};
 
 pub(crate) struct RigChatRequest {
     pub(crate) model_name: String,
+    pub(crate) provider_type: db::ModelProvider,
     pub(crate) base_url: String,
     pub(crate) api_key: Option<String>,
     pub(crate) completion: CompletionRequest,
@@ -183,6 +184,7 @@ pub(crate) async fn create_request(
 
     Ok(RigChatRequest {
         model_name: model.name,
+        provider_type: model.provider_type,
         base_url: model.base_url,
         api_key: model.api_key,
         completion,
