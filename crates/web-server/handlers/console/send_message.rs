@@ -3,9 +3,9 @@ use axum::{
     extract::{Extension, Multipart},
     response::IntoResponse,
 };
-use db::{authz, PromptType};
+use db::authz;
 use db::{
-    queries::{attachments, chats, conversations, prompts},
+    queries::{attachments, chats, conversations},
     ChatRole,
 };
 use db::{ChatStatus, Pool};
@@ -139,31 +139,14 @@ pub async fn send_message(
         )
         .await?;
 
-        let prompt = prompts::prompt()
-            .bind(&transaction, &message.prompt_id, &team_id_num)
-            .one()
-            .await?;
-
         transaction.commit().await?;
-
-        if prompt.prompt_type == PromptType::Assistant {
-            crate::layout::redirect(
-                &web_pages::routes::prompts::Conversation {
-                    team_id,
-                    conversation_id,
-                    prompt_id: prompt.id,
-                }
-                .to_string(),
-            )
-        } else {
-            crate::layout::redirect(
-                &web_pages::routes::console::Conversation {
-                    team_id,
-                    conversation_id,
-                }
-                .to_string(),
-            )
-        }
+        crate::layout::redirect(
+            &web_pages::routes::console::Conversation {
+                team_id,
+                conversation_id,
+            }
+            .to_string(),
+        )
     } else {
         crate::layout::redirect(&web_pages::routes::console::Index { team_id }.to_string())
     }

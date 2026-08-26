@@ -422,12 +422,10 @@ pub async fn upsert_action(
                     .bind(
                         &transaction,
                         &model_id,
-                        &0, // Set category to uncategorized
                         &model_form.display_name,
                         &visibility,
                         &system_prompt,
                         &99,
-                        &10,
                         &max_completion_tokens,
                         &80,
                         &temperature,
@@ -437,7 +435,6 @@ pub async fn upsert_action(
                         &Some(&model_form.example2),
                         &Some(&model_form.example3),
                         &Some(&model_form.example4),
-                        &db::PromptType::Model,
                         &prompt_id,
                     )
                     .await?;
@@ -501,7 +498,6 @@ pub async fn upsert_action(
                 .await?;
 
             let system_prompt: Option<String> = None;
-            let image_icon: Option<i32> = None;
             let max_completion_tokens: Option<i32> = None;
 
             if model_type == ModelType::LLM {
@@ -511,13 +507,10 @@ pub async fn upsert_action(
                         &transaction,
                         &team_id_num,
                         &model_id,
-                        &0, // Set category to uncategorized
                         &model_form.display_name,
-                        &image_icon,
                         &visibility,
                         &system_prompt,
                         &99,
-                        &10,
                         &max_completion_tokens,
                         &80,
                         &temperature,
@@ -527,7 +520,6 @@ pub async fn upsert_action(
                         &Some(&model_form.example2),
                         &Some(&model_form.example3),
                         &Some(&model_form.example4),
-                        &db::PromptType::Model,
                     )
                     .one()
                     .await?;

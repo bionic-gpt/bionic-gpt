@@ -22,7 +22,7 @@ pub async fn index(
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let prompts = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Model)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 

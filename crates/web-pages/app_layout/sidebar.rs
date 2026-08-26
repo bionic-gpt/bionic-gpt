@@ -5,8 +5,6 @@ use dioxus::prelude::*;
 
 pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
     let selected_item = params.selected_item.to_string();
-    let ai_assistants_label = labels.ai_assistants.clone();
-    let prompts_label = labels.prompts.clone();
     let history_label = labels.history.clone();
     let team_id = params.team_id.clone();
     let rbac = &params.rbac;
@@ -15,7 +13,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
     let setup_required = params.setup_required;
 
     rsx!(
-        if can_view_chats || can_view_chat_history {
+        if can_view_chats || can_view_chat_history || rbac.can_manage_projects() {
             NavGroup {
                 heading: "Work",
                 content:  rsx!(
@@ -36,6 +34,16 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             href: crate::routes::history::Index { team_id: team_id.clone() },
                             icon: nav_history_svg.name,
                             title: history_label.clone(),
+                            disabled: setup_required
+                        }
+                    }
+                    if rbac.can_manage_projects() {
+                        NavItem {
+                            id: SideBar::Projects.to_string(),
+                            selected_item_id: selected_item.clone(),
+                            href: crate::routes::projects::Index { team_id: team_id.clone() },
+                            icon: nav_automations_svg.name,
+                            title: "Projects",
                             disabled: setup_required
                         }
                     }
@@ -73,35 +81,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             href: crate::routes::integrations::Index { team_id: team_id.clone() },
                             icon: nav_audit_svg.name,
                             title: "Integrations",
-                            disabled: setup_required
-                        }
-                    }
-                )
-            }
-        }
-        if rbac.can_view_prompts()
-            || (rbac.can_manage_projects() && params.enable_projects)
-        {
-            NavGroup {
-                heading: ai_assistants_label.clone(),
-                content:  rsx!(
-                    if rbac.can_view_prompts() {
-                        NavItem {
-                            id: SideBar::Prompts.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::prompts::Index { team_id: team_id.clone() },
-                            icon: assistant_svg.name,
-                            title: prompts_label.clone(),
-                            disabled: setup_required
-                        }
-                    }
-                    if rbac.can_manage_projects() && params.enable_projects {
-                        NavItem {
-                            id: SideBar::Projects.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::projects::Index { team_id: team_id.clone() },
-                            icon: nav_automations_svg.name,
-                            title: "Projects",
                             disabled: setup_required
                         }
                     }

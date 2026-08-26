@@ -59,7 +59,6 @@ pub struct Config {
     // Public base URL for redirects
     pub base_url: String,
     // Enable projects feature
-    pub enable_projects: bool,
 }
 
 impl Default for Config {
@@ -94,7 +93,6 @@ impl Config {
         };
 
         let enable_barricade = env::var("ENABLE_BARRICADE").is_ok();
-        let enable_projects = env::var("ENABLE_PROJECTS").is_ok();
 
         let base_url =
             env::var("APP_BASE_URL").unwrap_or_else(|_| "http://localhost:7703".to_string());
@@ -110,7 +108,6 @@ impl Config {
             saas,
             enable_barricade,
             base_url,
-            enable_projects,
         }
     }
 

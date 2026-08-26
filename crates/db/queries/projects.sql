@@ -15,7 +15,7 @@ SELECT
     (SELECT COUNT(id) FROM llm.conversations c WHERE c.project_id = p.id) as conversation_count,
     (SELECT COUNT(id) FROM rag.documents d WHERE d.dataset_id = p.dataset_id) as attachment_count
 FROM
-    assistants.projects p
+    projects.projects p
 WHERE
     (visibility = 'Private' AND created_by = current_app_user())
 OR
@@ -43,7 +43,7 @@ SELECT
     created_at,
     updated_at
 FROM
-    assistants.projects
+    projects.projects
 WHERE
     id = :project_id
 AND
@@ -65,7 +65,7 @@ LIMIT 1;
 
 --! insert
 INSERT INTO
-    assistants.projects (
+    projects.projects (
         team_id,
         dataset_id,
         name,
@@ -84,7 +84,7 @@ RETURNING id;
 
 --! update
 UPDATE
-    assistants.projects
+    projects.projects
 SET
     name = :name,
     instructions = :instructions,
@@ -96,7 +96,7 @@ AND
 
 --! delete
 DELETE FROM
-    assistants.projects
+    projects.projects
 WHERE
     id = :id
 AND

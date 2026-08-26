@@ -7,7 +7,7 @@ use crate::{
 };
 use assets::files::*;
 use daisy_rsx::*;
-use db::{authz::Rbac, ApiKey, Prompt, PromptType as DBPromptType};
+use db::{authz::Rbac, ApiKey, Prompt};
 use dioxus::prelude::*;
 
 #[derive(Clone)]
@@ -15,7 +15,6 @@ pub struct GeneratedKey {
     pub name: String,
     pub value: String,
     pub prompt_name: Option<String>,
-    pub prompt_type: Option<DBPromptType>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -23,7 +22,6 @@ pub fn page(
     rbac: Rbac,
     team_id: String,
     api_keys: Vec<ApiKey>,
-    assistants: Vec<Prompt>,
     models: Vec<Prompt>,
     token_usage_data: Vec<db::queries::token_usage_metrics::DailyTokenUsage>,
     api_request_data: Vec<db::queries::token_usage_metrics::DailyApiRequests>,
@@ -47,12 +45,6 @@ pub fn page(
                     class: "flex gap-4",
                     Button {
                         prefix_image_src: "{button_plus_svg.name}",
-                        popover_target: "create-assistant-key",
-                        button_scheme: ButtonScheme::Neutral,
-                        "Create Assistant Key"
-                    }
-                    Button {
-                        prefix_image_src: "{button_plus_svg.name}",
                         popover_target: "create-model-key",
                         button_scheme: ButtonScheme::Primary,
                         "Create Model Key"
@@ -70,9 +62,6 @@ pub fn page(
                             div { class: "text-sm opacity-90", "Copy and store this key for {name}. This is the only time it will be shown." }
                         } else {
                             div { class: "text-sm opacity-90", "Copy and store this key. This is the only time it will be shown." }
-                        }
-                        if let Some(prompt_type) = created.prompt_type {
-                            div { class: "flex items-center gap-2 text-xs", "Type:" PromptType { prompt_type: Some(prompt_type) } }
                         }
                         Input {
                             input_type: InputType::Text,
@@ -119,10 +108,6 @@ pub fn page(
                     }
                 }
 
-                super::form::AssistantForm {
-                    team_id: team_id.clone(),
-                    prompts: assistants.clone()
-                },
                 super::form::ModelForm {
                     team_id: team_id.clone(),
                     prompts: models.clone()
@@ -133,39 +118,6 @@ pub fn page(
     };
 
     render(page)
-}
-
-#[component]
-pub fn PromptType(prompt_type: Option<DBPromptType>) -> Element {
-    match prompt_type {
-        Some(DBPromptType::Model) => rsx!(
-            Badge {
-                class: "mr-2 truncate",
-                badge_color: BadgeColor::Info,
-                badge_style: BadgeStyle::Outline,
-                badge_size: BadgeSize::Sm,
-                "Model"
-            }
-        ),
-        Some(DBPromptType::Assistant) => rsx!(
-            Badge {
-                class: "mr-2 truncate",
-                badge_color: BadgeColor::Accent,
-                badge_style: BadgeStyle::Outline,
-                badge_size: BadgeSize::Sm,
-                "Assistant"
-            }
-        ),
-        None => rsx!(
-            Badge {
-                class: "mr-2 truncate",
-                badge_color: BadgeColor::Neutral,
-                badge_style: BadgeStyle::Outline,
-                badge_size: BadgeSize::Sm,
-                "Unknown"
-            }
-        ),
-    }
 }
 
 #[component]
@@ -181,9 +133,8 @@ fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: String) -> Element {
                     class: "table table-sm",
                     thead {
                         th { "Name" }
-                        th { "Type" }
                         th { "Key Suffix" }
-                        th { "Assistant/Model" }
+                        th { "Model" }
                         th {
                             class: "text-right",
                             "Action"
@@ -194,11 +145,6 @@ fn ApiKeysTable(api_keys: Vec<ApiKey>, team_id: String) -> Element {
                             tr {
                                 td {
                                     "{key.name}"
-                                }
-                                td {
-                                    PromptType {
-                                        prompt_type: key.prompt_type
-                                    }
                                 }
                                 td {
                                     span { class: "font-mono text-sm", "{mask_hash(&key.api_key)}" }

@@ -96,7 +96,7 @@ fn SkillCard(skill: Skill, team_id: String, can_set_visibility_to_company: bool)
                 description: Some(rsx!(
                     div {
                         class: "flex flex-wrap items-center gap-2 text-sm text-base-content/70",
-                        crate::assistants::visibility::VisLabel {
+                        crate::shared::visibility::VisLabel {
                             visibility: skill.visibility
                         }
                         if skill.is_system {

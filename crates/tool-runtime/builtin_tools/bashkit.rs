@@ -164,7 +164,7 @@ impl ToolDyn for BashkitTool {
 pub fn get_tool_definition() -> ToolDefinition {
     ToolDefinition {
         name: "run_bash".to_string(),
-        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, and /home/user/datasets to inspect assistant datasets. To use an integration, list /home/user/functions, then cat the relevant .md file; it contains the exact function names, parameters, and usage examples. Use python3 for dependency-free Python through Monty inside Bashkit. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
+        description: "Run shell commands in Bashkit, an in-process sandboxed bash runtime with a virtual filesystem. Use /home/user/attachments to inspect uploaded chat files, /home/user/skills to read available skill instructions, and /home/user/datasets to inspect connected datasets. To use an integration, list /home/user/functions, then cat the relevant .md file; it contains the exact function names, parameters, and usage examples. Use python3 for dependency-free Python through Monty inside Bashkit. Use /home/user/output for generated files that should persist across tool calls and appear in the chat. Use rag-search 'query' to find relevant chunks and rag-read /home/user/datasets/.../chunks/<id>.txt to read a chunk. The filesystem is fresh for each call except /home/user/output, network access is disabled, and host files are not mounted.".to_string(),
         parameters: json!({
             "type": "object",
             "properties": {
@@ -229,7 +229,7 @@ pub fn preview_vfs_tree(
 |-- attachments                 # conversation scoped\n\
 |   |-- index.json\n\
 |   `-- <uploaded_file_name>\n\
-|-- datasets                    # prompt/assistant scoped\n\
+|-- datasets                    # model configuration scoped\n\
 |   |-- index.json\n\
 |   `-- <dataset_id>\n\
 |       |-- metadata.json\n\
@@ -1119,7 +1119,7 @@ async fn dataset_documents(
             FROM rag.documents d
             WHERE d.dataset_id = $1
               AND d.dataset_id IN (
-                  SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = $2
+                  SELECT dataset_id FROM model_registry.prompt_dataset WHERE prompt_id = $2
               )
             ORDER BY d.updated_at DESC
             ",
@@ -1154,7 +1154,7 @@ async fn document_chunks(
             WHERE c.document_id = $1
               AND d.dataset_id = $2
               AND d.dataset_id IN (
-                  SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = $3
+                  SELECT dataset_id FROM model_registry.prompt_dataset WHERE prompt_id = $3
               )
             ORDER BY c.page_number ASC, c.id ASC
             LIMIT $4
@@ -1239,7 +1239,7 @@ impl Builtin for RagSearchBuiltin {
     }
 
     fn llm_hint(&self) -> Option<&'static str> {
-        Some("rag-search QUERY [--limit N]: search assistant datasets and return matching chunk paths as JSON.")
+        Some("rag-search QUERY [--limit N]: search connected datasets and return matching chunk paths as JSON.")
     }
 }
 
@@ -1376,7 +1376,7 @@ async fn chunk_paths(
             INNER JOIN rag.documents d ON d.id = c.document_id
             WHERE c.id = ANY($1)
               AND d.dataset_id IN (
-                  SELECT dataset_id FROM assistants.prompt_dataset WHERE prompt_id = $2
+                  SELECT dataset_id FROM model_registry.prompt_dataset WHERE prompt_id = $2
               )
             ",
             &[&chunk_ids, &prompt_id],

@@ -189,8 +189,8 @@ pub struct Rbac {
 }
 
 impl Rbac {
-    pub fn can_make_assistant_public(&self) -> bool {
-        self.permissions.contains(&Permission::MakeAssistantPublic)
+    pub fn can_set_company_visibility(&self) -> bool {
+        self.permissions.contains(&Permission::SetCompanyVisibility)
     }
 
     pub fn can_use_api_keys(&self) -> bool {
@@ -228,10 +228,6 @@ impl Rbac {
     pub fn can_manage_document_pipelines(&self) -> bool {
         self.permissions
             .contains(&Permission::ManageDocumentPipelines)
-    }
-
-    pub fn can_view_prompts(&self) -> bool {
-        self.permissions.contains(&Permission::ViewPrompts)
     }
 
     pub fn can_view_audit_trail(&self) -> bool {

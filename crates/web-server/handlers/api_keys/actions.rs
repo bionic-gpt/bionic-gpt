@@ -59,14 +59,12 @@ pub async fn action_new_api_key(
                 name: new_api_key.name.clone(),
                 value: api_key_value,
                 prompt_name: Some(prompt.name),
-                prompt_type: Some(prompt.prompt_type),
             });
         } else {
             generated_key = Some(GeneratedKey {
                 name: new_api_key.name.clone(),
                 value: api_key_value,
                 prompt_name: None,
-                prompt_type: None,
             });
         }
     }
@@ -76,13 +74,8 @@ pub async fn action_new_api_key(
         .all()
         .await?;
 
-    let assistants = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Assistant)
-        .all()
-        .await?;
-
     let models = queries::prompts::prompts()
-        .bind(&transaction, &team_id_num, &db::PromptType::Model)
+        .bind(&transaction, &team_id_num)
         .all()
         .await?;
 
@@ -102,7 +95,6 @@ pub async fn action_new_api_key(
         rbac,
         team_id,
         api_keys,
-        assistants,
         models,
         token_usage_data,
         api_request_data,

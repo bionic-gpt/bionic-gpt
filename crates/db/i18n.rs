@@ -176,13 +176,9 @@ pub fn global() -> &'static I18n {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum I18nKey {
-    AiAssistants,
     Integrations,
     Integration,
-    Prompts,
     Datasets,
-    Assistants,
-    Assistant,
     Dataset,
     Histories,
     History,
@@ -191,13 +187,9 @@ pub enum I18nKey {
 impl I18nKey {
     pub const fn as_str(self) -> &'static str {
         match self {
-            Self::AiAssistants => "i18n.ai_assistants",
             Self::Integrations => "i18n.integrations",
             Self::Integration => "i18n.integration",
-            Self::Prompts => "i18n.prompts",
             Self::Datasets => "i18n.datasets",
-            Self::Assistants => "i18n.assistants",
-            Self::Assistant => "i18n.assistant",
             Self::Dataset => "i18n.dataset",
             Self::Histories => "i18n.histories",
             Self::History => "i18n.history",

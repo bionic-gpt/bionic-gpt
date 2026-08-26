@@ -99,7 +99,7 @@ pub fn page(team_id: String, rbac: Rbac, integration: IntegrationForm, locale: &
                                         selected_value: "{integration.visibility}",
                                         {crate::visibility_to_string(db::Visibility::Team)}
                                     }
-                                    if rbac.can_make_assistant_public() {
+                                    if rbac.can_set_company_visibility() {
                                         SelectOption {
                                             value: "{crate::visibility_to_string(db::Visibility::Company)}",
                                             selected_value: "{integration.visibility}",

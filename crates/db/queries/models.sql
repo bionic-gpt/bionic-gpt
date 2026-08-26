@@ -43,7 +43,7 @@ SELECT DISTINCT
 FROM 
     model_registry.models m
 LEFT JOIN 
-    assistants.prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
+    model_registry.prompts p ON m.id = p.model_id
 ORDER BY 
     m.updated_at;
 
@@ -71,7 +71,7 @@ SELECT DISTINCT
 FROM 
     model_registry.models m
 LEFT JOIN 
-    assistants.prompts p ON m.id = p.model_id AND p.prompt_type = 'Model'
+    model_registry.prompts p ON m.id = p.model_id
 WHERE
     m.id = :id
 ORDER BY 
@@ -155,7 +155,7 @@ SELECT
 FROM 
     model_registry.models
 WHERE
-    id IN (SELECT model_id FROM assistants.prompts p WHERE p.id IN (
+    id IN (SELECT model_id FROM model_registry.prompts p WHERE p.id IN (
         SELECT prompt_id FROM llm.chats WHERE id = :chat_id
     ))
 ORDER BY updated_at;

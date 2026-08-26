@@ -247,18 +247,12 @@ erDiagram
     token_usage_metrics }o--|| chats : "chat_id"
 ```
 
-### `assistants`
+### `projects`
 
-Prompts, categories, and project metadata for assistants.
+Project metadata and durable project context.
 
 ```mermaid
 erDiagram
-    categories {
-        text description 
-        integer id PK 
-        character_varying name UK 
-    }
-
     projects {
         timestamp_with_time_zone created_at 
         integer created_by FK 
@@ -271,38 +265,6 @@ erDiagram
         visibility visibility 
     }
 
-    prompt_dataset {
-        integer dataset_id FK,UK 
-        integer prompt_id FK,UK 
-    }
-
-    prompts {
-        integer category_id 
-        timestamp_with_time_zone created_at 
-        integer created_by 
-        character_varying description 
-        character_varying disclaimer 
-        character_varying example1 
-        character_varying example2 
-        character_varying example3 
-        character_varying example4 
-        integer id PK 
-        integer image_icon_object_id 
-        integer max_chunks 
-        integer max_completion_tokens 
-        integer max_history_items 
-        integer model_id FK 
-        character_varying name 
-        prompt_type prompt_type 
-        character_varying system_prompt 
-        integer team_id FK 
-        real temperature 
-        integer trim_ratio 
-        timestamp_with_time_zone updated_at 
-        visibility visibility 
-    }
-
-    prompt_dataset }o--|| prompts : "prompt_id"
 ```
 
 ### `automation`
@@ -406,7 +368,7 @@ erDiagram
 
 ### `model_registry`
 
-Model providers, models, and capabilities.
+Model providers, models, prompt configuration, and capabilities.
 
 ```mermaid
 erDiagram
@@ -447,7 +409,35 @@ erDiagram
         timestamp_with_time_zone updated_at 
     }
 
+    prompt_dataset {
+        integer dataset_id FK,UK
+        integer prompt_id FK,UK
+    }
+
+    prompts {
+        timestamp_with_time_zone created_at
+        integer created_by
+        character_varying description
+        character_varying disclaimer
+        character_varying example1
+        character_varying example2
+        character_varying example3
+        character_varying example4
+        integer id PK
+        integer max_completion_tokens
+        integer max_history_items
+        integer model_id FK
+        character_varying name
+        character_varying system_prompt
+        integer team_id FK
+        real temperature
+        integer trim_ratio
+        timestamp_with_time_zone updated_at
+        visibility visibility
+    }
+
     model_capabilities }o--|| models : "model_id"
+    prompt_dataset }o--|| prompts : "prompt_id"
 ```
 
 ### `storage`
@@ -507,5 +497,4 @@ erDiagram
     }
 ```
 <!-- schemas-end -->
-
 

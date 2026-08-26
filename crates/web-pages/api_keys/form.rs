@@ -4,66 +4,6 @@ use db::Prompt;
 use dioxus::prelude::*;
 
 #[component]
-pub fn AssistantForm(team_id: String, prompts: Vec<Prompt>) -> Element {
-    rsx!(
-        form {
-            action: crate::routes::api_keys::New{ team_id: team_id.clone() }.to_string(),
-            method: "post",
-            Modal {
-                trigger_id: "create-assistant-key",
-                ModalBody {
-                    h3 {
-                        class: "font-bold text-lg mb-4",
-                        "New Assistant API Key"
-                    }
-                    div {
-                        class: "flex flex-col",
-                        Fieldset {
-                            legend: "Name",
-                            help_text: "Give your new key a name",
-                            Input {
-                                input_type: InputType::Text,
-                                class: "w-full",
-                                placeholder: "Production API Key",
-                                required: true,
-                                name: "name"
-                            }
-                        }
-                        Fieldset {
-                            legend: "Please select an Assistant",
-                            legend_class: "mt-4",
-                            help_text: "All access via this API key will use the above assistant",
-                            Select {
-                                class: "w-full",
-                                name: "prompt_id",
-                                {prompts.iter().map(|prompt| rsx!(
-                                    SelectOption {
-                                        value: "{prompt.id}",
-                                        "{prompt.name}"
-                                    }
-                                ))}
-                            }
-                        }
-                    }
-                    ModalAction {
-                        Button {
-                            class: "cancel-modal",
-                            button_scheme: ButtonScheme::Warning,
-                            "Cancel"
-                        }
-                        Button {
-                            button_type: ButtonType::Submit,
-                            button_scheme: ButtonScheme::Primary,
-                            "Create API Key"
-                        }
-                    }
-                }
-            }
-        }
-    )
-}
-
-#[component]
 pub fn ModelForm(team_id: String, prompts: Vec<Prompt>) -> Element {
     rsx!(
         form {

@@ -3,9 +3,9 @@ use axum::{
     extract::{Extension, Form},
     response::IntoResponse,
 };
-use db::queries::{chats, prompts};
+use db::authz;
+use db::queries::chats;
 use db::Pool;
-use db::{authz, PromptType};
 use serde::Deserialize;
 use validator::Validate;
 use web_pages::routes::console::UpdateResponse;
@@ -31,7 +31,7 @@ pub async fn update_response(
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
 
-    let (_permissions, team_id_num) =
+    let (_permissions, _team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
 
     let chat = chats::chat()
@@ -39,31 +39,15 @@ pub async fn update_response(
         .one()
         .await?;
 
-    let prompt = prompts::prompt()
-        .bind(&transaction, &chat.prompt_id, &team_id_num)
-        .one()
-        .await?;
-
     transaction.commit().await?;
 
     tracing::debug!("DB Transaction committed");
 
-    if prompt.prompt_type == PromptType::Assistant {
-        crate::layout::redirect(
-            &web_pages::routes::prompts::Conversation {
-                team_id,
-                conversation_id: chat.conversation_id,
-                prompt_id: prompt.id,
-            }
-            .to_string(),
-        )
-    } else {
-        crate::layout::redirect(
-            &web_pages::routes::console::Conversation {
-                team_id,
-                conversation_id: chat.conversation_id,
-            }
-            .to_string(),
-        )
-    }
+    crate::layout::redirect(
+        &web_pages::routes::console::Conversation {
+            team_id,
+            conversation_id: chat.conversation_id,
+        }
+        .to_string(),
+    )
 }

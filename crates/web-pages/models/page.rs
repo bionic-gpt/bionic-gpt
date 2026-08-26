@@ -51,9 +51,9 @@ pub fn page(
                 }
                 SectionIntroduction {
                     header: "Models".to_string(),
-                    subtitle: "Configure and manage AI models for your assistants and applications.".to_string(),
+                    subtitle: "Configure and manage AI models for chats and applications.".to_string(),
                     is_empty: models_with_capabilities.is_empty(),
-                    empty_text: "No models configured yet. Add your first model to start building assistants.".to_string(),
+                    empty_text: "No models configured yet. Add your first model to start chatting.".to_string(),
                 }
                 if !models_with_capabilities.is_empty() {
                     div {
@@ -78,7 +78,7 @@ pub fn page(
                     trigger_id: format!("delete-trigger-{}-{}", item.id, team_id),
                     submit_label: "Delete".to_string(),
                     heading: "Delete this Model?".to_string(),
-                    warning: "Are you sure you want to delete this Model? Deleting a model will also delete any Assistants that use the model".to_string(),
+                    warning: "Are you sure you want to delete this model? Its chat configuration will also be deleted.".to_string(),
                     hidden_fields: vec![
                         ("team_id".into(), team_id.to_string()),
                         ("id".into(), item.id.to_string()),

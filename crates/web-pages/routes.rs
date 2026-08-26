@@ -166,93 +166,6 @@ pub mod console {
     }
 }
 
-pub mod prompts {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/console/{conversation_id}")]
-    pub struct Conversation {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub conversation_id: i64,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/new_chat/{prompt_id}")]
-    pub struct NewChat {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/my_assistants")]
-    pub struct MyAssistants {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/prompts/new")]
-    pub struct New {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/prompts/edit/{prompt_id}")]
-    pub struct Edit {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/prompts")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/prompts/{id}/image")]
-    pub struct Image {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/prompts/upsert")]
-    pub struct Upsert {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/prompts/delete/{id}")]
-    pub struct Delete {
-        pub team_id: String,
-        pub id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/prompt/{prompt_id}/delete_conv/{conversation_id}")]
-    pub struct DeleteConv {
-        pub team_id: String,
-        pub prompt_id: i32,
-        pub conversation_id: i64,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/datasets")]
-    pub struct ManageDatasets {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/assistant/{prompt_id}/datasets/update")]
-    pub struct UpdateDatasets {
-        pub team_id: String,
-        pub prompt_id: i32,
-    }
-}
-
 pub mod models {
     use axum_extra::routing::TypedPath;
     use serde::Deserialize;
@@ -565,30 +478,6 @@ pub mod skills {
     #[derive(TypedPath, Deserialize)]
     #[typed_path("/o/{team_id}/skills/{id}/file")]
     pub struct UpdateFile {
-        pub team_id: String,
-        pub id: i32,
-    }
-}
-
-pub mod categories {
-    use axum_extra::routing::TypedPath;
-    use serde::Deserialize;
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/categories")]
-    pub struct Index {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/categories/upsert")]
-    pub struct Upsert {
-        pub team_id: String,
-    }
-
-    #[derive(TypedPath, Deserialize)]
-    #[typed_path("/o/{team_id}/categories/delete/{id}")]
-    pub struct Delete {
         pub team_id: String,
         pub id: i32,
     }

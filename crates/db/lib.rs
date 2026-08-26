@@ -11,7 +11,6 @@ pub use deadpool_postgres::{Pool, PoolError, Transaction};
 pub use i18n::{I18n, I18nKey};
 pub use queries::api_keys::ApiKey;
 pub use queries::audit_trail::AuditTrail;
-pub use queries::categories::Category;
 pub use queries::chats::Chat;
 pub use queries::connections::{
     oauth2_connections_needing_refresh, update_oauth2_connection, ApiKeyConnection,
@@ -53,7 +52,7 @@ include!(concat!(env!("OUT_DIR"), "/cornucopia/src/lib.rs"));
 
 pub use types::{
     AuditAccessType, AuditAction, ChatRole, ChatStatus, IntegrationType, ModelCapability,
-    ModelProvider, ModelType, OpenapiSpecCategory, Permission, PromptFlagType, PromptType, Role,
+    ModelProvider, ModelType, OpenapiSpecCategory, Permission, PromptFlagType, Role,
     TokenUsageType, Visibility,
 };
 
@@ -92,6 +91,8 @@ mod migration_tests {
         include_str!("migrations/20260825081847_add-database-skill.sql");
     const MODEL_PROVIDER_MIGRATION: &str =
         include_str!("migrations/20260826060507_add-model-provider-adapters.sql");
+    const REMOVE_ASSISTANTS_MIGRATION: &str =
+        include_str!("migrations/20260826063015_remove-assistants.sql");
 
     #[test]
     fn runtime_prompt_defines_the_persistent_output_contract() {
@@ -134,5 +135,17 @@ mod migration_tests {
             assert!(MODEL_PROVIDER_MIGRATION.contains(mapping));
         }
         assert!(MODEL_PROVIDER_MIGRATION.contains("SET provider_type = provider.provider_type"));
+    }
+
+    #[test]
+    fn assistant_removal_preserves_models_and_projects_in_neutral_schemas() {
+        assert!(REMOVE_ASSISTANTS_MIGRATION
+            .contains("DELETE FROM assistants.prompts WHERE prompt_type = 'Assistant'"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION
+            .contains("ALTER TABLE assistants.prompts SET SCHEMA model_registry"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION
+            .contains("ALTER TABLE assistants.projects SET SCHEMA projects"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION.contains("DROP SCHEMA assistants"));
+        assert!(REMOVE_ASSISTANTS_MIGRATION.contains("'SetCompanyVisibility'"));
     }
 }
