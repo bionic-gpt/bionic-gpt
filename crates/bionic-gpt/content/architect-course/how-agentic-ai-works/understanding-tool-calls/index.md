@@ -19,7 +19,7 @@ curl http://localhost:11434/api/chat \
         "messages": [
           {
             "role": "system", 
-            "content": "You are a precise assistant that admits uncertainty."
+            "content": "You are a precise AI agent that admits uncertainty."
           },
           {
             "role": "user", 
@@ -40,7 +40,7 @@ Typical output looks like:
 
 ## Example: Asking “What is the price of Bitcoin?” with Tools
 
-The `chat` endpoint in Ollama can emit structured tool invocations when the user request requires code. Re-using the `granite4:tiny-h` model, expose a `get_current_datetime` tool so the assistant can call into deterministic logic:
+The `chat` endpoint in Ollama can emit structured tool invocations when the user request requires code. Re-using the `granite4:tiny-h` model, expose a `get_current_datetime` tool so the model can call into deterministic logic:
 
 ```sh
 curl http://localhost:11434/api/chat \
@@ -49,7 +49,7 @@ curl http://localhost:11434/api/chat \
     "model": "granite4:tiny-h",
     "stream": false,
     "messages": [
-      {"role": "system", "content": "You are a precise assistant that admits uncertainty."},
+      {"role": "system", "content": "You are a precise AI agent that admits uncertainty."},
       {"role": "user", "content": "What is the price of Bitcoin today in USD?"}
     ],
     "tools": [
@@ -86,6 +86,6 @@ Ollama returns either a natural-language answer or a tool payload. When a tool i
 ```
 
 - **Tool payload = executable intent.** It includes the *tool name* and *JSON arguments* your code should run.
-- **Run → respond.** Execute the tool, send the result back, and the assistant returns a *natural-language* answer.
+- **Run → respond.** Execute the tool, send the result back, and the model returns a *natural-language* answer.
 - **Why tools matter.** With a tool, you get the *real Bitcoin price*; without one, you get *apologies or guesses*.
 - **Teaching point.** Use this contrast to justify **deterministic code** behind every real-world capability.

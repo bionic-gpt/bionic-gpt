@@ -8,7 +8,7 @@ Quantisation, in the context of LLMs, is a process of simplifying the way these 
 
 1. Efficient Storage and Computation: LLMs are massive networks with billions of parameters. Quantisation makes it easier to store and work with these models, reducing the memory and computational resources required. This efficiency is essential for running these models on various devices, from supercomputers to your smartphone.
 2. Faster Inference: When you ask a question to an LLM, it needs to process your query quickly and provide a response. Quantisation helps speed up this process, as it's faster to work with a smaller set of discrete values than a continuous range of numbers.
-3. Deployment on Resource-Limited Devices: LLMs are used in applications like chatbots, virtual assistants, and more. Quantisation allows these models to run smoothly on devices with limited resources, ensuring they are accessible to a broader audience.
+3. Deployment on Resource-Limited Devices: LLMs are used in applications like chatbots, embedded agents, and more. Quantisation allows these models to run smoothly on devices with limited resources, ensuring they are accessible to a broader audience.
 4. Fine-Tuning for Specific Tasks: Quantisation can also help fine-tune LLMs for specific tasks. By simplifying the model's parameters, you can adapt it to perform better in particular applications.
 
 ## Striking a Balance
@@ -18,4 +18,3 @@ While quantisation offers numerous benefits, it's important to note that there's
 In conclusion, quantisation in LLMs is a clever technique that simplifies the way these models handle data. It's all about balancing the need for efficiency with maintaining the quality of responses. As LLMs continue to evolve and become a more integral part of our digital lives, understanding concepts like quantisation becomes increasingly important. It's one of the behind-the-scenes tricks that make these models so powerful and versatile.
 
 Bionic has the flexibility for you to change up your LLM to fit in with your requirements and available infrastructure.
-

@@ -1,6 +1,6 @@
 # Datasets
 
-Attachments give a conversation immediate access to a file. A **dataset** or **library** is a reusable collection of source material that can support many conversations, users, or assistants.
+Attachments give a conversation immediate access to a file. A **dataset** or **library** is a reusable collection of source material that can support many conversations, users, or projects.
 
 Datasets cover the knowledge side of an AI computer. They let a model retrieve relevant information from material that is not present in its training data or the current prompt.
 
@@ -28,7 +28,7 @@ The distinction is not only storage duration. A dataset normally needs:
 
 A model should not guess which knowledge sources exist or search material it is not allowed to access. A dataset workflow usually looks like this:
 
-1. Discover the datasets available to the current assistant and user.
+1. Discover the datasets available to the current model configuration and user.
 2. Inspect the files in the most relevant datasets.
 3. Retrieve passages related to the user's question.
 4. Read enough surrounding context to interpret those passages.

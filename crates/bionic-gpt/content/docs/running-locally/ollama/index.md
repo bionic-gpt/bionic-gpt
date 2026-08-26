@@ -35,7 +35,7 @@ curl http://localhost:11434/v1/chat/completions \
         "messages": [
             {
                 "role": "system",
-                "content": "You are a helpful assistant."
+                "content": "You are a helpful AI agent."
             },
             {
                 "role": "user",

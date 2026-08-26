@@ -97,16 +97,6 @@ pub fn summary() -> Summary {
                     author: Some("Kulbinder Dio")
                 },
                 PageSummary {
-                    date: "2024-07-16",
-                    title: "Create A ChatBot On Your Data",
-                    description: "Step-by-step tutorial to build a custom chatbot using your own data with practical examples and implementation tips.",
-                    folder: "blog/api-chatbot/",
-                    markdown: include_str!("../content/blog/api-chatbot/index.md"),
-                    image: Some("/blog/api-chatbot/chatbot-screenshot.png"),
-                    author_image: Some("/blog-authors/dio.jpeg"),
-                    author: Some("Kulbinder Dio")
-                },
-                PageSummary {
                     date: "2024-07-12",
                     title: "The Perfect Agentic RAG Use Case?",
                     description: "Explore the ideal use case for Retrieval Augmented Generation (Agentic RAG) and why code-based applications might be perfect.",

@@ -48,9 +48,9 @@ get_attachment(id:number, offset: number)
 
 ---
 
-## 2. Assistants, Agents & Projects
+## 2. Saved Configurations, Agents & Projects
 
-![Alt text](projects.png "Assistants, Agents & Projects")
+![Alt text](projects.png "Saved Configurations, Agents & Projects")
 
 ### What this category covers
 
@@ -58,7 +58,7 @@ How systems define persistent AI behaviour and context.
 
 ### What happens underneath
 
-* Assistants are stored objects with system prompts, tools, and data bindings
+* Saved configurations combine system prompts, tools, and data bindings
 * Projects/workspaces attach shared context across chats
 * Agentic systems include planners, tool executors, and state machines
 
@@ -98,9 +98,9 @@ delete_file(file_id: string)
 
 | Capability                 | LibreChat | Open WebUI | Bionic GPT | Onyx |
 | -------------------------- | --------- | ---------- | ---------- | ---- |
-| Named assistants           | ✓         | Limited    | ✓          | ✓    |
+| Named configurations       | ✓         | Limited    | ✓          | ✓    |
 | System instructions        | ✓         | ✓          | ✓          | ✓    |
-| Tool access per assistant  | Limited   | Limited    | ✓          | ✓    |
+| Tool access per configuration | Limited | Limited    | ✓          | ✓    |
 | Projects / shared context  | ✗         | Partial    | ✓          | ✓    |
 | Multi‑step agent execution | ✗         | ✗          | ✓          | ✓    |
 

@@ -12,8 +12,8 @@ use ssg_whiz::Section;
 pub fn page() -> String {
     let page = rsx! {
         Layout {
-            title: "Enterprise Generative AI",
-            description: "The Industry Standard For Enterprise Generative AI",
+            title: "Projects for Enterprise AI",
+            description: "Organize related AI chats, instructions, attachments, and history with Bionic Projects.",
             mobile_menu: None,
             section: Section::Home,
 
@@ -21,9 +21,9 @@ pub fn page() -> String {
                 class: "lg:max-w-5xl p-5 mt-24 mx-auto grid gap-y-48",
 
                 ImageFeature {
-                    title: "Assistants can connect to your business knowledge and improve AI intelligence".to_string(),
-                    sub_title: "Open up your private data to secure AI".to_string(),
-                    image: "/product/assistants.png"
+                    title: "Keep related chats, instructions, and attachments together in Projects".to_string(),
+                    sub_title: "Give ongoing work a durable, organized home".to_string(),
+                    image: "/product/chat.png"
                 }
 
                 BionicFeatures {}

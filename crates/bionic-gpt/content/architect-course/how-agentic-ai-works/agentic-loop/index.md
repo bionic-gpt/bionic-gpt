@@ -64,7 +64,7 @@ curl http://localhost:11434/api/chat \
     "messages": [
       {
         "role": "system",
-        "content": "You are a precise assistant that admits uncertainty."
+        "content": "You are a precise AI agent that admits uncertainty."
       },
       {
         "role": "user",
