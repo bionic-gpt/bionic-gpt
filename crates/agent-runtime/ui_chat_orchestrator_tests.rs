@@ -130,8 +130,13 @@ async fn event_stream_emits_error_event() {
 }
 
 fn tool_enabled_request(base_url: String) -> RigChatRequest {
+    provider_request(db::ModelProvider::OpenAICompatible, base_url)
+}
+
+fn provider_request(provider_type: db::ModelProvider, base_url: String) -> RigChatRequest {
     RigChatRequest {
         model_name: "test-model".to_string(),
+        provider_type,
         base_url,
         api_key: Some("test-key".to_string()),
         completion: CompletionRequest {
@@ -188,15 +193,23 @@ async fn successful_chat_completion() -> Response<Body> {
         .unwrap()
 }
 
-#[tokio::test]
-async fn rig_stream_uses_chat_completions_for_tool_enabled_requests() {
-    let base_url = start_mock_provider(
-        Router::new().route("/v1/chat/completions", post(successful_chat_completion)),
-    )
-    .await;
+async fn successful_ollama_completion() -> Response<Body> {
+    let body = concat!(
+        "{\"model\":\"test-model\",\"created_at\":\"2026-08-26T00:00:00Z\",\"message\":{\"role\":\"assistant\",\"content\":\"Hello\"},\"done\":false}\n",
+        "{\"model\":\"test-model\",\"created_at\":\"2026-08-26T00:00:00Z\",\"message\":{\"role\":\"assistant\",\"content\":\"\"},\"done\":true,\"done_reason\":\"stop\",\"prompt_eval_count\":2,\"eval_count\":1}\n"
+    );
+
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/x-ndjson")
+        .body(Body::from(body))
+        .unwrap()
+}
+
+async fn assert_successful_stream(request: RigChatRequest) {
     let (sender, mut receiver) = mpsc::channel(8);
 
-    stream_chat_with_rig(tool_enabled_request(base_url), sender)
+    stream_chat_with_rig(request, sender)
         .await
         .expect("chat completion stream should succeed");
 
@@ -214,6 +227,40 @@ async fn rig_stream_uses_chat_completions_for_tool_enabled_requests() {
 
     assert_eq!(text, "Hello");
     assert!(ended);
+}
+
+#[tokio::test]
+async fn rig_stream_uses_chat_completions_for_tool_enabled_requests() {
+    let base_url = start_mock_provider(
+        Router::new().route("/v1/chat/completions", post(successful_chat_completion)),
+    )
+    .await;
+    assert_successful_stream(tool_enabled_request(base_url)).await;
+}
+
+#[tokio::test]
+async fn rig_stream_dispatches_seeded_openai_compatible_providers() {
+    for provider_type in [
+        db::ModelProvider::OpenAI,
+        db::ModelProvider::Groq,
+        db::ModelProvider::OpenRouter,
+    ] {
+        let base_url = start_mock_provider(
+            Router::new().route("/v1/chat/completions", post(successful_chat_completion)),
+        )
+        .await;
+
+        assert_successful_stream(provider_request(provider_type, base_url)).await;
+    }
+}
+
+#[tokio::test]
+async fn rig_stream_dispatches_ollama_to_native_chat_endpoint() {
+    let base_url =
+        start_mock_provider(Router::new().route("/api/chat", post(successful_ollama_completion)))
+            .await;
+
+    assert_successful_stream(provider_request(db::ModelProvider::Ollama, base_url)).await;
 }
 
 async fn model_not_found() -> Response<Body> {

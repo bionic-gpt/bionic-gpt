@@ -16,6 +16,7 @@ pub struct ProviderForm {
     pub default_model_context_size: i32,
     pub default_model_description: String,
     pub base_url: String,
+    pub provider_type: String,
     pub api_key_optional: bool,
     pub default_embeddings_model_name: String,
     pub default_embeddings_model_display_name: String,
@@ -96,6 +97,23 @@ pub fn page(team_id: String, rbac: Rbac, form: ProviderForm) -> String {
                                             name: "base_url",
                                             value: form.base_url.clone(),
                                             required: true
+                                        }
+                                    }
+                                }
+                                div {
+                                    class: "flex flex-col",
+                                    Fieldset {
+                                        legend: "API Adapter",
+                                        legend_class: "mt-4",
+                                        help_text: "Select the Rig provider adapter used for requests.",
+                                        Select {
+                                            name: "provider_type",
+                                            value: form.provider_type.clone(),
+                                            SelectOption { value: "OpenAI", selected_value: form.provider_type.clone(), "OpenAI" }
+                                            SelectOption { value: "Groq", selected_value: form.provider_type.clone(), "Groq" }
+                                            SelectOption { value: "OpenRouter", selected_value: form.provider_type.clone(), "OpenRouter" }
+                                            SelectOption { value: "Ollama", selected_value: form.provider_type.clone(), "Ollama" }
+                                            SelectOption { value: "OpenAICompatible", selected_value: form.provider_type.clone(), "OpenAI Compatible" }
                                         }
                                     }
                                 }

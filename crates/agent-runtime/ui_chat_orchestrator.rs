@@ -10,8 +10,8 @@ use db::{ChatStatus, Pool};
 use rig::client::CompletionClient;
 use rig::completion::{CompletionModel as _, GetTokenUsage, Usage};
 use rig::message::ReasoningContent;
-use rig::providers::openai;
-use rig::streaming::StreamedAssistantContent;
+use rig::providers::{groq, ollama, openai, openrouter};
+use rig::streaming::{StreamedAssistantContent, StreamingCompletionResponse};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -254,15 +254,63 @@ pub(crate) async fn stream_chat_with_rig(
     sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
 ) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>> {
     let api_key = request.api_key.as_deref().unwrap_or("");
-    let client = openai::Client::builder()
-        .api_key(api_key)
-        .base_url(&request.base_url)
-        .build()?;
-    let model = client
-        .completion_model(&request.model_name)
-        .completions_api();
-    let mut stream = model.stream(request.completion).await?;
+    match request.provider_type {
+        db::ModelProvider::OpenAI | db::ModelProvider::OpenAICompatible => {
+            let client = openai::Client::builder()
+                .api_key(api_key)
+                .base_url(&request.base_url)
+                .build()?;
+            let model = client
+                .completion_model(&request.model_name)
+                .completions_api();
+            let stream = model.stream(request.completion).await?;
+            consume_rig_stream(stream, sender).await
+        }
+        db::ModelProvider::Groq => {
+            let client = groq::Client::builder()
+                .api_key(api_key)
+                .base_url(&request.base_url)
+                .build()?;
+            let model = client.completion_model(&request.model_name);
+            let stream = model.stream(request.completion).await?;
+            consume_rig_stream(stream, sender).await
+        }
+        db::ModelProvider::OpenRouter => {
+            let client = openrouter::Client::builder()
+                .api_key(api_key)
+                .base_url(&request.base_url)
+                .build()?;
+            let model = client.completion_model(&request.model_name);
+            let stream = model.stream(request.completion).await?;
+            consume_rig_stream(stream, sender).await
+        }
+        db::ModelProvider::Ollama => {
+            let base_url = ollama_base_url(&request.base_url);
+            let client = ollama::Client::builder()
+                .api_key(api_key)
+                .base_url(base_url)
+                .build()?;
+            let model = client.completion_model(&request.model_name);
+            let stream = model.stream(request.completion).await?;
+            consume_rig_stream(stream, sender).await
+        }
+    }
+}
 
+fn ollama_base_url(base_url: &str) -> &str {
+    base_url
+        .trim_end_matches('/')
+        .strip_suffix("/v1")
+        .unwrap_or_else(|| base_url.trim_end_matches('/'))
+}
+
+async fn consume_rig_stream<R>(
+    mut stream: StreamingCompletionResponse<R>,
+    sender: mpsc::Sender<Result<GenerationEvent, axum::Error>>,
+) -> Result<StreamOutcome, Box<dyn std::error::Error + Send + Sync>>
+where
+    R: Clone + Unpin + GetTokenUsage,
+{
     let mut snapshot = String::new();
     let mut tool_calls: Vec<ToolCall> = Vec::new();
     let mut reasoning: Vec<Reasoning> = Vec::new();

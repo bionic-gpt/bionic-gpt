@@ -14,6 +14,7 @@ pub struct ModelForm {
     pub name: String,
     pub display_name: String,
     pub model_type: String,
+    pub provider_type: String,
     pub base_url: String,
     pub api_key: String,
     pub tpm_limit: i32,
@@ -159,6 +160,23 @@ pub fn page(team_id: String, rbac: Rbac, setup_required: bool, form: ModelForm) 
                             }
                             div {
                                 class: "flex flex-col",
+                                Fieldset {
+                                    legend: "API Adapter",
+                                    legend_class: "mt-4",
+                                    help_text: "The Rig provider adapter used to call this model.",
+                                    Select {
+                                        name: "provider_type",
+                                        value: form.provider_type.clone(),
+                                        SelectOption { value: "OpenAI", selected_value: form.provider_type.clone(), "OpenAI" }
+                                        SelectOption { value: "Groq", selected_value: form.provider_type.clone(), "Groq" }
+                                        SelectOption { value: "OpenRouter", selected_value: form.provider_type.clone(), "OpenRouter" }
+                                        SelectOption { value: "Ollama", selected_value: form.provider_type.clone(), "Ollama" }
+                                        SelectOption { value: "OpenAICompatible", selected_value: form.provider_type.clone(), "OpenAI Compatible" }
+                                    }
+                                }
+                            }
+                            div {
+                                    class: "flex flex-col",
                                 Fieldset {
                                     legend: "The Base URL of the model",
                                     legend_class: "mt-4",

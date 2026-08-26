@@ -130,6 +130,7 @@ fn provider_modal(
                 input { "type": "hidden", name: "name", value: "{default_name}" }
                 input { "type": "hidden", name: "display_name", value: "{default_display_name}" }
                 input { "type": "hidden", name: "model_type", value: "LLM" }
+                input { "type": "hidden", name: "provider_type", value: "{provider.provider_type}" }
                 input { "type": "hidden", name: "base_url", value: "{provider.base_url}" }
                 input { "type": "hidden", name: "tpm_limit", value: "{DEFAULT_TPM_LIMIT}" }
                 input { "type": "hidden", name: "rpm_limit", value: "{DEFAULT_RPM_LIMIT}" }
