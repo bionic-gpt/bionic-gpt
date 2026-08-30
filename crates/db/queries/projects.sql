@@ -1,5 +1,27 @@
 --: Project()
 --: ProjectSummary(conversation_count, attachment_count)
+--: ProjectNav()
+
+--! project_nav : ProjectNav
+SELECT
+    p.id,
+    p.name
+FROM
+    projects.projects p
+WHERE
+    (visibility = 'Private' AND created_by = current_app_user())
+OR
+    (
+        visibility = 'Team'
+        AND
+        team_id IN (
+            SELECT
+                team_id
+            FROM iam.team_users WHERE user_id = current_app_user())
+    )
+OR
+    (visibility = 'Company')
+ORDER BY updated_at DESC;
 
 --! projects : ProjectSummary
 SELECT

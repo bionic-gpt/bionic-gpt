@@ -16,7 +16,7 @@ pub use queries::connections::{
     oauth2_connections_needing_refresh, update_oauth2_connection, ApiKeyConnection,
     ConnectedIntegration, Oauth2Connection, Oauth2RefreshCandidate,
 };
-pub use queries::conversations::{Conversation, ConversationContextSize};
+pub use queries::conversations::{Conversation, ConversationContextSize, ConversationProject};
 pub use queries::datasets::Dataset;
 pub use queries::document_pipelines::DocumentPipeline;
 pub use queries::generated_outputs::{GeneratedOutput, GeneratedOutputData};
@@ -27,7 +27,7 @@ pub use queries::models::{Model, ModelWithPrompt};
 pub use queries::oauth_clients::OauthClient;
 pub use queries::object_storage::ObjectStorage;
 pub use queries::openapi_specs::OpenapiSpec;
-pub use queries::projects::{Project, ProjectSummary};
+pub use queries::projects::{Project, ProjectNav, ProjectSummary};
 pub use queries::prompt_flags::insert_prompt_flag;
 pub use queries::prompts::{Prompt, PromptDataset, SinglePrompt};
 pub use queries::providers::Provider;

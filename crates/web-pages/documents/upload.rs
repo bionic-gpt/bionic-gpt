@@ -3,7 +3,8 @@ use daisy_rsx::*;
 use dioxus::prelude::*;
 
 #[component]
-pub fn Upload(upload_action: String) -> Element {
+pub fn Upload(upload_action: String, #[props(default)] heading: Option<String>) -> Element {
+    let heading = heading.unwrap_or_else(|| "Upload a file into this dataset".to_string());
     rsx!(
         form {
             action: "{upload_action}",
@@ -14,7 +15,7 @@ pub fn Upload(upload_action: String) -> Element {
                 ModalBody {
                     h3 {
                         class: "font-bold text-lg mb-4",
-                        "Upload a file into this dataset"
+                        "{heading}"
                     }
 
                     FileInput {

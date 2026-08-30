@@ -20,6 +20,7 @@ pub fn ConsoleLayout(
     header: Element,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
+    #[props(default)] selected_project_id: Option<i32>,
 ) -> Element {
     let has_pending_chat = pending_chat_state.shall_we_call_the_model();
 
@@ -31,6 +32,7 @@ pub fn ConsoleLayout(
             rbac: rbac.clone(),
             title,
             header,
+            selected_project_id,
             div {
                 id: "console-panel",
                 class: "h-full flex flex-col",

@@ -1,7 +1,7 @@
 // Consolidated documents.rs
 
 use axum::{
-    extract::{Extension, Form, Multipart},
+    extract::{Extension, Form, Multipart, Query},
     response::{Html, IntoResponse},
     Router,
 };
@@ -83,6 +83,28 @@ pub struct DeleteDoc {
     pub team_id: String,
     pub document_id: i32,
     pub dataset_id: i32,
+    pub project_id: Option<i32>,
+}
+
+#[derive(Deserialize, Default, Debug)]
+pub struct ProjectDocumentContext {
+    pub project_id: Option<i32>,
+}
+
+fn document_redirect(team_id: String, dataset_id: i32, project_id: Option<i32>) -> String {
+    if let Some(project_id) = project_id {
+        web_pages::routes::projects::View {
+            team_id,
+            project_id,
+        }
+        .to_string()
+    } else {
+        web_pages::routes::documents::Index {
+            team_id,
+            dataset_id,
+        }
+        .to_string()
+    }
 }
 
 pub async fn delete_action(
@@ -96,8 +118,22 @@ pub async fn delete_action(
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
-    let (_permissions, _team_id_num) =
+    let (rbac, _team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &delete_doc.team_id).await?;
+
+    if !rbac.can_manage_projects() && delete_doc.project_id.is_some() {
+        return Err(CustomError::Authorization);
+    }
+
+    if let Some(project_id) = delete_doc.project_id {
+        let project = queries::projects::project()
+            .bind(&transaction, &project_id)
+            .one()
+            .await?;
+        if project.dataset_id != delete_doc.dataset_id {
+            return Err(CustomError::Authorization);
+        }
+    }
 
     queries::documents::delete()
         .bind(&transaction, &delete_doc.document_id)
@@ -105,14 +141,13 @@ pub async fn delete_action(
 
     transaction.commit().await?;
 
-    crate::layout::redirect_and_snackbar(
-        &web_pages::routes::documents::Index {
-            team_id: delete_doc.team_id,
-            dataset_id: delete_doc.dataset_id,
-        }
-        .to_string(),
-        "Document Deleted",
-    )
+    let redirect = document_redirect(
+        delete_doc.team_id,
+        delete_doc.dataset_id,
+        delete_doc.project_id,
+    );
+
+    crate::layout::redirect_and_snackbar(&redirect, "Document Deleted")
 }
 
 // Processing function
@@ -149,12 +184,27 @@ pub async fn upload_action(
     current_user: Jwt,
     Extension(pool): Extension<Pool>,
     Extension(storage_config): Extension<object_storage::StorageConfig>,
+    Query(project_context): Query<ProjectDocumentContext>,
     mut files: Multipart,
 ) -> Result<impl IntoResponse, CustomError> {
     let mut client = pool.get().await?;
     let transaction = client.transaction().await?;
     let (rbac, team_id_num) =
         authz::get_permisisons(&transaction, &current_user.into(), &team_id).await?;
+
+    if !rbac.can_manage_projects() && project_context.project_id.is_some() {
+        return Err(CustomError::Authorization);
+    }
+
+    if let Some(project_id) = project_context.project_id {
+        let project = queries::projects::project()
+            .bind(&transaction, &project_id)
+            .one()
+            .await?;
+        if project.dataset_id != dataset_id {
+            return Err(CustomError::Authorization);
+        }
+    }
 
     while let Some(file) = files.next_field().await.unwrap() {
         let name = file.file_name().unwrap().to_string();
@@ -201,12 +251,28 @@ pub async fn upload_action(
 
     transaction.commit().await?;
 
-    crate::layout::redirect_and_snackbar(
-        &web_pages::routes::documents::Index {
-            team_id,
-            dataset_id,
-        }
-        .to_string(),
-        "Document Uploaded",
-    )
+    let redirect = document_redirect(team_id, dataset_id, project_context.project_id);
+
+    crate::layout::redirect_and_snackbar(&redirect, "Document Uploaded")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::document_redirect;
+
+    #[test]
+    fn document_redirect_returns_to_project_when_context_is_present() {
+        assert_eq!(
+            document_redirect("team".to_string(), 12, Some(7)),
+            "/o/team/projects/view/7"
+        );
+    }
+
+    #[test]
+    fn document_redirect_preserves_dataset_flow_without_project_context() {
+        assert_eq!(
+            document_redirect("team".to_string(), 12, None),
+            "/o/team/dataset/12/documents"
+        );
+    }
 }

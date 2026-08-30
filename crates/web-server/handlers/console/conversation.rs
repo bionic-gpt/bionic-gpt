@@ -27,6 +27,12 @@ pub async fn conversation(
         .all()
         .await?;
 
+    let project_id = queries::conversations::conversation_project()
+        .bind(&transaction, &conversation_id)
+        .one()
+        .await?
+        .project_id;
+
     let is_tts_disabled = queries::models::models()
         .bind(&transaction, &ModelType::TextToSpeech)
         .all()
@@ -83,6 +89,7 @@ pub async fn conversation(
         conversation_id,
         is_tts_disabled,
         capabilities,
+        project_id,
     );
 
     Ok(Html(html))
