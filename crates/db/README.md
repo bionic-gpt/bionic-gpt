@@ -63,7 +63,6 @@ erDiagram
         integer created_by_user_id 
         integer id PK 
         character_varying name 
-        text slug 
     }
 
     users {
@@ -147,6 +146,7 @@ erDiagram
         text description 
         integer id PK 
         boolean is_active 
+        boolean is_system 
         text logo_url 
         text slug UK 
         jsonb spec 
@@ -154,19 +154,8 @@ erDiagram
         timestamp_with_time_zone updated_at 
     }
 
-    prompt_integration {
-        integer api_connection_id FK 
-        timestamp_with_time_zone created_at 
-        integer integration_id FK,UK 
-        integer oauth2_connection_id FK 
-        integer prompt_id FK,UK 
-    }
-
     api_key_connections }o--|| integrations : "integration_id"
-    prompt_integration }o--|| api_key_connections : "api_connection_id"
     oauth2_connections }o--|| integrations : "integration_id"
-    prompt_integration }o--|| integrations : "integration_id"
-    prompt_integration }o--|| oauth2_connections : "oauth2_connection_id"
     openapi_spec_api_keys |o--|| openapi_specs : "openapi_spec_id"
     openapi_spec_selections }o--|| openapi_specs : "openapi_spec_id"
 ```
@@ -190,7 +179,6 @@ erDiagram
     }
 
     chats {
-        integer automation_run_id FK 
         character_varying content 
         bigint conversation_id FK 
         timestamp_with_time_zone created_at 
@@ -214,6 +202,19 @@ erDiagram
         integer project_id FK 
         integer team_id FK 
         integer user_id FK 
+    }
+
+    generated_outputs {
+        integer conversation_id FK,UK 
+        timestamp_with_time_zone created_at 
+        character_varying file_hash 
+        character_varying file_name 
+        bigint file_size 
+        integer id PK 
+        character_varying mime_type 
+        integer object_id FK 
+        text path UK 
+        timestamp_with_time_zone updated_at 
     }
 
     prompt_flags {
@@ -245,6 +246,7 @@ erDiagram
     chats_attachments }o--|| chats : "chat_id"
     prompt_flags }o--|| chats : "chat_id"
     token_usage_metrics }o--|| chats : "chat_id"
+    generated_outputs }o--|| conversations : "conversation_id"
 ```
 
 ### `projects`
@@ -264,7 +266,6 @@ erDiagram
         timestamp_with_time_zone updated_at 
         visibility visibility 
     }
-
 ```
 
 ### `automation`
@@ -273,28 +274,6 @@ Automation triggers and execution history.
 
 ```mermaid
 erDiagram
-    automation_cron_triggers {
-        timestamp_with_time_zone created_at 
-        text cron_expression 
-        integer id PK 
-        integer prompt_id FK 
-    }
-
-    automation_runs {
-        timestamp_with_time_zone completed_at 
-        timestamp_with_time_zone created_at 
-        integer id PK 
-        integer prompt_id FK 
-        timestamp_with_time_zone started_at 
-        automation_run_status status 
-    }
-
-    automation_webhook_triggers {
-        timestamp_with_time_zone created_at 
-        integer id PK 
-        integer prompt_id FK 
-        text secret 
-    }
 ```
 
 ### `rag`
@@ -386,9 +365,37 @@ erDiagram
         integer id PK 
         model_type model_type 
         character_varying name 
+        model_provider provider_type 
         integer rpm_limit 
         integer tpm_limit 
         timestamp_with_time_zone updated_at 
+    }
+
+    prompt_dataset {
+        integer dataset_id FK,UK 
+        integer prompt_id FK,UK 
+    }
+
+    prompts {
+        timestamp_with_time_zone created_at 
+        integer created_by 
+        character_varying description 
+        character_varying disclaimer 
+        character_varying example1 
+        character_varying example2 
+        character_varying example3 
+        character_varying example4 
+        integer id PK 
+        integer max_completion_tokens 
+        integer max_history_items 
+        integer model_id FK 
+        character_varying name 
+        character_varying system_prompt 
+        integer team_id FK 
+        real temperature 
+        integer trim_ratio 
+        timestamp_with_time_zone updated_at 
+        visibility visibility 
     }
 
     providers {
@@ -405,38 +412,14 @@ erDiagram
         character_varying default_model_name 
         integer id PK 
         character_varying name 
+        model_provider provider_type 
         text svg_logo 
         timestamp_with_time_zone updated_at 
     }
 
-    prompt_dataset {
-        integer dataset_id FK,UK
-        integer prompt_id FK,UK
-    }
-
-    prompts {
-        timestamp_with_time_zone created_at
-        integer created_by
-        character_varying description
-        character_varying disclaimer
-        character_varying example1
-        character_varying example2
-        character_varying example3
-        character_varying example4
-        integer id PK
-        integer max_completion_tokens
-        integer max_history_items
-        integer model_id FK
-        character_varying name
-        character_varying system_prompt
-        integer team_id FK
-        real temperature
-        integer trim_ratio
-        timestamp_with_time_zone updated_at
-        visibility visibility
-    }
-
     model_capabilities }o--|| models : "model_id"
+    prompts }o--|| models : "embeddings_model_id"
+    prompts }o--|| models : "model_id"
     prompt_dataset }o--|| prompts : "prompt_id"
 ```
 
@@ -474,6 +457,13 @@ erDiagram
         integer id PK 
         integer team_id FK 
         integer user_id 
+    }
+
+    runtime_settings {
+        timestamp_with_time_zone created_at 
+        text key PK 
+        timestamp_with_time_zone updated_at 
+        text value 
     }
 
     translations {

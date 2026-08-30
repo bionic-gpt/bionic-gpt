@@ -58,6 +58,15 @@ pub async fn get_permissions(
         .len()
         > 1;
 
+    let projects = if permissions.contains(&crate::Permission::ManageProjects) {
+        queries::projects::project_nav()
+            .bind(transaction)
+            .all()
+            .await?
+    } else {
+        Vec::new()
+    };
+
     let rbac = Rbac {
         permissions,
         user_id,
@@ -67,6 +76,7 @@ pub async fn get_permissions(
         is_sys_admin: system_admin,
         has_multiple_teams,
         current_team_name: team.name,
+        projects,
     };
 
     Ok(rbac)
@@ -186,6 +196,7 @@ pub struct Rbac {
     pub last_name: Option<String>,
     pub has_multiple_teams: bool,
     pub current_team_name: Option<String>,
+    pub projects: Vec<crate::queries::projects::ProjectNav>,
 }
 
 impl Rbac {

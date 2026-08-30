@@ -24,7 +24,7 @@ pub fn Upsert(
                 class: "flex flex-col justify-between",
                 h3 {
                     class: "font-bold text-lg mb-4",
-                    "Project"
+                    if id.is_some() { "Edit project" } else { "New project" }
                 }
                 if let Some(id) = id {
                     input {
@@ -47,7 +47,7 @@ pub fn Upsert(
                     }
                 }
                 Fieldset {
-                    legend: "Chat prompt",
+                    legend: "Instructions",
                     legend_class: "mt-4",
                     help_text: "Add context or guidelines for chats in this project".to_string(),
                     textarea {

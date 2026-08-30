@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 use crate::app_layout::{Layout, SideBar};
 use crate::components::confirm_modal::ConfirmModal;
-use crate::SectionIntroduction;
 use assets::files::*;
 use daisy_rsx::*;
 use db::authz::Rbac;
@@ -38,22 +37,29 @@ pub fn page(
             ),
 
             div {
-                class: "p-4 max-w-3xl w-full mx-auto",
-                SectionIntroduction {
-                    header: "Projects".to_string(),
-                    subtitle: "Group related chats, instructions, and attachments in one place.".to_string(),
-                    is_empty: projects.is_empty(),
-                    empty_text: "No projects yet. Create one to get started.".to_string(),
+                class: "mx-auto w-full max-w-4xl px-4 py-8 sm:px-6",
+                div {
+                    class: "mb-6",
+                    h1 { class: "text-2xl font-semibold", "Projects" }
+                    p {
+                        class: "mt-2 text-sm text-base-content/60",
+                        "Keep related chats, instructions, and files together."
+                    }
                 }
                 if !projects.is_empty() {
                     div {
-                        class: "space-y-2",
+                        class: "divide-y divide-base-300",
                         for project in &projects {
                             super::project_card::ProjectCard {
                                 project: project.clone(),
                                 team_id: team_id.clone(),
                             }
                         }
+                    }
+                } else {
+                    p {
+                        class: "py-6 text-sm text-base-content/60",
+                        "No projects yet. Create one to get started."
                     }
                 }
 

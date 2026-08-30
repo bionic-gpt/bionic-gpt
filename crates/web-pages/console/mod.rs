@@ -1,3 +1,5 @@
+pub mod assistant_activity;
+pub mod assistant_response;
 pub mod canvas;
 pub mod console_stream;
 pub mod conversation;
@@ -7,9 +9,8 @@ pub mod model_popup;
 pub mod page;
 pub mod prompt_form;
 pub mod prompt_modal;
-pub mod reasoning_timeline;
-pub mod response_timeline;
-pub mod tool_call_timeline;
+
+pub const CONSOLE_CONTENT_WIDTH: &str = "mx-auto w-full max-w-4xl px-4 sm:px-6";
 
 use db::queries::{chats::Chat, chats_chunks::ChatChunks};
 use tool_runtime::ToolCall;

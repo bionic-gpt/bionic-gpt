@@ -13,7 +13,7 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
     let setup_required = params.setup_required;
 
     rsx!(
-        if can_view_chats || can_view_chat_history || rbac.can_manage_projects() {
+        if can_view_chats || can_view_chat_history {
             NavGroup {
                 heading: "Work",
                 content:  rsx!(
@@ -34,16 +34,6 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                             href: crate::routes::history::Index { team_id: team_id.clone() },
                             icon: nav_history_svg.name,
                             title: history_label.clone(),
-                            disabled: setup_required
-                        }
-                    }
-                    if rbac.can_manage_projects() {
-                        NavItem {
-                            id: SideBar::Projects.to_string(),
-                            selected_item_id: selected_item.clone(),
-                            href: crate::routes::projects::Index { team_id: team_id.clone() },
-                            icon: nav_automations_svg.name,
-                            title: "Projects",
                             disabled: setup_required
                         }
                     }
@@ -85,6 +75,16 @@ pub fn render(params: &SidebarParams, labels: &SidebarLabels) -> Element {
                         }
                     }
                 )
+            }
+        }
+        if rbac.can_manage_projects() {
+            super::project_sidebar::ProjectSidebar {
+                team_id: team_id.clone(),
+                projects: rbac.projects.clone(),
+                selected_project_id: params.selected_project_id,
+                index_selected: params.selected_item == SideBar::Projects
+                    && params.selected_project_id.is_none(),
+                disabled: setup_required,
             }
         }
     )

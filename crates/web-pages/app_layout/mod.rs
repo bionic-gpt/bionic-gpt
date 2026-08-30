@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 mod base;
+mod project_sidebar;
 mod sidebar;
 mod sidebar_admin;
 
@@ -60,6 +61,8 @@ pub struct LayoutProps {
     locale: Option<String>,
     #[props(default)]
     setup_required: bool,
+    #[props(default)]
+    selected_project_id: Option<i32>,
 }
 
 #[derive(Clone)]
@@ -75,6 +78,7 @@ pub(super) struct SidebarParams {
     pub can_view_chats: bool,
     pub can_view_chat_history: bool,
     pub setup_required: bool,
+    pub selected_project_id: Option<i32>,
 }
 
 pub fn Layout(props: LayoutProps) -> Element {
@@ -131,6 +135,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         can_view_chats,
         can_view_chat_history,
         setup_required: props.setup_required,
+        selected_project_id: props.selected_project_id,
     };
 
     let sidebar_content = match mode {

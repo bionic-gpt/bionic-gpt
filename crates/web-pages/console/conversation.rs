@@ -21,21 +21,28 @@ pub fn page(
     conversation_id: i64,
     is_tts_disabled: bool,
     capabilities: Vec<Capability>,
+    project_id: Option<i32>,
 ) -> String {
     // Rerverse it because that's how we display it.
     let chat_history: Vec<ChatWithChunks> = chat_history.into_iter().rev().collect();
+    let selected_item = if project_id.is_some() {
+        SideBar::Projects
+    } else {
+        SideBar::Console
+    };
     let page = rsx! {
         super::layout::ConsoleLayout {
             team_id: team_id.clone(),
             rbac: rbac.clone(),
             title: "AI Chat Console",
             prompt: prompt.clone(),
-            selected_item: SideBar::Console,
+            selected_item,
             chat_history,
             pending_chat_state,
             conversation_id,
             is_tts_disabled,
             capabilities,
+            selected_project_id: project_id,
             header: rsx!(
                 Head {
                     team_id: team_id.clone(),

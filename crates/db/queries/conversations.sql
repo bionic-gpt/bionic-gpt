@@ -1,4 +1,18 @@
 --: Conversation()
+--: ConversationProject(project_id?)
+
+--! conversation_project : ConversationProject
+SELECT
+    project_id
+FROM
+    llm.conversations
+WHERE
+    id = :conversation_id
+AND
+    user_id = current_app_user()
+AND
+    team_id IN (SELECT team_id FROM iam.team_users WHERE user_id = current_app_user())
+LIMIT 1;
 
 --! set_pending_to_success
 UPDATE
