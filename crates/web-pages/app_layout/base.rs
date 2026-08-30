@@ -17,6 +17,7 @@ pub struct AppLayoutProps {
     pub sidebar: Element,
     pub sidebar_footer: Element,
     pub sidebar_header: Element,
+    pub overlays: Element,
 }
 
 pub fn BaseLayout(props: AppLayoutProps) -> Element {
@@ -114,6 +115,7 @@ pub fn BaseLayout(props: AppLayoutProps) -> Element {
                     }
                 }
             }
+            {props.overlays}
         }
     )
 }
