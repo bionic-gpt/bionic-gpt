@@ -143,6 +143,21 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
         LayoutMode::Admin => sidebar_admin::render(&sidebar_params, &sidebar_labels),
     };
 
+    let overlays = match mode {
+        LayoutMode::Main if props.rbac.can_manage_projects() && !props.setup_required => {
+            rsx!(crate::projects::upsert::Upsert {
+                id: None,
+                trigger_id: "sidebar-new-project",
+                name: "".to_string(),
+                instructions: "".to_string(),
+                visibility: db::Visibility::Private,
+                can_set_visibility_to_company: false,
+                team_id: team_id.clone(),
+            })
+        }
+        _ => rsx!(),
+    };
+
     let admin_href = admin_home_href(&props.rbac, team_id.clone());
     let main_href = main_home_href(&props.rbac, team_id.clone());
 
@@ -252,6 +267,7 @@ fn layout(props: LayoutProps, mode: LayoutMode) -> Element {
                 }
             ),
             sidebar_footer: sidebar_footer,
+            overlays,
             {props.children}
             Snackbar {}
             LogoutForm {}

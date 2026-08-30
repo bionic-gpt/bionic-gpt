@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
-use daisy_rsx::{Avatar, AvatarSize, AvatarType};
-use db::{ProjectNav, Visibility};
+use daisy_rsx::{Avatar, AvatarSize, AvatarType, Button, ButtonShape, ButtonSize, ButtonStyle};
+use db::ProjectNav;
 use dioxus::prelude::*;
 
 fn project_initial(name: &str) -> String {
@@ -42,11 +42,13 @@ pub fn ProjectSidebar(
                     "aria-current": if index_selected { "page" } else { "false" },
                     "Projects"
                 }
-                button {
-                    class: "btn btn-ghost btn-xs btn-square -mr-1 text-base-content/70",
+                Button {
+                    class: "-mr-1 text-base-content/70",
                     disabled,
-                    popovertarget: "sidebar-new-project",
-                    aria_label: "New project",
+                    popover_target: "sidebar-new-project",
+                    button_size: ButtonSize::ExtraSmall,
+                    button_shape: ButtonShape::Square,
+                    button_style: ButtonStyle::Ghost,
                     span { class: "text-lg font-normal leading-none", "+" }
                 }
             }
@@ -85,19 +87,6 @@ pub fn ProjectSidebar(
                     }
                 }
             }
-            if !disabled {
-                li {
-                    crate::projects::upsert::Upsert {
-                        id: None,
-                        trigger_id: "sidebar-new-project",
-                        name: "".to_string(),
-                        instructions: "".to_string(),
-                        visibility: Visibility::Private,
-                        can_set_visibility_to_company: false,
-                        team_id,
-                    }
-                }
-            }
         }
     }
 }
@@ -133,6 +122,10 @@ mod tests {
         assert!(html.contains(">T<"));
         assert!(html.contains("class=\"avatar\""));
         assert!(html.contains("before:hidden"));
+        assert!(html.contains("data-target=\"sidebar-new-project\""));
+        assert!(!html.contains("popovertarget"));
+        assert!(!html.contains("New project"));
+        assert!(!html.contains("<dialog"));
         assert!(html.contains("Airbus Research"));
         assert!(html.contains("Tender Analysis"));
         assert!(html.contains("aria-current=\"page\""));
