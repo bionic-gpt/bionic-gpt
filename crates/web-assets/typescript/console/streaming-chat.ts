@@ -32,6 +32,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
     // Submit the existing form to trigger redirect/reset after streaming ends.
     // Stream persistence is handled by the backend.
     const finalizeUiState = () => {
+        element.setAttribute('aria-busy', 'false');
         const form = document.getElementById(`chat-form-${chatId}`);
 
         if (form instanceof HTMLFormElement) {
@@ -64,6 +65,7 @@ async function streamResult(chatId: string, element: HTMLElement) {
     const appendText = (text: string) => {
         if (!hasStarted) {
             element.replaceChildren();
+            element.setAttribute('aria-busy', 'false');
             hasStarted = true;
         }
         element.appendChild(document.createTextNode(text));
